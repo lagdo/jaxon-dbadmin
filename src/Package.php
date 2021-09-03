@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\Adminer;
+namespace Lagdo\DbAdmin;
 
 use Jaxon\Plugin\Package as JaxonPackage;
 use Lagdo\Adminer\App\Server;
@@ -162,6 +162,18 @@ class Package extends JaxonPackage
     public function getServerOptions($server)
     {
         return $this->getConfig()->getOption("servers.$server", []);
+    }
+
+    /**
+     * Get the driver of a given server
+     *
+     * @param string $server    The server name in the configuration
+     *
+     * @return string
+     */
+    public function getServerDriver($server)
+    {
+        return $this->getConfig()->getOption("servers.$server.driver", '');
     }
 
     /**

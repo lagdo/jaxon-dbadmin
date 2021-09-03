@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\Adminer\App\Table;
+namespace Lagdo\DbAdmin\App\Table;
 
-use Lagdo\Adminer\App\Table;
-use Lagdo\Adminer\CallableClass;
+use Lagdo\DbAdmin\App\Table;
+use Lagdo\DbAdmin\CallableClass;
 
 use Exception;
 
@@ -31,11 +31,11 @@ class Query extends CallableClass
      */
     public function showInsert(string $server, string $database, string $schema, string $table)
     {
-        $queryData = $this->dbProxy->getQueryData($server, $database, $schema, $table);
+        $queryData = $this->dbAdmin->getQueryData($server, $database, $schema, $table);
         // Show the error
         if(($queryData['error']))
         {
-            $this->response->dialog->error($queryData['error'], \adminer\lang('Error'));
+            $this->response->dialog->error($queryData['error'], $this->dbAdmin->lang('Error'));
             return $this->response;
         }
         // Make data available to views
@@ -53,7 +53,7 @@ class Query extends CallableClass
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')
             ->click($this->rq()->execInsert($server, $database, $schema, $table, $options)
-            ->confirm(\adminer\lang('Save this item?')));
+            ->confirm($this->dbAdmin->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-cancel')
             ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
 
@@ -74,15 +74,15 @@ class Query extends CallableClass
     public function execInsert(string $server, string $database, string $schema,
         string $table, array $options)
     {
-        $results = $this->dbProxy->insertItem($server, $database, $schema, $table, $options);
+        $results = $this->dbAdmin->insertItem($server, $database, $schema, $table, $options);
 
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], \adminer\lang('Error'));
+            $this->response->dialog->error($results['error'], $this->dbAdmin->lang('Error'));
             return $this->response;
         }
-        $this->response->dialog->success($results['message'], \adminer\lang('Success'));
+        $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
         $this->showInsert($server, $database, $schema, $table);
 
         return $this->response;
@@ -103,11 +103,11 @@ class Query extends CallableClass
     public function showUpdate(string $server, string $database, string $schema,
         string $table, array $rowIds, array $selects)
     {
-        $queryData = $this->dbProxy->getQueryData($server, $database, $schema, $table, $rowIds, 'Edit item');
+        $queryData = $this->dbAdmin->getQueryData($server, $database, $schema, $table, $rowIds, 'Edit item');
         // Show the error
         if(($queryData['error']))
         {
-            $this->response->dialog->error($queryData['error'], \adminer\lang('Error'));
+            $this->response->dialog->error($queryData['error'], $this->dbAdmin->lang('Error'));
             return $this->response;
         }
         // Make data available to views
@@ -125,7 +125,7 @@ class Query extends CallableClass
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')
             ->click($this->rq()->execUpdate($server, $database, $schema, $table, $rowIds, $options, $selects)
-            ->confirm(\adminer\lang('Save this item?')));
+            ->confirm($this->dbAdmin->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-cancel')
             ->click($this->rq()->backToSelect($server, $database, $schema, $table, $selects));
 
@@ -150,15 +150,15 @@ class Query extends CallableClass
     {
         $options['where'] = $rowIds['where'];
         $options['null'] = $rowIds['null'];
-        $results = $this->dbProxy->updateItem($server, $database, $schema, $table, $options);
+        $results = $this->dbAdmin->updateItem($server, $database, $schema, $table, $options);
 
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], \adminer\lang('Error'));
+            $this->response->dialog->error($results['error'], $this->dbAdmin->lang('Error'));
             return $this->response;
         }
-        $this->response->dialog->success($results['message'], \adminer\lang('Success'));
+        $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
         $this->backToSelect($server, $database, $schema, $table, $selects);
 
         return $this->response;
@@ -179,15 +179,15 @@ class Query extends CallableClass
     public function execDelete(string $server, string $database, string $schema,
         string $table, array $rowIds, array $selects)
     {
-        $results = $this->dbProxy->deleteItem($server, $database, $schema, $table, $rowIds);
+        $results = $this->dbAdmin->deleteItem($server, $database, $schema, $table, $rowIds);
 
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], \adminer\lang('Error'));
+            $this->response->dialog->error($results['error'], $this->dbAdmin->lang('Error'));
             return $this->response;
         }
-        $this->response->dialog->success($results['message'], \adminer\lang('Success'));
+        $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
         $this->backToSelect($server, $database, $schema, $table, $selects);
 
         return $this->response;

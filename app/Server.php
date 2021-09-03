@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\Adminer\App;
+namespace Lagdo\DbAdmin\App;
 
-use Lagdo\Adminer\CallableClass;
+use Lagdo\DbAdmin\CallableClass;
 
 use Exception;
 
@@ -21,7 +21,7 @@ class Server extends CallableClass
      */
     public function connect($server)
     {
-        $serverInfo = $this->dbProxy->getServerInfo($server);
+        $serverInfo = $this->dbAdmin->getServerInfo($server);
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
 
@@ -115,7 +115,7 @@ class Server extends CallableClass
             return $this->response;
         }
 
-        $databasesInfo = $this->dbProxy->getDatabases($server);
+        $databasesInfo = $this->dbAdmin->getDatabases($server);
 
         $dbNameClass = 'adminer-database-name';
         $dbDropClass = 'adminer-database-drop';
@@ -185,7 +185,7 @@ class Server extends CallableClass
             return $this->response;
         }
 
-        $privilegesInfo = $this->dbProxy->getPrivileges($server);
+        $privilegesInfo = $this->dbAdmin->getPrivileges($server);
 
         $editClass = 'adminer-privilege-name';
         $optionClass = 'jaxon-adminer-grant';
@@ -245,7 +245,7 @@ class Server extends CallableClass
             return $this->response;
         }
 
-        $processesInfo = $this->dbProxy->getProcesses($server);
+        $processesInfo = $this->dbAdmin->getProcesses($server);
         // Make processes info available to views
         $this->view()->shareValues($processesInfo);
 
@@ -272,7 +272,7 @@ class Server extends CallableClass
             return $this->response;
         }
 
-        $variablesInfo = $this->dbProxy->getVariables($server);
+        $variablesInfo = $this->dbAdmin->getVariables($server);
         // Make variables info available to views
         $this->view()->shareValues($variablesInfo);
 
@@ -299,7 +299,7 @@ class Server extends CallableClass
             return $this->response;
         }
 
-        $statusInfo = $this->dbProxy->getStatus($server);
+        $statusInfo = $this->dbAdmin->getStatus($server);
         // Make status info available to views
         $this->view()->shareValues($statusInfo);
 

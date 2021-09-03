@@ -17,16 +17,21 @@
         "source": "https://github.com/lagdo/jaxon-adminer"
     },
     "require": {
-        "jaxon-php/jaxon-core": "^3.5",
+        "jaxon-php/jaxon-core": ">=3.5.3",
         "jaxon-php/jaxon-dialogs": "^3.0"
     },
     "autoload": {
         "psr-4": {
-            "Lagdo\\Adminer\\App\\": "app/",
-            "Lagdo\\Adminer\\": "src/"
+            "Lagdo\\DbAdmin\\App\\": "app/",
+            "Lagdo\\DbAdmin\\": "src/"
         },
         "files": [
             "src/start.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lagdo\\DbAdmin\\Tests\\": "tests/"
+        }
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace Lagdo\Adminer\App\Table;
+namespace Lagdo\DbAdmin\App\Table;
 
-use Lagdo\Adminer\App\Table;
-use Lagdo\Adminer\App\Command;
-use Lagdo\Adminer\CallableClass;
+use Lagdo\DbAdmin\App\Table;
+use Lagdo\DbAdmin\App\Command;
+use Lagdo\DbAdmin\CallableClass;
 
 use Exception;
 
@@ -60,7 +60,7 @@ class Select extends CallableClass
      */
     public function show(string $server, string $database, string $schema, string $table)
     {
-        $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table);
+        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table);
         // Make data available to views
         $this->view()->shareValues($selectData);
 
@@ -128,11 +128,11 @@ class Select extends CallableClass
         string $table, array $options, int $page = 1)
     {
         $options['page'] = $page;
-        $results = $this->dbProxy->execSelect($server, $database, $schema, $table, $options);
+        $results = $this->dbAdmin->execSelect($server, $database, $schema, $table, $options);
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], \adminer\lang('Error'));
+            $this->response->dialog->error($results['error'], $this->dbAdmin->lang('Error'));
             return $this->response;
         }
         // Make data available to views
@@ -162,7 +162,7 @@ class Select extends CallableClass
         $updateCall = $this->cl(Query::class)->rq()->showUpdate($server, $database, $schema, $table,
             \pm()->js("rowIds[rowId]"), $options);
         $deleteCall = $this->cl(Query::class)->rq()->execDelete($server, $database, $schema, $table,
-            \pm()->js("rowIds[rowId]"), $options)->confirm(\adminer\lang('Delete this item?'));
+            \pm()->js("rowIds[rowId]"), $options)->confirm($this->dbAdmin->lang('Delete this item?'));
 
         // Wrap the ajax calls into functions
         $this->response->setFunction('updateRowItem', 'rowId', $updateCall);
@@ -199,7 +199,7 @@ class Select extends CallableClass
     public function setQueryOptions(string $server, string $database, string $schema,
         string $table, array $options)
     {
-        $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Display the new query
         $this->response->html($this->txtQueryId, $selectData['query']);
 
@@ -220,7 +220,7 @@ class Select extends CallableClass
     public function editColumns(string $server, string $database, string $schema,
         string $table, array $options)
     {
-        $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
 
@@ -270,7 +270,7 @@ class Select extends CallableClass
         string $table, array $options, array $changed)
     {
         $options['columns'] = $changed['columns'] ?? [];
-        $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
 
         // Hide the dialog
         $this->response->dialog->hide();
@@ -300,7 +300,7 @@ class Select extends CallableClass
     public function editFilters(string $server, string $database, string $schema,
         string $table, array $options)
     {
-        $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
 
@@ -350,7 +350,7 @@ class Select extends CallableClass
         string $table, array $options, array $changed)
     {
         $options['where'] = $changed['where'] ?? [];
-        $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
 
         // Hide the dialog
         $this->response->dialog->hide();
@@ -380,7 +380,7 @@ class Select extends CallableClass
     public function editSorting(string $server, string $database, string $schema,
         string $table, array $options)
     {
-        $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
 
@@ -431,7 +431,7 @@ class Select extends CallableClass
     {
         $options['order'] = $changed['order'] ?? [];
         $options['desc'] = $changed['desc'] ?? [];
-        $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
 
         // Hide the dialog
         $this->response->dialog->hide();

@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\Adminer\App;
+namespace Lagdo\DbAdmin\App;
 
-use Lagdo\Adminer\CallableClass;
+use Lagdo\DbAdmin\CallableClass;
 
 use Exception;
 
@@ -20,7 +20,7 @@ class User extends CallableClass
      */
     public function add(string $server)
     {
-        $userInfo = $this->dbProxy->newUserPrivileges($server);
+        $userInfo = $this->dbAdmin->newUserPrivileges($server);
 
         // Make user info available to views
         $this->view()->shareValues($userInfo);
@@ -78,7 +78,7 @@ class User extends CallableClass
      */
     public function edit(string $server, string $username, string $hostname, string $database)
     {
-        $userInfo = $this->dbProxy->getUserPrivileges($server, $username, $hostname, $database);
+        $userInfo = $this->dbAdmin->getUserPrivileges($server, $username, $hostname, $database);
 
         // Make user info available to views
         $this->view()->shareValues($userInfo);

@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\Adminer\App;
+namespace Lagdo\DbAdmin\App;
 
-use Lagdo\Adminer\CallableClass;
+use Lagdo\DbAdmin\CallableClass;
 
 use Exception;
 
@@ -21,7 +21,7 @@ class Export extends CallableClass
      */
     protected function showForm(string $server, string $database)
     {
-        $exportOptions = $this->dbProxy->getExportOptions($server, $database);
+        $exportOptions = $this->dbAdmin->getExportOptions($server, $database);
 
         // Make data available to views
         $this->view()->shareValues($exportOptions);
@@ -105,7 +105,7 @@ class Export extends CallableClass
         $formValues['auto_increment'] = \array_key_exists('auto_increment', $formValues);
         $formValues['triggers'] = \array_key_exists('triggers', $formValues);
 
-        $results = $this->dbProxy->exportDatabases($server, $databases, $tables, $formValues);
+        $results = $this->dbAdmin->exportDatabases($server, $databases, $tables, $formValues);
         // $this->logger()->debug('Form values', $formValues);
 
         $content = $this->render('sql/dump.sql', $results);

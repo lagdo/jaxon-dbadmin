@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\Adminer\App;
+namespace Lagdo\DbAdmin\App;
 
-use Lagdo\Adminer\CallableClass;
+use Lagdo\DbAdmin\CallableClass;
 
 use Exception;
 
@@ -39,7 +39,7 @@ class View extends CallableClass
      */
     public function show($server, $database, $schema, $view)
     {
-        $viewInfo = $this->dbProxy->getViewInfo($server, $database, $schema, $view);
+        $viewInfo = $this->dbAdmin->getViewInfo($server, $database, $schema, $view);
         // Make view info available to views
         $this->view()->shareValues($viewInfo);
 
@@ -50,11 +50,11 @@ class View extends CallableClass
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show fields
-        $fieldsInfo = $this->dbProxy->getViewFields($server, $database, $schema, $view);
+        $fieldsInfo = $this->dbAdmin->getViewFields($server, $database, $schema, $view);
         $this->showTab($fieldsInfo, 'tab-content-fields');
 
         // Show triggers
-        $triggersInfo = $this->dbProxy->getViewTriggers($server, $database, $schema, $view);
+        $triggersInfo = $this->dbAdmin->getViewTriggers($server, $database, $schema, $view);
         if(\is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
@@ -84,7 +84,7 @@ class View extends CallableClass
         $title = 'Create a view';
         $content = $this->render('view/add', [
             'formId' => $formId,
-            'materializedview' => $this->dbProxy->support($server, 'materializedview'),
+            'materializedview' => $this->dbAdmin->support($server, 'materializedview'),
         ]);
         $buttons = [[
             'title' => 'Cancel',
@@ -111,7 +111,7 @@ class View extends CallableClass
      */
     public function edit($server, $database, $schema, $view)
     {
-        $viewData = $this->dbProxy->getView($server, $database, $schema, $view);
+        $viewData = $this->dbAdmin->getView($server, $database, $schema, $view);
         // Make view info available to views
         $this->view()->shareValues($viewData);
 
@@ -119,7 +119,7 @@ class View extends CallableClass
         $title = 'Edit a view';
         $content = $this->render('view/edit', [
             'formId' => $formId,
-            'materializedview' => $this->dbProxy->support($server, 'materializedview'),
+            'materializedview' => $this->dbAdmin->support($server, 'materializedview'),
         ]);
         $buttons = [[
             'title' => 'Cancel',
@@ -148,7 +148,7 @@ class View extends CallableClass
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
-        $result = $this->dbProxy->createView($server, $database, $schema, $values);
+        $result = $this->dbAdmin->createView($server, $database, $schema, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -175,7 +175,7 @@ class View extends CallableClass
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
-        $result = $this->dbProxy->updateView($server, $database, $schema, $view, $values);
+        $result = $this->dbAdmin->updateView($server, $database, $schema, $view, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -199,7 +199,7 @@ class View extends CallableClass
      */
     public function drop($server, $database, $schema, $view)
     {
-        $result = $this->dbProxy->dropView($server, $database, $schema, $view);
+        $result = $this->dbAdmin->dropView($server, $database, $schema, $view);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);

@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\Adminer\App;
+namespace Lagdo\DbAdmin\App;
 
-use Lagdo\Adminer\CallableClass;
+use Lagdo\DbAdmin\CallableClass;
 
 use Exception;
 
@@ -21,7 +21,7 @@ class Import extends CallableClass
      */
     protected function showForm(string $server, string $database = '')
     {
-        $importOptions = $this->dbProxy->getImportOptions($server, $database);
+        $importOptions = $this->dbAdmin->getImportOptions($server, $database);
 
         // Make data available to views
         $this->view()->shareValues($importOptions);
@@ -109,7 +109,7 @@ class Import extends CallableClass
             return $this->response;
         }
 
-        $queryResults = $this->dbProxy->executeSqlFiles($server,
+        $queryResults = $this->dbAdmin->executeSqlFiles($server,
             $files, $errorStops, $onlyErrors, $database);
         // $this->logger()->debug(\json_encode($queryResults));
 

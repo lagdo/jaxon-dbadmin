@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\Adminer\App\Table;
+namespace Lagdo\DbAdmin\App\Table;
 
-use Lagdo\Adminer\CallableClass;
+use Lagdo\DbAdmin\CallableClass;
 
 use Exception;
 
@@ -82,7 +82,7 @@ class Column extends CallableClass
      */
     public function add($server, $database, $schema, $length, $target = -1)
     {
-        $tableData = $this->dbProxy->getTableData($server, $database, $schema);
+        $tableData = $this->dbAdmin->getTableData($server, $database, $schema);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
@@ -90,7 +90,7 @@ class Column extends CallableClass
         $columnId = \sprintf('%s-%02d', $columnClass, $length);
         $vars = [
             'index' => $length,
-            'field' => $this->dbProxy->getTableField($server, $database, $schema),
+            'field' => $this->dbAdmin->getTableField($server, $database, $schema),
             'prefixFields' => sprintf("fields[%d]", $length + 1),
         ];
         if($target < 0)

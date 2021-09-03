@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\Adminer\App;
+namespace Lagdo\DbAdmin\App;
 
-use Lagdo\Adminer\CallableClass;
-use Lagdo\Adminer\App\Table\Select;
+use Lagdo\DbAdmin\CallableClass;
+use Lagdo\DbAdmin\App\Table\Select;
 
 use Exception;
 
@@ -21,7 +21,7 @@ class Database extends CallableClass
      */
     public function add($server)
     {
-        $collations = $this->dbProxy->getCollations($server);
+        $collations = $this->dbAdmin->getCollations($server);
 
         $formId = 'database-form';
         $title = 'Create a database';
@@ -55,7 +55,7 @@ class Database extends CallableClass
         $database = $formValues['name'];
         $collation = $formValues['collation'];
 
-        if(!$this->dbProxy->createDatabase($server, $database, $collation))
+        if(!$this->dbAdmin->createDatabase($server, $database, $collation))
         {
             $this->response->dialog->error("Cannot create database $database.");
             return $this->response;
@@ -78,7 +78,7 @@ class Database extends CallableClass
      */
     public function drop($server, $database)
     {
-        if(!$this->dbProxy->dropDatabase($server, $database))
+        if(!$this->dbAdmin->dropDatabase($server, $database))
         {
             $this->response->dialog->error("Cannot delete database $database.");
             return $this->response;
@@ -100,7 +100,7 @@ class Database extends CallableClass
      */
     public function select($server, $database, $schema = '')
     {
-        $databaseInfo = $this->dbProxy->getDatabaseInfo($server, $database);
+        $databaseInfo = $this->dbAdmin->getDatabaseInfo($server, $database);
         // Make database info available to views
         $this->view()->shareValues($databaseInfo);
 
@@ -187,7 +187,7 @@ class Database extends CallableClass
      */
     public function showTables($server, $database, $schema)
     {
-        $tablesInfo = $this->dbProxy->getTables($server, $database, $schema);
+        $tablesInfo = $this->dbAdmin->getTables($server, $database, $schema);
 
         $tableNameClass = 'adminer-table-name';
         $select = $tablesInfo['select'];
@@ -233,7 +233,7 @@ class Database extends CallableClass
      */
     public function showViews($server, $database, $schema)
     {
-        $viewsInfo = $this->dbProxy->getViews($server, $database, $schema);
+        $viewsInfo = $this->dbAdmin->getViews($server, $database, $schema);
 
         $viewNameClass = 'adminer-view-name';
         // Add links, classes and data values to view names.
@@ -275,7 +275,7 @@ class Database extends CallableClass
      */
     public function showRoutines($server, $database, $schema)
     {
-        $routinesInfo = $this->dbProxy->getRoutines($server, $database, $schema);
+        $routinesInfo = $this->dbAdmin->getRoutines($server, $database, $schema);
         $this->showSection($routinesInfo);
 
         return $this->response;
@@ -291,7 +291,7 @@ class Database extends CallableClass
      */
     public function showSequences($server, $database, $schema)
     {
-        $sequencesInfo = $this->dbProxy->getSequences($server, $database, $schema);
+        $sequencesInfo = $this->dbAdmin->getSequences($server, $database, $schema);
         $this->showSection($sequencesInfo);
 
         return $this->response;
@@ -307,7 +307,7 @@ class Database extends CallableClass
      */
     public function showUserTypes($server, $database, $schema)
     {
-        $userTypesInfo = $this->dbProxy->getUserTypes($server, $database, $schema);
+        $userTypesInfo = $this->dbAdmin->getUserTypes($server, $database, $schema);
         $this->showSection($userTypesInfo);
 
         return $this->response;
@@ -323,7 +323,7 @@ class Database extends CallableClass
      */
     public function showEvents($server, $database, $schema)
     {
-        $eventsInfo = $this->dbProxy->getEvents($server, $database, $schema);
+        $eventsInfo = $this->dbAdmin->getEvents($server, $database, $schema);
         $this->showSection($eventsInfo);
 
         return $this->response;

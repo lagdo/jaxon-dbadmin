@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\Adminer\App;
+namespace Lagdo\DbAdmin\App;
 
-use Lagdo\Adminer\CallableClass;
+use Lagdo\DbAdmin\CallableClass;
 
 use Exception;
 
@@ -23,7 +23,7 @@ class Command extends CallableClass
      */
     protected function showForm(string $server, string $database, string $schema, string $query)
     {
-        $commandOptions = $this->dbProxy->prepareCommand($server, $database, $schema);
+        $commandOptions = $this->dbAdmin->prepareCommand($server, $database, $schema);
 
         // Make data available to views
         $this->view()->shareValues($commandOptions);
@@ -103,7 +103,7 @@ class Command extends CallableClass
             return $this->response;
         }
 
-        $queryResults = $this->dbProxy->executeCommands($server,
+        $queryResults = $this->dbAdmin->executeCommands($server,
             $query, $limit, $errorStops, $onlyErrors, $database, $schema);
         // $this->logger()->debug(\json_encode($queryResults));
 

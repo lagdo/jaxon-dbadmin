@@ -1,11 +1,11 @@
 <?php
 
-namespace Lagdo\Adminer\App;
+namespace Lagdo\DbAdmin\App;
 
-use Lagdo\Adminer\App\Table\Column;
-use Lagdo\Adminer\App\Table\Select;
-use Lagdo\Adminer\App\Table\Query;
-use Lagdo\Adminer\CallableClass;
+use Lagdo\DbAdmin\App\Table\Column;
+use Lagdo\DbAdmin\App\Table\Select;
+use Lagdo\DbAdmin\App\Table\Query;
+use Lagdo\DbAdmin\CallableClass;
 
 use Exception;
 
@@ -52,7 +52,7 @@ class Table extends CallableClass
      */
     public function show($server, $database, $schema, $table)
     {
-        $tableInfo = $this->dbProxy->getTableInfo($server, $database, $schema, $table);
+        $tableInfo = $this->dbAdmin->getTableInfo($server, $database, $schema, $table);
         // Make table info available to views
         $this->view()->shareValues($tableInfo);
 
@@ -63,25 +63,25 @@ class Table extends CallableClass
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show fields
-        $fieldsInfo = $this->dbProxy->getTableFields($server, $database, $schema, $table);
+        $fieldsInfo = $this->dbAdmin->getTableFields($server, $database, $schema, $table);
         $this->showTab($fieldsInfo, 'tab-content-fields');
 
         // Show indexes
-        $indexesInfo = $this->dbProxy->getTableIndexes($server, $database, $schema, $table);
+        $indexesInfo = $this->dbAdmin->getTableIndexes($server, $database, $schema, $table);
         if(\is_array($indexesInfo))
         {
             $this->showTab($indexesInfo, 'tab-content-indexes');
         }
 
         // Show foreign keys
-        $foreignKeysInfo = $this->dbProxy->getTableForeignKeys($server, $database, $schema, $table);
+        $foreignKeysInfo = $this->dbAdmin->getTableForeignKeys($server, $database, $schema, $table);
         if(\is_array($foreignKeysInfo))
         {
             $this->showTab($foreignKeysInfo, 'tab-content-foreign-keys');
         }
 
         // Show triggers
-        $triggersInfo = $this->dbProxy->getTableTriggers($server, $database, $schema, $table);
+        $triggersInfo = $this->dbAdmin->getTableTriggers($server, $database, $schema, $table);
         if(\is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
@@ -111,7 +111,7 @@ class Table extends CallableClass
      */
     public function add($server, $database, $schema)
     {
-        $tableData = $this->dbProxy->getTableData($server, $database, $schema);
+        $tableData = $this->dbAdmin->getTableData($server, $database, $schema);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
@@ -150,7 +150,7 @@ class Table extends CallableClass
      */
     public function edit($server, $database, $schema, $table)
     {
-        $tableData = $this->dbProxy->getTableData($server, $database, $schema, $table);
+        $tableData = $this->dbAdmin->getTableData($server, $database, $schema, $table);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
@@ -207,7 +207,7 @@ class Table extends CallableClass
             $values['collation'] = '';
         }
 
-        $result = $this->dbProxy->createTable($server, $database, $schema, $values);
+        $result = $this->dbAdmin->createTable($server, $database, $schema, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -244,7 +244,7 @@ class Table extends CallableClass
             $values['collation'] = '';
         }
 
-        $result = $this->dbProxy->alterTable($server, $database, $schema, $table, $values);
+        $result = $this->dbAdmin->alterTable($server, $database, $schema, $table, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -267,7 +267,7 @@ class Table extends CallableClass
      */
     public function drop($server, $database, $schema, $table)
     {
-        $result = $this->dbProxy->dropTable($server, $database, $schema, $table);
+        $result = $this->dbAdmin->dropTable($server, $database, $schema, $table);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
