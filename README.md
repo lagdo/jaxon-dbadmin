@@ -1,30 +1,15 @@
 A database admin dashboard based on Jaxon and Adminer
 =====================================================
 
+** WORK IN PROGRESS **
+----------------------
+
 This package inserts a database admin dashboard into an existing PHP application.
 Thanks to the [Jaxon library](https://www.jaxon-php.org), it installs and runs in a page of the application.
 All its operations are performed with Ajax requests.
 
 It is based on [Adminer](https://www.adminer.org/en/), so it will provide the same features.
 For example, it will be able to manage MySQL, PostgreSQL, Sqlite, MsSQL, MongoDb and Oracle databases.
-
-Features
---------
-
-- [x] Connect to a MySQL database.
-- [x] Show basic info about the MySQL database server.
-- [x] Show the list of tables in the connected database.
-- [x] Show detailed info about the MySQL database server.
-- [x] Show detailed info about the connected database.
-- [x] Connect to PostgreSQL databases.
-- [x] Restrict access to server info and databases.
-- [x] Execute requests and display results.
-- [x] Export databases to an sql file.
-- [x] Import databases from one or more sql files.
-- [x] Connect to other database types.
-- [ ] Add others UI frameworks than Bootstrap, and let the user choose his preferred one (partially implemented, the user can choose between Bootstrap 3 and 4).
-- [ ] Improve the Adminer code base (work in progress, see the [https://github.com/lagdo/jaxon-adminer-drivers](https://github.com/lagdo/jaxon-adminer-drivers) repo).
-- [ ] Add tests
 
 Howtos
 ------
@@ -293,6 +278,24 @@ The following UI frameworks are supported:
 - [Bootstrap 4](https://getbootstrap.com/) (`bootstrap4`)
 
 More UI frameworks will be added in future releases.
+
+Features
+--------
+
+- [x] Connect to a MySQL database.
+- [x] Show basic info about the MySQL database server.
+- [x] Show the list of tables in the connected database.
+- [x] Show detailed info about the MySQL database server.
+- [x] Show detailed info about the connected database.
+- [x] Connect to PostgreSQL databases.
+- [x] Restrict access to server info and databases.
+- [x] Execute requests and display results.
+- [x] Export databases to an sql file.
+- [x] Import databases from one or more sql files.
+- [x] Connect to other database types.
+- [ ] Add others UI frameworks than Bootstrap, and let the user choose his preferred one (partially implemented, the user can choose between Bootstrap 3 and 4).
+- [ ] Improve the Adminer code base (work in progress, see the [https://github.com/lagdo/adminer-driver](https://github.com/lagdo/adminer-driver) repo).
+- [ ] Add tests
 
 Contribute
 ----------
