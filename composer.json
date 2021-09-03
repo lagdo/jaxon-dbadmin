@@ -1,5 +1,5 @@
 {
-    "name": "lagdo/jaxon-adminer",
+    "name": "lagdo/jaxon-dbadmin",
     "type": "application",
     "description": "Database management dashboard based on Jaxon and Adminer",
     "authors": [
@@ -8,13 +8,13 @@
             "email": "thierry.feuzeu@gmail.com"
         }
     ],
-    "homepage": "https://github.com/lagdo/jaxon-adminer",
+    "homepage": "https://github.com/lagdo/jaxon-dbadmin",
     "license": "Apache-2.0",
     "keywords": ["Adminer", "PostgreSQL", "MySQL", "Oracle", "MsSQL", "Sqlite",
         "MondoDb", "ElasticSearch", "Sql", "Dashboard", "Jaxon", "Ajax"],
     "support": {
-        "issues": "https://github.com/lagdo/jaxon-adminer/issues",
-        "source": "https://github.com/lagdo/jaxon-adminer"
+        "issues": "https://github.com/lagdo/jaxon-dbadmin/issues",
+        "source": "https://github.com/lagdo/jaxon-dbadmin"
     },
     "require": {
         "jaxon-php/jaxon-core": ">=3.5.3",
