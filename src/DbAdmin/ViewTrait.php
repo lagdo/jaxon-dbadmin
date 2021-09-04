@@ -1,10 +1,6 @@
 <?php
 
-<<<<<<< HEAD:src/Db/Proxy/ViewTrait.php
-namespace Lagdo\Adminer\Db\Proxy;
-=======
 namespace Lagdo\DbAdmin\DbAdmin;
->>>>>>> v0.9:src/DbAdmin/ViewTrait.php
 
 use Exception;
 

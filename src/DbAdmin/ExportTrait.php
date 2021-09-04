@@ -1,10 +1,6 @@
 <?php
 
-<<<<<<< HEAD:src/Db/Proxy/ExportTrait.php
-namespace Lagdo\Adminer\Db\Proxy;
-=======
 namespace Lagdo\DbAdmin\DbAdmin;
->>>>>>> v0.9:src/DbAdmin/ExportTrait.php
 
 use Exception;
 
