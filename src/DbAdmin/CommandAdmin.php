@@ -112,11 +112,11 @@ class CommandAdmin extends AbstractAdmin
         $connection = $this->connection();
         for ($j = 0; $j < $colCount; $j++) {
             $field = $statement->fetchField();
-            $name = $field->name;
-            $orgtable = $field->orgtable;
-            $orgname = $field->orgname;
+            $name = $field->name();
+            $orgtable = $field->orgTable();
+            $orgname = $field->orgName();
             // PostgreSQL fix: the table field can be missing.
-            $tables[$field->table ?? $orgtable] = $orgtable;
+            $tables[$field->tableName()] = $orgtable;
             if ($orgtables && $this->db->jush() == "sql") { // MySQL EXPLAIN
                 $links[$j] = ($name == "table" ? "table=" : ($name == "possible_keys" ? "indexes=" : null));
             } elseif ($orgtable != "") {
@@ -137,10 +137,10 @@ class CommandAdmin extends AbstractAdmin
                     $links[$j] = $orgtable;
                 }
             }
-            if ($field->charsetnr == 63) { // 63 - binary
+            if ($field->isBinary()) {
                 $blobs[$j] = true;
             }
-            $types[$j] = $field->type ?? ''; // Some drivers don't set the type field.
+            $types[$j] = $field->type(); // Some drivers don't set the type field.
             $headers[] = $this->util->html($name);
         }
 

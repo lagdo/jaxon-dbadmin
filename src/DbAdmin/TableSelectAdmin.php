@@ -377,16 +377,16 @@ class TableSelectAdmin extends AbstractAdmin
         $error = null;
         // From driver.inc.php
         $start = microtime(true);
-        $result = $this->db->query($query);
+        $statement = $this->db->query($query);
         // From adminer.inc.php
         $duration = $this->util->formatTime($start); // Compute and format the duration
 
-        if (!$result) {
+        if (!$statement) {
             return ['error' => $this->util->error()];
         }
         // From select.inc.php
         $rows = [];
-        while (($row = $result->fetchAssoc())) {
+        while (($row = $statement->fetchAssoc())) {
             if ($page && $this->db->jush() == "oracle") {
                 unset($row["RNUM"]);
             }

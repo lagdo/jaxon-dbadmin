@@ -338,8 +338,8 @@ class ExportAdmin extends AbstractAdmin
                         $values = [];
                         foreach ($row as $val) {
                             $field = $statement->fetchField();
-                            $keys[] = $field->name;
-                            $key = $this->db->escapeId($field->name);
+                            $keys[] = $field->name();
+                            $key = $this->db->escapeId($field->name());
                             $values[] = "$key = VALUES($key)";
                         }
                         $suffix = ";\n";
