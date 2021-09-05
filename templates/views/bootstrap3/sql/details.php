@@ -1,7 +1,7 @@
 <form action="" method="post">
     <p>
-    " . ($num_rows ? ($limit && $num_rows > $limit ?
-                                    $this->trans->lang("%d / ", $limit) : "") . $this->trans->lang("%d row(s)", $num_rows) : "");
+    " . ($numRows ? ($limit && $numRows > $limit ?
+                                    $this->trans->lang("%d / ", $limit) : "") . $this->trans->lang("%d row(s)", $numRows) : "");
                                 echo $time;
                                 if($connection && \preg_match("~^($space|\\()*+SELECT\\b~i", $q) &&
                                     ($explain = \adminer\explain($connection, $q))) {

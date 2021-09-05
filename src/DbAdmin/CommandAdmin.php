@@ -101,10 +101,10 @@ class CommandAdmin extends AbstractAdmin
         }
         $message = $this->util->lang('No rows.');
         if ($rowCount > 0) {
-            $num_rows = $result->num_rows;
-            $message = ($num_rows ? ($limit && $num_rows > $limit ?
+            $numRows = $result->numRows;
+            $message = ($numRows ? ($limit && $numRows > $limit ?
                 $this->util->lang('%d / ', $limit) :
-                "") . $this->util->lang('%d row(s)', $num_rows) : "");
+                "") . $this->util->lang('%d row(s)', $numRows) : "");
         }
 
         // Table header

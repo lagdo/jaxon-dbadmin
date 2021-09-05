@@ -286,11 +286,11 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
         if (!$this->connection->selectDatabase($database)) {
             return "?";
         }
-        $return = 0;
+        $size = 0;
         foreach ($this->server->tableStatus() as $tableStatus) {
-            $return += $tableStatus["Data_length"] + $tableStatus["Index_length"];
+            $size += $tableStatus["Data_length"] + $tableStatus["Index_length"];
         }
-        return $return;
+        return $size;
     }
 
     /**
@@ -344,13 +344,13 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
      */
     public function columnForeignKeys($table)
     {
-        $return = [];
+        $keys = [];
         foreach ($this->server->foreignKeys($table) as $foreignKey) {
             foreach ($foreignKey["source"] as $val) {
-                $return[$val][] = $foreignKey;
+                $keys[$val][] = $foreignKey;
             }
         }
-        return $return;
+        return $keys;
     }
 
     /**
