@@ -15,7 +15,7 @@ interface ServerInterface
      * Connect to the database server
      * Return a string for error
      *
-     * @return ConnectionInterface|string
+     * @return ConnectionInterface
      */
     public function createConnection();
 

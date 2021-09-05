@@ -16,14 +16,13 @@ trait ServerTrait
 
     /**
      * Create a new connection to the database server
-     * Return a string for error
      *
      * @return ConnectionInterface|string
      */
     public function createConnection()
     {
-        // Returns the existing connection. A new connection is not created. Todo?
-        return $this->server->connection();
+        // Create a new connection to the server.
+        return $this->server->connect();
     }
 
     /**
