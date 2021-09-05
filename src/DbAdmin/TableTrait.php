@@ -177,7 +177,8 @@ trait TableTrait
     public function createTable(string $server, string $database, string $schema, array $values)
     {
         $this->connect($server, $database, $schema);
-        $this->util->input->table = $table;
+
+        $this->util->input->table = $values['name'];
         $this->util->input->values = $values;
         return $this->table()->createTable($values);
     }
