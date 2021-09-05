@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\DbAdmin\App;
+namespace Lagdo\DbAdmin\App\Ajax;
 
-use Lagdo\DbAdmin\CallableClass;
-use Lagdo\DbAdmin\App\Table\Select;
+use Lagdo\DbAdmin\App\CallableClass;
+use Lagdo\DbAdmin\App\Ajax\Table\Select;
 
 use Exception;
 

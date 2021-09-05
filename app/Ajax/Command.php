@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\App;
+namespace Lagdo\DbAdmin\App\Ajax;
 
-use Lagdo\DbAdmin\CallableClass;
+use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 

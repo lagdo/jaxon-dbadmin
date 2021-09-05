@@ -1,32 +1,32 @@
 <?php
 
 return [
-    Lagdo\DbAdmin\App\Import::class => [
+    Lagdo\DbAdmin\App\Ajax\Import::class => [
         'executeSqlFiles' => [
             'upload' => "'adminer-import-sql-files-input'",
         ],
     ],
-    Lagdo\DbAdmin\App\Table::class => [
+    Lagdo\DbAdmin\App\Ajax\Table::class => [
         'show,add,edit' => [
             '__after' => 'showBreadcrumbs',
         ]
     ],
-    Lagdo\DbAdmin\App\View::class => [
+    Lagdo\DbAdmin\App\Ajax\View::class => [
         'show' => [
             '__after' => 'showBreadcrumbs',
         ]
     ],
-    Lagdo\DbAdmin\App\Table\Query::class => [
+    Lagdo\DbAdmin\App\Ajax\Table\Query::class => [
         'showInsert,showUpdate' => [
             '__after' => 'showBreadcrumbs',
         ]
     ],
-    Lagdo\DbAdmin\App\Table\Select::class => [
+    Lagdo\DbAdmin\App\Ajax\Table\Select::class => [
         'show' => [
             '__after' => 'showBreadcrumbs',
         ]
     ],
-    Lagdo\DbAdmin\App\Server::class => [
+    Lagdo\DbAdmin\App\Ajax\Server::class => [
         'connect' => [
             '__after' => [
                 'showBreadcrumbs',
@@ -70,7 +70,7 @@ return [
             ],
         ],
     ],
-    Lagdo\DbAdmin\App\Database::class => [
+    Lagdo\DbAdmin\App\Ajax\Database::class => [
         'select' => [
             '__after' => [
                 'showBreadcrumbs',
@@ -114,7 +114,7 @@ return [
             ],
         ],
     ],
-    Lagdo\DbAdmin\App\Command::class => [
+    Lagdo\DbAdmin\App\Ajax\Command::class => [
         'showServerForm' => [
             '__after' => [
                 'showBreadcrumbs',
@@ -128,7 +128,7 @@ return [
             ],
         ],
     ],
-    Lagdo\DbAdmin\App\Import::class => [
+    Lagdo\DbAdmin\App\Ajax\Import::class => [
         'showServerForm' => [
             '__after' => [
                 'showBreadcrumbs',
@@ -142,7 +142,7 @@ return [
             ],
         ],
     ],
-    Lagdo\DbAdmin\App\Export::class => [
+    Lagdo\DbAdmin\App\Ajax\Export::class => [
         'showServerForm' => [
             '__after' => [
                 'showBreadcrumbs',

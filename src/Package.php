@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin;
 
 use Jaxon\Plugin\Package as JaxonPackage;
-use Lagdo\DbAdmin\App\Server;
+use Lagdo\DbAdmin\App\Ajax\Server;
 
 /**
  * Adminer package

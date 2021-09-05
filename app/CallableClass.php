@@ -1,9 +1,12 @@
 <?php
 
-namespace Lagdo\DbAdmin;
+namespace Lagdo\DbAdmin\App;
 
 use Jaxon\CallableClass as JaxonCallableClass;
 use Jaxon\Utils\View\Store;
+
+use Lagdo\DbAdmin\Package;
+use Lagdo\DbAdmin\DbAdmin;
 
 /**
  * Callable base class
