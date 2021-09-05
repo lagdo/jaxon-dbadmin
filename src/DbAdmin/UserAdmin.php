@@ -30,9 +30,9 @@ class UserAdmin extends AbstractAdmin
         $grants = [];
 
         //! use information_schema for MySQL 5 - column names in column privileges are not escaped
-        if (($result = $this->db->query("SHOW GRANTS FOR " .
+        if (($statement = $this->db->query("SHOW GRANTS FOR " .
             $this->db->quote($user) . "@" . $this->db->quote($host)))) {
-            while ($row = $result->fetch_row()) {
+            while ($row = $statement->fetchRow()) {
                 if (\preg_match('~GRANT (.*) ON (.*) TO ~', $row[0], $match) &&
                     \preg_match_all('~ *([^(,]*[^ ,(])( *\([^)]+\))?~', $match[1], $matches, PREG_SET_ORDER)) { //! escape the part between ON and TO
                     foreach ($matches as $val) {
@@ -166,17 +166,17 @@ class UserAdmin extends AbstractAdmin
         ];
 
         // From privileges.inc.php
-        $result = $this->db->query("SELECT User, Host FROM mysql." .
+        $statement = $this->db->query("SELECT User, Host FROM mysql." .
             ($database == "" ? "user" : "db WHERE " . $this->db->quote($database) . " LIKE Db") .
             " ORDER BY Host, User");
-        $grant = $result;
-        if (!$result) {
+        $grant = $statement;
+        if (!$statement) {
             // list logged user, information_schema.USER_PRIVILEGES lists just the current user too
-            $result = $this->db->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) " .
+            $statement = $this->db->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) " .
                 "AS User, SUBSTRING_INDEX(CURRENT_USER, '@', -1) AS Host");
         }
         $details = [];
-        while ($row = $result->fetch_assoc()) {
+        while ($row = $statement->fetchAssoc()) {
             $details[] = [
                 'user' => $this->util->html($row["User"]),
                 'host' => $this->util->html($row["Host"]),

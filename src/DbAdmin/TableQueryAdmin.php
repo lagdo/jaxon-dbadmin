@@ -183,19 +183,19 @@ class TableQueryAdmin extends AbstractAdmin
                 $select = ["*"];
             }
             if ($select) {
-                $result = $this->db->select($table, $select, [$where], $select, [], (isset($queryOptions["select"]) ? 2 : 1));
-                if (!$result) {
+                $statement = $this->db->select($table, $select, [$where], $select, [], (isset($queryOptions["select"]) ? 2 : 1));
+                if (!$statement) {
                     // $error = $this->util->error();
                 } else {
-                    $row = $result->fetch_assoc();
+                    $row = $statement->fetchAssoc();
                     if (!$row) {
                         // MySQLi returns null
                         $row = false;
                     }
                 }
-                // if(isset($queryOptions["select"]) && (!$row || $result->fetch_assoc()))
+                // if(isset($queryOptions["select"]) && (!$row || $statement->fetchAssoc()))
                 // {
-                //     // $result->numRows != 1 isn't available in all drivers
+                //     // $statement->numRows != 1 isn't available in all drivers
                 //     $row = null;
                 // }
             }
@@ -205,8 +205,8 @@ class TableQueryAdmin extends AbstractAdmin
             $primary = $this->db->primaryIdName();
             if (!$where) {
                 // insert
-                $result = $this->db->select($table, ["*"], $where, ["*"]);
-                $row = ($result ? $result->fetch_assoc() : false);
+                $statement = $this->db->select($table, ["*"], $where, ["*"]);
+                $row = ($statement ? $statement->fetchAssoc() : false);
                 if (!$row) {
                     $row = [$primary => ""];
                 }

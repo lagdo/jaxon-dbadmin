@@ -51,7 +51,7 @@ class CommandAdmin extends AbstractAdmin
      *
      * @return array
     */
-    protected function select($result, $orgtables = [], $limit = 0)
+    protected function select($statement, $orgtables = [], $limit = 0)
     {
         $links = []; // colno => orgtable - create links from these columns
         $indexes = []; // orgtable => array(column => colno) - primary keys
@@ -63,7 +63,7 @@ class CommandAdmin extends AbstractAdmin
         $colCount = 0;
         $rowCount = 0;
         $details = [];
-        while (($limit === 0 || $rowCount < $limit) && ($row = $result->fetch_row())) {
+        while (($limit === 0 || $rowCount < $limit) && ($row = $statement->fetchRow())) {
             $colCount = \count($row);
             $rowCount++;
             $detail = [];
@@ -101,7 +101,7 @@ class CommandAdmin extends AbstractAdmin
         }
         $message = $this->util->lang('No rows.');
         if ($rowCount > 0) {
-            $numRows = $result->numRows;
+            $numRows = $statement->numRows;
             $message = ($numRows ? ($limit && $numRows > $limit ?
                 $this->util->lang('%d / ', $limit) :
                 "") . $this->util->lang('%d row(s)', $numRows) : "");
@@ -111,7 +111,7 @@ class CommandAdmin extends AbstractAdmin
         $headers = [];
         $connection = $this->connection();
         for ($j = 0; $j < $colCount; $j++) {
-            $field = $result->fetch_field();
+            $field = $statement->fetchField();
             $name = $field->name;
             $orgtable = $field->orgtable;
             $orgname = $field->orgname;
@@ -270,7 +270,7 @@ class CommandAdmin extends AbstractAdmin
                 }
 
                 do {
-                    $result = $this->db->storedResult();
+                    $statement = $this->db->storedResult();
 
                     if ($this->db->hasError()) {
                         $error = $this->util->error();
@@ -280,9 +280,9 @@ class CommandAdmin extends AbstractAdmin
                         $errors[] = $error;
                     } else {
                         $affected = $this->db->affectedRows(); // getting warnigns overwrites this
-                        if (\is_object($result)) {
+                        if (\is_object($statement)) {
                             if (!$onlyErrors) {
-                                $select = $this->select($result, [], $limit);
+                                $select = $this->select($statement, [], $limit);
                                 $messages[] = $select['message'];
                             }
                         } else {

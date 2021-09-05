@@ -244,9 +244,9 @@ class TableSelectAdmin extends AbstractAdmin
         //         $as = convertField($fields[key($row)]);
         //         $select = array($as ? $as : escapeId(key($row)));
         //         $where[] = where_check($unique_idf, $fields);
-        //         $return = $this->db->select($table, $select, $where, $select);
-        //         if($return) {
-        //             echo reset($return->fetch_row());
+        //         $statement = $this->db->select($table, $select, $where, $select);
+        //         if($statement) {
+        //             echo reset($statement->fetchRow());
         //         }
         //     }
         //     exit;
@@ -386,7 +386,7 @@ class TableSelectAdmin extends AbstractAdmin
         }
         // From select.inc.php
         $rows = [];
-        while (($row = $result->fetch_assoc())) {
+        while (($row = $result->fetchAssoc())) {
             if ($page && $this->db->jush() == "oracle") {
                 unset($row["RNUM"]);
             }

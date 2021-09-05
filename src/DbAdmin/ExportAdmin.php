@@ -326,18 +326,18 @@ class ExportAdmin extends AbstractAdmin
                 }
                 $fields = $this->db->fields($table);
             }
-            $result = $this->db->query($query, 1); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
-            if ($result) {
+            $statement = $this->db->query($query, 1); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
+            if ($statement) {
                 $insert = "";
                 $buffer = "";
                 $keys = [];
                 $suffix = "";
-                $fetch_function = ($table != '' ? 'fetch_assoc' : 'fetch_row');
-                while ($row = $result->$fetch_function()) {
+                $fetch_function = ($table != '' ? 'fetchAssoc' : 'fetchRow');
+                while ($row = $statement->$fetch_function()) {
                     if (!$keys) {
                         $values = [];
                         foreach ($row as $val) {
-                            $field = $result->fetch_field();
+                            $field = $statement->fetchField();
                             $keys[] = $field->name;
                             $key = $this->db->escapeId($field->name);
                             $values[] = "$key = VALUES($key)";

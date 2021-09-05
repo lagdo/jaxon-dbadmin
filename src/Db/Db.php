@@ -219,9 +219,9 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     public function values($query, $column = 0)
     {
         $return = [];
-        $result = $this->connection->query($query);
-        if (is_object($result)) {
-            while ($row = $result->fetch_row()) {
+        $statement = $this->connection->query($query);
+        if (is_object($statement)) {
+            while ($row = $statement->fetchRow()) {
                 $return[] = $row[$column];
             }
         }
@@ -237,9 +237,9 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
             $connection = $this->connection;
         }
         $return = [];
-        $result = $connection->query($query);
-        if (is_object($result)) {
-            while ($row = $result->fetch_row()) {
+        $statement = $connection->query($query);
+        if (is_object($statement)) {
+            while ($row = $statement->fetchRow()) {
                 if ($set_keys) {
                     $return[$row[0]] = $row[1];
                 } else {
@@ -259,9 +259,9 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
             $connection = $this->connection;
         }
         $return = [];
-        $result = $connection->query($query);
-        if (is_object($result)) { // can return true
-            while ($row = $result->fetch_assoc()) {
+        $statement = $connection->query($query);
+        if (is_object($statement)) { // can return true
+            while ($row = $statement->fetchAssoc()) {
                 $return[] = $row;
             }
         }

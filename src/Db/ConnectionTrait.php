@@ -50,7 +50,7 @@ trait ConnectionTrait
      * @param string $query
      * @param boolean $unbuffered
      *
-     * @return mixed
+     * @return StatementInterface|bool
      */
     public function query($query, $unbuffered = false)
     {
@@ -76,7 +76,7 @@ trait ConnectionTrait
     /**
      * Get the next row set of the last query
      *
-     * @return mixed
+     * @return bool
      */
     public function nextResult()
     {
@@ -88,7 +88,7 @@ trait ConnectionTrait
      *
      * @param string $query
      *
-     * @return mixed
+     * @return bool
      */
     public function multiQuery($query)
     {
@@ -98,13 +98,11 @@ trait ConnectionTrait
     /**
      * Get the result saved by the multiQuery() method
      *
-     * @param mixed $result
-     *
-     * @return mixed
+     * @return StatementInterface|bool
      */
-    public function storedResult($result = null)
+    public function storedResult()
     {
-        return $this->connection->storedResult($result);
+        return $this->connection->storedResult();
     }
 
     /**
