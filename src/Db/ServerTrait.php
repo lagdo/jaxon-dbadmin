@@ -387,9 +387,9 @@ trait ServerTrait
      * @param string
      * @return bool
      */
-    public function alterTable($table, $name, $fields, $foreign, $comment, $engine, $collation, $auto_increment, $partitioning)
+    public function alterTable($table, $name, $fields, $foreign, $comment, $engine, $collation, $autoIncrement, $partitioning)
     {
-        return $this->server->alterTable($table, $name, $fields, $foreign, $comment, $engine, $collation, $auto_increment, $partitioning);
+        return $this->server->alterTable($table, $name, $fields, $foreign, $comment, $engine, $collation, $autoIncrement, $partitioning);
     }
 
     /**
@@ -582,9 +582,9 @@ trait ServerTrait
      * @param string
      * @return string
      */
-    public function createTableSql($table, $auto_increment, $style)
+    public function createTableSql($table, $autoIncrement, $style)
     {
-        return $this->server->createTableSql($table, $auto_increment, $style);
+        return $this->server->createTableSql($table, $autoIncrement, $style);
     }
 
     /**

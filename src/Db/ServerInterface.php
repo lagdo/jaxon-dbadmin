@@ -282,7 +282,7 @@ interface ServerInterface
      * @param string
      * @return bool
      */
-    public function alterTable($table, $name, $fields, $foreign, $comment, $engine, $collation, $auto_increment, $partitioning);
+    public function alterTable($table, $name, $fields, $foreign, $comment, $engine, $collation, $autoIncrement, $partitioning);
 
     /**
      * Run commands to alter indexes
@@ -420,7 +420,7 @@ interface ServerInterface
      * @param string
      * @return string
      */
-    public function createTableSql($table, $auto_increment, $style);
+    public function createTableSql($table, $autoIncrement, $style);
 
     /**
      * Get SQL command to create foreign keys
