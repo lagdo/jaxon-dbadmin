@@ -1,6 +1,6 @@
 preset: psr1
 
-risky: false
+risky: true
 
 finder:
   exclude:
