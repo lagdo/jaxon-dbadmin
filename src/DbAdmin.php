@@ -118,7 +118,7 @@ class DbAdmin extends DbAdmin\AbstractAdmin
      *
      * @return array
      */
-    protected function connect(string $server, string $database = '', string $schema = '')
+    public function connect(string $server, string $database = '', string $schema = '')
     {
         // Prevent multiple calls.
         if (($this->db)) {

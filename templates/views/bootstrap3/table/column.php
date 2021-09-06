@@ -8,19 +8,19 @@
                 <input class="form-control column-name" name="<?php
                     echo $this->prefixFields ?>[field]" placeholder="<?php
                     echo $this->trans->lang('Name') ?>" data-field="field" value="<?php
-                    echo $this->field['field'] ?>" data-maxlength="64" autocapitalize="off" />
+                    echo $this->field->name ?>" data-maxlength="64" autocapitalize="off" />
                 <input type="hidden" name="<?php echo $this->prefixFields ?>[orig]" value="<?php
-                    echo $this->field['field'] ?>" data-field="orig" />
+                    echo $this->field->name ?>" data-field="orig" />
             </div>
             <div class="col-md-2 adminer-table-column-middle">
                 <select class="form-control" name="<?php
                     echo $this->prefixFields ?>[collation]" data-field="collation"<?php
-                    if($this->field['_collation_hidden_']): ?> readonly<?php endif ?>>
+                    if($this->field->collationHidden): ?> readonly<?php endif ?>>
                     <option value="">(<?php echo $this->trans->lang('collation') ?>)</option>
 <?php foreach($this->collations as $group => $collations): ?>
                     <optgroup label="<?php echo $group ?>">
 <?php foreach($collations as $collation): ?>
-                        <option <?php if($this->field['collation'] === $collation): ?>selected<?php
+                        <option <?php if($this->field->collation === $collation): ?>selected<?php
                             endif ?>><?php echo $collation ?></option>
 <?php endforeach ?>
                     </optgroup>
@@ -29,16 +29,16 @@
             </div>
             <label class="col-md-1 adminer-table-column-null" for="auto_increment_col">
                 <input type="radio" name="auto_increment_col" value="<?php echo ($this->index + 1) ?>" <?php
-                    if($this->field['auto_increment']): ?>checked <?php endif ?>/> AI
+                    if($this->field->autoIncrement): ?>checked <?php endif ?>/> AI
             </label>
             <div class="col-md-2 adminer-table-column-middle">
-<?php if(true/*isset($this->field['on_update'])*/): ?>
+<?php if(true/*isset($this->field->onUpdate)*/): ?>
                 <select class="form-control" name="<?php
                     echo $this->prefixFields ?>[on_update]" data-field="on_update"<?php
-                    if($this->field['_on_update_hidden_']): ?> readonly<?php endif ?>>
+                    if($this->field->onUpdateHidden): ?> readonly<?php endif ?>>
                     <option value="">(<?php echo $this->trans->lang('ON UPDATE') ?>)</option>
 <?php foreach($this->options['on_update'] as $group => $option): ?>
-                    <option <?php if($this->field['on_update'] === $option): ?>selected<?php
+                    <option <?php if($this->field->onUpdate === $option): ?>selected<?php
                         endif ?>><?php echo $option ?></option>
 <?php endforeach ?>
                 </select>
@@ -47,7 +47,7 @@
             <div class="col-md-4 adminer-table-column-right">
                 <input class="form-control" name="<?php
                     echo $this->prefixFields ?>[comment]" data-field="comment" value="<?php
-                    echo $this->field['comment'] ?? '' ?>" placeholder="<?php
+                    echo $this->field->comment ?>" placeholder="<?php
                     echo $this->trans->lang('Comment') ?>" />
             </div>
             <!-- End first line -->
@@ -55,10 +55,10 @@
             <div class="col-md-2 adminer-table-column-left second-line">
                 <select class="form-control" name="<?php
                     echo $this->prefixFields ?>[type]" data-field="type">
-<?php foreach($this->field['_types_'] as $group => $types): ?>
+<?php foreach($this->field->types as $group => $types): ?>
                     <optgroup label="<?php echo $group ?>">
 <?php foreach($types as $type): ?>
-                        <option <?php if($this->field['type'] === $type): ?>selected<?php
+                        <option <?php if($this->field->type === $type): ?>selected<?php
                             endif ?>><?php echo $type ?></option>
 <?php endforeach ?>
                     </optgroup>
@@ -69,17 +69,17 @@
                 <input class="form-control" name="<?php
                     echo $this->prefixFields ?>[length]" placeholder="<?php
                     echo $this->trans->lang('Length') ?>" data-field="length"<?php
-                    if($this->field['_length_required_']): ?> required<?php endif ?> value="<?php
-                    echo $this->field['length'] ?>" size="3">
+                    if($this->field->lengthRequired): ?> required<?php endif ?> value="<?php
+                    echo $this->field->length ?>" size="3">
             </div>
             <div class="col-md-2 adminer-table-column-middle second-line">
                 <select class="form-control" name="<?php
                     echo $this->prefixFields ?>[unsigned]" data-field="unsigned"<?php
-                    if($this->field['_unsigned_hidden_']): ?> readonly<?php endif ?>>
+                    if($this->field->unsignedHidden): ?> readonly<?php endif ?>>
                     <option value=""></option>
 <?php if($this->unsigned): ?>
 <?php foreach($this->unsigned as $option): ?>
-                    <option <?php if($this->field['unsigned'] === $option): ?>selected<?php
+                    <option <?php if($this->field->unsigned === $option): ?>selected<?php
                         endif ?>><?php echo $option ?></option>
 <?php endforeach ?>
 <?php endif ?>
@@ -88,16 +88,16 @@
             <label class="col-md-1 adminer-table-column-null second-line">
                 <input type="checkbox" value="1" name="<?php
                     echo $this->prefixFields ?>[null]" data-field="null" <?php
-                    if($this->field['null']): ?>checked <?php endif ?>/> Null
+                    if($this->field->null): ?>checked <?php endif ?>/> Null
             </label>
             <div class="col-md-2 adminer-table-column-middle second-line">
 <?php if(true/*$this->foreignKeys*/): ?>
                 <select class="form-control" name="<?php
                     echo $this->prefixFields ?>[on_delete]" data-field="on_delete"<?php
-                    if($this->field['_on_delete_hidden_']): ?> readonly<?php endif ?>>
+                    if($this->field->onDeleteHidden): ?> readonly<?php endif ?>>
                     <option value="">(<?php echo $this->trans->lang('ON DELETE') ?>)</option>
 <?php foreach($this->options['on_delete'] as $option): ?>
-                    <option <?php if($this->field['on_delete'] === $option): ?>selected<?php
+                    <option <?php if($this->field->onDelete === $option): ?>selected<?php
                         endif ?>><?php echo $option ?></option>
 <?php endforeach ?>
                 </select>
@@ -108,11 +108,11 @@
                     <span class="input-group-addon">
                         <input type="checkbox" value="1" name="<?php
                             echo $this->prefixFields ?>[has_default]" data-field="has_default" <?php
-                            if($this->field['has_default']): ?>checked <?php endif ?>/>
+                            if($this->field->hasDefault): ?>checked <?php endif ?>/>
                     </span>
                     <input class="form-control" name="<?php
                         echo $this->prefixFields ?>[default]" data-field="default" value="<?php
-                        echo $this->field['default'] ?? '' ?>" placeholder="<?php
+                        echo $this->field->default ?? '' ?>" placeholder="<?php
                         echo $this->trans->lang('Default value') ?>">
                 </div>
             </div>

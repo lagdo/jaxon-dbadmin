@@ -132,23 +132,23 @@ class ViewAdmin extends AbstractAdmin
 
         $details = [];
         foreach ($fields as $field) {
-            $type = $this->util->html($field["full_type"]);
-            if ($field["null"]) {
+            $type = $this->util->html($field->fullType);
+            if ($field->null) {
                 $type .= " <i>nullable</i>"; // " <i>NULL</i>";
             }
-            if ($field["auto_increment"]) {
+            if ($field->autoIncrement) {
                 $type .= " <i>" . $this->util->lang('Auto Increment') . "</i>";
             }
             if (\array_key_exists("default", $field)) {
-                $type .= /*' ' . $this->util->lang('Default value') .*/ ' [<b>' . $this->util->html($field["default"]) . '</b>]';
+                $type .= /*' ' . $this->util->lang('Default value') .*/ ' [<b>' . $this->util->html($field->default) . '</b>]';
             }
             $detail = [
-                'name' => $this->util->html($field["field"] ?? ''),
+                'name' => $this->util->html($field->name),
                 'type' => $type,
-                'collation' => $this->util->html($field["collation"] ?? ''),
+                'collation' => $this->util->html($field->collation),
             ];
             if ($hasComment) {
-                $detail['comment'] = $this->util->html($field["comment"] ?? '');
+                $detail['comment'] = $this->util->html($field->comment);
             }
 
             $details[] = $detail;

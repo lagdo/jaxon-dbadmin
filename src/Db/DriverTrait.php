@@ -105,7 +105,7 @@ trait DriverTrait
      *
      * @param string $idf escaped column name
      * @param array $val array("op" => , "val" => )
-     * @param array $field
+     * @param object $field
      *
      * @return string
      */

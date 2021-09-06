@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
+use Lagdo\DbAdmin\Driver\Db\TableField;
+
 use Exception;
 
 /**
@@ -160,13 +162,13 @@ class TableSelectAdmin extends AbstractAdmin
     private function buildSelectQuery($table, $select, $where, $group, $order = [], $limit = 1, $page = 0)
     {
         // From driver.inc.php
-        $is_group = (\count($group) < \count($select));
+        $isGroup = (\count($group) < \count($select));
         $query = $this->db->buildSelectQuery($select, $where, $group, $order, $limit, $page);
         if (!$query) {
             $query = "SELECT" . $this->db->limit(
-                ($page != "last" && $limit != "" && $group && $is_group && $this->db->jush() == "sql" ?
+                ($page != "last" && $limit != "" && $group && $isGroup && $this->db->jush() == "sql" ?
                     "SQL_CALC_FOUND_ROWS " : "") . \implode(", ", $select) . "\nFROM " . $this->db->table($table),
-                ($where ? "\nWHERE " . \implode(" AND ", $where) : "") . ($group && $is_group ?
+                ($where ? "\nWHERE " . \implode(" AND ", $where) : "") . ($group && $isGroup ?
                     "\nGROUP BY " . \implode(", ", $group) : "") . ($order ? "\nORDER BY " . \implode(", ", $order) : ""),
                 ($limit != "" ? +$limit : null),
                 ($page ? $limit * $page : 0),
@@ -223,17 +225,17 @@ class TableSelectAdmin extends AbstractAdmin
         $textLength = null;
         foreach ($fields as $key => $field) {
             $name = $this->util->fieldName($field);
-            if (isset($field["privileges"]["select"]) && $name != "") {
+            if (isset($field->privileges["select"]) && $name != "") {
                 $columns[$key] = \html_entity_decode(\strip_tags($name), ENT_QUOTES);
                 if ($this->util->isShortable($field)) {
                     $textLength = $this->util->processSelectLength();
                 }
             }
-            $rights[] = $field["privileges"];
+            $rights[] = $field->privileges;
         }
 
         list($select, $group) = $this->util->processSelectColumns($columns, $indexes);
-        $is_group = \count($group) < \count($select);
+        $isGroup = \count($group) < \count($select);
         $where = $this->util->processSelectSearch($fields, $indexes);
         $order = $this->util->processSelectOrder($fields, $indexes);
         $limit = $this->util->processSelectLimit();
@@ -292,7 +294,7 @@ class TableSelectAdmin extends AbstractAdmin
 
         // if($page == "last")
         // {
-        //     $found_rows = $this->db->result($this->db->countRows($table, $where, $is_group, $group));
+        //     $found_rows = $this->db->result($this->db->countRows($table, $where, $isGroup, $group));
         //     $page = \floor(\max(0, $found_rows - 1) / $limit);
         // }
 
@@ -320,7 +322,7 @@ class TableSelectAdmin extends AbstractAdmin
                 $select2[$key] = "$as AS $val";
             }
         }
-        if (!$is_group && $unselected) {
+        if (!$isGroup && $unselected) {
             foreach ($unselected as $key => $val) {
                 $select2[] = $this->db->escapeId($key);
                 if ($group2) {
@@ -335,8 +337,8 @@ class TableSelectAdmin extends AbstractAdmin
         // $query = ob_get_clean();
         $query = $this->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
 
-        return [$tableName, $select, $group, $fields, $foreignKeys, $columns, $indexes,
-            $where, $order, $limit, $page, $textLength, $options, $query, $is_group];
+        return [$options, $query, $select, $fields, $foreignKeys, $columns, $indexes,
+            $where, $group, $order, $limit, $page, $textLength, $isGroup, $tableName];
     }
 
     /**
@@ -349,10 +351,9 @@ class TableSelectAdmin extends AbstractAdmin
      */
     public function getSelectData(string $table, array $queryOptions = [])
     {
-        list($tableName, $select, $group, $fields, $foreignKeys, $columns, $indexes, $where, $order,
-            $limit, $page, $textLength, $options, $query) = $this->prepareSelect($table, $queryOptions);
-        $query = $this->util->html($query);
+        list($options, $query) = $this->prepareSelect($table, $queryOptions);
 
+        $query = $this->util->html($query);
         $mainActions = [
             'select-exec' => $this->util->lang('Execute'),
             'select-cancel' => $this->util->lang('Cancel'),
@@ -371,8 +372,9 @@ class TableSelectAdmin extends AbstractAdmin
      */
     public function execSelect(string $table, array $queryOptions)
     {
-        list($tableName, $select, $group, $fields, $foreignKeys, $columns, $indexes, $where, $order, $limit, $page,
-            $textLength, $options, $query, $is_group) = $this->prepareSelect($table, $queryOptions);
+        list($options, $query, $select, $fields, $foreignKeys, $columns, $indexes,
+            $where, $group, $order, $limit, $page, $textLength, $isGroup, $tableName) =
+            $this->prepareSelect($table, $queryOptions);
 
         $error = null;
         // From driver.inc.php
@@ -462,8 +464,8 @@ class TableSelectAdmin extends AbstractAdmin
             ];
             foreach ($unique_array as $key => $val) {
                 $key = \trim($key);
-                $type = $fields[$key]["type"] ?? '';
-                $collation = $fields[$key]["collation"] ?? '';
+                $type = $fields[$key]->type;
+                $collation = $fields[$key]->collation;
                 if (($this->db->jush() == "sql" || $this->db->jush() == "pgsql") &&
                     \preg_match('~char|text|enum|set~', $type) && strlen($val) > 64) {
                     $key = (\strpos($key, '(') ? $key : $this->db->escapeId($key)); //! columns looking like functions
@@ -483,7 +485,7 @@ class TableSelectAdmin extends AbstractAdmin
             $cols = [];
             foreach ($row as $key => $val) {
                 if (isset($names[$key])) {
-                    $field = $fields[$key] ?? [];
+                    $field = $fields[$key] ?? new TableField();
                     $val = $this->db->value($val, $field);
                     if ($val != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
                         //! filled e-mails can be contained on other pages
@@ -493,7 +495,7 @@ class TableSelectAdmin extends AbstractAdmin
                     $link = "";
 
                     $val = $this->util->selectValue($val, $link, $field, $textLength);
-                    $text = \preg_match('~text|lob~', $field["type"] ?? '');
+                    $text = \preg_match('~text|lob~', $field->type);
 
                     $cols[] = \compact(/*'id', */'text', 'val'/*, 'editable'*/);
                 }
@@ -501,7 +503,7 @@ class TableSelectAdmin extends AbstractAdmin
             $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
 
-        $total = $this->db->result($this->db->countRows($table, $where, $is_group, $group));
+        $total = $this->db->result($this->db->countRows($table, $where, $isGroup, $group));
 
         $rows = $results;
         return \compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'error');

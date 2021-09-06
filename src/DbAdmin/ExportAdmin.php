@@ -248,21 +248,19 @@ class ExportAdmin extends AbstractAdmin
      * Convert a value to string
      *
      * @param mixed  $val
-     * @param array  $field
+     * @param object $field
      *
      * @return string
      */
-    protected function convertToString($val, array $field)
+    protected function convertToString($val, $field)
     {
         // From functions.inc.php
         if ($val === null) {
             return "NULL";
         }
-        return $this->db->unconvertField($field, \preg_match(
-            $this->db->numberRegex(),
-            $field["type"]
-        ) && !\preg_match('~\[~', $field["full_type"]) &&
-            \is_numeric($val) ? $val : $this->db->quote(($val === false ? 0 : $val)));
+        return $this->db->unconvertField($field, \preg_match($this->db->numberRegex(), $field->type) &&
+            !\preg_match('~\[~', $field->fullType) && \is_numeric($val) ?
+            $val : $this->db->quote(($val === false ? 0 : $val)));
     }
 
     /**
@@ -288,7 +286,7 @@ class ExportAdmin extends AbstractAdmin
         if ($is_view == 2) {
             $fields = [];
             foreach ($this->db->fields($table) as $name => $field) {
-                $fields[] = $this->db->escapeId($name) . ' ' . $field['full_type'];
+                $fields[] = $this->db->escapeId($name) . ' ' . $field->fullType;
             }
             $create = "CREATE TABLE " . $this->db->table($table) . " (" . \implode(", ", $fields) . ")";
         } else {

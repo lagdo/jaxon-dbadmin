@@ -141,7 +141,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
      */
     public function options()
     {
-        $server = $this->options['host'];
+        $server = $this->options['host'] ?? '';
         $port = $this->options['port'] ?? ''; // Optional
         // Append the port to the host if it is defined.
         if (($port)) {
@@ -171,9 +171,9 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
      */
     public function defaultValue($field)
     {
-        $default = $field["default"];
+        $default = $field->default;
         return ($default === null ? "" : " DEFAULT " .
-            (preg_match('~char|binary|text|enum|set~', $field["type"]) ||
+            (preg_match('~char|binary|text|enum|set~', $field->type) ||
             preg_match('~^(?![a-z])~i', $default) ? $this->server->quote($default) : $default));
     }
 

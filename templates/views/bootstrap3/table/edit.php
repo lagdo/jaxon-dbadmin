@@ -56,13 +56,13 @@
 <?php endif ?>
             </div>
         </div>
-<?php foreach($this->fields as $index => $field): ?>
+<?php $index = 0; foreach($this->fields as $field): ?>
 <?php echo $this->render('adminer::views::table/column', [
     'trans' => $this->trans,
     'class' => $this->formId . '-column',
     'index' => $index,
     'field' => $field,
-    'prefixFields' => sprintf("fields[%d]", $index + 1),
+    'prefixFields' => sprintf("fields[%d]", ++$index),
     'collations' => $this->collations,
     'unsigned' => $this->unsigned,
     'foreignKeys' => $this->foreignKeys,

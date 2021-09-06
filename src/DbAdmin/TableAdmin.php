@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
+use Lagdo\DbAdmin\Driver\Db\TableField;
+
 use Exception;
 
 /**
@@ -151,23 +153,23 @@ class TableAdmin extends AbstractAdmin
 
         $details = [];
         foreach ($fields as $field) {
-            $type = $this->util->html($field['full_type']);
-            if ($field['null']) {
+            $type = $this->util->html($field->fullType);
+            if ($field->null) {
                 $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
             }
-            if ($field['auto_increment']) {
+            if ($field->autoIncrement) {
                 $type .= ' <i>' . $this->util->lang('Auto Increment') . '</i>';
             }
-            if (\array_key_exists('default', $field)) {
-                $type .= /*' ' . $this->util->lang('Default value') .*/ ' [<b>' . $this->util->html($field['default']) . '</b>]';
+            if ($field->default !== '') {
+                $type .= /*' ' . $this->util->lang('Default value') .*/ ' [<b>' . $this->util->html($field->default) . '</b>]';
             }
             $detail = [
-                'name' => $this->util->html($field['field'] ?? ''),
+                'name' => $this->util->html($field->name),
                 'type' => $type,
-                'collation' => $this->util->html($field['collation'] ?? ''),
+                'collation' => $this->util->html($field->collation),
             ];
             if ($hasComment) {
-                $detail['comment'] = $this->util->html($field['comment'] ?? '');
+                $detail['comment'] = $this->util->html($field->comment);
             }
 
             $details[] = $detail;
@@ -352,7 +354,7 @@ class TableAdmin extends AbstractAdmin
         $this->foreignKeys = [];
         foreach ($this->referencableTables as $tableName => $field) {
             $name = \str_replace('`', '``', $tableName) .
-                '`' . \str_replace('`', '``', $field['field']);
+                '`' . \str_replace('`', '``', $field->name);
             // not escapeId() - used in JS
             $this->foreignKeys[$name] = $tableName;
         }
@@ -401,37 +403,26 @@ class TableAdmin extends AbstractAdmin
             if (!$status) {
                 throw new Exception($this->util->lang('No tables.'));
             }
-            $orig_fields = $this->db->fields($table);
-            $fields = [];
-            foreach ($orig_fields as $field) {
-                $field['has_default'] = isset($field['default']);
-                $fields[] = $field;
-            }
+            $fields = $this->db->fields($table);
         }
 
         $this->getForeignKeys();
 
         $hasAutoIncrement = false;
         foreach ($fields as &$field) {
-            $hasAutoIncrement = $hasAutoIncrement && $field['auto_increment'];
-            $field['has_default'] = isset($field['default']);
-            $type = $field['type'];
-            $field['_types_'] = $this->getFieldTypes($type);
-            if (!isset($field['on_update'])) {
-                $field['on_update'] = '';
-            }
-            if (!isset($field['on_delete'])) {
-                $field['on_delete'] = '';
-            }
-            if (\preg_match('~^CURRENT_TIMESTAMP~i', $field['on_update'])) {
-                $field['on_update'] = 'CURRENT_TIMESTAMP';
+            $hasAutoIncrement = $hasAutoIncrement && $field->autoIncrement;
+            $field->hasDefault = $field->default !== null;
+            if (\preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate)) {
+                $field->onUpdate = 'CURRENT_TIMESTAMP';
             }
 
-            $field['_length_required_'] = !$field['length'] && \preg_match('~var(char|binary)$~', $type);
-            $field['_collation_hidden_'] = !\preg_match('~(char|text|enum|set)$~', $type);
-            $field['_unsigned_hidden_'] = !(!$type || \preg_match($this->db->numberRegex(), $type));
-            $field['_on_update_hidden_'] = !\preg_match('~timestamp|datetime~', $type);
-            $field['_on_delete_hidden_'] = !\preg_match('~`~', $type);
+            $type = $field->type;
+            $field->types = $this->getFieldTypes($type);
+            $field->lengthRequired = !$field->length && \preg_match('~var(char|binary)$~', $type);
+            $field->collationHidden = !\preg_match('~(char|text|enum|set)$~', $type);
+            $field->unsignedHidden = !(!$type || \preg_match($this->db->numberRegex(), $type));
+            $field->onUpdateHidden = !\preg_match('~timestamp|datetime~', $type);
+            $field->onDeleteHidden = !\preg_match('~`~', $type);
         }
         $options = [
             'has_auto_increment' => $hasAutoIncrement,
@@ -474,29 +465,9 @@ class TableAdmin extends AbstractAdmin
     public function getTableField()
     {
         $this->getForeignKeys();
-
-        return [
-            'field' => '',
-            'type' => '',
-            'length' => '',
-            'unsigned' => '',
-            'null' => false,
-            'auto_increment' => false,
-            'collation' => '',
-            'has_default' => false,
-            'default' => null,
-            'comment' => '',
-            // 'primary' => true,
-            // 'generated' => 0,
-            'on_update' => '',
-            'on_delete' => '',
-            '_types_' => $this->getFieldTypes(),
-            '_length_required_' => false,
-            '_collation_hidden_' => true,
-            '_unsigned_hidden_' => false,
-            '_on_update_hidden_' => true,
-            '_on_delete_hidden_' => true
-        ];
+        $field = new TableField();
+        $field->types = $this->getFieldTypes();
+        return $field;
     }
 
     /**

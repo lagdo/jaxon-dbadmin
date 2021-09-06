@@ -663,21 +663,21 @@ trait ServerTrait
 
     /**
      * Convert field in select and edit
-     * @param array $field one element from $this->fields()
+     * @param object $field one element from $this->fields()
      * @return string
      */
-    public function convertField(array $field)
+    public function convertField($field)
     {
         return $this->server->convertField($field);
     }
 
     /**
      * Convert value in edit after applying functions back
-     * @param array $field one element from $this->fields()
+     * @param object $field one element from $this->fields()
      * @param string $return
      * @return string
      */
-    public function unconvertField(array $field, $return)
+    public function unconvertField($field, $return)
     {
         return $this->server->unconvertField($field, $return);
     }

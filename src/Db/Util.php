@@ -137,7 +137,7 @@ class Util implements UtilInterface
      */
     public function isShortable($field)
     {
-        return preg_match('~char|text|json|lob|geometry|point|linestring|polygon|string|bytea~', $field["type"] ?? '');
+        return preg_match('~char|text|json|lob|geometry|point|linestring|polygon|string|bytea~', $field->type);
     }
 
     /**
@@ -230,7 +230,7 @@ class Util implements UtilInterface
                 $this->db->quote(preg_replace('~[_%[]~', '[\0]', $val)) : " = " . // LIKE because of text
                 $this->db->unconvertField($fields[$key], $this->db->quote($val)))); //! enum and set
             if ($this->db->jush() == "sql" &&
-                preg_match('~char|text~', $fields[$key]["type"]) && preg_match("~[^ -@]~", $val)) {
+                preg_match('~char|text~', $fields[$key]->type) && preg_match("~[^ -@]~", $val)) {
                 // not just [a-z] to catch non-ASCII characters
                 $return[] = "$column = " . $this->db->quote($val) . " COLLATE " . $this->db−>charset() . "_bin";
             }
@@ -350,7 +350,7 @@ class Util implements UtilInterface
      */
     public function fieldName($field, $order = 0)
     {
-        return '<span title="' . $this->html($field["full_type"]) . '">' . $this->html($field["field"]) . '</span>';
+        return '<span title="' . $this->html($field->fullType) . '">' . $this->html($field->name) . '</span>';
     }
 
     /**
@@ -403,7 +403,7 @@ class Util implements UtilInterface
         foreach ($this->db->tableStatus('', true) as $tableName => $table) {
             if ($tableName != $self && $this->db->supportForeignKeys($table)) {
                 foreach ($this->db->fields($tableName) as $field) {
-                    if (isset($field["primary"])) {
+                    if ($field->primary) {
                         if (isset($return[$tableName])) { // multi column primary key
                             unset($return[$tableName]);
                             break;
@@ -430,26 +430,26 @@ class Util implements UtilInterface
 
     /**
      * Functions displayed in edit form
-     * @param array $field Single field from fields()
+     * @param object $field Single field from fields()
      * @return array
      */
-    public function editFunctions(array $field)
+    public function editFunctions($field)
     {
-        $return = ($field["null"] ? "NULL/" : "");
+        $return = ($field->null ? "NULL/" : "");
         $update = isset($options["select"]) || $this->where([]);
         foreach ($this->db->editFunctions() as $key => $functions) {
             if (!$key || (!isset($options["call"]) && $update)) { // relative functions
                 foreach ($functions as $pattern => $val) {
-                    if (!$pattern || preg_match("~$pattern~", $field["type"])) {
+                    if (!$pattern || preg_match("~$pattern~", $field->type)) {
                         $return .= "/$val";
                     }
                 }
             }
-            if ($key && !preg_match('~set|blob|bytea|raw|file|bool~', $field["type"])) {
+            if ($key && !preg_match('~set|blob|bytea|raw|file|bool~', $field->type)) {
                 $return .= "/SQL";
             }
         }
-        if ($field["auto_increment"] && !$update) {
+        if ($field->autoIncrement && !$update) {
             $return = $this->lang('Auto Increment');
         }
         return explode("/", $return);
@@ -477,7 +477,7 @@ class Util implements UtilInterface
      */
     public function _selectValue($val, $link, $field, $original)
     {
-        $type = $field["type"] ?? '';
+        $type = $field->type;
         $return = ($val === null ? "<i>NULL</i>" :
             (preg_match("~char|binary|boolean~", $type) && !preg_match("~var~", $type) ?
             "<code>$val</code>" : $val));
@@ -523,7 +523,7 @@ class Util implements UtilInterface
      */
     // public function enum_input($type, $attrs, $field, $value, $empty = null)
     // {
-    //     preg_match_all("~'((?:[^']|'')*)'~", $field["length"], $matches);
+    //     preg_match_all("~'((?:[^']|'')*)'~", $field->length, $matches);
     //     $return = ($empty !== null ? "<label><input type='$type'$attrs value='$empty'" .
     //         ((is_array($value) ? in_array($empty, $value) : $value === 0) ? " checked" : "") .
     //         "><i>" . $this->lang('empty') . "</i></label>" : "");
@@ -540,14 +540,14 @@ class Util implements UtilInterface
      * Get options to display edit field
      * @param string $table table name
      * @param boolean $select
-     * @param array $field single field from fields()
+     * @param object $field single field from fields()
      * @param string $attrs attributes to use inside the tag
      * @param string $value
      * @return array
      */
     public function editInput($table, $select, $field, $attrs, $value)
     {
-        if ($field["type"] !== "enum") {
+        if ($field->type !== "enum") {
             return [];
         }
         $return = [];
@@ -555,7 +555,7 @@ class Util implements UtilInterface
             $return[] = "<label><input type='radio'$attrs value='-1' checked><i>" .
                 $this->lang('original') . "</i></label> ";
         }
-        if (($field["null"])) {
+        if (($field->null)) {
             $return[] = "<label><input type='radio'$attrs value=''" .
                 ($value !== null || ($select) ? "" : " checked") . "><i>NULL</i></label> ";
         }
@@ -567,7 +567,7 @@ class Util implements UtilInterface
             ((\is_array($value) ? \in_array($empty, $value) : $value === 0) ? " checked" : "") .
             "><i>" . $this->lang('empty') . "</i></label>";
 
-        \preg_match_all("~'((?:[^']|'')*)'~", $field["length"], $matches);
+        \preg_match_all("~'((?:[^']|'')*)'~", $field->length, $matches);
         foreach ($matches[1] as $i => $val) {
             $val = \stripcslashes(\str_replace("''", "'", $val));
             $checked = (\is_int($value) ? $value == $i + 1 :
@@ -646,13 +646,13 @@ class Util implements UtilInterface
     public function processType($field, $collate = "COLLATE")
     {
         $values = [
-            'unsigned' => $field["unsigned"] ?? null,
-            'collation' => $field["collation"] ?? null,
+            'unsigned' => $field->unsigned,
+            'collation' => $field->collation,
         ];
-        return " $field[type]" . $this->processLength($field["length"]) .
-            (preg_match($this->db->numberRegex(), $field["type"]) &&
+        return " $field[type]" . $this->processLength($field->length) .
+            (preg_match($this->db->numberRegex(), $field->type) &&
             in_array($values["unsigned"], $this->db->unsigned()) ?
-            " $values[unsigned]" : "") . (preg_match('~char|text|enum|set~', $field["type"]) &&
+            " $values[unsigned]" : "") . (preg_match('~char|text|enum|set~', $field->type) &&
             $values["collation"] ? " $collate " . $this->db->quote($values["collation"]) : "")
         ;
     }
@@ -666,15 +666,15 @@ class Util implements UtilInterface
     public function processField($field, $typeField)
     {
         return array(
-            $this->db->escapeId(trim($field["field"])),
+            $this->db->escapeId(trim($field->name)),
             $this->processType($typeField),
-            ($field["null"] ? " NULL" : " NOT NULL"), // NULL for timestamp
+            ($field->null ? " NULL" : " NOT NULL"), // NULL for timestamp
             $this->db->defaultValue($field),
-            (preg_match('~timestamp|datetime~', $field["type"]) && $field["on_update"] ?
-                " ON UPDATE $field[on_update]" : ""),
-            ($this->db->support("comment") && $field["comment"] != "" ?
-                " COMMENT " . $this->db->quote($field["comment"]) : ""),
-            ($field["auto_increment"] ? $this->db->autoIncrement() : null),
+            (preg_match('~timestamp|datetime~', $field->type) && $field->onUpdate ?
+                " ON UPDATE {$field->onUpdate}" : ""),
+            ($this->db->support("comment") && $field->comment != "" ?
+                " COMMENT " . $this->db->quote($field->comment) : ""),
+            ($field->autoIncrement ? $this->db->autoIncrement() : null),
         );
     }
 
@@ -686,10 +686,10 @@ class Util implements UtilInterface
      */
     public function processInput($field, $inputs)
     {
-        $idf = $this->bracketEscape($field["field"]);
+        $idf = $this->bracketEscape($field->name);
         $function = $inputs["function"][$idf] ?? '';
         $value = $inputs["fields"][$idf];
-        if ($field["type"] == "enum") {
+        if ($field->type == "enum") {
             if ($value == -1) {
                 return false;
             }
@@ -698,17 +698,17 @@ class Util implements UtilInterface
             }
             return +$value;
         }
-        if ($field["auto_increment"] && $value == "") {
+        if ($field->autoIncrement && $value == "") {
             return null;
         }
         if ($function == "orig") {
-            return (preg_match('~^CURRENT_TIMESTAMP~i', $field["on_update"]) ?
-                $this->db->escapeId($field["field"]) : false);
+            return (preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) ?
+                $this->db->escapeId($field->name) : false);
         }
         if ($function == "NULL") {
             return "NULL";
         }
-        if ($field["type"] == "set") {
+        if ($field->type == "set") {
             return array_sum((array) $value);
         }
         if ($function == "json") {
@@ -719,7 +719,7 @@ class Util implements UtilInterface
             }
             return $value;
         }
-        if (preg_match('~blob|bytea|raw|file~', $field["type"]) && $this->iniBool("file_uploads")) {
+        if (preg_match('~blob|bytea|raw|file~', $field->type) && $this->iniBool("file_uploads")) {
             $file = $this->getFile("fields-$idf");
             if (!is_string($file)) {
                 return false; //! report errors
@@ -768,7 +768,7 @@ class Util implements UtilInterface
         if ($function == "SQL") {
             return $value; // SQL injection
         }
-        $name = $field["field"];
+        $name = $field->name;
         $return = $this->db->quote($value);
         if (preg_match('~^(now|getdate|uuid)$~', $function)) {
             $return = "$function()";
@@ -836,9 +836,9 @@ class Util implements UtilInterface
                     $cols = [];
                     foreach ($fields as $name => $field) {
                         if ((preg_match('~^[-\d.' . (preg_match('~IN$~', $val["op"]) ? ',' : '') . ']+$~', $val["val"]) ||
-                            !preg_match('~' . $this->db->numberRegex() . '|bit~', $field["type"])) &&
-                            (!preg_match("~[\x80-\xFF]~", $val["val"]) || preg_match('~char|text|enum|set~', $field["type"])) &&
-                            (!preg_match('~date|timestamp~', $field["type"]) || preg_match('~^\d+-\d+-\d+~', $val["val"]))
+                            !preg_match('~' . $this->db->numberRegex() . '|bit~', $field->type)) &&
+                            (!preg_match("~[\x80-\xFF]~", $val["val"]) || preg_match('~char|text|enum|set~', $field->type)) &&
+                            (!preg_match('~date|timestamp~', $field->type) || preg_match('~^\d+-\d+-\d+~', $val["val"]))
                         ) {
                             $cols[] = $prefix . $this->db->convertSearch($this->db->escapeId($name), $val, $field) . $cond;
                         }
