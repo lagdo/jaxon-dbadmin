@@ -139,23 +139,28 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     /**
      * @inheritDoc
      */
-    public function options()
+    public function options(string $name = '')
     {
-        $server = $this->options['host'] ?? '';
-        $port = $this->options['port'] ?? ''; // Optional
-        // Append the port to the host if it is defined.
-        if (($port)) {
-            $server .= ":$port";
+        if (!($name = trim($name))) {
+            return $this->options;
         }
-
-        return [$server, $this->options];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function sslOptions()
-    {
+        if (\array_key_exists($name, $this->options)) {
+            return $this->options[$name];
+        }
+        if ($name === 'server') {
+            $server = $this->options['host'] ?? '';
+            $port = $this->options['port'] ?? ''; // Optional
+            // Append the port to the host if it is defined.
+            if (($port)) {
+                $server .= ":$port";
+            }
+            return $server;
+        }
+        // if ($name === 'ssl') {
+        //     return false; // No SSL options yet
+        // }
+        // Option not found
+        return '';
     }
 
     /**
