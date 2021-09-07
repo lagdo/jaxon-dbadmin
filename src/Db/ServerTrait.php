@@ -733,21 +733,12 @@ trait ServerTrait
     // }
 
     /**
-     * Get driver config
-     * @return array array('possibleDrivers' => , 'jush' => , 'types' => , 'structuredTypes' => , 'unsigned' => , 'operators' => , 'functions' => , 'grouping' => , 'editFunctions' => )
-     */
-    public function driverConfig()
-    {
-        return $this->server->driverConfig();
-    }
-
-    /**
      * Get the server jush
      * @return string
      */
     public function jush()
     {
-        return $this->server->jush;
+        return $this->server->config()->jush;
     }
 
     /**
@@ -755,7 +746,7 @@ trait ServerTrait
      */
     public function unsigned()
     {
-        return $this->server->unsigned;
+        return $this->server->config()->unsigned;
     }
 
     /**
@@ -763,7 +754,7 @@ trait ServerTrait
      */
     public function functions()
     {
-        return $this->server->functions;
+        return $this->server->config()->functions;
     }
 
     /**
@@ -771,7 +762,7 @@ trait ServerTrait
      */
     public function grouping()
     {
-        return $this->server->grouping;
+        return $this->server->config()->grouping;
     }
 
     /**
@@ -779,7 +770,7 @@ trait ServerTrait
      */
     public function operators()
     {
-        return $this->server->operators;
+        return $this->server->config()->operators;
     }
 
     /**
@@ -787,7 +778,7 @@ trait ServerTrait
      */
     public function editFunctions()
     {
-        return $this->server->editFunctions;
+        return $this->server->config()->editFunctions;
     }
 
     /**
@@ -795,7 +786,7 @@ trait ServerTrait
      */
     public function types()
     {
-        return $this->server->types;
+        return $this->server->config()->types;
     }
 
     /**
@@ -805,7 +796,7 @@ trait ServerTrait
      */
     public function typeExists(string $type)
     {
-        return isset($this->server->types[$type]);
+        return isset($this->server->config()->types[$type]);
     }
 
     /**
@@ -815,7 +806,7 @@ trait ServerTrait
      */
     public function type(string $type)
     {
-        return $this->server->types[$type];
+        return $this->server->config()->types[$type];
     }
 
     /**
@@ -823,7 +814,7 @@ trait ServerTrait
      */
     public function structuredTypes()
     {
-        return $this->server->structuredTypes;
+        return $this->server->config()->structuredTypes;
     }
 
     /**
@@ -834,7 +825,7 @@ trait ServerTrait
      */
     public function setStructuredType(string $key, $value)
     {
-        $this->server->structuredTypes[$key] = $value;
+        $this->server->config()->structuredTypes[$key] = $value;
     }
 
     /**

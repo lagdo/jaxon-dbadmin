@@ -526,12 +526,6 @@ interface ServerInterface
     // public function maxConnections();
 
     /**
-     * Get driver config
-     * @return array
-     */
-    public function driverConfig();
-
-    /**
      * Get the server jush
      * @return string
      */
