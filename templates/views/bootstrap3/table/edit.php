@@ -23,12 +23,17 @@
                 <select name="collation" class="form-control">
                     <option value="" selected>(collation)</option>
 <?php foreach($this->collations as $group => $collations): ?>
+                    <option <?php if($this->table['Collation'] === $collations): ?>selected<?php
+                        endif ?>><?php echo $collations ?></option>
+<?php if(is_string($collations)): ?>
+<?php else: ?>
                     <optgroup label="<?php echo $group ?>">
 <?php foreach($collations as $collation): ?>
                         <option <?php if($this->table['Collation'] === $collation): ?>selected<?php
                             endif ?>><?php echo $collation ?></option>
 <?php endforeach ?>
                     </optgroup>
+<?php endif ?>
 <?php endforeach ?>
                 </select>
             </div>
@@ -43,9 +48,9 @@
         </div>
         <div class="form-group adminer-table-column-header">
             <label class="col-md-5 adminer-table-column-left"><?php echo $this->trans->lang('Column') ?></label>
-            <label class="col-md-1 adminer-table-column-null-header" for="auto_increment_col">
-                <input type="radio" name="auto_increment_col" value="" <?php
-                    if(!$this->options['has_auto_increment']): ?>checked <?php endif ?>/> AI
+            <label class="col-md-1 adminer-table-column-null-header" for="autoIncrementCol">
+                <input type="radio" name="autoIncrementCol" value="0" <?php
+                    if(!$this->options['hasAutoIncrement']): ?>checked <?php endif ?>/> AI
             </label>
             <label class="col-md-4 adminer-table-column-middle"><?php echo $this->trans->lang('Options') ?></label>
             <div class="col-md-2 adminer-table-column-buttons-header">

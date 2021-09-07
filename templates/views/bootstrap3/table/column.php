@@ -6,8 +6,8 @@
             <!-- Start first line -->
             <div class="col-md-3 adminer-table-column-left">
                 <input class="form-control column-name" name="<?php
-                    echo $this->prefixFields ?>[field]" placeholder="<?php
-                    echo $this->trans->lang('Name') ?>" data-field="field" value="<?php
+                    echo $this->prefixFields ?>[name]" placeholder="<?php
+                    echo $this->trans->lang('Name') ?>" data-field="name" value="<?php
                     echo $this->field->name ?>" data-maxlength="64" autocapitalize="off" />
                 <input type="hidden" name="<?php echo $this->prefixFields ?>[orig]" value="<?php
                     echo $this->field->name ?>" data-field="orig" />
@@ -18,26 +18,31 @@
                     if($this->field->collationHidden): ?> readonly<?php endif ?>>
                     <option value="">(<?php echo $this->trans->lang('collation') ?>)</option>
 <?php foreach($this->collations as $group => $collations): ?>
+<?php if(is_string($collations)): ?>
+                    <option <?php if($this->field->collation === $collations): ?>selected<?php
+                        endif ?>><?php echo $collations ?></option>
+<?php else: ?>
                     <optgroup label="<?php echo $group ?>">
 <?php foreach($collations as $collation): ?>
                         <option <?php if($this->field->collation === $collation): ?>selected<?php
                             endif ?>><?php echo $collation ?></option>
 <?php endforeach ?>
                     </optgroup>
+<?php endif ?>
 <?php endforeach ?>
                 </select>
             </div>
-            <label class="col-md-1 adminer-table-column-null" for="auto_increment_col">
-                <input type="radio" name="auto_increment_col" value="<?php echo ($this->index + 1) ?>" <?php
+            <label class="col-md-1 adminer-table-column-null" for="autoIncrementCol">
+                <input type="radio" name="autoIncrementCol" value="<?php echo ($this->index + 1) ?>" <?php
                     if($this->field->autoIncrement): ?>checked <?php endif ?>/> AI
             </label>
             <div class="col-md-2 adminer-table-column-middle">
 <?php if(true/*isset($this->field->onUpdate)*/): ?>
                 <select class="form-control" name="<?php
-                    echo $this->prefixFields ?>[on_update]" data-field="on_update"<?php
+                    echo $this->prefixFields ?>[onUpdate]" data-field="onUpdate"<?php
                     if($this->field->onUpdateHidden): ?> readonly<?php endif ?>>
                     <option value="">(<?php echo $this->trans->lang('ON UPDATE') ?>)</option>
-<?php foreach($this->options['on_update'] as $group => $option): ?>
+<?php foreach($this->options['onUpdate'] as $group => $option): ?>
                     <option <?php if($this->field->onUpdate === $option): ?>selected<?php
                         endif ?>><?php echo $option ?></option>
 <?php endforeach ?>
@@ -93,10 +98,10 @@
             <div class="col-md-2 adminer-table-column-middle second-line">
 <?php if(true/*$this->foreignKeys*/): ?>
                 <select class="form-control" name="<?php
-                    echo $this->prefixFields ?>[on_delete]" data-field="on_delete"<?php
+                    echo $this->prefixFields ?>[onDelete]" data-field="onDelete"<?php
                     if($this->field->onDeleteHidden): ?> readonly<?php endif ?>>
                     <option value="">(<?php echo $this->trans->lang('ON DELETE') ?>)</option>
-<?php foreach($this->options['on_delete'] as $option): ?>
+<?php foreach($this->options['onDelete'] as $option): ?>
                     <option <?php if($this->field->onDelete === $option): ?>selected<?php
                         endif ?>><?php echo $option ?></option>
 <?php endforeach ?>
@@ -107,7 +112,7 @@
                 <div class="input-group">
                     <span class="input-group-addon">
                         <input type="checkbox" value="1" name="<?php
-                            echo $this->prefixFields ?>[has_default]" data-field="has_default" <?php
+                            echo $this->prefixFields ?>[hasDefault]" data-field="hasDefault" <?php
                             if($this->field->hasDefault): ?>checked <?php endif ?>/>
                     </span>
                     <input class="form-control" name="<?php

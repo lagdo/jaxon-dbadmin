@@ -115,7 +115,7 @@ trait ViewTrait
     public function createView(string $server, string $database, string $schema, array $values)
     {
         $this->connect($server, $database, $schema);
-        $this->util->input->table = $view;
+        $this->util->input->table = $values['name'];
         return $this->view()->createView($values);
     }
 

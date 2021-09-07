@@ -81,10 +81,10 @@ class Input implements InputInterface
      */
     public function getAutoIncrementStep()
     {
-        if (!isset($this->values['auto_increment']) || $this->values['auto_increment'] == '') {
+        if (!isset($this->values['autoIncrementStep'])) {
             return '';
         }
-        return $this->values['auto_increment'];
+        return $this->values['autoIncrementStep'];
     }
 
     /**
@@ -92,10 +92,10 @@ class Input implements InputInterface
      */
     public function getAutoIncrementField()
     {
-        if (!isset($this->values['auto_increment_col'])) {
-            return '';
+        if (!isset($this->values['autoIncrementCol'])) {
+            return '0';
         }
-        return $this->values['auto_increment_col'];
+        return $this->values['autoIncrementCol'];
     }
 
     /**

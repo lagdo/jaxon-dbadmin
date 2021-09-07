@@ -194,7 +194,7 @@ trait ServerTrait
      * Format foreign key to use in SQL query
      *
      * @param array ("db" => string, "ns" => string, "table" => string, "source" => array, "target" => array,
-     * "on_delete" => one of $this->onActions, "on_update" => one of $this->onActions)
+     * "onDelete" => one of $this->onActions, "onUpdate" => one of $this->onActions)
      *
      * @return string
      */
@@ -267,7 +267,7 @@ trait ServerTrait
     /**
      * Get information about fields
      * @param string
-     * @return array array($name => array("field" => , "full_type" => , "type" => , "length" => , "unsigned" => , "default" => , "null" => , "auto_increment" => , "on_update" => , "collation" => , "privileges" => , "comment" => , "primary" => ))
+     * @return array
      */
     public function fields($table)
     {
@@ -288,7 +288,7 @@ trait ServerTrait
     /**
      * Get foreign keys in table
      * @param string
-     * @return array array($name => array("db" => , "ns" => , "table" => , "source" => [], "target" => [], "on_delete" => , "on_update" => ))
+     * @return array array($name => array("db" => , "ns" => , "table" => , "source" => [], "target" => [], "onDelete" => , "onUpdate" => ))
      */
     public function foreignKeys($table)
     {

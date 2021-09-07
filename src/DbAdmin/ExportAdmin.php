@@ -87,7 +87,7 @@ class ExportAdmin extends AbstractAdmin
             'auto_increment' => [
                 'label' => $this->util->lang('Auto Increment'),
                 'value' => 1,
-                'checked' => $row['auto_increment'] ?? false,
+                'checked' => $row['autoIncrement'] ?? false,
             ],
             'data_style' => [
                 'label' => $this->util->lang('Data'),

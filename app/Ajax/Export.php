@@ -102,7 +102,7 @@ class Export extends CallableClass
         // Convert checkbox values to boolean
         $formValues['routines'] = \array_key_exists('routines', $formValues);
         $formValues['events'] = \array_key_exists('events', $formValues);
-        $formValues['auto_increment'] = \array_key_exists('auto_increment', $formValues);
+        $formValues['autoIncrement'] = \array_key_exists('autoIncrement', $formValues);
         $formValues['triggers'] = \array_key_exists('triggers', $formValues);
 
         $results = $this->dbAdmin->exportDatabases($server, $databases, $tables, $formValues);

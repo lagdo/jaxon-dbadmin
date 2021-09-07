@@ -289,8 +289,8 @@ class TableAdmin extends AbstractAdmin
                     }, $foreignKey['source'])
                 ) . '</i>',
                 'target' => $target,
-                'on_delete' => $this->util->html($foreignKey['on_delete']),
-                'on_update' => $this->util->html($foreignKey['on_update']),
+                'onDelete' => $this->util->html($foreignKey['onDelete']),
+                'onUpdate' => $this->util->html($foreignKey['onUpdate']),
             ];
         }
 
@@ -425,9 +425,9 @@ class TableAdmin extends AbstractAdmin
             $field->onDeleteHidden = !\preg_match('~`~', $type);
         }
         $options = [
-            'has_auto_increment' => $hasAutoIncrement,
-            'on_update' => ['CURRENT_TIMESTAMP'],
-            'on_delete' => $this->db->onActions(),
+            'hasAutoIncrement' => $hasAutoIncrement,
+            'onUpdate' => ['CURRENT_TIMESTAMP'],
+            'onDelete' => $this->db->onActions(),
         ];
 
         $collations = $this->db->collations();
@@ -481,7 +481,7 @@ class TableAdmin extends AbstractAdmin
     private function createOrAlterTable(
         array $values,
         string $table,
-        array $orig_fields,
+        array $origFields,
         array $tableStatus,
         string $engine,
         string $collation,
@@ -490,15 +490,15 @@ class TableAdmin extends AbstractAdmin
     {
         // From create.inc.php
         $values['fields'] = (array)$values['fields'];
-        if ($values['auto_increment_col']) {
-            $values['fields'][$values['auto_increment_col']]['auto_increment'] = true;
+        if ($values['autoIncrementCol']) {
+            $values['fields'][$values['autoIncrementCol']]['autoIncrement'] = true;
         }
 
         $fields = [];
-        $all_fields = [];
-        $use_all_fields = false;
+        $allFields = [];
+        $useAllFields = false;
         $foreign = [];
-        $orig_field = \reset($orig_fields);
+        $origField = \reset($origFields);
         $after = ' FIRST';
 
         $this->getForeignKeys();
@@ -509,41 +509,41 @@ class TableAdmin extends AbstractAdmin
             $typeField = ($foreignKey !== null ? $this->referencableTables[$foreignKey] : $field);
             // Originally, deleted fields have the "field" field set to an empty string.
             // But in our implementation, the "field" field is deleted.
-            // if($field['field'] != '')
-            if (isset($field['field']) && $field['field'] != '') {
-                if (!isset($field['has_default'])) {
+            // if($field['name'] != '')
+            if (isset($field['name']) && $field['name'] != '') {
+                if (!isset($field['hasDefault'])) {
                     $field['default'] = null;
                 }
-                $field['auto_increment'] = ($key == $values['auto_increment_col']);
+                $field['autoIncrement'] = ($key == $values['autoIncrementCol']);
                 $field["null"] = isset($field["null"]);
 
-                $process_field = $this->util->processField($field, $typeField);
-                $all_fields[] = [$field['orig'], $process_field, $after];
-                if (!$orig_field || $process_field != $this->util->processField($orig_field, $orig_field)) {
-                    $fields[] = [$field['orig'], $process_field, $after];
+                $processField = $this->util->processField($field, $typeField);
+                $allFields[] = [$field['orig'], $processField, $after];
+                if (!$origField || $processField != $this->util->processField($origField, $origField)) {
+                    $fields[] = [$field['orig'], $processField, $after];
                     if ($field['orig'] != '' || $after) {
-                        $use_all_fields = true;
+                        $useAllFields = true;
                     }
                 }
                 if ($foreignKey !== null) {
-                    $foreign[$this->db->escapeId($field['field'])] = ($table != '' && $this->db->jush() != 'sqlite' ? 'ADD' : ' ') .
+                    $foreign[$this->db->escapeId($field['name'])] = ($table != '' && $this->db->jush() != 'sqlite' ? 'ADD' : ' ') .
                         $this->db->formatForeignKey([
                             'table' => $this->foreignKeys[$field['type']],
-                            'source' => [$field['field']],
+                            'source' => [$field['name']],
                             'target' => [$typeField['field']],
-                            'on_delete' => $field['on_delete'],
+                            'onDelete' => $field['onDelete'],
                         ]);
                 }
-                $after = ' AFTER ' . $this->db->escapeId($field['field']);
+                $after = ' AFTER ' . $this->db->escapeId($field['name']);
             } elseif ($field['orig'] != '') {
-                // A missing "field" field and a not empty "orig" field means the column is to be dropped.
+                // A missing "name" field and a not empty "orig" field means the column is to be dropped.
                 // We also append null in the array because the drivers code accesses field at position 1.
-                $use_all_fields = true;
+                $useAllFields = true;
                 $fields[] = [$field['orig'], null];
             }
             if ($field['orig'] != '') {
-                $orig_field = \next($orig_fields);
-                if (!$orig_field) {
+                $origField = \next($origFields);
+                if (!$origField) {
                     $after = '';
                 }
             }
@@ -578,8 +578,8 @@ class TableAdmin extends AbstractAdmin
 
         $name = \trim($values['name']);
         $autoIncrement = $this->util->number($this->util->input()->getAutoIncrementStep());
-        if ($this->db->jush() == 'sqlite' && ($use_all_fields || $foreign)) {
-            $fields = $all_fields;
+        if ($this->db->jush() == 'sqlite' && ($useAllFields || $foreign)) {
+            $fields = $allFields;
         }
 
         $success = $this->db->alterTable(
@@ -615,7 +615,7 @@ class TableAdmin extends AbstractAdmin
      */
     public function createTable(array $values)
     {
-        $orig_fields = [];
+        $origFields = [];
         $tableStatus = [];
 
         $comment = $values['comment'] ?? null;
@@ -625,7 +625,7 @@ class TableAdmin extends AbstractAdmin
         return $this->createOrAlterTable(
             $values,
             '',
-            $orig_fields,
+            $origFields,
             $tableStatus,
             $engine,
             $collation,
@@ -643,7 +643,7 @@ class TableAdmin extends AbstractAdmin
      */
     public function alterTable(string $table, array $values)
     {
-        $orig_fields = $this->db->fields($table);
+        $origFields = $this->db->fields($table);
         $tableStatus = $this->db->tableStatus($table);
         if (!$tableStatus) {
             throw new Exception($this->util->lang('No tables.'));
@@ -656,15 +656,8 @@ class TableAdmin extends AbstractAdmin
         $engine = $values['engine'] != $currEngine ? $values['engine'] : '';
         $collation = $values['collation'] != $currCollation ? $values['collation'] : '';
 
-        return $this->createOrAlterTable(
-            $values,
-            $table,
-            $orig_fields,
-            $tableStatus,
-            $engine,
-            $collation,
-            $comment
-        );
+        return $this->createOrAlterTable($values, $table, $origFields,
+            $tableStatus, $engine, $collation, $comment);
     }
 
     /**

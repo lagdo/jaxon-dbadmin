@@ -287,8 +287,8 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
             return "?";
         }
         $size = 0;
-        foreach ($this->server->tableStatus() as $tableStatus) {
-            $size += $tableStatus["Data_length"] + $tableStatus["Index_length"];
+        foreach ($this->server->tableStatus() as $db => $tableStatus) {
+            $size += ($tableStatus["Data_length"] ?? 0) + ($tableStatus["Index_length"] ?? 0);
         }
         return $size;
     }

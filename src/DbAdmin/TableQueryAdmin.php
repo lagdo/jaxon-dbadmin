@@ -217,9 +217,9 @@ class TableQueryAdmin extends AbstractAdmin
                         $row[$key] = null;
                     }
                     $fields[$key] = [
-                        "field" => $key,
-                        "null" => ($key != $primary),
-                        "auto_increment" => ($key == $primary)
+                        "name" => $key,
+                        "null" => ($key !== $primary),
+                        "autoIncrement" => ($key === $primary)
                     ];
                 }
             }

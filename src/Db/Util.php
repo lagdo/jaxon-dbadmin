@@ -132,7 +132,7 @@ class Util implements UtilInterface
 
     /**
      * Check if field should be shortened
-     * @param array
+     * @param object $field
      * @return bool
      */
     public function isShortable($field)
@@ -259,10 +259,10 @@ class Util implements UtilInterface
         foreach ((array) $values["fields"] as $key => $val) {
             $name = $this->bracketEscape($key, 1); // 1 - back
             $return[$name] = array(
-                "field" => $name,
+                "name" => $name,
                 "privileges" => array("insert" => 1, "update" => 1),
                 "null" => 1,
-                "auto_increment" => ($key == $this->db->primaryIdName()),
+                "autoIncrement" => ($key == $this->db->primaryIdName()),
             );
         }
         return $return;
@@ -344,13 +344,14 @@ class Util implements UtilInterface
 
     /**
      * Field caption used in select and edit
-     * @param array single field returned from fields()
-     * @param int order of column in select
+     * @param object $field single field returned from fields()
+     * @param int $order order of column in select
      * @return string HTML code, "" to ignore field
      */
     public function fieldName($field, $order = 0)
     {
-        return '<span title="' . $this->html($field->fullType) . '">' . $this->html($field->name) . '</span>';
+        return '<span title="' . $this->html($field->fullType) . '">' .
+            $this->html($field->name) . '</span>';
     }
 
     /**
@@ -394,14 +395,14 @@ class Util implements UtilInterface
 
     /**
      * Get referencable tables with single column primary key except self
-     * @param string
-     * @return array ($tableName => $field)
+     * @param string $table
+     * @return array
      */
-    public function referencableTables($self)
+    public function referencableTables($table)
     {
         $return = []; // table_name => field
         foreach ($this->db->tableStatus('', true) as $tableName => $table) {
-            if ($tableName != $self && $this->db->supportForeignKeys($table)) {
+            if ($tableName != $table && $this->db->supportForeignKeys($table)) {
                 foreach ($this->db->fields($tableName) as $field) {
                     if ($field->primary) {
                         if (isset($return[$tableName])) { // multi column primary key
@@ -497,7 +498,7 @@ class Util implements UtilInterface
      * @param array single field returned from fields()
      * @return string or null to create the default link
      */
-    public function selectLink($val, $field)
+    protected function selectLink($val, $field)
     {
     }
 
@@ -639,17 +640,20 @@ class Util implements UtilInterface
 
     /**
      * Create SQL string from field type
-     * @param array
-     * @param string
+     * @param object $field
+     * @param string $collate
      * @return string
      */
-    public function processType($field, $collate = "COLLATE")
+    protected function processType($field, $collate = "COLLATE")
     {
+        if (is_array($field)) {
+            $field = (object)$field;
+        }
         $values = [
             'unsigned' => $field->unsigned,
             'collation' => $field->collation,
         ];
-        return " $field[type]" . $this->processLength($field->length) .
+        return " " . $field->type . $this->processLength($field->length) .
             (preg_match($this->db->numberRegex(), $field->type) &&
             in_array($values["unsigned"], $this->db->unsigned()) ?
             " $values[unsigned]" : "") . (preg_match('~char|text|enum|set~', $field->type) &&
@@ -659,12 +663,15 @@ class Util implements UtilInterface
 
     /**
      * Create SQL string from field
-     * @param array basic field information
-     * @param array information about field type
+     * @param array|object $field basic field information
+     * @param object $typeField information about field type
      * @return array array("field", "type", "NULL", "DEFAULT", "ON UPDATE", "COMMENT", "AUTO_INCREMENT")
      */
     public function processField($field, $typeField)
     {
+        if (is_array($field)) {
+            $field = (object)$field;
+        }
         return array(
             $this->db->escapeId(trim($field->name)),
             $this->processType($typeField),
