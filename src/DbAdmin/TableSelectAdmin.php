@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
-use Lagdo\DbAdmin\Driver\Db\TableField;
+use Lagdo\DbAdmin\Driver\Entity\TableField;
 
 use Exception;
 
