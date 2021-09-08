@@ -1,11 +1,6 @@
 <?php
 
 return [
-    Lagdo\DbAdmin\App\Ajax\Import::class => [
-        'executeSqlFiles' => [
-            'upload' => "'adminer-import-sql-files-input'",
-        ],
-    ],
     Lagdo\DbAdmin\App\Ajax\Table::class => [
         'show,add,edit' => [
             '__after' => 'showBreadcrumbs',
@@ -129,6 +124,9 @@ return [
         ],
     ],
     Lagdo\DbAdmin\App\Ajax\Import::class => [
+        'executeSqlFiles' => [
+            'upload' => "'adminer-import-sql-files-input'",
+        ],
         'showServerForm' => [
             '__after' => [
                 'showBreadcrumbs',
