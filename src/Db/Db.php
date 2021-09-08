@@ -401,4 +401,28 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     {
         return $rows;
     }
+
+    /**
+     * Get referencable tables with single column primary key except self
+     * @param string $table
+     * @return array
+     */
+    public function referencableTables($table)
+    {
+        $fields = []; // table_name => field
+        foreach ($this->tableStatus('', true) as $tableName => $tableStatus) {
+            if ($tableName != $table && $this->supportForeignKeys($tableStatus)) {
+                foreach ($this->fields($tableName) as $field) {
+                    if ($field->primary) {
+                        if (isset($fields[$tableName])) { // multi column primary key
+                            unset($fields[$tableName]);
+                            break;
+                        }
+                        $fields[$tableName] = $field;
+                    }
+                }
+            }
+        }
+        return $fields;
+    }
 }

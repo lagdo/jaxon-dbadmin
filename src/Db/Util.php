@@ -394,30 +394,6 @@ class Util implements UtilInterface
     // }
 
     /**
-     * Get referencable tables with single column primary key except self
-     * @param string $table
-     * @return array
-     */
-    public function referencableTables($table)
-    {
-        $return = []; // table_name => field
-        foreach ($this->db->tableStatus('', true) as $tableName => $table) {
-            if ($tableName != $table && $this->db->supportForeignKeys($table)) {
-                foreach ($this->db->fields($tableName) as $field) {
-                    if ($field->primary) {
-                        if (isset($return[$tableName])) { // multi column primary key
-                            unset($return[$tableName]);
-                            break;
-                        }
-                        $return[$tableName] = $field;
-                    }
-                }
-            }
-        }
-        return $return;
-    }
-
-    /**
      * Print before edit form
      * @param string
      * @param array

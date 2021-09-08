@@ -341,7 +341,7 @@ class TableAdmin extends AbstractAdmin
      */
     private function getForeignKeys(string $table = '')
     {
-        $this->referencableTables = $this->util->referencableTables($table);
+        $this->referencableTables = $this->db->referencableTables($table);
         $this->foreignKeys = [];
         foreach ($this->referencableTables as $tableName => $field) {
             $name = \str_replace('`', '``', $tableName) .
@@ -397,7 +397,7 @@ class TableAdmin extends AbstractAdmin
             $fields = $this->db->fields($table);
         }
 
-        $this->getForeignKeys();
+        $this->getForeignKeys($table);
 
         $hasAutoIncrement = false;
         foreach ($fields as &$field) {
