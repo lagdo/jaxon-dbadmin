@@ -166,13 +166,10 @@ class ViewAdmin extends AbstractAdmin
      */
     public function getViewTriggers(string $table)
     {
-        $status = $this->status($table);
         if (!$this->db->support("view_trigger")) {
             return null;
         }
 
-        // From table.inc.php
-        $triggers = $this->db->triggers($table);
         $mainActions = [
             $this->util->lang('Add trigger'),
         ];
@@ -184,16 +181,14 @@ class ViewAdmin extends AbstractAdmin
             '&nbsp;',
         ];
 
-        if (!$triggers) {
-            $triggers = [];
-        }
         $details = [];
         // From table.inc.php
-        foreach ($triggers as $key => $val) {
+        $triggers = $this->db->triggers($table);
+        foreach ($triggers as $name => $trigger) {
             $details[] = [
-                $this->util->html($val[0]),
-                $this->util->html($val[1]),
-                $this->util->html($key),
+                $this->util->html($trigger->timing),
+                $this->util->html($trigger->event),
+                $this->util->html($name),
                 $this->util->lang('Alter'),
             ];
         }

@@ -82,18 +82,19 @@ class DatabaseAdmin extends AbstractAdmin
         if ($this->db->support('view')) {
             $menuActions['view'] = $this->util->lang('Views');
         }
-        if ($this->db->support('routine')) {
-            $menuActions['routine'] = $this->util->lang('Routines');
-        }
-        if ($this->db->support('sequence')) {
-            $menuActions['sequence'] = $this->util->lang('Sequences');
-        }
-        if ($this->db->support('type')) {
-            $menuActions['type'] = $this->util->lang('User types');
-        }
-        if ($this->db->support('event')) {
-            $menuActions['event'] = $this->util->lang('Events');
-        }
+        // Todo: Implement features and enable menu items.
+        // if ($this->db->support('routine')) {
+        //     $menuActions['routine'] = $this->util->lang('Routines');
+        // }
+        // if ($this->db->support('sequence')) {
+        //     $menuActions['sequence'] = $this->util->lang('Sequences');
+        // }
+        // if ($this->db->support('type')) {
+        //     $menuActions['type'] = $this->util->lang('User types');
+        // }
+        // if ($this->db->support('event')) {
+        //     $menuActions['event'] = $this->util->lang('Events');
+        // }
 
         // From db.inc.php
         $schemas = null;
@@ -214,7 +215,7 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        $routines = $this->db->support("routine") ? $this->db->routines() : [];
+        $routines = $this->db->routines();
         $details = [];
         foreach ($routines as $routine) {
             // not computed on the pages to be able to print the header first
@@ -222,12 +223,9 @@ class DatabaseAdmin extends AbstractAdmin
             //     "" : "&name=" . urlencode($routine["ROUTINE_NAME"]));
 
             $details[] = [
-                'name' => \array_key_exists("ROUTINE_NAME", $routine) ?
-                    $this->util->html($routine["ROUTINE_NAME"]) : '',
-                'type' => \array_key_exists("ROUTINE_TYPE", $routine) ?
-                    $this->util->html($routine["ROUTINE_TYPE"]) : '',
-                'returnType' => \array_key_exists("DTD_IDENTIFIER", $routine) ?
-                    $this->util->html($routine["DTD_IDENTIFIER"]) : '',
+                'name' => $this->util->html($routine->name),
+                'type' => $this->util->html($routine->type),
+                'returnType' => $this->util->html($routine->dtd),
                 // 'alter' => $this->util->lang('Alter'),
             ];
         }

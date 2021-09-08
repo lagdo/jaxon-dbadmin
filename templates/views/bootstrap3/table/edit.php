@@ -5,14 +5,14 @@
         <div class="form-group adminer-edit-table-header">
             <div class="col-md-3 adminer-edit-table-name">
                 <input type="text" name="name" class="form-control" value="<?php
-                    echo $this->table['Name'] ?>" placeholder="Name" />
+                    echo $this->table->name ?>" placeholder="Name" />
             </div>
 <?php if($this->engines): ?>
             <div class="col-md-2 adminer-edit-table-engine">
                 <select name="engine" class="form-control">
                     <option value="">(engine)</option>
 <?php foreach($this->engines as $group => $engine): ?>
-                    <option <?php if(!strcasecmp($this->table['Engine'], $engine)): ?>selected<?php
+                    <option <?php if(!strcasecmp($this->table->engine, $engine)): ?>selected<?php
                         endif ?>><?php echo $engine ?></option>
 <?php endforeach ?>
                 </select>
@@ -23,13 +23,13 @@
                 <select name="collation" class="form-control">
                     <option value="" selected>(collation)</option>
 <?php foreach($this->collations as $group => $collations): ?>
-                    <option <?php if($this->table['Collation'] === $collations): ?>selected<?php
-                        endif ?>><?php echo $collations ?></option>
 <?php if(is_string($collations)): ?>
+                    <option <?php if($this->table->collation === $collations): ?>selected<?php
+                        endif ?>><?php echo $collations ?></option>
 <?php else: ?>
                     <optgroup label="<?php echo $group ?>">
 <?php foreach($collations as $collation): ?>
-                        <option <?php if($this->table['Collation'] === $collation): ?>selected<?php
+                        <option <?php if($this->table->collation === $collation): ?>selected<?php
                             endif ?>><?php echo $collation ?></option>
 <?php endforeach ?>
                     </optgroup>
@@ -41,7 +41,7 @@
 <?php if($this->support['comment']): ?>
             <div class="col-md-4 adminer-table-column-middle">
                 <input name="comment" class="form-control" value="<?php
-                    echo $this->table['Comment'] ?? '' ?>" placeholder="<?php
+                    echo $this->table->comment ?>" placeholder="<?php
                     echo $this->trans->lang('Comment') ?>" />
             </div>
 <?php endif ?>

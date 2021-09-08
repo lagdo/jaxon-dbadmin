@@ -4,6 +4,8 @@ namespace Lagdo\DbAdmin\Db;
 
 use Lagdo\DbAdmin\Driver\Entity\Table;
 use Lagdo\DbAdmin\Driver\Entity\ForeignKey;
+use Lagdo\DbAdmin\Driver\Entity\Trigger;
+use Lagdo\DbAdmin\Driver\Entity\Routine;
 
 interface ServerInterface
 {
@@ -336,14 +338,14 @@ interface ServerInterface
     /**
      * Get information about trigger
      * @param string trigger name
-     * @return array array("Trigger" => , "Timing" => , "Event" => , "Of" => , "Type" => , "Statement" => )
+     * @return Trigger
      */
     public function trigger($name);
 
     /**
      * Get defined triggers
      * @param string
-     * @return array array($name => array($timing, $event))
+     * @return array
      */
     public function triggers($table);
 
@@ -357,13 +359,13 @@ interface ServerInterface
      * Get information about stored routine
      * @param string
      * @param string "FUNCTION" or "PROCEDURE"
-     * @return array ("fields" => array("field" => , "type" => , "length" => , "unsigned" => , "inout" => , "collation" => ), "returns" => , "definition" => , "language" => )
+     * @return Routine
      */
     public function routine($name, $type);
 
     /**
      * Get list of routines
-     * @return array ("SPECIFIC_NAME" => , "ROUTINE_NAME" => , "ROUTINE_TYPE" => , "DTD_IDENTIFIER" => )
+     * @return
      */
     public function routines();
 

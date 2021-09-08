@@ -306,13 +306,10 @@ class TableAdmin extends AbstractAdmin
      */
     public function getTableTriggers(string $table)
     {
-        $status = $this->status($table);
         if (!$this->db->support('trigger')) {
             return null;
         }
 
-        // From table.inc.php
-        $triggers = $this->db->triggers($table);
         $mainActions = [
             $this->util->lang('Add trigger'),
         ];
@@ -324,16 +321,14 @@ class TableAdmin extends AbstractAdmin
             '&nbsp;',
         ];
 
-        if (!$triggers) {
-            $triggers = [];
-        }
         $details = [];
         // From table.inc.php
-        foreach ($triggers as $key => $val) {
+        $triggers = $this->db->triggers($table);
+        foreach ($triggers as $name => $trigger) {
             $details[] = [
-                $this->util->html($val[0]),
-                $this->util->html($val[1]),
-                $this->util->html($key),
+                $this->util->html($trigger->timing),
+                $this->util->html($trigger->event),
+                $this->util->html($name),
                 $this->util->lang('Alter'),
             ];
         }
@@ -371,9 +366,9 @@ class TableAdmin extends AbstractAdmin
     {
         // From includes/editing.inc.php
         $extraTypes = [];
-        if ($type && !$this->db->typeExists($type) &&
-            !isset($this->foreignKeys[$type]) && !\in_array($type, $extraTypes)) {
-            $extraTypes[] = $type;
+        if ($type && !$this->db->typeExists($type) && !isset($this->foreignKeys[$type]) &&
+            !\array_key_exists($this->util->lang('Current'), $extraTypes)) {
+            $extraTypes[$this->util->lang('Current')] = [$type];
         }
         if ($this->foreignKeys) {
             $this->db->setStructuredType($this->util->lang('Foreign keys'), $this->foreignKeys);

@@ -4,6 +4,8 @@ namespace Lagdo\DbAdmin\Db;
 
 use Lagdo\DbAdmin\Driver\Entity\Table;
 use Lagdo\DbAdmin\Driver\Entity\ForeignKey;
+use Lagdo\DbAdmin\Driver\Entity\Trigger;
+use Lagdo\DbAdmin\Driver\Entity\Routine;
 
 trait ServerTrait
 {
@@ -462,7 +464,7 @@ trait ServerTrait
     /**
      * Get information about trigger
      * @param string trigger name
-     * @return array array("Trigger" => , "Timing" => , "Event" => , "Of" => , "Type" => , "Statement" => )
+     * @return Trigger
      */
     public function trigger($name)
     {
@@ -472,7 +474,7 @@ trait ServerTrait
     /**
      * Get defined triggers
      * @param string
-     * @return array array($name => array($timing, $event))
+     * @return array
      */
     public function triggers($table)
     {
@@ -492,7 +494,7 @@ trait ServerTrait
      * Get information about stored routine
      * @param string
      * @param string "FUNCTION" or "PROCEDURE"
-     * @return array ("fields" => array("field" => , "type" => , "length" => , "unsigned" => , "inout" => , "collation" => ), "returns" => , "definition" => , "language" => )
+     * @return Routine
      */
     public function routine($name, $type)
     {
@@ -501,11 +503,11 @@ trait ServerTrait
 
     /**
      * Get list of routines
-     * @return array ("SPECIFIC_NAME" => , "ROUTINE_NAME" => , "ROUTINE_TYPE" => , "DTD_IDENTIFIER" => )
+     * @return array
      */
     public function routines()
     {
-        return $this->server->routines();
+        return $this->server->support("routine") ? $this->server->routines() : [];
     }
 
     /**
