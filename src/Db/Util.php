@@ -339,7 +339,7 @@ class Util implements UtilInterface
      */
     public function tableName($tableStatus)
     {
-        return $this->html($tableStatus["Name"]);
+        return $this->html($tableStatus->name);
     }
 
     /**

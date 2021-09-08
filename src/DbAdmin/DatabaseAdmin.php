@@ -143,9 +143,9 @@ class DatabaseAdmin extends AbstractAdmin
             if (!$this->db->isView($status)) {
                 $details[] = [
                     'name' => $this->util->tableName($status),
-                    'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
+                    'engine' => $status->engine,
                     'collation' => '',
-                    'comment' => \array_key_exists('Comment', $status) ? $status['Comment'] : '',
+                    'comment' => $status->comment,
                 ];
             }
         }
@@ -186,8 +186,8 @@ class DatabaseAdmin extends AbstractAdmin
             if ($this->db->isView($status)) {
                 $details[] = [
                     'name' => $this->util->tableName($status),
-                    'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
-                    'comment' => \array_key_exists('Comment', $status) ? $status['Comment'] : '',
+                    'engine' => $status->engine,
+                    'comment' => $status->comment,
                 ];
             }
         }

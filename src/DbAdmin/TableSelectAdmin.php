@@ -214,11 +214,9 @@ class TableSelectAdmin extends AbstractAdmin
         $this->util->input->values = $queryOptions;
 
         // From select.inc.php
-        $tableStatus = $this->db->tableStatusOrName($table);
         $indexes = $this->db->indexes($table);
         $fields = $this->db->fields($table);
         $foreignKeys = $this->db->columnForeignKeys($table);
-        $oid = $tableStatus["Oid"] ?? null;
 
         $rights = []; // privilege => 0
         $columns = []; // selectable columns
@@ -267,6 +265,9 @@ class TableSelectAdmin extends AbstractAdmin
                 break;
             }
         }
+
+        $tableStatus = $this->db->tableStatusOrName($table);
+        $oid = $tableStatus->oid;
         if ($oid && !$primary) {
             $primary = $unselected = [$oid => 0];
             $indexes[] = ["type" => "PRIMARY", "columns" => [$oid]];

@@ -76,11 +76,11 @@ class ViewAdmin extends AbstractAdmin
         // From table.inc.php
         $status = $this->status($table);
         $name = $this->util->tableName($status);
-        $title = ($status['Engine'] == 'materialized view' ?
+        $title = ($status->engine == 'materialized view' ?
             $this->util->lang('Materialized view') : $this->util->lang('View')) .
             ": " . ($name != "" ? $name : $this->util->html($table));
 
-        $comment = $status["Comment"] ?? '';
+        $comment = $status->comment;
 
         $tabs = [
             'fields' => $this->util->lang('Columns'),
@@ -214,7 +214,7 @@ class ViewAdmin extends AbstractAdmin
         $orig_type = "VIEW";
         if ($this->db->jush() == "pgsql") {
             $status = $this->db->tableStatus($view);
-            $orig_type = \strtoupper($status["Engine"]);
+            $orig_type = \strtoupper($status->engine);
         }
         $values = $this->db->view($view);
         $values["name"] = $view;
@@ -266,7 +266,7 @@ class ViewAdmin extends AbstractAdmin
         $orig_type = "VIEW";
         if ($this->db->jush() == "pgsql") {
             $status = $this->db->tableStatus($view);
-            $orig_type = \strtoupper($status["Engine"]);
+            $orig_type = \strtoupper($status->engine);
         }
 
         $name = \trim($values["name"]);
@@ -307,7 +307,7 @@ class ViewAdmin extends AbstractAdmin
         $orig_type = "VIEW";
         if ($this->db->jush() == "pgsql") {
             $status = $this->db->tableStatus($view);
-            $orig_type = \strtoupper($status["Engine"]);
+            $orig_type = \strtoupper($status->engine);
         }
 
         $sql = "DROP $orig_type " . $this->db->table($view);

@@ -81,7 +81,7 @@ class TableAdmin extends AbstractAdmin
         $name = $this->util->tableName($status);
         $title = $this->util->lang('Table') . ': ' . ($name != '' ? $name : $this->util->html($table));
 
-        $comment = $status['Comment'] ?? '';
+        $comment = $status->comment;
 
         $tabs = [
             'fields' => $this->util->lang('Columns'),
@@ -571,7 +571,7 @@ class TableAdmin extends AbstractAdmin
         //     );
         // }
         // elseif($this->db->support('partitioning') &&
-        //     \preg_match('~partitioned~', $tableStatus['Create_options']))
+        //     \preg_match('~partitioned~', $tableStatus->Create_options))
         // {
         //     $partitioning .= "\nREMOVE PARTITIONING";
         // }
@@ -649,9 +649,9 @@ class TableAdmin extends AbstractAdmin
             throw new Exception($this->util->lang('No tables.'));
         }
 
-        $currComment = $tableStatus['Comment'] ?? null;
-        $currEngine = $tableStatus['Engine'] ?? '';
-        $currCollation = $tableStatus['Collation'] ?? '';
+        $currComment = $tableStatus->comment;
+        $currEngine = $tableStatus->engine;
+        $currCollation = $tableStatus->collation;
         $comment = $values['comment'] != $currComment ? $values['comment'] : null;
         $engine = $values['engine'] != $currEngine ? $values['engine'] : '';
         $collation = $values['collation'] != $currCollation ? $values['collation'] : '';
