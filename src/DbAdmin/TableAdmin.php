@@ -250,7 +250,6 @@ class TableAdmin extends AbstractAdmin
         }
 
         // From table.inc.php
-        $foreignKeys = $this->db->foreignKeys($table);
         $mainActions = [
             $this->util->lang('Add foreign key'),
         ];
@@ -263,6 +262,7 @@ class TableAdmin extends AbstractAdmin
             $this->util->lang('ON UPDATE'),
         ];
 
+        $foreignKeys = $this->db->foreignKeys($table);
         if (!$foreignKeys) {
             $foreignKeys = [];
         }
@@ -270,27 +270,27 @@ class TableAdmin extends AbstractAdmin
         // From table.inc.php
         foreach ($foreignKeys as $name => $foreignKey) {
             $target = '';
-            if (\array_key_exists('db', $foreignKey) && $foreignKey['db'] != '') {
-                $target .= '<b>' . $this->util->html($foreignKey['db']) . '</b>.';
+            if (\array_key_exists('db', $foreignKey) && $foreignKey->db != '') {
+                $target .= '<b>' . $this->util->html($foreignKey->db) . '</b>.';
             }
-            if (\array_key_exists('ns', $foreignKey) && $foreignKey['ns'] != '') {
-                $target .= '<b>' . $this->util->html($foreignKey['ns']) . '</b>.';
+            if (\array_key_exists('ns', $foreignKey) && $foreignKey->schema != '') {
+                $target .= '<b>' . $this->util->html($foreignKey->schema) . '</b>.';
             }
-            $target = $this->util->html($foreignKey['table']) .
+            $target = $this->util->html($foreignKey->table) .
                 '(' . \implode(', ', \array_map(function ($key) {
                     return $this->util->html($key);
-                }, $foreignKey['target'])) . ')';
+                }, $foreignKey->target)) . ')';
             $details[] = [
                 'name' => $this->util->html($name),
                 'source' => '<i>' . \implode(
                     '</i>, <i>',
                     \array_map(function ($key) {
                         return $this->util->html($key);
-                    }, $foreignKey['source'])
+                    }, $foreignKey->source)
                 ) . '</i>',
                 'target' => $target,
-                'onDelete' => $this->util->html($foreignKey['onDelete']),
-                'onUpdate' => $this->util->html($foreignKey['onUpdate']),
+                'onDelete' => $this->util->html($foreignKey->onDelete),
+                'onUpdate' => $this->util->html($foreignKey->onUpdate),
             ];
         }
 
@@ -526,13 +526,13 @@ class TableAdmin extends AbstractAdmin
                     }
                 }
                 if ($foreignKey !== null) {
+                    $fkey = new ForeignKey();
+                    $fkey->table = $this->foreignKeys[$field['type']];
+                    $fkey->source = [$field['name']];
+                    $fkey->target = [$typeField['field']];
+                    $fkey->onDelete = $field['onDelete'];
                     $foreign[$this->db->escapeId($field['name'])] = ($table != '' && $this->db->jush() != 'sqlite' ? 'ADD' : ' ') .
-                        $this->db->formatForeignKey([
-                            'table' => $this->foreignKeys[$field['type']],
-                            'source' => [$field['name']],
-                            'target' => [$typeField['field']],
-                            'onDelete' => $field['onDelete'],
-                        ]);
+                        $this->db->formatForeignKey($fkey);
                 }
                 $after = ' AFTER ' . $this->db->escapeId($field['name']);
             } elseif ($field['orig'] != '') {

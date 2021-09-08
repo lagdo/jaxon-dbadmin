@@ -351,7 +351,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     {
         $keys = [];
         foreach ($this->server->foreignKeys($table) as $foreignKey) {
-            foreach ($foreignKey["source"] as $val) {
+            foreach ($foreignKey->source as $val) {
                 $keys[$val][] = $foreignKey;
             }
         }
