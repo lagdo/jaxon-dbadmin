@@ -102,10 +102,7 @@ class ServerAdmin extends AbstractAdmin
             $menuActions['status'] = $this->util->lang('Status');
         }
 
-        // Get the database list
-        $databases = $this->databases();
-
-        return \compact('server', 'user', 'databases', 'sqlActions', 'menuActions');
+        return \compact('server', 'user', 'sqlActions', 'menuActions');
     }
 
     /**
@@ -150,10 +147,6 @@ class ServerAdmin extends AbstractAdmin
      */
     public function getDatabases()
     {
-        // Get the database list
-        $databases = $this->databases();
-        $tables = $this->db->countTables($databases);
-
         $mainActions = [
             'add-database' => $this->util->lang('Create database'),
         ];
@@ -166,6 +159,9 @@ class ServerAdmin extends AbstractAdmin
             '',
         ];
 
+        // Get the database list
+        $databases = $this->databases();
+        $tables = $this->db->countTables($databases);
         $collations = $this->db->collations();
         $details = [];
         foreach ($databases as $database) {
@@ -177,7 +173,7 @@ class ServerAdmin extends AbstractAdmin
             ];
         }
 
-        return \compact('headers', 'details', 'mainActions');
+        return \compact('headers', 'databases', 'details', 'mainActions');
     }
 
     /**

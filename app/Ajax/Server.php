@@ -31,18 +31,6 @@ class Server extends CallableClass
         $content = $this->render('info/server');
         $this->response->html($this->package->getServerInfoId(), $content);
 
-        $content = $this->render('menu/databases');
-        $this->response->html($this->package->getDbListId(), $content);
-
-        // Hide schema list
-        // $this->response->assign($this->package->getSchemaListId(), 'style.display', 'none');
-        $this->response->clear($this->package->getSchemaListId());
-
-        // Set onclick handlers on database dropdown select
-        $database = \pm()->select('adminer-dbname-select');
-        $this->jq('#adminer-dbname-select-btn')
-            ->click($this->cl(Database::class)->rq()->select($server, $database)->when($database));
-
         if($this->checkServerAccess($server, false))
         {
             // Show the server
@@ -141,6 +129,19 @@ class Server extends CallableClass
 
         // Make databases info available to views
         $this->view()->shareValues($databasesInfo);
+
+        // Set the database dropdown list
+        $content = $this->render('menu/databases');
+        $this->response->html($this->package->getDbListId(), $content);
+
+        // Hide schema list
+        // $this->response->assign($this->package->getSchemaListId(), 'style.display', 'none');
+        $this->response->clear($this->package->getSchemaListId());
+
+        // Set onclick handlers on database dropdown select
+        $database = \pm()->select('adminer-dbname-select');
+        $this->jq('#adminer-dbname-select-btn')
+            ->click($this->cl(Database::class)->rq()->select($server, $database)->when($database));
 
         // Set main menu buttons
         $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
