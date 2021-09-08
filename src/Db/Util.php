@@ -319,9 +319,9 @@ class Util implements UtilInterface
     public function uniqueArray($row, $indexes)
     {
         foreach ($indexes as $index) {
-            if (preg_match("~PRIMARY|UNIQUE~", $index["type"])) {
+            if (preg_match("~PRIMARY|UNIQUE~", $index->type)) {
                 $return = [];
-                foreach ($index["columns"] as $key) {
+                foreach ($index->columns as $key) {
                     if (!isset($row[$key])) { // NULL is ambiguous
                         continue 2;
                     }
@@ -804,10 +804,10 @@ class Util implements UtilInterface
     {
         $return = [];
         foreach ($indexes as $i => $index) {
-            if ($index["type"] == "FULLTEXT" && $this->input->values["fulltext"][$i] != "") {
+            if ($index->type == "FULLTEXT" && $this->input->values["fulltext"][$i] != "") {
                 $columns = array_map(function ($column) {
                     return $this->db->escapeId($column);
-                }, $index["columns"]);
+                }, $index->columns);
                 $return[] = "MATCH (" . implode(", ", $columns) . ") AGAINST (" .
                     $this->db->quote($this->input->values["fulltext"][$i]) .
                     (isset($this->input->values["boolean"][$i]) ? " IN BOOLEAN MODE" : "") . ")";

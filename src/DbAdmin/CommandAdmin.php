@@ -124,8 +124,8 @@ class CommandAdmin extends AbstractAdmin
                     // find primary key in each table
                     $indexes[$orgtable] = [];
                     foreach ($this->db->indexes($orgtable, $connection) as $index) {
-                        if ($index["type"] == "PRIMARY") {
-                            $indexes[$orgtable] = \array_flip($index["columns"]);
+                        if ($index->type == "PRIMARY") {
+                            $indexes[$orgtable] = \array_flip($index->columns);
                             break;
                         }
                     }

@@ -41,7 +41,7 @@ class TableSelectAdmin extends AbstractAdmin
     {
         $fulltexts = [];
         foreach ($indexes as $i => $index) {
-            $fulltexts[$i] = $index["type"] == "FULLTEXT" ? $this->util->html($options["fulltext"][$i]) : '';
+            $fulltexts[$i] = $index->type == "FULLTEXT" ? $this->util->html($options["fulltext"][$i]) : '';
         }
         return [
             // 'where' => $where,
@@ -109,8 +109,8 @@ class TableSelectAdmin extends AbstractAdmin
     {
         $columns = [];
         foreach ($indexes as $index) {
-            $current_key = \reset($index["columns"]);
-            if ($index["type"] != "FULLTEXT" && $current_key) {
+            $current_key = \reset($index->columns);
+            if ($index->type != "FULLTEXT" && $current_key) {
                 $columns[$current_key] = 1;
             }
         }
@@ -254,8 +254,8 @@ class TableSelectAdmin extends AbstractAdmin
 
         $primary = $unselected = null;
         foreach ($indexes as $index) {
-            if ($index["type"] == "PRIMARY") {
-                $primary = \array_flip($index["columns"]);
+            if ($index->type == "PRIMARY") {
+                $primary = \array_flip($index->columns);
                 $unselected = ($select ? $primary : []);
                 foreach ($unselected as $key => $val) {
                     if (\in_array($this->db->escapeId($key), $select)) {
