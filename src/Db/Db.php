@@ -282,23 +282,6 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     }
 
     /**
-     * Compute size of database
-     * @param string
-     * @return string formatted
-     */
-    public function databaseSize($database)
-    {
-        if (!$this->connection->selectDatabase($database)) {
-            return "?";
-        }
-        $size = 0;
-        foreach ($this->server->tableStatus() as $db => $tableStatus) {
-            $size += $tableStatus->dataLength + $tableStatus->indexLength;
-        }
-        return $size;
-    }
-
-    /**
      * Apply SQL function
      * @param string
      * @param string escaped column identifier

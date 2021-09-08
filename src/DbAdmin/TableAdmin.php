@@ -213,14 +213,10 @@ class TableAdmin extends AbstractAdmin
             $print = [];
             foreach ($index->columns as $key => $val) {
                 $value = '<i>' . $this->util->html($val) . '</i>';
-                if (\array_key_exists('lengths', $index) &&
-                    \is_array($index->lengths) &&
-                    \array_key_exists($key, $index->lengths)) {
+                if (\array_key_exists($key, $index->lengths)) {
                     $value .= '(' . $index->lengths[$key] . ')';
                 }
-                if (\array_key_exists('descs', $index) &&
-                    \is_array($index->descs) &&
-                    \array_key_exists($key, $index->descs)) {
+                if (\array_key_exists($key, $index->descs)) {
                     $value .= ' DESC';
                 }
                 $print[] = $value;

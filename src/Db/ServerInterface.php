@@ -104,6 +104,13 @@ interface ServerInterface
     public function databases($flush);
 
     /**
+     * Compute size of database
+     * @param string
+     * @return integer
+     */
+    public function databaseSize($database);
+
+    /**
      * Formulate SQL query with limit
      * @param string everything after SELECT
      * @param string including WHERE

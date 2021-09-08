@@ -140,6 +140,16 @@ trait ServerTrait
     }
 
     /**
+     * Compute size of database
+     * @param string
+     * @return integer
+     */
+    public function databaseSize($database)
+    {
+        return $this->server->databaseSize($database);
+    }
+
+    /**
      * Formulate SQL query with limit
      * @param string everything after SELECT
      * @param string including WHERE
