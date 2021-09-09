@@ -23,11 +23,6 @@ return [
                 'default' => 'bootstrap3',
             ],
         ],
-        // 'adminer_views' => [
-        //     'directory' => __DIR__ . '/../templates/views/bootstrap',
-        //     'extension' => '.html.twig',
-        //     'renderer' => 'twig',
-        // ],
     ],
     'container' => [
         Lagdo\DbAdmin\DbAdmin::class => function($di) {

@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
-use Lagdo\DbAdmin\Driver\Entity\TableField;
+use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
 use Exception;
 
@@ -486,7 +486,7 @@ class TableSelectAdmin extends AbstractAdmin
             $cols = [];
             foreach ($row as $key => $val) {
                 if (isset($names[$key])) {
-                    $field = $fields[$key] ?? new TableField();
+                    $field = $fields[$key] ?? new TableFieldEntity();
                     $val = $this->db->value($val, $field);
                     if ($val != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
                         //! filled e-mails can be contained on other pages

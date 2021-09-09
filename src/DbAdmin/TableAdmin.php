@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
-use Lagdo\DbAdmin\Driver\Entity\TableField;
+use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
 use Exception;
 
@@ -456,7 +456,7 @@ class TableAdmin extends AbstractAdmin
     public function getTableField()
     {
         $this->getForeignKeys();
-        $field = new TableField();
+        $field = new TableFieldEntity();
         $field->types = $this->getFieldTypes();
         return $field;
     }
@@ -517,7 +517,7 @@ class TableAdmin extends AbstractAdmin
                     }
                 }
                 if ($foreignKey !== null) {
-                    $fkey = new ForeignKey();
+                    $fkey = new ForeignKeyEntity();
                     $fkey->table = $this->foreignKeys[$field['type']];
                     $fkey->source = [$field['name']];
                     $fkey->target = [$typeField['field']];

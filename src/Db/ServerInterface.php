@@ -2,10 +2,10 @@
 
 namespace Lagdo\DbAdmin\Db;
 
-use Lagdo\DbAdmin\Driver\Entity\Table;
-use Lagdo\DbAdmin\Driver\Entity\ForeignKey;
-use Lagdo\DbAdmin\Driver\Entity\Trigger;
-use Lagdo\DbAdmin\Driver\Entity\Routine;
+use Lagdo\DbAdmin\Driver\Entity\TableEntity;
+use Lagdo\DbAdmin\Driver\Entity\ForeignKeyEntity;
+use Lagdo\DbAdmin\Driver\Entity\TriggerEntity;
+use Lagdo\DbAdmin\Driver\Entity\RoutineEntity;
 
 interface ServerInterface
 {
@@ -154,11 +154,11 @@ interface ServerInterface
     /**
      * Format foreign key to use in SQL query
      *
-     * @param ForeignKey $foreignKey
+     * @param ForeignKeyEntity $foreignKey
      *
      * @return string
      */
-    public function formatForeignKey(ForeignKey $foreignKey);
+    public function formatForeignKey(ForeignKeyEntity $foreignKey);
 
     /**
      * Get tables list
@@ -345,7 +345,7 @@ interface ServerInterface
     /**
      * Get information about trigger
      * @param string trigger name
-     * @return Trigger
+     * @return TriggerEntity
      */
     public function trigger($name);
 
@@ -366,7 +366,7 @@ interface ServerInterface
      * Get information about stored routine
      * @param string
      * @param string "FUNCTION" or "PROCEDURE"
-     * @return Routine
+     * @return RoutineEntity
      */
     public function routine($name, $type);
 
@@ -511,11 +511,11 @@ interface ServerInterface
     /**
      * Check if connection has at least the given version
      * @param string $version required version
-     * @param string $maria_db required MariaDB version
+     * @param string $mariaDb required MariaDB version
      * @param ConnectionInterface|null $connection
      * @return bool
      */
-    public function minVersion($version, $maria_db = "", ConnectionInterface $connection = null);
+    public function minVersion($version, $mariaDb = "", ConnectionInterface $connection = null);
 
     /**
      * Kill a process
