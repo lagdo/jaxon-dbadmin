@@ -80,12 +80,12 @@ class View extends CallableClass
      */
     public function add($server, $database, $schema)
     {
-        $this->dbAdmin->connect($server, $database, $schema);
+        $this->dbAdmin->connect($server);
         $formId = 'view-form';
         $title = 'Create a view';
         $content = $this->render('view/add', [
             'formId' => $formId,
-            'materializedview' => $this->dbAdmin->db->support($server, 'materializedview'),
+            'materializedview' => $this->dbAdmin->driver->support('materializedview'),
         ]);
         $buttons = [[
             'title' => 'Cancel',
@@ -120,7 +120,7 @@ class View extends CallableClass
         $title = 'Edit a view';
         $content = $this->render('view/edit', [
             'formId' => $formId,
-            'materializedview' => $this->dbAdmin->db->support($server, 'materializedview'),
+            'materializedview' => $this->dbAdmin->driver->support('materializedview'),
         ]);
         $buttons = [[
             'title' => 'Cancel',

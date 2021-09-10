@@ -24,8 +24,8 @@ class TableSelectAdmin extends AbstractAdmin
             'select' => $select,
             'values' => (array)$options["columns"],
             'columns' => $columns,
-            'functions' => $this->db->functions(),
-            'grouping' => $this->db->grouping(),
+            'functions' => $this->driver->functions(),
+            'grouping' => $this->driver->grouping(),
         ];
     }
 
@@ -48,7 +48,7 @@ class TableSelectAdmin extends AbstractAdmin
             'values' => (array)$options["where"],
             'columns' => $columns,
             'indexes' => $indexes,
-            'operators' => $this->db->operators(),
+            'operators' => $this->driver->operators(),
             'fulltexts' => $fulltexts,
         ];
     }
@@ -124,7 +124,7 @@ class TableSelectAdmin extends AbstractAdmin
      */
     private function getCommandOptions()
     {
-        return !$this->db->isInformationSchema(DB);
+        return !$this->driver->isInformationSchema(DB);
     }
 
     /**
@@ -133,7 +133,7 @@ class TableSelectAdmin extends AbstractAdmin
      */
     private function getImportOptions()
     {
-        return !$this->db->isInformationSchema(DB);
+        return !$this->driver->isInformationSchema(DB);
     }
 
     /**
@@ -163,11 +163,11 @@ class TableSelectAdmin extends AbstractAdmin
     {
         // From driver.inc.php
         $isGroup = (\count($group) < \count($select));
-        $query = $this->db->buildSelectQuery($select, $where, $group, $order, $limit, $page);
+        $query = $this->driver->buildSelectQuery($select, $where, $group, $order, $limit, $page);
         if (!$query) {
-            $query = "SELECT" . $this->db->limit(
-                ($page != "last" && $limit != "" && $group && $isGroup && $this->db->jush() == "sql" ?
-                    "SQL_CALC_FOUND_ROWS " : "") . \implode(", ", $select) . "\nFROM " . $this->db->table($table),
+            $query = "SELECT" . $this->driver->limit(
+                ($page != "last" && $limit != "" && $group && $isGroup && $this->driver->jush() == "sql" ?
+                    "SQL_CALC_FOUND_ROWS " : "") . \implode(", ", $select) . "\nFROM " . $this->driver->table($table),
                 ($where ? "\nWHERE " . \implode(" AND ", $where) : "") . ($group && $isGroup ?
                     "\nGROUP BY " . \implode(", ", $group) : "") . ($order ? "\nORDER BY " . \implode(", ", $order) : ""),
                 ($limit != "" ? +$limit : null),
@@ -214,9 +214,9 @@ class TableSelectAdmin extends AbstractAdmin
         $this->util->input->values = $queryOptions;
 
         // From select.inc.php
-        $indexes = $this->db->indexes($table);
-        $fields = $this->db->fields($table);
-        $foreignKeys = $this->db->columnForeignKeys($table);
+        $indexes = $this->driver->indexes($table);
+        $fields = $this->driver->fields($table);
+        $foreignKeys = $this->driver->columnForeignKeys($table);
 
         $rights = []; // privilege => 0
         $columns = []; // selectable columns
@@ -244,7 +244,7 @@ class TableSelectAdmin extends AbstractAdmin
         //         $as = convertField($fields[key($row)]);
         //         $select = array($as ? $as : escapeId(key($row)));
         //         $where[] = where_check($unique_idf, $fields);
-        //         $statement = $this->db->select($table, $select, $where, $select);
+        //         $statement = $this->driver->select($table, $select, $where, $select);
         //         if($statement) {
         //             echo reset($statement->fetchRow());
         //         }
@@ -258,7 +258,7 @@ class TableSelectAdmin extends AbstractAdmin
                 $primary = \array_flip($index->columns);
                 $unselected = ($select ? $primary : []);
                 foreach ($unselected as $key => $val) {
-                    if (\in_array($this->db->escapeId($key), $select)) {
+                    if (\in_array($this->driver->escapeId($key), $select)) {
                         unset($unselected[$key]);
                     }
                 }
@@ -266,7 +266,7 @@ class TableSelectAdmin extends AbstractAdmin
             }
         }
 
-        $tableStatus = $this->db->tableStatusOrName($table);
+        $tableStatus = $this->driver->tableStatusOrName($table);
         $oid = $tableStatus->oid;
         if ($oid && !$primary) {
             $primary = $unselected = [$oid => 0];
@@ -288,14 +288,14 @@ class TableSelectAdmin extends AbstractAdmin
         // }
         // $this->util->selectLinks($tableStatus, $set);
 
-        if (!$columns && $this->db->support("table")) {
+        if (!$columns && $this->driver->support("table")) {
             throw new Exception($this->util->lang('Unable to select the table') .
-                ($fields ? "." : ": " . $this->util->error()));
+                ($fields ? "." : ": " . $this->driver->error()));
         }
 
         // if($page == "last")
         // {
-        //     $found_rows = $this->db->result($this->db->countRows($table, $where, $isGroup, $group));
+        //     $found_rows = $this->driver->result($this->driver->countRowsSql($table, $where, $isGroup, $group));
         //     $page = \floor(\max(0, $found_rows - 1) / $limit);
         // }
 
@@ -312,29 +312,29 @@ class TableSelectAdmin extends AbstractAdmin
         $group2 = $group;
         if (!$select2) {
             $select2[] = "*";
-            $convert_fields = $this->db->convertFields($columns, $fields, $select);
+            $convert_fields = $this->driver->convertFields($columns, $fields, $select);
             if ($convert_fields) {
                 $select2[] = \substr($convert_fields, 2);
             }
         }
         foreach ($select as $key => $val) {
-            $field = $fields[$this->db->unescapeId($val)] ?? null;
-            if ($field && ($as = $this->db->convertField($field))) {
+            $field = $fields[$this->driver->unescapeId($val)] ?? null;
+            if ($field && ($as = $this->driver->convertField($field))) {
                 $select2[$key] = "$as AS $val";
             }
         }
         if (!$isGroup && $unselected) {
             foreach ($unselected as $key => $val) {
-                $select2[] = $this->db->escapeId($key);
+                $select2[] = $this->driver->escapeId($key);
                 if ($group2) {
-                    $group2[] = $this->db->escapeId($key);
+                    $group2[] = $this->driver->escapeId($key);
                 }
             }
         }
 
         // $print = true; // Output the SQL select query
         // ob_start();
-        // $result = $this->db->select($table, $select2, $where, $group2, $order, $limit, $page, $print);
+        // $result = $this->driver->select($table, $select2, $where, $group2, $order, $limit, $page, $print);
         // $query = ob_get_clean();
         $query = $this->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
 
@@ -380,17 +380,17 @@ class TableSelectAdmin extends AbstractAdmin
         $error = null;
         // From driver.inc.php
         $start = microtime(true);
-        $statement = $this->db->query($query);
+        $statement = $this->driver->query($query);
         // From adminer.inc.php
         $duration = $this->util->formatTime($start); // Compute and format the duration
 
         if (!$statement) {
-            return ['error' => $this->util->error()];
+            return ['error' => $this->driver->error()];
         }
         // From select.inc.php
         $rows = [];
         while (($row = $statement->fetchAssoc())) {
-            if ($page && $this->db->jush() == "oracle") {
+            if ($page && $this->driver->jush() == "oracle") {
                 unset($row["RNUM"]);
             }
             $rows[] = $row;
@@ -398,7 +398,7 @@ class TableSelectAdmin extends AbstractAdmin
         if (!$rows) {
             return ['error' => $this->util->lang('No rows.')];
         }
-        // $backward_keys = $this->db->backwardKeys($table, $tableName);
+        // $backward_keys = $this->driver->backwardKeys($table, $tableName);
 
         // Results headers
         $headers = [
@@ -419,12 +419,12 @@ class TableSelectAdmin extends AbstractAdmin
                 if ($name != "") {
                     $rank++;
                     $names[$key] = $name;
-                    $column = $this->db->escapeId($key);
+                    $column = $this->driver->escapeId($key);
                     // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
                     // $desc = "&desc%5B0%5D=1";
                     $header['column'] = $column;
                     $header['key'] = $this->util->html($this->util->bracketEscape($key));
-                    $header['sql'] = $this->db->applySqlFunction($fun, $name); //! columns looking like functions
+                    $header['sql'] = $this->driver->applySqlFunction($fun, $name); //! columns looking like functions
                 }
                 $functions[$key] = $fun;
                 next($select);
@@ -445,7 +445,7 @@ class TableSelectAdmin extends AbstractAdmin
         // }
 
         $results = [];
-        foreach ($this->db->rowDescriptions($rows, $foreignKeys) as $n => $row) {
+        foreach ($this->driver->rowDescriptions($rows, $foreignKeys) as $n => $row) {
             $unique_array = $this->util->uniqueArray($rows[$n], $indexes);
             if (!$unique_array) {
                 $unique_array = [];
@@ -467,11 +467,11 @@ class TableSelectAdmin extends AbstractAdmin
                 $key = \trim($key);
                 $type = $fields[$key]->type;
                 $collation = $fields[$key]->collation;
-                if (($this->db->jush() == "sql" || $this->db->jush() == "pgsql") &&
+                if (($this->driver->jush() == "sql" || $this->driver->jush() == "pgsql") &&
                     \preg_match('~char|text|enum|set~', $type) && strlen($val) > 64) {
-                    $key = (\strpos($key, '(') ? $key : $this->db->escapeId($key)); //! columns looking like functions
-                    $key = "MD5(" . ($this->db->jush() != 'sql' || \preg_match("~^utf8~", $collation) ?
-                        $key : "CONVERT($key USING " . $this->db−>charset() . ")") . ")";
+                    $key = (\strpos($key, '(') ? $key : $this->driver->escapeId($key)); //! columns looking like functions
+                    $key = "MD5(" . ($this->driver->jush() != 'sql' || \preg_match("~^utf8~", $collation) ?
+                        $key : "CONVERT($key USING " . $this->driver−>charset() . ")") . ")";
                     $val = \md5($val);
                 }
                 if ($val !== null) {
@@ -487,7 +487,7 @@ class TableSelectAdmin extends AbstractAdmin
             foreach ($row as $key => $val) {
                 if (isset($names[$key])) {
                     $field = $fields[$key] ?? new TableFieldEntity();
-                    $val = $this->db->value($val, $field);
+                    $val = $this->driver->value($val, $field);
                     if ($val != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
                         //! filled e-mails can be contained on other pages
                         $email_fields[$key] = ($this->util->isMail($val) ? $names[$key] : "");
@@ -504,7 +504,7 @@ class TableSelectAdmin extends AbstractAdmin
             $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
 
-        $total = $this->db->result($this->db->countRows($table, $where, $isGroup, $group));
+        $total = $this->driver->result($this->driver->countRowsSql($table, $where, $isGroup, $group));
 
         $rows = $results;
         return \compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'error');

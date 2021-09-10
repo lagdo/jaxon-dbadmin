@@ -50,7 +50,7 @@ class ServerAdmin extends AbstractAdmin
         // Passing false as parameter to this call prevent from using the slow_query() function,
         // which outputs data to the browser are prepended to the Jaxon response.
         if ($this->finalDatabases === null) {
-            $this->finalDatabases = $this->db->databases(false);
+            $this->finalDatabases = $this->driver->databases(false);
             if (\is_array($this->userDatabases)) {
                 // Only keep databases that appear in the config.
                 $this->finalDatabases = \array_intersect($this->finalDatabases, $this->userDatabases);
@@ -69,11 +69,11 @@ class ServerAdmin extends AbstractAdmin
     {
         $server = $this->util->lang(
             '%s version: %s. PHP extension %s.',
-            $this->db->name(),
-            "<b>" . $this->util->html($this->db->serverInfo()) . "</b>",
-            "<b>{$this->db->extension()}</b>"
+            $this->driver->name(),
+            "<b>" . $this->util->html($this->driver->serverInfo()) . "</b>",
+            "<b>{$this->driver->extension()}</b>"
         );
-        $user = $this->util->lang('Logged as: %s.', "<b>" . $this->util->html($this->db->loggedUser()) . "</b>");
+        $user = $this->util->lang('Logged as: %s.', "<b>" . $this->util->html($this->driver->user()) . "</b>");
 
         $sqlActions = [
             'server-command' => $this->util->lang('SQL command'),
@@ -85,20 +85,20 @@ class ServerAdmin extends AbstractAdmin
         $menuActions = [
             'databases' => $this->util->lang('Databases'),
         ];
-        // if($this->db->support('database'))
+        // if($this->driver->support('database'))
         // {
         //     $menuActions['databases'] = $this->util->lang('Databases');
         // }
-        if ($this->db->support('privileges')) {
+        if ($this->driver->support('privileges')) {
             $menuActions['privileges'] = $this->util->lang('Privileges');
         }
-        if ($this->db->support('processlist')) {
+        if ($this->driver->support('processlist')) {
             $menuActions['processes'] = $this->util->lang('Process list');
         }
-        if ($this->db->support('variables')) {
+        if ($this->driver->support('variables')) {
             $menuActions['variables'] = $this->util->lang('Variables');
         }
-        if ($this->db->support('status')) {
+        if ($this->driver->support('status')) {
             $menuActions['status'] = $this->util->lang('Status');
         }
 
@@ -115,7 +115,7 @@ class ServerAdmin extends AbstractAdmin
      */
     public function createDatabase(string $database, string $collation = '')
     {
-        return $this->db->createDatabase($database, $collation);
+        return $this->driver->createDatabase($database, $collation);
     }
 
     /**
@@ -127,7 +127,7 @@ class ServerAdmin extends AbstractAdmin
      */
     public function dropDatabase(string $database)
     {
-        return $this->db->dropDatabases([$database]);
+        return $this->driver->dropDatabases([$database]);
     }
 
     /**
@@ -137,7 +137,7 @@ class ServerAdmin extends AbstractAdmin
      */
     public function getCollations()
     {
-        return $this->db->collations();
+        return $this->driver->collations();
     }
 
     /**
@@ -161,15 +161,15 @@ class ServerAdmin extends AbstractAdmin
 
         // Get the database list
         $databases = $this->databases();
-        $tables = $this->db->countTables($databases);
-        $collations = $this->db->collations();
+        $tables = $this->driver->countTables($databases);
+        $collations = $this->driver->collations();
         $details = [];
         foreach ($databases as $database) {
             $details[] = [
                 'name' => $this->util->html($database),
-                'collation' => $this->util->html($this->db->databaseCollation($database, $collations)),
+                'collation' => $this->util->html($this->driver->databaseCollation($database, $collations)),
                 'tables' => \array_key_exists($database, $tables) ? $tables[$database] : 0,
-                'size' => $this->util->formatNumber($this->db->databaseSize($database)),
+                'size' => $this->util->formatNumber($this->driver->databaseSize($database)),
             ];
         }
 
@@ -184,9 +184,9 @@ class ServerAdmin extends AbstractAdmin
     public function getProcesses()
     {
         // From processlist.inc.php
-        $processes = $this->db->processes();
+        $processes = $this->driver->processes();
 
-        $jush = $this->db->jush();
+        $jush = $this->driver->jush();
         // From processlist.inc.php
         // TODO: Add a kill column in the headers
         $headers = [];
@@ -221,7 +221,7 @@ class ServerAdmin extends AbstractAdmin
     public function getVariables()
     {
         // From variables.inc.php
-        $variables = $this->db->variables();
+        $variables = $this->driver->variables();
 
         $headers = false;
 
@@ -242,7 +242,7 @@ class ServerAdmin extends AbstractAdmin
     public function getStatus()
     {
         // From variables.inc.php
-        $status = $this->db->statusVariables();
+        $status = $this->driver->statusVariables();
         if (!\is_array($status)) {
             $status = [];
         }

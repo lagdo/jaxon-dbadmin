@@ -2,8 +2,8 @@
 
 namespace Lagdo\DbAdmin;
 
-use Lagdo\DbAdmin\Db\Db;
-use Lagdo\DbAdmin\Db\Util;
+use Lagdo\DbAdmin\Driver\DriverInterface;
+use Lagdo\DbAdmin\Driver\UtilInterface;
 
 use Exception;
 
@@ -93,23 +93,6 @@ class DbAdmin extends DbAdmin\AbstractAdmin
     }
 
     /**
-     * Select the database and schema
-     *
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
-     * @return array
-     */
-    protected function select(string $database, string $schema)
-    {
-        $this->db->database = $database;
-        $this->db->schema = $schema;
-        if ($database !== '') {
-            $this->db->selectDatabase($database, $schema);
-        }
-    }
-
-    /**
      * Connect to a database server
      *
      * @param string $server    The selected server
@@ -121,19 +104,16 @@ class DbAdmin extends DbAdmin\AbstractAdmin
     public function connect(string $server, string $database = '', string $schema = '')
     {
         // Prevent multiple calls.
-        if (($this->db)) {
-            $this->select($database, $schema);
-            return;
+        if (!$this->driver) {
+            $di = \jaxon()->di();
+            // Save the selected server options in the di container.
+            $di->val('adminer_config_driver', $this->package->getServerDriver($server));
+            $di->val('adminer_config_options', $this->package->getServerOptions($server));
+            $this->driver = $di->get(DriverInterface::class);
+            $this->util = $di->get(UtilInterface::class);
         }
 
-        $di = \jaxon()->di();
-        // Save the selected server in the di container.
-        $di->val('adminer_config_server', $server);
-        $this->db = $di->get(Db::class);
-        $this->util = $di->get(Util::class);
-
         // Connect to the selected server
-        $this->db->connect();
-        $this->select($database, $schema);
+        $this->driver->connect($database, $schema);
     }
 }

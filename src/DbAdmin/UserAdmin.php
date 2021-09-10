@@ -30,8 +30,8 @@ class UserAdmin extends AbstractAdmin
         $grants = [];
 
         //! use information_schema for MySQL 5 - column names in column privileges are not escaped
-        if (($statement = $this->db->query("SHOW GRANTS FOR " .
-            $this->db->quote($user) . "@" . $this->db->quote($host)))) {
+        if (($statement = $this->driver->query("SHOW GRANTS FOR " .
+            $this->driver->quote($user) . "@" . $this->driver->quote($host)))) {
             while ($row = $statement->fetchRow()) {
                 if (\preg_match('~GRANT (.*) ON (.*) TO ~', $row[0], $match) &&
                     \preg_match_all('~ *([^(,]*[^ ,(])( *\([^)]+\))?~', $match[1], $matches, PREG_SET_ORDER)) { //! escape the part between ON and TO
@@ -70,7 +70,7 @@ class UserAdmin extends AbstractAdmin
                 "All privileges" => "",
             ],
         ];
-        foreach ($this->db->rows("SHOW PRIVILEGES") as $row) {
+        foreach ($this->driver->rows("SHOW PRIVILEGES") as $row) {
             // Context of "Grant option" privilege is set to empty string
             $contexts = \explode(",", ($row["Privilege"] == "Grant option" ? "" : $row["Context"]));
             foreach ($contexts as $context) {
@@ -166,13 +166,13 @@ class UserAdmin extends AbstractAdmin
         ];
 
         // From privileges.inc.php
-        $statement = $this->db->query("SELECT User, Host FROM mysql." .
-            ($database == "" ? "user" : "db WHERE " . $this->db->quote($database) . " LIKE Db") .
+        $statement = $this->driver->query("SELECT User, Host FROM mysql." .
+            ($database == "" ? "user" : "db WHERE " . $this->driver->quote($database) . " LIKE Db") .
             " ORDER BY Host, User");
         $grant = $statement;
         if (!$statement) {
             // list logged user, information_schema.USER_PRIVILEGES lists just the current user too
-            $statement = $this->db->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) " .
+            $statement = $this->driver->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) " .
                 "AS User, SUBSTRING_INDEX(CURRENT_USER, '@', -1) AS Host");
         }
         $details = [];

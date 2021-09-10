@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
-use Lagdo\DbAdmin\Driver\ConnectionInterface;
+use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 
 use Exception;
 
@@ -26,14 +26,14 @@ class CommandAdmin extends AbstractAdmin
      */
     private function connection()
     {
-        if ($this->connection === null && $this->db->database !== '') {
+        if ($this->connection === null && $this->driver->selectedDatabase() !== '') {
             // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
             //! PDO - silent error
-            $connection = $this->db->createConnection();
+            $connection = $this->driver->createConnection();
             if (($connection)) {
-                $connection->selectDatabase($this->db->database);
-                if ($this->db->schema !== '') {
-                    $this->db->selectSchema($this->db->schema, $connection);
+                $connection->selectDatabase($this->driver->selectedDatabase());
+                if ($this->driver->selectedSchema() !== '') {
+                    $this->driver->selectSchema($this->driver->selectedSchema(), $connection);
                 }
                 $this->connection = $connection;
             }
@@ -70,7 +70,7 @@ class CommandAdmin extends AbstractAdmin
             foreach ($row as $key => $val) {
                 $link = "";
                 if (isset($links[$key]) && !$columns[$links[$key]]) {
-                    if ($orgtables && $this->db->jush() == "sql") { // MySQL EXPLAIN
+                    if ($orgtables && $this->driver->jush() == "sql") { // MySQL EXPLAIN
                         $table = $row[\array_search("table=", $links)];
                         $link = ME . $links[$key] .
                             \urlencode($orgtables[$table] != "" ? $orgtables[$table] : $table);
@@ -117,13 +117,13 @@ class CommandAdmin extends AbstractAdmin
             $orgname = $field->orgName();
             // PostgreSQL fix: the table field can be missing.
             $tables[$field->tableName()] = $orgtable;
-            if ($orgtables && $this->db->jush() == "sql") { // MySQL EXPLAIN
+            if ($orgtables && $this->driver->jush() == "sql") { // MySQL EXPLAIN
                 $links[$j] = ($name == "table" ? "table=" : ($name == "possible_keys" ? "indexes=" : null));
             } elseif ($orgtable != "") {
                 if (!isset($indexes[$orgtable])) {
                     // find primary key in each table
                     $indexes[$orgtable] = [];
-                    foreach ($this->db->indexes($orgtable, $connection) as $index) {
+                    foreach ($this->driver->indexes($orgtable, $connection) as $index) {
                         if ($index->type == "PRIMARY") {
                             $indexes[$orgtable] = \array_flip($index->columns);
                             break;
@@ -185,10 +185,10 @@ class CommandAdmin extends AbstractAdmin
         $commands = 0;
         $timestamps = [];
         $parse = '[\'"' .
-            ($this->db->jush() == "sql" ? '`#' :
-            ($this->db->jush() == "sqlite" ? '`[' :
-            ($this->db->jush() == "mssql" ? '[' : ''))) . ']|/\*|-- |$' .
-            ($this->db->jush() == "pgsql" ? '|\$[^$]*\$' : '');
+            ($this->driver->jush() == "sql" ? '`#' :
+            ($this->driver->jush() == "sqlite" ? '`[' :
+            ($this->driver->jush() == "mssql" ? '[' : ''))) . ']|/\*|-- |$' .
+            ($this->driver->jush() == "pgsql" ? '|\$[^$]*\$' : '');
         // $total_start = \microtime(true);
         // \parse_str($_COOKIE["adminer_export"], $adminer_export);
         // $dump_format = $this->util->dumpFormat();
@@ -240,9 +240,9 @@ class CommandAdmin extends AbstractAdmin
             $empty = false;
             $q = \substr($queries, 0, $pos);
             $commands++;
-            // $print = "<pre id='sql-$commands'><code class='jush-$this->db->jush()'>" .
+            // $print = "<pre id='sql-$commands'><code class='jush-$this->driver->jush()'>" .
             //     $this->util->sqlCommandQuery($q) . "</code></pre>\n";
-            if ($this->db->jush() == "sqlite" && \preg_match("~^$space*+ATTACH\\b~i", $q, $match)) {
+            if ($this->driver->jush() == "sqlite" && \preg_match("~^$space*+ATTACH\\b~i", $q, $match)) {
                 // PHP doesn't support setting SQLITE_LIMIT_ATTACHED
                 // $errors[] = " <a href='#sql-$commands'>$commands</a>";
                 $errors[] = $this->util->lang('ATTACH queries are not supported.');
@@ -265,21 +265,21 @@ class CommandAdmin extends AbstractAdmin
                 $start = \microtime(true);
                 //! don't allow changing of character_set_results, convert encoding of displayed query
                 $connection = $this->connection();
-                if ($this->db->multiQuery($q) && $connection !== null && \preg_match("~^$space*+USE\\b~i", $q)) {
+                if ($this->driver->multiQuery($q) && $connection !== null && \preg_match("~^$space*+USE\\b~i", $q)) {
                     $connection->query($q);
                 }
 
                 do {
-                    $statement = $this->db->storedResult();
+                    $statement = $this->driver->storedResult();
 
-                    if ($this->db->hasError()) {
-                        $error = $this->util->error();
-                        if ($this->db->hasErrno()) {
-                            $error = "(" . $this->db->errno() . "): $error";
+                    if ($this->driver->hasError()) {
+                        $error = $this->driver->error();
+                        if ($this->driver->hasErrno()) {
+                            $error = "(" . $this->driver->errno() . "): $error";
                         }
                         $errors[] = $error;
                     } else {
-                        $affected = $this->db->affectedRows(); // getting warnigns overwrites this
+                        $affected = $this->driver->affectedRows(); // getting warnigns overwrites this
                         if (\is_object($statement)) {
                             if (!$onlyErrors) {
                                 $select = $this->select($statement, [], $limit);
@@ -287,7 +287,7 @@ class CommandAdmin extends AbstractAdmin
                             }
                         } else {
                             if (!$onlyErrors) {
-                                // $title = $this->util->html($this->db->info());
+                                // $title = $this->util->html($this->driver->info());
                                 $messages[] = $this->util->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
                             }
                         }
@@ -300,12 +300,12 @@ class CommandAdmin extends AbstractAdmin
                         'select' => $select,
                     ];
 
-                    if ($this->db->hasError() && $errorStops) {
+                    if ($this->driver->hasError() && $errorStops) {
                         break 2;
                     }
 
                     $start = \microtime(true);
-                } while ($this->db->nextResult());
+                } while ($this->driver->nextResult());
             }
 
             $queries = \substr($queries, $offset);

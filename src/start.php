@@ -4,30 +4,32 @@ $di = \jaxon()->di();
 // Register the translator in the dependency container
 $di->auto(Lagdo\DbAdmin\Translator::class);
 
-// Register the db classes in the dependency container
-$di->set(Lagdo\DbAdmin\Db\Db::class, function($di) {
-    $package = $di->get(Lagdo\DbAdmin\Package::class);
-    $server = $di->get('adminer_config_server'); // The selected server.
-    return new Lagdo\DbAdmin\Db\Db($package->getServerOptions($server));
-});
+// Register the db classes and aliases in the dependency container
 $di->auto(Lagdo\DbAdmin\Db\Util::class);
-
-// Aliases for interfaces
-$di->alias(Lagdo\DbAdmin\Driver\DbInterface::class, Lagdo\DbAdmin\Db\Db::class);
 $di->alias(Lagdo\DbAdmin\Driver\UtilInterface::class, Lagdo\DbAdmin\Db\Util::class);
 
 // Database specific classes
-$di->set(Lagdo\DbAdmin\Driver\Db\ServerInterface::class, function($di) {
-    $package = $di->get(Lagdo\DbAdmin\Package::class);
-    $server = $di->get('adminer_config_server'); // The selected server.
-    // The above key is defined by the corresponding plugin package.
-    return $di->get('adminer_server_' . $package->getServerDriver($server));
+$di->set(Lagdo\DbAdmin\Driver\DriverInterface::class, function($di) {
+    // The key below is defined by the corresponding plugin package.
+    return $di->get('adminer_driver_' . $di->get('adminer_config_driver'));
 });
-$di->set(Lagdo\DbAdmin\Driver\Db\DriverInterface::class, function($di) {
-    $server = $di->get(Lagdo\DbAdmin\Driver\Db\ServerInterface::class);
-    return $server->driver();
+$di->set(Lagdo\DbAdmin\Driver\Db\ServerInterface::class, function($di) {
+    $driver = $di->get(Lagdo\DbAdmin\Driver\DriverInterface::class);
+    return $driver->server();
+});
+$di->set(Lagdo\DbAdmin\Driver\Db\TableInterface::class, function($di) {
+    $driver = $di->get(Lagdo\DbAdmin\Driver\DriverInterface::class);
+    return $driver->table();
+});
+$di->set(Lagdo\DbAdmin\Driver\Db\QueryInterface::class, function($di) {
+    $driver = $di->get(Lagdo\DbAdmin\Driver\DriverInterface::class);
+    return $driver->query();
+});
+$di->set(Lagdo\DbAdmin\Driver\Db\GrammarInterface::class, function($di) {
+    $driver = $di->get(Lagdo\DbAdmin\Driver\DriverInterface::class);
+    return $driver->grammar();
 });
 $di->set(Lagdo\DbAdmin\Driver\Db\ConnectionInterface::class, function($di) {
-    $server = $di->get(Lagdo\DbAdmin\Driver\Db\ServerInterface::class);
-    return $server->connection();
+    $driver = $di->get(Lagdo\DbAdmin\Driver\DriverInterface::class);
+    return $driver->connection();
 });

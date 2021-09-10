@@ -48,7 +48,7 @@ class DatabaseAdmin extends AbstractAdmin
     {
         // Get the schema lists
         if ($this->finalSchemas === null) {
-            $this->finalSchemas = $this->db->schemas();
+            $this->finalSchemas = $this->driver->schemas();
             if (\is_array($this->userSchemas)) {
                 // Only keep schemas that appear in the config.
                 $this->finalSchemas = \array_intersect($this->finalSchemas, $this->userSchemas);
@@ -79,29 +79,29 @@ class DatabaseAdmin extends AbstractAdmin
             // 'type' => $this->util->lang('User types'),
             // 'event' => $this->util->lang('Events'),
         ];
-        if ($this->db->support('view')) {
+        if ($this->driver->support('view')) {
             $menuActions['view'] = $this->util->lang('Views');
         }
         // Todo: Implement features and enable menu items.
-        // if ($this->db->support('routine')) {
+        // if ($this->driver->support('routine')) {
         //     $menuActions['routine'] = $this->util->lang('Routines');
         // }
-        // if ($this->db->support('sequence')) {
+        // if ($this->driver->support('sequence')) {
         //     $menuActions['sequence'] = $this->util->lang('Sequences');
         // }
-        // if ($this->db->support('type')) {
+        // if ($this->driver->support('type')) {
         //     $menuActions['type'] = $this->util->lang('User types');
         // }
-        // if ($this->db->support('event')) {
+        // if ($this->driver->support('event')) {
         //     $menuActions['event'] = $this->util->lang('Events');
         // }
 
         // From db.inc.php
         $schemas = null;
-        if ($this->db->support("scheme")) {
+        if ($this->driver->support("scheme")) {
             $schemas = $this->schemas();
         }
-        // $tables_list = $this->db->tables();
+        // $tables_list = $this->driver->tables();
 
         // $tables = [];
         // foreach($tableStatus as $table)
@@ -136,12 +136,12 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        // $tableStatus = $this->db->tableStatus('', true); // Tables details
-        $tableStatus = $this->db->tableStatus(); // Tables details
+        // $tableStatus = $this->driver->tableStatus('', true); // Tables details
+        $tableStatus = $this->driver->tableStatus(); // Tables details
 
         $details = [];
         foreach ($tableStatus as $table => $status) {
-            if (!$this->db->isView($status)) {
+            if (!$this->driver->isView($status)) {
                 $details[] = [
                     'name' => $this->util->tableName($status),
                     'engine' => $status->engine,
@@ -179,12 +179,12 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        // $tableStatus = $this->db->tableStatus('', true); // Tables details
-        $tableStatus = $this->db->tableStatus(); // Tables details
+        // $tableStatus = $this->driver->tableStatus('', true); // Tables details
+        $tableStatus = $this->driver->tableStatus(); // Tables details
 
         $details = [];
         foreach ($tableStatus as $table => $status) {
-            if ($this->db->isView($status)) {
+            if ($this->driver->isView($status)) {
                 $details[] = [
                     'name' => $this->util->tableName($status),
                     'engine' => $status->engine,
@@ -215,7 +215,7 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        $routines = $this->db->routines();
+        $routines = $this->driver->routines();
         $details = [];
         foreach ($routines as $routine) {
             // not computed on the pages to be able to print the header first
@@ -249,9 +249,9 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         $sequences = [];
-        if ($this->db->support("sequence")) {
+        if ($this->driver->support("sequence")) {
             // From db.inc.php
-            $sequences = $this->db->values("SELECT sequence_name FROM information_schema.sequences ".
+            $sequences = $this->driver->values("SELECT sequence_name FROM information_schema.sequences ".
                 "WHERE sequence_schema = selectedSchema() ORDER BY sequence_name");
         }
         $details = [];
@@ -280,7 +280,7 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        $userTypes = $this->db->support("type") ? $this->db->userTypes() : [];
+        $userTypes = $this->driver->support("type") ? $this->driver->userTypes() : [];
         $details = [];
         foreach ($userTypes as $userType) {
             $details[] = [
@@ -310,7 +310,7 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        $events = $this->db->support("event") ? $this->db->rows("SHOW EVENTS") : [];
+        $events = $this->driver->support("event") ? $this->driver->rows("SHOW EVENTS") : [];
         $details = [];
         foreach ($events as $event) {
             $detail = [

@@ -28,7 +28,7 @@ class TableAdmin extends AbstractAdmin
     protected function status(string $table)
     {
         if (!$this->tableStatus) {
-            $this->tableStatus = $this->db->tableStatusOrName($table, true);
+            $this->tableStatus = $this->driver->tableStatusOrName($table, true);
         }
         return $this->tableStatus;
     }
@@ -46,16 +46,16 @@ class TableAdmin extends AbstractAdmin
         $links = [
             'select' => $this->util->lang('Select data'),
         ];
-        if ($this->db->support('table') || $this->db->support('indexes')) {
+        if ($this->driver->support('table') || $this->driver->support('indexes')) {
             $links['table'] = $this->util->lang('Show structure');
         }
-        if ($this->db->support('table')) {
+        if ($this->driver->support('table')) {
             $links['alter'] = $this->util->lang('Alter table');
         }
         if ($set !== null) {
             $links['edit'] = $this->util->lang('New item');
         }
-        // $links['docs'] = \doc_link([$this->db->jush() => $this->db->tableHelp($name)], '?');
+        // $links['docs'] = \doc_link([$this->driver->jush() => $this->driver->tableHelp($name)], '?');
 
         return $links;
     }
@@ -89,18 +89,18 @@ class TableAdmin extends AbstractAdmin
             // 'foreign-keys' => $this->util->lang('Foreign keys'),
             // 'triggers' => $this->util->lang('Triggers'),
         ];
-        if ($this->db->isView($status)) {
-            if ($this->db->support('view_trigger')) {
+        if ($this->driver->isView($status)) {
+            if ($this->driver->support('view_trigger')) {
                 $tabs['triggers'] = $this->util->lang('Triggers');
             }
         } else {
-            if ($this->db->support('indexes')) {
+            if ($this->driver->support('indexes')) {
                 $tabs['indexes'] = $this->util->lang('Indexes');
             }
-            if ($this->db->supportForeignKeys($status)) {
+            if ($this->driver->supportForeignKeys($status)) {
                 $tabs['foreign-keys'] = $this->util->lang('Foreign keys');
             }
-            if ($this->db->support('trigger')) {
+            if ($this->driver->support('trigger')) {
                 $tabs['triggers'] = $this->util->lang('Triggers');
             }
         }
@@ -118,9 +118,9 @@ class TableAdmin extends AbstractAdmin
     public function getTableFields(string $table)
     {
         // From table.inc.php
-        $fields = $this->db->fields($table);
+        $fields = $this->driver->fields($table);
         if (!$fields) {
-            throw new Exception($this->util->error());
+            throw new Exception($this->driver->error());
         }
 
         $mainActions = $this->getTableLinks();
@@ -131,13 +131,13 @@ class TableAdmin extends AbstractAdmin
             // 'foreign-keys' => $this->util->lang('Foreign keys'),
             // 'triggers' => $this->util->lang('Triggers'),
         ];
-        if ($this->db->support('indexes')) {
+        if ($this->driver->support('indexes')) {
             $tabs['indexes'] = $this->util->lang('Indexes');
         }
-        if ($this->db->supportForeignKeys($this->status($table))) {
+        if ($this->driver->supportForeignKeys($this->status($table))) {
             $tabs['foreign-keys'] = $this->util->lang('Foreign keys');
         }
-        if ($this->db->support('trigger')) {
+        if ($this->driver->support('trigger')) {
             $tabs['triggers'] = $this->util->lang('Triggers');
         }
 
@@ -146,7 +146,7 @@ class TableAdmin extends AbstractAdmin
             $this->util->lang('Type'),
             $this->util->lang('Collation'),
         ];
-        $hasComment = $this->db->support('comment');
+        $hasComment = $this->driver->support('comment');
         if ($hasComment) {
             $headers[] = $this->util->lang('Comment');
         }
@@ -187,12 +187,12 @@ class TableAdmin extends AbstractAdmin
      */
     public function getTableIndexes(string $table)
     {
-        if (!$this->db->support('indexes')) {
+        if (!$this->driver->support('indexes')) {
             return null;
         }
 
         // From table.inc.php
-        $indexes = $this->db->indexes($table);
+        $indexes = $this->driver->indexes($table);
         $mainActions = [
             'create' => $this->util->lang('Alter indexes'),
         ];
@@ -241,7 +241,7 @@ class TableAdmin extends AbstractAdmin
     public function getTableForeignKeys(string $table)
     {
         $status = $this->status($table);
-        if (!$this->db->supportForeignKeys($status)) {
+        if (!$this->driver->supportForeignKeys($status)) {
             return null;
         }
 
@@ -258,7 +258,7 @@ class TableAdmin extends AbstractAdmin
             $this->util->lang('ON UPDATE'),
         ];
 
-        $foreignKeys = $this->db->foreignKeys($table);
+        $foreignKeys = $this->driver->foreignKeys($table);
         if (!$foreignKeys) {
             $foreignKeys = [];
         }
@@ -302,7 +302,7 @@ class TableAdmin extends AbstractAdmin
      */
     public function getTableTriggers(string $table)
     {
-        if (!$this->db->support('trigger')) {
+        if (!$this->driver->support('trigger')) {
             return null;
         }
 
@@ -319,7 +319,7 @@ class TableAdmin extends AbstractAdmin
 
         $details = [];
         // From table.inc.php
-        $triggers = $this->db->triggers($table);
+        $triggers = $this->driver->triggers($table);
         foreach ($triggers as $name => $trigger) {
             $details[] = [
                 $this->util->html($trigger->timing),
@@ -341,7 +341,7 @@ class TableAdmin extends AbstractAdmin
      */
     private function getForeignKeys(string $table = '')
     {
-        $this->referencableTables = $this->db->referencableTables($table);
+        $this->referencableTables = $this->driver->referencableTables($table);
         $this->foreignKeys = [];
         foreach ($this->referencableTables as $tableName => $field) {
             $name = \str_replace('`', '``', $tableName) .
@@ -362,14 +362,14 @@ class TableAdmin extends AbstractAdmin
     {
         // From includes/editing.inc.php
         $extraTypes = [];
-        if ($type && !$this->db->typeExists($type) && !isset($this->foreignKeys[$type]) &&
+        if ($type && !$this->driver->typeExists($type) && !isset($this->foreignKeys[$type]) &&
             !\array_key_exists($this->util->lang('Current'), $extraTypes)) {
             $extraTypes[$this->util->lang('Current')] = [$type];
         }
         if ($this->foreignKeys) {
-            $this->db->setStructuredType($this->util->lang('Foreign keys'), $this->foreignKeys);
+            $this->driver->setStructuredType($this->util->lang('Foreign keys'), $this->foreignKeys);
         }
-        return \array_merge($extraTypes, $this->db->structuredTypes());
+        return \array_merge($extraTypes, $this->driver->structuredTypes());
     }
 
     /**
@@ -390,11 +390,11 @@ class TableAdmin extends AbstractAdmin
         $status = [];
         $fields = [];
         if ($table !== '') {
-            $status = $this->db->tableStatus($table);
+            $status = $this->driver->tableStatus($table);
             if (!$status) {
                 throw new Exception($this->util->lang('No tables.'));
             }
-            $fields = $this->db->fields($table);
+            $fields = $this->driver->fields($table);
         }
 
         $this->getForeignKeys($table);
@@ -411,28 +411,28 @@ class TableAdmin extends AbstractAdmin
             $field->types = $this->getFieldTypes($type);
             $field->lengthRequired = !$field->length && \preg_match('~var(char|binary)$~', $type);
             $field->collationHidden = !\preg_match('~(char|text|enum|set)$~', $type);
-            $field->unsignedHidden = !(!$type || \preg_match($this->db->numberRegex(), $type));
+            $field->unsignedHidden = !(!$type || \preg_match($this->driver->numberRegex(), $type));
             $field->onUpdateHidden = !\preg_match('~timestamp|datetime~', $type);
             $field->onDeleteHidden = !\preg_match('~`~', $type);
         }
         $options = [
             'hasAutoIncrement' => $hasAutoIncrement,
             'onUpdate' => ['CURRENT_TIMESTAMP'],
-            'onDelete' => $this->db->onActions(),
+            'onDelete' => $this->driver->onActions(),
         ];
 
-        $collations = $this->db->collations();
-        $engines = $this->db->engines();
+        $collations = $this->driver->collations();
+        $engines = $this->driver->engines();
         $support = [
-            'columns' => $this->db->support('columns'),
-            'comment' => $this->db->support('comment'),
-            'partitioning' => $this->db->support('partitioning'),
-            'move_col' => $this->db->support('move_col'),
-            'drop_col' => $this->db->support('drop_col'),
+            'columns' => $this->driver->support('columns'),
+            'comment' => $this->driver->support('comment'),
+            'partitioning' => $this->driver->support('partitioning'),
+            'move_col' => $this->driver->support('move_col'),
+            'drop_col' => $this->driver->support('drop_col'),
         ];
 
         $foreignKeys = $this->foreignKeys;
-        $unsigned = $this->db->unsigned();
+        $unsigned = $this->driver->unsigned();
         // Give the var a better name
         $table = $status;
         return \compact(
@@ -522,10 +522,10 @@ class TableAdmin extends AbstractAdmin
                     $fkey->source = [$field['name']];
                     $fkey->target = [$typeField['field']];
                     $fkey->onDelete = $field['onDelete'];
-                    $foreign[$this->db->escapeId($field['name'])] = ($table != '' && $this->db->jush() != 'sqlite' ? 'ADD' : ' ') .
-                        $this->db->formatForeignKey($fkey);
+                    $foreign[$this->driver->escapeId($field['name'])] = ($table != '' && $this->driver->jush() != 'sqlite' ? 'ADD' : ' ') .
+                        $this->driver->formatForeignKey($fkey);
                 }
-                $after = ' AFTER ' . $this->db->escapeId($field['name']);
+                $after = ' AFTER ' . $this->driver->escapeId($field['name']);
             } elseif ($field['orig'] != '') {
                 // A missing "name" field and a not empty "orig" field means the column is to be dropped.
                 // We also append null in the array because the drivers code accesses field at position 1.
@@ -550,7 +550,7 @@ class TableAdmin extends AbstractAdmin
         //         foreach(\array_filter($values['partition_names']) as $key => $val)
         //         {
         //             $value = $values['partition_values'][$key];
-        //             $partitions[] = "\n  PARTITION " . $this->db->escapeId($val) .
+        //             $partitions[] = "\n  PARTITION " . $this->driver->escapeId($val) .
         //                 ' VALUES ' . ($values['partition_by'] == 'RANGE' ? 'LESS THAN' : 'IN') .
         //                 ($value != '' ? ' ($value)' : ' MAXVALUE'); //! SQL injection
         //         }
@@ -561,7 +561,7 @@ class TableAdmin extends AbstractAdmin
         //         : ($values['partitions'] ? ' PARTITIONS ' . (+$values['partitions']) : '')
         //     );
         // }
-        // elseif($this->db->support('partitioning') &&
+        // elseif($this->driver->support('partitioning') &&
         //     \preg_match('~partitioned~', $tableStatus->Create_options))
         // {
         //     $partitioning .= "\nREMOVE PARTITIONING";
@@ -569,11 +569,11 @@ class TableAdmin extends AbstractAdmin
 
         $name = \trim($values['name']);
         $autoIncrement = $this->util->number($this->util->input()->getAutoIncrementStep());
-        if ($this->db->jush() == 'sqlite' && ($useAllFields || $foreign)) {
+        if ($this->driver->jush() == 'sqlite' && ($useAllFields || $foreign)) {
             $fields = $allFields;
         }
 
-        $success = $this->db->alterTable(
+        $success = $this->driver->alterTable(
             $table,
             $name,
             $fields,
@@ -589,7 +589,7 @@ class TableAdmin extends AbstractAdmin
             $this->util->lang('Table has been created.') :
             $this->util->lang('Table has been altered.');
 
-        $error = $this->util->error();
+        $error = $this->driver->error();
 
         // From functions.inc.php
         // queries_redirect(ME . (support('table') ? 'table=' : 'select=') . urlencode($name), $message, $redirect);
@@ -634,8 +634,8 @@ class TableAdmin extends AbstractAdmin
      */
     public function alterTable(string $table, array $values)
     {
-        $origFields = $this->db->fields($table);
-        $tableStatus = $this->db->tableStatus($table);
+        $origFields = $this->driver->fields($table);
+        $tableStatus = $this->driver->tableStatus($table);
         if (!$tableStatus) {
             throw new Exception($this->util->lang('No tables.'));
         }
@@ -660,9 +660,9 @@ class TableAdmin extends AbstractAdmin
      */
     public function dropTable(string $table)
     {
-        $success = $this->db->dropTables([$table]);
+        $success = $this->driver->dropTables([$table]);
 
-        $error = $this->util->error();
+        $error = $this->driver->error();
 
         $message = $this->util->lang('Table has been dropped.');
 

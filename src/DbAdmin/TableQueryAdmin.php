@@ -33,7 +33,7 @@ class TableQueryAdmin extends AbstractAdmin
             $value = \call_user_func_array('json_encode', $args); //! requires PHP 5.2
             $function = "json";
         }
-        $reset = ($this->db->jush() == "mssql" && $field->autoIncrement);
+        $reset = ($this->driver->jush() == "mssql" && $field->autoIncrement);
         if ($reset && !$save) {
             $function = null;
         }
@@ -86,7 +86,7 @@ class TableQueryAdmin extends AbstractAdmin
         } elseif (\preg_match('~blob|bytea|raw|file~', $field->type) && $this->util->iniBool("file_uploads")) {
             $entry['input']['value'] = "<input type='file' name='fields-$name'>";
         } elseif (($text = \preg_match('~text|lob|memo~i', $field->type)) || \preg_match("~\n~", $value)) {
-            if ($text && $this->db->jush() != "sqlite") {
+            if ($text && $this->driver->jush() != "sqlite") {
                 $attrs .= " cols='50' rows='12'";
             } else {
                 $rows = \min(12, \substr_count($value, "\n") + 1);
@@ -102,8 +102,8 @@ class TableQueryAdmin extends AbstractAdmin
                 \preg_match('~^(\d+)(,(\d+))?$~', $field->length, $match) ?
                 ((\preg_match("~binary~", $field->type) ? 2 : 1) * $match[1] + (($match[3] ?? null) ? 1 : 0) +
                 (($match[2] ?? false) && !$unsigned ? 1 : 0)) :
-                ($this->db->typeExists($field->type) ? $this->db->type($field->type) + ($unsigned ? 0 : 1) : 0));
-            if ($this->db->jush() == 'sql' && $this->db->minVersion(5.6) && \preg_match('~time~', $field->type)) {
+                ($this->driver->typeExists($field->type) ? $this->driver->type($field->type) + ($unsigned ? 0 : 1) : 0));
+            if ($this->driver->jush() == 'sql' && $this->driver->minVersion(5.6) && \preg_match('~time~', $field->type)) {
                 $maxlength += 7; // microtime
             }
             // type='date' and type='time' display localized value which may be confusing,
@@ -129,7 +129,7 @@ class TableQueryAdmin extends AbstractAdmin
     private function getFields(string $table, array $queryOptions)
     {
         // From edit.inc.php
-        $fields = $this->db->fields($table);
+        $fields = $this->driver->fields($table);
 
         //!!!! $queryOptions["select"] is never set here !!!!//
 
@@ -168,24 +168,24 @@ class TableQueryAdmin extends AbstractAdmin
             $select = [];
             foreach ($fields as $name => $field) {
                 if (isset($field->privileges["select"])) {
-                    $as = $this->db->convertField($field);
+                    $as = $this->driver->convertField($field);
                     if ($queryOptions["clone"] && $field->autoIncrement) {
                         $as = "''";
                     }
-                    if ($this->db->jush() == "sql" && \preg_match("~enum|set~", $field->type)) {
-                        $as = "1*" . $this->db->escapeId($name);
+                    if ($this->driver->jush() == "sql" && \preg_match("~enum|set~", $field->type)) {
+                        $as = "1*" . $this->driver->escapeId($name);
                     }
-                    $select[] = ($as ? "$as AS " : "") . $this->db->escapeId($name);
+                    $select[] = ($as ? "$as AS " : "") . $this->driver->escapeId($name);
                 }
             }
             $row = [];
-            if (!$this->db->support("table")) {
+            if (!$this->driver->support("table")) {
                 $select = ["*"];
             }
             if ($select) {
-                $statement = $this->db->select($table, $select, [$where], $select, [], (isset($queryOptions["select"]) ? 2 : 1));
+                $statement = $this->driver->select($table, $select, [$where], $select, [], (isset($queryOptions["select"]) ? 2 : 1));
                 if (!$statement) {
-                    // $error = $this->util->error();
+                    // $error = $this->driver->error();
                 } else {
                     $row = $statement->fetchAssoc();
                     if (!$row) {
@@ -201,11 +201,11 @@ class TableQueryAdmin extends AbstractAdmin
             }
         }
 
-        if (!$this->db->support("table") && !$fields) {
-            $primary = $this->db->primaryIdName();
+        if (!$this->driver->support("table") && !$fields) {
+            $primary = $this->driver->primaryIdName();
             if (!$where) {
                 // insert
-                $statement = $this->db->select($table, ["*"], $where, ["*"]);
+                $statement = $this->driver->select($table, ["*"], $where, ["*"]);
                 $row = ($statement ? $statement->fetchAssoc() : false);
                 if (!$row) {
                     $row = [$primary => ""];
@@ -227,7 +227,7 @@ class TableQueryAdmin extends AbstractAdmin
 
         // From functions.inc.php (function edit_form($table, $fields, $row, $update))
         $entries = [];
-        $tableName = $this->util->tableName($this->db->tableStatusOrName($table, true));
+        $tableName = $this->util->tableName($this->driver->tableStatusOrName($table, true));
         $error = null;
         if ($row === false) {
             $error = $this->util->lang('No rows.');
@@ -246,7 +246,7 @@ class TableQueryAdmin extends AbstractAdmin
                 $value = (
                     $row !== null
                     ? (
-                        $row[$name] != "" && $this->db->jush() == "sql" && \preg_match("~enum|set~", $field->type)
+                        $row[$name] != "" && $this->driver->jush() == "sql" && \preg_match("~enum|set~", $field->type)
                         ? (\is_array($row[$name]) ? \array_sum($row[$name]) : +$row[$name])
                         : (\is_bool($row[$name]) ? +$row[$name] : $row[$name])
                     )
@@ -306,15 +306,15 @@ class TableQueryAdmin extends AbstractAdmin
         foreach ($fields as $name => $field) {
             $val = $this->util->processInput($field, $queryOptions);
             if ($val !== false && $val !== null) {
-                $set[$this->db->escapeId($name)] = $val;
+                $set[$this->driver->escapeId($name)] = $val;
             }
         }
 
-        $result = $this->db->insert($table, $set);
-        $lastId = ($result ? $this->db->lastAutoIncrementId() : 0);
+        $result = $this->driver->insert($table, $set);
+        $lastId = ($result ? $this->driver->lastAutoIncrementId() : 0);
         $message = $this->util->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ""));
 
-        $error = $this->util->error();
+        $error = $this->driver->error();
 
         return \compact('result', 'message', 'error');
     }
@@ -332,7 +332,7 @@ class TableQueryAdmin extends AbstractAdmin
         list($fields, $where, $update) = $this->getFields($table, $queryOptions);
 
         // From edit.inc.php
-        $indexes = $this->db->indexes($table);
+        $indexes = $this->driver->indexes($table);
         $unique_array = $this->util->uniqueArray($queryOptions["where"], $indexes);
         $query_where = "\nWHERE $where";
 
@@ -340,14 +340,14 @@ class TableQueryAdmin extends AbstractAdmin
         foreach ($fields as $name => $field) {
             $val = $this->util->processInput($field, $queryOptions);
             if ($val !== false && $val !== null) {
-                $set[$this->db->escapeId($name)] = $val;
+                $set[$this->driver->escapeId($name)] = $val;
             }
         }
 
-        $result = $this->db->update($table, $set, $query_where, !$unique_array);
+        $result = $this->driver->update($table, $set, $query_where, !$unique_array);
         $message = $this->util->lang('Item has been updated.');
 
-        $error = $this->util->error();
+        $error = $this->driver->error();
 
         return \compact('result', 'message', 'error');
     }
@@ -365,14 +365,14 @@ class TableQueryAdmin extends AbstractAdmin
         list($fields, $where, $update) = $this->getFields($table, $queryOptions);
 
         // From edit.inc.php
-        $indexes = $this->db->indexes($table);
+        $indexes = $this->driver->indexes($table);
         $unique_array = $this->util->uniqueArray($queryOptions["where"], $indexes);
         $query_where = "\nWHERE $where";
 
-        $result = $this->db->delete($table, $query_where, !$unique_array);
+        $result = $this->driver->delete($table, $query_where, !$unique_array);
         $message = $this->util->lang('Item has been deleted.');
 
-        $error = $this->util->error();
+        $error = $this->driver->error();
 
         return \compact('result', 'message', 'error');
     }

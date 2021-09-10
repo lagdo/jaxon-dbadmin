@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
-use Lagdo\DbAdmin\Db\Db;
+use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Db\Util;
 
 /**
@@ -11,9 +11,9 @@ use Lagdo\DbAdmin\Db\Util;
 class AbstractAdmin
 {
     /**
-     * @var Db
+     * @var DriverInterface
      */
-    public $db = null;
+    public $driver = null;
 
     /**
      * @var Util
@@ -29,7 +29,7 @@ class AbstractAdmin
      */
     public function init(AbstractAdmin $dbAdmin)
     {
-        $this->db = $dbAdmin->db;
+        $this->driver = $dbAdmin->driver;
         $this->util = $dbAdmin->util;
     }
 }
