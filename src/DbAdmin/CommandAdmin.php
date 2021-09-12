@@ -26,14 +26,14 @@ class CommandAdmin extends AbstractAdmin
      */
     private function connection()
     {
-        if ($this->connection === null && $this->driver->selectedDatabase() !== '') {
+        if ($this->connection === null && $this->driver->database() !== '') {
             // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
             //! PDO - silent error
             $connection = $this->driver->createConnection();
             if (($connection)) {
-                $connection->selectDatabase($this->driver->selectedDatabase());
-                if ($this->driver->selectedSchema() !== '') {
-                    $this->driver->selectSchema($this->driver->selectedSchema(), $connection);
+                $connection->selectDatabase($this->driver->database());
+                if ($this->driver->schema() !== '') {
+                    $this->driver->selectSchema($this->driver->schema(), $connection);
                 }
                 $this->connection = $connection;
             }
@@ -72,10 +72,10 @@ class CommandAdmin extends AbstractAdmin
                 if (isset($links[$key]) && !$columns[$links[$key]]) {
                     if ($orgtables && $this->driver->jush() == "sql") { // MySQL EXPLAIN
                         $table = $row[\array_search("table=", $links)];
-                        $link = ME . $links[$key] .
+                        $link = /*ME .*/ $links[$key] .
                             \urlencode($orgtables[$table] != "" ? $orgtables[$table] : $table);
                     } else {
-                        $link = ME . "edit=" . \urlencode($links[$key]);
+                        $link = /*ME .*/ "edit=" . \urlencode($links[$key]);
                         foreach ($indexes[$links[$key]] as $col => $j) {
                             $link .= "&where" . \urlencode("[" .
                                 $this->util->bracketEscape($col) . "]") . "=" . \urlencode($row[$j]);

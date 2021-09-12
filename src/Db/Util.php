@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Db;
 
 use Lagdo\DbAdmin\Driver\UtilInterface;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Exception\DbException;
 use Lagdo\DbAdmin\Translator;
 
 class Util implements UtilInterface
@@ -117,7 +116,7 @@ class Util implements UtilInterface
     }
 
     /**
-     * Check whether the string is e-mail address
+     * Check if the string is e-mail address
      * @param string
      * @return bool
      */
@@ -130,7 +129,7 @@ class Util implements UtilInterface
     }
 
     /**
-     * Check whether the string is URL address
+     * Check if the string is URL address
      * @param string
      * @return bool
      */

@@ -290,7 +290,7 @@ class ExportAdmin extends AbstractAdmin
             }
             $create = "CREATE TABLE " . $this->driver->table($table) . " (" . \implode(", ", $fields) . ")";
         } else {
-            $create = $this->driver->createTableSql($table, $this->options['auto_increment'], $style);
+            $create = $this->driver->sqlForCreateTable($table, $this->options['auto_increment'], $style);
         }
         $this->driver->setUtf8mb4($create);
         if ($style && $create) {
@@ -320,7 +320,7 @@ class ExportAdmin extends AbstractAdmin
         if ($style) {
             if ($this->options["format"] == "sql") {
                 if ($style == "TRUNCATE+INSERT") {
-                    $this->queries[] = $this->driver->truncateTableSql($table) . ";\n";
+                    $this->queries[] = $this->driver->sqlForTruncateTable($table) . ";\n";
                 }
                 $fields = $this->driver->fields($table);
             }
@@ -424,7 +424,7 @@ class ExportAdmin extends AbstractAdmin
                     $this->dumpData($table, $this->options["data_style"], $query);
                 }
                 if ($this->options['is_sql'] && $this->options["triggers"] && $dumpTable &&
-                    ($triggers = $this->driver->createTriggerSql($table))) {
+                    ($triggers = $this->driver->sqlForCreateTrigger($table))) {
                     $this->queries[] = "DELIMITER ;";
                     $this->queries[] = $triggers;
                     $this->queries[] = "DELIMITER ;";
@@ -446,7 +446,7 @@ class ExportAdmin extends AbstractAdmin
             foreach ($dbTables as $table => $tableStatus) {
                 $dumpTable = true; // (DB == "" || \in_array($table, $this->options["tables"]));
                 if ($dumpTable && !$this->driver->isView($tableStatus)) {
-                    $this->queries[] = $this->driver->foreignKeysSql($table);
+                    $this->queries[] = $this->driver->sqlForForeignKeys($table);
                 }
             }
         }
@@ -515,7 +515,7 @@ class ExportAdmin extends AbstractAdmin
                 }
                 if ($this->options['is_sql']) {
                     if ($style) {
-                        if (($query = $this->driver->useDatabaseSql($database))) {
+                        if (($query = $this->driver->sqlForUseDatabase($database))) {
                             $this->queries[] = $query . ";";
                         }
                         $this->queries[] = ''; // Empty line
