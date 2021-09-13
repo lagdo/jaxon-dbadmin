@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\DbAdmin;
 
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Db\Util;
+use Lagdo\DbAdmin\Db\Translator;
 
 /**
  * Common attributes for all admins
@@ -21,6 +22,11 @@ class AbstractAdmin
     public $util = null;
 
     /**
+     * @var Translator
+     */
+    public $trans = null;
+
+    /**
      * Initialize the facade
      *
      * @param AbstractAdmin $dbAdmin
@@ -31,5 +37,6 @@ class AbstractAdmin
     {
         $this->driver = $dbAdmin->driver;
         $this->util = $dbAdmin->util;
+        $this->trans = $dbAdmin->trans;
     }
 }

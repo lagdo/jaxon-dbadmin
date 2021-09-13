@@ -76,7 +76,7 @@ trait ServerTrait
         $this->connect($server);
 
         $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $this->util->lang('Databases')]);
+        $this->setBreadcrumbs([$options['name'], $this->trans->lang('Databases')]);
 
         return $this->server($options)->getDatabases();
     }
@@ -93,7 +93,7 @@ trait ServerTrait
         $this->connect($server);
 
         $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $this->util->lang('Process list')]);
+        $this->setBreadcrumbs([$options['name'], $this->trans->lang('Process list')]);
 
         return $this->server($options)->getProcesses();
     }
@@ -110,7 +110,7 @@ trait ServerTrait
         $this->connect($server);
 
         $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $this->util->lang('Variables')]);
+        $this->setBreadcrumbs([$options['name'], $this->trans->lang('Variables')]);
 
         return $this->server($options)->getVariables();
     }
@@ -127,7 +127,7 @@ trait ServerTrait
         $this->connect($server);
 
         $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $this->util->lang('Status')]);
+        $this->setBreadcrumbs([$options['name'], $this->trans->lang('Status')]);
 
         return $this->server($options)->getStatus();
     }

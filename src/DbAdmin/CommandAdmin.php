@@ -88,7 +88,7 @@ class CommandAdmin extends AbstractAdmin
                     $val = "<i>NULL</i>";
                 } elseif (isset($blobs[$key]) && $blobs[$key] && !$this->util->isUtf8($val)) {
                     //! link to download
-                    $val = "<i>" . $this->util->lang('%d byte(s)', \strlen($val)) . "</i>";
+                    $val = "<i>" . $this->trans->lang('%d byte(s)', \strlen($val)) . "</i>";
                 } else {
                     $val = $this->util->html($val);
                     if (isset($types[$key]) && $types[$key] == 254) { // 254 - char
@@ -99,12 +99,12 @@ class CommandAdmin extends AbstractAdmin
             }
             $details[] = $detail;
         }
-        $message = $this->util->lang('No rows.');
+        $message = $this->trans->lang('No rows.');
         if ($rowCount > 0) {
             $numRows = $statement->numRows;
             $message = ($numRows ? ($limit && $numRows > $limit ?
-                $this->util->lang('%d / ', $limit) :
-                "") . $this->util->lang('%d row(s)', $numRows) : "");
+                $this->trans->lang('%d / ', $limit) :
+                "") . $this->trans->lang('%d row(s)', $numRows) : "");
         }
 
         // Table header
@@ -245,7 +245,7 @@ class CommandAdmin extends AbstractAdmin
             if ($this->driver->jush() == "sqlite" && \preg_match("~^$space*+ATTACH\\b~i", $q, $match)) {
                 // PHP doesn't support setting SQLITE_LIMIT_ATTACHED
                 // $errors[] = " <a href='#sql-$commands'>$commands</a>";
-                $errors[] = $this->util->lang('ATTACH queries are not supported.');
+                $errors[] = $this->trans->lang('ATTACH queries are not supported.');
                 $results[] = [
                     'query' => $q,
                     'errors' => $errors,
@@ -288,7 +288,7 @@ class CommandAdmin extends AbstractAdmin
                         } else {
                             if (!$onlyErrors) {
                                 // $title = $this->util->html($this->driver->info());
-                                $messages[] = $this->util->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
+                                $messages[] = $this->trans->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
                             }
                         }
                     }
@@ -313,14 +313,14 @@ class CommandAdmin extends AbstractAdmin
         }
 
         if ($empty) {
-            $messages[] = $this->util->lang('No commands to execute.');
+            $messages[] = $this->trans->lang('No commands to execute.');
         } elseif ($onlyErrors) {
-            $messages[] =  $this->util->lang('%d query(s) executed OK.', $commands - \count($errors));
-            // $timestamps[] = $this->util->formatTime($total_start);
+            $messages[] =  $this->trans->lang('%d query(s) executed OK.', $commands - \count($errors));
+            // $timestamps[] = $this->trans->formatTime($total_start);
         }
         // elseif($errors && $commands > 1)
         // {
-        //     $errors[] = $this->util->lang('Error in query') . ": " . \implode("", $errors);
+        //     $errors[] = $this->trans->lang('Error in query') . ": " . \implode("", $errors);
         // }
         //! MS SQL - SET SHOWPLAN_ALL OFF
 

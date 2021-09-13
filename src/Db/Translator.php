@@ -1,13 +1,15 @@
 <?php
 
-namespace Lagdo\DbAdmin;
+namespace Lagdo\DbAdmin\Db;
+
+use Lagdo\DbAdmin\Driver\TranslatorInterface;
 
 /**
  * Translator and language switcher
  *
  * Not used in a single language version
  */
-class Translator
+class Translator implements TranslatorInterface
 {
     /**
      * Available languages
@@ -90,7 +92,7 @@ class Translator
     public function set_lang($language)
     {
         $this->language = $language;
-        $this->translations = require __DIR__ . "/../translations/$language.inc.php";
+        $this->translations = require __DIR__ . "/../../translations/$language.inc.php";
     }
 
     /**
@@ -103,23 +105,14 @@ class Translator
     }
 
     /**
-     * Format decimal number
-     * @param int
+     * Get a translated string
+     *
+     * @param string $idf
+     * @param int $number
+     *
      * @return string
      */
-    public function formatNumber($val)
-    {
-        return strtr(number_format(intval($val), 0, ".", $this->lang(',')),
-            preg_split('~~u', $this->lang('0123456789'), -1, PREG_SPLIT_NO_EMPTY));
-    }
-
-    /**
-     * Translate string
-     * @param string
-     * @param int
-     * @return string
-     */
-    public function lang($idf, $number = null)
+    public function lang(string $idf, $number = null)
     {
         $translation = (array_key_exists($idf, $this->translations) ? $this->translations[$idf] : $idf);
         if (is_array($translation)) {
@@ -151,6 +144,31 @@ class Translator
             $args[0] = $this->formatNumber($number);
         }
         return vsprintf($format, $args);
+    }
+
+    /**
+     * Format a decimal number
+     *
+     * @param int $number
+     *
+     * @return string
+     */
+    public function formatNumber(int $number)
+    {
+        return strtr(number_format(intval($number), 0, ".", $this->lang(',')),
+            preg_split('~~u', $this->lang('0123456789'), -1, PREG_SPLIT_NO_EMPTY));
+    }
+
+    /**
+     * Format elapsed time
+     *
+     * @param float $time Output of microtime(true)
+     *
+     * @return string
+     */
+    public function formatTime($start)
+    {
+        return $this->lang('%.3f s', max(0, microtime(true) - $start));
     }
 
     // public function switch_lang() {

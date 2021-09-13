@@ -104,11 +104,11 @@ class UserAdmin extends AbstractAdmin
         $privileges = [];
         $contexts = [
             "" => "",
-            "Server Admin" => $this->util->lang('Server'),
-            "Databases" => $this->util->lang('Database'),
-            "Tables" => $this->util->lang('Table'),
-            "Columns" => $this->util->lang('Column'),
-            "Procedures" => $this->util->lang('Routine'),
+            "Server Admin" => $this->trans->lang('Server'),
+            "Databases" => $this->trans->lang('Database'),
+            "Tables" => $this->trans->lang('Table'),
+            "Columns" => $this->trans->lang('Column'),
+            "Procedures" => $this->trans->lang('Routine'),
         ];
         foreach ($contexts as $context => $desc) {
             foreach ((array)$features[$context] as $privilege => $comment) {
@@ -128,9 +128,9 @@ class UserAdmin extends AbstractAdmin
                     // elseif(isset($values["grant"]))
                     // {
                     //     $detail[] = "<select name=$name><option><option value='1'" .
-                    //         ($value ? " selected" : "") . ">" . $this->util->lang('Grant') .
+                    //         ($value ? " selected" : "") . ">" . $this->trans->lang('Grant') .
                     //         "<option value='0'" . ($value == "0" ? " selected" : "") . ">" .
-                    //         $this->util->lang('Revoke') . "</select>";
+                    //         $this->trans->lang('Revoke') . "</select>";
                     // }
                     else {
                         $detail[] = "<input type='checkbox' name=$name" . ($value ? " checked />" : " />");
@@ -155,12 +155,12 @@ class UserAdmin extends AbstractAdmin
     public function getPrivileges($database = '')
     {
         $mainActions = [
-            'add-user' => $this->util->lang('Create user'),
+            'add-user' => $this->trans->lang('Create user'),
         ];
 
         $headers = [
-            $this->util->lang('Username'),
-            $this->util->lang('Server'),
+            $this->trans->lang('Username'),
+            $this->trans->lang('Server'),
             '',
             '',
         ];
@@ -202,8 +202,8 @@ class UserAdmin extends AbstractAdmin
         $grants = [".*" => []];
 
         $headers = [
-            $this->util->lang('Contexts'),
-            $this->util->lang('Privileges'),
+            $this->trans->lang('Contexts'),
+            $this->trans->lang('Privileges'),
         ];
         $i = 0;
         foreach ($grants as $object => $grant) {
@@ -218,19 +218,19 @@ class UserAdmin extends AbstractAdmin
 
         $user = [
             'host' => [
-                'label' => $this->util->lang('Server'),
+                'label' => $this->trans->lang('Server'),
                 'value' => '',
             ],
             'name' => [
-                'label' => $this->util->lang('Username'),
+                'label' => $this->trans->lang('Username'),
                 'value' => '',
             ],
             'pass' => [
-                'label' => $this->util->lang('Password'),
+                'label' => $this->trans->lang('Password'),
                 'value' => '',
             ],
             'hashed' => [
-                'label' => $this->util->lang('Hashed'),
+                'label' => $this->trans->lang('Hashed'),
                 'value' => false,
             ],
         ];
@@ -257,8 +257,8 @@ class UserAdmin extends AbstractAdmin
         }
 
         $headers = [
-            $this->util->lang('Contexts'),
-            $this->util->lang('Privileges'),
+            $this->trans->lang('Contexts'),
+            $this->trans->lang('Privileges'),
         ];
         $i = 0;
         foreach ($grants as $object => $grant) {
@@ -273,19 +273,19 @@ class UserAdmin extends AbstractAdmin
 
         $user = [
             'host' => [
-                'label' => $this->util->lang('Server'),
+                'label' => $this->trans->lang('Server'),
                 'value' => $host,
             ],
             'name' => [
-                'label' => $this->util->lang('Username'),
+                'label' => $this->trans->lang('Username'),
                 'value' => $user,
             ],
             'pass' => [
-                'label' => $this->util->lang('Password'),
+                'label' => $this->trans->lang('Password'),
                 'value' => $this->password,
             ],
             'hashed' => [
-                'label' => $this->util->lang('Hashed'),
+                'label' => $this->trans->lang('Hashed'),
                 'value' => ($this->password != ''),
             ],
         ];

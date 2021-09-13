@@ -53,7 +53,7 @@ trait TableSelectTrait
 
         $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database,
-            $this->util->lang('Tables'), $table, $this->util->lang('Select')]);
+            $this->trans->lang('Tables'), $table, $this->trans->lang('Select')]);
 
         $this->util->input->table = $table;
         $this->util->input->values = $queryOptions;

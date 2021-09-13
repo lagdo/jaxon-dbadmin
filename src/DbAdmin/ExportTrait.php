@@ -47,7 +47,7 @@ trait ExportTrait
         if (($database)) {
             $breadcrumbs[] = $database;
         }
-        $breadcrumbs[] = $this->util->lang('Export');
+        $breadcrumbs[] = $this->trans->lang('Export');
         $this->setBreadcrumbs($breadcrumbs);
 
         return $this->export()->getExportOptions($database);

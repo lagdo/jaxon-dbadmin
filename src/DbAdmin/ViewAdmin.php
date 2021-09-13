@@ -42,17 +42,17 @@ class ViewAdmin extends AbstractAdmin
     protected function getViewLinks($set = null)
     {
         $links = [
-            "select" => $this->util->lang('Select data'),
+            "select" => $this->trans->lang('Select data'),
         ];
         if ($this->driver->support("indexes")) {
-            $links["table"] = $this->util->lang('Show structure');
+            $links["table"] = $this->trans->lang('Show structure');
         }
         if ($this->driver->support("table")) {
-            $links["table"] = $this->util->lang('Show structure');
-            $links["alter"] = $this->util->lang('Alter view');
+            $links["table"] = $this->trans->lang('Show structure');
+            $links["alter"] = $this->trans->lang('Alter view');
         }
         if ($set !== null) {
-            $links["edit"] = $this->util->lang('New item');
+            $links["edit"] = $this->trans->lang('New item');
         }
         // $links['docs'] = \doc_link([$this->driver->jush() => $this->driver->tableHelp($name)], "?");
 
@@ -69,27 +69,27 @@ class ViewAdmin extends AbstractAdmin
     public function getViewInfo(string $table)
     {
         $mainActions = [
-            'edit-view' => $this->util->lang('Edit view'),
-            'drop-view' => $this->util->lang('Drop view'),
+            'edit-view' => $this->trans->lang('Edit view'),
+            'drop-view' => $this->trans->lang('Drop view'),
         ];
 
         // From table.inc.php
         $status = $this->status($table);
         $name = $this->util->tableName($status);
         $title = ($status->engine == 'materialized view' ?
-            $this->util->lang('Materialized view') : $this->util->lang('View')) .
+            $this->trans->lang('Materialized view') : $this->trans->lang('View')) .
             ": " . ($name != "" ? $name : $this->util->html($table));
 
         $comment = $status->comment;
 
         $tabs = [
-            'fields' => $this->util->lang('Columns'),
-            // 'indexes' => $this->util->lang('Indexes'),
-            // 'foreign-keys' => $this->util->lang('Foreign keys'),
-            // 'triggers' => $this->util->lang('Triggers'),
+            'fields' => $this->trans->lang('Columns'),
+            // 'indexes' => $this->trans->lang('Indexes'),
+            // 'foreign-keys' => $this->trans->lang('Foreign keys'),
+            // 'triggers' => $this->trans->lang('Triggers'),
         ];
         if ($this->driver->support("view_trigger")) {
-            $tabs['triggers'] = $this->util->lang('Triggers');
+            $tabs['triggers'] = $this->trans->lang('Triggers');
         }
 
         return \compact('mainActions', 'title', 'comment', 'tabs');
@@ -113,21 +113,21 @@ class ViewAdmin extends AbstractAdmin
         $mainActions = $this->getViewLinks();
 
         $tabs = [
-            'fields' => $this->util->lang('Columns'),
-            // 'triggers' => $this->util->lang('Triggers'),
+            'fields' => $this->trans->lang('Columns'),
+            // 'triggers' => $this->trans->lang('Triggers'),
         ];
         if ($this->driver->support("view_trigger")) {
-            $tabs['triggers'] = $this->util->lang('Triggers');
+            $tabs['triggers'] = $this->trans->lang('Triggers');
         }
 
         $headers = [
-            $this->util->lang('Name'),
-            $this->util->lang('Type'),
-            $this->util->lang('Collation'),
+            $this->trans->lang('Name'),
+            $this->trans->lang('Type'),
+            $this->trans->lang('Collation'),
         ];
         $hasComment = $this->driver->support('comment');
         if ($hasComment) {
-            $headers[] = $this->util->lang('Comment');
+            $headers[] = $this->trans->lang('Comment');
         }
 
         $details = [];
@@ -137,10 +137,10 @@ class ViewAdmin extends AbstractAdmin
                 $type .= " <i>nullable</i>"; // " <i>NULL</i>";
             }
             if ($field->autoIncrement) {
-                $type .= " <i>" . $this->util->lang('Auto Increment') . "</i>";
+                $type .= " <i>" . $this->trans->lang('Auto Increment') . "</i>";
             }
             if (\array_key_exists("default", $field)) {
-                $type .= /*' ' . $this->util->lang('Default value') .*/ ' [<b>' . $this->util->html($field->default) . '</b>]';
+                $type .= /*' ' . $this->trans->lang('Default value') .*/ ' [<b>' . $this->util->html($field->default) . '</b>]';
             }
             $detail = [
                 'name' => $this->util->html($field->name),
@@ -171,11 +171,11 @@ class ViewAdmin extends AbstractAdmin
         }
 
         $mainActions = [
-            $this->util->lang('Add trigger'),
+            $this->trans->lang('Add trigger'),
         ];
 
         $headers = [
-            $this->util->lang('Name'),
+            $this->trans->lang('Name'),
             '&nbsp;',
             '&nbsp;',
             '&nbsp;',
@@ -189,7 +189,7 @@ class ViewAdmin extends AbstractAdmin
                 $this->util->html($trigger->timing),
                 $this->util->html($trigger->event),
                 $this->util->html($name),
-                $this->util->lang('Alter'),
+                $this->trans->lang('Alter'),
             ];
         }
 
@@ -235,7 +235,7 @@ class ViewAdmin extends AbstractAdmin
         // From view.inc.php
         $name = \trim($values["name"]);
         $location = null; // ME . "table=" . urlencode($name);
-        $message = $this->util->lang('View has been created.');
+        $message = $this->trans->lang('View has been created.');
         $type = $values["materialized"] ? "MATERIALIZED VIEW" : "VIEW";
 
         $sql = ($this->driver->jush() == "mssql" ? "ALTER" : "CREATE OR REPLACE") .
@@ -266,7 +266,7 @@ class ViewAdmin extends AbstractAdmin
 
         $name = \trim($values["name"]);
         $location = null; // $_POST["drop"] ? \substr(ME, 0, -1) : ME . "table=" . \urlencode($name);
-        $message = $this->util->lang('View has been altered.');
+        $message = $this->trans->lang('View has been altered.');
         $type = $values["materialized"] ? "MATERIALIZED VIEW" : "VIEW";
         $tempName = $name . "_adminer_" . \uniqid();
 
@@ -277,9 +277,9 @@ class ViewAdmin extends AbstractAdmin
             "CREATE $type " . $this->driver->table($tempName) . " AS\n" . $values['select'],
             "DROP $type " . $this->driver->table($tempName),
             $location,
-            $this->util->lang('View has been dropped.'),
+            $this->trans->lang('View has been dropped.'),
             $message,
-            $this->util->lang('View has been created.'),
+            $this->trans->lang('View has been created.'),
             $view,
             $name
         );
@@ -307,7 +307,7 @@ class ViewAdmin extends AbstractAdmin
 
         $sql = "DROP $orig_type " . $this->driver->table($view);
         $location = null; // $_POST["drop"] ? \substr(ME, 0, -1) : ME . "table=" . \urlencode($name);
-        $message = $this->util->lang('View has been dropped.');
+        $message = $this->trans->lang('View has been dropped.');
         $success =$this->util->drop($sql, $location, $message);
 
         $error = $this->driver->error();

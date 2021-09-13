@@ -44,16 +44,16 @@ class TableAdmin extends AbstractAdmin
     protected function getTableLinks($set = null)
     {
         $links = [
-            'select' => $this->util->lang('Select data'),
+            'select' => $this->trans->lang('Select data'),
         ];
         if ($this->driver->support('table') || $this->driver->support('indexes')) {
-            $links['table'] = $this->util->lang('Show structure');
+            $links['table'] = $this->trans->lang('Show structure');
         }
         if ($this->driver->support('table')) {
-            $links['alter'] = $this->util->lang('Alter table');
+            $links['alter'] = $this->trans->lang('Alter table');
         }
         if ($set !== null) {
-            $links['edit'] = $this->util->lang('New item');
+            $links['edit'] = $this->trans->lang('New item');
         }
         // $links['docs'] = \doc_link([$this->driver->jush() => $this->driver->tableHelp($name)], '?');
 
@@ -70,38 +70,38 @@ class TableAdmin extends AbstractAdmin
     public function getTableInfo(string $table)
     {
         $mainActions = [
-            'edit-table' => $this->util->lang('Alter table'),
-            'drop-table' => $this->util->lang('Drop table'),
-            'select-table' => $this->util->lang('Select'),
-            'insert-table' => $this->util->lang('New item'),
+            'edit-table' => $this->trans->lang('Alter table'),
+            'drop-table' => $this->trans->lang('Drop table'),
+            'select-table' => $this->trans->lang('Select'),
+            'insert-table' => $this->trans->lang('New item'),
         ];
 
         // From table.inc.php
         $status = $this->status($table);
         $name = $this->util->tableName($status);
-        $title = $this->util->lang('Table') . ': ' . ($name != '' ? $name : $this->util->html($table));
+        $title = $this->trans->lang('Table') . ': ' . ($name != '' ? $name : $this->util->html($table));
 
         $comment = $status->comment;
 
         $tabs = [
-            'fields' => $this->util->lang('Columns'),
-            // 'indexes' => $this->util->lang('Indexes'),
-            // 'foreign-keys' => $this->util->lang('Foreign keys'),
-            // 'triggers' => $this->util->lang('Triggers'),
+            'fields' => $this->trans->lang('Columns'),
+            // 'indexes' => $this->trans->lang('Indexes'),
+            // 'foreign-keys' => $this->trans->lang('Foreign keys'),
+            // 'triggers' => $this->trans->lang('Triggers'),
         ];
         if ($this->driver->isView($status)) {
             if ($this->driver->support('view_trigger')) {
-                $tabs['triggers'] = $this->util->lang('Triggers');
+                $tabs['triggers'] = $this->trans->lang('Triggers');
             }
         } else {
             if ($this->driver->support('indexes')) {
-                $tabs['indexes'] = $this->util->lang('Indexes');
+                $tabs['indexes'] = $this->trans->lang('Indexes');
             }
             if ($this->driver->supportForeignKeys($status)) {
-                $tabs['foreign-keys'] = $this->util->lang('Foreign keys');
+                $tabs['foreign-keys'] = $this->trans->lang('Foreign keys');
             }
             if ($this->driver->support('trigger')) {
-                $tabs['triggers'] = $this->util->lang('Triggers');
+                $tabs['triggers'] = $this->trans->lang('Triggers');
             }
         }
 
@@ -126,29 +126,29 @@ class TableAdmin extends AbstractAdmin
         $mainActions = $this->getTableLinks();
 
         $tabs = [
-            'fields' => $this->util->lang('Columns'),
-            // 'indexes' => $this->util->lang('Indexes'),
-            // 'foreign-keys' => $this->util->lang('Foreign keys'),
-            // 'triggers' => $this->util->lang('Triggers'),
+            'fields' => $this->trans->lang('Columns'),
+            // 'indexes' => $this->trans->lang('Indexes'),
+            // 'foreign-keys' => $this->trans->lang('Foreign keys'),
+            // 'triggers' => $this->trans->lang('Triggers'),
         ];
         if ($this->driver->support('indexes')) {
-            $tabs['indexes'] = $this->util->lang('Indexes');
+            $tabs['indexes'] = $this->trans->lang('Indexes');
         }
         if ($this->driver->supportForeignKeys($this->status($table))) {
-            $tabs['foreign-keys'] = $this->util->lang('Foreign keys');
+            $tabs['foreign-keys'] = $this->trans->lang('Foreign keys');
         }
         if ($this->driver->support('trigger')) {
-            $tabs['triggers'] = $this->util->lang('Triggers');
+            $tabs['triggers'] = $this->trans->lang('Triggers');
         }
 
         $headers = [
-            $this->util->lang('Name'),
-            $this->util->lang('Type'),
-            $this->util->lang('Collation'),
+            $this->trans->lang('Name'),
+            $this->trans->lang('Type'),
+            $this->trans->lang('Collation'),
         ];
         $hasComment = $this->driver->support('comment');
         if ($hasComment) {
-            $headers[] = $this->util->lang('Comment');
+            $headers[] = $this->trans->lang('Comment');
         }
 
         $details = [];
@@ -158,10 +158,10 @@ class TableAdmin extends AbstractAdmin
                 $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
             }
             if ($field->autoIncrement) {
-                $type .= ' <i>' . $this->util->lang('Auto Increment') . '</i>';
+                $type .= ' <i>' . $this->trans->lang('Auto Increment') . '</i>';
             }
             if ($field->default !== '') {
-                $type .= /*' ' . $this->util->lang('Default value') .*/ ' [<b>' . $this->util->html($field->default) . '</b>]';
+                $type .= /*' ' . $this->trans->lang('Default value') .*/ ' [<b>' . $this->util->html($field->default) . '</b>]';
             }
             $detail = [
                 'name' => $this->util->html($field->name),
@@ -194,13 +194,13 @@ class TableAdmin extends AbstractAdmin
         // From table.inc.php
         $indexes = $this->driver->indexes($table);
         $mainActions = [
-            'create' => $this->util->lang('Alter indexes'),
+            'create' => $this->trans->lang('Alter indexes'),
         ];
 
         $headers = [
-            $this->util->lang('Name'),
-            $this->util->lang('Type'),
-            $this->util->lang('Column'),
+            $this->trans->lang('Name'),
+            $this->trans->lang('Type'),
+            $this->trans->lang('Column'),
         ];
 
         $details = [];
@@ -247,15 +247,15 @@ class TableAdmin extends AbstractAdmin
 
         // From table.inc.php
         $mainActions = [
-            $this->util->lang('Add foreign key'),
+            $this->trans->lang('Add foreign key'),
         ];
 
         $headers = [
-            $this->util->lang('Name'),
-            $this->util->lang('Source'),
-            $this->util->lang('Target'),
-            $this->util->lang('ON DELETE'),
-            $this->util->lang('ON UPDATE'),
+            $this->trans->lang('Name'),
+            $this->trans->lang('Source'),
+            $this->trans->lang('Target'),
+            $this->trans->lang('ON DELETE'),
+            $this->trans->lang('ON UPDATE'),
         ];
 
         $foreignKeys = $this->driver->foreignKeys($table);
@@ -307,11 +307,11 @@ class TableAdmin extends AbstractAdmin
         }
 
         $mainActions = [
-            $this->util->lang('Add trigger'),
+            $this->trans->lang('Add trigger'),
         ];
 
         $headers = [
-            $this->util->lang('Name'),
+            $this->trans->lang('Name'),
             '&nbsp;',
             '&nbsp;',
             '&nbsp;',
@@ -325,7 +325,7 @@ class TableAdmin extends AbstractAdmin
                 $this->util->html($trigger->timing),
                 $this->util->html($trigger->event),
                 $this->util->html($name),
-                $this->util->lang('Alter'),
+                $this->trans->lang('Alter'),
             ];
         }
 
@@ -363,11 +363,11 @@ class TableAdmin extends AbstractAdmin
         // From includes/editing.inc.php
         $extraTypes = [];
         if ($type && !$this->driver->typeExists($type) && !isset($this->foreignKeys[$type]) &&
-            !\array_key_exists($this->util->lang('Current'), $extraTypes)) {
-            $extraTypes[$this->util->lang('Current')] = [$type];
+            !\array_key_exists($this->trans->lang('Current'), $extraTypes)) {
+            $extraTypes[$this->trans->lang('Current')] = [$type];
         }
         if ($this->foreignKeys) {
-            $this->driver->setStructuredType($this->util->lang('Foreign keys'), $this->foreignKeys);
+            $this->driver->setStructuredType($this->trans->lang('Foreign keys'), $this->foreignKeys);
         }
         return \array_merge($extraTypes, $this->driver->structuredTypes());
     }
@@ -382,8 +382,8 @@ class TableAdmin extends AbstractAdmin
     public function getTableData(string $table = '')
     {
         $mainActions = [
-            'table-save' => $this->util->lang('Save'),
-            'table-cancel' => $this->util->lang('Cancel'),
+            'table-save' => $this->trans->lang('Save'),
+            'table-cancel' => $this->trans->lang('Cancel'),
         ];
 
         // From create.inc.php
@@ -392,7 +392,7 @@ class TableAdmin extends AbstractAdmin
         if ($table !== '') {
             $status = $this->driver->tableStatus($table);
             if (!$status) {
-                throw new Exception($this->util->lang('No tables.'));
+                throw new Exception($this->trans->lang('No tables.'));
             }
             $fields = $this->driver->fields($table);
         }
@@ -586,8 +586,8 @@ class TableAdmin extends AbstractAdmin
         );
 
         $message = $table == '' ?
-            $this->util->lang('Table has been created.') :
-            $this->util->lang('Table has been altered.');
+            $this->trans->lang('Table has been created.') :
+            $this->trans->lang('Table has been altered.');
 
         $error = $this->driver->error();
 
@@ -637,7 +637,7 @@ class TableAdmin extends AbstractAdmin
         $origFields = $this->driver->fields($table);
         $tableStatus = $this->driver->tableStatus($table);
         if (!$tableStatus) {
-            throw new Exception($this->util->lang('No tables.'));
+            throw new Exception($this->trans->lang('No tables.'));
         }
 
         $currComment = $tableStatus->comment;
@@ -664,7 +664,7 @@ class TableAdmin extends AbstractAdmin
 
         $error = $this->driver->error();
 
-        $message = $this->util->lang('Table has been dropped.');
+        $message = $this->trans->lang('Table has been dropped.');
 
         return \compact('success', 'message', 'error');
     }

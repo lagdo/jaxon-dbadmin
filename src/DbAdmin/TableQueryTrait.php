@@ -55,7 +55,7 @@ trait TableQueryTrait
 
         $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database,
-            $this->util->lang('Tables'), $table, $this->util->lang($action)]);
+            $this->trans->lang('Tables'), $table, $this->trans->lang($action)]);
 
         $this->util->input->table = $table;
         $this->util->input->values = $queryOptions;

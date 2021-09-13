@@ -2,7 +2,8 @@
 
 $di = \jaxon()->di();
 // Register the translator in the dependency container
-$di->auto(Lagdo\DbAdmin\Translator::class);
+$di->auto(Lagdo\DbAdmin\Db\Translator::class);
+$di->alias(Lagdo\DbAdmin\Driver\TranslatorInterface::class, Lagdo\DbAdmin\Db\Translator::class);
 
 // Register the db classes and aliases in the dependency container
 $di->auto(Lagdo\DbAdmin\Db\Util::class);

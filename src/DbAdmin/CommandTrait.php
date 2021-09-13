@@ -48,14 +48,14 @@ trait CommandTrait
         if (($database)) {
             $breadcrumbs[] = $database;
         }
-        $breadcrumbs[] = $this->util->lang('SQL command');
+        $breadcrumbs[] = $this->trans->lang('SQL command');
         $this->setBreadcrumbs($breadcrumbs);
 
         $labels = [
-            'execute' => $this->util->lang('Execute'),
-            'limit_rows' => $this->util->lang('Limit rows'),
-            'error_stops' => $this->util->lang('Stop on error'),
-            'only_errors' => $this->util->lang('Show only errors'),
+            'execute' => $this->trans->lang('Execute'),
+            'limit_rows' => $this->trans->lang('Limit rows'),
+            'error_stops' => $this->trans->lang('Stop on error'),
+            'only_errors' => $this->trans->lang('Show only errors'),
         ];
 
         return ['labels' => $labels];

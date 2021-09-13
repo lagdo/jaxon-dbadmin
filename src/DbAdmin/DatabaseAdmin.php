@@ -66,34 +66,34 @@ class DatabaseAdmin extends AbstractAdmin
     public function getDatabaseInfo()
     {
         $sqlActions = [
-            'database-command' => $this->util->lang('SQL command'),
-            'database-import' => $this->util->lang('Import'),
-            'database-export' => $this->util->lang('Export'),
+            'database-command' => $this->trans->lang('SQL command'),
+            'database-import' => $this->trans->lang('Import'),
+            'database-export' => $this->trans->lang('Export'),
         ];
 
         $menuActions = [
-            'table' => $this->util->lang('Tables'),
-            // 'view' => $this->util->lang('Views'),
-            // 'routine' => $this->util->lang('Routines'),
-            // 'sequence' => $this->util->lang('Sequences'),
-            // 'type' => $this->util->lang('User types'),
-            // 'event' => $this->util->lang('Events'),
+            'table' => $this->trans->lang('Tables'),
+            // 'view' => $this->trans->lang('Views'),
+            // 'routine' => $this->trans->lang('Routines'),
+            // 'sequence' => $this->trans->lang('Sequences'),
+            // 'type' => $this->trans->lang('User types'),
+            // 'event' => $this->trans->lang('Events'),
         ];
         if ($this->driver->support('view')) {
-            $menuActions['view'] = $this->util->lang('Views');
+            $menuActions['view'] = $this->trans->lang('Views');
         }
         // Todo: Implement features and enable menu items.
         // if ($this->driver->support('routine')) {
-        //     $menuActions['routine'] = $this->util->lang('Routines');
+        //     $menuActions['routine'] = $this->trans->lang('Routines');
         // }
         // if ($this->driver->support('sequence')) {
-        //     $menuActions['sequence'] = $this->util->lang('Sequences');
+        //     $menuActions['sequence'] = $this->trans->lang('Sequences');
         // }
         // if ($this->driver->support('type')) {
-        //     $menuActions['type'] = $this->util->lang('User types');
+        //     $menuActions['type'] = $this->trans->lang('User types');
         // }
         // if ($this->driver->support('event')) {
-        //     $menuActions['event'] = $this->util->lang('Events');
+        //     $menuActions['event'] = $this->trans->lang('Events');
         // }
 
         // From db.inc.php
@@ -120,19 +120,19 @@ class DatabaseAdmin extends AbstractAdmin
     public function getTables()
     {
         $mainActions = [
-            'add-table' => $this->util->lang('Create table'),
+            'add-table' => $this->trans->lang('Create table'),
         ];
 
         $headers = [
-            $this->util->lang('Table'),
-            $this->util->lang('Engine'),
-            $this->util->lang('Collation'),
-            // $this->util->lang('Data Length'),
-            // $this->util->lang('Index Length'),
-            // $this->util->lang('Data Free'),
-            // $this->util->lang('Auto Increment'),
-            // $this->util->lang('Rows'),
-            $this->util->lang('Comment'),
+            $this->trans->lang('Table'),
+            $this->trans->lang('Engine'),
+            $this->trans->lang('Collation'),
+            // $this->trans->lang('Data Length'),
+            // $this->trans->lang('Index Length'),
+            // $this->trans->lang('Data Free'),
+            // $this->trans->lang('Auto Increment'),
+            // $this->trans->lang('Rows'),
+            $this->trans->lang('Comment'),
         ];
 
         // From db.inc.php
@@ -151,7 +151,7 @@ class DatabaseAdmin extends AbstractAdmin
             }
         }
 
-        $select = $this->util->lang('Select');
+        $select = $this->trans->lang('Select');
         return \compact('mainActions', 'headers', 'details', 'select');
     }
 
@@ -164,18 +164,18 @@ class DatabaseAdmin extends AbstractAdmin
     public function getViews()
     {
         $mainActions = [
-            'add-view' => $this->util->lang('Create view'),
+            'add-view' => $this->trans->lang('Create view'),
         ];
 
         $headers = [
-            $this->util->lang('View'),
-            $this->util->lang('Engine'),
-            // $this->util->lang('Data Length'),
-            // $this->util->lang('Index Length'),
-            // $this->util->lang('Data Free'),
-            // $this->util->lang('Auto Increment'),
-            // $this->util->lang('Rows'),
-            $this->util->lang('Comment'),
+            $this->trans->lang('View'),
+            $this->trans->lang('Engine'),
+            // $this->trans->lang('Data Length'),
+            // $this->trans->lang('Index Length'),
+            // $this->trans->lang('Data Free'),
+            // $this->trans->lang('Auto Increment'),
+            // $this->trans->lang('Rows'),
+            $this->trans->lang('Comment'),
         ];
 
         // From db.inc.php
@@ -204,14 +204,14 @@ class DatabaseAdmin extends AbstractAdmin
     public function getRoutines()
     {
         $mainActions = [
-            'procedure' => $this->util->lang('Create procedure'),
-            'function' => $this->util->lang('Create function'),
+            'procedure' => $this->trans->lang('Create procedure'),
+            'function' => $this->trans->lang('Create function'),
         ];
 
         $headers = [
-            $this->util->lang('Name'),
-            $this->util->lang('Type'),
-            $this->util->lang('Return type'),
+            $this->trans->lang('Name'),
+            $this->trans->lang('Type'),
+            $this->trans->lang('Return type'),
         ];
 
         // From db.inc.php
@@ -226,7 +226,7 @@ class DatabaseAdmin extends AbstractAdmin
                 'name' => $this->util->html($routine->name),
                 'type' => $this->util->html($routine->type),
                 'returnType' => $this->util->html($routine->dtd),
-                // 'alter' => $this->util->lang('Alter'),
+                // 'alter' => $this->trans->lang('Alter'),
             ];
         }
 
@@ -241,11 +241,11 @@ class DatabaseAdmin extends AbstractAdmin
     public function getSequences()
     {
         $mainActions = [
-            'sequence' => $this->util->lang('Create sequence'),
+            'sequence' => $this->trans->lang('Create sequence'),
         ];
 
         $headers = [
-            $this->util->lang('Name'),
+            $this->trans->lang('Name'),
         ];
 
         $sequences = [];
@@ -272,11 +272,11 @@ class DatabaseAdmin extends AbstractAdmin
     public function getUserTypes()
     {
         $mainActions = [
-            'type' => $this->util->lang('Create type'),
+            'type' => $this->trans->lang('Create type'),
         ];
 
         $headers = [
-            $this->util->lang('Name'),
+            $this->trans->lang('Name'),
         ];
 
         // From db.inc.php
@@ -299,14 +299,14 @@ class DatabaseAdmin extends AbstractAdmin
     public function getEvents()
     {
         $mainActions = [
-            'event' => $this->util->lang('Create event'),
+            'event' => $this->trans->lang('Create event'),
         ];
 
         $headers = [
-            $this->util->lang('Name'),
-            $this->util->lang('Schedule'),
-            $this->util->lang('Start'),
-            // $this->util->lang('End'),
+            $this->trans->lang('Name'),
+            $this->trans->lang('Schedule'),
+            $this->trans->lang('Start'),
+            // $this->trans->lang('End'),
         ];
 
         // From db.inc.php
@@ -317,11 +317,11 @@ class DatabaseAdmin extends AbstractAdmin
                 'name' => $this->util->html($event["Name"]),
             ];
             if (($event["Execute at"])) {
-                $detail['schedule'] = $this->util->lang('At given time');
+                $detail['schedule'] = $this->trans->lang('At given time');
                 $detail['start'] = $event["Execute at"];
             // $detail['end'] = '';
             } else {
-                $detail['schedule'] = $this->util->lang('Every') . " " .
+                $detail['schedule'] = $this->trans->lang('Every') . " " .
                     $event["Interval value"] . " " . $event["Interval field"];
                 $detail['start'] = $event["Starts"];
                 // $detail['end'] = '';

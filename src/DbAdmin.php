@@ -38,11 +38,6 @@ class DbAdmin extends DbAdmin\AbstractAdmin
     protected $package;
 
     /**
-     * @var Translator
-     */
-    protected $translator;
-
-    /**
      * The constructor
      *
      * @param Package $package    The Adminer package
@@ -52,9 +47,9 @@ class DbAdmin extends DbAdmin\AbstractAdmin
         $this->package = $package;
 
         $jaxon = \jaxon();
-        $this->translator = $jaxon->di()->get(Translator::class);
+        $this->trans = $jaxon->di()->get(Db\Translator::class);
         // Make the translator available into views
-        $jaxon->view()->share('trans', $this->translator);
+        $jaxon->view()->share('trans', $this->trans);
     }
 
     /**
@@ -67,7 +62,7 @@ class DbAdmin extends DbAdmin\AbstractAdmin
      */
     public function lang($idf)
     {
-        return \call_user_func_array([$this->translator, "lang"], \func_get_args());
+        return \call_user_func_array([$this->trans, "lang"], \func_get_args());
     }
 
     /**

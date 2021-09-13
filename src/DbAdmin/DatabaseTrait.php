@@ -64,7 +64,7 @@ trait DatabaseTrait
         $this->connect($server, $database, $schema);
 
         $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('Tables')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Tables')]);
 
         return $this->database($options)->getTables();
     }
@@ -83,7 +83,7 @@ trait DatabaseTrait
         $this->connect($server, $database, $schema);
 
         $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('Views')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Views')]);
 
         return $this->database($options)->getViews();
     }
@@ -102,7 +102,7 @@ trait DatabaseTrait
         $this->connect($server, $database, $schema);
 
         $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('Routines')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Routines')]);
 
         return $this->database($options)->getRoutines();
     }
@@ -121,7 +121,7 @@ trait DatabaseTrait
         $this->connect($server, $database, $schema);
 
         $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('Sequences')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Sequences')]);
 
         return $this->database($options)->getSequences();
     }
@@ -140,7 +140,7 @@ trait DatabaseTrait
         $this->connect($server, $database, $schema);
 
         $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('User types')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('User types')]);
 
         return $this->database($options)->getUserTypes();
     }
@@ -159,7 +159,7 @@ trait DatabaseTrait
         $this->connect($server, $database, $schema);
 
         $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('Events')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Events')]);
 
         return $this->database($options)->getEvents();
     }

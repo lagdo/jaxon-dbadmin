@@ -27,7 +27,7 @@ class ImportAdmin extends CommandAdmin
         if ($this->util->iniBool('file_uploads')) {
             $contents['upload'] = "SQL$gz (&lt; " . \ini_get('upload_max_filesize') . 'B)';
         } else {
-            $contents['upload_disabled'] = $this->util->lang('File uploads are disabled.');
+            $contents['upload_disabled'] = $this->trans->lang('File uploads are disabled.');
         }
 
         $importServerPath = $this->util->importServerPath();
@@ -36,14 +36,14 @@ class ImportAdmin extends CommandAdmin
         }
 
         $labels = [
-            'path' => $this->util->lang('Webserver file %s', ''),
-            'file_upload' => $this->util->lang('File upload'),
-            'from_server' => $this->util->lang('From server'),
-            'execute' => $this->util->lang('Execute'),
-            'run_file' => $this->util->lang('Run file'),
-            'select' => $this->util->lang('Select'),
-            'error_stops' => $this->util->lang('Stop on error'),
-            'only_errors' => $this->util->lang('Show only errors'),
+            'path' => $this->trans->lang('Webserver file %s', ''),
+            'file_upload' => $this->trans->lang('File upload'),
+            'from_server' => $this->trans->lang('From server'),
+            'execute' => $this->trans->lang('Execute'),
+            'run_file' => $this->trans->lang('Run file'),
+            'select' => $this->trans->lang('Select'),
+            'error_stops' => $this->trans->lang('Stop on error'),
+            'only_errors' => $this->trans->lang('Show only errors'),
         ];
 
         return \compact('contents', 'labels');

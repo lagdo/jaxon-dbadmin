@@ -50,7 +50,7 @@ trait ImportTrait
         if (($database)) {
             $breadcrumbs[] = $database;
         }
-        $breadcrumbs[] = $this->util->lang('Import');
+        $breadcrumbs[] = $this->trans->lang('Import');
         $this->setBreadcrumbs($breadcrumbs);
 
         return $this->import()->getImportOptions($database);

@@ -37,7 +37,7 @@ class TableQueryAdmin extends AbstractAdmin
         if ($reset && !$save) {
             $function = null;
         }
-        $functions = ($reset ? ["orig" => $this->util->lang('original')] : []) +
+        $functions = ($reset ? ["orig" => $this->trans->lang('original')] : []) +
             $this->util->editFunctions($field);
 
         // Input for functions
@@ -230,9 +230,9 @@ class TableQueryAdmin extends AbstractAdmin
         $tableName = $this->util->tableName($this->driver->tableStatusOrName($table, true));
         $error = null;
         if ($row === false) {
-            $error = $this->util->lang('No rows.');
+            $error = $this->trans->lang('No rows.');
         } elseif (!$fields) {
-            $error = $this->util->lang('You have no privileges to update this table.');
+            $error = $this->trans->lang('You have no privileges to update this table.');
         } else {
             foreach ($fields as $name => $field) {
                 // $default = $queryOptions["set"][$this->util->bracketEscape($name)] ?? null;
@@ -281,8 +281,8 @@ class TableQueryAdmin extends AbstractAdmin
         }
 
         $mainActions = [
-            'query-save' => $this->util->lang('Save'),
-            'query-cancel' => $this->util->lang('Cancel'),
+            'query-save' => $this->trans->lang('Save'),
+            'query-cancel' => $this->trans->lang('Cancel'),
         ];
 
         $fields = $entries;
@@ -312,7 +312,7 @@ class TableQueryAdmin extends AbstractAdmin
 
         $result = $this->driver->insert($table, $set);
         $lastId = ($result ? $this->driver->lastAutoIncrementId() : 0);
-        $message = $this->util->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ""));
+        $message = $this->trans->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ""));
 
         $error = $this->driver->error();
 
@@ -345,7 +345,7 @@ class TableQueryAdmin extends AbstractAdmin
         }
 
         $result = $this->driver->update($table, $set, $query_where, !$unique_array);
-        $message = $this->util->lang('Item has been updated.');
+        $message = $this->trans->lang('Item has been updated.');
 
         $error = $this->driver->error();
 
@@ -370,7 +370,7 @@ class TableQueryAdmin extends AbstractAdmin
         $query_where = "\nWHERE $where";
 
         $result = $this->driver->delete($table, $query_where, !$unique_array);
-        $message = $this->util->lang('Item has been deleted.');
+        $message = $this->trans->lang('Item has been deleted.');
 
         $error = $this->driver->error();
 

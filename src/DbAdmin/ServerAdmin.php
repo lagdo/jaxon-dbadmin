@@ -67,39 +67,39 @@ class ServerAdmin extends AbstractAdmin
      */
     public function getServerInfo()
     {
-        $server = $this->util->lang(
+        $server = $this->trans->lang(
             '%s version: %s. PHP extension %s.',
             $this->driver->name(),
             "<b>" . $this->util->html($this->driver->serverInfo()) . "</b>",
             "<b>{$this->driver->extension()}</b>"
         );
-        $user = $this->util->lang('Logged as: %s.', "<b>" . $this->util->html($this->driver->user()) . "</b>");
+        $user = $this->trans->lang('Logged as: %s.', "<b>" . $this->util->html($this->driver->user()) . "</b>");
 
         $sqlActions = [
-            'server-command' => $this->util->lang('SQL command'),
-            'server-import' => $this->util->lang('Import'),
-            'server-export' => $this->util->lang('Export'),
+            'server-command' => $this->trans->lang('SQL command'),
+            'server-import' => $this->trans->lang('Import'),
+            'server-export' => $this->trans->lang('Export'),
         ];
 
         // Content from the connect_error() function in connect.inc.php
         $menuActions = [
-            'databases' => $this->util->lang('Databases'),
+            'databases' => $this->trans->lang('Databases'),
         ];
         // if($this->driver->support('database'))
         // {
-        //     $menuActions['databases'] = $this->util->lang('Databases');
+        //     $menuActions['databases'] = $this->trans->lang('Databases');
         // }
         if ($this->driver->support('privileges')) {
-            $menuActions['privileges'] = $this->util->lang('Privileges');
+            $menuActions['privileges'] = $this->trans->lang('Privileges');
         }
         if ($this->driver->support('processlist')) {
-            $menuActions['processes'] = $this->util->lang('Process list');
+            $menuActions['processes'] = $this->trans->lang('Process list');
         }
         if ($this->driver->support('variables')) {
-            $menuActions['variables'] = $this->util->lang('Variables');
+            $menuActions['variables'] = $this->trans->lang('Variables');
         }
         if ($this->driver->support('status')) {
-            $menuActions['status'] = $this->util->lang('Status');
+            $menuActions['status'] = $this->trans->lang('Status');
         }
 
         return \compact('server', 'user', 'sqlActions', 'menuActions');
@@ -148,14 +148,14 @@ class ServerAdmin extends AbstractAdmin
     public function getDatabases()
     {
         $mainActions = [
-            'add-database' => $this->util->lang('Create database'),
+            'add-database' => $this->trans->lang('Create database'),
         ];
 
         $headers = [
-            $this->util->lang('Database'),
-            $this->util->lang('Collation'),
-            $this->util->lang('Tables'),
-            $this->util->lang('Size'),
+            $this->trans->lang('Database'),
+            $this->trans->lang('Collation'),
+            $this->trans->lang('Tables'),
+            $this->trans->lang('Size'),
             '',
         ];
 
@@ -169,7 +169,7 @@ class ServerAdmin extends AbstractAdmin
                 'name' => $this->util->html($database),
                 'collation' => $this->util->html($this->driver->databaseCollation($database, $collations)),
                 'tables' => \array_key_exists($database, $tables) ? $tables[$database] : 0,
-                'size' => $this->util->formatNumber($this->driver->databaseSize($database)),
+                'size' => $this->trans->formatNumber($this->driver->databaseSize($database)),
             ];
         }
 
@@ -205,7 +205,7 @@ class ServerAdmin extends AbstractAdmin
                     ($jush == "pgsql" && $key == "current_query" && $val != "<IDLE>") ||
                     ($jush == "oracle" && $key == "sql_text" && $val != "") ?
                     "<code class='jush-{$jush}'>" . $this->util->shortenUtf8($val, 50) .
-                    "</code>" . $this->util->lang('Clone') : $this->util->html($val);
+                    "</code>" . $this->trans->lang('Clone') : $this->util->html($val);
             }
             $details[] = $detail;
         }

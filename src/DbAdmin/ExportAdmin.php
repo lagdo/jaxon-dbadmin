@@ -70,47 +70,47 @@ class ExportAdmin extends AbstractAdmin
         // }
         $options = [
             'output' => [
-                'label' => $this->util->lang('Output'),
+                'label' => $this->trans->lang('Output'),
                 'options' => $this->util->dumpOutput(),
                 'value' => $row['output'],
             ],
             'format' => [
-                'label' => $this->util->lang('Format'),
+                'label' => $this->trans->lang('Format'),
                 'options' => $this->util->dumpFormat(),
                 'value' => $row['format'],
             ],
             'table_style' => [
-                'label' => $this->util->lang('Tables'),
+                'label' => $this->trans->lang('Tables'),
                 'options' => $table_style,
                 'value' => $row['table_style'],
             ],
             'auto_increment' => [
-                'label' => $this->util->lang('Auto Increment'),
+                'label' => $this->trans->lang('Auto Increment'),
                 'value' => 1,
                 'checked' => $row['autoIncrement'] ?? false,
             ],
             'data_style' => [
-                'label' => $this->util->lang('Data'),
+                'label' => $this->trans->lang('Data'),
                 'options' => $data_style,
                 'value' => $row['data_style'],
             ],
         ];
         if ($this->driver->jush() !== 'sqlite') {
             $options['db_style'] = [
-                'label' => $this->util->lang('Database'),
+                'label' => $this->trans->lang('Database'),
                 'options' => $db_style,
                 'value' => $row['db_style'],
             ];
             if ($this->driver->support('routine')) {
                 $options['routines'] = [
-                    'label' => $this->util->lang('Routines'),
+                    'label' => $this->trans->lang('Routines'),
                     'value' => 1,
                     'checked' => $row['routines'],
                 ];
             }
             if ($this->driver->support('event')) {
                 $options['events'] = [
-                    'label' => $this->util->lang('Events'),
+                    'label' => $this->trans->lang('Events'),
                     'value' => 1,
                     'checked' => $row['events'],
                 ];
@@ -118,7 +118,7 @@ class ExportAdmin extends AbstractAdmin
         }
         if ($this->driver->support('trigger')) {
             $options['triggers'] = [
-                'label' => $this->util->lang('Triggers'),
+                'label' => $this->trans->lang('Triggers'),
                 'value' => 1,
                 'checked' => $row['triggers'],
             ];
@@ -130,7 +130,7 @@ class ExportAdmin extends AbstractAdmin
         ];
         if (($database)) {
             $tables = [
-                'headers' => [$this->util->lang('Tables'), $this->util->lang('Data')],
+                'headers' => [$this->trans->lang('Tables'), $this->trans->lang('Data')],
                 'details' => [],
             ];
             $tables_list = $this->driver->tables();
@@ -145,7 +145,7 @@ class ExportAdmin extends AbstractAdmin
             $results['tables'] = $tables;
         } else {
             $databases = [
-                'headers' => [$this->util->lang('Database'), $this->util->lang('Data')],
+                'headers' => [$this->trans->lang('Database'), $this->trans->lang('Data')],
                 'details' => [],
             ];
             $databases_list = $this->driver->databases(false) ?? [];
@@ -162,7 +162,7 @@ class ExportAdmin extends AbstractAdmin
 
         $results['options'] = $options;
         $results['labels'] = [
-            'export' => $this->util->lang('Export'),
+            'export' => $this->trans->lang('Export'),
         ];
         return $results;
     }

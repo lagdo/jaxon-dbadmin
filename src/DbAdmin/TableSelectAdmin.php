@@ -289,7 +289,7 @@ class TableSelectAdmin extends AbstractAdmin
         // $this->util->selectLinks($tableStatus, $set);
 
         if (!$columns && $this->driver->support("table")) {
-            throw new Exception($this->util->lang('Unable to select the table') .
+            throw new Exception($this->trans->lang('Unable to select the table') .
                 ($fields ? "." : ": " . $this->driver->error()));
         }
 
@@ -356,8 +356,8 @@ class TableSelectAdmin extends AbstractAdmin
 
         $query = $this->util->html($query);
         $mainActions = [
-            'select-exec' => $this->util->lang('Execute'),
-            'select-cancel' => $this->util->lang('Cancel'),
+            'select-exec' => $this->trans->lang('Execute'),
+            'select-cancel' => $this->trans->lang('Cancel'),
         ];
 
         return \compact('mainActions', 'options', 'query');
@@ -382,7 +382,7 @@ class TableSelectAdmin extends AbstractAdmin
         $start = microtime(true);
         $statement = $this->driver->query($query);
         // From adminer.inc.php
-        $duration = $this->util->formatTime($start); // Compute and format the duration
+        $duration = $this->trans->formatTime($start); // Compute and format the duration
 
         if (!$statement) {
             return ['error' => $this->driver->error()];
@@ -396,7 +396,7 @@ class TableSelectAdmin extends AbstractAdmin
             $rows[] = $row;
         }
         if (!$rows) {
-            return ['error' => $this->util->lang('No rows.')];
+            return ['error' => $this->trans->lang('No rows.')];
         }
         // $backward_keys = $this->driver->backwardKeys($table, $tableName);
 

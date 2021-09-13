@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Db;
 
 use Lagdo\DbAdmin\Driver\UtilInterface;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Translator;
 
 class Util implements UtilInterface
 {
@@ -16,7 +15,7 @@ class Util implements UtilInterface
     /**
      * @var Translator
      */
-    protected $translator;
+    protected $trans;
 
     /**
      * @var Input
@@ -26,11 +25,11 @@ class Util implements UtilInterface
     /**
      * The constructor
      *
-     * @param Translator $translator
+     * @param Translator $trans
      */
-    public function __construct(Translator $translator)
+    public function __construct(Translator $trans)
     {
-        $this->translator = $translator;
+        $this->trans = $trans;
         $this->input = new Input();
     }
 
@@ -70,14 +69,6 @@ class Util implements UtilInterface
     public function input()
     {
         return $this->input;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function lang($idf)
-    {
-        return \call_user_func_array([$this->translator, "lang"], \func_get_args());
     }
 
     /**
@@ -175,26 +166,6 @@ class Util implements UtilInterface
             case 'k': $val = $ival * 1024; break;
         }
         return $val;
-    }
-
-    /**
-     * Format elapsed time
-     * @param float output of microtime(true)
-     * @return string HTML code
-     */
-    public function formatTime($start)
-    {
-        return $this->lang('%.3f s', max(0, microtime(true) - $start));
-    }
-
-    /**
-     * Format decimal number
-     * @param int
-     * @return string
-     */
-    public function formatNumber($val)
-    {
-        return $this->translator->formatNumber($val);
     }
 
     /**
@@ -379,7 +350,7 @@ class Util implements UtilInterface
      */
     public function dumpOutput()
     {
-        $return = array('text' => $this->lang('open'), 'file' => $this->lang('save'));
+        $return = array('text' => $this->trans->lang('open'), 'file' => $this->trans->lang('save'));
         if (function_exists('gzencode')) {
             $return['gz'] = 'gzip';
         }
@@ -437,7 +408,7 @@ class Util implements UtilInterface
             }
         }
         if ($field->autoIncrement && !$update) {
-            $return = $this->lang('Auto Increment');
+            $return = $this->trans->lang('Auto Increment');
         }
         return explode("/", $return);
     }
@@ -469,7 +440,7 @@ class Util implements UtilInterface
             (preg_match("~char|binary|boolean~", $type) && !preg_match("~var~", $type) ?
             "<code>$val</code>" : $val));
         if (preg_match('~blob|bytea|raw|file~', $type) && !$this->isUtf8($val)) {
-            $return = "<i>" . $this->lang('%d byte(s)', strlen($original)) . "</i>";
+            $return = "<i>" . $this->trans->lang('%d byte(s)', strlen($original)) . "</i>";
         }
         if (preg_match('~json~', $type)) {
             $return = "<code class='jush-js'>$return</code>";
@@ -513,7 +484,7 @@ class Util implements UtilInterface
     //     preg_match_all("~'((?:[^']|'')*)'~", $field->length, $matches);
     //     $return = ($empty !== null ? "<label><input type='$type'$attrs value='$empty'" .
     //         ((is_array($value) ? in_array($empty, $value) : $value === 0) ? " checked" : "") .
-    //         "><i>" . $this->lang('empty') . "</i></label>" : "");
+    //         "><i>" . $this->trans->lang('empty') . "</i></label>" : "");
     //     foreach ($matches[1] as $i => $val) {
     //         $val = stripcslashes(str_replace("''", "'", $val));
     //         $checked = (is_int($value) ? $value == $i+1 : (is_array($value) ? in_array($i+1, $value) : $value === $val));
@@ -540,7 +511,7 @@ class Util implements UtilInterface
         $return = [];
         if (($select)) {
             $return[] = "<label><input type='radio'$attrs value='-1' checked><i>" .
-                $this->lang('original') . "</i></label> ";
+                $this->trans->lang('original') . "</i></label> ";
         }
         if (($field->null)) {
             $return[] = "<label><input type='radio'$attrs value=''" .
@@ -552,7 +523,7 @@ class Util implements UtilInterface
         $type = 'radio';
         $return[] = "<label><input type='$type'$attrs value='$empty'" .
             ((\is_array($value) ? \in_array($empty, $value) : $value === 0) ? " checked" : "") .
-            "><i>" . $this->lang('empty') . "</i></label>";
+            "><i>" . $this->trans->lang('empty') . "</i></label>";
 
         \preg_match_all("~'((?:[^']|'')*)'~", $field->length, $matches);
         foreach ($matches[1] as $i => $val) {
@@ -978,7 +949,7 @@ class Util implements UtilInterface
         if ($execute) {
             $start = microtime(true);
             $failed = !$this->driver->query($query);
-            $time = $this->formatTime($start);
+            $time = $this->trans->formatTime($start);
         }
         $sql = "";
         if ($query) {
