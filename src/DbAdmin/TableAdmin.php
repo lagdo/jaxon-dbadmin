@@ -266,10 +266,10 @@ class TableAdmin extends AbstractAdmin
         // From table.inc.php
         foreach ($foreignKeys as $name => $foreignKey) {
             $target = '';
-            if (\array_key_exists('db', $foreignKey) && $foreignKey->db != '') {
+            if ($foreignKey->db != '') {
                 $target .= '<b>' . $this->util->html($foreignKey->db) . '</b>.';
             }
-            if (\array_key_exists('ns', $foreignKey) && $foreignKey->schema != '') {
+            if ($foreignKey->schema != '') {
                 $target .= '<b>' . $this->util->html($foreignKey->schema) . '</b>.';
             }
             $target = $this->util->html($foreignKey->table) .
