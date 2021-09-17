@@ -67,7 +67,7 @@ class Translator implements TranslatorInterface
      *
      * @var string
      */
-    protected $language = 'en';
+    protected $language;
 
     /**
      * Available translations

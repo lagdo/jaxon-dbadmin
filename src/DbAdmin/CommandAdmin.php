@@ -30,13 +30,8 @@ class CommandAdmin extends AbstractAdmin
             // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
             //! PDO - silent error
             $connection = $this->driver->createConnection();
-            if (($connection)) {
-                $connection->selectDatabase($this->driver->database());
-                if ($this->driver->schema() !== '') {
-                    $this->driver->selectSchema($this->driver->schema(), $connection);
-                }
-                $this->connection = $connection;
-            }
+            $connection->open($this->driver->database(), $this->driver->schema());
+            $this->connection = $connection;
         }
         return $this->connection;
     }

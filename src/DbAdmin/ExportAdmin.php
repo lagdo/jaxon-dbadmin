@@ -503,7 +503,7 @@ class ExportAdmin extends AbstractAdmin
 
         foreach (\array_unique(\array_merge($databases['list'], $databases['data'])) as $database) {
             // $this->util->dumpDatabase($database);
-            if ($this->driver->selectDatabase($database)) {
+            if ($this->driver->connect($database, '')) {
                 $sql = "SHOW CREATE DATABASE " . $this->driver->escapeId($database);
                 if ($this->options['is_sql'] && \preg_match('~CREATE~', $style) &&
                     ($create = $this->driver->result($sql, 1))) {
