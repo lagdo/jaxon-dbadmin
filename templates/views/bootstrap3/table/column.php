@@ -108,7 +108,7 @@
                 </select>
 <?php endif ?>
             </div>
-            <div class="col-md-2 adminer-table-column-default second-line">
+            <div class="col-md-3 adminer-table-column-middle second-line">
                 <div class="input-group">
                     <span class="input-group-addon">
                         <input type="checkbox" value="1" name="<?php
@@ -121,24 +121,21 @@
                         echo $this->trans->lang('Default value') ?>">
                 </div>
             </div>
-            <div class="col-md-2 second-line">
+            <div class="col-md-1 adminer-table-column-buttons second-line">
                 <div class="btn-group adminer-table-column-buttons" role="group" data-index="<?php echo $this->index ?>">
+                    <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
 <?php if($this->support['move_col']): ?>
-                    <button type="button" class="btn btn-primary btn-sm adminer-table-column-add">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                    </button>
-                    <!-- <button type="button" class="btn btn-primary btn-sm adminer-table-column-up">
-                        <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" class="btn btn-primary btn-sm adminer-table-column-down">
-                        <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
-                    </button> -->
+                        <li><a href="#" class="adminer-table-column-add"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a></li>
+                        <!-- <li><a href="#" class="adminer-table-column-up"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></a></li>
+                        <li><a href="#" class="adminer-table-column-down"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></a></li> -->
 <?php endif ?>
 <?php if($this->support['drop_col']): ?>
-                    <button type="button" class="btn btn-primary btn-sm adminer-table-column-del">
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </button>
+                        <li><a href="#" class="adminer-table-column-del"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></li>
 <?php endif ?>
+                    </ul>
                 </div>
             </div>
             <!-- End second line -->

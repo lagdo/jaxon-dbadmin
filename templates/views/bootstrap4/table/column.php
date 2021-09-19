@@ -108,7 +108,7 @@
                 </select>
 <?php endif ?>
             </div>
-            <div class="col-md-2 adminer-table-column-default second-line">
+            <div class="col-md-3 adminer-table-column-default second-line">
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
                         <div class="input-group-text">
@@ -123,24 +123,20 @@
                         echo $this->trans->lang('Default value') ?>">
                 </div>
             </div>
-            <div class="col-md-2 second-line">
+            <div class="col-md-1 adminer-table-column-buttons second-line">
                 <div class="btn-group adminer-table-column-buttons" role="group" data-index="<?php echo $this->index ?>">
+                    <button id="adminer-table-column-button-group-drop" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="adminer-table-column-button-group-drop">
 <?php if($this->support['move_col']): ?>
-                    <button type="button" class="btn btn-primary btn-sm adminer-table-column-add">
-                        <i class="bi bi-plus"></i>
-                    </button>
-                    <!-- <button type="button" class="btn btn-primary btn-sm adminer-table-column-up">
-                        <i class="bi bi-arrow-up"></i>
-                    </button>
-                    <button type="button" class="btn btn-primary btn-sm adminer-table-column-down">
-                        <i class="bi bi-arrow-down"></i>
-                    </button> -->
+                        <a class="dropdown-item adminer-table-column-add" href="#"><i class="bi bi-plus"></i></a>
+                        <!-- <a class="dropdown-item adminer-table-column-up" href="#"><i class="bi bi-arrow-up"></i></a>
+                        <a class="dropdown-item adminer-table-column-down" href="#"><i class="bi bi-arrow-down"></i></a> -->
 <?php endif ?>
 <?php if($this->support['drop_col']): ?>
-                    <button type="button" class="btn btn-primary btn-sm adminer-table-column-del">
-                        <i class="bi bi-x"></i>
-                    </button>
+                        <a class="dropdown-item adminer-table-column-del" href="#"><i class="bi bi-x"></i></a>
 <?php endif ?>
+                    </div>
                 </div>
             </div>
             <!-- End second line -->

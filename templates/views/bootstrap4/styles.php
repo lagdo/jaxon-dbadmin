@@ -63,7 +63,8 @@
     padding-right: 1px;
 }
 #<?php echo $this->containerId ?> .adminer-table-column-default,
-#<?php echo $this->containerId ?> .adminer-table-column-middle {
+#<?php echo $this->containerId ?> .adminer-table-column-middle,
+#<?php echo $this->containerId ?> .adminer-table-column-right {
     padding-left: 1px;
     padding-right: 1px;
 }
@@ -77,14 +78,11 @@
 }
 #<?php echo $this->containerId ?> .adminer-table-column-buttons,
 #<?php echo $this->containerId ?> .adminer-table-column-buttons-header {
-    padding-left: 10px;
+    padding-left: 1px;
+    padding-right: 1px;
 }
 #<?php echo $this->containerId ?> .adminer-table-column-buttons button {
     margin-top: 5px;
-}
-#<?php echo $this->containerId ?> .adminer-table-column-right {
-    padding-left: 1px;
-    padding-right: 1px;
 }
 #<?php echo $this->containerId ?> .second-line {
     margin-top: 2px;

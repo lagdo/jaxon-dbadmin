@@ -52,10 +52,10 @@
                 <input type="radio" name="autoIncrementCol" value="0" <?php
                     if(!$this->options['hasAutoIncrement']): ?>checked <?php endif ?>/> AI
             </label>
-            <label class="col-md-6 adminer-table-column-middle"><?php echo $this->trans->lang('Options') ?></label>
-            <div class="col-md-2 adminer-table-column-buttons-header">
+            <label class="col-md-7 adminer-table-column-middle"><?php echo $this->trans->lang('Options') ?></label>
+            <div class="col-md-1 adminer-table-column-buttons-header">
 <?php if($this->support['columns']): ?>
-                <button type="button" class="btn btn-primary btn-sm" id="adminer-table-column-add">
+                <button type="button" class="btn btn-primary" id="adminer-table-column-add">
                     <i class="bi bi-plus"></i>
                 </button>
 <?php endif ?>
