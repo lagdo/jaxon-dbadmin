@@ -12,6 +12,10 @@
                 <input type="hidden" name="<?php echo $this->prefixFields ?>[orig]" value="<?php
                     echo $this->field->name ?>" data-field="orig" />
             </div>
+            <label class="col-md-1 adminer-table-column-null" for="autoIncrementCol">
+                <input type="radio" name="autoIncrementCol" value="<?php echo ($this->index + 1) ?>" <?php
+                    if($this->field->autoIncrement): ?>checked <?php endif ?>/> AI
+            </label>
             <div class="col-md-2 adminer-table-column-middle">
                 <select class="form-control" name="<?php
                     echo $this->prefixFields ?>[collation]" data-field="collation"<?php
@@ -32,10 +36,6 @@
 <?php endforeach ?>
                 </select>
             </div>
-            <label class="col-md-1 adminer-table-column-null" for="autoIncrementCol">
-                <input type="radio" name="autoIncrementCol" value="<?php echo ($this->index + 1) ?>" <?php
-                    if($this->field->autoIncrement): ?>checked <?php endif ?>/> AI
-            </label>
             <div class="col-md-2 adminer-table-column-middle">
 <?php if(true/*isset($this->field->onUpdate)*/): ?>
                 <select class="form-control" name="<?php
@@ -77,6 +77,11 @@
                     if($this->field->lengthRequired): ?> required<?php endif ?> value="<?php
                     echo $this->field->length ?>" size="3">
             </div>
+            <label class="col-md-1 adminer-table-column-null second-line">
+                <input type="checkbox" value="1" name="<?php
+                    echo $this->prefixFields ?>[null]" data-field="null" <?php
+                    if($this->field->null): ?>checked <?php endif ?>/> Null
+            </label>
             <div class="col-md-2 adminer-table-column-middle second-line">
                 <select class="form-control" name="<?php
                     echo $this->prefixFields ?>[unsigned]" data-field="unsigned"<?php
@@ -90,11 +95,6 @@
 <?php endif ?>
                 </select>
             </div>
-            <label class="col-md-1 adminer-table-column-null second-line">
-                <input type="checkbox" value="1" name="<?php
-                    echo $this->prefixFields ?>[null]" data-field="null" <?php
-                    if($this->field->null): ?>checked <?php endif ?>/> Null
-            </label>
             <div class="col-md-2 adminer-table-column-middle second-line">
 <?php if(true/*$this->foreignKeys*/): ?>
                 <select class="form-control" name="<?php
