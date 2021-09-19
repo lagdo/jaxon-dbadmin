@@ -174,7 +174,7 @@ class Table extends CallableClass
         $length = \jq(".{$this->formId}-column", "#$contentId")->length;
         $this->jq('#adminer-table-column-add')
             ->click($this->cl(Column::class)->rq()->add($server, $database, $schema, $length));
-        $index = \jq()->parent()->attr('data-index');
+        $index = \jq()->parent()->parent()->attr('data-index');
         $this->jq('.adminer-table-column-add')
             ->click($this->cl(Column::class)->rq()->add($server, $database, $schema, $length, $index));
         $this->jq('.adminer-table-column-del')

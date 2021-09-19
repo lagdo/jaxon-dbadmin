@@ -125,9 +125,10 @@
             </div>
             <div class="col-md-1 adminer-table-column-buttons second-line">
                 <div class="btn-group adminer-table-column-buttons" role="group" data-index="<?php echo $this->index ?>">
-                    <button id="adminer-table-column-button-group-drop" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button type="button" id="adminer-table-column-button-group-drop-<?php
+                        echo $this->index ?>" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     </button>
-                    <div class="dropdown-menu" aria-labelledby="adminer-table-column-button-group-drop">
+                    <div class="dropdown-menu" aria-labelledby="adminer-table-column-button-group-drop-<?php echo $this->index ?>">
 <?php if($this->support['move_col']): ?>
                         <a class="dropdown-item adminer-table-column-add" href="#"><i class="bi bi-plus"></i></a>
                         <!-- <a class="dropdown-item adminer-table-column-up" href="#"><i class="bi bi-arrow-up"></i></a>

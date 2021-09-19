@@ -119,7 +119,7 @@ class Column extends CallableClass
 
         $contentId = $this->package->getDbContentId();
         $length = \jq(".$columnClass", "#$contentId")->length;
-        $index = \jq()->parent()->attr('data-index');
+        $index = \jq()->parent()->parent()->attr('data-index');
         // Set the button event handlers on the new column
         $this->jq('[data-field]', "#$columnId")
             ->on('jaxon.adminer.renamed', \pm()->js('jaxon.adminer.onColumnRenamed'));
@@ -174,20 +174,22 @@ class Column extends CallableClass
      */
     public function setForDelete($server, $database, $schema, $index)
     {
+        jaxon()->logger()->debug("Delete colum on index $index");
         $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
 
         // To mark a column as to be dropped, set its name to an empty string.
         $this->jq('input.column-name', "#$columnId")->attr('name', '');
         // Replace the icon and the onClick event handler.
-        $this->jq('.adminer-table-column-del', "#$columnId")
+        $this->jq("#adminer-table-column-button-group-drop-$index")
             ->removeClass('btn-primary')
-            ->addClass('btn-danger')
+            ->addClass('btn-danger');
+        $this->jq('.adminer-table-column-del', "#$columnId")
             // Remove the current onClick handler before setting a new one.
             ->unbind('click')
             ->click($this->rq()->cancelDelete($server, $database, $schema, $index));
-        $this->jq('.adminer-table-column-del>span', "#$columnId")
-            ->removeClass('glyphicon-remove')
-            ->addClass('glyphicon-trash');
+        // $this->jq('.adminer-table-column-del>span', "#$columnId")
+        //     ->removeClass('glyphicon-remove')
+        //     ->addClass('glyphicon-trash');
 
         return $this->response;
     }
@@ -209,15 +211,16 @@ class Column extends CallableClass
         // To cancel the drop, reset the column name to its initial value.
         $this->jq('input.column-name', "#$columnId")->attr('name', $columnName);
         // Replace the icon and the onClick event handler.
-        $this->jq('.adminer-table-column-del', "#$columnId")
+        $this->jq("#adminer-table-column-button-group-drop-$index")
             ->removeClass('btn-danger')
-            ->addClass('btn-primary')
+            ->addClass('btn-primary');
+        $this->jq('.adminer-table-column-del', "#$columnId")
             // Remove the current onClick handler before setting a new one.
             ->unbind('click')
             ->click($this->rq()->setForDelete($server, $database, $schema, $index));
-        $this->jq('.adminer-table-column-del>span', "#$columnId")
-            ->removeClass('glyphicon-trash')
-            ->addClass('glyphicon-remove');
+        // $this->jq('.adminer-table-column-del>span', "#$columnId")
+        //     ->removeClass('glyphicon-trash')
+        //     ->addClass('glyphicon-remove');
 
         return $this->response;
     }

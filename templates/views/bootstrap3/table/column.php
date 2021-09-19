@@ -122,11 +122,12 @@
                 </div>
             </div>
             <div class="col-md-1 adminer-table-column-buttons second-line">
-                <div class="btn-group adminer-table-column-buttons" role="group" data-index="<?php echo $this->index ?>">
-                    <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <div class="btn-group adminer-table-column-buttons" role="group">
+                    <button type="button" id="adminer-table-column-button-group-drop-<?php
+                        echo $this->index ?>" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu" data-index="<?php echo $this->index ?>">
 <?php if($this->support['move_col']): ?>
                         <li><a href="#" class="adminer-table-column-add"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a></li>
                         <!-- <li><a href="#" class="adminer-table-column-up"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></a></li>
