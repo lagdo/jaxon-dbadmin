@@ -465,7 +465,7 @@ class TableSelectAdmin extends AbstractAdmin
             ];
             foreach ($unique_array as $key => $val) {
                 $key = \trim($key);
-                $type = $fields[$key]->type;
+                $type = isset($fields[$key]) ? $fields[$key]->type : '';
                 $collation = $fields[$key]->collation;
                 if (($this->driver->jush() == "sql" || $this->driver->jush() == "pgsql") &&
                     \preg_match('~char|text|enum|set~', $type) && strlen($val) > 64) {
