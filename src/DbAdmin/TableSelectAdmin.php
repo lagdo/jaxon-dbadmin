@@ -147,40 +147,6 @@ class TableSelectAdmin extends AbstractAdmin
     }
 
     /**
-     * Select data from table
-     *
-     * @param string $table
-     * @param array $select
-     * @param array $where
-     * @param array $group
-     * @param array $order
-     * @param int $limit
-     * @param int $page index of page starting at zero
-     *
-     * @return string
-     */
-    private function buildSelectQuery($table, $select, $where, $group, $order = [], $limit = 1, $page = 0)
-    {
-        // From driver.inc.php
-        $isGroup = (\count($group) < \count($select));
-        $query = $this->driver->buildSelectQuery($select, $where, $group, $order, $limit, $page);
-        if (!$query) {
-            $query = "SELECT" . $this->driver->limit(
-                ($page != "last" && $limit != "" && $group && $isGroup && $this->driver->jush() == "sql" ?
-                    "SQL_CALC_FOUND_ROWS " : "") . \implode(", ", $select) . "\nFROM " . $this->driver->table($table),
-                ($where ? "\nWHERE " . \implode(" AND ", $where) : "") . ($group && $isGroup ?
-                    "\nGROUP BY " . \implode(", ", $group) : "") . ($order ? "\nORDER BY " . \implode(", ", $order) : ""),
-                ($limit != "" ? +$limit : null),
-                ($page ? $limit * $page : 0),
-                "\n"
-            );
-        }
-
-        // From adminer.inc.php
-        return \str_replace("\n", " ", $query);
-    }
-
-    /**
      * Get required data for create/update on tables
      *
      * @param string $table         The table name
@@ -332,11 +298,10 @@ class TableSelectAdmin extends AbstractAdmin
             }
         }
 
-        // $print = true; // Output the SQL select query
-        // ob_start();
-        // $result = $this->driver->select($table, $select2, $where, $group2, $order, $limit, $page, $print);
-        // $query = ob_get_clean();
-        $query = $this->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
+        // From driver.inc.php
+        $query = $this->driver->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
+        // From adminer.inc.php
+        $query = \str_replace("\n", " ", $query);
 
         return [$options, $query, $select, $fields, $foreignKeys, $columns, $indexes,
             $where, $group, $order, $limit, $page, $textLength, $isGroup, $tableName];
