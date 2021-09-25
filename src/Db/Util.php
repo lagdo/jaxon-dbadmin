@@ -199,12 +199,12 @@ class Util implements UtilInterface
      */
     public function where($where, $fields = [])
     {
-        $return = [];
+        $clauses = [];
         $wheres = $where["where"] ?? [];
         foreach ((array) $wheres as $key => $val) {
             $key = $this->bracketEscape($key, 1); // 1 - back
             $column = $this->escapeKey($key);
-            $return[] = $column .
+            $clauses[] = $column .
                 // LIKE because of floats but slow with ints
                 ($this->driver->jush() == "sql" && is_numeric($val) && preg_match('~\.~', $val) ? " LIKE " .
                 $this->driver->quote($val) : ($this->driver->jush() == "mssql" ? " LIKE " .
@@ -213,14 +213,14 @@ class Util implements UtilInterface
             if ($this->driver->jush() == "sql" &&
                 preg_match('~char|text~', $fields[$key]->type) && preg_match("~[^ -@]~", $val)) {
                 // not just [a-z] to catch non-ASCII characters
-                $return[] = "$column = " . $this->driver->quote($val) . " COLLATE " . $this->driver−>charset() . "_bin";
+                $clauses[] = "$column = " . $this->driver->quote($val) . " COLLATE " . $this->driver−>charset() . "_bin";
             }
         }
         $nulls = $where["null"] ?? [];
         foreach ((array) $nulls as $key) {
-            $return[] = $this->escapeKey($key) . " IS NULL";
+            $clauses[] = $this->escapeKey($key) . " IS NULL";
         }
-        return implode(" AND ", $return);
+        return implode(" AND ", $clauses);
     }
 
     /**
@@ -228,7 +228,7 @@ class Util implements UtilInterface
      */
     public function getFieldsFromEdit()
     {
-        $return = [];
+        $fields = [];
         $values = $this->input->values;
         foreach ((array) $values["field_keys"] as $key => $val) {
             if ($val != "") {
@@ -239,14 +239,14 @@ class Util implements UtilInterface
         }
         foreach ((array) $values["fields"] as $key => $val) {
             $name = $this->bracketEscape($key, 1); // 1 - back
-            $return[$name] = array(
+            $fields[$name] = array(
                 "name" => $name,
                 "privileges" => array("insert" => 1, "update" => 1),
                 "null" => 1,
                 "autoIncrement" => ($key == $this->driver->primaryIdName()),
             );
         }
-        return $return;
+        return $fields;
     }
 
     /**
@@ -301,14 +301,14 @@ class Util implements UtilInterface
     {
         foreach ($indexes as $index) {
             if (preg_match("~PRIMARY|UNIQUE~", $index->type)) {
-                $return = [];
+                $ids = [];
                 foreach ($index->columns as $key) {
                     if (!isset($row[$key])) { // NULL is ambiguous
                         continue 2;
                     }
-                    $return[$key] = $row[$key];
+                    $ids[$key] = $row[$key];
                 }
-                return $return;
+                return $ids;
             }
         }
     }
@@ -350,11 +350,11 @@ class Util implements UtilInterface
      */
     public function dumpOutput()
     {
-        $return = array('text' => $this->trans->lang('open'), 'file' => $this->trans->lang('save'));
+        $output = array('text' => $this->trans->lang('open'), 'file' => $this->trans->lang('save'));
         if (function_exists('gzencode')) {
-            $return['gz'] = 'gzip';
+            $output['gz'] = 'gzip';
         }
-        return $return;
+        return $output;
     }
 
     /**
@@ -393,24 +393,24 @@ class Util implements UtilInterface
      */
     public function editFunctions($field)
     {
-        $return = ($field->null ? "NULL/" : "");
+        $clauses = ($field->null ? "NULL/" : "");
         $update = isset($options["select"]) || $this->where([]);
         foreach ($this->driver->editFunctions() as $key => $functions) {
             if (!$key || (!isset($options["call"]) && $update)) { // relative functions
                 foreach ($functions as $pattern => $val) {
                     if (!$pattern || preg_match("~$pattern~", $field->type)) {
-                        $return .= "/$val";
+                        $clauses .= "/$val";
                     }
                 }
             }
             if ($key && !preg_match('~set|blob|bytea|raw|file|bool~', $field->type)) {
-                $return .= "/SQL";
+                $clauses .= "/SQL";
             }
         }
         if ($field->autoIncrement && !$update) {
-            $return = $this->trans->lang('Auto Increment');
+            $clauses = $this->trans->lang('Auto Increment');
         }
-        return explode("/", $return);
+        return explode("/", $clauses);
     }
 
     /**
@@ -436,17 +436,17 @@ class Util implements UtilInterface
     public function _selectValue($val, $link, $field, $original)
     {
         $type = $field->type;
-        $return = ($val === null ? "<i>NULL</i>" :
+        $clause = ($val === null ? "<i>NULL</i>" :
             (preg_match("~char|binary|boolean~", $type) && !preg_match("~var~", $type) ?
             "<code>$val</code>" : $val));
         if (preg_match('~blob|bytea|raw|file~', $type) && !$this->isUtf8($val)) {
-            $return = "<i>" . $this->trans->lang('%d byte(s)', strlen($original)) . "</i>";
+            $clause = "<i>" . $this->trans->lang('%d byte(s)', strlen($original)) . "</i>";
         }
         if (preg_match('~json~', $type)) {
-            $return = "<code class='jush-js'>$return</code>";
+            $clause = "<code class='jush-js'>$clause</code>";
         }
         return ($link ? "<a href='" . $this->html($link) . "'" .
-            ($this->isUrl($link) ? $this->blankTarget() : "") . ">$return</a>" : $return);
+            ($this->isUrl($link) ? $this->blankTarget() : "") . ">$clause</a>" : $clause);
     }
 
     /**
@@ -482,16 +482,16 @@ class Util implements UtilInterface
     // public function enum_input($type, $attrs, $field, $value, $empty = null)
     // {
     //     preg_match_all("~'((?:[^']|'')*)'~", $field->length, $matches);
-    //     $return = ($empty !== null ? "<label><input type='$type'$attrs value='$empty'" .
+    //     $input = ($empty !== null ? "<label><input type='$type'$attrs value='$empty'" .
     //         ((is_array($value) ? in_array($empty, $value) : $value === 0) ? " checked" : "") .
     //         "><i>" . $this->trans->lang('empty') . "</i></label>" : "");
     //     foreach ($matches[1] as $i => $val) {
     //         $val = stripcslashes(str_replace("''", "'", $val));
     //         $checked = (is_int($value) ? $value == $i+1 : (is_array($value) ? in_array($i+1, $value) : $value === $val));
-    //         $return .= " <label><input type='$type'$attrs value='" . ($i+1) . "'" .
+    //         $input .= " <label><input type='$type'$attrs value='" . ($i+1) . "'" .
     //             ($checked ? ' checked' : '') . '>' . $this->util->html($adminer->editValue($val, $field)) . '</label>';
     //     }
-    //     return $return;
+    //     return $input;
     // }
 
     /**
@@ -508,20 +508,20 @@ class Util implements UtilInterface
         if ($field->type !== "enum") {
             return [];
         }
-        $return = [];
+        $inputs = [];
         if (($select)) {
-            $return[] = "<label><input type='radio'$attrs value='-1' checked><i>" .
+            $inputs[] = "<label><input type='radio'$attrs value='-1' checked><i>" .
                 $this->trans->lang('original') . "</i></label> ";
         }
         if (($field->null)) {
-            $return[] = "<label><input type='radio'$attrs value=''" .
+            $inputs[] = "<label><input type='radio'$attrs value=''" .
                 ($value !== null || ($select) ? "" : " checked") . "><i>NULL</i></label> ";
         }
 
         // From functions.inc.php (function enum_input())
         $empty = 0; // 0 - empty
         $type = 'radio';
-        $return[] = "<label><input type='$type'$attrs value='$empty'" .
+        $inputs[] = "<label><input type='$type'$attrs value='$empty'" .
             ((\is_array($value) ? \in_array($empty, $value) : $value === 0) ? " checked" : "") .
             "><i>" . $this->trans->lang('empty') . "</i></label>";
 
@@ -530,11 +530,11 @@ class Util implements UtilInterface
             $val = \stripcslashes(\str_replace("''", "'", $val));
             $checked = (\is_int($value) ? $value == $i + 1 :
                 (\is_array($value) ? \in_array($i+1, $value) : $value === $val));
-            $return[] = "<label><input type='$type'$attrs value='" . ($i+1) . "'" .
+            $inputs[] = "<label><input type='$type'$attrs value='" . ($i+1) . "'" .
                 ($checked ? ' checked' : '') . '>' . $this->html($this->editValue($val, $field)) . '</label>';
         }
 
-        return $return;
+        return $inputs;
     }
 
     /**
@@ -552,7 +552,7 @@ class Util implements UtilInterface
         foreach ($file as $key => $val) {
             $file[$key] = (array) $val;
         }
-        $return = '';
+        $queries = '';
         foreach ($file["error"] as $key => $error) {
             if ($error) {
                 return $error;
@@ -569,13 +569,13 @@ class Util implements UtilInterface
                 } elseif ($start == "\xEF\xBB\xBF") { // UTF-8 BOM
                     $content = substr($content, 3);
                 }
-                $return .= $content . "\n\n";
+                $queries .= $content . "\n\n";
             } else {
-                $return .= $content;
+                $queries .= $content;
             }
         }
         //! support SQL files not ending with semicolon
-        return $return;
+        return $queries;
     }
 
     /**
@@ -733,22 +733,22 @@ class Util implements UtilInterface
             return $value; // SQL injection
         }
         $name = $field->name;
-        $return = $this->driver->quote($value);
+        $expression = $this->driver->quote($value);
         if (preg_match('~^(now|getdate|uuid)$~', $function)) {
-            $return = "$function()";
+            $expression = "$function()";
         } elseif (preg_match('~^current_(date|timestamp)$~', $function)) {
-            $return = $function;
+            $expression = $function;
         } elseif (preg_match('~^([+-]|\|\|)$~', $function)) {
-            $return = $this->driver->escapeId($name) . " $function $return";
+            $expression = $this->driver->escapeId($name) . " $function $expression";
         } elseif (preg_match('~^[+-] interval$~', $function)) {
-            $return = $this->driver->escapeId($name) . " $function " .
-                (preg_match("~^(\\d+|'[0-9.: -]') [A-Z_]+\$~i", $value) ? $value : $return);
+            $expression = $this->driver->escapeId($name) . " $function " .
+                (preg_match("~^(\\d+|'[0-9.: -]') [A-Z_]+\$~i", $value) ? $value : $expression);
         } elseif (preg_match('~^(addtime|subtime|concat)$~', $function)) {
-            $return = "$function(" . $this->driver->escapeId($name) . ", $return)";
+            $expression = "$function(" . $this->driver->escapeId($name) . ", $expression)";
         } elseif (preg_match('~^(md5|sha1|password|encrypt)$~', $function)) {
-            $return = "$function($return)";
+            $expression = "$function($expression)";
         }
-        return $this->driver->unconvertField($field, $return);
+        return $this->driver->unconvertField($field, $expression);
     }
 
     /**
@@ -759,13 +759,13 @@ class Util implements UtilInterface
      */
     public function processSelectSearch($fields, $indexes)
     {
-        $return = [];
+        $expressions = [];
         foreach ($indexes as $i => $index) {
             if ($index->type == "FULLTEXT" && $this->input->values["fulltext"][$i] != "") {
                 $columns = array_map(function ($column) {
                     return $this->driver->escapeId($column);
                 }, $index->columns);
-                $return[] = "MATCH (" . implode(", ", $columns) . ") AGAINST (" .
+                $expressions[] = "MATCH (" . implode(", ", $columns) . ") AGAINST (" .
                     $this->driver->quote($this->input->values["fulltext"][$i]) .
                     (isset($this->input->values["boolean"][$i]) ? " IN BOOLEAN MODE" : "") . ")";
             }
@@ -790,7 +790,7 @@ class Util implements UtilInterface
                     $cond .= " " . $this->_processInput($fields[$val["col"]], $val["val"]);
                 }
                 if ($val["col"] != "") {
-                    $return[] = $prefix . $this->driver->convertSearch(
+                    $expressions[] = $prefix . $this->driver->convertSearch(
                         $this->driver->escapeId($val["col"]),
                         $val,
                         $fields[$val["col"]]
@@ -807,11 +807,11 @@ class Util implements UtilInterface
                             $cols[] = $prefix . $this->driver->convertSearch($this->driver->escapeId($name), $val, $field) . $cond;
                         }
                     }
-                    $return[] = ($cols ? "(" . implode(" OR ", $cols) . ")" : "1 = 0");
+                    $expressions[] = ($cols ? "(" . implode(" OR ", $cols) . ")" : "1 = 0");
                 }
             }
         }
-        return $return;
+        return $expressions;
     }
 
     /**
@@ -822,15 +822,15 @@ class Util implements UtilInterface
      */
     public function processSelectOrder($fields, $indexes)
     {
-        $return = [];
+        $expressions = [];
         foreach ((array) $this->input->values["order"] as $key => $val) {
             if ($val != "") {
                 $regexp = '~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~';
-                $return[] = (preg_match($regexp, $val) ? $val : $this->driver->escapeId($val)) . //! MS SQL uses []
+                $expressions[] = (preg_match($regexp, $val) ? $val : $this->driver->escapeId($val)) . //! MS SQL uses []
                     (isset($this->input->values["desc"][$key]) ? " DESC" : "");
             }
         }
-        return $return;
+        return $expressions;
     }
 
     /**
@@ -889,12 +889,12 @@ class Util implements UtilInterface
     public function selectValue($val, $link, $field, $textLength)
     {
         if (is_array($val)) {
-            $return = "";
+            $expression = "";
             foreach ($val as $k => $v) {
-                $return .= "<tr>" . ($val != array_values($val) ? "<th>" . $this->html($k) : "") . "<td>" .
+                $expression .= "<tr>" . ($val != array_values($val) ? "<th>" . $this->html($k) : "") . "<td>" .
                     $this->selectValue($v, $link, $field, $textLength);
             }
-            return "<table cellspacing='0'>$return</table>";
+            return "<table cellspacing='0'>$expression</table>";
         }
         if (!$link) {
             $link = $this->selectLink($val, $field);
@@ -907,19 +907,19 @@ class Util implements UtilInterface
                 $link = $val; // IE 11 and all modern browsers hide referrer
             }
         }
-        $return = $this->editValue($val, $field);
-        if ($return !== null) {
-            if (!$this->isUtf8($return)) {
-                $return = "\0"; // htmlspecialchars of binary data returns an empty string
+        $expression = $this->editValue($val, $field);
+        if ($expression !== null) {
+            if (!$this->isUtf8($expression)) {
+                $expression = "\0"; // htmlspecialchars of binary data returns an empty string
             } elseif ($textLength != "" && $this->isShortable($field)) {
                 // usage of LEFT() would reduce traffic but complicate query -
                 // expected average speedup: .001 s VS .01 s on local network
-                $return = $this->shortenUtf8($return, max(0, +$textLength));
+                $expression = $this->shortenUtf8($expression, max(0, +$textLength));
             } else {
-                $return = $this->html($return);
+                $expression = $this->html($expression);
             }
         }
-        return $this->_selectValue($return, $link, $field, $val);
+        return $this->_selectValue($expression, $link, $field, $val);
     }
 
     /**

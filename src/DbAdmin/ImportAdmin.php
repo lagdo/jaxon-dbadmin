@@ -60,7 +60,7 @@ class ImportAdmin extends CommandAdmin
      */
     protected function readFiles(array $files, $decompress = false)
     {
-        $return = '';
+        $queries = '';
         foreach ($files as $name) {
             $compressed = \preg_match('~\.gz$~', $name);
             $content = \file_get_contents(
@@ -77,13 +77,13 @@ class ImportAdmin extends CommandAdmin
                     // UTF-8 BOM
                     $content = \substr($content, 3);
                 }
-                $return .= $content . "\n\n";
+                $queries .= $content . "\n\n";
             } else {
-                $return .= $content;
+                $queries .= $content;
             }
         }
-        //! support SQL files not ending with semicolon
-        return $return;
+        //! Does'nt support SQL files not ending with semicolon
+        return $queries;
     }
 
     /**
