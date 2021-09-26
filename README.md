@@ -1,15 +1,11 @@
 A database admin dashboard based on Jaxon and Adminer
 =====================================================
 
-** WORK IN PROGRESS **
-----------------------
+This package is based on [Adminer](https://github.com/vrana/adminer).
 
-This package inserts a database admin dashboard into an existing PHP application.
+It inserts a database admin dashboard into an existing PHP application.
 Thanks to the [Jaxon library](https://www.jaxon-php.org), it installs and runs in a page of the application.
 All its operations are performed with Ajax requests.
-
-It is based on [Adminer](https://www.adminer.org/en/), so it will provide the same features.
-For example, it will be able to manage MySQL, PostgreSQL, Sqlite, MsSQL, MongoDb and Oracle databases.
 
 Howtos
 ------
@@ -31,6 +27,8 @@ The following drivers are available:
 
 Declare the package and the database servers in the `app` section of the [Jaxon configuration file](https://www.jaxon-php.org/docs/v3x/advanced/bootstrap.html).
 
+See the corresponding package for specific database server options.
+
 ```php
     'app' => [
         // Other config options
@@ -38,22 +36,7 @@ Declare the package and the database servers in the `app` section of the [Jaxon 
         'packages' => [
             Lagdo\DbAdmin\Package::class => [
                 'servers' => [
-                    'first_server' => [
-                        'name' => '',     // The name to be displayed in the dashboard UI
-                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
-                        'host' => '',     // The database host name or address.
-                        'port' => 0,      // The database port
-                        'username' => '', // The database user credentials
-                        'password' => '', // The database user credentials
-                    ],
-                    'second_server' => [
-                        'name' => '',     // The name to be displayed in the dashboard UI
-                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
-                        'host' => '',     // The database host name or address.
-                        'port' => 0,      // The database port
-                        'username' => '', // The database user credentials
-                        'password' => '', // The database user credentials
-                    ],
+                    // The database servers
                 ],
             ],
         ],
@@ -80,24 +63,9 @@ The `default` option sets a database server `Jaxon Adminer` must connect to when
         'packages' => [
             Lagdo\DbAdmin\Package::class => [
                 'servers' => [
-                    'first_server' => [
-                        'name' => '',     // The name to be displayed in the dashboard UI
-                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
-                        'host' => '',     // The database host name or address.
-                        'port' => 0,      // The database port
-                        'username' => '', // The database user credentials
-                        'password' => '', // The database user credentials
-                    ],
-                    'second_server' => [
-                        'name' => '',     // The name to be displayed in the dashboard UI
-                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
-                        'host' => '',     // The database host name or address.
-                        'port' => 0,      // The database port
-                        'username' => '', // The database user credentials
-                        'password' => '', // The database user credentials
-                    ],
+                    // The database servers
                 ],
-                'default' => 'second_server',
+                'default' => 'server_id',
             ],
         ],
     ],
@@ -112,27 +80,15 @@ The `access.server` option can also be set at a server level, and in this case i
         'packages' => [
             Lagdo\DbAdmin\Package::class => [
                 'servers' => [
-                    'first_server' => [
-                        'name' => '',     // The name to be displayed in the dashboard UI
-                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
-                        'host' => '',     // The database host name or address.
-                        'port' => 0,      // The database port
-                        'username' => '', // The database user credentials
-                        'password' => '', // The database user credentials
-                    ],
-                    'second_server' => [
-                        'name' => '',     // The name to be displayed in the dashboard UI
-                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
-                        'host' => '',     // The database host name or address.
-                        'port' => 0,      // The database port
-                        'username' => '', // The database user credentials
-                        'password' => '', // The database user credentials
+                    // The database servers
+                    'server_id' => [
+                        // Database options
                         'access' => [
                             'server' => true,
                         ],
                     ],
                 ],
-                'default' => 'second_server',
+                'default' => 'server_id',
                 'access' => [
                     'server' => false,
                 ],
@@ -150,21 +106,9 @@ This options can only be defined at server level, and will apply to that specifi
         'packages' => [
             Lagdo\DbAdmin\Package::class => [
                 'servers' => [
-                    'first_server' => [
-                        'name' => '',     // The name to be displayed in the dashboard UI
-                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
-                        'host' => '',     // The database host name or address.
-                        'port' => 0,      // The database port
-                        'username' => '', // The database user credentials
-                        'password' => '', // The database user credentials
-                    ],
-                    'second_server' => [
-                        'name' => '',     // The name to be displayed in the dashboard UI
-                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
-                        'host' => '',     // The database host name or address.
-                        'port' => 0,      // The database port
-                        'username' => '', // The database user credentials
-                        'password' => '', // The database user credentials
+                    // The database servers
+                    'server_id' => [
+                        // Database options
                         'access' => [
                             'server' => false,
                             'databases' => ['db1', 'db2', 'db3'],
@@ -172,7 +116,7 @@ This options can only be defined at server level, and will apply to that specifi
                         ],
                     ],
                 ],
-                'default' => 'second_server',
+                'default' => 'server_id',
             ],
         ],
     ],
@@ -209,29 +153,7 @@ A directory where the exported files are going to be saved must then be defined 
         'packages' => [
             Lagdo\DbAdmin\Package::class => [
                 'servers' => [
-                    'first_server' => [
-                        'name' => '',     // The name to be displayed in the dashboard UI
-                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
-                        'host' => '',     // The database host name or address.
-                        'port' => 0,      // The database port
-                        'username' => '', // The database user credentials
-                        'password' => '', // The database user credentials
-                    ],
-                    'second_server' => [
-                        'name' => '',     // The name to be displayed in the dashboard UI
-                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
-                        'host' => '',     // The database host name or address.
-                        'port' => 0,      // The database port
-                        'username' => '', // The database user credentials
-                        'password' => '', // The database user credentials
-                        'access' => [
-                            'server' => true,
-                        ],
-                    ],
-                ],
-                'default' => 'second_server',
-                'access' => [
-                    'server' => false,
+                    // The database servers
                 ],
                 'export' => [
                     'dir' => '/path/to/the/export/dir',
@@ -256,22 +178,7 @@ The current template is set using the `template` option, and it default value is
             Lagdo\DbAdmin\Package::class => [
                 'template' => 'bootstrap3',
                 'servers' => [
-                    'first_server' => [
-                        'name' => '',     // The name to be displayed in the dashboard UI
-                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
-                        'host' => '',     // The database host name or address.
-                        'port' => 0,      // The database port
-                        'username' => '', // The database user credentials
-                        'password' => '', // The database user credentials
-                    ],
-                    'second_server' => [
-                        'name' => '',     // The name to be displayed in the dashboard UI
-                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
-                        'host' => '',     // The database host name or address.
-                        'port' => 0,      // The database port
-                        'username' => '', // The database user credentials
-                        'password' => '', // The database user credentials
-                    ],
+                    // The database servers
                 ],
             ],
         ],
@@ -284,24 +191,6 @@ The following UI frameworks are supported:
 - [Bootstrap 4](https://getbootstrap.com/) (`bootstrap4`)
 
 More UI frameworks will be added in future releases.
-
-Features
---------
-
-- [x] Connect to a MySQL database.
-- [x] Show basic info about the MySQL database server.
-- [x] Show the list of tables in the connected database.
-- [x] Show detailed info about the MySQL database server.
-- [x] Show detailed info about the connected database.
-- [x] Connect to PostgreSQL databases.
-- [x] Restrict access to server info and databases.
-- [x] Execute requests and display results.
-- [x] Export databases to an sql file.
-- [x] Import databases from one or more sql files.
-- [x] Connect to other database types.
-- [ ] Add others UI frameworks than Bootstrap, and let the user choose his preferred one (partially implemented, the user can choose between Bootstrap 3 and 4).
-- [ ] Improve the Adminer code base (work in progress, see the [https://github.com/lagdo/adminer-driver](https://github.com/lagdo/adminer-driver) repo).
-- [ ] Add tests
 
 Contribute
 ----------
