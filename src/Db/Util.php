@@ -393,10 +393,14 @@ class Util implements UtilInterface
      */
     public function editFunctions($field)
     {
+        $update = isset($this->input->values["select"]) || $this->where([]);
+        if ($field->autoIncrement && !$update) {
+            return [$this->trans->lang('Auto Increment')];
+        }
+
         $clauses = ($field->null ? "NULL/" : "");
-        $update = isset($options["select"]) || $this->where([]);
         foreach ($this->driver->editFunctions() as $key => $functions) {
-            if (!$key || (!isset($options["call"]) && $update)) { // relative functions
+            if (!$key || (!isset($this->input->values["call"]) && $update)) { // relative functions
                 foreach ($functions as $pattern => $val) {
                     if (!$pattern || preg_match("~$pattern~", $field->type)) {
                         $clauses .= "/$val";
@@ -406,9 +410,6 @@ class Util implements UtilInterface
             if ($key && !preg_match('~set|blob|bytea|raw|file|bool~', $field->type)) {
                 $clauses .= "/SQL";
             }
-        }
-        if ($field->autoIncrement && !$update) {
-            $clauses = $this->trans->lang('Auto Increment');
         }
         return explode("/", $clauses);
     }
