@@ -179,6 +179,7 @@ class CommandAdmin extends AbstractAdmin
 
         $commands = 0;
         $timestamps = [];
+        // TODO: Move this to driver implementations
         $parse = '[\'"' .
             ($this->driver->jush() == "sql" ? '`#' :
             ($this->driver->jush() == "sqlite" ? '`[' :
@@ -198,13 +199,7 @@ class CommandAdmin extends AbstractAdmin
             }
 
             // should always match
-            \preg_match(
-                '(' . \preg_quote($delimiter) . "\\s*|$parse)",
-                $queries,
-                $match,
-                PREG_OFFSET_CAPTURE,
-                $offset
-            );
+            \preg_match('(' . \preg_quote($delimiter) . "\\s*|$parse)", $queries, $match, PREG_OFFSET_CAPTURE, $offset);
             list($found, $pos) = $match[0];
 
             if (!$found && \rtrim($queries) == "") {

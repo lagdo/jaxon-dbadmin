@@ -411,13 +411,13 @@ class TableSelectAdmin extends AbstractAdmin
 
         $results = [];
         foreach ($this->driver->rowDescriptions($rows, $foreignKeys) as $n => $row) {
-            $unique_array = $this->util->uniqueArray($rows[$n], $indexes);
-            if (!$unique_array) {
-                $unique_array = [];
+            $uniqueArray = $this->util->uniqueArray($rows[$n], $indexes);
+            if (!$uniqueArray) {
+                $uniqueArray = [];
                 foreach ($rows[$n] as $key => $val) {
                     if (!\preg_match('~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~', $key)) {
                         //! columns looking like functions
-                        $unique_array[$key] = $val;
+                        $uniqueArray[$key] = $val;
                     }
                 }
             }
@@ -428,7 +428,7 @@ class TableSelectAdmin extends AbstractAdmin
                 'where' => [],
                 'null' => [],
             ];
-            foreach ($unique_array as $key => $val) {
+            foreach ($uniqueArray as $key => $val) {
                 $key = \trim($key);
                 $type = '';
                 $collation = '';

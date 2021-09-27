@@ -106,9 +106,8 @@ class DbAdmin extends DbAdmin\AbstractAdmin
             $di->val('adminer_config_options', $this->package->getServerOptions($server));
             $this->driver = $di->get(DriverInterface::class);
             $this->util = $di->get(UtilInterface::class);
+            // Connect to the selected server
+            $this->driver->connect($database, $schema);
         }
-
-        // Connect to the selected server
-        $this->driver->connect($database, $schema);
     }
 }

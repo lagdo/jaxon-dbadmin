@@ -81,15 +81,17 @@ class Translator implements TranslatorInterface
      */
     public function __construct()
     {
-        $this->set_lang('en');
+        $this->setLanguage('en');
     }
 
     /**
      * Set the current language
+     *
      * @param string $language
+     *
      * @return void
      */
-    public function set_lang($language)
+    public function setLanguage($language)
     {
         $this->language = $language;
         $this->translations = require __DIR__ . "/../../translations/$language.inc.php";
@@ -97,9 +99,10 @@ class Translator implements TranslatorInterface
 
     /**
      * Get the current language
+     *
      * @return string
      */
-    public function get_lang()
+    public function getLanguage()
     {
         return $this->language;
     }
@@ -170,45 +173,4 @@ class Translator implements TranslatorInterface
     {
         return $this->lang('%.3f s', max(0, microtime(true) - $start));
     }
-
-    // public function switch_lang() {
-    //     echo "<form action='' method='post'>\n<div id='lang'>";
-    //     echo lang('Language') . ": " . html_select("lang", $this->languages, $this->language, "this.form.submit();");
-    //     echo " <input type='submit' value='" . lang('Use') . "' class='hidden'>\n";
-    //     echo "<input type='hidden' name='token' value='" . get_token() . "'>\n"; // $token may be empty in auth.inc.php
-    //     echo "</div>\n</form>\n";
-    // }
-
-    // if (isset($_POST["lang"]) && verify_token()) { // $error not yet available
-    //     cookie("adminer_lang", $_POST["lang"]);
-    //     $_SESSION["lang"] = $_POST["lang"]; // cookies may be disabled
-    //     $_SESSION["translations"] = []; // used in compiled version
-    //     redirect(remove_from_uri());
-    // }
-
-    // $this->language = "en";
-    // if (isset($this->languages[$_COOKIE["adminer_lang"]])) {
-    //     cookie("adminer_lang", $_COOKIE["adminer_lang"]);
-    //     $this->language = $_COOKIE["adminer_lang"];
-    // } elseif (isset($this->languages[$_SESSION["lang"]])) {
-    //     $this->language = $_SESSION["lang"];
-    // } else {
-    //     $accept_language = [];
-    //     preg_match_all('~([-a-z]+)(;q=([0-9.]+))?~', str_replace("_", "-", strtolower($_SERVER["HTTP_ACCEPT_LANGUAGE"])), $matches, PREG_SET_ORDER);
-    //     foreach ($matches as $match) {
-    //         $accept_language[$match[1]] = (isset($match[3]) ? $match[3] : 1);
-    //     }
-    //     arsort($accept_language);
-    //     foreach ($accept_language as $key => $q) {
-    //         if (isset($this->languages[$key])) {
-    //             $this->language = $key;
-    //             break;
-    //         }
-    //         $key = preg_replace('~-.*~', '', $key);
-    //         if (!isset($accept_language[$key]) && isset($this->languages[$key])) {
-    //             $this->language = $key;
-    //             break;
-    //         }
-    //     }
-    // }
 }

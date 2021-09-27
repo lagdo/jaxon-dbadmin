@@ -63,12 +63,9 @@ class ImportAdmin extends CommandAdmin
         $queries = '';
         foreach ($files as $name) {
             $compressed = \preg_match('~\.gz$~', $name);
-            $content = \file_get_contents(
-                $decompress && $compressed
-                ? "compress.zlib://$name"
-                : $name
-            ); //! may not be reachable because of open_basedir
             if ($decompress && $compressed) {
+                //! may not be reachable because of open_basedir
+                $content = \file_get_contents("compress.zlib://$name");
                 $start = \substr($content, 0, 3);
                 if (\function_exists("iconv") && \preg_match("~^\xFE\xFF|^\xFF\xFE~", $start, $regs)) {
                     // not ternary operator to save memory
@@ -79,7 +76,8 @@ class ImportAdmin extends CommandAdmin
                 }
                 $queries .= $content . "\n\n";
             } else {
-                $queries .= $content;
+                //! may not be reachable because of open_basedir
+                $queries .= \file_get_contents($name) . "\n\n";
             }
         }
         //! Does'nt support SQL files not ending with semicolon

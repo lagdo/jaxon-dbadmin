@@ -280,9 +280,8 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        $userTypes = $this->driver->support("type") ? $this->driver->userTypes() : [];
         $details = [];
-        foreach ($userTypes as $userType) {
+        foreach ($this->driver->userTypes() as $userType) {
             $details[] = [
                 'name' => $this->util->html($userType),
             ];
@@ -310,9 +309,8 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        $events = $this->driver->support("event") ? $this->driver->rows("SHOW EVENTS") : [];
         $details = [];
-        foreach ($events as $event) {
+        foreach ($this->driver->events() as $event) {
             $detail = [
                 'name' => $this->util->html($event["Name"]),
             ];
