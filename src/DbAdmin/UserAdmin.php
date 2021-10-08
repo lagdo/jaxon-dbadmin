@@ -64,43 +64,7 @@ class UserAdmin extends AbstractAdmin
      */
     protected function fetchUserPrivileges(array $grants)
     {
-        // From user.inc.php
-        $features = [
-            "" => [
-                "All privileges" => "",
-            ],
-        ];
-        foreach ($this->driver->rows("SHOW PRIVILEGES") as $row) {
-            // Context of "Grant option" privilege is set to empty string
-            $contexts = \explode(",", ($row["Privilege"] == "Grant option" ? "" : $row["Context"]));
-            foreach ($contexts as $context) {
-                $features[$context][$row["Privilege"]] = $row["Comment"];
-            }
-        }
-
-        // Privileges of "Server Admin" and "File access on server" are merged
-        $features["Server Admin"] = \array_merge(
-            $features["Server Admin"],
-            $features["File access on server"]
-        );
-        // Comment for this is "No privileges - allow connect only"
-        unset($features["Server Admin"]["Usage"]);
-
-        if (\array_key_exists("Create routine", $features["Procedures"])) {
-            // MySQL bug #30305
-            $features["Databases"]["Create routine"] = $features["Procedures"]["Create routine"];
-            unset($features["Procedures"]["Create routine"]);
-        }
-
-        $features["Columns"] = [];
-        foreach (["Select", "Insert", "Update", "References"] as $val) {
-            $features["Columns"][$val] = $features["Tables"][$val];
-        }
-
-        foreach ($features["Tables"] as $key => $val) {
-            unset($features["Databases"][$key]);
-        }
-
+        $features = $this->driver->privileges();
         $privileges = [];
         $contexts = [
             "" => "",
@@ -111,16 +75,13 @@ class UserAdmin extends AbstractAdmin
             "Procedures" => $this->trans->lang('Routine'),
         ];
         foreach ($contexts as $context => $desc) {
-            foreach ((array)$features[$context] as $privilege => $comment) {
-                $detail = [
-                    $desc,
-                    $this->util->html($privilege),
-                ];
+            foreach ($features[$context] as $privilege => $comment) {
+                $detail = [$desc, $this->util->html($privilege)];
                 // echo "<tr><td" . ($desc ? ">$desc<td" : " colspan='2'") .
                 //     ' lang="en" title="' . $this->util->html($comment) . '">' . $this->util->html($privilege);
                 $i = 0;
                 foreach ($grants as $object => $grant) {
-                    $name = "'grants[$i][" . $this->util->html(strtoupper($privilege)) . "]'";
+                    $name = "'grants[$i][" . $this->util->html(\strtoupper($privilege)) . "]'";
                     $value = $grant[\strtoupper($privilege)] ?? false;
                     if ($context == "Server Admin" && $object != (isset($grants["*.*"]) ? "*.*" : ".*")) {
                         $detail[] = '';
