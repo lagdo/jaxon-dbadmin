@@ -435,17 +435,8 @@ class TableAdmin extends AbstractAdmin
         $unsigned = $this->driver->unsigned();
         // Give the var a better name
         $table = $status;
-        return \compact(
-            'mainActions',
-            'table',
-            'foreignKeys',
-            'fields',
-            'options',
-            'collations',
-            'engines',
-            'support',
-            'unsigned'
-        );
+        return \compact('mainActions', 'table', 'foreignKeys', 'fields',
+            'options', 'collations', 'engines', 'support', 'unsigned');
     }
 
     /**
@@ -466,18 +457,11 @@ class TableAdmin extends AbstractAdmin
      *
      * @param array  $values    The table values
      * @param string $table     The table name
+     * @param array $origFields The table fields
      *
      * @return array
      */
-    private function createOrAlterTable(
-        array $values,
-        string $table,
-        array $origFields,
-        array $tableStatus,
-        string $engine,
-        string $collation,
-        $comment
-    )
+    private function createOrAlterTable(array $values, string $table = '', array $origFields = [])
     {
         // From create.inc.php
         $values['fields'] = (array)$values['fields'];
@@ -522,7 +506,8 @@ class TableAdmin extends AbstractAdmin
                     $fkey->source = [$field['name']];
                     $fkey->target = [$typeField['field']];
                     $fkey->onDelete = $field['onDelete'];
-                    $foreign[$this->driver->escapeId($field['name'])] = ($table != '' && $this->driver->jush() != 'sqlite' ? 'ADD' : ' ') .
+                    $foreign[$this->driver->escapeId($field['name'])] =
+                        ($table != '' && $this->driver->jush() != 'sqlite' ? 'ADD' : ' ') .
                         $this->driver->formatForeignKey($fkey);
                 }
                 $after = ' AFTER ' . $this->driver->escapeId($field['name']);
@@ -562,10 +547,32 @@ class TableAdmin extends AbstractAdmin
         //     );
         // }
         // elseif($this->driver->support('partitioning') &&
-        //     \preg_match('~partitioned~', $tableStatus->Create_options))
+        //     \preg_match('~partitioned~', $this->tableStatus->Create_options))
         // {
         //     $partitioning .= "\nREMOVE PARTITIONING";
         // }
+
+        if (!isset($values['comment'])) {
+            $values['comment'] = null;
+        }
+        if (!isset($values['engine'])) {
+            $values['engine'] = '';
+        }
+        if (!isset($values['collation'])) {
+            $values['collation'] = '';
+        }
+
+        if ($this->tableStatus != null) {
+            if ($values['comment'] == $tableStatus->comment) {
+                $values['comment'] = null;
+            }
+            if ($values['engine'] == $tableStatus->engine) {
+                $values['engine'] = '';
+            }
+            if ($values['collation'] == $tableStatus->collation) {
+                $values['collation'] = '';
+            }
+        }
 
         $name = \trim($values['name']);
         $autoIncrement = $this->util->number($this->util->input()->getAutoIncrementStep());
@@ -573,17 +580,8 @@ class TableAdmin extends AbstractAdmin
             $fields = $allFields;
         }
 
-        $success = $this->driver->alterTable(
-            $table,
-            $name,
-            $fields,
-            $foreign,
-            $comment,
-            $engine,
-            $collation,
-            $autoIncrement,
-            $partitioning
-        );
+        $success = $this->driver->alterTable($table, $name, $fields, $foreign, $values['comment'],
+            $values['engine'], $values['collation'], $autoIncrement, $partitioning);
 
         $message = $table == '' ?
             $this->trans->lang('Table has been created.') :
@@ -606,22 +604,7 @@ class TableAdmin extends AbstractAdmin
      */
     public function createTable(array $values)
     {
-        $origFields = [];
-        $tableStatus = [];
-
-        $comment = $values['comment'] ?? null;
-        $engine = $values['engine'] ?? '';
-        $collation = $values['collation'] ?? '';
-
-        return $this->createOrAlterTable(
-            $values,
-            '',
-            $origFields,
-            $tableStatus,
-            $engine,
-            $collation,
-            $comment
-        );
+        return $this->createOrAlterTable($values);
     }
 
     /**
@@ -635,20 +618,12 @@ class TableAdmin extends AbstractAdmin
     public function alterTable(string $table, array $values)
     {
         $origFields = $this->driver->fields($table);
-        $tableStatus = $this->driver->tableStatus($table);
-        if (!$tableStatus) {
+        $this->tableStatus = $this->driver->tableStatus($table);
+        if (!$this->tableStatus) {
             throw new Exception($this->trans->lang('No tables.'));
         }
 
-        $currComment = $tableStatus->comment;
-        $currEngine = $tableStatus->engine;
-        $currCollation = $tableStatus->collation;
-        $comment = $values['comment'] != $currComment ? $values['comment'] : null;
-        $engine = $values['engine'] != $currEngine ? $values['engine'] : '';
-        $collation = $values['collation'] != $currCollation ? $values['collation'] : '';
-
-        return $this->createOrAlterTable($values, $table, $origFields,
-            $tableStatus, $engine, $collation, $comment);
+        return $this->createOrAlterTable($values, $table, $origFields);
     }
 
     /**
