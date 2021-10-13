@@ -69,13 +69,12 @@ class TableQueryAdmin extends AbstractAdmin
             $entry['input']['type'] = 'radio';
             $entry['input']['value'] = $this->util->editInput($table, isset($options["select"]), $field, $attrs, $value);
         } elseif (\preg_match('~bool~', $field->type)) {
-            $entry['input']['value'] = "<input type='hidden'$attrs value='0'>" . "<input type='checkbox'" .
-                (\preg_match('~^(1|t|true|y|yes|on)$~i', $value) ? " checked='checked'" : "") . "$attrs value='1'>";
+            $entry['input']['type'] = 'checkbox';
+            $entry['input']['value'] = ["<input type='hidden'$attrs value='0'>" . "<input type='checkbox'" .
+                (\preg_match('~^(1|t|true|y|yes|on)$~i', $value) ? " checked='checked'" : "") . "$attrs value='1'>"];
         } elseif ($field->type == "set") {
             $entry['input']['type'] = 'checkbox';
             $entry['input']['value'] = [];
-            //! 64 bits
-            $entry['input']['value'] = '';
             \preg_match_all("~'((?:[^']|'')*)'~", $field->length, $matches);
             foreach ($matches[1] as $i => $val) {
                 $val = \stripcslashes(\str_replace("''", "'", $val));
@@ -94,7 +93,8 @@ class TableQueryAdmin extends AbstractAdmin
             }
             $entry['input']['value'] = "<textarea$attrs>" . $this->util->html($value) . '</textarea>';
         } elseif ($function == "json" || \preg_match('~^jsonb?$~', $field->type)) {
-            $entry['input']['value'] = "<textarea$attrs cols='50' rows='12' class='jush-js'>" . $this->util->html($value) . '</textarea>';
+            $entry['input']['value'] = "<textarea$attrs cols='50' rows='12' class='jush-js'>" .
+                $this->util->html($value) . '</textarea>';
         } else {
             $unsigned = $field->unsigned ?? false;
             // int(3) is only a display hint
@@ -261,14 +261,14 @@ class TableQueryAdmin extends AbstractAdmin
                 }
                 $function = (
                     $queryOptions["save"]
-                    ? (string) $_POST["function"][$name]
+                    ? (string)$queryOptions["function"][$name]
                     : (
                         $update && \preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate)
                         ? "now"
                         : ($value === false ? null : ($value !== null ? '' : 'NULL'))
                     )
                 );
-                if (/*!$_POST && */!$update && $value == $field->default && \preg_match('~^[\w.]+\(~', $value)) {
+                if (!$update && $value == $field->default && \preg_match('~^[\w.]+\(~', $value)) {
                     $function = "SQL";
                 }
                 if (\preg_match("~time~", $field->type) && \preg_match('~^CURRENT_TIMESTAMP~i', $value)) {
