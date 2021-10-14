@@ -615,7 +615,7 @@ class Util implements UtilInterface
         if (!$length) {
             return '';
         }
-        $enumLength = $this->driver->server->enumLength;
+        $enumLength = $this->driver->enumLength;
         return (\preg_match("~^\\s*\\(?\\s*$enumLength(?:\\s*,\\s*$enumLength)*+\\s*\\)?\\s*\$~", $length) &&
             \preg_match_all("~$enumLength~", $length, $matches) ? "(" . \implode(",", $matches[0]) . ")" :
             \preg_replace('~^[0-9].*~', '(\0)', \preg_replace('~[^-0-9,+()[\]]~', '', $length))

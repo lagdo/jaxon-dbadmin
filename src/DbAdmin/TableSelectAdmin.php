@@ -373,14 +373,14 @@ class TableSelectAdmin extends AbstractAdmin
         $functions = [];
         reset($select);
         $rank = 1;
-        foreach ($rows[0] as $key => $val) {
+        foreach ($rows[0] as $key => $value) {
             $header = [];
             if (!isset($unselected[$key])) {
-                $val = $queryOptions["columns"][key($select)] ?? [];
-                $fun = $val["fun"] ?? '';
-                $field = $fields[$select ? ($val ? $val["col"] : current($select)) : $key];
+                $value = $queryOptions["columns"][key($select)] ?? [];
+                $fun = $value["fun"] ?? '';
+                $field = $fields[$select ? ($value ? $value["col"] : current($select)) : $key];
                 $name = ($field ? $this->util->fieldName($field, $rank) : ($fun ? "*" : $key));
-                $header = \compact('val', 'field', 'name');
+                $header = \compact('value', 'field', 'name');
                 if ($name != "") {
                     $rank++;
                     $names[$key] = $name;
@@ -402,9 +402,9 @@ class TableSelectAdmin extends AbstractAdmin
         // {
         //     foreach($rows as $row)
         //     {
-        //         foreach($row as $key => $val)
+        //         foreach($row as $key => $value)
         //         {
-        //             $lengths[$key] = \max($lengths[$key], \min(40, strlen(\utf8_decode($val))));
+        //             $lengths[$key] = \max($lengths[$key], \min(40, strlen(\utf8_decode($value))));
         //         }
         //     }
         // }
@@ -414,10 +414,10 @@ class TableSelectAdmin extends AbstractAdmin
             $uniqueArray = $this->util->uniqueArray($rows[$n], $indexes);
             if (!$uniqueArray) {
                 $uniqueArray = [];
-                foreach ($rows[$n] as $key => $val) {
+                foreach ($rows[$n] as $key => $value) {
                     if (!\preg_match('~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~', $key)) {
                         //! columns looking like functions
-                        $uniqueArray[$key] = $val;
+                        $uniqueArray[$key] = $value;
                     }
                 }
             }
@@ -428,7 +428,7 @@ class TableSelectAdmin extends AbstractAdmin
                 'where' => [],
                 'null' => [],
             ];
-            foreach ($uniqueArray as $key => $val) {
+            foreach ($uniqueArray as $key => $value) {
                 $key = \trim($key);
                 $type = '';
                 $collation = '';
@@ -437,37 +437,37 @@ class TableSelectAdmin extends AbstractAdmin
                     $collation = $fields[$key]->collation;
                 }
                 if (($this->driver->jush() == "sql" || $this->driver->jush() == "pgsql") &&
-                    \preg_match('~char|text|enum|set~', $type) && strlen($val) > 64) {
+                    \preg_match('~char|text|enum|set~', $type) && strlen($value) > 64) {
                     $key = (\strpos($key, '(') ? $key : $this->driver->escapeId($key)); //! columns looking like functions
                     $key = "MD5(" . ($this->driver->jush() != 'sql' || \preg_match("~^utf8~", $collation) ?
                         $key : "CONVERT($key USING " . $this->driver−>charset() . ")") . ")";
-                    $val = \md5($val);
+                    $value = \md5($value);
                 }
-                if ($val !== null) {
-                    $rowIds['where'][$this->util->bracketEscape($key)] = $val;
+                if ($value !== null) {
+                    $rowIds['where'][$this->util->bracketEscape($key)] = $value;
                 } else {
                     $rowIds['null'][] = $this->util->bracketEscape($key);
                 }
-                // $unique_idf .= "&" . ($val !== null ? \urlencode("where[" . $this->util->bracketEscape($key) . "]") .
-                //     "=" . \urlencode($val) : \urlencode("null[]") . "=" . \urlencode($key));
+                // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" . $this->util->bracketEscape($key) . "]") .
+                //     "=" . \urlencode($value) : \urlencode("null[]") . "=" . \urlencode($key));
             }
 
             $cols = [];
-            foreach ($row as $key => $val) {
+            foreach ($row as $key => $value) {
                 if (isset($names[$key])) {
                     $field = $fields[$key] ?? new TableFieldEntity();
-                    $val = $this->driver->value($val, $field);
-                    if ($val != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
+                    $value = $this->driver->value($value, $field);
+                    if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
                         //! filled e-mails can be contained on other pages
-                        $email_fields[$key] = ($this->util->isMail($val) ? $names[$key] : "");
+                        $email_fields[$key] = ($this->util->isMail($value) ? $names[$key] : "");
                     }
 
                     $link = "";
 
-                    $val = $this->util->selectValue($val, $link, $field, $textLength);
+                    $value = $this->util->selectValue($value ?? '', $link, $field, $textLength);
                     $text = \preg_match('~text|lob~', $field->type);
 
-                    $cols[] = \compact(/*'id', */'text', 'val'/*, 'editable'*/);
+                    $cols[] = \compact(/*'id', */'text', 'value'/*, 'editable'*/);
                 }
             }
             $results[] = ['ids' => $rowIds, 'cols' => $cols];

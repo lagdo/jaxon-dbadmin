@@ -18,7 +18,7 @@
                 </div>
             </th>
 <?php foreach($row['cols'] as $col): ?>
-            <td><?php echo $col['val'] ?></td>
+            <td><?php echo $col['value'] ?></td>
 <?php endforeach ?>
         </tr>
 <?php endforeach ?>

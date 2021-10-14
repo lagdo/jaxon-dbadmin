@@ -479,45 +479,43 @@ class TableAdmin extends AbstractAdmin
         $this->getForeignKeys();
 
         foreach ($values['fields'] as $key => $field) {
-            $foreignKey = $this->foreignKeys[$field['type']] ?? null;
+            $orig = $field['orig'];
+            $field = TableFieldEntity::make($field);
+            $foreignKey = $this->foreignKeys[$field->type] ?? null;
             //! can collide with user defined type
-            $typeField = ($foreignKey !== null ? $this->referencableTables[$foreignKey] : $field);
+            $typeField = ($foreignKey === null ? $field :
+                TableFieldEntity::make($this->referencableTables[$foreignKey]));
             // Originally, deleted fields have the "field" field set to an empty string.
-            // But in our implementation, the "field" field is deleted.
-            // if($field['name'] != '')
-            if (isset($field['name']) && $field['name'] != '') {
-                if (!isset($field['hasDefault'])) {
-                    $field['default'] = null;
-                }
-                $field['autoIncrement'] = ($key == $values['autoIncrementCol']);
-                $field["null"] = isset($field["null"]);
+            // But in our implementation, the "name" field is not set.
+            if ($field->name != '') {
+                $field->autoIncrement = ($key == $values['autoIncrementCol']);
 
-                $processField = $this->util->processField($field, $typeField);
-                $allFields[] = [$field['orig'], $processField, $after];
-                if (!$origField || $processField != $this->util->processField($origField, $origField)) {
-                    $fields[] = [$field['orig'], $processField, $after];
-                    if ($field['orig'] != '' || $after) {
+                $processedField = $this->util->processField($field, $typeField);
+                $allFields[] = [$orig, $processedField, $after];
+                if (!$origField || $field->changed($origField)) {
+                    $fields[] = [$orig, $processedField, $after];
+                    if ($orig != '' || $after) {
                         $useAllFields = true;
                     }
                 }
                 if ($foreignKey !== null) {
                     $fkey = new ForeignKeyEntity();
-                    $fkey->table = $this->foreignKeys[$field['type']];
-                    $fkey->source = [$field['name']];
+                    $fkey->table = $this->foreignKeys[$field->type];
+                    $fkey->source = [$field->name];
                     $fkey->target = [$typeField['field']];
-                    $fkey->onDelete = $field['onDelete'];
-                    $foreign[$this->driver->escapeId($field['name'])] =
+                    $fkey->onDelete = $field->onDelete;
+                    $foreign[$this->driver->escapeId($field->name)] =
                         ($table != '' && $this->driver->jush() != 'sqlite' ? 'ADD' : ' ') .
                         $this->driver->formatForeignKey($fkey);
                 }
-                $after = ' AFTER ' . $this->driver->escapeId($field['name']);
-            } elseif ($field['orig'] != '') {
+                $after = ' AFTER ' . $this->driver->escapeId($field->name);
+            } elseif ($orig != '') {
                 // A missing "name" field and a not empty "orig" field means the column is to be dropped.
                 // We also append null in the array because the drivers code accesses field at position 1.
                 $useAllFields = true;
-                $fields[] = [$field['orig'], null];
+                $fields[] = [$orig, null];
             }
-            if ($field['orig'] != '') {
+            if ($orig != '') {
                 $origField = \next($origFields);
                 if (!$origField) {
                     $after = '';
@@ -553,23 +551,23 @@ class TableAdmin extends AbstractAdmin
         // }
 
         if (!isset($values['comment'])) {
-            $values['comment'] = null;
+            $values['comment'] = '';
         }
-        if (!isset($values['engine'])) {
+        if (!isset($values['engine']) || !$values['engine']) {
             $values['engine'] = '';
         }
-        if (!isset($values['collation'])) {
+        if (!isset($values['collation']) || !$values['collation']) {
             $values['collation'] = '';
         }
 
         if ($this->tableStatus != null) {
-            if ($values['comment'] == $tableStatus->comment) {
-                $values['comment'] = null;
-            }
-            if ($values['engine'] == $tableStatus->engine) {
+            // if ($values['comment'] == $this->tableStatus->comment) {
+            //     $values['comment'] = null;
+            // }
+            if ($values['engine'] == $this->tableStatus->engine) {
                 $values['engine'] = '';
             }
-            if ($values['collation'] == $tableStatus->collation) {
+            if ($values['collation'] == $this->tableStatus->collation) {
                 $values['collation'] = '';
             }
         }
@@ -581,18 +579,11 @@ class TableAdmin extends AbstractAdmin
         }
 
         $success = $this->driver->alterTable($table, $name, $fields, $foreign, $values['comment'],
-            $values['engine'], $values['collation'], $autoIncrement, $partitioning);
-
-        $message = $table == '' ?
-            $this->trans->lang('Table has been created.') :
-            $this->trans->lang('Table has been altered.');
+            $values['engine'], $values['collation'], \intval($autoIncrement), $partitioning);
 
         $error = $this->driver->error();
 
-        // From functions.inc.php
-        // queries_redirect(ME . (support('table') ? 'table=' : 'select=') . urlencode($name), $message, $redirect);
-
-        return \compact('success', 'message', 'error');
+        return \compact('success', 'error');
     }
 
     /**
@@ -604,7 +595,9 @@ class TableAdmin extends AbstractAdmin
      */
     public function createTable(array $values)
     {
-        return $this->createOrAlterTable($values);
+        $results = $this->createOrAlterTable($values);
+        $results['message'] = $this->trans->lang('Table has been created.');
+        return $results;
     }
 
     /**
@@ -623,7 +616,9 @@ class TableAdmin extends AbstractAdmin
             throw new Exception($this->trans->lang('No tables.'));
         }
 
-        return $this->createOrAlterTable($values, $table, $origFields);
+        $results = $this->createOrAlterTable($values, $table, $origFields);
+        $results['message'] = $this->trans->lang('Table has been altered.');
+        return $results;
     }
 
     /**
