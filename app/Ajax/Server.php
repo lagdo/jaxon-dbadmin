@@ -12,6 +12,37 @@ use Exception;
 class Server extends CallableClass
 {
     /**
+     * Show the database dropdown list.
+     *
+     * @param string $server      The database server
+     *
+     * @return array
+     */
+    protected function showDatabaseMenu($server)
+    {
+        // Access to servers is forbidden. Show the first database.
+        $databasesInfo = $this->dbAdmin->getDatabases($server);
+
+        // Make databases info available to views
+        $this->view()->shareValues($databasesInfo);
+
+        // Set the database dropdown list
+        $content = $this->render('menu/databases');
+        $this->response->html($this->package->getDbListId(), $content);
+
+        // Hide schema list
+        // $this->response->assign($this->package->getSchemaListId(), 'style.display', 'none');
+        $this->response->clear($this->package->getSchemaListId());
+
+        // Set onclick handlers on database dropdown select
+        $database = \pm()->select('adminer-dbname-select');
+        $this->jq('#adminer-dbname-select-btn')
+            ->click($this->cl(Database::class)->rq()->select($server, $database)->when($database));
+
+        return $databasesInfo;
+    }
+
+    /**
      * Connect to a db server.
      * The database list will be displayed in the HTML select component.
      *
@@ -31,31 +62,7 @@ class Server extends CallableClass
         $content = $this->render('info/server');
         $this->response->html($this->package->getServerInfoId(), $content);
 
-        if($this->checkServerAccess($server, false))
-        {
-            // Show the server
-            return $this->showServer($server);
-        }
-
-        // Access to servers is forbidden. Show the first database.
-        if(\count($serverInfo['databases']) > 0)
-        {
-            $database = $serverInfo['databases'][0];
-            $this->cl(Database::class)->select($server, $database);
-        }
-
-        return $this->response;
-    }
-
-    /**
-     * Show a db server.
-     *
-     * @param string $server      The database server
-     *
-     * @return \Jaxon\Response\Response
-     */
-    protected function showServer($server)
-    {
+        // Show the server
         $content = $this->render('menu/commands');
         $this->response->html($this->package->getServerActionsId(), $content);
         $this->response->html($this->package->getDbActionsId(), '');
@@ -71,22 +78,27 @@ class Server extends CallableClass
         $content = $this->render('menu/actions');
         $this->response->html($this->package->getDbMenuId(), $content);
 
+        if(!$this->checkServerAccess($server, false))
+        {
+            $databasesInfo = $this->showDatabaseMenu($server);
+            if(($database = \reset($databasesInfo['databases'])))
+            {
+                // $database = $databasesInfo['databases'][0];
+                $this->cl(Database::class)->select($server, $database);
+            }
+
+            return $this->response;
+        }
+
         // Set the click handlers
-        $this->jq('#adminer-menu-action-databases')
-            ->click($this->rq()->showDatabases($server));
-        $this->jq('#adminer-menu-action-privileges')
-            ->click($this->rq()->showPrivileges($server));
-        $this->jq('#adminer-menu-action-processes')
-            ->click($this->rq()->showProcesses($server));
-        $this->jq('#adminer-menu-action-variables')
-            ->click($this->rq()->showVariables($server));
-        $this->jq('#adminer-menu-action-status')
-            ->click($this->rq()->showStatus($server));
+        $this->jq('#adminer-menu-action-databases')->click($this->rq()->showDatabases($server));
+        $this->jq('#adminer-menu-action-privileges')->click($this->rq()->showPrivileges($server));
+        $this->jq('#adminer-menu-action-processes')->click($this->rq()->showProcesses($server));
+        $this->jq('#adminer-menu-action-variables')->click($this->rq()->showVariables($server));
+        $this->jq('#adminer-menu-action-status')->click($this->rq()->showStatus($server));
 
         // Show the database list
-        $this->showDatabases($server);
-
-        return $this->response;
+        return $this->showDatabases($server);
     }
 
     /**
@@ -103,12 +115,12 @@ class Server extends CallableClass
             return $this->response;
         }
 
-        $databasesInfo = $this->dbAdmin->getDatabases($server);
+        $databasesInfo = $this->showDatabaseMenu($server);
 
         $dbNameClass = 'adminer-database-name';
         $dbDropClass = 'adminer-database-drop';
         // Add links, classes and data values to database names.
-        $databasesInfo['details'] = \array_map(function($detail) use($dbNameClass, $dbDropClass) {
+        $details = \array_map(function($detail) use($dbNameClass, $dbDropClass) {
             $name = $detail['name'];
             $detail['name'] = [
                 'label' => '<a href="javascript:void(0)">' . $name . '</a>',
@@ -126,22 +138,7 @@ class Server extends CallableClass
             ];
             return $detail;
         }, $databasesInfo['details']);
-
-        // Make databases info available to views
-        $this->view()->shareValues($databasesInfo);
-
-        // Set the database dropdown list
-        $content = $this->render('menu/databases');
-        $this->response->html($this->package->getDbListId(), $content);
-
-        // Hide schema list
-        // $this->response->assign($this->package->getSchemaListId(), 'style.display', 'none');
-        $this->response->clear($this->package->getSchemaListId());
-
-        // Set onclick handlers on database dropdown select
-        $database = \pm()->select('adminer-dbname-select');
-        $this->jq('#adminer-dbname-select-btn')
-            ->click($this->cl(Database::class)->rq()->select($server, $database)->when($database));
+        $this->view()->share('details', $details);
 
         // Set main menu buttons
         $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
