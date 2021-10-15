@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
-use Exception;
-
 /**
  * Admin import functions
  */

@@ -4,8 +4,6 @@ namespace Lagdo\DbAdmin\DbAdmin;
 
 use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 
-use Exception;
-
 /**
  * Admin command functions
  */
