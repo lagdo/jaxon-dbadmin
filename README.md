@@ -71,8 +71,9 @@ The `default` option sets a database server `Jaxon Adminer` must connect to when
     ],
 ```
 
-The `access` options restrict access only to databases or a defined set of databases on any server.
-If the `access.server` is set to `false` at package level, then the access to all servers information will be forbidden.
+The `access` section provides a few options to restrict access to databases on any server.
+
+If the `access.server` option is set to `false` at package level, then the access to all servers information will be forbidden, and the user will have access only to database contents.
 The `access.server` option can also be set at a server level, and in this case it applies only to that specific server.
 
 ```php
@@ -96,10 +97,11 @@ The `access.server` option can also be set at a server level, and in this case i
         ],
     ],
 ```
-In the above configuration, the user will be able to access server information only on the `second_server`.
+In this configuration, the user will get access to server information only on the server with id `server_id`.
 
 The `access.databases` and `access.schemas` options define the set of databases and schemas the user can access.
 This options can only be defined at server level, and will apply to that specific server.
+The `access.schemas` option will apply only on servers which provide that feature.
 
 ```php
     'app' => [
@@ -121,7 +123,7 @@ This options can only be defined at server level, and will apply to that specifi
         ],
     ],
 ```
-In the above configuration, the user will be able to get access only to three databases on the `second_server`, while he will have full access to the `first_server`.
+In this configuration, the user will be able to get access only to three databases on the server with id `server_id`.
 
 Data import
 -----------
@@ -163,7 +165,7 @@ A directory where the exported files are going to be saved must then be defined 
         ],
     ],
 ```
-The web server needs to be setup to serve the files in the `dir` from `url`.
+The web server needs to be setup to serve the files in the directory `dir` from url `url`.
 
 Change the UI framework
 -----------------------
