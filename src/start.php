@@ -8,6 +8,7 @@ $di->alias(Lagdo\DbAdmin\Driver\TranslatorInterface::class, Lagdo\DbAdmin\Db\Tra
 // Register the db classes and aliases in the dependency container
 $di->auto(Lagdo\DbAdmin\Db\Util::class);
 $di->alias(Lagdo\DbAdmin\Driver\UtilInterface::class, Lagdo\DbAdmin\Db\Util::class);
+$di->auto(Lagdo\DbAdmin\Db\Admin::class);
 
 // Database specific classes
 $di->set(Lagdo\DbAdmin\Driver\DriverInterface::class, function($di) {
