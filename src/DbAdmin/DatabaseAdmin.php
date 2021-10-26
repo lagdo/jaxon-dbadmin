@@ -246,14 +246,8 @@ class DatabaseAdmin extends AbstractAdmin
             $this->trans->lang('Name'),
         ];
 
-        $sequences = [];
-        if ($this->driver->support("sequence")) {
-            // From db.inc.php
-            $sequences = $this->driver->values("SELECT sequence_name FROM information_schema.sequences ".
-                "WHERE sequence_schema = selectedSchema() ORDER BY sequence_name");
-        }
         $details = [];
-        foreach ($sequences as $sequence) {
+        foreach ($this->driver->sequences() as $sequence) {
             $details[] = [
                 'name' => $this->util->html($sequence),
             ];
