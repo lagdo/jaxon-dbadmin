@@ -266,8 +266,8 @@ class TableAdmin extends AbstractAdmin
         // From table.inc.php
         foreach ($foreignKeys as $name => $foreignKey) {
             $target = '';
-            if ($foreignKey->db != '') {
-                $target .= '<b>' . $this->util->html($foreignKey->db) . '</b>.';
+            if ($foreignKey->database != '') {
+                $target .= '<b>' . $this->util->html($foreignKey->database) . '</b>.';
             }
             if ($foreignKey->schema != '') {
                 $target .= '<b>' . $this->util->html($foreignKey->schema) . '</b>.';

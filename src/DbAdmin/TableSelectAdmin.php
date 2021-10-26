@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\DbAdmin;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Driver\Entity\TableSelectEntity;
 
 use Exception;
 
@@ -299,7 +300,8 @@ class TableSelectAdmin extends AbstractAdmin
         }
 
         // From driver.inc.php
-        $query = $this->driver->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
+        $entity = new TableSelectEntity($table, $select2, $where, $group2, $order, $limit, $page);
+        $query = $this->driver->buildSelectQuery($entity);
         // From adminer.inc.php
         $query = \str_replace("\n", " ", $query);
 

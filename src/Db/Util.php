@@ -395,7 +395,7 @@ class Util implements UtilInterface
      */
     public function editFunctions(TableFieldEntity $field)
     {
-        $update = isset($this->input->values["select"]) || $this->where([]);
+        $update = isset($this->input->values["select"]); // || $this->where([]);
         if ($field->autoIncrement && !$update) {
             return [$this->trans->lang('Auto Increment')];
         }
