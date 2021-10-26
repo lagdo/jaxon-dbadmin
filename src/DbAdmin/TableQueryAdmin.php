@@ -133,7 +133,7 @@ class TableQueryAdmin extends AbstractAdmin
 
         //!!!! $queryOptions["select"] is never set here !!!!//
 
-        $where = $this->util->where($queryOptions, $fields);
+        $where = $this->admin->where($queryOptions, $fields);
         $update = $where;
         foreach ($fields as $name => $field) {
             $generated = $field->generated ?? false;

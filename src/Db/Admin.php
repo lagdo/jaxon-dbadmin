@@ -48,6 +48,40 @@ class Admin
     }
 
     /**
+     * Create SQL condition from parsed query string
+     *
+     * @param array $where Parsed query string
+     * @param array $fields
+     *
+     * @return string
+     */
+    public function where(array $where, array $fields = [])
+    {
+        $clauses = [];
+        $wheres = $where["where"] ?? [];
+        foreach ((array) $wheres as $key => $value) {
+            $key = $this->util->bracketEscape($key, 1); // 1 - back
+            $column = $this->util->escapeKey($key);
+            $clauses[] = $column .
+                // LIKE because of floats but slow with ints
+                ($this->driver->jush() == "sql" && is_numeric($value) && preg_match('~\.~', $value) ? " LIKE " .
+                $this->driver->quote($value) : ($this->driver->jush() == "mssql" ? " LIKE " .
+                $this->driver->quote(preg_replace('~[_%[]~', '[\0]', $value)) : " = " . // LIKE because of text
+                $this->driver->unconvertField($fields[$key], $this->driver->quote($value)))); //! enum and set
+            if ($this->driver->jush() == "sql" &&
+                preg_match('~char|text~', $fields[$key]->type) && preg_match("~[^ -@]~", $value)) {
+                // not just [a-z] to catch non-ASCII characters
+                $clauses[] = "$column = " . $this->driver->quote($value) . " COLLATE " . $this->driver−>charset() . "_bin";
+            }
+        }
+        $nulls = $where["null"] ?? [];
+        foreach ((array) $nulls as $key) {
+            $clauses[] = $this->util->escapeKey($key) . " IS NULL";
+        }
+        return implode(" AND ", $clauses);
+    }
+
+    /**
      * Query printed after execution in the message
      *
      * @param string $query Executed query
