@@ -195,7 +195,7 @@ class TableQueryAdmin extends AbstractAdmin
                 }
                 // if(isset($queryOptions["select"]) && (!$row || $statement->fetchAssoc()))
                 // {
-                //     // $statement->numRows != 1 isn't available in all drivers
+                //     // $statement->rowCount() != 1 isn't available in all drivers
                 //     $row = null;
                 // }
             }

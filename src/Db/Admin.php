@@ -277,17 +277,17 @@ class Admin
             return 'created';
         }
         if ($oldName != $newName) {
-            $created = $this->driver->queries($create);
-            $dropped = $this->driver->queries($drop);
-            // $this->executeSavedQuery(!($created && $this->driver->queries($drop)));
+            $created = $this->driver->execute($create);
+            $dropped = $this->driver->execute($drop);
+            // $this->executeSavedQuery(!($created && $this->driver->execute($drop)));
             if (!$dropped && $created) {
-                $this->driver->queries($dropCreated);
+                $this->driver->execute($dropCreated);
             }
             return 'altered';
         }
-        $this->executeSavedQuery(!($this->driver->queries($test) &&
-            $this->driver->queries($dropTest) &&
-            $this->driver->queries($drop) && $this->driver->queries($create)));
+        $this->executeSavedQuery(!($this->driver->execute($test) &&
+            $this->driver->execute($dropTest) &&
+            $this->driver->execute($drop) && $this->driver->execute($create)));
         return 'altered';
     }
 

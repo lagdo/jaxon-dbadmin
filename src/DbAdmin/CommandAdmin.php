@@ -94,7 +94,7 @@ class CommandAdmin extends AbstractAdmin
         }
         $message = $this->trans->lang('No rows.');
         if ($rowCount > 0) {
-            $numRows = $statement->numRows;
+            $numRows = $statement->rowCount();
             $message = ($numRows ? ($limit && $numRows > $limit ?
                 $this->trans->lang('%d / ', $limit) :
                 "") . $this->trans->lang('%d row(s)', $numRows) : "");
