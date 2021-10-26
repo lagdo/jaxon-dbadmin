@@ -205,22 +205,13 @@ class ViewAdmin extends AbstractAdmin
      */
     public function getView(string $view)
     {
-        // From view.inc.php
-        $orig_type = 'VIEW';
-        if ($this->driver->jush() === 'pgsql') {
-            $status = $this->driver->tableStatus($view);
-            $orig_type = \strtoupper($status->engine);
-        }
         $values = $this->driver->view($view);
-        $values['name'] = $view;
-        $values['materialized'] = ($orig_type != 'VIEW');
-
         $error = $this->driver->error();
         if (($error)) {
             throw new Exception($error);
         }
 
-        return ['view' => $values, 'orig_type' => $orig_type];
+        return ['view' => $values];
     }
 
     /**
