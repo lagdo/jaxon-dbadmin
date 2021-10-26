@@ -1,3 +1,10 @@
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lagdo/jaxon-dbadmin/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/lagdo/jaxon-dbadmin/?branch=main)
+[![StyleCI](https://styleci.io/repos/402856578/shield?branch=main)](https://styleci.io/repos/402856578)
+
+[![Latest Stable Version](https://poser.pugx.org/lagdo/jaxon-dbadmin/v/stable)](https://packagist.org/packages/lagdo/jaxon-dbadmin)
+[![Total Downloads](https://poser.pugx.org/lagdo/jaxon-dbadmin/downloads)](https://packagist.org/packages/lagdo/jaxon-dbadmin)
+[![License](https://poser.pugx.org/lagdo/jaxon-dbadmin/license)](https://packagist.org/packages/lagdo/jaxon-dbadmin)
+
 A database admin dashboard based on Jaxon and Adminer
 =====================================================
 
