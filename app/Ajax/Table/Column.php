@@ -174,7 +174,6 @@ class Column extends CallableClass
      */
     public function setForDelete($server, $database, $schema, $index)
     {
-        jaxon()->logger()->debug("Delete colum on index $index");
         $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
 
         // To mark a column as to be dropped, set its name to an empty string.
