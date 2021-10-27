@@ -128,11 +128,11 @@ class Util implements UtilInterface
     /**
      * Check if the string is URL address
      *
-     * @param string $string
+     * @param mixed $string
      *
      * @return bool
      */
-    public function isUrl(string $string)
+    public function isUrl($string)
     {
         $domain = '[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])'; // one domain component //! IDN
         //! restrict path, query and fragment characters
