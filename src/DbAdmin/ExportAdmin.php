@@ -399,7 +399,7 @@ class ExportAdmin extends AbstractAdmin
             \in_array($database, $this->databases["list"]);
         $dbDumpData = \in_array($database, $this->databases["data"]);
         $views = [];
-        $dbTables = $this->driver->tableStatus('', true);
+        $dbTables = $this->driver->tablesStatuses(true);
         foreach ($dbTables as $table => $tableStatus) {
             $dumpTable = $dbDumpTable || \in_array($table, $this->tables['list']);
             $dumpData = $dbDumpData || \in_array($table, $this->tables["data"]);

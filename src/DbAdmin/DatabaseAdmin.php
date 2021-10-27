@@ -134,8 +134,8 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        // $tableStatus = $this->driver->tableStatus('', true); // Tables details
-        $tableStatus = $this->driver->tableStatus(); // Tables details
+        // $tableStatus = $this->driver->tablesStatuses(true); // Tables details
+        $tableStatus = $this->driver->tablesStatuses(); // Tables details
 
         $details = [];
         foreach ($tableStatus as $table => $status) {
@@ -177,8 +177,8 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        // $tableStatus = $this->driver->tableStatus('', true); // Tables details
-        $tableStatus = $this->driver->tableStatus(); // Tables details
+        // $tableStatus = $this->driver->tablesStatuses(true); // Tables details
+        $tableStatus = $this->driver->tablesStatuses(); // Tables details
 
         $details = [];
         foreach ($tableStatus as $table => $status) {

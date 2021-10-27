@@ -111,7 +111,7 @@ class Translator implements TranslatorInterface
      * Get a translated string
      *
      * @param string $idf
-     * @param int $number
+     * @param mixed $number
      *
      * @return string
      */
