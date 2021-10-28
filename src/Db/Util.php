@@ -225,7 +225,7 @@ class Util implements UtilInterface
                 "name" => $name,
                 "privileges" => ["insert" => 1, "update" => 1],
                 "null" => 1,
-                "autoIncrement" => ($key == $this->driver->primaryIdName()),
+                "autoIncrement" => false, // ($key == $this->driver->primaryIdName()),
             ];
         }
         return $fields;
@@ -697,7 +697,7 @@ class Util implements UtilInterface
                 ($val["col"] != "" && (!$val["fun"] ||
                 \in_array($val["fun"], $this->driver->functions()) ||
                 \in_array($val["fun"], $this->driver->grouping())))) {
-                $select[$key] = $this->driver->applySqlFunction(
+                $select[$key] = $this->admin->applySqlFunction(
                     $val["fun"],
                     ($val["col"] != "" ? $this->driver->escapeId($val["col"]) : "*")
                 );

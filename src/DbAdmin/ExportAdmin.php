@@ -184,7 +184,7 @@ class ExportAdmin extends AbstractAdmin
             $sql = "SHOW FUNCTION STATUS WHERE Db = " . $this->driver->quote($database);
             foreach ($this->driver->rows($sql, null, "-- ") as $row) {
                 $sql = "SHOW CREATE FUNCTION " . $this->driver->escapeId($row["Name"]);
-                $create = $this->driver->removeDefiner($this->driver->result($sql, 2));
+                $create = $this->admin->removeDefiner($this->driver->result($sql, 2));
                 $queries[] = $this->driver->setUtf8mb4($create);
                 if ($style != 'DROP+CREATE') {
                     $queries[] = "DROP FUNCTION IF EXISTS " . $this->driver->escapeId($row["Name"]) . ";;";
@@ -194,7 +194,7 @@ class ExportAdmin extends AbstractAdmin
             $sql = "SHOW PROCEDURE STATUS WHERE Db = " . $this->driver->quote($database);
             foreach ($this->driver->rows($sql, null, "-- ") as $row) {
                 $sql = "SHOW CREATE PROCEDURE " . $this->driver->escapeId($row["Name"]);
-                $create = $this->driver->removeDefiner($this->driver->result($sql, 2));
+                $create = $this->admin->removeDefiner($this->driver->result($sql, 2));
                 $queries[] = $this->driver->setUtf8mb4($create);
                 if ($style != 'DROP+CREATE') {
                     $queries[] = "DROP PROCEDURE IF EXISTS " . $this->driver->escapeId($row["Name"]) . ";;";
@@ -206,7 +206,7 @@ class ExportAdmin extends AbstractAdmin
         if ($this->options["events"]) {
             foreach ($this->driver->rows("SHOW EVENTS", null, "-- ") as $row) {
                 $sql = "SHOW CREATE EVENT " . $this->driver->escapeId($row["Name"]);
-                $create = $this->driver->removeDefiner($this->driver->result($sql, 3));
+                $create = $this->admin->removeDefiner($this->driver->result($sql, 3));
                 $queries[] = $this->driver->setUtf8mb4($create);
                 if ($style != 'DROP+CREATE') {
                     $queries[] = "DROP EVENT IF EXISTS " . $this->driver->escapeId($row["Name"]) . ";;";
@@ -299,7 +299,7 @@ class ExportAdmin extends AbstractAdmin
                     " IF EXISTS " . $this->driver->table($table) . ';';
             }
             if ($is_view == 1) {
-                $create = $this->driver->removeDefiner($create);
+                $create = $this->admin->removeDefiner($create);
             }
             $this->queries[] = $create . ';';
         }
@@ -399,7 +399,7 @@ class ExportAdmin extends AbstractAdmin
             \in_array($database, $this->databases["list"]);
         $dbDumpData = \in_array($database, $this->databases["data"]);
         $views = [];
-        $dbTables = $this->driver->tablesStatuses(true);
+        $dbTables = $this->driver->tableStatuses(true);
         foreach ($dbTables as $table => $tableStatus) {
             $dumpTable = $dbDumpTable || \in_array($table, $this->tables['list']);
             $dumpData = $dbDumpData || \in_array($table, $this->tables["data"]);

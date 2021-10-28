@@ -183,7 +183,7 @@ class TableSelectAdmin extends AbstractAdmin
         // From select.inc.php
         $indexes = $this->driver->indexes($table);
         $fields = $this->driver->fields($table);
-        $foreignKeys = $this->driver->columnForeignKeys($table);
+        $foreignKeys = $this->admin->columnForeignKeys($table);
 
         $rights = []; // privilege => 0
         $columns = []; // selectable columns
@@ -391,7 +391,7 @@ class TableSelectAdmin extends AbstractAdmin
                     // $desc = "&desc%5B0%5D=1";
                     $header['column'] = $column;
                     $header['key'] = $this->util->html($this->util->bracketEscape($key));
-                    $header['sql'] = $this->driver->applySqlFunction($fun, $name); //! columns looking like functions
+                    $header['sql'] = $this->admin->applySqlFunction($fun, $name); //! columns looking like functions
                 }
                 $functions[$key] = $fun;
                 next($select);
@@ -412,7 +412,7 @@ class TableSelectAdmin extends AbstractAdmin
         // }
 
         $results = [];
-        foreach ($this->driver->rowDescriptions($rows, $foreignKeys) as $n => $row) {
+        foreach ($rows as $n => $row) {
             $uniqueArray = $this->util->uniqueArray($rows[$n], $indexes);
             if (!$uniqueArray) {
                 $uniqueArray = [];

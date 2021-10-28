@@ -202,7 +202,7 @@ class TableQueryAdmin extends AbstractAdmin
         }
 
         if (!$this->driver->support("table") && !$fields) {
-            $primary = $this->driver->primaryIdName();
+            $primary = ''; // $this->driver->primaryIdName();
             if (!$where) {
                 // insert
                 $statement = $this->driver->select($table, ["*"], $where, ["*"]);

@@ -344,8 +344,7 @@ class TableAdmin extends AbstractAdmin
         $this->referencableTables = $this->driver->referencableTables($table);
         $this->foreignKeys = [];
         foreach ($this->referencableTables as $tableName => $field) {
-            $name = \str_replace('`', '``', $tableName) .
-                '`' . \str_replace('`', '``', $field->name);
+            $name = \str_replace('`', '``', $tableName) . '`' . \str_replace('`', '``', $field->name);
             // not escapeId() - used in JS
             $this->foreignKeys[$name] = $tableName;
         }

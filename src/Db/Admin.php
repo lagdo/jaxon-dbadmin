@@ -84,6 +84,34 @@ class Admin
     }
 
     /**
+     * Apply SQL function
+     *
+     * @param string $function
+     * @param string $column escaped column identifier
+     *
+     * @return string
+     */
+    public function applySqlFunction(string $function, string $column)
+    {
+        return ($function ? ($function == 'unixepoch' ? "DATETIME($column, '$function')" :
+            ($function == 'count distinct' ? 'COUNT(DISTINCT ' : strtoupper("$function(")) . "$column)") : $column);
+    }
+
+    /**
+     * Remove current user definer from SQL command
+     *
+     * @param string $query
+     *
+     * @return string
+     */
+    public function removeDefiner(string $query)
+    {
+        return preg_replace('~^([A-Z =]+) DEFINER=`' .
+            preg_replace('~@(.*)~', '`@`(%|\1)', $this->driver->user()) .
+            '`~', '\1', $query); //! proper escaping of user
+    }
+
+    /**
      * Get the users and hosts
      *
      * @param string $database  The database name
@@ -150,6 +178,43 @@ class Admin
     }
 
     /**
+     * @param array $features
+     * @param array $contexts
+     *
+     * @return void
+     */
+    private function makeFeatures(array &$features, array $contexts)
+    {
+        foreach ($contexts as $context) {
+            // Don't take 'Grant option' privileges.
+            if ($row['Privilege'] === 'Grant option') {
+                continue;
+            }
+            // Privileges of 'Server Admin' and 'File access on server' are merged
+            if ($context === 'File access on server') {
+                $context = 'Server Admin';
+            }
+            $privilege = $row['Privilege'];
+            // Comment for this is 'No privileges - allow connect only'
+            if ($context === 'Server Admin' && $privilege === 'Usage') {
+                continue;
+            }
+            // MySQL bug #30305
+            if ($context === 'Procedures' && $privilege === 'Create routine') {
+                $context = 'Databases';
+            }
+            if (!isset($features[$context])) {
+                $features[$context] = [];
+            }
+            $features[$context][$privilege] = $row['Comment'];
+            if ($context === 'Tables' &&
+                in_array($privilege, ['Select', 'Insert', 'Update', 'References'])) {
+                $features['Columns'][$privilege] = $row['Comment'];
+            }
+        }
+    }
+
+    /**
      * Get the user privileges
      *
      * @param array $grants     The user grants
@@ -158,7 +223,22 @@ class Admin
      */
     public function getUserPrivileges(array $grants)
     {
-        $features = $this->driver->privileges();
+        // From user.inc.php
+        $features = [
+            '' => [
+                'All privileges' => '',
+            ],
+            'Columns' => [],
+        ];
+        $rows = $this->driver->rows('SHOW PRIVILEGES');
+        foreach ($rows as $row) {
+            $this->makeFeatures($features, \explode(',', $row['Context']));
+        }
+
+        foreach (array_keys($features['Tables']) as $privilege) {
+            unset($features['Databases'][$privilege]);
+        }
+
         $privileges = [];
         $contexts = [
             "" => "",
@@ -254,6 +334,24 @@ class Admin
     {
         list($queries, $time) = $this->driver->queries();
         return $this->executeQuery($queries, false, $failed, $time);
+    }
+
+    /**
+     * Find out foreign keys for each column
+     *
+     * @param string $table
+     *
+     * @return array
+     */
+    public function columnForeignKeys(string $table)
+    {
+        $keys = [];
+        foreach ($this->driver->foreignKeys($table) as $foreignKey) {
+            foreach ($foreignKey->source as $val) {
+                $keys[$val][] = $foreignKey;
+            }
+        }
+        return $keys;
     }
 
     /**
