@@ -85,6 +85,7 @@ class Server extends CallableClass
             {
                 // $database = $databasesInfo['databases'][0];
                 $this->cl(Database::class)->select($server, $database);
+                $this->selectMenuItem('.menu-action-table', 'adminer-database-menu');
             }
 
             return $this->response;
@@ -98,6 +99,7 @@ class Server extends CallableClass
         $this->jq('#adminer-menu-action-status')->click($this->rq()->showStatus($server));
 
         // Show the database list
+        $this->selectMenuItem('.menu-action-databases', 'adminer-database-menu');
         return $this->showDatabases($server);
     }
 

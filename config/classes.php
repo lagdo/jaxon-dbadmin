@@ -25,7 +25,8 @@ return [
         'connect' => [
             '__after' => [
                 'showBreadcrumbs',
-                'selectMenuItem' => ['.menu-action-databases', 'adminer-database-menu'],
+                // To be set in functions because it may vary.
+                // 'selectMenuItem' => ['.menu-action-databases', 'adminer-database-menu'],
             ],
         ],
         'showServer' => [

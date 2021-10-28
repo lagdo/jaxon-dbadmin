@@ -151,7 +151,6 @@ class Database extends CallableClass
         $this->jq('#adminer-menu-action-event')
             ->click($this->rq()->showEvents($server, $database, $schema));
 
-        \jaxon()->logger()->debug('********* Select', compact('database'));
         // Show the database tables
         $this->showTables($server, $database, $schema);
 
@@ -189,8 +188,6 @@ class Database extends CallableClass
     public function showTables($server, $database, $schema)
     {
         $tablesInfo = $this->dbAdmin->getTables($server, $database, $schema);
-
-        \jaxon()->logger()->debug('********* Show tables', compact('database'));
 
         $tableNameClass = 'adminer-table-name';
         $select = $tablesInfo['select'];
