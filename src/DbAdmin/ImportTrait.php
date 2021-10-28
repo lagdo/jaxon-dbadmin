@@ -17,6 +17,31 @@ trait ImportTrait
     protected $importAdmin = null;
 
     /**
+     * @return AbstractAdmin
+     */
+    abstract public function admin();
+
+    /**
+     * Connect to a database server
+     *
+     * @param string $server    The selected server
+     * @param string $database  The database name
+     * @param string $schema    The database schema
+     *
+     * @return array
+     */
+    abstract public function connect(string $server, string $database = '', string $schema = '');
+
+    /**
+     * Set the breadcrumbs items
+     *
+     * @param array $breadcrumbs
+     *
+     * @return void
+     */
+    abstract protected function setBreadcrumbs(array $breadcrumbs);
+
+    /**
      * Get the proxy
      *
      * @param string $database      The database name
@@ -28,7 +53,7 @@ trait ImportTrait
     {
         if (!$this->importAdmin) {
             $this->importAdmin = new ImportAdmin($database, $schema);
-            $this->importAdmin->init($this);
+            $this->importAdmin->init($this->admin());
         }
         return $this->importAdmin;
     }

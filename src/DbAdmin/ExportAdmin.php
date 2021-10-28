@@ -332,7 +332,7 @@ class ExportAdmin extends AbstractAdmin
                 $suffix = "";
                 $fetch_function = ($table != '' ? 'fetchAssoc' : 'fetchRow');
                 while ($row = $statement->$fetch_function()) {
-                    if (!$keys) {
+                    if (empty($keys)) {
                         $values = [];
                         foreach ($row as $val) {
                             $field = $statement->fetchField();

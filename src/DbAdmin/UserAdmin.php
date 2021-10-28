@@ -30,7 +30,7 @@ class UserAdmin extends AbstractAdmin
 
         $password = '';
         $details = [];
-        foreach ($this->admin->getUsers() as $user) {
+        foreach ($this->admin->getUsers($database) as $user) {
             // Fetch user grants
             $grants = $this->admin->getUserGrants($user["User"], $user["Host"], $password);
             $details[] = [

@@ -17,6 +17,31 @@ trait TableQueryTrait
     protected $tableQueryAdmin = null;
 
     /**
+     * @return AbstractAdmin
+     */
+    abstract public function admin();
+
+    /**
+     * Connect to a database server
+     *
+     * @param string $server    The selected server
+     * @param string $database  The database name
+     * @param string $schema    The database schema
+     *
+     * @return array
+     */
+    abstract public function connect(string $server, string $database = '', string $schema = '');
+
+    /**
+     * Set the breadcrumbs items
+     *
+     * @param array $breadcrumbs
+     *
+     * @return void
+     */
+    abstract protected function setBreadcrumbs(array $breadcrumbs);
+
+    /**
      * Get the proxy
      *
      * @return TableQueryAdmin
@@ -25,7 +50,7 @@ trait TableQueryTrait
     {
         if (!$this->tableQueryAdmin) {
             $this->tableQueryAdmin = new TableQueryAdmin();
-            $this->tableQueryAdmin->init($this);
+            $this->tableQueryAdmin->init($this->admin());
         }
         return $this->tableQueryAdmin;
     }
@@ -42,14 +67,8 @@ trait TableQueryTrait
      *
      * @return array
      */
-    public function getQueryData(
-        string $server,
-        string $database,
-        string $schema,
-        string $table,
-        array $queryOptions = [],
-        string $action = 'New item'
-    )
+    public function getQueryData(string $server, string $database, string $schema,
+        string $table, array $queryOptions = [], string $action = 'New item')
     {
         $this->connect($server, $database, $schema);
 

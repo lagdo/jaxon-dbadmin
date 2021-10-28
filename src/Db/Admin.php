@@ -86,9 +86,11 @@ class Admin
     /**
      * Get the users and hosts
      *
+     * @param string $database  The database name
+     *
      * @return array
      */
-    public function getUsers()
+    public function getUsers($database)
     {
         // From privileges.inc.php
         $statement = $this->driver->query("SELECT User, Host FROM mysql." .
@@ -356,7 +358,7 @@ class Admin
      *
      * @param string $view      The view name
      *
-     * @return array
+     * @return bool
      */
     public function dropView(string $view)
     {

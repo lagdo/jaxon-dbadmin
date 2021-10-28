@@ -17,6 +17,31 @@ trait UserTrait
     protected $userAdmin = null;
 
     /**
+     * @return AbstractAdmin
+     */
+    abstract public function admin();
+
+    /**
+     * Connect to a database server
+     *
+     * @param string $server    The selected server
+     * @param string $database  The database name
+     * @param string $schema    The database schema
+     *
+     * @return array
+     */
+    abstract public function connect(string $server, string $database = '', string $schema = '');
+
+    /**
+     * Set the breadcrumbs items
+     *
+     * @param array $breadcrumbs
+     *
+     * @return void
+     */
+    abstract protected function setBreadcrumbs(array $breadcrumbs);
+
+    /**
      * Get the proxy to user features
      *
      * @return UserAdmin
@@ -25,7 +50,7 @@ trait UserTrait
     {
         if (!$this->userAdmin) {
             $this->userAdmin = new UserAdmin();
-            $this->userAdmin->init($this);
+            $this->userAdmin->init($this->admin());
         }
         return $this->userAdmin;
     }

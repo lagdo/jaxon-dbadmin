@@ -6,12 +6,14 @@ use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\UtilInterface;
 use Lagdo\DbAdmin\Db\Admin;
 
+use Lagdo\DbAdmin\DbAdmin\AbstractAdmin;
+
 use Exception;
 
 /**
  * Admin to calls to the database functions
  */
-class DbAdmin extends DbAdmin\AbstractAdmin
+class DbAdmin extends AbstractAdmin
 {
     use DbAdmin\ServerTrait;
     use DbAdmin\UserTrait;
@@ -86,6 +88,14 @@ class DbAdmin extends DbAdmin\AbstractAdmin
     protected function setBreadcrumbs(array $breadcrumbs)
     {
         $this->breadcrumbs = $breadcrumbs;
+    }
+
+    /**
+     * @return AbstractAdmin
+     */
+    public function admin()
+    {
+        return $this;
     }
 
     /**

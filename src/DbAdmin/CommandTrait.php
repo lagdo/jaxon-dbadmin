@@ -17,6 +17,31 @@ trait CommandTrait
     protected $commandAdmin = null;
 
     /**
+     * @return AbstractAdmin
+     */
+    abstract public function admin();
+
+    /**
+     * Connect to a database server
+     *
+     * @param string $server    The selected server
+     * @param string $database  The database name
+     * @param string $schema    The database schema
+     *
+     * @return array
+     */
+    abstract public function connect(string $server, string $database = '', string $schema = '');
+
+    /**
+     * Set the breadcrumbs items
+     *
+     * @param array $breadcrumbs
+     *
+     * @return void
+     */
+    abstract protected function setBreadcrumbs(array $breadcrumbs);
+
+    /**
      * Get the proxy
      *
      * @return CommandAdmin
@@ -25,7 +50,7 @@ trait CommandTrait
     {
         if (!$this->commandAdmin) {
             $this->commandAdmin = new CommandAdmin();
-            $this->commandAdmin->init($this);
+            $this->commandAdmin->init($this->admin());
         }
         return $this->commandAdmin;
     }
