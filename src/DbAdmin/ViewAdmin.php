@@ -35,7 +35,7 @@ class ViewAdmin extends AbstractAdmin
      * Print links after select heading
      * Copied from selectLinks() in adminer.inc.php
      *
-     * @param string new item options, NULL for no new item
+     * @param string $set New item options, NULL for no new item
      *
      * @return array
      */
@@ -106,7 +106,7 @@ class ViewAdmin extends AbstractAdmin
     {
         // From table.inc.php
         $fields = $this->driver->fields($table);
-        if (!$fields) {
+        if (empty($fields)) {
             throw new Exception($this->driver->error());
         }
 

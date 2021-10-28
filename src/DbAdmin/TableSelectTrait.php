@@ -12,7 +12,7 @@ trait TableSelectTrait
     /**
      * The proxy
      *
-     * @var TableAdmin
+     * @var TableSelectAdmin
      */
     protected $tableSelectAdmin = null;
 

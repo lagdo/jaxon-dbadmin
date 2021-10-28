@@ -12,7 +12,7 @@ trait TableQueryTrait
     /**
      * The proxy
      *
-     * @var TableAdmin
+     * @var TableQueryAdmin
      */
     protected $tableQueryAdmin = null;
 

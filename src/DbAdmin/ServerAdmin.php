@@ -10,14 +10,14 @@ class ServerAdmin extends AbstractAdmin
     /**
      * The final database list
      *
-     * @var array
+     * @var array|null
      */
     protected $finalDatabases = null;
 
     /**
      * The databases the user has access to
      *
-     * @var array
+     * @var array|null
      */
     protected $userDatabases = null;
 
@@ -61,7 +61,7 @@ class ServerAdmin extends AbstractAdmin
     /**
      * Connect to a database server
      *
-     * @return void
+     * @return array
      */
     public function getServerInfo()
     {
@@ -241,12 +241,8 @@ class ServerAdmin extends AbstractAdmin
     {
         // From variables.inc.php
         $status = $this->driver->statusVariables();
-        if (!\is_array($status)) {
-            $status = [];
-        }
 
         $headers = false;
-
         $details = [];
         // From variables.inc.php
         foreach ($status as $key => $val) {

@@ -185,7 +185,6 @@ trait TableTrait
     {
         $this->connect($server, $database, $schema);
 
-        $options = $this->package->getServerOptions($server);
         return $this->table()->getTableField();
     }
 
