@@ -5,6 +5,8 @@ namespace Lagdo\DbAdmin\Db;
 use Lagdo\DbAdmin\Driver\UtilInterface;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 
+use Exception;
+
 use function trim;
 use function substr;
 use function strlen;
@@ -71,7 +73,7 @@ class Admin
             if ($this->driver->jush() == "sql" &&
                 preg_match('~char|text~', $fields[$key]->type) && preg_match("~[^ -@]~", $value)) {
                 // not just [a-z] to catch non-ASCII characters
-                $clauses[] = "$column = " . $this->driver->quote($value) . " COLLATE " . $this->driver−>charset() . "_bin";
+                $clauses[] = "$column = " . $this->driver->quote($value) . " COLLATE " . $this->driver->charset() . "_bin";
             }
         }
         $nulls = $where["null"] ?? [];
@@ -234,7 +236,7 @@ class Admin
             if ($query) {
                 $sql = $this->messageQuery($query, $time);
             }
-            throw new DriverException($this->error() . $sql);
+            throw new Exception($this->driver->error() . $sql);
         }
         return true;
     }
@@ -308,7 +310,7 @@ class Admin
      *
      * @param array  $values    The view values
      *
-     * @return array
+     * @return bool
      */
     public function createView(array $values)
     {
