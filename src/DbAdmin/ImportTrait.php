@@ -44,15 +44,12 @@ trait ImportTrait
     /**
      * Get the proxy
      *
-     * @param string $database      The database name
-     * @param string $schema        The database schema
-     *
      * @return ImportAdmin
      */
-    protected function import(string $database = '', string $schema = '')
+    protected function import()
     {
         if (!$this->importAdmin) {
-            $this->importAdmin = new ImportAdmin($database, $schema);
+            $this->importAdmin = new ImportAdmin();
             $this->importAdmin->init($this->admin());
         }
         return $this->importAdmin;
@@ -78,7 +75,7 @@ trait ImportTrait
         $breadcrumbs[] = $this->trans->lang('Import');
         $this->setBreadcrumbs($breadcrumbs);
 
-        return $this->import()->getImportOptions($database);
+        return $this->import()->getImportOptions();
     }
 
     /**

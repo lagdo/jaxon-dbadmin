@@ -179,12 +179,13 @@ class Admin
 
     /**
      * @param array $features
-     * @param array $contexts
+     * @param array $row
      *
      * @return void
      */
-    private function makeFeatures(array &$features, array $contexts)
+    private function makeFeatures(array &$features, array $row)
     {
+        $contexts = \explode(',', $row['Context']);
         foreach ($contexts as $context) {
             // Don't take 'Grant option' privileges.
             if ($row['Privilege'] === 'Grant option') {
@@ -232,7 +233,7 @@ class Admin
         ];
         $rows = $this->driver->rows('SHOW PRIVILEGES');
         foreach ($rows as $row) {
-            $this->makeFeatures($features, \explode(',', $row['Context']));
+            $this->makeFeatures($features, $row);
         }
 
         foreach (array_keys($features['Tables']) as $privilege) {

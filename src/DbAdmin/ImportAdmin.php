@@ -10,14 +10,11 @@ class ImportAdmin extends CommandAdmin
     /**
      * Get data for import
      *
-     * @param string $database      The database name
-     *
      * @return array
      */
-    public function getImportOptions(string $database)
+    public function getImportOptions()
     {
         $contents = [];
-        $message = [];
         // From sql.inc.php
         $gz = \extension_loaded('zlib') ? '[.gz]' : '';
         // ignore post_max_size because it is for all form fields

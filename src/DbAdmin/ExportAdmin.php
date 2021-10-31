@@ -182,7 +182,7 @@ class ExportAdmin extends AbstractAdmin
 
         if ($this->options["routines"]) {
             $sql = "SHOW FUNCTION STATUS WHERE Db = " . $this->driver->quote($database);
-            foreach ($this->driver->rows($sql, null, "-- ") as $row) {
+            foreach ($this->driver->rows($sql) as $row) {
                 $sql = "SHOW CREATE FUNCTION " . $this->driver->escapeId($row["Name"]);
                 $create = $this->admin->removeDefiner($this->driver->result($sql, 2));
                 $queries[] = $this->driver->setUtf8mb4($create);
@@ -192,7 +192,7 @@ class ExportAdmin extends AbstractAdmin
                 $queries[] = "$create;;\n";
             }
             $sql = "SHOW PROCEDURE STATUS WHERE Db = " . $this->driver->quote($database);
-            foreach ($this->driver->rows($sql, null, "-- ") as $row) {
+            foreach ($this->driver->rows($sql) as $row) {
                 $sql = "SHOW CREATE PROCEDURE " . $this->driver->escapeId($row["Name"]);
                 $create = $this->admin->removeDefiner($this->driver->result($sql, 2));
                 $queries[] = $this->driver->setUtf8mb4($create);
@@ -204,7 +204,7 @@ class ExportAdmin extends AbstractAdmin
         }
 
         if ($this->options["events"]) {
-            foreach ($this->driver->rows("SHOW EVENTS", null, "-- ") as $row) {
+            foreach ($this->driver->rows("SHOW EVENTS") as $row) {
                 $sql = "SHOW CREATE EVENT " . $this->driver->escapeId($row["Name"]);
                 $create = $this->admin->removeDefiner($this->driver->result($sql, 3));
                 $queries[] = $this->driver->setUtf8mb4($create);
@@ -503,7 +503,8 @@ class ExportAdmin extends AbstractAdmin
 
         foreach (\array_unique(\array_merge($databases['list'], $databases['data'])) as $database) {
             // $this->util->dumpDatabase($database);
-            if ($this->driver->connect($database, '')) {
+            try {
+                $this->driver->connect($database, '');
                 $sql = "SHOW CREATE DATABASE " . $this->driver->escapeId($database);
                 if ($this->options['is_sql'] && \preg_match('~CREATE~', $style) &&
                     ($create = $this->driver->result($sql, 1))) {
@@ -526,6 +527,7 @@ class ExportAdmin extends AbstractAdmin
 
                 $this->dumpTablesAndViews($database);
             }
+            catch (\Exception $e) {}
         }
 
         if ($this->options['is_sql']) {

@@ -61,21 +61,21 @@ class CommandAdmin extends AbstractAdmin
             $rowCount++;
             $detail = [];
             foreach ($row as $key => $val) {
-                $link = "";
+                // $link = "";
                 if (isset($links[$key]) && !$columns[$links[$key]]) {
                     if ($orgtables && $this->driver->jush() == "sql") { // MySQL EXPLAIN
                         $table = $row[\array_search("table=", $links)];
-                        $link = /*ME .*/ $links[$key] .
-                            \urlencode($orgtables[$table] != "" ? $orgtables[$table] : $table);
-                    } else {
-                        $link = /*ME .*/ "edit=" . \urlencode($links[$key]);
-                        foreach ($indexes[$links[$key]] as $col => $j) {
-                            $link .= "&where" . \urlencode("[" .
-                                $this->util->bracketEscape($col) . "]") . "=" . \urlencode($row[$j]);
-                        }
+                        // $link = /*ME .*/ $links[$key] .
+                        //     \urlencode($orgtables[$table] != "" ? $orgtables[$table] : $table);
+                    // } else {
+                    //     $link = /*ME .*/ "edit=" . \urlencode($links[$key]);
+                    //     foreach ($indexes[$links[$key]] as $col => $j) {
+                    //         $link .= "&where" . \urlencode("[" .
+                    //             $this->util->bracketEscape($col) . "]") . "=" . \urlencode($row[$j]);
+                    //     }
                     }
-                } elseif ($this->util->isUrl($val)) {
-                    $link = $val;
+                // } elseif ($this->util->isUrl($val)) {
+                //     $link = $val;
                 }
                 if ($val === null) {
                     $val = "<i>NULL</i>";
@@ -154,10 +154,11 @@ class CommandAdmin extends AbstractAdmin
     {
         if (\function_exists('memory_get_usage')) {
             // @ - may be disabled, 2 - substr and trim, 8e6 - other variables
-            @\ini_set("memory_limit", \max(
-                $this->util->iniBytes("memory_limit"),
-                2 * \strlen($queries) + \memory_get_usage() + 8e6
-            ));
+            try {
+                \ini_set("memory_limit", \max($this->util->iniBytes("memory_limit"),
+                    2 * \strlen($queries) + \memory_get_usage() + 8e6));
+            }
+            catch(\Excpetion $e){}
         }
 
         // if($queries != "" && \strlen($queries) < 1e6) { // don't add big queries
@@ -189,6 +190,7 @@ class CommandAdmin extends AbstractAdmin
         // unset($dump_format["sql"]);
 
         $results = [];
+        $errors = [];
         while ($queries != "") {
             if ($offset == 0 && \preg_match("~^$space*+DELIMITER\\s+(\\S+)~i", $queries, $match)) {
                 $delimiter = $match[1];
@@ -221,7 +223,6 @@ class CommandAdmin extends AbstractAdmin
             }
 
             // end of a query
-            $errors = [];
             $messages = [];
             $select = null;
 
@@ -250,7 +251,7 @@ class CommandAdmin extends AbstractAdmin
                 //     \ob_flush();
                 //     \flush(); // can take a long time - show the running query
                 // }
-                $start = \microtime(true);
+                // $start = \microtime(true);
                 //! don't allow changing of character_set_results, convert encoding of displayed query
                 $connection = $this->connection();
                 if ($this->driver->multiQuery($q) && $connection !== null && \preg_match("~^$space*+USE\\b~i", $q)) {
