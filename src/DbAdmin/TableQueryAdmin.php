@@ -26,7 +26,7 @@ class TableQueryAdmin extends AbstractAdmin
         ];
 
         if (\is_array($value) && !$function) {
-            $value = \json_encode($args, JSON_PRETTY_PRINT);
+            $value = \json_encode($value, JSON_PRETTY_PRINT);
             $function = "json";
         }
         $reset = ($this->driver->jush() == "mssql" && $field->autoIncrement);
