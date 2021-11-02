@@ -52,7 +52,7 @@ class DbAdmin extends AbstractAdmin
         $jaxon = \jaxon();
         $this->trans = $jaxon->di()->get(Db\Translator::class);
         // Make the translator available into views
-        $jaxon->view()->share('trans', $this->trans);
+        $jaxon->view()->share('trans', /** @scrutinizer ignore-type */ $this->trans);
     }
 
     /**

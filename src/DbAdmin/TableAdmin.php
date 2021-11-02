@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\DbAdmin;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Driver\Entity\ForeignKeyEntity;
 
 use Exception;
 
@@ -17,6 +18,16 @@ class TableAdmin extends AbstractAdmin
      * @var mixed
      */
     protected $tableStatus = null;
+
+    /**
+     * @var array
+     */
+    protected $referencableTables = [];
+
+    /**
+     * @var array
+     */
+    protected $foreignKeys = [];
 
     /**
      * Get the current table status
@@ -37,7 +48,7 @@ class TableAdmin extends AbstractAdmin
      * Print links after select heading
      * Copied from selectLinks() in adminer.inc.php
      *
-     * @param string new item options, NULL for no new item
+     * @param string $set New item options, NULL for no new item
      *
      * @return array
      */
@@ -119,7 +130,7 @@ class TableAdmin extends AbstractAdmin
     {
         // From table.inc.php
         $fields = $this->driver->fields($table);
-        if (!$fields) {
+        if (empty($fields)) {
             throw new Exception($this->driver->error());
         }
 
@@ -205,9 +216,6 @@ class TableAdmin extends AbstractAdmin
 
         $details = [];
         // From adminer.inc.php
-        if (!$indexes) {
-            $indexes = [];
-        }
         foreach ($indexes as $name => $index) {
             \ksort($index->columns); // enforce correct columns order
             $print = [];
@@ -259,9 +267,6 @@ class TableAdmin extends AbstractAdmin
         ];
 
         $foreignKeys = $this->driver->foreignKeys($table);
-        if (!$foreignKeys) {
-            $foreignKeys = [];
-        }
         $details = [];
         // From table.inc.php
         foreach ($foreignKeys as $name => $foreignKey) {
@@ -400,7 +405,7 @@ class TableAdmin extends AbstractAdmin
 
         $hasAutoIncrement = false;
         foreach ($fields as &$field) {
-            $hasAutoIncrement = $hasAutoIncrement && $field->autoIncrement;
+            $hasAutoIncrement = $hasAutoIncrement || $field->autoIncrement;
             $field->hasDefault = $field->default !== null;
             if (\preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate)) {
                 $field->onUpdate = 'CURRENT_TIMESTAMP';
@@ -441,7 +446,7 @@ class TableAdmin extends AbstractAdmin
     /**
      * Get fields for a new column
      *
-     * @return array
+     * @return TableFieldEntity
      */
     public function getTableField()
     {

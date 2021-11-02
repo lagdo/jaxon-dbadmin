@@ -467,7 +467,7 @@ class ExportAdmin extends AbstractAdmin
      * @param array  $tables        The tables to dump
      * @param array  $options       The export options
      *
-     * @return array
+     * @return array|string
      */
     public function exportDatabases(array $databases, array $tables, array $options)
     {

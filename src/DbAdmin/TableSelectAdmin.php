@@ -14,8 +14,8 @@ class TableSelectAdmin extends AbstractAdmin
 {
     /**
      * Print columns box in select
-     * @param array result of processSelectColumns()[0]
-     * @param array selectable columns
+     * @param array $select Result of processSelectColumns()[0]
+     * @param array $columns Selectable columns
      * @param array $options
      * @return array
      */
@@ -32,13 +32,14 @@ class TableSelectAdmin extends AbstractAdmin
 
     /**
      * Print search box in select
-     * @param array result of processSelectSearch()
+     *
      * @param array selectable columns
      * @param array $indexes
      * @param array $options
+     *
      * @return array
      */
-    private function getFiltersOptions(array $where, array $columns, array $indexes, array $options)
+    private function getFiltersOptions(array $columns, array $indexes, array $options)
     {
         $fulltexts = [];
         foreach ($indexes as $i => $index) {
@@ -56,13 +57,13 @@ class TableSelectAdmin extends AbstractAdmin
 
     /**
      * Print order box in select
-     * @param array result of processSelectOrder()
-     * @param array selectable columns
-     * @param array $indexes
+     *
+     * @param array $columns Selectable columns
      * @param array $options
+     *
      * @return array
      */
-    private function getSortingOptions(array $order, array $columns, array $indexes, array $options)
+    private function getSortingOptions(array $columns, array $options)
     {
         $values = [];
         $descs = (array)$options["desc"];
@@ -81,7 +82,9 @@ class TableSelectAdmin extends AbstractAdmin
 
     /**
      * Print limit box in select
-     * @param string result of processSelectLimit()
+     *
+     * @param string $limit Result of processSelectLimit()
+     *
      * @return array
      */
     private function getLimitOptions(string $limit)
@@ -91,7 +94,9 @@ class TableSelectAdmin extends AbstractAdmin
 
     /**
      * Print text length box in select
-     * @param string|null result of processSelectLength()
+     *
+     * @param string|null $textLength Result of processSelectLength()
+     *
      * @return array
      */
     private function getLengthOptions($textLength)
@@ -103,49 +108,55 @@ class TableSelectAdmin extends AbstractAdmin
 
     /**
      * Print action box in select
-     * @param array
+     *
+     * @param array $indexes
+     *
      * @return array
      */
-    private function getActionOptions(array $indexes)
-    {
-        $columns = [];
-        foreach ($indexes as $index) {
-            $current_key = \reset($index->columns);
-            if ($index->type != "FULLTEXT" && $current_key) {
-                $columns[$current_key] = 1;
-            }
-        }
-        $columns[""] = 1;
-        return ['columns' => $columns];
-    }
+    // private function getActionOptions(array $indexes)
+    // {
+    //     $columns = [];
+    //     foreach ($indexes as $index) {
+    //         $current_key = \reset($index->columns);
+    //         if ($index->type != "FULLTEXT" && $current_key) {
+    //             $columns[$current_key] = 1;
+    //         }
+    //     }
+    //     $columns[""] = 1;
+    //     return ['columns' => $columns];
+    // }
 
     /**
      * Print command box in select
+     *
      * @return bool whether to print default commands
      */
-    private function getCommandOptions()
-    {
-        return !$this->driver->isInformationSchema(DB);
-    }
+    // private function getCommandOptions()
+    // {
+    //     return !$this->driver->isInformationSchema($this->driver->database());
+    // }
 
     /**
      * Print import box in select
+     *
      * @return bool whether to print default import
      */
-    private function getImportOptions()
-    {
-        return !$this->driver->isInformationSchema(DB);
-    }
+    // private function getImportOptions()
+    // {
+    //     return !$this->driver->isInformationSchema($this->driver->database());
+    // }
 
     /**
      * Print extra text in the end of a select form
-     * @param array fields holding e-mails
-     * @param array selectable columns
+     *
+     * @param array $emailFields Fields holding e-mails
+     * @param array $columns Selectable columns
+     *
      * @return array
      */
-    private function getEmailOptions($emailFields, $columns)
-    {
-    }
+    // private function getEmailOptions(array $emailFields, array $columns)
+    // {
+    // }
 
     /**
      * Get required data for create/update on tables
@@ -203,7 +214,7 @@ class TableSelectAdmin extends AbstractAdmin
         $isGroup = \count($group) < \count($select);
         $where = $this->util->processSelectSearch($fields, $indexes);
         $order = $this->util->processSelectOrder($fields, $indexes);
-        $limit = $this->util->processSelectLimit();
+        $limit = intval($this->util->processSelectLimit());
 
         // if(isset($queryOptions["val"]) && is_ajax()) {
         //     header("Content-Type: text/plain; charset=utf-8");
@@ -236,7 +247,7 @@ class TableSelectAdmin extends AbstractAdmin
         $tableStatus = $this->driver->tableStatusOrName($table);
         $oid = $tableStatus->oid;
         if ($oid && !$primary) {
-            $primary = $unselected = [$oid => 0];
+            /*$primary = */$unselected = [$oid => 0];
             $indexes[] = ["type" => "PRIMARY", "columns" => [$oid]];
         }
 
@@ -268,8 +279,8 @@ class TableSelectAdmin extends AbstractAdmin
 
         $options = [
             'columns' => $this->getColumnsOptions($select, $columns, $queryOptions),
-            'filters' => $this->getFiltersOptions($where, $columns, $indexes, $queryOptions),
-            'sorting' => $this->getSortingOptions($order, $columns, $indexes, $queryOptions),
+            'filters' => $this->getFiltersOptions($columns, $indexes, $queryOptions),
+            'sorting' => $this->getSortingOptions($columns, $queryOptions),
             'limit' => $this->getLimitOptions($limit),
             'length' => $this->getLengthOptions($textLength),
             // 'action' => $this->getActionOptions($indexes),
@@ -306,7 +317,7 @@ class TableSelectAdmin extends AbstractAdmin
         $query = \str_replace("\n", " ", $query);
 
         return [$options, $query, $select, $fields, $foreignKeys, $columns, $indexes,
-            $where, $group, $order, $limit, $page, $textLength, $isGroup, $tableName];
+            $where, $group, $order, $limit, $page, $textLength, $isGroup, $tableName, $unselected];
     }
 
     /**
@@ -342,8 +353,8 @@ class TableSelectAdmin extends AbstractAdmin
     public function execSelect(string $table, array $queryOptions)
     {
         list($options, $query, $select, $fields, $foreignKeys, $columns, $indexes,
-            $where, $group, $order, $limit, $page, $textLength, $isGroup, $tableName) =
-            $this->prepareSelect($table, $queryOptions);
+            $where, $group, $order, $limit, $page, $textLength, $isGroup, $tableName,
+            $unselected) = $this->prepareSelect($table, $queryOptions);
 
         $error = null;
         // From driver.inc.php
@@ -442,7 +453,7 @@ class TableSelectAdmin extends AbstractAdmin
                     \preg_match('~char|text|enum|set~', $type) && strlen($value) > 64) {
                     $key = (\strpos($key, '(') ? $key : $this->driver->escapeId($key)); //! columns looking like functions
                     $key = "MD5(" . ($this->driver->jush() != 'sql' || \preg_match("~^utf8~", $collation) ?
-                        $key : "CONVERT($key USING " . $this->driver−>charset() . ")") . ")";
+                        $key : "CONVERT($key USING " . $this->driver->charset() . ")") . ")";
                     $value = \md5($value);
                 }
                 if ($value !== null) {

@@ -307,7 +307,6 @@ class Admin
      */
     private function executeQuery(string $query, bool $execute = true, bool $failed = false/*, string $time = ''*/)
     {
-        $failed = false;
         if ($execute) {
             // $start = microtime(true);
             $failed = !$this->driver->query($query);
