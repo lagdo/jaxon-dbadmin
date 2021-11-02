@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
+use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+
 use Exception;
 
 /**
@@ -179,7 +181,7 @@ trait TableTrait
      * @param string $database  The database name
      * @param string $schema    The database schema
      *
-     * @return array
+     * @return TableFieldEntity
      */
     public function getTableField(string $server, string $database, string $schema)
     {

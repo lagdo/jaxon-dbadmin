@@ -64,7 +64,7 @@ class Util implements UtilInterface
      */
     public function name()
     {
-        return "<a href='https://www.adminer.org/'" . $this->blankTarget() . " id='h1'>Adminer</a>";
+        return '<a href="https://www.adminer.org/"' . $this->blankTarget() . ' id="h1">Adminer</a>';
     }
 
     /**
@@ -80,7 +80,10 @@ class Util implements UtilInterface
      */
     public function html(?string $string)
     {
-        return \str_replace("\0", "&#0;", \htmlspecialchars($string, ENT_QUOTES, 'utf-8'));
+        if(!$string) {
+            return $string;
+        }
+        return \str_replace("\0", '&#0;', \htmlspecialchars($string, ENT_QUOTES, 'utf-8'));
     }
 
     /**
@@ -136,7 +139,7 @@ class Util implements UtilInterface
     {
         $domain = '[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])'; // one domain component //! IDN
         //! restrict path, query and fragment characters
-        return \preg_match("~^(https?)://($domain?\\.)+$domain(:\\d+)?(/.*)?(\\?.*)?(#.*)?\$~i", $string);
+        return \preg_match("~^(https?)://($domain?\\.)+$domain(:\\d+)?(/.*)?(\\?.*)?(#.*)?\$~i", $string) > 0;
     }
 
     /**
@@ -148,7 +151,7 @@ class Util implements UtilInterface
      */
     public function isShortable(TableFieldEntity $field)
     {
-        return \preg_match('~char|text|json|lob|geometry|point|linestring|polygon|string|bytea~', $field->type);
+        return \preg_match('~char|text|json|lob|geometry|point|linestring|polygon|string|bytea~', $field->type) > 0;
     }
 
     /**
@@ -177,7 +180,7 @@ class Util implements UtilInterface
             case 'm': $value = $ival * 1024 * 1024; break;
             case 'k': $value = $ival * 1024; break;
         }
-        return $value;
+        return \intval($value);
     }
 
     /**
@@ -185,7 +188,7 @@ class Util implements UtilInterface
      */
     public function convertEolToHtml(string $string)
     {
-        return \str_replace("\n", "<br>", $string); // nl2br() uses XHTML before PHP 5.3
+        return \str_replace("\n", '<br>', $string); // nl2br() uses XHTML before PHP 5.3
     }
 
     /**
@@ -198,7 +201,7 @@ class Util implements UtilInterface
     public function escapeKey(string $key)
     {
         if (\preg_match('(^([\w(]+)(' .
-            \str_replace("_", ".*", \preg_quote($this->driver->escapeId("_"))) . ')([ \w)]+)$)', $key, $match)) {
+            \str_replace('_', '.*', \preg_quote($this->driver->escapeId('_'))) . ')([ \w)]+)$)', $key, $match)) {
             //! columns looking like functions
             return $match[1] . $this->driver->escapeId($this->driver->unescapeId($match[2])) . $match[3]; //! SQL injection
         }
@@ -212,20 +215,20 @@ class Util implements UtilInterface
     {
         $fields = [];
         $values = $this->input->values;
-        foreach ((array) $values["field_keys"] as $key => $value) {
-            if ($value != "") {
+        foreach ((array) $values['field_keys'] as $key => $value) {
+            if ($value != '') {
                 $value = $this->bracketEscape($value);
-                $values["function"][$value] = $values["field_funs"][$key];
-                $values["fields"][$value] = $values["field_vals"][$key];
+                $values['function'][$value] = $values['field_funs'][$key];
+                $values['fields'][$value] = $values['field_vals'][$key];
             }
         }
-        foreach ((array) $values["fields"] as $key => $value) {
+        foreach ((array) $values['fields'] as $key => $value) {
             $name = $this->bracketEscape($key, 1); // 1 - back
             $fields[$name] = [
-                "name" => $name,
-                "privileges" => ["insert" => 1, "update" => 1],
-                "null" => 1,
-                "autoIncrement" => false, // ($key == $this->driver->primaryIdName()),
+                'name' => $name,
+                'privileges' => ['insert' => 1, 'update' => 1],
+                'null' => 1,
+                'autoIncrement' => false, // ($key == $this->driver->primaryIdName()),
             ];
         }
         return $fields;
@@ -243,7 +246,7 @@ class Util implements UtilInterface
     {
         // fix for Compilation failed: number too big in {} quantifier
         // can create {0,0} which is OK
-        return \str_repeat("$pattern{0,65535}", $length / 65535) . "$pattern{0," . ($length % 65535) . "}";
+        return \str_repeat("$pattern{0,65535}", $length / 65535) . "$pattern{0," . ($length % 65535) . '}';
     }
 
     /**
@@ -255,13 +258,13 @@ class Util implements UtilInterface
      *
      * @return string
      */
-    public function shortenUtf8(string $string, int $length = 80, string $suffix = "")
+    public function shortenUtf8(string $string, int $length = 80, string $suffix = '')
     {
-        if (!\preg_match("(^(" . $this->repeatPattern("[\t\r\n -\x{10FFFF}]", $length) . ")($)?)u", $string, $match)) {
+        if (!\preg_match('(^(' . $this->repeatPattern("[\t\r\n -\x{10FFFF}]", $length) . ')($)?)u', $string, $match)) {
             // ~s causes trash in $match[2] under some PHP versions, (.|\n) is slow
-            \preg_match("(^(" . $this->repeatPattern("[\t\r\n -~]", $length) . ")($)?)", $string, $match);
+            \preg_match('(^(' . $this->repeatPattern("[\t\r\n -~]", $length) . ')($)?)', $string, $match);
         }
-        return $this->html($match[1]) . $suffix . (isset($match[2]) ? "" : "<i>…</i>");
+        return $this->html($match[1]) . $suffix . (isset($match[2]) ? '' : '<i>…</i>');
     }
 
     /**
@@ -274,7 +277,7 @@ class Util implements UtilInterface
      */
     public function bracketEscape(string $idf, bool $back = false)
     {
-        // escape brackets inside name="x[]"
+        // escape brackets inside name='x[]'
         static $trans = [':' => ':1', ']' => ':2', '[' => ':3', '"' => ':4'];
         return \strtr($idf, ($back ? \array_flip($trans) : $trans));
     }
@@ -290,7 +293,7 @@ class Util implements UtilInterface
     public function uniqueIds(array $row, array $indexes)
     {
         foreach ($indexes as $index) {
-            if (\preg_match("~PRIMARY|UNIQUE~", $index->type)) {
+            if (\preg_match('~PRIMARY|UNIQUE~', $index->type)) {
                 $ids = [];
                 foreach ($index->columns as $key) {
                     if (!isset($row[$key])) { // NULL is ambiguous
@@ -324,7 +327,7 @@ class Util implements UtilInterface
      *
      * @return string
      */
-    public function fieldName(TableFieldEntity $field, int $order = 0)
+    public function fieldName(TableFieldEntity $field, /** @scrutinizer ignore-unused */ int $order = 0)
     {
         return '<span title="' . $this->html($field->fullType) . '">' . $this->html($field->name) . '</span>';
     }
@@ -360,7 +363,7 @@ class Util implements UtilInterface
      */
     public function importServerPath()
     {
-        return "adminer.sql";
+        return 'adminer.sql';
     }
 
     /**
@@ -383,9 +386,9 @@ class Util implements UtilInterface
      *
      * @return null
      */
-    public function editRowPrint(string $table, array $fields, $row, bool $update)
-    {
-    }
+    // public function editRowPrint(string $table, array $fields, $row, bool $update)
+    // {
+    // }
 
     /**
      * Functions displayed in edit form
@@ -396,14 +399,14 @@ class Util implements UtilInterface
      */
     public function editFunctions(TableFieldEntity $field)
     {
-        $update = isset($this->input->values["select"]); // || $this->where([]);
+        $update = isset($this->input->values['select']); // || $this->where([]);
         if ($field->autoIncrement && !$update) {
             return [$this->trans->lang('Auto Increment')];
         }
 
-        $clauses = ($field->null ? "NULL/" : "");
+        $clauses = ($field->null ? 'NULL/' : '');
         foreach ($this->driver->editFunctions() as $key => $functions) {
-            if (!$key || (!isset($this->input->values["call"]) && $update)) { // relative functions
+            if (!$key || (!isset($this->input->values['call']) && $update)) { // relative functions
                 foreach ($functions as $pattern => $value) {
                     if (!$pattern || \preg_match("~$pattern~", $field->type)) {
                         $clauses .= "/$value";
@@ -411,10 +414,10 @@ class Util implements UtilInterface
                 }
             }
             if ($key && !\preg_match('~set|blob|bytea|raw|file|bool~', $field->type)) {
-                $clauses .= "/SQL";
+                $clauses .= '/SQL';
             }
         }
-        return \explode("/", $clauses);
+        return \explode('/', $clauses);
     }
 
     /**
@@ -426,10 +429,10 @@ class Util implements UtilInterface
      *
      * @return string
      */
-    public function editHint(string $table, TableFieldEntity $field, string $value)
-    {
-        return "";
-    }
+    // public function editHint(string $table, TableFieldEntity $field, string $value)
+    // {
+    //     return '';
+    // }
 
     /**
      * Get a link to use in select table
@@ -439,9 +442,9 @@ class Util implements UtilInterface
      *
      * @return string|null
      */
-    private function selectLink(string $value, TableFieldEntity $field)
-    {
-    }
+    // private function selectLink(string $value, TableFieldEntity $field)
+    // {
+    // }
 
     /**
      * Value conversion used in select and edit
@@ -451,7 +454,7 @@ class Util implements UtilInterface
      *
      * @return string
      */
-    public function editValue(string $value, TableFieldEntity $field)
+    public function editValue(string $value, /** @scrutinizer ignore-unused */ TableFieldEntity $field)
     {
         return $value;
     }
@@ -471,8 +474,8 @@ class Util implements UtilInterface
     // {
     //     \preg_match_all("~'((?:[^']|'')*)'~", $field->length, $matches);
     //     $input = ($empty !== null ? "<label><input type='$type'$attrs value='$empty'" .
-    //         ((is_array($value) ? in_array($empty, $value) : $value === 0) ? " checked" : "") .
-    //         "><i>" . $this->trans->lang('empty') . "</i></label>" : "");
+    //         ((is_array($value) ? in_array($empty, $value) : $value === 0) ? ' checked' : '') .
+    //         '><i>' . $this->trans->lang('empty') . '</i></label>' : '');
     //     foreach ($matches[1] as $i => $val) {
     //         $val = stripcslashes(str_replace("''", "'", $val));
     //         $checked = (is_int($value) ? $value == $i+1 : (is_array($value) ? in_array($i+1, $value) : $value === $val));
@@ -485,35 +488,34 @@ class Util implements UtilInterface
     /**
      * Get options to display edit field
      *
-     * @param string $table Table name
      * @param bool $select
      * @param TableFieldEntity $field Single field from fields()
      * @param string $attrs Attributes to use inside the tag
-     * @param string $value
+     * @param mixed $value
      *
      * @return array
      */
-    public function editInput(string $table, bool $select, TableFieldEntity $field, string $attrs, string $value)
+    public function editInput(bool $select, TableFieldEntity $field, string $attrs, $value)
     {
-        if ($field->type !== "enum") {
+        if ($field->type !== 'enum') {
             return [];
         }
         $inputs = [];
         if (($select)) {
             $inputs[] = "<label><input type='radio'$attrs value='-1' checked><i>" .
-                $this->trans->lang('original') . "</i></label> ";
+                $this->trans->lang('original') . '</i></label> ';
         }
         if (($field->null)) {
             $inputs[] = "<label><input type='radio'$attrs value=''" .
-                ($value !== null || ($select) ? "" : " checked") . "><i>NULL</i></label> ";
+                ($value !== null || ($select) ? '' : ' checked') . '><i>NULL</i></label> ';
         }
 
         // From functions.inc.php (function enum_input())
         $empty = 0; // 0 - empty
         $type = 'radio';
         $inputs[] = "<label><input type='$type'$attrs value='$empty'" .
-            ((\is_array($value) ? \in_array($empty, $value) : $value === 0) ? " checked" : "") .
-            "><i>" . $this->trans->lang('empty') . "</i></label>";
+            ((\is_array($value) ? \in_array($empty, $value) : $value === 0) ? ' checked' : '') .
+            '><i>' . $this->trans->lang('empty') . '</i></label>';
 
         \preg_match_all("~'((?:[^']|'')*)'~", $field->length, $matches);
         foreach ($matches[1] as $i => $val) {
@@ -545,19 +547,19 @@ class Util implements UtilInterface
             $file[$key] = (array) $val;
         }
         $queries = '';
-        foreach ($file["error"] as $key => $error) {
+        foreach ($file['error'] as $key => $error) {
             if ($error) {
                 return $error;
             }
-            $name = $file["name"][$key];
-            $tmpName = $file["tmp_name"][$key];
+            $name = $file['name'][$key];
+            $tmpName = $file['tmp_name'][$key];
             $content = \file_get_contents($decompress && \preg_match('~\.gz$~', $name) ?
                 "compress.zlib://$tmpName" : $tmpName); //! may not be reachable because of open_basedir
             if ($decompress) {
                 $start = \substr($content, 0, 3);
-                if (\function_exists("iconv") && \preg_match("~^\xFE\xFF|^\xFF\xFE~", $start, $regs)) {
+                if (\function_exists('iconv') && \preg_match("~^\xFE\xFF|^\xFF\xFE~", $start, $regs)) {
                     // not ternary operator to save memory
-                    $content = \iconv("utf-16", "utf-8", $content);
+                    $content = \iconv('utf-16', 'utf-8', $content);
                 } elseif ($start == "\xEF\xBB\xBF") { // UTF-8 BOM
                     $content = \substr($content, 3);
                 }
@@ -584,7 +586,7 @@ class Util implements UtilInterface
         }
         $enumLength = $this->driver->enumLength();
         return (\preg_match("~^\\s*\\(?\\s*$enumLength(?:\\s*,\\s*$enumLength)*+\\s*\\)?\\s*\$~", $length) &&
-            \preg_match_all("~$enumLength~", $length, $matches) ? "(" . \implode(",", $matches[0]) . ")" :
+            \preg_match_all("~$enumLength~", $length, $matches) ? '(' . \implode(',', $matches[0]) . ')' :
             \preg_replace('~^[0-9].*~', '(\0)', \preg_replace('~[^-0-9,+()[\]]~', '', $length))
         );
     }
@@ -597,17 +599,17 @@ class Util implements UtilInterface
      *
      * @return string
      */
-    private function processType(TableFieldEntity $field, string $collate = "COLLATE")
+    private function processType(TableFieldEntity $field, string $collate = 'COLLATE')
     {
         $values = [
             'unsigned' => $field->unsigned,
             'collation' => $field->collation,
         ];
-        return " " . $field->type . $this->processLength($field->length) .
+        return ' ' . $field->type . $this->processLength($field->length) .
             (\preg_match($this->driver->numberRegex(), $field->type) &&
-            \in_array($values["unsigned"], $this->driver->unsigned()) ?
-            " $values[unsigned]" : "") . (\preg_match('~char|text|enum|set~', $field->type) &&
-            $values["collation"] ? " $collate " . $this->driver->quote($values["collation"]) : "");
+            \in_array($values['unsigned'], $this->driver->unsigned()) ?
+            " {$values['unsigned']}" : '') . (\preg_match('~char|text|enum|set~', $field->type) &&
+            $values['collation'] ? " $collate " . $this->driver->quote($values['collation']) : '');
     }
 
     /**
@@ -618,12 +620,12 @@ class Util implements UtilInterface
         return [
             $this->driver->escapeId(trim($field->name)),
             $this->processType($typeField),
-            ($field->null ? " NULL" : " NOT NULL"), // NULL for timestamp
+            ($field->null ? ' NULL' : ' NOT NULL'), // NULL for timestamp
             $this->driver->defaultValue($field),
             (\preg_match('~timestamp|datetime~', $field->type) && $field->onUpdate ?
-                " ON UPDATE {$field->onUpdate}" : ""),
-            ($this->driver->support("comment") && $field->comment != "" ?
-                " COMMENT " . $this->driver->quote($field->comment) : ""),
+                " ON UPDATE {$field->onUpdate}" : ''),
+            ($this->driver->support('comment') && $field->comment != '' ?
+                ' COMMENT ' . $this->driver->quote($field->comment) : ''),
             ($field->autoIncrement ? $this->driver->autoIncrement() : null),
         ];
     }
@@ -634,44 +636,43 @@ class Util implements UtilInterface
      * @param TableFieldEntity $field
      * @param array $inputs The user inputs
      *
-     * @return string|false
+     * @return mixed
      */
     public function processInput(TableFieldEntity $field, array $inputs)
     {
         $idf = $this->bracketEscape($field->name);
-        $function = $inputs["function"][$idf] ?? '';
-        $value = $inputs["fields"][$idf];
-        if ($field->type == "enum") {
+        $function = $inputs['function'][$idf] ?? '';
+        $value = $inputs['fields'][$idf];
+        if ($field->type == 'enum') {
             if ($value == -1) {
                 return false;
             }
-            if ($value == "") {
-                return "NULL";
+            if ($value == '') {
+                return 'NULL';
             }
             return +$value;
         }
-        if ($field->autoIncrement && $value == "") {
+        if ($field->autoIncrement && $value == '') {
             return null;
         }
-        if ($function == "orig") {
+        if ($function == 'orig') {
             return (\preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) ?
                 $this->driver->escapeId($field->name) : false);
         }
-        if ($function == "NULL") {
-            return "NULL";
+        if ($function == 'NULL') {
+            return 'NULL';
         }
-        if ($field->type == "set") {
+        if ($field->type == 'set') {
             return \array_sum((array) $value);
         }
-        if ($function == "json") {
-            $function = "";
+        if ($function == 'json') {
             $value = \json_decode($value, true);
             if (!\is_array($value)) {
                 return false; //! report errors
             }
             return $value;
         }
-        if (\preg_match('~blob|bytea|raw|file~', $field->type) && $this->iniBool("file_uploads")) {
+        if (\preg_match('~blob|bytea|raw|file~', $field->type) && $this->iniBool('file_uploads')) {
             $file = $this->getFile("fields-$idf");
             if (!\is_string($file)) {
                 return false; //! report errors
@@ -682,27 +683,39 @@ class Util implements UtilInterface
     }
 
     /**
-     * Process columns box in select
+     * Apply SQL function
      *
-     * @param array $columns Selectable columns
-     * @param array $indexes
+     * @param string $function
+     * @param string $column escaped column identifier
+     *
+     * @return string
+     */
+    public function applySqlFunction(string $function, string $column)
+    {
+        return ($function ? ($function == 'unixepoch' ?
+            "DATETIME($column, '$function')" : ($function == 'count distinct' ?
+            'COUNT(DISTINCT ' : strtoupper("$function(")) . "$column)") : $column);
+    }
+
+    /**
+     * Process columns box in select
      *
      * @return array
      */
-    public function processSelectColumns(array $columns, array $indexes)
+    public function processSelectColumns()
     {
         $select = []; // select expressions, empty for *
         $group = []; // expressions without aggregation - will be used for GROUP BY if an aggregation function is used
-        foreach ((array) $this->input->values["columns"] as $key => $val) {
-            if ($val["fun"] == "count" ||
-                ($val["col"] != "" && (!$val["fun"] ||
-                \in_array($val["fun"], $this->driver->functions()) ||
-                \in_array($val["fun"], $this->driver->grouping())))) {
-                $select[$key] = $this->admin->applySqlFunction(
-                    $val["fun"],
-                    ($val["col"] != "" ? $this->driver->escapeId($val["col"]) : "*")
+        foreach ((array) $this->input->values['columns'] as $key => $val) {
+            if ($val['fun'] == 'count' ||
+                ($val['col'] != '' && (!$val['fun'] ||
+                \in_array($val['fun'], $this->driver->functions()) ||
+                \in_array($val['fun'], $this->driver->grouping())))) {
+                $select[$key] = $this->applySqlFunction(
+                    $val['fun'],
+                    ($val['col'] != '' ? $this->driver->escapeId($val['col']) : '*')
                 );
-                if (!in_array($val["fun"], $this->driver->grouping())) {
+                if (!in_array($val['fun'], $this->driver->grouping())) {
                     $group[] = $select[$key];
                 }
             }
@@ -719,9 +732,9 @@ class Util implements UtilInterface
      *
      * @return string
      */
-    private function _processInput(TableFieldEntity $field, string $value, string $function = "")
+    private function _processInput(TableFieldEntity $field, string $value, string $function = '')
     {
-        if ($function == "SQL") {
+        if ($function == 'SQL') {
             return $value; // SQL injection
         }
         $name = $field->name;
@@ -755,53 +768,53 @@ class Util implements UtilInterface
     {
         $expressions = [];
         foreach ($indexes as $i => $index) {
-            if ($index->type == "FULLTEXT" && $this->input->values["fulltext"][$i] != "") {
+            if ($index->type == 'FULLTEXT' && $this->input->values['fulltext'][$i] != '') {
                 $columns = \array_map(function ($column) {
                     return $this->driver->escapeId($column);
                 }, $index->columns);
-                $expressions[] = "MATCH (" . \implode(", ", $columns) . ") AGAINST (" .
-                    $this->driver->quote($this->input->values["fulltext"][$i]) .
-                    (isset($this->input->values["boolean"][$i]) ? " IN BOOLEAN MODE" : "") . ")";
+                $expressions[] = 'MATCH (' . \implode(', ', $columns) . ') AGAINST (' .
+                    $this->driver->quote($this->input->values['fulltext'][$i]) .
+                    (isset($this->input->values['boolean'][$i]) ? ' IN BOOLEAN MODE' : '') . ')';
             }
         }
-        foreach ((array) $this->input->values["where"] as $key => $val) {
-            if ("$val[col]$val[val]" != "" && in_array($val["op"], $this->driver->operators())) {
-                $prefix = "";
+        foreach ((array) $this->input->values['where'] as $key => $val) {
+            if ("$val[col]$val[val]" != '' && in_array($val['op'], $this->driver->operators())) {
+                $prefix = '';
                 $cond = " $val[op]";
-                if (\preg_match('~IN$~', $val["op"])) {
-                    $in = $this->processLength($val["val"]);
-                    $cond .= " " . ($in != "" ? $in : "(NULL)");
-                } elseif ($val["op"] == "SQL") {
+                if (\preg_match('~IN$~', $val['op'])) {
+                    $in = $this->processLength($val['val']);
+                    $cond .= ' ' . ($in != '' ? $in : '(NULL)');
+                } elseif ($val['op'] == 'SQL') {
                     $cond = " $val[val]"; // SQL injection
-                } elseif ($val["op"] == "LIKE %%") {
-                    $cond = " LIKE " . $this->_processInput($fields[$val["col"]], "%$val[val]%");
-                } elseif ($val["op"] == "ILIKE %%") {
-                    $cond = " ILIKE " . $this->_processInput($fields[$val["col"]], "%$val[val]%");
-                } elseif ($val["op"] == "FIND_IN_SET") {
-                    $prefix = "$val[op](" . $this->driver->quote($val["val"]) . ", ";
-                    $cond = ")";
-                } elseif (!\preg_match('~NULL$~', $val["op"])) {
-                    $cond .= " " . $this->_processInput($fields[$val["col"]], $val["val"]);
+                } elseif ($val['op'] == 'LIKE %%') {
+                    $cond = ' LIKE ' . $this->_processInput($fields[$val['col']], "%$val[val]%");
+                } elseif ($val['op'] == 'ILIKE %%') {
+                    $cond = ' ILIKE ' . $this->_processInput($fields[$val['col']], "%$val[val]%");
+                } elseif ($val['op'] == 'FIND_IN_SET') {
+                    $prefix = "$val[op](" . $this->driver->quote($val['val']) . ', ';
+                    $cond = ')';
+                } elseif (!\preg_match('~NULL$~', $val['op'])) {
+                    $cond .= ' ' . $this->_processInput($fields[$val['col']], $val['val']);
                 }
-                if ($val["col"] != "") {
+                if ($val['col'] != '') {
                     $expressions[] = $prefix . $this->driver->convertSearch(
-                        $this->driver->escapeId($val["col"]),
+                        $this->driver->escapeId($val['col']),
                         $val,
-                        $fields[$val["col"]]
+                        $fields[$val['col']]
                     ) . $cond;
                 } else {
                     // find anywhere
                     $cols = [];
                     foreach ($fields as $name => $field) {
-                        if ((\preg_match('~^[-\d.' . (\preg_match('~IN$~', $val["op"]) ? ',' : '') . ']+$~', $val["val"]) ||
+                        if ((\preg_match('~^[-\d.' . (\preg_match('~IN$~', $val['op']) ? ',' : '') . ']+$~', $val['val']) ||
                             !\preg_match('~' . $this->driver->numberRegex() . '|bit~', $field->type)) &&
-                            (!\preg_match("~[\x80-\xFF]~", $val["val"]) || \preg_match('~char|text|enum|set~', $field->type)) &&
-                            (!\preg_match('~date|timestamp~', $field->type) || \preg_match('~^\d+-\d+-\d+~', $val["val"]))
+                            (!\preg_match("~[\x80-\xFF]~", $val['val']) || \preg_match('~char|text|enum|set~', $field->type)) &&
+                            (!\preg_match('~date|timestamp~', $field->type) || \preg_match('~^\d+-\d+-\d+~', $val['val']))
                         ) {
                             $cols[] = $prefix . $this->driver->convertSearch($this->driver->escapeId($name), $val, $field) . $cond;
                         }
                     }
-                    $expressions[] = ($cols ? "(" . \implode(" OR ", $cols) . ")" : "1 = 0");
+                    $expressions[] = ($cols ? '(' . \implode(' OR ', $cols) . ')' : '1 = 0');
                 }
             }
         }
@@ -811,19 +824,16 @@ class Util implements UtilInterface
     /**
      * Process order box in select
      *
-     * @param array $fields
-     * @param array $indexes
-     *
      * @return array Expressions to join by comma
      */
-    public function processSelectOrder(array $fields, array $indexes)
+    public function processSelectOrder()
     {
         $expressions = [];
-        foreach ((array) $this->input->values["order"] as $key => $val) {
-            if ($val != "") {
+        foreach ((array) $this->input->values['order'] as $key => $val) {
+            if ($val != '') {
                 $regexp = '~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~';
                 $expressions[] = (\preg_match($regexp, $val) ? $val : $this->driver->escapeId($val)) . //! MS SQL uses []
-                    (isset($this->input->values["desc"][$key]) ? " DESC" : "");
+                    (isset($this->input->values['desc'][$key]) ? ' DESC' : '');
             }
         }
         return $expressions;
@@ -836,7 +846,7 @@ class Util implements UtilInterface
      */
     public function processSelectLimit()
     {
-        return (isset($this->input->values["limit"]) ? $this->input->values["limit"] : "50");
+        return (isset($this->input->values['limit']) ? $this->input->values['limit'] : '50');
     }
 
     /**
@@ -846,7 +856,7 @@ class Util implements UtilInterface
      */
     public function processSelectLength()
     {
-        return (isset($this->input->values["text_length"]) ? $this->input->values["text_length"] : "100");
+        return (isset($this->input->values['text_length']) ? $this->input->values['text_length'] : '100');
     }
 
     /**
@@ -857,61 +867,61 @@ class Util implements UtilInterface
      *
      * @return bool
      */
-    public function processSelectEmail(array $where, array $foreignKeys)
-    {
-        return false;
-    }
+    // public function processSelectEmail(array $where, array $foreignKeys)
+    // {
+    //     return false;
+    // }
 
     /**
      * Value printed in select table
      *
-     * @param string $value HTML-escaped value to print
+     * @param mixed $value HTML-escaped value to print
      * @param string $link Link to foreign key
      * @param string $type Field type
      * @param string $original Original value before applying editValue() and escaping
      *
      * @return string
      */
-    private function _selectValue(string $value, string $link, string $type, string $original)
+    private function _selectValue($value, string $link, string $type, string $original)
     {
-        $clause = ($value === null ? "<i>NULL</i>" :
-            (\preg_match("~char|binary|boolean~", $type) && !\preg_match("~var~", $type) ?
+        $clause = ($value === null ? '<i>NULL</i>' :
+            (\preg_match('~char|binary|boolean~', $type) && !\preg_match('~var~', $type) ?
             "<code>$value</code>" : $value));
         if (\preg_match('~blob|bytea|raw|file~', $type) && !$this->isUtf8($value)) {
-            $clause = "<i>" . $this->trans->lang('%d byte(s)', \strlen($original)) . "</i>";
+            $clause = '<i>' . $this->trans->lang('%d byte(s)', \strlen($original)) . '</i>';
         }
         if (\preg_match('~json~', $type)) {
             $clause = "<code class='jush-js'>$clause</code>";
         }
         return ($link ? "<a href='" . $this->html($link) . "'" .
-            ($this->isUrl($link) ? $this->blankTarget() : "") . ">$clause</a>" : $clause);
+            ($this->isUrl($link) ? $this->blankTarget() : '') . ">$clause</a>" : $clause);
     }
 
     /**
      * Format value to use in select
      *
-     * @param string $value
+     * @param mixed $value
      * @param string $link
      * @param TableFieldEntity $field
      * @param int $textLength
      *
      * @return string
      */
-    public function selectValue(string $value, string $link, TableFieldEntity $field, int $textLength)
+    public function selectValue($value, string $link, TableFieldEntity $field, int $textLength)
     {
         // if (\is_array($value)) {
-        //     $expression = "";
+        //     $expression = '';
         //     foreach ($value as $k => $v) {
-        //         $expression .= "<tr>" . ($value != \array_values($value) ?
-        //             "<th>" . $this->html($k) :
-        //             "") . "<td>" . $this->selectValue($v, $link, $field, $textLength);
+        //         $expression .= '<tr>' . ($value != \array_values($value) ?
+        //             '<th>' . $this->html($k) :
+        //             '') . '<td>' . $this->selectValue($v, $link, $field, $textLength);
         //     }
         //     return "<table cellspacing='0'>$expression</table>";
         // }
-        if (!$link) {
-            $link = $this->selectLink($value, $field);
-        }
-        if ($link === null) {
+        // if (!$link) {
+        //     $link = $this->selectLink($value, $field);
+        // }
+        if ($link === '') {
             if ($this->isMail($value)) {
                 $link = "mailto:$value";
             }
@@ -923,10 +933,10 @@ class Util implements UtilInterface
             }
         }
         $expression = $this->editValue($value, $field);
-        if ($expression !== null) {
+        if (!empty($expression)) {
             if (!$this->isUtf8($expression)) {
                 $expression = "\0"; // htmlspecialchars of binary data returns an empty string
-            } elseif ($textLength != "" && $this->isShortable($field)) {
+            } elseif ($textLength != '' && $this->isShortable($field)) {
                 // usage of LEFT() would reduce traffic but complicate query -
                 // expected average speedup: .001 s VS .01 s on local network
                 $expression = $this->shortenUtf8($expression, \max(0, +$textLength));

@@ -370,7 +370,7 @@ class TableAdmin extends AbstractAdmin
             !\array_key_exists($this->trans->lang('Current'), $extraTypes)) {
             $extraTypes[$this->trans->lang('Current')] = [$type];
         }
-        if ($this->foreignKeys) {
+        if (!empty($this->foreignKeys)) {
             $this->driver->setStructuredType($this->trans->lang('Foreign keys'), $this->foreignKeys);
         }
         return \array_merge($extraTypes, $this->driver->structuredTypes());

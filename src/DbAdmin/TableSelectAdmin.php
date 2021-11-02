@@ -33,7 +33,7 @@ class TableSelectAdmin extends AbstractAdmin
     /**
      * Print search box in select
      *
-     * @param array selectable columns
+     * @param array $columns Selectable columns
      * @param array $indexes
      * @param array $options
      *
@@ -210,10 +210,10 @@ class TableSelectAdmin extends AbstractAdmin
             $rights[] = $field->privileges;
         }
 
-        list($select, $group) = $this->util->processSelectColumns($columns, $indexes);
+        list($select, $group) = $this->util->processSelectColumns();
         $isGroup = \count($group) < \count($select);
         $where = $this->util->processSelectSearch($fields, $indexes);
-        $order = $this->util->processSelectOrder($fields, $indexes);
+        $order = $this->util->processSelectOrder();
         $limit = intval($this->util->processSelectLimit());
 
         // if(isset($queryOptions["val"]) && is_ajax()) {
@@ -403,7 +403,7 @@ class TableSelectAdmin extends AbstractAdmin
                     // $desc = "&desc%5B0%5D=1";
                     $header['column'] = $column;
                     $header['key'] = $this->util->html($this->util->bracketEscape($key));
-                    $header['sql'] = $this->admin->applySqlFunction($fun, $name); //! columns looking like functions
+                    $header['sql'] = $this->util->applySqlFunction($fun, $name); //! columns looking like functions
                 }
                 $functions[$key] = $fun;
                 next($select);
@@ -477,7 +477,7 @@ class TableSelectAdmin extends AbstractAdmin
 
                     $link = "";
 
-                    $value = $this->util->selectValue($value ?? '', $link, $field, $textLength);
+                    $value = $this->util->selectValue($value, $link, $field, $textLength);
                     $text = \preg_match('~text|lob~', $field->type);
 
                     $cols[] = \compact(/*'id', */'text', 'value'/*, 'editable'*/);

@@ -84,20 +84,6 @@ class Admin
     }
 
     /**
-     * Apply SQL function
-     *
-     * @param string $function
-     * @param string $column escaped column identifier
-     *
-     * @return string
-     */
-    public function applySqlFunction(string $function, string $column)
-    {
-        return ($function ? ($function == 'unixepoch' ? "DATETIME($column, '$function')" :
-            ($function == 'count distinct' ? 'COUNT(DISTINCT ' : strtoupper("$function(")) . "$column)") : $column);
-    }
-
-    /**
      * Remove current user definer from SQL command
      *
      * @param string $query

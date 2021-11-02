@@ -67,7 +67,7 @@ class TableQueryAdmin extends AbstractAdmin
         $entry['input'] = ['type' => ''];
         if ($field->type == "enum") {
             $entry['input']['type'] = 'radio';
-            $entry['input']['value'] = $this->util->editInput($table, isset($options["select"]), $field, $attrs, $value);
+            $entry['input']['value'] = $this->util->editInput(isset($options["select"]), $field, $attrs, $value);
         } elseif (\preg_match('~bool~', $field->type)) {
             $entry['input']['type'] = 'checkbox';
             $entry['input']['value'] = ["<input type='hidden'$attrs value='0'>" . "<input type='checkbox'" .

@@ -88,7 +88,7 @@ trait ExportTrait
      * @param array  $tables        The tables to dump
      * @param array  $dumpOptions   The export options
      *
-     * @return array
+     * @return array|string
      */
     public function exportDatabases(string $server, array $databases, array $tables, array $dumpOptions)
     {
