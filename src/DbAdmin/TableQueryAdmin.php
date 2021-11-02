@@ -12,7 +12,7 @@ class TableQueryAdmin extends AbstractAdmin
     /**
      * Get data for an input field
      */
-    protected function getFieldInput($table, $field, $value, $function, $options)
+    protected function getFieldInput($field, $value, $function, $options)
     {
         $save = $options["save"];
         // From functions.inc.php (function input($field, $value, $function))
@@ -26,19 +26,18 @@ class TableQueryAdmin extends AbstractAdmin
         ];
 
         if (\is_array($value) && !$function) {
-            $args = [$value];
-            if (\version_compare(PHP_VERSION, 5.4) >= 0) {
-                $args[] = JSON_PRETTY_PRINT;
-            }
-            $value = \call_user_func_array('json_encode', $args); //! requires PHP 5.2
+            $value = \json_encode($args, JSON_PRETTY_PRINT);
             $function = "json";
         }
         $reset = ($this->driver->jush() == "mssql" && $field->autoIncrement);
         if ($reset && !$save) {
             $function = null;
         }
-        $functions = ($reset ? ["orig" => $this->trans->lang('original')] : []) +
-            $this->util->editFunctions($field);
+        $functions = [];
+        if ($reset) {
+            $functions["orig"] = $this->trans->lang('original');
+        }
+        $functions += $this->util->editFunctions($field);
 
         // Input for functions
         $has_function = (\in_array($function, $functions) || isset($functions[$function]));
@@ -269,7 +268,7 @@ class TableQueryAdmin extends AbstractAdmin
                     $function = "now";
                 }
 
-                $entries[$name] = $this->getFieldInput($table, $field, $value, $function, $queryOptions);
+                $entries[$name] = $this->getFieldInput($field, $value, $function, $queryOptions);
             }
         }
 
