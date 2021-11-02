@@ -184,14 +184,10 @@ class TableQueryAdmin extends AbstractAdmin
             }
             if ($select) {
                 $statement = $this->driver->select($table, $select, [$where], $select, [], (isset($queryOptions["select"]) ? 2 : 1));
-                if (!$statement) {
-                    // $error = $this->driver->error();
-                } else {
+                if (($statement)) {
                     $row = $statement->fetchAssoc();
-                    if (!$row) {
-                        // MySQLi returns null
-                        $row = false;
-                    }
+                // } else {
+                //     $error = $this->driver->error();
                 }
                 // if(isset($queryOptions["select"]) && (!$row || $statement->fetchAssoc()))
                 // {
@@ -201,11 +197,11 @@ class TableQueryAdmin extends AbstractAdmin
             }
         }
 
-        if (!$this->driver->support("table") && !$fields) {
+        if (!$this->driver->support("table") && empty($fields)) {
             $primary = ''; // $this->driver->primaryIdName();
             if (!$where) {
                 // insert
-                $statement = $this->driver->select($table, ["*"], $where, ["*"]);
+                $statement = $this->driver->select($table, ["*"], [$where], ["*"]);
                 $row = ($statement ? $statement->fetchAssoc() : false);
                 if (!$row) {
                     $row = [$primary => ""];
@@ -302,15 +298,15 @@ class TableQueryAdmin extends AbstractAdmin
         list($fields, $where, $update) = $this->getFields($table, $queryOptions);
 
         // From edit.inc.php
-        $set = [];
+        $values = [];
         foreach ($fields as $name => $field) {
             $val = $this->util->processInput($field, $queryOptions);
             if ($val !== false && $val !== null) {
-                $set[$this->driver->escapeId($name)] = $val;
+                $values[$this->driver->escapeId($name)] = $val;
             }
         }
 
-        $result = $this->driver->insert($table, $set);
+        $result = $this->driver->insert($table, $values);
         $lastId = ($result ? $this->driver->lastAutoIncrementId() : 0);
         $message = $this->trans->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ""));
 
@@ -333,18 +329,18 @@ class TableQueryAdmin extends AbstractAdmin
 
         // From edit.inc.php
         $indexes = $this->driver->indexes($table);
-        $unique_array = $this->util->uniqueArray($queryOptions["where"], $indexes);
-        $query_where = "\nWHERE $where";
+        $uniqueIds = $this->util->uniqueIds($queryOptions["where"], $indexes);
+        $queryWhere = "\nWHERE $where";
 
-        $set = [];
+        $values = [];
         foreach ($fields as $name => $field) {
             $val = $this->util->processInput($field, $queryOptions);
             if ($val !== false && $val !== null) {
-                $set[$this->driver->escapeId($name)] = $val;
+                $values[$this->driver->escapeId($name)] = $val;
             }
         }
 
-        $result = $this->driver->update($table, $set, $query_where, !$unique_array);
+        $result = $this->driver->update($table, $values, $queryWhere, count($uniqueIds));
         $message = $this->trans->lang('Item has been updated.');
 
         $error = $this->driver->error();
@@ -366,10 +362,10 @@ class TableQueryAdmin extends AbstractAdmin
 
         // From edit.inc.php
         $indexes = $this->driver->indexes($table);
-        $unique_array = $this->util->uniqueArray($queryOptions["where"], $indexes);
-        $query_where = "\nWHERE $where";
+        $uniqueIds = $this->util->uniqueIds($queryOptions["where"], $indexes);
+        $queryWhere = "\nWHERE $where";
 
-        $result = $this->driver->delete($table, $query_where, !$unique_array);
+        $result = $this->driver->delete($table, $queryWhere, count($uniqueIds));
         $message = $this->trans->lang('Item has been deleted.');
 
         $error = $this->driver->error();

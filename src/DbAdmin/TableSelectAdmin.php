@@ -324,6 +324,7 @@ class TableSelectAdmin extends AbstractAdmin
         $query = $this->util->html($query);
         $mainActions = [
             'select-exec' => $this->trans->lang('Execute'),
+            'insert-table' => $this->trans->lang('New item'),
             'select-cancel' => $this->trans->lang('Cancel'),
         ];
 
@@ -413,13 +414,12 @@ class TableSelectAdmin extends AbstractAdmin
 
         $results = [];
         foreach ($rows as $n => $row) {
-            $uniqueArray = $this->util->uniqueArray($rows[$n], $indexes);
-            if (!$uniqueArray) {
-                $uniqueArray = [];
+            $uniqueIds = $this->util->uniqueIds($rows[$n], $indexes);
+            if (empty($uniqueIds)) {
                 foreach ($rows[$n] as $key => $value) {
                     if (!\preg_match('~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~', $key)) {
                         //! columns looking like functions
-                        $uniqueArray[$key] = $value;
+                        $uniqueIds[$key] = $value;
                     }
                 }
             }
@@ -430,7 +430,7 @@ class TableSelectAdmin extends AbstractAdmin
                 'where' => [],
                 'null' => [],
             ];
-            foreach ($uniqueArray as $key => $value) {
+            foreach ($uniqueIds as $key => $value) {
                 $key = \trim($key);
                 $type = '';
                 $collation = '';

@@ -103,6 +103,8 @@ class Select extends CallableClass
             ->click($this->rq()->setQueryOptions($server, $database, $schema, $table, $options));
         $this->jq('#adminer-main-action-select-exec')
             ->click($this->rq()->execSelect($server, $database, $schema, $table, $options));
+        $this->jq('#adminer-main-action-insert-table')
+            ->click($this->cl(Query::class)->rq()->showInsert($server, $database, $schema, $table));
         $this->jq("#$btnExecId")
             ->click($this->rq()->execSelect($server, $database, $schema, $table, $options));
         $query = \jq('#' . $this->txtQueryId)->text();

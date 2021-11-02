@@ -285,9 +285,9 @@ class Util implements UtilInterface
      * @param array $row
      * @param array $indexes Result of indexes()
      *
-     * @return array|null
+     * @return array
      */
-    public function uniqueArray(array $row, array $indexes)
+    public function uniqueIds(array $row, array $indexes)
     {
         foreach ($indexes as $index) {
             if (\preg_match("~PRIMARY|UNIQUE~", $index->type)) {
@@ -301,6 +301,7 @@ class Util implements UtilInterface
                 return $ids;
             }
         }
+        return [];
     }
 
     /**
