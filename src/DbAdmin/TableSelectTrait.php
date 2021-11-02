@@ -80,8 +80,8 @@ trait TableSelectTrait
         $this->setBreadcrumbs([$options['name'], $database,
             $this->trans->lang('Tables'), $table, $this->trans->lang('Select')]);
 
-        $this->util->input->table = $table;
-        $this->util->input->values = $queryOptions;
+        $this->util->input()->table = $table;
+        $this->util->input()->values = $queryOptions;
         return $this->tableSelect()->getSelectData($table, $queryOptions);
     }
 
@@ -106,8 +106,8 @@ trait TableSelectTrait
     {
         $this->connect($server, $database, $schema);
 
-        $this->util->input->table = $table;
-        $this->util->input->values = $queryOptions;
+        $this->util->input()->table = $table;
+        $this->util->input()->values = $queryOptions;
         return $this->tableSelect()->execSelect($table, $queryOptions);
     }
 }

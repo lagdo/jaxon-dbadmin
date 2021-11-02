@@ -17,7 +17,7 @@ class DatabaseAdmin extends AbstractAdmin
     /**
      * The schemas the user has access to
      *
-     * @var array
+     * @var array|null
      */
     protected $userSchemas = null;
 
@@ -59,7 +59,7 @@ class DatabaseAdmin extends AbstractAdmin
     /**
      * Connect to a database server
      *
-     * @return void
+     * @return array
      */
     public function getDatabaseInfo()
     {
@@ -113,7 +113,7 @@ class DatabaseAdmin extends AbstractAdmin
     /**
      * Get the tables from a database server
      *
-     * @return void
+     * @return array
      */
     public function getTables()
     {
@@ -157,7 +157,7 @@ class DatabaseAdmin extends AbstractAdmin
      * Get the views from a database server
      * Almost the same as getTables()
      *
-     * @return void
+     * @return array
      */
     public function getViews()
     {
@@ -197,7 +197,7 @@ class DatabaseAdmin extends AbstractAdmin
     /**
      * Get the routines from a given database
      *
-     * @return void
+     * @return array
      */
     public function getRoutines()
     {
@@ -234,7 +234,7 @@ class DatabaseAdmin extends AbstractAdmin
     /**
      * Get the routines from a given database
      *
-     * @return void
+     * @return array
      */
     public function getSequences()
     {

@@ -76,8 +76,8 @@ trait TableQueryTrait
         $this->setBreadcrumbs([$options['name'], $database,
             $this->trans->lang('Tables'), $table, $this->trans->lang($action)]);
 
-        $this->util->input->table = $table;
-        $this->util->input->values = $queryOptions;
+        $this->util->input()->table = $table;
+        $this->util->input()->values = $queryOptions;
         return $this->tableQuery()->getQueryData($table, $queryOptions);
     }
 
@@ -102,8 +102,8 @@ trait TableQueryTrait
     {
         $this->connect($server, $database, $schema);
 
-        $this->util->input->table = $table;
-        $this->util->input->values = $queryOptions;
+        $this->util->input()->table = $table;
+        $this->util->input()->values = $queryOptions;
         return $this->tableQuery()->insertItem($table, $queryOptions);
     }
 
@@ -128,8 +128,8 @@ trait TableQueryTrait
     {
         $this->connect($server, $database, $schema);
 
-        $this->util->input->table = $table;
-        $this->util->input->values = $queryOptions;
+        $this->util->input()->table = $table;
+        $this->util->input()->values = $queryOptions;
         return $this->tableQuery()->updateItem($table, $queryOptions);
     }
 
@@ -154,8 +154,8 @@ trait TableQueryTrait
     {
         $this->connect($server, $database, $schema);
 
-        $this->util->input->table = $table;
-        $this->util->input->values = $queryOptions;
+        $this->util->input()->table = $table;
+        $this->util->input()->values = $queryOptions;
         return $this->tableQuery()->deleteItem($table, $queryOptions);
     }
 }

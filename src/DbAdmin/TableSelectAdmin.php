@@ -178,7 +178,7 @@ class TableSelectAdmin extends AbstractAdmin
         }
         $queryOptions['page'] = $page;
 
-        $this->util->input->values = $queryOptions;
+        $this->util->input()->values = $queryOptions;
 
         // From select.inc.php
         $indexes = $this->driver->indexes($table);

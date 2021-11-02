@@ -183,12 +183,13 @@ class TableQueryAdmin extends AbstractAdmin
                 $select = ["*"];
             }
             if ($select) {
-                $statement = $this->driver->select($table, $select, [$where], $select, [], (isset($queryOptions["select"]) ? 2 : 1));
+                $statement = $this->driver->select($table, $select, [$where], $select, [],
+                    (isset($queryOptions["select"]) ? 2 : 1));
                 if (($statement)) {
                     $row = $statement->fetchAssoc();
-                // } else {
-                //     $error = $this->driver->error();
-                }
+                }/* else {
+                    $error = $this->driver->error();
+                }*/
                 // if(isset($queryOptions["select"]) && (!$row || $statement->fetchAssoc()))
                 // {
                 //     // $statement->rowCount() != 1 isn't available in all drivers
@@ -225,7 +226,7 @@ class TableQueryAdmin extends AbstractAdmin
         $entries = [];
         $tableName = $this->util->tableName($this->driver->tableStatusOrName($table, true));
         $error = null;
-        if ($row === false) {
+        if ($row === null) {
             $error = $this->trans->lang('No rows.');
         } elseif (!$fields) {
             $error = $this->trans->lang('You have no privileges to update this table.');
@@ -240,16 +241,12 @@ class TableQueryAdmin extends AbstractAdmin
                 }
                 // }
                 $value = (
-                    $row !== null
-                    ? (
-                        $row[$name] != "" && $this->driver->jush() == "sql" && \preg_match("~enum|set~", $field->type)
-                        ? (\is_array($row[$name]) ? \array_sum($row[$name]) : +$row[$name])
-                        : (\is_bool($row[$name]) ? +$row[$name] : $row[$name])
-                    )
-                    : (
-                        !$update && $field->autoIncrement
-                        ? ""
-                        : (isset($queryOptions["select"]) ? false : $default)
+                    $row !== null ? (
+                        $row[$name] != "" && $this->driver->jush() == "sql" && \preg_match("~enum|set~", $field->type) ?
+                        (\is_array($row[$name]) ? \array_sum($row[$name]) : +$row[$name]) :
+                        (\is_bool($row[$name]) ? +$row[$name] : $row[$name])
+                    ) : (
+                        !$update && $field->autoIncrement ? "" : (isset($queryOptions["select"]) ? false : $default)
                     )
                 );
                 if (!$queryOptions["save"] && \is_string($value)) {

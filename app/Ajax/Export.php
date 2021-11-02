@@ -106,7 +106,12 @@ class Export extends CallableClass
         $formValues['triggers'] = \array_key_exists('triggers', $formValues);
 
         $results = $this->dbAdmin->exportDatabases($server, $databases, $tables, $formValues);
-        // $this->logger()->debug('Form values', $formValues);
+        if(\is_string($results))
+        {
+            // Error
+            $this->response->dialog->error($results, 'Error');
+            return $this->response;
+        }
 
         $content = $this->render('sql/dump.sql', $results);
         // Dump file

@@ -284,11 +284,10 @@ class Admin
      * Query printed after execution in the message
      *
      * @param string $query Executed query
-     * @param string $time Elapsed time
      *
      * @return string
      */
-    private function messageQuery(string $query, string $time)
+    private function messageQuery(string $query/*, string $time*/)
     {
         if (strlen($query) > 1e6) {
             // [\x80-\xFF] - valid UTF-8, \n - can end by one-line comment
@@ -303,21 +302,21 @@ class Admin
      * @param string $query
      * @param bool $execute
      * @param bool $failed
-     * @param string $time
      *
      * @return bool
      */
-    private function executeQuery(string $query, bool $execute = true, bool $failed = false, string $time = '')
+    private function executeQuery(string $query, bool $execute = true, bool $failed = false/*, string $time = ''*/)
     {
+        $failed = false;
         if ($execute) {
-            $start = microtime(true);
+            // $start = microtime(true);
             $failed = !$this->driver->query($query);
-            $time = $this->trans->formatTime($start);
+            // $time = $this->trans->formatTime($start);
         }
         if ($failed) {
             $sql = '';
             if ($query) {
-                $sql = $this->messageQuery($query, $time);
+                $sql = $this->messageQuery($query/*, $time*/);
             }
             throw new Exception($this->driver->error() . $sql);
         }
@@ -333,8 +332,8 @@ class Admin
      */
     private function executeSavedQuery(bool $failed)
     {
-        list($queries, $time) = $this->driver->queries();
-        return $this->executeQuery($queries, false, $failed, $time);
+        list($queries/*, $time*/) = $this->driver->queries();
+        return $this->executeQuery($queries, false, $failed/*, $time*/);
     }
 
     /**

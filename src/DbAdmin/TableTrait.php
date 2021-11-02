@@ -72,7 +72,7 @@ trait TableTrait
         $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Tables'), $table]);
 
-        $this->util->input->table = $table;
+        $this->util->input()->table = $table;
         return $this->table()->getTableInfo($table);
     }
 
@@ -89,7 +89,7 @@ trait TableTrait
     public function getTableFields(string $server, string $database, string $schema, string $table)
     {
         $this->connect($server, $database, $schema);
-        $this->util->input->table = $table;
+        $this->util->input()->table = $table;
         return $this->table()->getTableFields($table);
     }
 
@@ -106,7 +106,7 @@ trait TableTrait
     public function getTableIndexes(string $server, string $database, string $schema, string $table)
     {
         $this->connect($server, $database, $schema);
-        $this->util->input->table = $table;
+        $this->util->input()->table = $table;
         return $this->table()->getTableIndexes($table);
     }
 
@@ -123,7 +123,7 @@ trait TableTrait
     public function getTableForeignKeys(string $server, string $database, string $schema, string $table)
     {
         $this->connect($server, $database, $schema);
-        $this->util->input->table = $table;
+        $this->util->input()->table = $table;
         return $this->table()->getTableForeignKeys($table);
     }
 
@@ -140,7 +140,7 @@ trait TableTrait
     public function getTableTriggers(string $server, string $database, string $schema, string $table)
     {
         $this->connect($server, $database, $schema);
-        $this->util->input->table = $table;
+        $this->util->input()->table = $table;
         return $this->table()->getTableTriggers($table);
     }
 
@@ -168,7 +168,7 @@ trait TableTrait
         }
         $this->setBreadcrumbs($breadcrumbs);
 
-        $this->util->input->table = $table;
+        $this->util->input()->table = $table;
         return $this->table()->getTableData($table);
     }
 
@@ -202,8 +202,8 @@ trait TableTrait
     {
         $this->connect($server, $database, $schema);
 
-        $this->util->input->table = $values['name'];
-        $this->util->input->values = $values;
+        $this->util->input()->table = $values['name'];
+        $this->util->input()->values = $values;
         return $this->table()->createTable($values);
     }
 
@@ -221,8 +221,8 @@ trait TableTrait
     public function alterTable(string $server, string $database, string $schema, string $table, array $values)
     {
         $this->connect($server, $database, $schema);
-        $this->util->input->table = $table;
-        $this->util->input->values = $values;
+        $this->util->input()->table = $table;
+        $this->util->input()->values = $values;
         return $this->table()->alterTable($table, $values);
     }
 
@@ -239,7 +239,7 @@ trait TableTrait
     public function dropTable(string $server, string $database, string $schema, string $table)
     {
         $this->connect($server, $database, $schema);
-        $this->util->input->table = $table;
+        $this->util->input()->table = $table;
         return $this->table()->dropTable($table);
     }
 }

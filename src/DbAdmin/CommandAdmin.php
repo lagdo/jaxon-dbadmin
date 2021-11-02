@@ -62,21 +62,21 @@ class CommandAdmin extends AbstractAdmin
             $detail = [];
             foreach ($row as $key => $val) {
                 // $link = "";
-                if (isset($links[$key]) && !$columns[$links[$key]]) {
-                    if ($orgtables && $this->driver->jush() == "sql") { // MySQL EXPLAIN
-                        $table = $row[\array_search("table=", $links)];
-                        // $link = /*ME .*/ $links[$key] .
-                        //     \urlencode($orgtables[$table] != "" ? $orgtables[$table] : $table);
-                    // } else {
-                    //     $link = /*ME .*/ "edit=" . \urlencode($links[$key]);
-                    //     foreach ($indexes[$links[$key]] as $col => $j) {
-                    //         $link .= "&where" . \urlencode("[" .
-                    //             $this->util->bracketEscape($col) . "]") . "=" . \urlencode($row[$j]);
-                    //     }
-                    }
+                // if (isset($links[$key]) && !$columns[$links[$key]]) {
+                //     if ($orgtables && $this->driver->jush() == "sql") { // MySQL EXPLAIN
+                //         $table = $row[\array_search("table=", $links)];
+                //         $link = /*ME .*/ $links[$key] .
+                //             \urlencode($orgtables[$table] != "" ? $orgtables[$table] : $table);
+                //     } else {
+                //         $link = /*ME .*/ "edit=" . \urlencode($links[$key]);
+                //         foreach ($indexes[$links[$key]] as $col => $j) {
+                //             $link .= "&where" . \urlencode("[" .
+                //                 $this->util->bracketEscape($col) . "]") . "=" . \urlencode($row[$j]);
+                //         }
+                //     }
                 // } elseif ($this->util->isUrl($val)) {
                 //     $link = $val;
-                }
+                // }
                 if ($val === null) {
                     $val = "<i>NULL</i>";
                 } elseif (isset($blobs[$key]) && $blobs[$key] && !$this->util->isUtf8($val)) {
@@ -158,7 +158,9 @@ class CommandAdmin extends AbstractAdmin
                 \ini_set("memory_limit", \max($this->util->iniBytes("memory_limit"),
                     2 * \strlen($queries) + \memory_get_usage() + 8e6));
             }
-            catch(\Excpetion $e){}
+            catch(\Exception $e) {
+                // Do nothing if the option is not modified.
+            }
         }
 
         // if($queries != "" && \strlen($queries) < 1e6) { // don't add big queries
@@ -293,7 +295,7 @@ class CommandAdmin extends AbstractAdmin
                         break 2;
                     }
 
-                    $start = \microtime(true);
+                    // $start = \microtime(true);
                 } while ($this->driver->nextResult());
             }
 

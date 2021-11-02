@@ -100,7 +100,6 @@ trait ImportTrait
     )
     {
         $this->connect($server, $database, $schema);
-        return $this->import($database, $schema)
-            ->executeSqlFiles($files, $errorStops, $onlyErrors);
+        return $this->import()->executeSqlFiles($files, $errorStops, $onlyErrors);
     }
 }
