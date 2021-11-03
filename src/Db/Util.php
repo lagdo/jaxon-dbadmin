@@ -128,7 +128,7 @@ class Util implements UtilInterface
         $atom = '[-a-z0-9!#$%&\'*+/=?^_`{|}~]'; // characters of local-name
         $domain = '[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])'; // one domain component
         $pattern = "$atom+(\\.$atom+)*@($domain?\\.)+$domain";
-        return \preg_match("(^$pattern(,\\s*$pattern)*\$)i", $email);
+        return \preg_match("(^$pattern(,\\s*$pattern)*\$)i", $email) > 0;
     }
 
     /**

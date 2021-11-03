@@ -62,10 +62,11 @@ class CommandAdmin extends AbstractAdmin
     /**
      * @param array $row
      * @param array $blobs
+     * @param array $types
      *
      * @return string
     */
-    protected function values(array $row, array $blobs)
+    protected function values(array $row, array $blobs, array $types)
     {
         $values = [];
         foreach ($row as $key => $value) {
@@ -88,12 +89,11 @@ class CommandAdmin extends AbstractAdmin
 
     /**
      * @param mixed $statement
-     * @param int $rowCount
      * @param int $limit
      *
      * @return string
     */
-    private function message($statement, int $rowCount, int $limit)
+    private function message($statement, int $limit)
     {
         $numRows = $statement->rowCount();
         $message = '';
@@ -146,19 +146,16 @@ class CommandAdmin extends AbstractAdmin
      *
      * @param mixed $statement
      * @param int $limit
-     * @param array $orgtables
      *
      * @return array
     */
-    protected function select($statement, $limit = 0, $orgtables = [])
+    protected function select($statement, $limit = 0)
     {
         $blobs = []; // colno => bool - display bytes for blobs
         $types = []; // colno => type - display char in <code>
         $tables = []; // table => orgtable - mapping to use in EXPLAIN
         $headers = [];
 
-        $colCount = 0;
-        $rowCount = 0;
         $details = [];
         // Fetch the first row.
         if (!($row = $statement->fetchRow())) {
@@ -182,12 +179,13 @@ class CommandAdmin extends AbstractAdmin
         }
 
         // Table rows (the first was already fetched).
+        $rowCount = 0;
         do {
             $rowCount++;
-            $details[] = $this->values($row, $blobs);
+            $details[] = $this->values($row, $blobs, $types);
         } while (($limit === 0 || $rowCount < $limit) && ($row = $statement->fetchRow()));
 
-        $message = $this->message($statement, $rowCount, $limit);
+        $message = $this->message($statement, $limit);
         return \compact('tables', 'headers', 'details', 'message');
     }
 
@@ -344,6 +342,7 @@ class CommandAdmin extends AbstractAdmin
         $offset = 0;
         $empty = true;
         $commands = 0;
+        $errors = 0;
         $timestamps = [];
         // $total_start = \microtime(true);
         // \parse_str($_COOKIE['adminer_export'], $adminer_export);
@@ -362,7 +361,6 @@ class CommandAdmin extends AbstractAdmin
 
             // end of a query
             $messages = [];
-            $select = null;
 
             $empty = false;
             $query = \substr($queries, 0, $pos);
@@ -371,24 +369,21 @@ class CommandAdmin extends AbstractAdmin
             $commands++;
             // $print = "<pre id='sql-$commands'><code class='jush-$this->driver->jush()'>" .
             //     $this->util->sqlCommandQuery($q) . "</code></pre>\n";
-            if (!$this->executeQuery($query, $results, $limit, $errorStops, $onlyErrors) && $errorStops) {
-                break;
+            if (!$this->executeQuery($query, $results, $limit, $errorStops, $onlyErrors)) {
+                $errors++;
+                if ($errorStops) {
+                    break;
+                }
             }
         }
 
         if ($empty) {
             $messages[] = $this->trans->lang('No commands to execute.');
         } elseif ($onlyErrors) {
-            $messages[] =  $this->trans->lang('%d query(s) executed OK.', $commands - \count($errors));
+            $messages[] =  $this->trans->lang('%d query(s) executed OK.', $commands - $errors);
             // $timestamps[] = $this->trans->formatTime($total_start);
         }
-        // elseif($errors && $commands > 1)
-        // {
-        //     $errors[] = $this->trans->lang('Error in query') . ': ' . \implode('', $errors);
-        // }
-        //! MS SQL - SET SHOWPLAN_ALL OFF
 
-        $errors = []; // No error returned here.
-        return \compact('results', 'messages', 'errors', 'timestamps');
+        return \compact('results', 'messages', 'timestamps');
     }
 }
