@@ -116,16 +116,19 @@ class Util implements UtilInterface
     /**
      * Check if the string is e-mail address
      *
-     * @param string $email
+     * @param mixed $email
      *
      * @return bool
      */
-    public function isMail(string $email)
+    public function isMail($email)
     {
+        if (!\is_string($email)) {
+            return false;
+        }
         $atom = '[-a-z0-9!#$%&\'*+/=?^_`{|}~]'; // characters of local-name
         $domain = '[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])'; // one domain component
         $pattern = "$atom+(\\.$atom+)*@($domain?\\.)+$domain";
-        return \is_string($email) && \preg_match("(^$pattern(,\\s*$pattern)*\$)i", $email);
+        return \preg_match("(^$pattern(,\\s*$pattern)*\$)i", $email);
     }
 
     /**
