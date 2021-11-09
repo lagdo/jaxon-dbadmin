@@ -221,22 +221,21 @@ class CommandAdmin extends AbstractAdmin
         }
         $offset = $pos + \strlen($found);
 
-        if (!empty($found) && \rtrim($found) != $delimiter) {
-            // find matching quote or comment end
-            while (\preg_match('(' . ($found == '/*' ? '\*/' : ($found == '[' ? ']' :
-                (\preg_match('~^-- |^#~', $found) ? "\n" : \preg_quote($found) . "|\\\\."))) . '|$)s',
-                $queries, $match, PREG_OFFSET_CAPTURE, $offset)) {
-                //! respect sql_mode NO_BACKSLASH_ESCAPES
-                $s = $match[0][0];
-                $offset = $match[0][1] + \strlen($s);
-                if ($s[0] != "\\") {
-                    break;
-                }
-            }
-            return 0;
+        if (empty($found) || \rtrim($found) == $delimiter) {
+            return \intval($pos);
         }
-
-        return \intval($pos);
+        // find matching quote or comment end
+        while (\preg_match('(' . ($found == '/*' ? '\*/' : ($found == '[' ? ']' :
+            (\preg_match('~^-- |^#~', $found) ? "\n" : \preg_quote($found) . "|\\\\."))) . '|$)s',
+            $queries, $match, PREG_OFFSET_CAPTURE, $offset)) {
+            //! respect sql_mode NO_BACKSLASH_ESCAPES
+            $s = $match[0][0];
+            $offset = $match[0][1] + \strlen($s);
+            if ($s[0] != "\\") {
+                break;
+            }
+        }
+        return 0;
     }
 
     /**
