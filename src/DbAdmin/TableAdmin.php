@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
+use Lagdo\DbAdmin\Driver\Entity\TableEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\DbAdmin\Driver\Entity\ForeignKeyEntity;
 
@@ -463,9 +464,9 @@ class TableAdmin extends AbstractAdmin
      * @param string $table     The table name
      * @param array $origFields The table fields
      *
-     * @return array
+     * @return TableEntity
      */
-    private function createOrAlterTable(array $values, string $table = '', array $origFields = [])
+    private function getTableAttrs(array $values, string $table = '', array $origFields = [])
     {
         // From create.inc.php
         $values['fields'] = (array)$values['fields'];
@@ -473,17 +474,15 @@ class TableAdmin extends AbstractAdmin
             $values['fields'][$values['autoIncrementCol']]['autoIncrement'] = true;
         }
 
-        $fields = [];
-        $allFields = [];
-        $useAllFields = false;
-        $foreign = [];
-        $origField = \reset($origFields);
+        $tableAttrs = new TableEntity(\trim($values['name']));
         $after = ' FIRST';
 
         $this->getForeignKeys();
 
+        $origFields = $table !== '' ? $this->driver->fields($table) : [];
         foreach ($values['fields'] as $key => $field) {
             $orig = $field['orig'];
+            $origField = $origFields[$orig] ?? null;
             $field = TableFieldEntity::make($field);
             $foreignKey = $this->foreignKeys[$field->type] ?? null;
             //! can collide with user defined type
@@ -495,12 +494,10 @@ class TableAdmin extends AbstractAdmin
                 $field->autoIncrement = ($key == $values['autoIncrementCol']);
 
                 $processedField = $this->util->processField($field, $typeField);
-                $allFields[] = [$orig, $processedField, $after];
-                if (!$origField || $field->changed($origField)) {
-                    $fields[] = [$orig, $processedField, $after];
-                    if ($orig != '' || $after) {
-                        $useAllFields = true;
-                    }
+                if ($orig === '') {
+                    $tableAttrs->fields[] = [$orig, $processedField, $after];
+                } elseif ($origField !== null && $field->changed($origField)) {
+                    $tableAttrs->edited[] = [$orig, $processedField, $after];
                 }
                 if ($foreignKey !== null) {
                     $fkey = new ForeignKeyEntity();
@@ -508,27 +505,22 @@ class TableAdmin extends AbstractAdmin
                     $fkey->source = [$field->name];
                     $fkey->target = [$typeField['field']];
                     $fkey->onDelete = $field->onDelete;
-                    $foreign[$this->driver->escapeId($field->name)] =
+                    $tableAttrs->foreign[$this->driver->escapeId($field->name)] =
                         ($table != '' && $this->driver->jush() != 'sqlite' ? 'ADD' : ' ') .
                         $this->driver->formatForeignKey($fkey);
                 }
                 $after = ' AFTER ' . $this->driver->escapeId($field->name);
-            } elseif ($orig != '') {
+            } elseif ($orig !== '') {
                 // A missing "name" field and a not empty "orig" field means the column is to be dropped.
-                // We also append null in the array because the drivers code accesses field at position 1.
-                $useAllFields = true;
-                $fields[] = [$orig, null];
+                $tableAttrs->dropped[] = $orig;
             }
-            if ($orig != '') {
-                $origField = \next($origFields);
-                if (!$origField) {
-                    $after = '';
-                }
+            if ($orig !== '') {
+                $after = '';
             }
         }
 
         // For now, partitioning is not implemented
-        $partitioning = '';
+        $tableAttrs->partitioning = '';
         // if($partition_by[$values['partition_by']])
         // {
         //     $partitions = [];
@@ -542,7 +534,7 @@ class TableAdmin extends AbstractAdmin
         //                 ($value != '' ? ' ($value)' : ' MAXVALUE'); //! SQL injection
         //         }
         //     }
-        //     $partitioning .= "\nPARTITION BY $values[partition_by]($values[partition])" .
+        //     $tableAttrs->partitioning .= "\nPARTITION BY $values[partition_by]($values[partition])" .
         //         ($partitions // $values['partition'] can be expression, not only column
         //         ? ' (' . \implode(',', $partitions) . "\n)"
         //         : ($values['partitions'] ? ' PARTITIONS ' . (+$values['partitions']) : '')
@@ -551,43 +543,22 @@ class TableAdmin extends AbstractAdmin
         // elseif($this->driver->support('partitioning') &&
         //     \preg_match('~partitioned~', $this->tableStatus->Create_options))
         // {
-        //     $partitioning .= "\nREMOVE PARTITIONING";
+        //     $tableAttrs->partitioning .= "\nREMOVE PARTITIONING";
         // }
 
-        if (!isset($values['comment'])) {
-            $values['comment'] = '';
-        }
-        if (!isset($values['engine']) || !$values['engine']) {
-            $values['engine'] = '';
-        }
-        if (!isset($values['collation']) || !$values['collation']) {
-            $values['collation'] = '';
-        }
-
-        if ($this->tableStatus != null) {
-            // if ($values['comment'] == $this->tableStatus->comment) {
-            //     $values['comment'] = null;
-            // }
-            if ($values['engine'] == $this->tableStatus->engine) {
-                $values['engine'] = '';
-            }
-            if ($values['collation'] == $this->tableStatus->collation) {
-                $values['collation'] = '';
+        foreach (['comment', 'engine', 'collation'] as $attr) {
+            $tableAttrs->$attr = !empty($values[$attr]) ? $values[$attr] : '';
+            if ($this->tableStatus != null) {
+                // No change.
+                if ($tableAttrs->$attr == $this->tableStatus->$attr) {
+                    $tableAttrs->$attr = '';
+                }
             }
         }
 
-        $name = \trim($values['name']);
-        $autoIncrement = $this->util->number($this->util->input()->getAutoIncrementStep());
-        if ($this->driver->jush() == 'sqlite' && ($useAllFields || $foreign)) {
-            $fields = $allFields;
-        }
+        $tableAttrs->autoIncrement = \intval($this->util->number($this->util->input()->getAutoIncrementStep()));
 
-        $success = $this->driver->alterTable($table, $name, $fields, $foreign, $values['comment'],
-            $values['engine'], $values['collation'], \intval($autoIncrement), $partitioning);
-
-        $error = $this->driver->error();
-
-        return \compact('success', 'error');
+        return $tableAttrs;
     }
 
     /**
@@ -599,9 +570,12 @@ class TableAdmin extends AbstractAdmin
      */
     public function createTable(array $values)
     {
-        $results = $this->createOrAlterTable($values);
-        $results['message'] = $this->trans->lang('Table has been created.');
-        return $results;
+        $tableAttrs = $this->getTableAttrs($values);
+        $success = $this->driver->createTable($tableAttrs);
+        $error = $this->driver->error();
+        $message = $this->trans->lang('Table has been created.');
+
+        return \compact('success', 'error', 'message');
     }
 
     /**
@@ -614,15 +588,17 @@ class TableAdmin extends AbstractAdmin
      */
     public function alterTable(string $table, array $values)
     {
-        $origFields = $this->driver->fields($table);
         $this->tableStatus = $this->driver->tableStatus($table);
         if (!$this->tableStatus) {
             throw new Exception($this->trans->lang('No tables.'));
         }
 
-        $results = $this->createOrAlterTable($values, $table, $origFields);
-        $results['message'] = $this->trans->lang('Table has been altered.');
-        return $results;
+        $tableAttrs = $this->getTableAttrs($values, $table);
+        $success = $this->driver->alterTable($table, $tableAttrs);
+        $error = $this->driver->error();
+        $message = $this->trans->lang('Table has been altered.');
+
+        return \compact('success', 'error', 'message');
     }
 
     /**
