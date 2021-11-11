@@ -31,6 +31,26 @@ class TableAdmin extends AbstractAdmin
     protected $foreignKeys = [];
 
     /**
+     * @var string
+     */
+    private $fieldName = '';
+
+    /**
+     * @var string
+     */
+    private $after = '';
+
+    /**
+     * @var array
+     */
+    private $fields = [];
+
+    /**
+     * @var TableEntity
+     */
+    private $attrs;
+
+    /**
      * Get the current table status
      *
      * @param string $table
@@ -458,15 +478,95 @@ class TableAdmin extends AbstractAdmin
     }
 
     /**
+     * @param TableFieldEntity $field
+     *
+     * @return void
+     */
+    private function addFieldToAttrs(TableFieldEntity $field)
+    {
+        $foreignKey = $this->foreignKeys[$field->type] ?? null;
+        //! Can collide with user defined type
+        $typeField = ($foreignKey === null ? $field :
+            TableFieldEntity::make($this->referencableTables[$foreignKey]));
+        $processedField = $this->util->processField($field, $typeField);
+        $origField = $this->fields[$this->fieldName] ?? null;
+        if ($this->fieldName === '') {
+            $this->attrs->fields[] = ['', $processedField, $this->after];
+        } elseif ($origField !== null && $field->changed($origField)) {
+            $this->attrs->edited[] = [$this->fieldName, $processedField, $this->after];
+        }
+        if ($foreignKey !== null) {
+            $fkey = new ForeignKeyEntity();
+            $fkey->table = $this->foreignKeys[$field->type];
+            $fkey->source = [$field->name];
+            $fkey->target = [$typeField->field];
+            $fkey->onDelete = $field->onDelete;
+            $this->attrs->foreign[$this->driver->escapeId($field->name)] =
+                ($table != '' && $this->driver->jush() != 'sqlite' ? 'ADD' : ' ') .
+                $this->driver->formatForeignKey($fkey);
+        }
+    }
+
+    /**
+     * @return void
+     */
+    // private function setPartitionAttr()
+    // {
+    //     $this->attrs->partitioning = '';
+    //     if($partition_by[$values['partition_by']])
+    //     {
+    //         $partitions = [];
+    //         if($values['partition_by'] == 'RANGE' || $values['partition_by'] == 'LIST')
+    //         {
+    //             foreach(\array_filter($values['partition_names']) as $key => $val)
+    //             {
+    //                 $value = $values['partition_values'][$key];
+    //                 $partitions[] = "\n  PARTITION " . $this->driver->escapeId($val) .
+    //                     ' VALUES ' . ($values['partition_by'] == 'RANGE' ? 'LESS THAN' : 'IN') .
+    //                     ($value != '' ? ' ($value)' : ' MAXVALUE'); //! SQL injection
+    //             }
+    //         }
+    //         $this->attrs->partitioning .= "\nPARTITION BY $values[partition_by]($values[partition])" .
+    //             ($partitions // $values['partition'] can be expression, not only column
+    //             ? ' (' . \implode(',', $partitions) . "\n)"
+    //             : ($values['partitions'] ? ' PARTITIONS ' . (+$values['partitions']) : '')
+    //         );
+    //     }
+    //     elseif($this->driver->support('partitioning') &&
+    //         \preg_match('~partitioned~', $this->tableStatus->Create_options))
+    //     {
+    //         $this->attrs->partitioning .= "\nREMOVE PARTITIONING";
+    //     }
+    // }
+
+    /**
+     * @param array $values
+     *
+     * @return void
+     */
+    private function setValueAttrs(array $values)
+    {
+        foreach (['comment', 'engine', 'collation'] as $attr) {
+            $this->attrs->$attr = !empty($values[$attr]) ? $values[$attr] : '';
+            if ($this->tableStatus != null) {
+                // No change.
+                if ($this->attrs->$attr == $this->tableStatus->$attr) {
+                    $this->attrs->$attr = '';
+                }
+            }
+        }
+        $this->attrs->autoIncrement = \intval($this->util->number($this->util->input()->getAutoIncrementStep()));
+    }
+
+    /**
      * Create or alter a table
      *
      * @param array  $values    The table values
      * @param string $table     The table name
-     * @param array $origFields The table fields
      *
-     * @return TableEntity
+     * @return void
      */
-    private function getTableAttrs(array $values, string $table = '', array $origFields = [])
+    private function makeTableAttrs(array $values, string $table = '')
     {
         // From create.inc.php
         $values['fields'] = (array)$values['fields'];
@@ -474,91 +574,35 @@ class TableAdmin extends AbstractAdmin
             $values['fields'][$values['autoIncrementCol']]['autoIncrement'] = true;
         }
 
-        $tableAttrs = new TableEntity(\trim($values['name']));
-        $after = ' FIRST';
+        $this->attrs = new TableEntity(\trim($values['name']));
+        $this->after = ' FIRST';
 
         $this->getForeignKeys();
 
-        $origFields = $table !== '' ? $this->driver->fields($table) : [];
+        $this->fields = ($table !== '' ? $this->driver->fields($table) : []);
         foreach ($values['fields'] as $key => $field) {
-            $orig = $field['orig'];
-            $origField = $origFields[$orig] ?? null;
+            $this->fieldName = $field['orig'];
             $field = TableFieldEntity::make($field);
             $foreignKey = $this->foreignKeys[$field->type] ?? null;
-            //! can collide with user defined type
-            $typeField = ($foreignKey === null ? $field :
-                TableFieldEntity::make($this->referencableTables[$foreignKey]));
             // Originally, deleted fields have the "field" field set to an empty string.
             // But in our implementation, the "name" field is not set.
             if ($field->name != '') {
                 $field->autoIncrement = ($key == $values['autoIncrementCol']);
-
-                $processedField = $this->util->processField($field, $typeField);
-                if ($orig === '') {
-                    $tableAttrs->fields[] = [$orig, $processedField, $after];
-                } elseif ($origField !== null && $field->changed($origField)) {
-                    $tableAttrs->edited[] = [$orig, $processedField, $after];
-                }
-                if ($foreignKey !== null) {
-                    $fkey = new ForeignKeyEntity();
-                    $fkey->table = $this->foreignKeys[$field->type];
-                    $fkey->source = [$field->name];
-                    $fkey->target = [$typeField['field']];
-                    $fkey->onDelete = $field->onDelete;
-                    $tableAttrs->foreign[$this->driver->escapeId($field->name)] =
-                        ($table != '' && $this->driver->jush() != 'sqlite' ? 'ADD' : ' ') .
-                        $this->driver->formatForeignKey($fkey);
-                }
-                $after = ' AFTER ' . $this->driver->escapeId($field->name);
-            } elseif ($orig !== '') {
+                $this->addFieldToAttrs($field);
+                $this->after = ' AFTER ' . $this->driver->escapeId($field->name);
+            } elseif ($this->fieldName !== '') {
                 // A missing "name" field and a not empty "orig" field means the column is to be dropped.
-                $tableAttrs->dropped[] = $orig;
+                $this->attrs->dropped[] = $this->fieldName;
             }
-            if ($orig !== '') {
-                $after = '';
+            if ($this->fieldName !== '') {
+                $this->after = '';
             }
         }
 
         // For now, partitioning is not implemented
-        $tableAttrs->partitioning = '';
-        // if($partition_by[$values['partition_by']])
-        // {
-        //     $partitions = [];
-        //     if($values['partition_by'] == 'RANGE' || $values['partition_by'] == 'LIST')
-        //     {
-        //         foreach(\array_filter($values['partition_names']) as $key => $val)
-        //         {
-        //             $value = $values['partition_values'][$key];
-        //             $partitions[] = "\n  PARTITION " . $this->driver->escapeId($val) .
-        //                 ' VALUES ' . ($values['partition_by'] == 'RANGE' ? 'LESS THAN' : 'IN') .
-        //                 ($value != '' ? ' ($value)' : ' MAXVALUE'); //! SQL injection
-        //         }
-        //     }
-        //     $tableAttrs->partitioning .= "\nPARTITION BY $values[partition_by]($values[partition])" .
-        //         ($partitions // $values['partition'] can be expression, not only column
-        //         ? ' (' . \implode(',', $partitions) . "\n)"
-        //         : ($values['partitions'] ? ' PARTITIONS ' . (+$values['partitions']) : '')
-        //     );
-        // }
-        // elseif($this->driver->support('partitioning') &&
-        //     \preg_match('~partitioned~', $this->tableStatus->Create_options))
-        // {
-        //     $tableAttrs->partitioning .= "\nREMOVE PARTITIONING";
-        // }
+        // $this->setPartitionAttr();
 
-        foreach (['comment', 'engine', 'collation'] as $attr) {
-            $tableAttrs->$attr = !empty($values[$attr]) ? $values[$attr] : '';
-            if ($this->tableStatus != null) {
-                // No change.
-                if ($tableAttrs->$attr == $this->tableStatus->$attr) {
-                    $tableAttrs->$attr = '';
-                }
-            }
-        }
-
-        $tableAttrs->autoIncrement = \intval($this->util->number($this->util->input()->getAutoIncrementStep()));
-
-        return $tableAttrs;
+        $this->setValueAttrs($values);
     }
 
     /**
@@ -570,8 +614,8 @@ class TableAdmin extends AbstractAdmin
      */
     public function createTable(array $values)
     {
-        $tableAttrs = $this->getTableAttrs($values);
-        $success = $this->driver->createTable($tableAttrs);
+        $this->makeTableAttrs($values);
+        $success = $this->driver->createTable($this->attrs);
         $error = $this->driver->error();
         $message = $this->trans->lang('Table has been created.');
 
@@ -593,8 +637,8 @@ class TableAdmin extends AbstractAdmin
             throw new Exception($this->trans->lang('No tables.'));
         }
 
-        $tableAttrs = $this->getTableAttrs($values, $table);
-        $success = $this->driver->alterTable($table, $tableAttrs);
+        $this->makeTableAttrs($values, $table);
+        $success = $this->driver->alterTable($table, $this->attrs);
         $error = $this->driver->error();
         $message = $this->trans->lang('Table has been altered.');
 
