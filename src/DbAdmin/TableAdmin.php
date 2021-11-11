@@ -479,10 +479,11 @@ class TableAdmin extends AbstractAdmin
 
     /**
      * @param TableFieldEntity $field
+     * @param string $table
      *
      * @return void
      */
-    private function addFieldToAttrs(TableFieldEntity $field)
+    private function addFieldToAttrs(TableFieldEntity $field, string $table)
     {
         $foreignKey = $this->foreignKeys[$field->type] ?? null;
         //! Can collide with user defined type
@@ -499,7 +500,7 @@ class TableAdmin extends AbstractAdmin
             $fkey = new ForeignKeyEntity();
             $fkey->table = $this->foreignKeys[$field->type];
             $fkey->source = [$field->name];
-            $fkey->target = [$typeField->field];
+            $fkey->target = [$typeField->name];
             $fkey->onDelete = $field->onDelete;
             $this->attrs->foreign[$this->driver->escapeId($field->name)] =
                 ($table != '' && $this->driver->jush() != 'sqlite' ? 'ADD' : ' ') .
@@ -583,12 +584,11 @@ class TableAdmin extends AbstractAdmin
         foreach ($values['fields'] as $key => $field) {
             $this->fieldName = $field['orig'];
             $field = TableFieldEntity::make($field);
-            $foreignKey = $this->foreignKeys[$field->type] ?? null;
             // Originally, deleted fields have the "field" field set to an empty string.
             // But in our implementation, the "name" field is not set.
             if ($field->name != '') {
                 $field->autoIncrement = ($key == $values['autoIncrementCol']);
-                $this->addFieldToAttrs($field);
+                $this->addFieldToAttrs($field, $table);
                 $this->after = ' AFTER ' . $this->driver->escapeId($field->name);
             } elseif ($this->fieldName !== '') {
                 // A missing "name" field and a not empty "orig" field means the column is to be dropped.
