@@ -450,19 +450,6 @@ class Util implements UtilInterface
     // }
 
     /**
-     * Value conversion used in select and edit
-     *
-     * @param string $value     Raw value of the field
-     * @param TableFieldEntity $field   Single field returned from fields()
-     *
-     * @return string
-     */
-    public function editValue(string $value, /** @scrutinizer ignore-unused */ TableFieldEntity $field)
-    {
-        return $value;
-    }
-
-    /**
      * Print enum input field
      *
      * @param string $type Field type: "radio" or "checkbox"
@@ -483,7 +470,7 @@ class Util implements UtilInterface
     //         $val = stripcslashes(str_replace("''", "'", $val));
     //         $checked = (is_int($value) ? $value == $i+1 : (is_array($value) ? in_array($i+1, $value) : $value === $val));
     //         $input .= " <label><input type='$type'$attrs value='" . ($i+1) . "'" .
-    //             ($checked ? ' checked' : '') . '>' . $this->util->html($adminer->editValue($val, $field)) . '</label>';
+    //             ($checked ? ' checked' : '') . '>' . $this->util->html($val) . '</label>';
     //     }
     //     return $input;
     // }
@@ -526,7 +513,7 @@ class Util implements UtilInterface
             $checked = (\is_int($value) ? $value == $i + 1 :
                 (\is_array($value) ? \in_array($i+1, $value) : $value === $val));
             $inputs[] = "<label><input type='$type'$attrs value='" . ($i+1) . "'" .
-                ($checked ? ' checked' : '') . '>' . $this->html($this->editValue($val, $field)) . '</label>';
+                ($checked ? ' checked' : '') . '>' . $this->html($val) . '</label>';
         }
 
         return $inputs;
@@ -881,11 +868,11 @@ class Util implements UtilInterface
      * @param mixed $value HTML-escaped value to print
      * @param string $link Link to foreign key
      * @param string $type Field type
-     * @param string $original Original value before applying editValue() and escaping
+     * @param mixed $original Original value before escaping
      *
      * @return string
      */
-    private function _selectValue($value, string $link, string $type, string $original)
+    private function _selectValue($value, string $link, string $type, $original)
     {
         $clause = ($value === null ? '<i>NULL</i>' :
             (\preg_match('~char|binary|boolean~', $type) && !\preg_match('~var~', $type) ?
@@ -935,7 +922,7 @@ class Util implements UtilInterface
                 $link = '';
             }
         }
-        $expression = $this->editValue($value, $field);
+        $expression = $value;
         if (!empty($expression)) {
             if (!$this->isUtf8($expression)) {
                 $expression = "\0"; // htmlspecialchars of binary data returns an empty string

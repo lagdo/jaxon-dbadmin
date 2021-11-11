@@ -79,7 +79,7 @@ class TableQueryAdmin extends AbstractAdmin
                 $val = \stripcslashes(\str_replace("''", "'", $val));
                 $checked = (\is_int($value) ? ($value >> $i) & 1 : \in_array($val, \explode(",", $value), true));
                 $entry['input']['value'][] = "<label><input type='checkbox' name='fields[$name][$i]' value='" . (1 << $i) . "'" .
-                    ($checked ? ' checked' : '') . ">" . $this->util->html($this->util->editValue($val, $field)) . '</label>';
+                    ($checked ? ' checked' : '') . ">" . $this->util->html($val) . '</label>';
             }
         } elseif (\preg_match('~blob|bytea|raw|file~', $field->type) && $this->util->iniBool("file_uploads")) {
             $entry['input']['value'] = "<input type='file' name='fields-$name'>";
@@ -248,9 +248,6 @@ class TableQueryAdmin extends AbstractAdmin
                         !$update && $field->autoIncrement ? "" : (isset($queryOptions["select"]) ? false : $default)
                     )
                 );
-                if (!$queryOptions["save"] && \is_string($value)) {
-                    $value = $this->util->editValue($value, $field);
-                }
                 $function = (
                     $queryOptions["save"]
                     ? (string)$queryOptions["function"][$name]
