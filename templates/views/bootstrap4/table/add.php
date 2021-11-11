@@ -40,7 +40,7 @@
         <div class="form-group row adminer-table-column-header">
             <label class="col-md-3 adminer-table-column-left"><?php echo $this->trans->lang('Column') ?></label>
             <label class="col-md-1 adminer-table-column-null-header" for="autoIncrementCol">
-                <input type="radio" name="autoIncrementCol" value="0" checked /> AI
+                <input type="radio" name="autoIncrementCol" value="0" checked />AI-P
             </label>
             <label class="col-md-7 adminer-table-column-middle"><?php echo $this->trans->lang('Options') ?></label>
             <div class="col-md-1 adminer-table-column-buttons-header">

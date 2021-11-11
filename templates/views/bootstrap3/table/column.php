@@ -15,6 +15,8 @@
             <label class="col-md-1 adminer-table-column-null" for="autoIncrementCol">
                 <input type="radio" name="autoIncrementCol" value="<?php echo ($this->index + 1) ?>" <?php
                     if($this->field->autoIncrement): ?>checked <?php endif ?>/> AI
+                <input type="checkbox" name="<?php echo $this->prefixFields ?>[primary]" <?php
+                    if($this->field->primary): ?>checked <?php endif ?>/>
             </label>
             <div class="col-md-2 adminer-table-column-middle">
                 <select class="form-control" name="<?php
