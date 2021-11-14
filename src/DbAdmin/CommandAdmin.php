@@ -151,19 +151,24 @@ class CommandAdmin extends AbstractAdmin
     */
     protected function select($statement, $limit = 0)
     {
-        $blobs = []; // colno => bool - display bytes for blobs
-        $types = []; // colno => type - display char in <code>
-        $tables = []; // table => orgtable - mapping to use in EXPLAIN
-        $headers = [];
-
-        $details = [];
+        // No resultset
+        if ($statement === true) {
+            $affected = $this->driver->affectedRows();
+            $message = $this->trans->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
+            return [null, [$message]];
+        }
         // Fetch the first row.
         if (!($row = $statement->fetchRow())) {
             // Empty resultset.
             $message = $this->trans->lang('No rows.');
-            return \compact('tables', 'headers', 'details', 'message');
+            return [null, [$message]];
         }
 
+        $blobs = []; // colno => bool - display bytes for blobs
+        $types = []; // colno => type - display char in <code>
+        $tables = []; // table => orgtable - mapping to use in EXPLAIN
+        $headers = [];
+        $details = [];
         // Table headers.
         $colCount = \count($row);
         for ($j = 0; $j < $colCount; $j++) {
@@ -186,7 +191,7 @@ class CommandAdmin extends AbstractAdmin
         } while (($limit === 0 || $rowCount < $limit) && ($row = $statement->fetchRow()));
 
         $message = $this->message($statement, $limit);
-        return \compact('tables', 'headers', 'details', 'message');
+        return [\compact('tables', 'headers', 'details'), [$message]];
     }
 
     /**
@@ -249,48 +254,21 @@ class CommandAdmin extends AbstractAdmin
      */
     private function executeQuery(string $query, array &$results, int $limit, bool $errorStops, bool $onlyErrors)
     {
-        $space = "(?:\\s|/\\*[\s\S]*?\\*/|(?:#|-- )[^\n]*\n?|--\r?\n)";
-        $messages = [];
-        $errors = [];
-        $select = null;
-
-        if ($this->driver->jush() == 'sqlite' && \preg_match("~^$space*+ATTACH\\b~i", $query, $match)) {
-            // PHP doesn't support setting SQLITE_LIMIT_ATTACHED
-            // $errors[] = " <a href='#sql-$commands'>$commands</a>";
-            $errors[] = $this->trans->lang('ATTACH queries are not supported.');
-            $results[] = \compact('query', 'errors', 'messages', 'select');
-            // return $errorStops ? false : true;
-            return !$errorStops;
-        }
-
-        $connection = $this->connection();
         //! Don't allow changing of character_set_results, convert encoding of displayed query
-        if ($this->driver->multiQuery($query) && $connection !== null && \preg_match("~^$space*+USE\\b~i", $query)) {
-            $connection->query($query);
+        if ($this->driver->multiQuery($query) && ($connection = $this->connection()) !== null) {
+            $connection->execUseQuery($query);
         }
 
         do {
+            $select = null;
+            $errors = [];
+            $messages = [];
             $statement = $this->driver->storedResult();
 
             if ($this->driver->hasError()) {
-                $error = $this->driver->error();
-                if ($this->driver->hasErrno()) {
-                    $error = '(' . $this->driver->errno() . "): $error";
-                }
-                $errors[] = $error;
-            } else {
-                $affected = $this->driver->affectedRows(); // Getting warnigns overwrites this
-                if ($statement !== null) {
-                    if (!$onlyErrors) {
-                        $select = $this->select($statement, $limit);
-                        $messages[] = $select['message'];
-                    }
-                } else {
-                    if (!$onlyErrors) {
-                        // $title = $this->util->html($this->driver->info());
-                        $messages[] = $this->trans->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
-                    }
-                }
+                $errors[] = $this->driver->errorMessage();
+            } elseif (!$onlyErrors) {
+                [$select, $messages] = $this->select($statement, $limit);
             }
 
             $results[] = \compact('query', 'errors', 'messages', 'select');
@@ -339,10 +317,9 @@ class CommandAdmin extends AbstractAdmin
         // }
 
         $offset = 0;
-        $empty = true;
         $commands = 0;
         $errors = 0;
-        $timestamps = [];
+        // $timestamps = [];
         // $total_start = \microtime(true);
         // \parse_str($_COOKIE['adminer_export'], $adminer_export);
         // $dump_format = $this->util->dumpFormat();
@@ -359,15 +336,11 @@ class CommandAdmin extends AbstractAdmin
             }
 
             // end of a query
-            $messages = [];
 
-            $empty = false;
             $query = \substr($queries, 0, $pos);
             $queries = \substr($queries, $offset);
             $offset = 0;
             $commands++;
-            // $print = "<pre id='sql-$commands'><code class='jush-$this->driver->jush()'>" .
-            //     $this->util->sqlCommandQuery($q) . "</code></pre>\n";
             if (!$this->executeQuery($query, $results, $limit, $errorStops, $onlyErrors)) {
                 $errors++;
                 if ($errorStops) {
@@ -376,13 +349,13 @@ class CommandAdmin extends AbstractAdmin
             }
         }
 
-        if ($empty) {
+        $messages = [];
+        if ($commands === 0) {
             $messages[] = $this->trans->lang('No commands to execute.');
         } elseif ($onlyErrors) {
             $messages[] =  $this->trans->lang('%d query(s) executed OK.', $commands - $errors);
-            // $timestamps[] = $this->trans->formatTime($total_start);
         }
 
-        return \compact('results', 'messages', 'timestamps');
+        return \compact('results', 'messages');
     }
 }
