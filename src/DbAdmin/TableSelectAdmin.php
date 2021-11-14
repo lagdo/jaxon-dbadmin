@@ -273,7 +273,7 @@ class TableSelectAdmin extends AbstractAdmin
 
         // if($page == "last")
         // {
-        //     $found_rows = $this->driver->result($this->driver->countRowsSql($table, $where, $isGroup, $group));
+        //     $found_rows = $this->driver->result($this->driver->sqlForRowCount($table, $where, $isGroup, $group));
         //     $page = \floor(\max(0, $found_rows - 1) / $limit);
         // }
 
@@ -486,7 +486,7 @@ class TableSelectAdmin extends AbstractAdmin
             $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
 
-        $total = $this->driver->result($this->driver->countRowsSql($table, $where, $isGroup, $group));
+        $total = $this->driver->result($this->driver->sqlForRowCount($table, $where, $isGroup, $group));
 
         $rows = $results;
         return \compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'error');
