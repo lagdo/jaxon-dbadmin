@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\DbAdmin;
 
 use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
+use Lagdo\DbAdmin\Driver\Entity\QueryEntity;
 
 /**
  * Admin command functions
@@ -16,6 +17,11 @@ class CommandAdmin extends AbstractAdmin
      * @var ConnectionInterface
      */
     protected $connection = null;
+
+    /**
+     * @var array
+     */
+    protected $results;
 
     /**
      * Open a second connection to the server
@@ -33,31 +39,6 @@ class CommandAdmin extends AbstractAdmin
         }
         return $this->connection;
     }
-
-    /**
-     * @param mixed $value
-     *
-     * @return string
-    */
-    // protected function editLink($value)
-    // {
-    //     $link = '';
-    //     if (isset($links[$key]) && !$columns[$links[$key]]) {
-    //         if ($orgtables && $this->driver->jush() == 'sql') { // MySQL EXPLAIN
-    //             $table = $row[\array_search('table=', $links)];
-    //             $link = /*ME .*/ $links[$key] .
-    //                 \urlencode($orgtables[$table] != '' ? $orgtables[$table] : $table);
-    //         } else {
-    //             $link = /*ME .*/ 'edit=' . \urlencode($links[$key]);
-    //             foreach ($indexes[$links[$key]] as $col => $j) {
-    //                 $link .= '&where' . \urlencode('[' .
-    //                     $this->util->bracketEscape($col) . ']') . '=' . \urlencode($row[$j]);
-    //             }
-    //         }
-    //     } elseif ($this->util->isUrl($val)) {
-    //         $link = $val;
-    //     }
-    // }
 
     /**
      * @param array $row
@@ -105,40 +86,6 @@ class CommandAdmin extends AbstractAdmin
         }
         return $message;
     }
-
-    /**
-     * @param mixed $field
-     * @param array $orgtables
-     *
-     * @return string
-    */
-    // protected function indexes($field, array $orgtables)
-    // {
-    //     static $links = []; // colno => orgtable - create links from these columns
-    //     static $indexes = []; // orgtable => array(column => colno) - primary keys
-    //     static $columns = []; // orgtable => array(column => ) - not selected columns in primary key
-
-    //     if (!empty($this->orgtables) && $this->driver->jush() == 'sql') { // MySQL EXPLAIN
-    //         $links[$j] = ($name == 'table' ? 'table=' : ($name == 'possible_keys' ? 'indexes=' : null));
-    //     } elseif ($orgtable != '') {
-    //         if (!isset($indexes[$orgtable])) {
-    //             // find primary key in each table
-    //             $indexes[$orgtable] = [];
-    //             foreach ($this->driver->indexes($orgtable, $connection) as $index) {
-    //                 if ($index->type == 'PRIMARY') {
-    //                     $indexes[$orgtable] = \array_flip($index->columns);
-    //                     break;
-    //                 }
-    //             }
-    //             $columns[$orgtable] = $indexes[$orgtable];
-    //         }
-    //         if (isset($columns[$orgtable][$orgname])) {
-    //             unset($columns[$orgtable][$orgname]);
-    //             $indexes[$orgtable][$orgname] = $j;
-    //             $links[$j] = $orgtable;
-    //         }
-    //     }
-    // }
 
     /**
      * Print select result
@@ -195,64 +142,14 @@ class CommandAdmin extends AbstractAdmin
     }
 
     /**
-     * @param string $queries       The queries to execute
-     * @param int    $offset
-     *
-     * @return int
-     */
-    private function nextQueryPos(string &$queries, int &$offset)
-    {
-        static $delimiter = ';';
-
-        $space = "(?:\\s|/\\*[\s\S]*?\\*/|(?:#|-- )[^\n]*\n?|--\r?\n)";
-        if ($offset == 0 && \preg_match("~^$space*+DELIMITER\\s+(\\S+)~i", $queries, $match)) {
-            $delimiter = $match[1];
-            $queries = \substr($queries, \strlen($match[0]));
-            return 0;
-        }
-
-        // TODO: Move this to driver implementations
-        $parse = '[\'"' .
-            ($this->driver->jush() == "sql" ? '`#' :
-            ($this->driver->jush() == "sqlite" ? '`[' :
-            ($this->driver->jush() == "mssql" ? '[' : ''))) . ']|/\*|-- |$' .
-            ($this->driver->jush() == "pgsql" ? '|\$[^$]*\$' : '');
-        // should always match
-        \preg_match('(' . \preg_quote($delimiter) . "\\s*|$parse)", $queries, $match, PREG_OFFSET_CAPTURE, $offset);
-        list($found, $pos) = $match[0];
-
-        if (!\is_string($found) && \rtrim($queries) == '') {
-            return -1;
-        }
-        $offset = $pos + \strlen($found);
-
-        if (empty($found) || \rtrim($found) == $delimiter) {
-            return \intval($pos);
-        }
-        // find matching quote or comment end
-        while (\preg_match('(' . ($found == '/*' ? '\*/' : ($found == '[' ? ']' :
-            (\preg_match('~^-- |^#~', $found) ? "\n" : \preg_quote($found) . "|\\\\."))) . '|$)s',
-            $queries, $match, PREG_OFFSET_CAPTURE, $offset)) {
-            //! respect sql_mode NO_BACKSLASH_ESCAPES
-            $s = $match[0][0];
-            $offset = $match[0][1] + \strlen($s);
-            if ($s[0] != "\\") {
-                break;
-            }
-        }
-        return 0;
-    }
-
-    /**
      * @param string $query       The query to execute
-     * @param array  $results
      * @param int    $limit         The max number of rows to return
      * @param bool   $errorStops    Stop executing the requests in case of error
      * @param bool   $onlyErrors    Return only errors
      *
      * @return bool
      */
-    private function executeQuery(string $query, array &$results, int $limit, bool $errorStops, bool $onlyErrors)
+    private function executeQuery(string $query, int $limit, bool $errorStops, bool $onlyErrors)
     {
         //! Don't allow changing of character_set_results, convert encoding of displayed query
         if ($this->driver->multiQuery($query) && ($connection = $this->connection()) !== null) {
@@ -271,12 +168,10 @@ class CommandAdmin extends AbstractAdmin
                 [$select, $messages] = $this->select($statement, $limit);
             }
 
-            $results[] = \compact('query', 'errors', 'messages', 'select');
-
+            $this->results[] = \compact('query', 'errors', 'messages', 'select');
             if ($this->driver->hasError() && $errorStops) {
                 return false;
             }
-
             // $start = \microtime(true);
         } while ($this->driver->nextResult());
 
@@ -316,32 +211,19 @@ class CommandAdmin extends AbstractAdmin
         // 	}
         // }
 
-        $offset = 0;
-        $commands = 0;
-        $errors = 0;
         // $timestamps = [];
         // $total_start = \microtime(true);
         // \parse_str($_COOKIE['adminer_export'], $adminer_export);
         // $dump_format = $this->util->dumpFormat();
         // unset($dump_format['sql']);
 
-        $results = [];
-        while ($queries != '') {
-            $pos = $this->nextQueryPos($queries, $offset);
-            if ($pos < 0) {
-                break;
-            }
-            if ($pos === 0) {
-                continue;
-            }
-
-            // end of a query
-
-            $query = \substr($queries, 0, $pos);
-            $queries = \substr($queries, $offset);
-            $offset = 0;
+        $this->results = [];
+        $commands = 0;
+        $errors = 0;
+        $queryEntity = new QueryEntity($queries);
+        while ($this->driver->parseQueries($queryEntity)) {
             $commands++;
-            if (!$this->executeQuery($query, $results, $limit, $errorStops, $onlyErrors)) {
+            if (!$this->executeQuery($queryEntity->query, $limit, $errorStops, $onlyErrors)) {
                 $errors++;
                 if ($errorStops) {
                     break;
@@ -356,6 +238,6 @@ class CommandAdmin extends AbstractAdmin
             $messages[] =  $this->trans->lang('%d query(s) executed OK.', $commands - $errors);
         }
 
-        return \compact('results', 'messages');
+        return ['results' => $this->results, 'messages' => $messages];
     }
 }
