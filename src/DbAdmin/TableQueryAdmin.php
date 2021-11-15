@@ -163,7 +163,7 @@ class TableQueryAdmin extends AbstractAdmin
 
         // From edit.inc.php
         $row = null;
-        if ($where) {
+        if (($where)) {
             $select = [];
             foreach ($fields as $name => $field) {
                 if (isset($field->privileges["select"])) {
@@ -225,7 +225,7 @@ class TableQueryAdmin extends AbstractAdmin
         $entries = [];
         $tableName = $this->util->tableName($this->driver->tableStatusOrName($table, true));
         $error = null;
-        if ($row === null) {
+        if (($where) && $row === null) { // No row found to edit.
             $error = $this->trans->lang('No rows.');
         } elseif (!$fields) {
             $error = $this->trans->lang('You have no privileges to update this table.');
