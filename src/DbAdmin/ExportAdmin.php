@@ -290,7 +290,7 @@ class ExportAdmin extends AbstractAdmin
             }
             $create = 'CREATE TABLE ' . $this->driver->table($table) . ' (' . \implode(', ', $fields) . ')';
         } else {
-            $create = $this->driver->sqlForCreateTable($table, $this->options['auto_increment'], $style);
+            $create = $this->driver->sqlForCreateTable($table, $this->options['autoIncrement'], $style);
         }
         $this->driver->setUtf8mb4($create);
         if ($style && $create) {
