@@ -514,7 +514,8 @@ class ExportAdmin extends AbstractAdmin
                     }
                     $this->queries[] = $create . ";\n";
                 }
-                if ($this->options['is_sql']) {
+                if ($this->options['is_sql'] && $this->driver->jush() === 'sql') {
+                    // Dump routines and events currently works only for MySQL.
                     if ($style) {
                         if (($query = $this->driver->sqlForUseDatabase($database))) {
                             $this->queries[] = $query . ';';
