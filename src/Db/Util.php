@@ -7,6 +7,8 @@ use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Entity\TableEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
+use function intval;
+
 class Util implements UtilInterface
 {
     /**
@@ -842,11 +844,11 @@ class Util implements UtilInterface
     /**
      * Process length box in select
      *
-     * @return string
+     * @return int
      */
     public function processSelectLength()
     {
-        return (isset($this->input->values['text_length']) ? $this->input->values['text_length'] : '100');
+        return (isset($this->input->values['text_length']) ? intval($this->input->values['text_length']) : 100);
     }
 
     /**
@@ -893,11 +895,11 @@ class Util implements UtilInterface
      * @param mixed $value
      * @param string $link
      * @param TableFieldEntity $field
-     * @param int $textLength
+     * @param int|string|null $textLength
      *
      * @return string
      */
-    public function selectValue($value, string $link, TableFieldEntity $field, int $textLength)
+    public function selectValue($value, string $link, TableFieldEntity $field, $textLength)
     {
         // if (\is_array($value)) {
         //     $expression = '';

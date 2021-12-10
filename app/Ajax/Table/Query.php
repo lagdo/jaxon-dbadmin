@@ -7,6 +7,8 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
+use function pm;
+
 /**
  * This class provides insert and update query features on tables.
  */
@@ -49,7 +51,7 @@ class Query extends CallableClass
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
 
-        $options = \pm()->form($this->queryFormId);
+        $options = pm()->form($this->queryFormId);
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')
             ->click($this->rq()->execInsert($server, $database, $schema, $table, $options)
@@ -121,7 +123,7 @@ class Query extends CallableClass
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
 
-        $options = \pm()->form($this->queryFormId);
+        $options = pm()->form($this->queryFormId);
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')
             ->click($this->rq()->execUpdate($server, $database, $schema, $table, $rowIds, $options, $selects)

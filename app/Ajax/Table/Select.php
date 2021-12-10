@@ -9,6 +9,7 @@ use Lagdo\DbAdmin\App\CallableClass;
 use Exception;
 
 use function html_entity_decode;
+use function pm;
 
 /**
  * This class provides select query features on tables.
@@ -108,7 +109,7 @@ class Select extends CallableClass
         // Show the query
         $this->showQuery($server, $selectData['query']);
 
-        $options = \pm()->form($this->selectFormId);
+        $options = pm()->form($this->selectFormId);
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-select-cancel')
             ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
@@ -128,7 +129,7 @@ class Select extends CallableClass
             ->click($this->cl(Query::class)->rq()->showInsert($server, $database, $schema, $table));
         $this->jq("#$btnExecId")
             ->click($this->rq()->execSelect($server, $database, $schema, $table, $options));
-        $query = \pm()->js('jaxon.adminer.editor.query');
+        $query = pm()->js('jaxon.adminer.editor.query');
         $this->jq("#$btnEditId")
             ->click($this->cl(Command::class)->rq()->showDatabaseForm($server, $database, $schema, $query));
 
@@ -183,9 +184,9 @@ class Select extends CallableClass
 
         // The Jaxon ajax calls
         $updateCall = $this->cl(Query::class)->rq()->showUpdate($server, $database, $schema, $table,
-            \pm()->js("rowIds[rowId]"), $options);
+            pm()->js("rowIds[rowId]"), $options);
         $deleteCall = $this->cl(Query::class)->rq()->execDelete($server, $database, $schema, $table,
-            \pm()->js("rowIds[rowId]"), $options)->confirm($this->dbAdmin->lang('Delete this item?'));
+            pm()->js("rowIds[rowId]"), $options)->confirm($this->dbAdmin->lang('Delete this item?'));
 
         // Wrap the ajax calls into functions
         $this->response->setFunction('updateRowItem', 'rowId', $updateCall);
@@ -201,7 +202,7 @@ class Select extends CallableClass
         $this->showQuery($server, $results['query']);
 
         // Pagination
-        $pagination = $this->rq()->execSelect($server, $database, $schema, $table, $options, \pm()->page())
+        $pagination = $this->rq()->execSelect($server, $database, $schema, $table, $options, pm()->page())
             ->paginate($page, $results['limit'], $results['total']);
         $this->response->html("adminer-table-select-pagination", $pagination);
 
@@ -267,7 +268,7 @@ class Select extends CallableClass
             'title' => 'Save',
             'class' => 'btn btn-primary',
             'click' => $this->rq()->saveColumns($server, $database, $schema, $table,
-                \pm()->form($this->selectFormId), \pm()->form($this->columnsFormId)),
+                pm()->form($this->selectFormId), pm()->form($this->columnsFormId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
@@ -347,7 +348,7 @@ class Select extends CallableClass
             'title' => 'Save',
             'class' => 'btn btn-primary',
             'click' => $this->rq()->saveFilters($server, $database, $schema, $table,
-                \pm()->form($this->selectFormId), \pm()->form($this->filtersFormId)),
+                pm()->form($this->selectFormId), pm()->form($this->filtersFormId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
@@ -427,7 +428,7 @@ class Select extends CallableClass
             'title' => 'Save',
             'class' => 'btn btn-primary',
             'click' => $this->rq()->saveSorting($server, $database, $schema, $table,
-                \pm()->form($this->selectFormId), \pm()->form($this->sortingFormId)),
+                pm()->form($this->selectFormId), pm()->form($this->sortingFormId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 

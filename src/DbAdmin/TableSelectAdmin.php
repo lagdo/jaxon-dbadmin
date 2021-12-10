@@ -95,14 +95,14 @@ class TableSelectAdmin extends AbstractAdmin
     /**
      * Print text length box in select
      *
-     * @param string|null $textLength Result of processSelectLength()
+     * @param int $textLength Result of processSelectLength()
      *
      * @return array
      */
     private function getLengthOptions($textLength)
     {
         return [
-            'value' => $textLength === null ? 0 : $this->util->html($textLength),
+            'value' => $textLength === 0 ? 0 : $this->util->html($textLength),
         ];
     }
 
@@ -198,7 +198,7 @@ class TableSelectAdmin extends AbstractAdmin
 
         $rights = []; // privilege => 0
         $columns = []; // selectable columns
-        $textLength = null;
+        $textLength = 0;
         foreach ($fields as $key => $field) {
             $name = $this->util->fieldName($field);
             if (isset($field->privileges["select"]) && $name != "") {
