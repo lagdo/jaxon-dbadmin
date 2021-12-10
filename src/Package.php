@@ -5,11 +5,24 @@ namespace Lagdo\DbAdmin;
 use Jaxon\Plugin\Package as JaxonPackage;
 use Lagdo\DbAdmin\App\Ajax\Server;
 
+use function jaxon;
+
 /**
  * Adminer package
  */
 class Package extends JaxonPackage
 {
+    /**
+     * The constructor
+     */
+    public function __construct()
+    {
+        jaxon()->callback()->boot(function() {
+            $template = $this->getConfig()->getOption('template', 'bootstrap3');
+            jaxon()->template()->pagination(__DIR__ . "/../templates/views/$template/pagination/");
+        });
+    }
+
     /**
      * Get the div id of the HTML element
      *
