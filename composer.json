@@ -18,7 +18,7 @@
     },
     "require": {
         "lagdo/dbadmin-driver": "^0.4.3",
-        "jaxon-php/jaxon-core": ">=3.5.3",
+        "jaxon-php/jaxon-core": ">=3.6.0",
         "jaxon-php/jaxon-dialogs": "^3.0"
     },
     "autoload": {
