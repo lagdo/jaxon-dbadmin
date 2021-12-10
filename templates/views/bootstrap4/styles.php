@@ -101,4 +101,10 @@
 #<?php echo $this->containerId ?> ul.pagination {
     margin: 0;
 }
+#<?php echo $this->containerId ?> #sql-command-editor {
+    width: 100%;
+}
+#<?php echo $this->containerId ?> #sql-command-editor .card-body {
+    padding: 0 1px;
+}
 </style>

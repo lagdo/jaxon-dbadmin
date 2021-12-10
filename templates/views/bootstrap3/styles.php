@@ -102,4 +102,7 @@
 #<?php echo $this->containerId ?> ul.pagination {
     margin: 0;
 }
+#<?php echo $this->containerId ?> #sql-command-editor .panel-body {
+    padding: 0 1px;
+}
 </style>

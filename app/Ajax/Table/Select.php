@@ -8,6 +8,8 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
+use function html_entity_decode;
+
 /**
  * This class provides select query features on tables.
  */
@@ -49,6 +51,23 @@ class Select extends CallableClass
     private $txtQueryId = 'adminer-table-select-query';
 
     /**
+     * @param string $server
+     * @param string $query
+     *
+     * @return void
+     */
+    private function showQuery(string $server, string $query)
+    {
+        $this->response->html($this->txtQueryId, '');
+        // $this->response->script("jaxon.adminer.highlightSqlQuery('{$this->txtQueryId}', '$server', '$query')");
+        $this->response->addCommand([
+            'cmd' => 'dbadmin.hsql',
+            'id' => $this->txtQueryId,
+            'driver' => $server,
+        ], html_entity_decode($query, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+    }
+
+    /**
      * Show the select query form
      *
      * @param string $server      The database server
@@ -86,6 +105,8 @@ class Select extends CallableClass
             'txtQueryId' => $this->txtQueryId,
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
+        // Show the query
+        $this->showQuery($server, $selectData['query']);
 
         $options = \pm()->form($this->selectFormId);
         // Set onclick handlers on buttons
@@ -107,7 +128,7 @@ class Select extends CallableClass
             ->click($this->cl(Query::class)->rq()->showInsert($server, $database, $schema, $table));
         $this->jq("#$btnExecId")
             ->click($this->rq()->execSelect($server, $database, $schema, $table, $options));
-        $query = \jq('#' . $this->txtQueryId)->text();
+        $query = \pm()->js('jaxon.adminer.editor.query');
         $this->jq("#$btnEditId")
             ->click($this->cl(Command::class)->rq()->showDatabaseForm($server, $database, $schema, $query));
 
@@ -176,8 +197,8 @@ class Select extends CallableClass
         $this->jq(".$btnDeleteRowClass", "#$resultsId")
             ->click(\rq()->func('deleteRowItem', \jq()->parent()->attr('data-row-id')));
 
-        // Update the query
-        $this->response->html($this->txtQueryId, $results['query']);
+        // Show the query
+        $this->showQuery($server, $results['query']);
 
         // Pagination
         $pagination = $this->rq()->execSelect($server, $database, $schema, $table, $options, \pm()->page())
@@ -203,7 +224,7 @@ class Select extends CallableClass
     {
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Display the new query
-        $this->response->html($this->txtQueryId, $selectData['query']);
+        $this->showQuery($server, $selectData['query']);
 
         return $this->response;
     }
@@ -283,7 +304,7 @@ class Select extends CallableClass
         ]);
         $this->response->html('adminer-table-select-columns-show', $content);
         // Display the new query
-        $this->response->html($this->txtQueryId, $selectData['query']);
+        $this->showQuery($server, $selectData['query']);
 
         return $this->response;
     }
@@ -363,7 +384,7 @@ class Select extends CallableClass
         ]);
         $this->response->html('adminer-table-select-filters-show', $content);
         // Display the new query
-        $this->response->html($this->txtQueryId, $selectData['query']);
+        $this->showQuery($server, $selectData['query']);
 
         return $this->response;
     }
@@ -444,7 +465,7 @@ class Select extends CallableClass
         ]);
         $this->response->html('adminer-table-select-sorting-show', $content);
         // Display the new query
-        $this->response->html($this->txtQueryId, $selectData['query']);
+        $this->showQuery($server, $selectData['query']);
 
         return $this->response;
     }

@@ -6,6 +6,8 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
+use function pm;
+
 /**
  * Adminer Ajax client
  */
@@ -43,10 +45,11 @@ class Command extends CallableClass
             'query' => $query,
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
+        $this->response->script("jaxon.adminer.highlightSqlEditor('$queryId', '$server')");
 
-        $this->jq("#$btnId")
-            ->click($this->rq()->execute($server, $database, $schema, \pm()->form($formId))
-                ->when(\pm()->input($queryId)));
+        $this->jq("#$btnId")->click(pm()->js("jaxon.adminer.saveSqlEditorContent"));
+        $this->jq("#$btnId")->click($this->rq()->execute($server, $database, $schema,
+            pm()->form($formId))->when(pm()->input($queryId)));
 
         return $this->response;
     }

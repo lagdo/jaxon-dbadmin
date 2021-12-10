@@ -69,7 +69,7 @@
             </div>
             <div class="form-group row">
                 <div class="col-md-9">
-                    <pre id="<?php echo $this->txtQueryId ?>"><?php echo $this->query ?></pre>
+                    <pre id="<?php echo $this->txtQueryId ?>"></pre>
                 </div>
                 <div class="col-md-3">
                     <div class="btn-group d-flex" role="group">

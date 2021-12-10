@@ -65,7 +65,7 @@
             </div>
             <div class="form-group">
                 <div class="col-md-9">
-                    <pre id="<?php echo $this->txtQueryId ?>"><?php echo $this->query ?></pre>
+                    <pre id="<?php echo $this->txtQueryId ?>"></pre>
                 </div>
                 <div class="col-md-3">
                     <div class="btn-group btn-group-justified" role="group">

@@ -3,9 +3,13 @@
 <div class="col-md-12">
     <form id="<?php echo $this->formId ?>">
         <div class="form-group row">
-            <textarea name="query" class="form-control" id="<?php echo
-                $this->queryId ?>" rows="10" spellcheck="false" wrap="on"><?php echo
-                $this->query ?></textarea>
+            <div class="card" id="sql-command-editor">
+                <div class="card-body">
+                    <textarea name="query" class="form-control" id="<?php echo
+                        $this->queryId ?>" rows="10" spellcheck="false" wrap="on"><?php echo
+                        $this->query ?></textarea>
+                </div>
+            </div>
         </div>
         <div class="form-group row">
             <div class="col-md-3">

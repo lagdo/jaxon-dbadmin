@@ -212,16 +212,32 @@ class Package extends JaxonPackage
     /**
      * Get the HTML tags to include CSS code and files into the page
      *
+     * The code must be enclosed in the appropriate HTML tags.
+     *
      * @return string
      */
     public function getCss()
     {
-        return $this->view()->render('adminer::codes::styles', $this->getIds()) .
+        return $this->view()->render('adminer::codes::css', $this->getIds()) .
             "\n" . $this->view()->render('adminer::views::styles', $this->getIds());
     }
 
     /**
      * Get the HTML tags to include javascript code and files into the page
+     *
+     * The code must be enclosed in the appropriate HTML tags.
+     *
+     * @return string
+     */
+    public function getJs()
+    {
+        return $this->view()->render('adminer::codes::js', $this->getIds());
+    }
+
+    /**
+     * Get the javascript code to include into the page
+     *
+     * The code must NOT be enclosed in HTML tags.
      *
      * @return string
      */

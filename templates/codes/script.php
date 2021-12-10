@@ -59,4 +59,52 @@ jaxon.adminer = {
             $(targetId).remove();
         });
     },
-}
+    editor: {
+        query: '',
+        element: null,
+        hintOptions: {},
+        modes: {
+            sql: 'text/x-sql',
+            mysql: 'text/x-mysql',
+            pgsql: 'text/x-pgsql',
+        },
+    },
+    highlightSqlQuery: function(containerId, driver, query) {
+        const mode = jaxon.adminer.editor.modes[driver] || jaxon.adminer.editor.modes.sql;
+        const element = document.getElementById(containerId);
+        jaxon.adminer.editor.query = query;
+        CodeMirror(element, { value: query, mode, lineNumbers: false, readOnly: true });
+    },
+    highlightSqlEditor: function(containerId, driver) {
+        const mode = jaxon.adminer.editor.modes[driver] || jaxon.adminer.editor.modes.sql;
+        const element = document.getElementById(containerId);
+        jaxon.adminer.editor.element = CodeMirror.fromTextArea(element, {
+            mode,
+            indentWithTabs: true,
+            smartIndent: true,
+            lineNumbers: true,
+            matchBrackets : true,
+            autofocus: true,
+            extraKeys: {'Ctrl-Space': 'autocomplete'},
+            hintOptions: jaxon.adminer.editor.hintOptions,
+            /*hintOptions: {
+                tables: {
+                    users: ["name", "score", "birthDate"],
+                    countries: ["name", "population", "size"]
+                }
+            }*/
+        });
+    },
+    saveSqlEditorContent: function() {
+        jaxon.adminer.editor.element.save();
+    },
+};
+
+jaxon.dom.ready(function() {
+    jaxon.ajax.handler.register('dbadmin.hsql', function(command) {
+        command.fullName = 'highlightSqlQuery';
+        jaxon.adminer.highlightSqlQuery(command.id, command.driver, command.data);
+        return true;
+    });
+});
+
