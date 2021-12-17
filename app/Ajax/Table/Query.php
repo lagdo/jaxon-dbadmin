@@ -54,7 +54,10 @@ class Query extends CallableClass
         $options = pm()->form($this->queryFormId);
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')
-            ->click($this->rq()->execInsert($server, $database, $schema, $table, $options)
+            ->click($this->rq()->execInsert($server, $database, $schema, $table, $options, true)
+            ->confirm($this->dbAdmin->lang('Save this item?')));
+        $this->jq('#adminer-main-action-query-save-select')
+            ->click($this->rq()->execInsert($server, $database, $schema, $table, $options, false)
             ->confirm($this->dbAdmin->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-back')
             ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
@@ -70,11 +73,12 @@ class Query extends CallableClass
      * @param string $schema      The schema name
      * @param string $table       The table name
      * @param array  $options     The query options
+     * @param bool $addNew        Add a new entry after saving the current one.
      *
      * @return \Jaxon\Response\Response
      */
     public function execInsert(string $server, string $database, string $schema,
-        string $table, array $options)
+        string $table, array $options, bool $addNew)
     {
         $results = $this->dbAdmin->insertItem($server, $database, $schema, $table, $options);
 
@@ -85,7 +89,9 @@ class Query extends CallableClass
             return $this->response;
         }
         $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
-        $this->showInsert($server, $database, $schema, $table);
+
+        $addNew ? $this->showInsert($server, $database, $schema, $table) :
+            $this->cl(Select::class)->show($server, $database, $schema, $table);
 
         return $this->response;
     }

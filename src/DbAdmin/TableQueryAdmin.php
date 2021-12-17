@@ -239,24 +239,14 @@ class TableQueryAdmin extends AbstractAdmin
                     $default = $regs[1];
                 }
                 // }
-                $value = (
-                    $row !== null ? (
-                        $row[$name] != "" && $this->driver->jush() == "sql" && \preg_match("~enum|set~", $field->type) ?
-                        (\is_array($row[$name]) ? \array_sum($row[$name]) : +$row[$name]) :
-                        (\is_bool($row[$name]) ? +$row[$name] : $row[$name])
-                    ) : (
-                        !$update && $field->autoIncrement ? "" : (isset($queryOptions["select"]) ? false : $default)
-                    )
-                );
-                $function = (
-                    $queryOptions["save"]
-                    ? (string)$queryOptions["function"][$name]
-                    : (
-                        $update && \preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate)
-                        ? "now"
-                        : ($value === false ? null : ($value !== null ? '' : 'NULL'))
-                    )
-                );
+                $value = ($row !== null ?
+                    ($row[$name] != "" && $this->driver->jush() == "sql" && \preg_match("~enum|set~", $field->type) ?
+                    (\is_array($row[$name]) ? \array_sum($row[$name]) : +$row[$name]) :
+                    (\is_bool($row[$name]) ? +$row[$name] : $row[$name])) :
+                    (!$update && $field->autoIncrement ? "" : (isset($queryOptions["select"]) ? false : $default)));
+                $function = ($queryOptions["save"] ? (string)$queryOptions["function"][$name] :
+                    ($update && \preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) ? "now" :
+                    ($value === false ? null : ($value !== null ? '' : 'NULL'))));
                 if (!$update && $value == $field->default && \preg_match('~^[\w.]+\(~', $value)) {
                     $function = "SQL";
                 }
@@ -272,6 +262,7 @@ class TableQueryAdmin extends AbstractAdmin
         $mainActions = [
             'query-back' => $this->trans->lang('Back'),
             'query-save' => $this->trans->lang('Save'),
+            'query-save-select' => $this->trans->lang('Save and select'),
         ];
 
         $fields = $entries;
