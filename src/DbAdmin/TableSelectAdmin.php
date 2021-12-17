@@ -336,7 +336,7 @@ class TableSelectAdmin extends AbstractAdmin
         $mainActions = [
             'select-exec' => $this->trans->lang('Execute'),
             'insert-table' => $this->trans->lang('New item'),
-            'select-cancel' => $this->trans->lang('Cancel'),
+            'select-back' => $this->trans->lang('Back'),
         ];
 
         return \compact('mainActions', 'options', 'query');

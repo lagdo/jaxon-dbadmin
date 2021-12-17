@@ -270,8 +270,8 @@ class TableQueryAdmin extends AbstractAdmin
         }
 
         $mainActions = [
+            'query-back' => $this->trans->lang('Back'),
             'query-save' => $this->trans->lang('Save'),
-            'query-cancel' => $this->trans->lang('Cancel'),
         ];
 
         $fields = $entries;

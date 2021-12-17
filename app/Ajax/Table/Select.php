@@ -111,7 +111,7 @@ class Select extends CallableClass
 
         $options = pm()->form($this->selectFormId);
         // Set onclick handlers on buttons
-        $this->jq('#adminer-main-action-select-cancel')
+        $this->jq('#adminer-main-action-select-back')
             ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
         $this->jq("#$btnColumnsId")
             ->click($this->rq()->editColumns($server, $database, $schema, $table, $options));

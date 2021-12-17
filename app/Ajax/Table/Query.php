@@ -56,7 +56,7 @@ class Query extends CallableClass
         $this->jq('#adminer-main-action-query-save')
             ->click($this->rq()->execInsert($server, $database, $schema, $table, $options)
             ->confirm($this->dbAdmin->lang('Save this item?')));
-        $this->jq('#adminer-main-action-query-cancel')
+        $this->jq('#adminer-main-action-query-back')
             ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
 
         return $this->response;
