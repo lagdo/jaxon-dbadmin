@@ -359,7 +359,7 @@ class TableSelectAdmin extends AbstractAdmin
         $error = null;
         // From driver.inc.php
         $start = microtime(true);
-        $statement = $this->driver->query($query);
+        $statement = $this->driver->execute($query);
         // From adminer.inc.php
         $duration = $this->trans->formatTime($start); // Compute and format the duration
 

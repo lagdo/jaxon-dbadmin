@@ -295,7 +295,7 @@ class Admin
     {
         if ($execute) {
             // $start = microtime(true);
-            $failed = !$this->driver->query($query);
+            $failed = !$this->driver->execute($query);
             // $time = $this->trans->formatTime($start);
         }
         if ($failed) {

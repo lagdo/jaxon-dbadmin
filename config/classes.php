@@ -4,22 +4,28 @@ return [
     Lagdo\DbAdmin\App\Ajax\Table::class => [
         'show,add,edit' => [
             '__after' => 'showBreadcrumbs',
-        ]
+        ],
     ],
     Lagdo\DbAdmin\App\Ajax\View::class => [
         'show' => [
             '__after' => 'showBreadcrumbs',
-        ]
+        ],
     ],
     Lagdo\DbAdmin\App\Ajax\Table\Query::class => [
         'showInsert,showUpdate' => [
             '__after' => 'showBreadcrumbs',
-        ]
+        ],
+        'execInsert,execUpdate,execDelete' => [
+            '__after' => 'debugQueries',
+        ],
     ],
     Lagdo\DbAdmin\App\Ajax\Table\Select::class => [
         'show' => [
             '__after' => 'showBreadcrumbs',
-        ]
+        ],
+        'execSelect' => [
+            '__after' => 'debugQueries',
+        ],
     ],
     Lagdo\DbAdmin\App\Ajax\Server::class => [
         'connect' => [
@@ -122,6 +128,9 @@ return [
                 'showBreadcrumbs',
                 'selectMenuItem' => ['#adminer-menu-action-database-command', 'adminer-database-actions'],
             ],
+        ],
+        'execute' => [
+            '__after' => 'debugQueries',
         ],
     ],
     Lagdo\DbAdmin\App\Ajax\Import::class => [

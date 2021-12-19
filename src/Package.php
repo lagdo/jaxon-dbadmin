@@ -5,7 +5,10 @@ namespace Lagdo\DbAdmin;
 use Jaxon\Plugin\Package as JaxonPackage;
 use Lagdo\DbAdmin\App\Ajax\Server;
 
+use function array_key_exists;
+use function array_walk;
 use function jaxon;
+use function pm;
 
 /**
  * Adminer package
@@ -172,7 +175,7 @@ class Package extends JaxonPackage
      *
      * @return array
      */
-    public function getServerOptions($server)
+    public function getServerOptions(string $server)
     {
         return $this->getConfig()->getOption("servers.$server", []);
     }
@@ -184,22 +187,9 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getServerDriver($server)
+    public function getServerDriver(string $server)
     {
         return $this->getConfig()->getOption("servers.$server.driver", '');
-    }
-
-    /**
-     * Get the value of a given package option
-     *
-     * @param string $option    The option name
-     * @param mixed  $default   The default value
-     *
-     * @return mixed
-     */
-    public function getOption($option, $default = null)
-    {
-        return $this->getConfig()->getOption($option, $default);
     }
 
     /**
@@ -211,11 +201,11 @@ class Package extends JaxonPackage
     {
         $servers = $this->getConfig()->getOption('servers', []);
         $default = $this->getConfig()->getOption('default', '');
-        if(\array_key_exists($default, $servers))
+        if(array_key_exists($default, $servers))
         {
             return $default;
         }
-        // if(\count($servers) > 0)
+        // if(count($servers) > 0)
         // {
         //     return $servers[0];
         // }
@@ -282,11 +272,11 @@ class Package extends JaxonPackage
     {
         // Add an HTML container block for each server in the config file
         $servers = $this->getConfig()->getOption('servers', []);
-        \array_walk($servers, function(&$server) {
+        array_walk($servers, function(&$server) {
             $server = $server['name'];
         });
 
-        $connect = \jaxon()->request(Server::class)->connect(\pm()->select('adminer-dbhost-select'));
+        $connect = jaxon()->request(Server::class)->connect(pm()->select('adminer-dbhost-select'));
 
         return $this->view()->render('adminer::views::home', $this->getIds())
             ->with('connect', $connect)

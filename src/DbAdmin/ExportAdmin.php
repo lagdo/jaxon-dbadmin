@@ -324,7 +324,7 @@ class ExportAdmin extends AbstractAdmin
                 }
                 $fields = $this->driver->fields($table);
             }
-            $statement = $this->driver->query($query, 1); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
+            $statement = $this->driver->query($query); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
             if ($statement) {
                 $insert = '';
                 $buffer = '';

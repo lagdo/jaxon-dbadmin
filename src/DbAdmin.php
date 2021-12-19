@@ -122,4 +122,14 @@ class DbAdmin extends AbstractAdmin
         // Connect to the selected server
         $this->driver->connect($database, $schema);
     }
+
+    /**
+     * Get the remembered queries
+     *
+     * @return array
+     */
+    public function queries()
+    {
+        return $this->driver->queries();
+    }
 }

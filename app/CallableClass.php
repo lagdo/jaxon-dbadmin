@@ -103,4 +103,21 @@ class CallableClass extends JaxonCallableClass
         $this->jq('.adminer-menu-item', '#'. $this->package->getDbMenuId())->removeClass('active');
         $this->jq($menuId, '#'. $wrapperId)->addClass('active');
     }
+
+    /**
+     * Print the executed queries in the debug console
+     *
+     * @return void
+     */
+    protected function debugQueries()
+    {
+        if(!$this->package->getOption('debug.queries', false))
+        {
+            return;
+        }
+        foreach($this->dbAdmin->queries() as $query)
+        {
+            $this->response->debug($query['start'] . ' => ' . $query['query']);
+        }
+    }
 }
