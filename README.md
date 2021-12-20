@@ -78,6 +78,8 @@ The `default` option sets a database server `Jaxon Adminer` must connect to when
     ],
 ```
 
+### Access restriction
+
 The `access` section provides a few options to restrict access to databases on any server.
 
 If the `access.server` option is set to `false` at package level, then the access to all servers information will be forbidden, and the user will have access only to database contents.
@@ -132,8 +134,27 @@ The `access.schemas` option will apply only on servers which provide that featur
 ```
 In this configuration, the user will be able to get access only to three databases on the server with id `server_id`.
 
-Data import
------------
+### Debug console output
+
+Starting from version `0.9.0`, the SQL queries that are executed can also be printed in the browser debug console,
+if the `debug.queries` option is set to true.
+
+```php
+    'app' => [
+        'packages' => [
+            Lagdo\DbAdmin\Package::class => [
+                'debug' => [
+                    'queries' => true,
+                ],
+                'servers' => [
+                    // The database servers
+                ],
+            ],
+        ],
+    ],
+```
+
+### Data import
 
 SQL files can be uploaded and executed on a server. This feature is implemented using the [Jaxon ajax upload](https://www.jaxon-php.org/docs/v3x/registrations/upload.html) feature, which then needs to be configured in the `lib` section of the `Jaxon` config file.
 
@@ -151,8 +172,7 @@ SQL files can be uploaded and executed on a server. This feature is implemented 
 As stated in the [Jaxon ajax upload documentation](https://www.jaxon-php.org/docs/v3x/registrations/upload.html), `sql_files` is the `name` attribute of the file upload field, and of course `/path/to/the/upload/dir` needs to be writable.
 Other parameters can also be defined to limit the size of the uploaded files or retrict their extensions or mime types.
 
-Data export
------------
+### Data export
 
 Databases can also be exported to various types of files: SQL, CSV, and more.
 A directory where the exported files are going to be saved must then be defined in the configuration, as well as an url where they can be downloaded.
@@ -174,8 +194,7 @@ A directory where the exported files are going to be saved must then be defined 
 ```
 The web server needs to be setup to serve the files in the directory `dir` from url `url`.
 
-Change the UI framework
------------------------
+### Change the UI framework
 
 Starting from version 0.6, this package is designed to support multiple UI frameworks, and multiple templates.
 
