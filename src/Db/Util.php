@@ -80,10 +80,10 @@ class Util implements UtilInterface
     /**
      * @inheritDoc
      */
-    public function html(?string $string)
+    public function html($string)
     {
         if(!$string) {
-            return $string;
+            return '';
         }
         return \str_replace("\0", '&#0;', \htmlspecialchars($string, ENT_QUOTES, 'utf-8'));
     }
