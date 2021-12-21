@@ -155,6 +155,7 @@ class TableQueryAdmin extends AbstractAdmin
      */
     public function getQueryData(string $table, array $queryOptions = [])
     {
+        $isInsert = (\count($queryOptions) === 0); // True only on insert.
         // Default options
         $queryOptions['clone'] = false;
         $queryOptions['save'] = false;
@@ -262,8 +263,10 @@ class TableQueryAdmin extends AbstractAdmin
         $mainActions = [
             'query-back' => $this->trans->lang('Back'),
             'query-save' => $this->trans->lang('Save'),
-            'query-save-select' => $this->trans->lang('Save and select'),
         ];
+        if ($isInsert) {
+            $mainActions['query-save-select'] = $this->trans->lang('Save and select');
+        }
 
         $fields = $entries;
         return \compact('mainActions', 'tableName', 'error', 'fields');

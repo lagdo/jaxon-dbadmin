@@ -134,7 +134,7 @@ class Query extends CallableClass
         $this->jq('#adminer-main-action-query-save')
             ->click($this->rq()->execUpdate($server, $database, $schema, $table, $rowIds, $options, $selects)
             ->confirm($this->dbAdmin->lang('Save this item?')));
-        $this->jq('#adminer-main-action-query-cancel')
+        $this->jq('#adminer-main-action-query-back')
             ->click($this->rq()->backToSelect($server, $database, $schema, $table, $selects));
 
         return $this->response;
