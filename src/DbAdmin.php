@@ -105,7 +105,7 @@ class DbAdmin extends AbstractAdmin
      * @param string $database  The database name
      * @param string $schema    The database schema
      *
-     * @return array
+     * @return void
      */
     public function connect(string $server, string $database = '', string $schema = '')
     {

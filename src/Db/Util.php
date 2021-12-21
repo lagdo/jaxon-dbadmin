@@ -2,51 +2,36 @@
 
 namespace Lagdo\DbAdmin\Db;
 
-use Lagdo\DbAdmin\Driver\UtilInterface;
-use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Entity\TableEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
-
+use Lagdo\DbAdmin\Driver\InputInterface;
+use Lagdo\DbAdmin\Driver\TranslatorInterface;
+use Lagdo\DbAdmin\Driver\UtilInterface;
+use Lagdo\DbAdmin\Driver\UtilTrait;
 use function intval;
 
 class Util implements UtilInterface
 {
-    /**
-     * @var DriverInterface
-     */
-    public $driver;
-
-    /**
-     * @var Translator
-     */
-    protected $trans;
-
-    /**
-     * @var Input
-     */
-    public $input;
+    use UtilTrait;
 
     /**
      * The constructor
      *
-     * @param Translator $trans
+     * @param TranslatorInterface $trans
+     * @param InputInterface $input
      */
-    public function __construct(Translator $trans)
+    public function __construct(TranslatorInterface $trans, InputInterface $input)
     {
         $this->trans = $trans;
-        $this->input = new Input();
+        $this->input = $input;
     }
 
     /**
-     * Set the driver
-     *
-     * @param DriverInterface $driver
-     *
-     * @return void
+     * @inheritDoc
      */
-    public function setDriver(DriverInterface $driver)
+    public function name(): string
     {
-        $this->driver = $driver;
+        return '<a href="https://www.adminer.org/"' . $this->blankTarget() . ' id="h1">Adminer</a>';
     }
 
     /**
@@ -54,55 +39,9 @@ class Util implements UtilInterface
      *
      * @return string
      */
-    public function blankTarget()
+    public function blankTarget(): string
     {
         return ' target="_blank" rel="noreferrer noopener"';
-    }
-
-    /**
-     * Name in title and navigation
-     *
-     * @return string
-     */
-    public function name()
-    {
-        return '<a href="https://www.adminer.org/"' . $this->blankTarget() . ' id="h1">Adminer</a>';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function input()
-    {
-        return $this->input;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function html($string)
-    {
-        if(!$string) {
-            return '';
-        }
-        return \str_replace("\0", '&#0;', \htmlspecialchars($string, ENT_QUOTES, 'utf-8'));
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function number(string $value)
-    {
-        return \preg_replace('~[^0-9]+~', '', $value);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isUtf8(string $value)
-    {
-        // don't print control chars except \t\r\n
-        return (\preg_match('~~u', $value) && !\preg_match('~[\0-\x8\xB\xC\xE-\x1F]~', $value));
     }
 
     /**
@@ -110,7 +49,7 @@ class Util implements UtilInterface
      *
      * @return string
      */
-    public function error()
+    public function error(): string
     {
         return $this->html($this->driver->error());
     }
@@ -122,7 +61,7 @@ class Util implements UtilInterface
      *
      * @return bool
      */
-    public function isMail($email)
+    public function isMail($email): bool
     {
         if (!\is_string($email)) {
             return false;
@@ -140,7 +79,7 @@ class Util implements UtilInterface
      *
      * @return bool
      */
-    public function isUrl($string)
+    public function isUrl($string): bool
     {
         $domain = '[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])'; // one domain component //! IDN
         //! restrict path, query and fragment characters
@@ -154,15 +93,19 @@ class Util implements UtilInterface
      *
      * @return bool
      */
-    public function isShortable(TableFieldEntity $field)
+    public function isShortable(TableFieldEntity $field): bool
     {
         return \preg_match('~char|text|json|lob|geometry|point|linestring|polygon|string|bytea~', $field->type) > 0;
     }
 
     /**
-     * @inheritDoc
+     * Get INI boolean value
+     *
+     * @param string $ini
+     *
+     * @return bool
      */
-    public function iniBool(string $ini)
+    public function iniBool(string $ini): bool
     {
         $value = \ini_get($ini);
         return (\preg_match('~^(on|true|yes)$~i', $value) || (int) $value); // boolean values set by php_value are strings
@@ -175,7 +118,7 @@ class Util implements UtilInterface
      *
      * @return int
      */
-    public function iniBytes(string $ini)
+    public function iniBytes(string $ini): int
     {
         $value = \ini_get($ini);
         $unit = \strtolower(\substr($value, -1)); // Get the last char
@@ -189,21 +132,13 @@ class Util implements UtilInterface
     }
 
     /**
-     * @inheritDoc
-     */
-    public function convertEolToHtml(string $string)
-    {
-        return \str_replace("\n", '<br>', $string); // nl2br() uses XHTML before PHP 5.3
-    }
-
-    /**
      * Escape column key used in where()
      *
      * @param string
      *
      * @return string
      */
-    public function escapeKey(string $key)
+    public function escapeKey(string $key): string
     {
         if (\preg_match('(^([\w(]+)(' .
             \str_replace('_', '.*', \preg_quote($this->driver->escapeId('_'))) . ')([ \w)]+)$)', $key, $match)) {
@@ -214,7 +149,9 @@ class Util implements UtilInterface
     }
 
     /**
-     * @inheritDoc
+     * Compute fields() from input edit data
+     *
+     * @return array
      */
     public function getFieldsFromEdit()
     {
@@ -605,7 +542,12 @@ class Util implements UtilInterface
     }
 
     /**
-     * @inheritDoc
+     * Create SQL string from field
+     *
+     * @param TableFieldEntity $field Basic field information
+     * @param TableFieldEntity $typeField Information about field type
+     *
+     * @return array
      */
     public function processField(TableFieldEntity $field, TableFieldEntity $typeField)
     {
