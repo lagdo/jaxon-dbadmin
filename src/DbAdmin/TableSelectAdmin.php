@@ -231,11 +231,12 @@ class TableSelectAdmin extends AbstractAdmin
      * @param array $select
      * @param mixed $tableStatus
      *
-     * @return array|null
+     * @return array
      */
-    private function setPrimaryKey(array &$indexes, array $select, $tableStatus)
+    private function setPrimaryKey(array &$indexes, array $select, $tableStatus): array
     {
-        $primary = $unselected = null;
+        $primary = null;
+        $unselected = [];
         foreach ($indexes as $index) {
             if ($index->type == "PRIMARY") {
                 $primary = array_flip($index->columns);
@@ -300,7 +301,7 @@ class TableSelectAdmin extends AbstractAdmin
     {
         $select2 = $select;
         $group2 = $group;
-        if (!$select2) {
+        if (empty($select2)) {
             $select2[] = "*";
             $convert_fields = $this->driver->convertFields($columns, $fields, $select);
             if ($convert_fields) {
@@ -314,10 +315,10 @@ class TableSelectAdmin extends AbstractAdmin
             }
         }
         $isGroup = count($group) < count($select);
-        if (!$isGroup && $unselected) {
+        if (!$isGroup && !empty($unselected)) {
             foreach ($unselected as $key => $val) {
                 $select2[] = $this->driver->escapeId($key);
-                if ($group2) {
+                if (!empty($group2)) {
                     $group2[] = $this->driver->escapeId($key);
                 }
             }
@@ -446,10 +447,11 @@ class TableSelectAdmin extends AbstractAdmin
      * @param array $select
      * @param array $fields
      * @param array $unselected
+     * @param array $queryOptions
      *
      * @return array
      */
-    private function getResultHeaders(array $rows, array $select, array $fields, array $unselected): array
+    private function getResultHeaders(array $rows, array $select, array $fields, array $unselected, array $queryOptions): array
     {
         // Results headers
         $headers = [
@@ -530,11 +532,12 @@ class TableSelectAdmin extends AbstractAdmin
 
     /**
      * @param array $row
+     * @param array $fields
      * @param array $indexes
      *
      * @return array
      */
-    private function getRowIds(array $row, array $indexes): array
+    private function getRowIds(array $row, array $fields, array $indexes): array
     {
         $uniqueIds = $this->getUniqueIds($row, $indexes);
         // Unique identifier to edit returned data.
@@ -617,12 +620,12 @@ class TableSelectAdmin extends AbstractAdmin
         // $backward_keys = $this->driver->backwardKeys($table, $tableName);
         // lengths = $this->getValuesLengths($rows, $queryOptions);
 
-        list($headers, $names) = $this->getResultHeaders($rows, $select, $fields, $unselected);
+        list($headers, $names) = $this->getResultHeaders($rows, $select, $fields, $unselected, $queryOptions);
 
         $results = [];
         foreach ($rows as $row) {
             // Unique identifier to edit returned data.
-            $rowIds = $this->getRowIds($row, $indexes);
+            $rowIds = $this->getRowIds($row, $fields, $indexes);
             $cols = $this->getRowColumns($row, $names, $textLength);
             $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
