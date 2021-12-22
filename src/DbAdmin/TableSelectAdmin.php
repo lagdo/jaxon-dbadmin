@@ -13,6 +13,14 @@ use function str_replace;
 use function compact;
 use function preg_match;
 use function microtime;
+use function html_entity_decode;
+use function strip_tags;
+use function array_flip;
+use function in_array;
+use function trim;
+use function md5;
+use function strlen;
+use function strpos;
 
 /**
  * Admin table select functions
@@ -208,7 +216,7 @@ class TableSelectAdmin extends AbstractAdmin
         foreach ($fields as $key => $field) {
             $name = $this->util->fieldName($field);
             if (isset($field->privileges["select"]) && $name != "") {
-                $columns[$key] = \html_entity_decode(\strip_tags($name), ENT_QUOTES);
+                $columns[$key] = html_entity_decode(strip_tags($name), ENT_QUOTES);
                 if ($this->util->isShortable($field)) {
                     $textLength = $this->util->processSelectLength();
                 }
@@ -230,10 +238,10 @@ class TableSelectAdmin extends AbstractAdmin
         $primary = $unselected = null;
         foreach ($indexes as $index) {
             if ($index->type == "PRIMARY") {
-                $primary = \array_flip($index->columns);
+                $primary = array_flip($index->columns);
                 $unselected = ($select ? $primary : []);
                 foreach ($unselected as $key => $val) {
-                    if (\in_array($this->driver->escapeId($key), $select)) {
+                    if (in_array($this->driver->escapeId($key), $select)) {
                         unset($unselected[$key]);
                     }
                 }
@@ -405,20 +413,13 @@ class TableSelectAdmin extends AbstractAdmin
     }
 
     /**
-     * Get required data for create/update on tables
-     *
-     * @param string $table The table name
-     * @param array $queryOptions The query options
+     * @param string $query
+     * @param int $page
      *
      * @return array
-     * @throws Exception
      */
-    public function execSelect(string $table, array $queryOptions): array
+    private function executeQuery(string $query, int $page): array
     {
-        list(, $query, $select, $fields, , , $indexes, $where, $group, , $limit, $page,
-            $textLength, , $unselected) = $this->prepareSelect($table, $queryOptions);
-
-        $error = null;
         // From driver.inc.php
         $start = microtime(true);
         $statement = $this->driver->execute($query);
@@ -436,11 +437,20 @@ class TableSelectAdmin extends AbstractAdmin
             }
             $rows[] = $row;
         }
-        if (!$rows) {
-            return ['error' => $this->trans->lang('No rows.')];
-        }
-        // $backward_keys = $this->driver->backwardKeys($table, $tableName);
 
+        return [$rows, $duration];
+    }
+
+    /**
+     * @param array $rows
+     * @param array $select
+     * @param array $fields
+     * @param array $unselected
+     *
+     * @return array
+     */
+    private function getResultHeaders(array $rows, array $select, array $fields, array $unselected): array
+    {
         // Results headers
         $headers = [
             '', // !$group && $select ? '' : lang('Modify');
@@ -472,79 +482,148 @@ class TableSelectAdmin extends AbstractAdmin
             }
             $headers[] = $header;
         }
+        return [$headers, $names];
+    }
 
-        // $lengths = [];
-        // if($queryOptions["modify"])
-        // {
-        //     foreach($rows as $row)
-        //     {
-        //         foreach($row as $key => $value)
-        //         {
-        //             $lengths[$key] = \max($lengths[$key], \min(40, strlen(\utf8_decode($value))));
-        //         }
-        //     }
-        // }
+    /**
+     * @param array $rows
+     * @param array $queryOptions
+     *
+     * @return array
+     */
+    /*private function getValuesLengths(array $rows, array $queryOptions): array
+    {
+         $lengths = [];
+         if($queryOptions["modify"])
+         {
+             foreach($rows as $row)
+             {
+                 foreach($row as $key => $value)
+                 {
+                     $lengths[$key] = \max($lengths[$key], \min(40, strlen(\utf8_decode($value))));
+                 }
+             }
+         }
+         return $lengths;
+    }*/
+
+    /**
+     * @param array $row
+     * @param array $indexes
+     *
+     * @return array
+     */
+    private function getUniqueIds(array $row, array $indexes): array
+    {
+        $uniqueIds = $this->util->uniqueIds($row, $indexes);
+        if (empty($uniqueIds)) {
+            $pattern = '~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~';
+            foreach ($row as $key => $value) {
+                if (!preg_match($pattern, $key)) {
+                    //! columns looking like functions
+                    $uniqueIds[$key] = $value;
+                }
+            }
+        }
+        return $uniqueIds;
+    }
+
+    /**
+     * @param array $row
+     * @param array $indexes
+     *
+     * @return array
+     */
+    private function getRowIds(array $row, array $indexes): array
+    {
+        $uniqueIds = $this->getUniqueIds($row, $indexes);
+        // Unique identifier to edit returned data.
+        // $unique_idf = "";
+        $rowIds = ['where' => [], 'null' => []];
+        foreach ($uniqueIds as $key => $value) {
+            $key = trim($key);
+            $type = '';
+            $collation = '';
+            if (isset($fields[$key])) {
+                $type = $fields[$key]->type;
+                $collation = $fields[$key]->collation;
+            }
+            if (($this->driver->jush() == "sql" || $this->driver->jush() == "pgsql") &&
+                preg_match('~char|text|enum|set~', $type) && strlen($value) > 64) {
+                $key = (strpos($key, '(') ? $key : $this->driver->escapeId($key)); //! columns looking like functions
+                $key = "MD5(" . ($this->driver->jush() != 'sql' || preg_match("~^utf8~", $collation) ?
+                        $key : "CONVERT($key USING " . $this->driver->charset() . ")") . ")";
+                $value = md5($value);
+            }
+            if ($value !== null) {
+                $rowIds['where'][$this->util->bracketEscape($key)] = $value;
+            } else {
+                $rowIds['null'][] = $this->util->bracketEscape($key);
+            }
+            // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" . $this->util->bracketEscape($key) . "]") .
+            //     "=" . \urlencode($value) : \urlencode("null[]") . "=" . \urlencode($key));
+        }
+        return $rowIds;
+    }
+
+    /**
+     * @param array $row
+     * @param array $names
+     * @param int $textLength
+     *
+     * @return array
+     */
+    private function getRowColumns(array $row, array $names, int $textLength): array
+    {
+        $cols = [];
+        foreach ($row as $key => $value) {
+            if (isset($names[$key])) {
+                $field = $fields[$key] ?? new TableFieldEntity();
+                $value = $this->driver->value($value, $field);
+                if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
+                    //! filled e-mails can be contained on other pages
+                    $email_fields[$key] = ($this->util->isMail($value) ? $names[$key] : "");
+                }
+
+                $link = "";
+
+                $value = $this->util->selectValue($value, $link, $field, $textLength);
+                $text = preg_match('~text|lob~', $field->type);
+
+                $cols[] = compact(/*'id', */'text', 'value'/*, 'editable'*/);
+            }
+        }
+        return $cols;
+    }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string $table The table name
+     * @param array $queryOptions The query options
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function execSelect(string $table, array $queryOptions): array
+    {
+        list(, $query, $select, $fields, , , $indexes, $where, $group, , $limit, $page,
+            $textLength, , $unselected) = $this->prepareSelect($table, $queryOptions);
+
+        list($rows, $duration) = $this->executeQuery($query, $page);
+        if (!$rows) {
+            return ['error' => $this->trans->lang('No rows.')];
+        }
+        // $backward_keys = $this->driver->backwardKeys($table, $tableName);
+        // lengths = $this->getValuesLengths($rows, $queryOptions);
+
+        list($headers, $names) = $this->getResultHeaders($rows, $select, $fields, $unselected);
 
         $results = [];
-        foreach ($rows as $n => $row) {
-            $uniqueIds = $this->util->uniqueIds($rows[$n], $indexes);
-            if (empty($uniqueIds)) {
-                foreach ($row as $key => $value) {
-                    if (!\preg_match('~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~', $key)) {
-                        //! columns looking like functions
-                        $uniqueIds[$key] = $value;
-                    }
-                }
-            }
-
+        foreach ($rows as $row) {
             // Unique identifier to edit returned data.
-            // $unique_idf = "";
-            $rowIds = [
-                'where' => [],
-                'null' => [],
-            ];
-            foreach ($uniqueIds as $key => $value) {
-                $key = \trim($key);
-                $type = '';
-                $collation = '';
-                if (isset($fields[$key])) {
-                    $type = $fields[$key]->type;
-                    $collation = $fields[$key]->collation;
-                }
-                if (($this->driver->jush() == "sql" || $this->driver->jush() == "pgsql") &&
-                    \preg_match('~char|text|enum|set~', $type) && strlen($value) > 64) {
-                    $key = (\strpos($key, '(') ? $key : $this->driver->escapeId($key)); //! columns looking like functions
-                    $key = "MD5(" . ($this->driver->jush() != 'sql' || \preg_match("~^utf8~", $collation) ?
-                        $key : "CONVERT($key USING " . $this->driver->charset() . ")") . ")";
-                    $value = \md5($value);
-                }
-                if ($value !== null) {
-                    $rowIds['where'][$this->util->bracketEscape($key)] = $value;
-                } else {
-                    $rowIds['null'][] = $this->util->bracketEscape($key);
-                }
-                // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" . $this->util->bracketEscape($key) . "]") .
-                //     "=" . \urlencode($value) : \urlencode("null[]") . "=" . \urlencode($key));
-            }
-
-            $cols = [];
-            foreach ($row as $key => $value) {
-                if (isset($names[$key])) {
-                    $field = $fields[$key] ?? new TableFieldEntity();
-                    $value = $this->driver->value($value, $field);
-                    if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
-                        //! filled e-mails can be contained on other pages
-                        $email_fields[$key] = ($this->util->isMail($value) ? $names[$key] : "");
-                    }
-
-                    $link = "";
-
-                    $value = $this->util->selectValue($value, $link, $field, $textLength);
-                    $text = preg_match('~text|lob~', $field->type);
-
-                    $cols[] = compact(/*'id', */'text', 'value'/*, 'editable'*/);
-                }
-            }
+            $rowIds = $this->getRowIds($row, $indexes);
+            $cols = $this->getRowColumns($row, $names, $textLength);
             $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
 
@@ -552,6 +631,7 @@ class TableSelectAdmin extends AbstractAdmin
         $total = $this->driver->result($this->driver->sqlForRowCount($table, $where, $isGroup, $group));
 
         $rows = $results;
+        $error = null;
         return compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'error');
     }
 }
