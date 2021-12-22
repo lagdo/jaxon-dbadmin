@@ -7,6 +7,13 @@ use Lagdo\DbAdmin\Driver\Entity\TableSelectEntity;
 
 use Exception;
 
+use function intval;
+use function count;
+use function str_replace;
+use function compact;
+use function preg_match;
+use function microtime;
+
 /**
  * Admin table select functions
  */
@@ -19,7 +26,7 @@ class TableSelectAdmin extends AbstractAdmin
      * @param array $options
      * @return array
      */
-    private function getColumnsOptions(array $select, array $columns, array $options)
+    private function getColumnsOptions(array $select, array $columns, array $options): array
     {
         return [
             'select' => $select,
@@ -39,7 +46,7 @@ class TableSelectAdmin extends AbstractAdmin
      *
      * @return array
      */
-    private function getFiltersOptions(array $columns, array $indexes, array $options)
+    private function getFiltersOptions(array $columns, array $indexes, array $options): array
     {
         $fulltexts = [];
         foreach ($indexes as $i => $index) {
@@ -63,7 +70,7 @@ class TableSelectAdmin extends AbstractAdmin
      *
      * @return array
      */
-    private function getSortingOptions(array $columns, array $options)
+    private function getSortingOptions(array $columns, array $options): array
     {
         $values = [];
         $descs = (array)$options["desc"];
@@ -87,7 +94,7 @@ class TableSelectAdmin extends AbstractAdmin
      *
      * @return array
      */
-    private function getLimitOptions(string $limit)
+    private function getLimitOptions(string $limit): array
     {
         return ['value' => $this->util->html($limit)];
     }
@@ -99,7 +106,7 @@ class TableSelectAdmin extends AbstractAdmin
      *
      * @return array
      */
-    private function getLengthOptions($textLength)
+    private function getLengthOptions($textLength): array
     {
         return [
             'value' => $textLength === 0 ? 0 : $this->util->html($textLength),
@@ -159,14 +166,11 @@ class TableSelectAdmin extends AbstractAdmin
     // }
 
     /**
-     * Get required data for create/update on tables
+     * @param array $queryOptions
      *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
-     *
-     * @return array
+     * @return int
      */
-    private function prepareSelect(string $table, array &$queryOptions = [])
+    private function setDefaultOptions(array &$queryOptions): int
     {
         $defaultOptions = [
             'columns' => [],
@@ -183,19 +187,21 @@ class TableSelectAdmin extends AbstractAdmin
                 $queryOptions[$name] = $value;
             }
         }
-        $page = \intval($queryOptions['page']);
+        $page = intval($queryOptions['page']);
         if ($page > 0) {
             $page -= 1; // Page numbers start at 0 here, instead of 1.
         }
         $queryOptions['page'] = $page;
+        return $page;
+    }
 
-        $this->util->input()->setValues($queryOptions);
-
-        // From select.inc.php
-        $indexes = $this->driver->indexes($table);
-        $fields = $this->driver->fields($table);
-        $foreignKeys = $this->admin->columnForeignKeys($table);
-
+    /**
+     * @param array $fields
+     *
+     * @return array
+     */
+    private function getFieldsOptions(array $fields): array
+    {
         $rights = []; // privilege => 0
         $columns = []; // selectable columns
         $textLength = 0;
@@ -209,27 +215,18 @@ class TableSelectAdmin extends AbstractAdmin
             }
             $rights[] = $field->privileges;
         }
+        return [$rights, $columns, $textLength];
+    }
 
-        list($select, $group) = $this->util->processSelectColumns();
-        $isGroup = \count($group) < \count($select);
-        $where = $this->util->processSelectSearch($fields, $indexes);
-        $order = $this->util->processSelectOrder();
-        $limit = intval($this->util->processSelectLimit());
-
-        // if(isset($queryOptions["val"]) && is_ajax()) {
-        //     header("Content-Type: text/plain; charset=utf-8");
-        //     foreach($queryOptions["val"] as $unique_idf => $row) {
-        //         $as = convertField($fields[key($row)]);
-        //         $select = array($as ? $as : escapeId(key($row)));
-        //         $where[] = where_check($unique_idf, $fields);
-        //         $statement = $this->driver->select($table, $select, $where, $select);
-        //         if($statement) {
-        //             echo reset($statement->fetchRow());
-        //         }
-        //     }
-        //     exit;
-        // }
-
+    /**
+     * @param array $indexes
+     * @param array $select
+     * @param mixed $tableStatus
+     *
+     * @return array|null
+     */
+    private function setPrimaryKey(array &$indexes, array $select, $tableStatus)
+    {
         $primary = $unselected = null;
         foreach ($indexes as $index) {
             if ($index->type == "PRIMARY") {
@@ -244,40 +241,29 @@ class TableSelectAdmin extends AbstractAdmin
             }
         }
 
-        $tableStatus = $this->driver->tableStatusOrName($table);
         $oid = $tableStatus->oid;
         if ($oid && !$primary) {
             /*$primary = */$unselected = [$oid => 0];
             $indexes[] = ["type" => "PRIMARY", "columns" => [$oid]];
         }
 
-        $tableName = $this->util->tableName($tableStatus);
+        return $unselected;
+    }
 
-        // $set = null;
-        // if(isset($rights["insert"]) || !support("table")) {
-        //     $set = "";
-        //     foreach((array) $queryOptions["where"] as $val) {
-        //         if($foreignKeys[$val["col"]] && count($foreignKeys[$val["col"]]) == 1 && ($val["op"] == "="
-        //             || (!$val["op"] && !preg_match('~[_%]~', $val["val"])) // LIKE in Editor
-        //         )) {
-        //             $set .= "&set" . urlencode("[" . $this->util->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
-        //         }
-        //     }
-        // }
-        // $this->util->selectLinks($tableStatus, $set);
-
-        if (!$columns && $this->driver->support("table")) {
-            throw new Exception($this->trans->lang('Unable to select the table') .
-                ($fields ? "." : ": " . $this->driver->error()));
-        }
-
-        // if($page == "last")
-        // {
-        //     $found_rows = $this->driver->result($this->driver->sqlForRowCount($table, $where, $isGroup, $group));
-        //     $page = \floor(\max(0, $found_rows - 1) / $limit);
-        // }
-
-        $options = [
+    /**
+     * @param array $select
+     * @param array $columns
+     * @param array $indexes
+     * @param int $limit
+     * @param int $textLength
+     * @param array $queryOptions
+     *
+     * @return array
+     */
+    private function getAllOptions(array $select, array $columns, array $indexes,
+        int $limit, int $textLength, array $queryOptions): array
+    {
+        return [
             'columns' => $this->getColumnsOptions($select, $columns, $queryOptions),
             'filters' => $this->getFiltersOptions($columns, $indexes, $queryOptions),
             'sorting' => $this->getSortingOptions($columns, $queryOptions),
@@ -285,7 +271,25 @@ class TableSelectAdmin extends AbstractAdmin
             'length' => $this->getLengthOptions($textLength),
             // 'action' => $this->getActionOptions($indexes),
         ];
+    }
 
+    /**
+     * @param string $table
+     * @param array $columns
+     * @param array $fields
+     * @param array $select
+     * @param array $group
+     * @param array $where
+     * @param array $order
+     * @param array $unselected
+     * @param int $limit
+     * @param int $page
+     *
+     * @return TableSelectEntity
+     */
+    private function getSelectEntity(string $table, array $columns, array $fields, array $select,
+        array $group, array $where, array $order, array $unselected, int $limit, int $page): TableSelectEntity
+    {
         $select2 = $select;
         $group2 = $group;
         if (!$select2) {
@@ -301,6 +305,7 @@ class TableSelectAdmin extends AbstractAdmin
                 $select2[$key] = "$as AS $val";
             }
         }
+        $isGroup = count($group) < count($select);
         if (!$isGroup && $unselected) {
             foreach ($unselected as $key => $val) {
                 $select2[] = $this->driver->escapeId($key);
@@ -311,24 +316,81 @@ class TableSelectAdmin extends AbstractAdmin
         }
 
         // From driver.inc.php
-        $entity = new TableSelectEntity($table, $select2, $where, $group2, $order, $limit, $page);
-        $query = $this->driver->buildSelectQuery($entity);
-        // From adminer.inc.php
-        $query = \str_replace("\n", " ", $query);
-
-        return [$options, $query, $select, $fields, $foreignKeys, $columns, $indexes,
-            $where, $group, $order, $limit, $page, $textLength, $isGroup, $tableName, $unselected];
+        return new TableSelectEntity($table, $select2, $where, $group2, $order, $limit, $page);
     }
 
     /**
      * Get required data for create/update on tables
      *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
+     * @param string $table The table name
+     * @param array $queryOptions The query options
      *
      * @return array
+     * @throws Exception
      */
-    public function getSelectData(string $table, array $queryOptions = [])
+    private function prepareSelect(string $table, array &$queryOptions = []): array
+    {
+        $page = $this->setDefaultOptions($queryOptions);
+        $this->util->input()->setValues($queryOptions);
+
+        // From select.inc.php
+        $fields = $this->driver->fields($table);
+        list(, $columns, $textLength) = $this->getFieldsOptions($fields);
+        if (!$columns && $this->driver->support("table")) {
+            throw new Exception($this->trans->lang('Unable to select the table') .
+                ($fields ? "." : ": " . $this->driver->error()));
+        }
+
+        $indexes = $this->driver->indexes($table);
+        $foreignKeys = $this->admin->columnForeignKeys($table);
+        list($select, $group) = $this->util->processSelectColumns();
+        $where = $this->util->processSelectSearch($fields, $indexes);
+        $order = $this->util->processSelectOrder();
+        $limit = $this->util->processSelectLimit();
+        $tableStatus = $this->driver->tableStatusOrName($table);
+        $unselected = $this->setPrimaryKey($indexes, $select, $tableStatus);
+        $tableName = $this->util->tableName($tableStatus);
+
+        // $set = null;
+        // if(isset($rights["insert"]) || !support("table")) {
+        //     $set = "";
+        //     foreach((array) $queryOptions["where"] as $val) {
+        //         if($foreignKeys[$val["col"]] && count($foreignKeys[$val["col"]]) == 1 && ($val["op"] == "="
+        //             || (!$val["op"] && !preg_match('~[_%]~', $val["val"])) // LIKE in Editor
+        //         )) {
+        //             $set .= "&set" . urlencode("[" . $this->util->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
+        //         }
+        //     }
+        // }
+        // $this->util->selectLinks($tableStatus, $set);
+
+        // if($page == "last")
+        // {
+        //     $isGroup = count($group) < count($select);
+        //     $found_rows = $this->driver->result($this->driver->sqlForRowCount($table, $where, $isGroup, $group));
+        //     $page = \floor(\max(0, $found_rows - 1) / $limit);
+        // }
+
+        $options = $this->getAllOptions($select, $columns, $indexes, $limit, $textLength, $queryOptions);
+        $entity = $this->getSelectEntity($table, $columns, $fields, $select, $group, $where, $order, $unselected, $limit, $page);
+        $query = $this->driver->buildSelectQuery($entity);
+        // From adminer.inc.php
+        $query = str_replace("\n", " ", $query);
+
+        return [$options, $query, $select, $fields, $foreignKeys, $columns, $indexes,
+            $where, $group, $order, $limit, $page, $textLength, $tableName, $unselected];
+    }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string $table The table name
+     * @param array $queryOptions The query options
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getSelectData(string $table, array $queryOptions = []): array
     {
         list($options, $query) = $this->prepareSelect($table, $queryOptions);
 
@@ -339,22 +401,22 @@ class TableSelectAdmin extends AbstractAdmin
             'select-back' => $this->trans->lang('Back'),
         ];
 
-        return \compact('mainActions', 'options', 'query');
+        return compact('mainActions', 'options', 'query');
     }
 
     /**
      * Get required data for create/update on tables
      *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
+     * @param string $table The table name
+     * @param array $queryOptions The query options
      *
      * @return array
+     * @throws Exception
      */
-    public function execSelect(string $table, array $queryOptions)
+    public function execSelect(string $table, array $queryOptions): array
     {
-        list($options, $query, $select, $fields, $foreignKeys, $columns, $indexes,
-            $where, $group, $order, $limit, $page, $textLength, $isGroup, $tableName,
-            $unselected) = $this->prepareSelect($table, $queryOptions);
+        list(, $query, $select, $fields, , , $indexes, $where, $group, , $limit, $page,
+            $textLength, , $unselected) = $this->prepareSelect($table, $queryOptions);
 
         $error = null;
         // From driver.inc.php
@@ -384,7 +446,7 @@ class TableSelectAdmin extends AbstractAdmin
             '', // !$group && $select ? '' : lang('Modify');
         ];
         $names = [];
-        $functions = [];
+        // $functions = [];
         reset($select);
         $rank = 1;
         foreach ($rows[0] as $key => $value) {
@@ -394,7 +456,7 @@ class TableSelectAdmin extends AbstractAdmin
                 $fun = $value["fun"] ?? '';
                 $field = $fields[$select ? ($value ? $value["col"] : current($select)) : $key];
                 $name = ($field ? $this->util->fieldName($field, $rank) : ($fun ? "*" : $key));
-                $header = \compact('value', 'field', 'name');
+                $header = compact('value', 'field', 'name');
                 if ($name != "") {
                     $rank++;
                     $names[$key] = $name;
@@ -405,7 +467,7 @@ class TableSelectAdmin extends AbstractAdmin
                     $header['key'] = $this->util->html($this->util->bracketEscape($key));
                     $header['sql'] = $this->util->applySqlFunction($fun, $name); //! columns looking like functions
                 }
-                $functions[$key] = $fun;
+                // $functions[$key] = $fun;
                 next($select);
             }
             $headers[] = $header;
@@ -427,7 +489,7 @@ class TableSelectAdmin extends AbstractAdmin
         foreach ($rows as $n => $row) {
             $uniqueIds = $this->util->uniqueIds($rows[$n], $indexes);
             if (empty($uniqueIds)) {
-                foreach ($rows[$n] as $key => $value) {
+                foreach ($row as $key => $value) {
                     if (!\preg_match('~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~', $key)) {
                         //! columns looking like functions
                         $uniqueIds[$key] = $value;
@@ -478,17 +540,18 @@ class TableSelectAdmin extends AbstractAdmin
                     $link = "";
 
                     $value = $this->util->selectValue($value, $link, $field, $textLength);
-                    $text = \preg_match('~text|lob~', $field->type);
+                    $text = preg_match('~text|lob~', $field->type);
 
-                    $cols[] = \compact(/*'id', */'text', 'value'/*, 'editable'*/);
+                    $cols[] = compact(/*'id', */'text', 'value'/*, 'editable'*/);
                 }
             }
             $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
 
+        $isGroup = count($group) < count($select);
         $total = $this->driver->result($this->driver->sqlForRowCount($table, $where, $isGroup, $group));
 
         $rows = $results;
-        return \compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'error');
+        return compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'error');
     }
 }

@@ -758,9 +758,9 @@ class Util implements UtilInterface
     /**
      * Process order box in select
      *
-     * @return array Expressions to join by comma
+     * @return array
      */
-    public function processSelectOrder()
+    public function processSelectOrder(): array
     {
         $expressions = [];
         foreach ((array) $this->input->values['order'] as $key => $val) {
@@ -776,11 +776,11 @@ class Util implements UtilInterface
     /**
      * Process limit box in select
      *
-     * @return string
+     * @return int
      */
-    public function processSelectLimit()
+    public function processSelectLimit(): int
     {
-        return (isset($this->input->values['limit']) ? $this->input->values['limit'] : '50');
+        return (isset($this->input->values['limit']) ? intval($this->input->values['limit']) : 50);
     }
 
     /**
@@ -788,7 +788,7 @@ class Util implements UtilInterface
      *
      * @return int
      */
-    public function processSelectLength()
+    public function processSelectLength(): int
     {
         return (isset($this->input->values['text_length']) ? intval($this->input->values['text_length']) : 100);
     }
@@ -816,7 +816,7 @@ class Util implements UtilInterface
      *
      * @return string
      */
-    private function _selectValue($value, string $link, string $type, $original)
+    private function _selectValue($value, string $link, string $type, $original): string
     {
         $clause = ($value === null ? '<i>NULL</i>' :
             (\preg_match('~char|binary|boolean~', $type) && !\preg_match('~var~', $type) ?
@@ -841,7 +841,7 @@ class Util implements UtilInterface
      *
      * @return string
      */
-    public function selectValue($value, string $link, TableFieldEntity $field, $textLength)
+    public function selectValue($value, string $link, TableFieldEntity $field, $textLength): string
     {
         // if (\is_array($value)) {
         //     $expression = '';
@@ -861,9 +861,6 @@ class Util implements UtilInterface
             }
             elseif ($this->isUrl($value)) {
                 $link = $value; // IE 11 and all modern browsers hide referrer
-            }
-            else {
-                $link = '';
             }
         }
         $expression = $value;
