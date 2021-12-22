@@ -381,7 +381,6 @@ class TableAdmin extends AbstractAdmin
 
         $this->fields = ($table !== '' ? $this->driver->fields($table) : []);
         foreach ($values['fields'] as $key => $field) {
-            $fieldName = '';
             $fieldName = $field['orig'];
             $field = TableFieldEntity::make($field);
             // Originally, deleted fields have the "field" field set to an empty string.

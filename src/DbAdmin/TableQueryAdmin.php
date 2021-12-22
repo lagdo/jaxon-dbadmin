@@ -2,34 +2,136 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
+use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Exception;
+
+use function compact;
+use function is_array;
+use function in_array;
+use function json_encode;
+use function reset;
+use function count;
+use function preg_match;
+use function preg_match_all;
+use function stripcslashes;
+use function str_replace;
+use function is_int;
+use function is_bool;
+use function array_sum;
+use function explode;
+use function substr_count;
+use function min;
 
 /**
  * Admin table query functions
  */
 class TableQueryAdmin extends AbstractAdmin
 {
+    private function getEntryFunction(TableFieldEntity $field, $name, $function, $functions): array
+    {
+        // Input for functions
+        if ($field->type == "enum") {
+            return [
+                'type' => 'name',
+                'name' => $this->util->html($functions[""] ?? ''),
+            ];
+        }
+        if (count($functions) > 1) {
+            $hasFunction = (in_array($function, $functions) || isset($functions[$function]));
+            return [
+                'type' => 'select',
+                'name' => "function[$name]",
+                'options' => $functions,
+                'selected' => $function === null || $hasFunction ? $function : "",
+            ];
+        }
+        return [
+            'type' => 'name',
+            'name' => $this->util->html(reset($functions)),
+        ];
+    }
+
+    private function getEntryInput(TableFieldEntity $field, $name, $value, $function, $functions)
+    {
+        $attrs = ['name' => "fields[$name]"];
+        if ($field->type == "enum") {
+            return ['type' => 'radio', 'attrs' => $attrs, 'values' => [isset($options["select"]), $field, $attrs, $value]];
+        }
+        if (preg_match('~bool~', $field->type)) {
+            return ['type' => 'checkbox', 'attrs' => $attrs, 'values' => [preg_match('~^(1|t|true|y|yes|on)$~i', $value)]];
+        }
+        if ($field->type == "set") {
+            $values = [];
+            preg_match_all("~'((?:[^']|'')*)'~", $field->length, $matches);
+            foreach ($matches[1] as $i => $val) {
+                $val = stripcslashes(str_replace("''", "'", $val));
+                $checked = (is_int($value) ? ($value >> $i) & 1 : in_array($val, explode(",", $value), true));
+                $values[] = [$this->util->html($val), $checked];
+            }
+            return ['type' => 'checkbox', 'attrs' => $attrs, 'values' => $values];
+        }
+        if (preg_match('~blob|bytea|raw|file~', $field->type) && $this->util->iniBool("file_uploads")) {
+            return ['type' => 'upload', 'attrs' => $attrs, 'value' => $name];
+        }
+        if (($text = preg_match('~text|lob|memo~i', $field->type)) || preg_match("~\n~", $value)) {
+            if ($text && $this->driver->jush() != "sqlite") {
+                $attrs['cols'] = 50;
+                $attrs['rows'] = 12;
+            } else {
+                $rows = min(12, substr_count($value, "\n") + 1);
+                $attrs['cols'] = 30;
+                $attrs['rows'] = $rows;
+                if ($rows == 1) {
+                    $attrs['style'] = 'height: 1.2em;';
+                }
+            }
+            return ['type' => 'blob', 'attrs' => $attrs, 'value' => $this->util->html($value)];
+        }
+        if ($function == "json" || preg_match('~^jsonb?$~', $field->type)) {
+            $attrs['cols'] = 50;
+            $attrs['rows'] = 12;
+            return ['type' => 'json', 'attrs' => $attrs, 'value' => $this->util->html($value)];
+        }
+        $unsigned = $field->unsigned ?? false;
+        // int(3) is only a display hint
+        $maxlength = (!preg_match('~int~', $field->type) &&
+        preg_match('~^(\d+)(,(\d+))?$~', $field->length, $match) ?
+            ((preg_match("~binary~", $field->type) ? 2 : 1) * $match[1] + (($match[3] ?? null) ? 1 : 0) +
+                (($match[2] ?? false) && !$unsigned ? 1 : 0)) :
+            ($this->driver->typeExists($field->type) ? $this->driver->type($field->type) + ($unsigned ? 0 : 1) : 0));
+        if ($this->driver->jush() == 'sql' && $this->driver->minVersion(5.6) && preg_match('~time~', $field->type)) {
+            $maxlength += 7; // microtime
+        }
+        if ($maxlength > 0) {
+            $attrs['data-maxlength'] = $maxlength;
+        }
+        // type='date' and type='time' display localized value which may be confusing,
+        // type='datetime' uses 'T' as date and time separator
+        $hasFunction = (in_array($function, $functions) || isset($functions[$function]));
+        if ((!$hasFunction || $function === "") &&
+            preg_match('~(?<!o)int(?!er)~', $field->type) &&
+            !preg_match('~\[\]~', $field->fullType)) {
+            $attrs['type'] = 'number';
+        }
+        if (preg_match('~char|binary~', $field->type) && $maxlength > 20) {
+            $attrs['size'] = 40;
+        }
+        return ['type' => 'input', 'attrs' => $attrs, 'value' => $this->util->html($value)];
+    }
+
     /**
      * Get data for an input field
      */
     protected function getFieldInput($field, $value, $function, $options)
     {
-        $save = $options["save"];
         // From functions.inc.php (function input($field, $value, $function))
         $name = $this->util->html($this->util->bracketEscape($field->name));
-        $entry = [
-            'type' => $this->util->html($field->fullType),
-            'name' => $name,
-            'field' => [
-                'type' => $field->type,
-            ],
-        ];
-
-        if (\is_array($value) && !$function) {
-            $value = \json_encode($value, JSON_PRETTY_PRINT);
+        $save = $options["save"];
+        $reset = ($this->driver->jush() == "mssql" && $field->autoIncrement);
+        if (is_array($value) && !$function) {
+            $value = json_encode($value, JSON_PRETTY_PRINT);
             $function = "json";
         }
-        $reset = ($this->driver->jush() == "mssql" && $field->autoIncrement);
         if ($reset && !$save) {
             $function = null;
         }
@@ -38,83 +140,72 @@ class TableQueryAdmin extends AbstractAdmin
             $functions["orig"] = $this->trans->lang('original');
         }
         $functions += $this->util->editFunctions($field);
-
-        // Input for functions
-        $has_function = (\in_array($function, $functions) || isset($functions[$function]));
-        if ($field->type == "enum") {
-            $entry['functions'] = [
-                'type' => 'name',
-                'name' => $this->util->html($functions[""] ?? ''),
-            ];
-        } elseif (\count($functions) > 1) {
-            $entry['functions'] = [
-                'type' => 'select',
-                'name' => "function[$name]",
-                'options' => $functions,
-                'selected' => $function === null || $has_function ? $function : "",
-            ];
-        } else {
-            $entry['functions'] = [
-                'type' => 'name',
-                'name' => $this->util->html(\reset($functions)),
-            ];
-        }
+        return [
+            'type' => $this->util->html($field->fullType),
+            'name' => $name,
+            'field' => [
+                'type' => $field->type,
+            ],
+            'function' => $this->getEntryFunction($field, $name, $function, $functions),
+            'input' => $this->getEntryInput($field, $name, $value, $function, $functions),
+        ];
 
         // Input for value
         // The HTML code generated by Adminer is kept here.
-        $attrs = " name='fields[$name]'";
+        /*$attrs = " name='fields[$name]'";
         $entry['input'] = ['type' => ''];
         if ($field->type == "enum") {
             $entry['input']['type'] = 'radio';
             $entry['input']['value'] = $this->util->editInput(isset($options["select"]), $field, $attrs, $value);
-        } elseif (\preg_match('~bool~', $field->type)) {
+        } elseif (preg_match('~bool~', $field->type)) {
             $entry['input']['type'] = 'checkbox';
             $entry['input']['value'] = ["<input type='hidden'$attrs value='0'>" . "<input type='checkbox'" .
-                (\preg_match('~^(1|t|true|y|yes|on)$~i', $value) ? " checked='checked'" : "") . "$attrs value='1'>"];
+                (preg_match('~^(1|t|true|y|yes|on)$~i', $value) ? " checked='checked'" : "") . "$attrs value='1'>"];
         } elseif ($field->type == "set") {
             $entry['input']['type'] = 'checkbox';
             $entry['input']['value'] = [];
-            \preg_match_all("~'((?:[^']|'')*)'~", $field->length, $matches);
+            preg_match_all("~'((?:[^']|'')*)'~", $field->length, $matches);
             foreach ($matches[1] as $i => $val) {
                 $val = \stripcslashes(\str_replace("''", "'", $val));
-                $checked = (\is_int($value) ? ($value >> $i) & 1 : \in_array($val, \explode(",", $value), true));
+                $checked = (is_int($value) ? ($value >> $i) & 1 : in_array($val, explode(",", $value), true));
                 $entry['input']['value'][] = "<label><input type='checkbox' name='fields[$name][$i]' value='" . (1 << $i) . "'" .
                     ($checked ? ' checked' : '') . ">" . $this->util->html($val) . '</label>';
             }
-        } elseif (\preg_match('~blob|bytea|raw|file~', $field->type) && $this->util->iniBool("file_uploads")) {
+        } elseif (preg_match('~blob|bytea|raw|file~', $field->type) && $this->util->iniBool("file_uploads")) {
             $entry['input']['value'] = "<input type='file' name='fields-$name'>";
-        } elseif (($text = \preg_match('~text|lob|memo~i', $field->type)) || \preg_match("~\n~", $value)) {
+        } elseif (($text = preg_match('~text|lob|memo~i', $field->type)) || preg_match("~\n~", $value)) {
             if ($text && $this->driver->jush() != "sqlite") {
                 $attrs .= " cols='50' rows='12'";
             } else {
-                $rows = \min(12, \substr_count($value, "\n") + 1);
+                $rows = min(12, substr_count($value, "\n") + 1);
                 $attrs .= " cols='30' rows='$rows'" . ($rows == 1 ? " style='height: 1.2em;'" : ""); // 1.2em - line-height
             }
             $entry['input']['value'] = "<textarea$attrs>" . $this->util->html($value) . '</textarea>';
-        } elseif ($function == "json" || \preg_match('~^jsonb?$~', $field->type)) {
+        } elseif ($function == "json" || preg_match('~^jsonb?$~', $field->type)) {
             $entry['input']['value'] = "<textarea$attrs cols='50' rows='12' class='jush-js'>" .
                 $this->util->html($value) . '</textarea>';
         } else {
             $unsigned = $field->unsigned ?? false;
             // int(3) is only a display hint
-            $maxlength = (!\preg_match('~int~', $field->type) &&
-                \preg_match('~^(\d+)(,(\d+))?$~', $field->length, $match) ?
-                ((\preg_match("~binary~", $field->type) ? 2 : 1) * $match[1] + (($match[3] ?? null) ? 1 : 0) +
+            $maxlength = (!preg_match('~int~', $field->type) &&
+                preg_match('~^(\d+)(,(\d+))?$~', $field->length, $match) ?
+                ((preg_match("~binary~", $field->type) ? 2 : 1) * $match[1] + (($match[3] ?? null) ? 1 : 0) +
                 (($match[2] ?? false) && !$unsigned ? 1 : 0)) :
                 ($this->driver->typeExists($field->type) ? $this->driver->type($field->type) + ($unsigned ? 0 : 1) : 0));
-            if ($this->driver->jush() == 'sql' && $this->driver->minVersion(5.6) && \preg_match('~time~', $field->type)) {
+            if ($this->driver->jush() == 'sql' && $this->driver->minVersion(5.6) && preg_match('~time~', $field->type)) {
                 $maxlength += 7; // microtime
             }
             // type='date' and type='time' display localized value which may be confusing,
             // type='datetime' uses 'T' as date and time separator
-            $entry['input']['value'] = "<input" . ((!$has_function || $function === "") &&
-                \preg_match('~(?<!o)int(?!er)~', $field->type) &&
-                !\preg_match('~\[\]~', $field->fullType) ? " type='number'" : "") . " value='" .
+            $hasFunction = (in_array($function, $functions) || isset($functions[$function]));
+            $entry['input']['value'] = "<input" . ((!$hasFunction || $function === "") &&
+                preg_match('~(?<!o)int(?!er)~', $field->type) &&
+                !preg_match('~\[\]~', $field->fullType) ? " type='number'" : "") . " value='" .
                 $this->util->html($value) . "'" . ($maxlength ? " data-maxlength='$maxlength'" : "") .
-                (\preg_match('~char|binary~', $field->type) && $maxlength > 20 ? " size='40'" : "") . "$attrs>";
+                (preg_match('~char|binary~', $field->type) && $maxlength > 20 ? " size='40'" : "") . "$attrs>";
         }
 
-        return $entry;
+        return $entry;*/
     }
 
     /**
@@ -125,7 +216,7 @@ class TableQueryAdmin extends AbstractAdmin
      *
      * @return array
      */
-    private function getFields(string $table, array $queryOptions)
+    private function getFields(string $table, array $queryOptions): array
     {
         // From edit.inc.php
         $fields = $this->driver->fields($table);
@@ -153,9 +244,9 @@ class TableQueryAdmin extends AbstractAdmin
      *
      * @return array
      */
-    public function getQueryData(string $table, array $queryOptions = [])
+    public function getQueryData(string $table, array $queryOptions = []): array
     {
-        $isInsert = (\count($queryOptions) === 0); // True only on insert.
+        $isInsert = (count($queryOptions) === 0); // True only on insert.
         // Default options
         $queryOptions['clone'] = false;
         $queryOptions['save'] = false;
@@ -172,7 +263,7 @@ class TableQueryAdmin extends AbstractAdmin
                     if ($queryOptions["clone"] && $field->autoIncrement) {
                         $as = "''";
                     }
-                    if ($this->driver->jush() == "sql" && \preg_match("~enum|set~", $field->type)) {
+                    if ($this->driver->jush() == "sql" && preg_match("~enum|set~", $field->type)) {
                         $as = "1*" . $this->driver->escapeId($name);
                     }
                     $select[] = ($as ? "$as AS " : "") . $this->driver->escapeId($name);
@@ -236,22 +327,22 @@ class TableQueryAdmin extends AbstractAdmin
                 // if($default === null)
                 // {
                 $default = $field->default;
-                if ($field->type == "bit" && \preg_match("~^b'([01]*)'\$~", $default, $regs)) {
+                if ($field->type == "bit" && preg_match("~^b'([01]*)'\$~", $default, $regs)) {
                     $default = $regs[1];
                 }
                 // }
                 $value = ($row !== null ?
-                    ($row[$name] != "" && $this->driver->jush() == "sql" && \preg_match("~enum|set~", $field->type) ?
-                    (\is_array($row[$name]) ? \array_sum($row[$name]) : +$row[$name]) :
-                    (\is_bool($row[$name]) ? +$row[$name] : $row[$name])) :
+                    ($row[$name] != "" && $this->driver->jush() == "sql" && preg_match("~enum|set~", $field->type) ?
+                    (is_array($row[$name]) ? array_sum($row[$name]) : +$row[$name]) :
+                    (is_bool($row[$name]) ? +$row[$name] : $row[$name])) :
                     (!$update && $field->autoIncrement ? "" : (isset($queryOptions["select"]) ? false : $default)));
                 $function = ($queryOptions["save"] ? (string)$queryOptions["function"][$name] :
-                    ($update && \preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) ? "now" :
+                    ($update && preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) ? "now" :
                     ($value === false ? null : ($value !== null ? '' : 'NULL'))));
-                if (!$update && $value == $field->default && \preg_match('~^[\w.]+\(~', $value)) {
+                if (!$update && $value == $field->default && preg_match('~^[\w.]+\(~', $value)) {
                     $function = "SQL";
                 }
-                if (\preg_match("~time~", $field->type) && \preg_match('~^CURRENT_TIMESTAMP~i', $value)) {
+                if (preg_match("~time~", $field->type) && preg_match('~^CURRENT_TIMESTAMP~i', $value)) {
                     $value = "";
                     $function = "now";
                 }
@@ -269,7 +360,7 @@ class TableQueryAdmin extends AbstractAdmin
         }
 
         $fields = $entries;
-        return \compact('mainActions', 'tableName', 'error', 'fields');
+        return compact('mainActions', 'tableName', 'error', 'fields');
     }
 
     /**
@@ -280,7 +371,7 @@ class TableQueryAdmin extends AbstractAdmin
      *
      * @return array
      */
-    public function insertItem(string $table, array $queryOptions)
+    public function insertItem(string $table, array $queryOptions): array
     {
         list($fields, $where, $update) = $this->getFields($table, $queryOptions);
 
@@ -299,7 +390,7 @@ class TableQueryAdmin extends AbstractAdmin
 
         $error = $this->driver->error();
 
-        return \compact('result', 'message', 'error');
+        return compact('result', 'message', 'error');
     }
 
     /**
@@ -310,7 +401,7 @@ class TableQueryAdmin extends AbstractAdmin
      *
      * @return array
      */
-    public function updateItem(string $table, array $queryOptions)
+    public function updateItem(string $table, array $queryOptions): array
     {
         list($fields, $where, $update) = $this->getFields($table, $queryOptions);
 
@@ -332,7 +423,7 @@ class TableQueryAdmin extends AbstractAdmin
 
         $error = $this->driver->error();
 
-        return \compact('result', 'message', 'error');
+        return compact('result', 'message', 'error');
     }
 
     /**
@@ -343,7 +434,7 @@ class TableQueryAdmin extends AbstractAdmin
      *
      * @return array
      */
-    public function deleteItem(string $table, array $queryOptions)
+    public function deleteItem(string $table, array $queryOptions): array
     {
         list($fields, $where, $update) = $this->getFields($table, $queryOptions);
 
@@ -357,6 +448,6 @@ class TableQueryAdmin extends AbstractAdmin
 
         $error = $this->driver->error();
 
-        return \compact('result', 'message', 'error');
+        return compact('result', 'message', 'error');
     }
 }

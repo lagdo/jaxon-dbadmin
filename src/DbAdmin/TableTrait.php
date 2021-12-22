@@ -183,7 +183,7 @@ trait TableTrait
      *
      * @return TableFieldEntity
      */
-    public function getTableField(string $server, string $database, string $schema)
+    public function getTableField(string $server, string $database, string $schema): TableFieldEntity
     {
         $this->connect($server, $database, $schema);
 
