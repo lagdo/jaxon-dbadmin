@@ -571,29 +571,30 @@ class TableSelectAdmin extends AbstractAdmin
 
     /**
      * @param array $row
+     * @param array $fields
      * @param array $names
      * @param int $textLength
      *
      * @return array
      */
-    private function getRowColumns(array $row, array $names, int $textLength): array
+    private function getRowColumns(array $row, array $fields, array $names, int $textLength): array
     {
         $cols = [];
         foreach ($row as $key => $value) {
             if (isset($names[$key])) {
                 $field = $fields[$key] ?? new TableFieldEntity();
                 $value = $this->driver->value($value, $field);
-                if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
+                /*if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
                     //! filled e-mails can be contained on other pages
                     $email_fields[$key] = ($this->util->isMail($value) ? $names[$key] : "");
-                }
-
+                }*/
                 $link = "";
-
-                $value = $this->util->selectValue($value, $link, $field, $textLength);
-                $text = preg_match('~text|lob~', $field->type);
-
-                $cols[] = compact(/*'id', */'text', 'value'/*, 'editable'*/);
+                $cols[] = [
+                    // 'id',
+                    'text' => preg_match('~text|lob~', $field->type),
+                    'value' => $this->util->selectValue($value, $link, $field, $textLength),
+                    // 'editable' => false,
+                ];
             }
         }
         return $cols;
@@ -626,7 +627,7 @@ class TableSelectAdmin extends AbstractAdmin
         foreach ($rows as $row) {
             // Unique identifier to edit returned data.
             $rowIds = $this->getRowIds($row, $fields, $indexes);
-            $cols = $this->getRowColumns($row, $names, $textLength);
+            $cols = $this->getRowColumns($row, $fields, $names, $textLength);
             $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
 
