@@ -46,7 +46,7 @@ trait ExportTrait
      *
      * @return ExportAdmin
      */
-    protected function export()
+    protected function export(): ExportAdmin
     {
         if (!$this->exportAdmin) {
             $this->exportAdmin = new ExportAdmin();
@@ -63,7 +63,7 @@ trait ExportTrait
      *
      * @return array
      */
-    public function getExportOptions(string $server, string $database = '')
+    public function getExportOptions(string $server, string $database = ''): array
     {
         $this->connect($server, $database);
 

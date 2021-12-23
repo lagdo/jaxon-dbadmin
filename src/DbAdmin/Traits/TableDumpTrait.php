@@ -7,7 +7,6 @@ use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
 use function count;
 use function strlen;
-use function in_array;
 use function preg_match;
 use function str_replace;
 use function implode;
@@ -15,7 +14,7 @@ use function is_numeric;
 use function array_keys;
 use function array_map;
 
-trait DbDumpTrait
+trait TableDumpTrait
 {
     /**
      * The dump options
@@ -253,81 +252,6 @@ trait DbDumpTrait
         }
         if (($this->buffer)) {
             $this->queries[] = $this->buffer . $this->suffix;
-        }
-    }
-
-    /**
-     * @param string $table
-     * @param bool $dumpTable
-     * @param bool $dumpData
-     *
-     * @return void
-     */
-    private function dumpTable(string $table, bool $dumpTable, bool $dumpData)
-    {
-        if (!$dumpTable && !$dumpData) {
-            return;
-        }
-        $this->dumpTableOrView($table, ($dumpTable ? $this->options['table_style'] : ''));
-        if ($dumpData) {
-            $fields = $this->driver->fields($table);
-            $query = 'SELECT *' . $this->driver->convertFields($fields, $fields) .
-                ' FROM ' . $this->driver->table($table);
-            $this->dumpData($table, $query);
-        }
-        if ($this->options['is_sql'] && $this->options['triggers'] && $dumpTable &&
-            ($triggers = $this->driver->sqlForCreateTrigger($table))) {
-            $this->queries[] = 'DELIMITER ;';
-            $this->queries[] = $triggers;
-            $this->queries[] = 'DELIMITER ;';
-        }
-        if ($this->options['is_sql']) {
-            $this->queries[] = '';
-        }
-    }
-
-    /**
-     * Dump tables
-     *
-     * @param string $database      The database name
-     *
-     * @return void
-     */
-    private function dumpTables(string $database)
-    {
-        $dbDumpTable = $this->tables['list'] === '*' && in_array($database, $this->databases['list']);
-        $dbDumpData = in_array($database, $this->databases['data']);
-        $this->views = []; // View names
-        $this->fkeys = []; // Table names for foreign keys
-        $dbTables = $this->driver->tableStatuses(true);
-        foreach ($dbTables as $table => $tableStatus) {
-            $isView = $this->driver->isView($tableStatus);
-            if ($isView) {
-                // The views will be dumped after the tables
-                $this->views[] = $table;
-                continue;
-            }
-            $this->fkeys[] = $table;
-            $dumpTable = $dbDumpTable || in_array($table, $this->tables['list']);
-            $dumpData = $dbDumpData || in_array($table, $this->tables['data']);
-            $this->dumpTable($table, $dumpTable, $dumpData);
-        }
-    }
-
-    /**
-     * @return void
-     */
-    private function dumpViewsAndFKeys()
-    {
-        // Add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
-        if ($this->driver->support('fkeys_sql')) {
-            foreach ($this->fkeys as $table) {
-                $this->queries[] = $this->driver->sqlForForeignKeys($table);
-            }
-        }
-        // Dump the views after all the tables
-        foreach ($this->views as $view) {
-            $this->dumpTableOrView($view, $this->options['table_style'], 1);
         }
     }
 }
