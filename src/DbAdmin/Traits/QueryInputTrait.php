@@ -6,7 +6,6 @@ use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
 use function is_array;
 use function in_array;
-use function json_encode;
 use function reset;
 use function count;
 use function preg_match;
@@ -244,44 +243,5 @@ trait QueryInputTrait
             return ['type' => 'textarea', 'attrs' => $attrs, 'value' => $this->util->html($value)];
         }
         return $this->getDefaultInput($field, $attrs, $value, $function, $functions);
-    }
-
-    /**
-     * Get data for an input field
-     *
-     * @param TableFieldEntity $field
-     * @param mixed $value
-     * @param string|null $function
-     * @param array $options
-     *
-     * @return array
-     */
-    protected function getFieldInput(TableFieldEntity $field, $value, $function, array $options): array
-    {
-        // From functions.inc.php (function input($field, $value, $function))
-        $name = $this->util->html($this->util->bracketEscape($field->name));
-        $save = $options["save"];
-        $reset = ($this->driver->jush() == "mssql" && $field->autoIncrement);
-        if (is_array($value) && !$function) {
-            $value = json_encode($value, JSON_PRETTY_PRINT);
-            $function = "json";
-        }
-        if ($reset && !$save) {
-            $function = null;
-        }
-        $functions = [];
-        if ($reset) {
-            $functions["orig"] = $this->trans->lang('original');
-        }
-        $functions += $this->util->editFunctions($field);
-        return [
-            'type' => $this->util->html($field->fullType),
-            'name' => $name,
-            'field' => [
-                'type' => $field->type,
-            ],
-            'functions' => $this->getEntryFunctions($field, $name, $function, $functions),
-            'input' => $this->getEntryInput($field, $name, $value, $function, $functions, $options),
-        ];
     }
 }

@@ -3,13 +3,13 @@
 namespace Lagdo\DbAdmin\DbAdmin;
 
 use Lagdo\DbAdmin\DbAdmin\Traits\QueryInputTrait;
+use Lagdo\DbAdmin\DbAdmin\Traits\TableQueryTrait;
+use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
 use function compact;
 use function is_array;
 use function count;
 use function preg_match;
-use function is_bool;
-use function array_sum;
 
 /**
  * Admin table query functions
@@ -17,93 +17,45 @@ use function array_sum;
 class TableQueryAdmin extends AbstractAdmin
 {
     use QueryInputTrait;
+    use TableQueryTrait;
 
     /**
-     * Get the table fields
+     * Get data for an input field
      *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
+     * @param TableFieldEntity $field
+     * @param mixed $value
+     * @param string|null $function
+     * @param array $options
      *
      * @return array
      */
-    private function getFields(string $table, array $queryOptions): array
+    protected function getFieldInput(TableFieldEntity $field, $value, $function, array $options): array
     {
-        // From edit.inc.php
-        $fields = $this->driver->fields($table);
-
-        //!!!! $queryOptions["select"] is never set here !!!!//
-
-        $where = $this->admin->where($queryOptions, $fields);
-        $update = $where;
-        foreach ($fields as $name => $field) {
-            $generated = $field->generated ?? false;
-            if (!isset($field->privileges[$update ? "update" : "insert"]) ||
-                $this->util->fieldName($field) == "" || $generated) {
-                unset($fields[$name]);
-            }
+        // From functions.inc.php (function input($field, $value, $function))
+        $name = $this->util->html($this->util->bracketEscape($field->name));
+        $save = $options["save"];
+        $reset = ($this->driver->jush() == "mssql" && $field->autoIncrement);
+        if (is_array($value) && !$function) {
+            $value = json_encode($value, JSON_PRETTY_PRINT);
+            $function = "json";
         }
-
-        return [$fields, $where, $update];
-    }
-
-    /**
-     * @param array $fields
-     * @param array $queryOptions
-     *
-     * @return array
-     */
-    private function getQuerySelect(array $fields, array $queryOptions): array
-    {
-        $select = [];
-        foreach ($fields as $name => $field) {
-            if (isset($field->privileges["select"])) {
-                $as = $this->driver->convertField($field);
-                if ($queryOptions["clone"] && $field->autoIncrement) {
-                    $as = "''";
-                }
-                if ($this->driver->jush() == "sql" && preg_match("~enum|set~", $field->type)) {
-                    $as = "1*" . $this->driver->escapeId($name);
-                }
-                $select[] = ($as ? "$as AS " : "") . $this->driver->escapeId($name);
-            }
+        if ($reset && !$save) {
+            $function = null;
         }
-        if (!$this->driver->support("table")) {
-            $select = ["*"];
+        $functions = [];
+        if ($reset) {
+            $functions["orig"] = $this->trans->lang('original');
         }
-        return $select;
-    }
-
-    /**
-     * @param string $table
-     * @param string $where
-     * @param array $fields
-     * @param array $queryOptions
-     *
-     * @return array|null
-     */
-    private function getQueryFirstRow(string $table, string $where, array $fields, array $queryOptions)
-    {
-        // From edit.inc.php
-        $row = null;
-        if (($where)) {
-            $select = $this->getQuerySelect($fields, $queryOptions);
-            $row = [];
-            if ($select) {
-                $statement = $this->driver->select($table, $select, [$where], $select, [],
-                    (isset($queryOptions["select"]) ? 2 : 1));
-                if (($statement)) {
-                    $row = $statement->fetchAssoc();
-                }/* else {
-                    $error = $this->driver->error();
-                }*/
-                // if(isset($queryOptions["select"]) && (!$row || $statement->fetchAssoc()))
-                // {
-                //     // $statement->rowCount() != 1 isn't available in all drivers
-                //     $row = null;
-                // }
-            }
-        }
-        return $row;
+        $functions += $this->util->editFunctions($field);
+        return [
+            'type' => $this->util->html($field->fullType),
+            'name' => $name,
+            'field' => [
+                'type' => $field->type,
+            ],
+            'functions' => $this->getEntryFunctions($field, $name, $function, $functions),
+            'input' => $this->getEntryInput($field, $name, $value, $function, $functions, $options),
+        ];
     }
 
     /**
@@ -118,30 +70,12 @@ class TableQueryAdmin extends AbstractAdmin
     {
         $entries = [];
         foreach ($fields as $name => $field) {
-            // $default = $queryOptions["set"][$this->util->bracketEscape($name)] ?? null;
-            // if($default === null)
-            // {
-            $default = $field->default;
-            if ($field->type == "bit" && preg_match("~^b'([01]*)'\$~", $default, $regs)) {
-                $default = $regs[1];
-            }
-            // }
-            $value = ($row !== null ?
-                ($row[$name] != "" && $this->driver->jush() == "sql" && preg_match("~enum|set~", $field->type) ?
-                    (is_array($row[$name]) ? array_sum($row[$name]) : +$row[$name]) :
-                    (is_bool($row[$name]) ? +$row[$name] : $row[$name])) :
-                (!$update && $field->autoIncrement ? "" : (isset($queryOptions["select"]) ? false : $default)));
-            $function = ($queryOptions["save"] ? (string)$queryOptions["function"][$name] :
-                ($update && preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) ? "now" :
-                    ($value === false ? null : ($value !== null ? '' : 'NULL'))));
-            if (!$update && $value == $field->default && preg_match('~^[\w.]+\(~', $value)) {
-                $function = "SQL";
-            }
+            $value = $this->getRowFieldValue($field, $name, $row, $update, $queryOptions);
+            $function = $this->getRowFieldFunction($field, $name, $value, $update, $queryOptions);
             if (preg_match("~time~", $field->type) && preg_match('~^CURRENT_TIMESTAMP~i', $value)) {
                 $value = "";
                 $function = "now";
             }
-
             $entries[$name] = $this->getFieldInput($field, $value, $function, $queryOptions);
         }
         return $entries;
