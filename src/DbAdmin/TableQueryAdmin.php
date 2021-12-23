@@ -196,7 +196,7 @@ class TableQueryAdmin extends AbstractAdmin
         $error = null;
         if (($where) && $row === null) { // No row found to edit.
             $error = $this->trans->lang('No rows.');
-        } elseif (!$fields) {
+        } elseif (empty($fields)) {
             $error = $this->trans->lang('You have no privileges to update this table.');
         } else {
             $entries = $this->getQueryEntries($fields, $row, $update, $queryOptions);

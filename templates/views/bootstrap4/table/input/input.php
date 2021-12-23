@@ -1,0 +1,1 @@
+<input class="form-control"<?php foreach ($this->attrs as $name => $value) { echo ' ', $name, '="', $value, '"'; } ?> />
