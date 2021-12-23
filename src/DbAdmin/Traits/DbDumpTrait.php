@@ -3,8 +3,9 @@
 namespace Lagdo\DbAdmin\DbAdmin\Traits;
 
 use Lagdo\DbAdmin\Driver\Db\StatementInterface;
-use Lagdo\DbAdmin\Driver\Entity\TableEntity;
+use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
+use function count;
 use function strlen;
 use function in_array;
 use function preg_match;
@@ -52,28 +53,49 @@ trait DbDumpTrait
                 $row[$key] = '"' . str_replace('"', '""', $val) . '"';
             }
         }
-        $separator = $this->options['format'] == 'csv' ? ',' :
-            ($this->options['format'] == 'tsv' ? "\t" : ';');
+        $separator = $this->options['format'] === 'csv' ? ',' :
+            ($this->options['format'] === 'tsv' ? "\t" : ';');
         $this->queries[] = implode($separator, $row);
     }
 
     /**
      * Convert a value to string
      *
-     * @param mixed  $val
-     * @param object $field
+     * @param mixed  $value
+     * @param TableFieldEntity $field
      *
      * @return string
      */
-    private function convertToString($val, $field): string
+    private function convertToString($value, TableFieldEntity $field): string
     {
         // From functions.inc.php
-        if ($val === null) {
+        if ($value === null) {
             return 'NULL';
         }
-        return $this->driver->unconvertField($field, preg_match($this->driver->numberRegex(), $field->type) &&
-        !preg_match('~\[~', $field->fullType) && is_numeric($val) ?
-            $val : $this->driver->quote(($val === false ? 0 : $val)));
+        if (!preg_match($this->driver->numberRegex(), $field->type) ||
+            preg_match('~\[~', $field->fullType) && is_numeric($value)) {
+            $value = $this->driver->quote(($value === false ? 0 : $value));
+        }
+        return $this->driver->unconvertField($field, $value);
+    }
+
+    /**
+     * @param string $table
+     * @param string $style
+     * @param int $tableType
+     *
+     * @return string
+     */
+    private function getCreateTableQuery(string $table, string $style, int $tableType): string
+    {
+        if ($tableType !== 2) {
+            return $this->driver->sqlForCreateTable($table, $this->options['autoIncrement'], $style);
+        }
+        $fields = [];
+        foreach ($this->driver->fields($table) as $name => $field) {
+            $fields[] = $this->driver->escapeId($name) . ' ' . $field->fullType;
+        }
+        return 'CREATE TABLE ' . $this->driver->table($table) . ' (' . implode(', ', $fields) . ')';
     }
 
     /**
@@ -83,39 +105,35 @@ trait DbDumpTrait
      * @param string $style
      * @param int    $tableType       0 table, 1 view, 2 temporary view table
      *
-     * @return null prints data
+     * @return void
      */
     private function dumpTableOrView(string $table, string $style, int $tableType = 0)
     {
         // From adminer.inc.php
-        if ($this->options['format'] != 'sql') {
+        if ($this->options['format'] !== 'sql') {
             $this->queries[] = "\xef\xbb\xbf"; // UTF-8 byte order mark
             if ($style) {
                 $this->dumpCsv(array_keys($this->driver->fields($table)));
             }
             return;
         }
+        if (!$style) {
+            return;
+        }
 
-        if ($tableType == 2) {
-            $fields = [];
-            foreach ($this->driver->fields($table) as $name => $field) {
-                $fields[] = $this->driver->escapeId($name) . ' ' . $field->fullType;
-            }
-            $create = 'CREATE TABLE ' . $this->driver->table($table) . ' (' . implode(', ', $fields) . ')';
-        } else {
-            $create = $this->driver->sqlForCreateTable($table, $this->options['autoIncrement'], $style);
-        }
+        $create = $this->getCreateTableQuery($table, $style, $tableType);
         $this->driver->setUtf8mb4($create);
-        if ($style && $create) {
-            if ($style == 'DROP+CREATE' || $tableType == 1) {
-                $this->queries[] = 'DROP ' . ($tableType == 2 ? 'VIEW' : 'TABLE') .
-                    ' IF EXISTS ' . $this->driver->table($table) . ';';
-            }
-            if ($tableType == 1) {
-                $create = $this->admin->removeDefiner($create);
-            }
-            $this->queries[] = $create . ';';
+        if (!$create) {
+            return;
         }
+        if ($style === 'DROP+CREATE' || $tableType === 1) {
+            $this->queries[] = 'DROP ' . ($tableType === 2 ? 'VIEW' : 'TABLE') .
+                ' IF EXISTS ' . $this->driver->table($table) . ';';
+        }
+        if ($tableType === 1) {
+            $create = $this->admin->removeDefiner($create);
+        }
+        $this->queries[] = $create . ';';
     }
 
     /**
@@ -128,17 +146,41 @@ trait DbDumpTrait
     {
         $values = [];
         $keys = [];
-        foreach ($row as $val) {
+        // For is preferred to foreach because the values are not used.
+        // foreach ($row as $val) {
+        // }
+        for ($i = 0; $i < count($row); $i++) {
             $field = $statement->fetchField();
             $keys[] = $field->name();
             $key = $this->driver->escapeId($field->name());
             $values[] = "$key = VALUES($key)";
         }
         $this->suffix = ";\n";
-        if ($this->options['data_style'] == 'INSERT+UPDATE') {
+        if ($this->options['data_style'] === 'INSERT+UPDATE') {
             $this->suffix = "\nON DUPLICATE KEY UPDATE " . implode(', ', $values) . ";\n";
         }
         return $keys;
+    }
+
+    /**
+     * @param array $row
+     *
+     * @return void
+     */
+    private function saveRowInBuffer(array $row)
+    {
+        $max_packet = ($this->driver->jush() === 'sqlite' ? 0 : 1048576); // default, minimum is 1024
+        $s = ($max_packet ? "\n" : ' ') . '(' . implode(",\t", $row) . ')';
+        if (!$this->buffer) {
+            $this->buffer = $this->insert . $s;
+            return;
+        }
+        if (strlen($this->buffer) + 4 + strlen($s) + strlen($this->suffix) < $max_packet) { // 4 - length specification
+            $this->buffer .= ",$s";
+            return;
+        }
+        $this->queries[] = $this->buffer . $this->suffix;
+        $this->buffer = $this->insert . $s;
     }
 
     /**
@@ -149,36 +191,27 @@ trait DbDumpTrait
      *
      * @return void
      */
-    private function dumpDataRow(string $table, array $fields, array $row, array $keys)
+    private function dumpRow(string $table, array $fields, array $row, array $keys)
     {
-        if ($this->options['format'] != 'sql') {
-            if ($this->options['data_style'] == 'table') {
+        if ($this->options['format'] !== 'sql') {
+            if ($this->options['data_style'] === 'table') {
                 $this->dumpCsv($keys);
                 $this->options['data_style'] = 'INSERT';
             }
             $this->dumpCsv($row);
-        } else {
-            if (!$this->insert) {
-                $this->insert = 'INSERT INTO ' . $this->driver->table($table) . ' (' .
-                    implode(', ', array_map(function ($key) {
-                        return $this->driver->escapeId($key);
-                    }, $keys)) . ') VALUES';
-            }
-            foreach ($row as $key => $val) {
-                $field = $fields[$key];
-                $row[$key] = $this->convertToString($val, $field);
-            }
-            $max_packet = ($this->driver->jush() == 'sqlite' ? 0 : 1048576); // default, minimum is 1024
-            $s = ($max_packet ? "\n" : ' ') . '(' . implode(",\t", $row) . ')';
-            if (!$this->buffer) {
-                $this->buffer = $this->insert . $s;
-            } elseif (strlen($this->buffer) + 4 + strlen($s) + strlen($this->suffix) < $max_packet) { // 4 - length specification
-                $this->buffer .= ",$s";
-            } else {
-                $this->queries[] = $this->buffer . $this->suffix;
-                $this->buffer = $this->insert . $s;
-            }
+            return;
         }
+        if (!$this->insert) {
+            $this->insert = 'INSERT INTO ' . $this->driver->table($table) . ' (' .
+                implode(', ', array_map(function ($key) {
+                    return $this->driver->escapeId($key);
+                }, $keys)) . ') VALUES';
+        }
+        foreach ($row as $key => $val) {
+            $field = $fields[$key];
+            $row[$key] = $this->convertToString($val, $field);
+        }
+        $this->saveRowInBuffer($row);
     }
 
     /** Export table data
@@ -186,67 +219,70 @@ trait DbDumpTrait
      * @param string $table
      * @param string $query
      *
-     * @return null prints data
+     * @return void
      */
     private function dumpData(string $table, string $query)
     {
+        if (!$this->options['data_style']) {
+            return;
+        }
         $fields = [];
-        if ($this->options['data_style']) {
-            if ($this->options['format'] == 'sql') {
-                if ($this->options['data_style'] == 'TRUNCATE+INSERT') {
-                    $this->queries[] = $this->driver->sqlForTruncateTable($table) . ";\n";
-                }
-                $fields = $this->driver->fields($table);
+        if ($this->options['format'] === 'sql') {
+            if ($this->options['data_style'] === 'TRUNCATE+INSERT') {
+                $this->queries[] = $this->driver->sqlForTruncateTable($table) . ";\n";
             }
-            $statement = $this->driver->query($query); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
-            if ($statement) {
-                $this->insert = '';
-                $this->buffer = '';
-                $this->suffix = '';
-                $keys = [];
-                $fetch_function = ($table != '' ? 'fetchAssoc' : 'fetchRow');
-                while ($row = $statement->$fetch_function()) {
-                    if (empty($keys)) {
-                        $keys = $this->getDataRowKeys($row, $statement);
-                    }
-                    $this->dumpDataRow($table, $fields, $row, $keys);
-                }
-                if ($this->buffer) {
-                    $this->queries[] = $this->buffer . $this->suffix;
-                }
-            } elseif ($this->options['format'] == 'sql') {
+            $fields = $this->driver->fields($table);
+        }
+        $statement = $this->driver->query($query); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
+        if (!$statement) {
+            if ($this->options['format'] === 'sql') {
                 $this->queries[] = '-- ' . str_replace("\n", ' ', $this->driver->error()) . "\n";
             }
+            return;
+        }
+        $this->insert = '';
+        $this->buffer = '';
+        $this->suffix = '';
+        $keys = [];
+        $fetch_function = ($table !== '' ? 'fetchAssoc' : 'fetchRow');
+        while ($row = $statement->$fetch_function()) {
+            if (empty($keys)) {
+                $keys = $this->getDataRowKeys($row, $statement);
+            }
+            $this->dumpRow($table, $fields, $row, $keys);
+        }
+        if (($this->buffer)) {
+            $this->queries[] = $this->buffer . $this->suffix;
         }
     }
 
     /**
      * @param string $table
-     * @param TableEntity $tableStatus
      * @param bool $dumpTable
      * @param bool $dumpData
      *
      * @return void
      */
-    private function dumpTable(string $table, TableEntity $tableStatus, bool $dumpTable, bool $dumpData)
+    private function dumpTable(string $table, bool $dumpTable, bool $dumpData)
     {
-        if ($dumpTable || $dumpData) {
-            $this->dumpTableOrView($table, ($dumpTable ? $this->options['table_style'] : ''));
-            if ($dumpData) {
-                $fields = $this->driver->fields($table);
-                $query = 'SELECT *' . $this->driver->convertFields($fields, $fields) .
-                    ' FROM ' . $this->driver->table($table);
-                $this->dumpData($table, $query);
-            }
-            if ($this->options['is_sql'] && $this->options['triggers'] && $dumpTable &&
-                ($triggers = $this->driver->sqlForCreateTrigger($table))) {
-                $this->queries[] = 'DELIMITER ;';
-                $this->queries[] = $triggers;
-                $this->queries[] = 'DELIMITER ;';
-            }
-            if ($this->options['is_sql']) {
-                $this->queries[] = '';
-            }
+        if (!$dumpTable && !$dumpData) {
+            return;
+        }
+        $this->dumpTableOrView($table, ($dumpTable ? $this->options['table_style'] : ''));
+        if ($dumpData) {
+            $fields = $this->driver->fields($table);
+            $query = 'SELECT *' . $this->driver->convertFields($fields, $fields) .
+                ' FROM ' . $this->driver->table($table);
+            $this->dumpData($table, $query);
+        }
+        if ($this->options['is_sql'] && $this->options['triggers'] && $dumpTable &&
+            ($triggers = $this->driver->sqlForCreateTrigger($table))) {
+            $this->queries[] = 'DELIMITER ;';
+            $this->queries[] = $triggers;
+            $this->queries[] = 'DELIMITER ;';
+        }
+        if ($this->options['is_sql']) {
+            $this->queries[] = '';
         }
     }
 
@@ -274,7 +310,7 @@ trait DbDumpTrait
             $this->fkeys[] = $table;
             $dumpTable = $dbDumpTable || in_array($table, $this->tables['list']);
             $dumpData = $dbDumpData || in_array($table, $this->tables['data']);
-            $this->dumpTable($table, $tableStatus, $dumpTable, $dumpData);
+            $this->dumpTable($table, $dumpTable, $dumpData);
         }
     }
 
