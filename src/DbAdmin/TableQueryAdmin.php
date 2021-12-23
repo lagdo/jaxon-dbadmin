@@ -2,11 +2,10 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
-use Lagdo\DbAdmin\DbAdmin\Traits\QueryInputTrait;
-use Lagdo\DbAdmin\DbAdmin\Traits\TableQueryTrait;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
 use function compact;
+use function is_string;
 use function is_array;
 use function count;
 use function preg_match;
@@ -16,8 +15,8 @@ use function preg_match;
  */
 class TableQueryAdmin extends AbstractAdmin
 {
-    use QueryInputTrait;
-    use TableQueryTrait;
+    use Traits\QueryInputTrait;
+    use Traits\TableQueryTrait;
 
     /**
      * Get data for an input field
@@ -33,18 +32,18 @@ class TableQueryAdmin extends AbstractAdmin
     {
         // From functions.inc.php (function input($field, $value, $function))
         $name = $this->util->html($this->util->bracketEscape($field->name));
-        $save = $options["save"];
-        $reset = ($this->driver->jush() == "mssql" && $field->autoIncrement);
+        $save = $options['save'];
+        $reset = ($this->driver->jush() == 'mssql' && $field->autoIncrement);
         if (is_array($value) && !$function) {
             $value = json_encode($value, JSON_PRETTY_PRINT);
-            $function = "json";
+            $function = 'json';
         }
         if ($reset && !$save) {
             $function = null;
         }
         $functions = [];
         if ($reset) {
-            $functions["orig"] = $this->trans->lang('original');
+            $functions['orig'] = $this->trans->lang('original');
         }
         $functions += $this->util->editFunctions($field);
         return [
@@ -72,9 +71,10 @@ class TableQueryAdmin extends AbstractAdmin
         foreach ($fields as $name => $field) {
             $value = $this->getRowFieldValue($field, $name, $row, $update, $queryOptions);
             $function = $this->getRowFieldFunction($field, $name, $value, $update, $queryOptions);
-            if (preg_match("~time~", $field->type) && preg_match('~^CURRENT_TIMESTAMP~i', $value)) {
-                $value = "";
-                $function = "now";
+            if (preg_match('~time~', $field->type) && is_string($value) &&
+                preg_match('~^CURRENT_TIMESTAMP~i', $value)) {
+                $value = '';
+                $function = 'now';
             }
             $entries[$name] = $this->getFieldInput($field, $value, $function, $queryOptions);
         }
@@ -100,14 +100,14 @@ class TableQueryAdmin extends AbstractAdmin
         $row = $this->getQueryFirstRow($table, $where, $fields, $queryOptions);
 
         /* TODO: Activate this code when a driver without table support will be supported */
-        /*if (!$this->driver->support("table") && empty($fields)) {
+        /*if (!$this->driver->support('table') && empty($fields)) {
             $primary = ''; // $this->driver->primaryIdName();
             if (!$where) {
                 // insert
-                $statement = $this->driver->select($table, ["*"], [$where], ["*"]);
+                $statement = $this->driver->select($table, ['*'], [$where], ['*']);
                 $row = ($statement ? $statement->fetchAssoc() : false);
                 if (!$row) {
-                    $row = [$primary => ""];
+                    $row = [$primary => ''];
                 }
             }
             if ($row) {
@@ -116,9 +116,9 @@ class TableQueryAdmin extends AbstractAdmin
                         $row[$key] = null;
                     }
                     $fields[$key] = [
-                        "name" => $key,
-                        "null" => ($key !== $primary),
-                        "autoIncrement" => ($key === $primary)
+                        'name' => $key,
+                        'null' => ($key !== $primary),
+                        'autoIncrement' => ($key === $primary)
                     ];
                 }
             }
@@ -171,7 +171,7 @@ class TableQueryAdmin extends AbstractAdmin
 
         $result = $this->driver->insert($table, $values);
         $lastId = ($result ? $this->driver->lastAutoIncrementId() : 0);
-        $message = $this->trans->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ""));
+        $message = $this->trans->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ''));
 
         $error = $this->driver->error();
 
@@ -188,11 +188,11 @@ class TableQueryAdmin extends AbstractAdmin
      */
     public function updateItem(string $table, array $queryOptions): array
     {
-        list($fields, $where, $update) = $this->getFields($table, $queryOptions);
+        list($fields, $where, ) = $this->getFields($table, $queryOptions);
 
         // From edit.inc.php
         $indexes = $this->driver->indexes($table);
-        $uniqueIds = $this->util->uniqueIds($queryOptions["where"], $indexes);
+        $uniqueIds = $this->util->uniqueIds($queryOptions['where'], $indexes);
         $queryWhere = "\nWHERE $where";
 
         $values = [];
@@ -225,7 +225,7 @@ class TableQueryAdmin extends AbstractAdmin
 
         // From edit.inc.php
         $indexes = $this->driver->indexes($table);
-        $uniqueIds = $this->util->uniqueIds($queryOptions["where"], $indexes);
+        $uniqueIds = $this->util->uniqueIds($queryOptions['where'], $indexes);
         $queryWhere = "\nWHERE $where";
 
         $result = $this->driver->delete($table, $queryWhere, count($uniqueIds));
