@@ -130,6 +130,11 @@ trait QueryInputTrait
         return ['type' => 'textarea', 'attrs' => $attrs, 'value' => $this->util->html($value)];
     }
 
+    /**
+     * @param TableFieldEntity $field
+     *
+     * @return mixed
+     */
     private function getMaxLength(TableFieldEntity $field)
     {
         $unsigned = $field->unsigned;
@@ -150,13 +155,10 @@ trait QueryInputTrait
     /**
      * @param TableFieldEntity $field
      * @param array $attrs
-     * @param mixed $value
-     * @param string|null $function
-     * @param array $functions
      *
-     * @return array
+     * @return void
      */
-    private function getDefaultInput(TableFieldEntity $field, array $attrs, $value, $function, array $functions): array
+    private function setDataLength(TableFieldEntity $field, array &$attrs)
     {
         $maxlength = $this->getMaxLength($field);
         if ($this->driver->jush() == 'sql' && $this->driver->minVersion(5.6) && preg_match('~time~', $field->type)) {
@@ -165,16 +167,41 @@ trait QueryInputTrait
         if ($maxlength > 0) {
             $attrs['data-maxlength'] = $maxlength;
         }
-        // type='date' and type='time' display localized value which may be confusing,
-        // type='datetime' uses 'T' as date and time separator
-        $hasFunction = (in_array($function, $functions) || isset($functions[$function]));
-        if ((!$hasFunction || $function === "") &&
-            preg_match('~(?<!o)int(?!er)~', $field->type) &&
-            !preg_match('~\[\]~', $field->fullType)) {
-            $attrs['type'] = 'number';
-        }
         if (preg_match('~char|binary~', $field->type) && $maxlength > 20) {
             $attrs['size'] = 40;
+        }
+    }
+
+    /**
+     * @param TableFieldEntity $field
+     * @param array $attrs
+     *
+     * @return void
+     */
+    private function setDataType(TableFieldEntity $field, array &$attrs)
+    {
+        // type='date' and type='time' display localized value which may be confusing,
+        // type='datetime' uses 'T' as date and time separator
+        if (preg_match('~(?<!o)int(?!er)~', $field->type) && !preg_match('~\[\]~', $field->fullType)) {
+            $attrs['type'] = 'number';
+        }
+    }
+
+    /**
+     * @param TableFieldEntity $field
+     * @param array $attrs
+     * @param mixed $value
+     * @param string|null $function
+     * @param array $functions
+     *
+     * @return array
+     */
+    private function getDefaultInput(TableFieldEntity $field, array $attrs, $value, $function, array $functions): array
+    {
+        $this->setDataLength($field, $attrs);
+        $hasFunction = (in_array($function, $functions) || isset($functions[$function]));
+        if (!$hasFunction || $function === "") {
+            $this->setDataType($field, $attrs);
         }
         $attrs['value'] = $this->util->html($value);
         return ['type' => 'input', 'attrs' => $attrs];

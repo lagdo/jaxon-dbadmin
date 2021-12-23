@@ -57,6 +57,8 @@ class ExportAdmin extends AbstractAdmin
     private $insert = '';
     private $buffer = '';
     private $suffix = '';
+    private $views = [];
+    private $fkeys = [];
 
     /**
      * @param string $database
@@ -298,7 +300,7 @@ class ExportAdmin extends AbstractAdmin
      *
      * @return string
      */
-    protected function convertToString($val, $field)
+    protected function convertToString($val, $field): string
     {
         // From functions.inc.php
         if ($val === null) {
@@ -314,11 +316,11 @@ class ExportAdmin extends AbstractAdmin
      *
      * @param string $table
      * @param string $style
-     * @param int    $is_view       0 table, 1 view, 2 temporary view table
+     * @param int    $tableType       0 table, 1 view, 2 temporary view table
      *
      * @return null prints data
      */
-    protected function dumpTable(string $table, string $style, int $is_view = 0)
+    protected function dumpTableOrView(string $table, string $style, int $tableType = 0)
     {
         // From adminer.inc.php
         if ($this->options['format'] != 'sql') {
@@ -329,7 +331,7 @@ class ExportAdmin extends AbstractAdmin
             return;
         }
 
-        if ($is_view == 2) {
+        if ($tableType == 2) {
             $fields = [];
             foreach ($this->driver->fields($table) as $name => $field) {
                 $fields[] = $this->driver->escapeId($name) . ' ' . $field->fullType;
@@ -340,11 +342,11 @@ class ExportAdmin extends AbstractAdmin
         }
         $this->driver->setUtf8mb4($create);
         if ($style && $create) {
-            if ($style == 'DROP+CREATE' || $is_view == 1) {
-                $this->queries[] = 'DROP ' . ($is_view == 2 ? 'VIEW' : 'TABLE') .
+            if ($style == 'DROP+CREATE' || $tableType == 1) {
+                $this->queries[] = 'DROP ' . ($tableType == 2 ? 'VIEW' : 'TABLE') .
                     ' IF EXISTS ' . $this->driver->table($table) . ';';
             }
-            if ($is_view == 1) {
+            if ($tableType == 1) {
                 $create = $this->admin->removeDefiner($create);
             }
             $this->queries[] = $create . ';';
@@ -354,11 +356,10 @@ class ExportAdmin extends AbstractAdmin
     /**
      * @param array $row
      * @param StatementInterface $statement
-     * @param string $style
      *
      * @return array
      */
-    private function getDataRowKeys(array $row, StatementInterface $statement, string $style): array
+    private function getDataRowKeys(array $row, StatementInterface $statement): array
     {
         $values = [];
         $keys = [];
@@ -369,7 +370,7 @@ class ExportAdmin extends AbstractAdmin
             $values[] = "$key = VALUES($key)";
         }
         $this->suffix = ";\n";
-        if ($style == 'INSERT+UPDATE') {
+        if ($this->options['data_style'] == 'INSERT+UPDATE') {
             $this->suffix = "\nON DUPLICATE KEY UPDATE " . implode(', ', $values) . ";\n";
         }
         return $keys;
@@ -380,16 +381,15 @@ class ExportAdmin extends AbstractAdmin
      * @param array $fields
      * @param array $row
      * @param array $keys
-     * @param string $style
      *
      * @return void
      */
-    private function dumpDataRow(string $table, array $fields, array $row, array $keys, string $style)
+    private function dumpDataRow(string $table, array $fields, array $row, array $keys)
     {
         if ($this->options['format'] != 'sql') {
-            if ($style == 'table') {
+            if ($this->options['data_style'] == 'table') {
                 $this->dumpCsv($keys);
-                $style = 'INSERT';
+                $this->options['data_style'] = 'INSERT';
             }
             $this->dumpCsv($row);
         } else {
@@ -418,18 +418,17 @@ class ExportAdmin extends AbstractAdmin
 
     /** Export table data
      *
-     * @param string
-     * @param string
-     * @param string
+     * @param string $table
+     * @param string $query
      *
      * @return null prints data
      */
-    protected function dumpData($table, $style, $query)
+    protected function dumpData(string $table, string $query)
     {
         $fields = [];
-        if ($style) {
+        if ($this->options['data_style']) {
             if ($this->options['format'] == 'sql') {
-                if ($style == 'TRUNCATE+INSERT') {
+                if ($this->options['data_style'] == 'TRUNCATE+INSERT') {
                     $this->queries[] = $this->driver->sqlForTruncateTable($table) . ";\n";
                 }
                 $fields = $this->driver->fields($table);
@@ -443,9 +442,9 @@ class ExportAdmin extends AbstractAdmin
                 $fetch_function = ($table != '' ? 'fetchAssoc' : 'fetchRow');
                 while ($row = $statement->$fetch_function()) {
                     if (empty($keys)) {
-                        $keys = $this->getDataRowKeys($row, $statement, $style);
+                        $keys = $this->getDataRowKeys($row, $statement);
                     }
-                    $this->dumpDataRow($table, $fields, $row, $keys, $style);
+                    $this->dumpDataRow($table, $fields, $row, $keys);
                 }
                 if ($this->buffer) {
                     $this->queries[] = $this->buffer . $this->suffix;
@@ -462,21 +461,17 @@ class ExportAdmin extends AbstractAdmin
      * @param bool $dumpTable
      * @param bool $dumpData
      *
-     * @return bool
+     * @return void
      */
-    private function dumpTableOrView(string $table, TableEntity $tableStatus, bool $dumpTable, bool $dumpData): bool
+    private function dumpTable(string $table, TableEntity $tableStatus, bool $dumpTable, bool $dumpData)
     {
-        $isView = false;
         if ($dumpTable || $dumpData) {
-            $this->dumpTable($table, ($dumpTable ? $this->options['table_style'] : ''),
-                ($this->driver->isView($tableStatus) ? 2 : 0));
-            if ($this->driver->isView($tableStatus)) {
-                $isView = true;
-            } elseif ($dumpData) {
+            $this->dumpTableOrView($table, ($dumpTable ? $this->options['table_style'] : ''));
+            if ($dumpData) {
                 $fields = $this->driver->fields($table);
                 $query = 'SELECT *' . $this->driver->convertFields($fields, $fields) .
                     ' FROM ' . $this->driver->table($table);
-                $this->dumpData($table, $this->options['data_style'], $query);
+                $this->dumpData($table, $query);
             }
             if ($this->options['is_sql'] && $this->options['triggers'] && $dumpTable &&
                 ($triggers = $this->driver->sqlForCreateTrigger($table))) {
@@ -488,59 +483,61 @@ class ExportAdmin extends AbstractAdmin
                 $this->queries[] = '';
             }
         }
-        return $isView;
     }
 
     /**
-     * Dump tables and views in the connected database
+     * Dump tables
      *
      * @param string $database      The database name
      *
      * @return void
      */
-    protected function dumpTablesAndViews(string $database)
+    protected function dumpTables(string $database)
     {
-        if (!$this->options['table_style'] && !$this->options['data_style']) {
-            return;
-        }
-
         $dbDumpTable = $this->tables['list'] === '*' && in_array($database, $this->databases['list']);
         $dbDumpData = in_array($database, $this->databases['data']);
-        $views = [];
+        $this->views = []; // View names
+        $this->fkeys = []; // Table names for foreign keys
         $dbTables = $this->driver->tableStatuses(true);
         foreach ($dbTables as $table => $tableStatus) {
+            $isView = $this->driver->isView($tableStatus);
+            if ($isView) {
+                // The views will be dumped after the tables
+                $this->views[] = $table;
+                continue;
+            }
+            $this->fkeys[] = $table;
             $dumpTable = $dbDumpTable || in_array($table, $this->tables['list']);
             $dumpData = $dbDumpData || in_array($table, $this->tables['data']);
-            $isView = $this->dumpTableOrView($table, $tableStatus, $dumpTable, $dumpData);
-            if ($isView) {
-                $views[] = $table;
-            }
+            $this->dumpTable($table, $tableStatus, $dumpTable, $dumpData);
         }
+    }
 
-        // add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
+    /**
+     * @return void
+     */
+    private function dumpViewsAndFKeys()
+    {
+        // Add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
         if ($this->driver->support('fkeys_sql')) {
-            foreach ($dbTables as $table => $tableStatus) {
-                // $dumpTable = true; // (DB == '' || in_array($table, $this->options['tables']));
-                if (/*$dumpTable && */!$this->driver->isView($tableStatus)) {
-                    $this->queries[] = $this->driver->sqlForForeignKeys($table);
-                }
+            foreach ($this->fkeys as $table) {
+                $this->queries[] = $this->driver->sqlForForeignKeys($table);
             }
         }
-
         // Dump the views after all the tables
-        foreach ($views as $view) {
-            $this->dumpTable($view, $this->options['table_style'], 1);
+        foreach ($this->views as $view) {
+            $this->dumpTableOrView($view, $this->options['table_style'], 1);
         }
     }
 
     /**
      * @param string $database
-     * @param string $style
      *
      * @return void
      */
-    private function dumpDatabase(string $database, string $style)
+    private function dumpDatabaseCreation(string $database)
     {
+        $style = $this->options['db_style'];
         $this->driver->connect($database, '');
         $sql = 'SHOW CREATE DATABASE ' . $this->driver->escapeId($database);
         if ($this->options['is_sql'] && preg_match('~CREATE~', $style) &&
@@ -551,19 +548,33 @@ class ExportAdmin extends AbstractAdmin
             }
             $this->queries[] = $create . ";\n";
         }
+    }
+
+    /**
+     * @param string $database
+     *
+     * @return void
+     */
+    private function dumpDatabase(string $database)
+    {
+        $this->dumpDatabaseCreation($database);
         if ($this->options['is_sql'] && $this->driver->jush() === 'sql') {
             // Dump routines and events currently works only for MySQL.
-            if ($style) {
+            if ($this->options['db_style']) {
                 if (($query = $this->driver->sqlForUseDatabase($database))) {
                     $this->queries[] = $query . ';';
                 }
                 $this->queries[] = ''; // Empty line
             }
-
             $this->dumpRoutinesAndEvents($database);
         }
 
-        $this->dumpTablesAndViews($database);
+        if (!$this->options['table_style'] && !$this->options['data_style']) {
+            return;
+        }
+
+        $this->dumpTables($database);
+        $this->dumpViewsAndFKeys();
     }
 
     /**
@@ -605,13 +616,11 @@ class ExportAdmin extends AbstractAdmin
             }
         }
 
-        $style = $options['db_style'];
-
         foreach (array_unique(array_merge($databases['list'], $databases['data'])) as $database) {
             try {
-                $this->dumpDatabase($database, $style);
+                $this->dumpDatabase($database);
             }
-            catch (\Exception $e) {
+            catch (Exception $e) {
                 return $e->getMessage();
             }
         }
