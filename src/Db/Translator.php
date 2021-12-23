@@ -4,6 +4,18 @@ namespace Lagdo\DbAdmin\Db;
 
 use Lagdo\DbAdmin\Driver\TranslatorInterface;
 
+use function is_array;
+use function array_key_exists;
+use function func_get_args;
+use function array_shift;
+use function str_replace;
+use function vsprintf;
+use function strtr;
+use function number_format;
+use function preg_split;
+use function max;
+use function microtime;
+
 /**
  * Translator and language switcher
  *
@@ -115,10 +127,10 @@ class Translator implements TranslatorInterface
      *
      * @return string
      */
-    public function lang(string $idf, $number = null)
+    public function lang(string $idf, $number = null): string
     {
-        $translation = (\array_key_exists($idf, $this->translations) ? $this->translations[$idf] : $idf);
-        if (\is_array($translation)) {
+        $translation = (array_key_exists($idf, $this->translations) ? $this->translations[$idf] : $idf);
+        if (is_array($translation)) {
             $pos = ($number == 1 ? 0
                 // different forms for 1, 2-4, other
                 : ($this->language == 'cs' || $this->language == 'sk' ? ($number && $number < 5 ? 1 : 2)
@@ -140,13 +152,13 @@ class Translator implements TranslatorInterface
             ))))))); // http://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html
             $translation = $translation[$pos];
         }
-        $args = \func_get_args();
-        \array_shift($args);
-        $format = \str_replace("%d", "%s", $translation);
+        $args = func_get_args();
+        array_shift($args);
+        $format = str_replace("%d", "%s", $translation);
         if ($format != $translation) {
             $args[0] = $this->formatNumber($number);
         }
-        return \vsprintf($format, $args);
+        return vsprintf($format, $args);
     }
 
     /**
@@ -156,10 +168,10 @@ class Translator implements TranslatorInterface
      *
      * @return string
      */
-    public function formatNumber(int $number)
+    public function formatNumber(int $number): string
     {
-        return \strtr(\number_format(\intval($number), 0, ".", $this->lang(',')),
-            \preg_split('~~u', $this->lang('0123456789'), -1, PREG_SPLIT_NO_EMPTY));
+        return strtr(number_format($number, 0, ".", $this->lang(',')),
+            preg_split('~~u', $this->lang('0123456789'), -1, PREG_SPLIT_NO_EMPTY));
     }
 
     /**
@@ -169,8 +181,8 @@ class Translator implements TranslatorInterface
      *
      * @return string
      */
-    public function formatTime($start)
+    public function formatTime(float $time): string
     {
-        return $this->lang('%.3f s', \max(0, \microtime(true) - $start));
+        return $this->lang('%.3f s', max(0, microtime(true) - $time));
     }
 }

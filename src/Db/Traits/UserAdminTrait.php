@@ -41,7 +41,7 @@ trait UserAdminTrait
      * @param array $grants
      * @param array $row
      * @param string $password
-     * 
+     *
      * @return void
      */
     private function setUserGrant(array &$grants, array $row, string &$password)

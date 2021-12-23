@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Db\Traits;
 
+use Exception;
+
 use function substr;
 use function strlen;
 use function preg_replace;

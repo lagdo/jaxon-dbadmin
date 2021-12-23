@@ -132,23 +132,37 @@ trait QueryInputTrait
     /**
      * @param TableFieldEntity $field
      *
-     * @return mixed
+     * @return int
      */
-    private function getMaxLength(TableFieldEntity $field)
+    private function _getMaxLength(TableFieldEntity $field): int
     {
-        $unsigned = $field->unsigned;
         // int(3) is only a display hint
         if (!preg_match('~int~', $field->type) &&
             preg_match('~^(\d+)(,(\d+))?$~', $field->length, $match)) {
             $length1 = preg_match("~binary~", $field->type) ? 2 : 1;
             $length2 = ($match[3] ?? false) ? 1 : 0;
-            $length3 = ($match[2] ?? false) && !$unsigned ? 1 : 0;
+            $length3 = ($match[2] ?? false) && !$field->unsigned ? 1 : 0;
             return $length1 * $match[1] + $length2 + $length3;
         }
         if ($this->driver->typeExists($field->type)) {
-            return $this->driver->type($field->type) + ($unsigned ? 0 : 1);
+            return $this->driver->type($field->type) + ($field->unsigned ? 0 : 1);
         }
         return 0;
+    }
+
+    /**
+     * @param TableFieldEntity $field
+     *
+     * @return int
+     */
+    private function getMaxLength(TableFieldEntity $field): int
+    {
+        $maxlength = $this->_getMaxLength($field);
+        if ($this->driver->jush() == 'sql' && $this->driver->minVersion(5.6) &&
+            preg_match('~time~', $field->type)) {
+            return $maxlength + 7; // microtime
+        }
+        return $maxlength;
     }
 
     /**
@@ -160,9 +174,6 @@ trait QueryInputTrait
     private function setDataLength(TableFieldEntity $field, array &$attrs)
     {
         $maxlength = $this->getMaxLength($field);
-        if ($this->driver->jush() == 'sql' && $this->driver->minVersion(5.6) && preg_match('~time~', $field->type)) {
-            $maxlength += 7; // microtime
-        }
         if ($maxlength > 0) {
             $attrs['data-maxlength'] = $maxlength;
         }
