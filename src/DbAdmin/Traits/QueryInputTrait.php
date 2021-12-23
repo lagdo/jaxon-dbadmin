@@ -130,6 +130,23 @@ trait QueryInputTrait
         return ['type' => 'textarea', 'attrs' => $attrs, 'value' => $this->util->html($value)];
     }
 
+    private function getMaxLength(TableFieldEntity $field)
+    {
+        $unsigned = $field->unsigned;
+        // int(3) is only a display hint
+        if (!preg_match('~int~', $field->type) &&
+            preg_match('~^(\d+)(,(\d+))?$~', $field->length, $match)) {
+            $length1 = preg_match("~binary~", $field->type) ? 2 : 1;
+            $length2 = ($match[3] ?? false) ? 1 : 0;
+            $length3 = ($match[2] ?? false) && !$unsigned ? 1 : 0;
+            return $length1 * $match[1] + $length2 + $length3;
+        }
+        if ($this->driver->typeExists($field->type)) {
+            return $this->driver->type($field->type) + ($unsigned ? 0 : 1);
+        }
+        return 0;
+    }
+
     /**
      * @param TableFieldEntity $field
      * @param array $attrs
@@ -141,12 +158,7 @@ trait QueryInputTrait
      */
     private function getDefaultInput(TableFieldEntity $field, array $attrs, $value, $function, array $functions): array
     {
-        $unsigned = $field->unsigned;
-        // int(3) is only a display hint
-        $maxlength = (!preg_match('~int~', $field->type) && preg_match('~^(\d+)(,(\d+))?$~', $field->length, $match) ?
-            ((preg_match("~binary~", $field->type) ? 2 : 1) * $match[1] + (($match[3] ?? null) ? 1 : 0) +
-                (($match[2] ?? false) && !$unsigned ? 1 : 0)) :
-            ($this->driver->typeExists($field->type) ? $this->driver->type($field->type) + ($unsigned ? 0 : 1) : 0));
+        $maxlength = $this->getMaxLength($field);
         if ($this->driver->jush() == 'sql' && $this->driver->minVersion(5.6) && preg_match('~time~', $field->type)) {
             $maxlength += 7; // microtime
         }
