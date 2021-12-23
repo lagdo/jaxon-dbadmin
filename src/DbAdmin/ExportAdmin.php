@@ -2,7 +2,23 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
+use Lagdo\DbAdmin\Driver\Db\StatementInterface;
+use Lagdo\DbAdmin\Driver\Entity\TableEntity;
 use Exception;
+
+use function count;
+use function compact;
+use function strlen;
+use function in_array;
+use function preg_replace;
+use function preg_match;
+use function str_replace;
+use function implode;
+use function is_numeric;
+use function array_keys;
+use function array_map;
+use function array_unique;
+use function array_merge;
 
 /**
  * Admin export functions
@@ -37,15 +53,18 @@ class ExportAdmin extends AbstractAdmin
      */
     protected $queries = [];
 
+    // Temp vars for data dumps
+    private $insert = '';
+    private $buffer = '';
+    private $suffix = '';
+
     /**
-     * Get data for export
-     *
-     * @param string $database      The database name
+     * @param string $database
      * @param string $table
      *
      * @return array
      */
-    public function getExportOptions(string $database, string $table = '')
+    private function getBaseOptions(string $database, string $table): array
     {
         // From dump.inc.php
         $db_style = ['', 'USE', 'DROP+CREATE', 'CREATE'];
@@ -57,17 +76,18 @@ class ExportAdmin extends AbstractAdmin
         // \parse_str($_COOKIE['adminer_export'], $row);
         // if(!$row) {
         $row = [
-                'output' => 'text',
-                'format' => 'sql',
-                'db_style' => ($database != '' ? '' : 'CREATE'),
-                'table_style' => 'DROP+CREATE',
-                'data_style' => 'INSERT',
-            ];
+            'output' => 'text',
+            'format' => 'sql',
+            'db_style' => ($database != '' ? '' : 'CREATE'),
+            'table_style' => 'DROP+CREATE',
+            'data_style' => 'INSERT',
+        ];
         // }
         // if(!isset($row['events'])) { // backwards compatibility
         $row['routines'] = $row['events'] = ($table == '');
         $row['triggers'] = $row['table_style'];
         // }
+
         $options = [
             'output' => [
                 'label' => $this->trans->lang('Output'),
@@ -123,47 +143,73 @@ class ExportAdmin extends AbstractAdmin
                 'checked' => $row['triggers'],
             ];
         }
+        return $options;
+    }
 
-        $results = [
-            'options' => $options,
-            'prefixes' => [],
+    /**
+     * @return array
+     */
+    private function getDbTables(): array
+    {
+        $tables = [
+            'headers' => [$this->trans->lang('Tables'), $this->trans->lang('Data')],
+            'details' => [],
         ];
-        if (($database)) {
-            $tables = [
-                'headers' => [$this->trans->lang('Tables'), $this->trans->lang('Data')],
-                'details' => [],
-            ];
-            $tables_list = $this->driver->tables();
-            foreach ($tables_list as $name => $type) {
-                $prefix = \preg_replace('~_.*~', '', $name);
-                //! % may be part of table name
-                // $checked = ($TABLE == '' || $TABLE == (\substr($TABLE, -1) == '%' ? "$prefix%" : $name));
+        $tables_list = $this->driver->tables();
+        foreach ($tables_list as $name => $type) {
+            $prefix = preg_replace('~_.*~', '', $name);
+            //! % may be part of table name
+            // $checked = ($TABLE == '' || $TABLE == (\substr($TABLE, -1) == '%' ? "$prefix%" : $name));
+            // $results['prefixes'][$prefix]++;
+
+            $tables['details'][] = compact('prefix', 'name', 'type'/*, 'checked'*/);
+        }
+        return $tables;
+    }
+
+    /**
+     * @return array
+     */
+    private function getDatabases(): array
+    {
+        $databases = [
+            'headers' => [$this->trans->lang('Database'), $this->trans->lang('Data')],
+            'details' => [],
+        ];
+        $databases_list = $this->driver->databases(false) ?? [];
+        foreach ($databases_list as $name) {
+            if (!$this->driver->isInformationSchema($name)) {
+                $prefix = preg_replace('~_.*~', '', $name);
                 // $results['prefixes'][$prefix]++;
 
-                $tables['details'][] = \compact('prefix', 'name', 'type'/*, 'checked'*/);
+                $databases['details'][] = compact('prefix', 'name');
             }
-            $results['tables'] = $tables;
-        } else {
-            $databases = [
-                'headers' => [$this->trans->lang('Database'), $this->trans->lang('Data')],
-                'details' => [],
-            ];
-            $databases_list = $this->driver->databases(false) ?? [];
-            foreach ($databases_list as $name) {
-                if (!$this->driver->isInformationSchema($name)) {
-                    $prefix = \preg_replace('~_.*~', '', $name);
-                    // $results['prefixes'][$prefix]++;
-
-                    $databases['details'][] = \compact('prefix', 'name');
-                }
-            }
-            $results['databases'] = $databases;
         }
+        return $databases;
+    }
 
-        $results['options'] = $options;
-        $results['labels'] = [
-            'export' => $this->trans->lang('Export'),
+    /**
+     * Get data for export
+     *
+     * @param string $database      The database name
+     * @param string $table
+     *
+     * @return array
+     */
+    public function getExportOptions(string $database, string $table = ''): array
+    {
+        $results = [
+            'options' => $this->getBaseOptions($database, $table),
+            'prefixes' => [],
+            'labels' => [
+                'export' => $this->trans->lang('Export'),
+            ],
         ];
+        if (($database)) {
+            $results['tables'] = $this->getDbTables();
+        } else {
+            $results['databases'] = $this->getDatabases();
+        }
         return $results;
     }
 
@@ -215,7 +261,7 @@ class ExportAdmin extends AbstractAdmin
             }
         }
 
-        if (\count($queries) > 0) {
+        if (count($queries) > 0) {
             $this->queries[] = "DELIMITER ;;\n";
             foreach ($queries as $query) {
                 $this->queries[] = $query;
@@ -235,13 +281,13 @@ class ExportAdmin extends AbstractAdmin
     {
         // From functions.inc.php
         foreach ($row as $key => $val) {
-            if (\preg_match('~["\n,;\t]|^0|\.\d*0$~', $val) || $val === '') {
-                $row[$key] = '"' . \str_replace('"', '""', $val) . '"';
+            if (preg_match('~["\n,;\t]|^0|\.\d*0$~', $val) || $val === '') {
+                $row[$key] = '"' . str_replace('"', '""', $val) . '"';
             }
         }
         $separator = $this->options['format'] == 'csv' ? ',' :
             ($this->options['format'] == 'tsv' ? "\t" : ';');
-        $this->queries[] = \implode($separator, $row);
+        $this->queries[] = implode($separator, $row);
     }
 
     /**
@@ -258,8 +304,8 @@ class ExportAdmin extends AbstractAdmin
         if ($val === null) {
             return 'NULL';
         }
-        return $this->driver->unconvertField($field, \preg_match($this->driver->numberRegex(), $field->type) &&
-            !\preg_match('~\[~', $field->fullType) && \is_numeric($val) ?
+        return $this->driver->unconvertField($field, preg_match($this->driver->numberRegex(), $field->type) &&
+            !preg_match('~\[~', $field->fullType) && is_numeric($val) ?
             $val : $this->driver->quote(($val === false ? 0 : $val)));
     }
 
@@ -278,7 +324,7 @@ class ExportAdmin extends AbstractAdmin
         if ($this->options['format'] != 'sql') {
             $this->queries[] = "\xef\xbb\xbf"; // UTF-8 byte order mark
             if ($style) {
-                $this->dumpCsv(\array_keys($this->driver->fields($table)));
+                $this->dumpCsv(array_keys($this->driver->fields($table)));
             }
             return;
         }
@@ -288,7 +334,7 @@ class ExportAdmin extends AbstractAdmin
             foreach ($this->driver->fields($table) as $name => $field) {
                 $fields[] = $this->driver->escapeId($name) . ' ' . $field->fullType;
             }
-            $create = 'CREATE TABLE ' . $this->driver->table($table) . ' (' . \implode(', ', $fields) . ')';
+            $create = 'CREATE TABLE ' . $this->driver->table($table) . ' (' . implode(', ', $fields) . ')';
         } else {
             $create = $this->driver->sqlForCreateTable($table, $this->options['autoIncrement'], $style);
         }
@@ -305,6 +351,71 @@ class ExportAdmin extends AbstractAdmin
         }
     }
 
+    /**
+     * @param array $row
+     * @param StatementInterface $statement
+     * @param string $style
+     *
+     * @return array
+     */
+    private function getDataRowKeys(array $row, StatementInterface $statement, string $style): array
+    {
+        $values = [];
+        $keys = [];
+        foreach ($row as $val) {
+            $field = $statement->fetchField();
+            $keys[] = $field->name();
+            $key = $this->driver->escapeId($field->name());
+            $values[] = "$key = VALUES($key)";
+        }
+        $this->suffix = ";\n";
+        if ($style == 'INSERT+UPDATE') {
+            $this->suffix = "\nON DUPLICATE KEY UPDATE " . implode(', ', $values) . ";\n";
+        }
+        return $keys;
+    }
+
+    /**
+     * @param string $table
+     * @param array $fields
+     * @param array $row
+     * @param array $keys
+     * @param string $style
+     *
+     * @return void
+     */
+    private function dumpDataRow(string $table, array $fields, array $row, array $keys, string $style)
+    {
+        if ($this->options['format'] != 'sql') {
+            if ($style == 'table') {
+                $this->dumpCsv($keys);
+                $style = 'INSERT';
+            }
+            $this->dumpCsv($row);
+        } else {
+            if (!$this->insert) {
+                $this->insert = 'INSERT INTO ' . $this->driver->table($table) . ' (' .
+                    implode(', ', array_map(function ($key) {
+                        return $this->driver->escapeId($key);
+                    }, $keys)) . ') VALUES';
+            }
+            foreach ($row as $key => $val) {
+                $field = $fields[$key];
+                $row[$key] = $this->convertToString($val, $field);
+            }
+            $max_packet = ($this->driver->jush() == 'sqlite' ? 0 : 1048576); // default, minimum is 1024
+            $s = ($max_packet ? "\n" : ' ') . '(' . implode(",\t", $row) . ')';
+            if (!$this->buffer) {
+                $this->buffer = $this->insert . $s;
+            } elseif (strlen($this->buffer) + 4 + strlen($s) + strlen($this->suffix) < $max_packet) { // 4 - length specification
+                $this->buffer .= ",$s";
+            } else {
+                $this->queries[] = $this->buffer . $this->suffix;
+                $this->buffer = $this->insert . $s;
+            }
+        }
+    }
+
     /** Export table data
      *
      * @param string
@@ -316,7 +427,6 @@ class ExportAdmin extends AbstractAdmin
     protected function dumpData($table, $style, $query)
     {
         $fields = [];
-        $max_packet = ($this->driver->jush() == 'sqlite' ? 0 : 1048576); // default, minimum is 1024
         if ($style) {
             if ($this->options['format'] == 'sql') {
                 if ($style == 'TRUNCATE+INSERT') {
@@ -326,60 +436,59 @@ class ExportAdmin extends AbstractAdmin
             }
             $statement = $this->driver->query($query); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
             if ($statement) {
-                $insert = '';
-                $buffer = '';
+                $this->insert = '';
+                $this->buffer = '';
+                $this->suffix = '';
                 $keys = [];
-                $suffix = '';
                 $fetch_function = ($table != '' ? 'fetchAssoc' : 'fetchRow');
                 while ($row = $statement->$fetch_function()) {
                     if (empty($keys)) {
-                        $values = [];
-                        foreach ($row as $val) {
-                            $field = $statement->fetchField();
-                            $keys[] = $field->name();
-                            $key = $this->driver->escapeId($field->name());
-                            $values[] = "$key = VALUES($key)";
-                        }
-                        $suffix = ";\n";
-                        if ($style == 'INSERT+UPDATE') {
-                            $suffix = "\nON DUPLICATE KEY UPDATE " . \implode(', ', $values) . ";\n";
-                        }
+                        $keys = $this->getDataRowKeys($row, $statement, $style);
                     }
-                    if ($this->options['format'] != 'sql') {
-                        if ($style == 'table') {
-                            $this->dumpCsv($keys);
-                            $style = 'INSERT';
-                        }
-                        $this->dumpCsv($row);
-                    } else {
-                        if (!$insert) {
-                            $insert = 'INSERT INTO ' . $this->driver->table($table) . ' (' .
-                                \implode(', ', \array_map(function ($key) {
-                                    return $this->driver->escapeId($key);
-                                }, $keys)) . ') VALUES';
-                        }
-                        foreach ($row as $key => $val) {
-                            $field = $fields[$key];
-                            $row[$key] = $this->convertToString($val, $field);
-                        }
-                        $s = ($max_packet ? "\n" : ' ') . '(' . \implode(",\t", $row) . ')';
-                        if (!$buffer) {
-                            $buffer = $insert . $s;
-                        } elseif (\strlen($buffer) + 4 + \strlen($s) + \strlen($suffix) < $max_packet) { // 4 - length specification
-                            $buffer .= ",$s";
-                        } else {
-                            $this->queries[] = $buffer . $suffix;
-                            $buffer = $insert . $s;
-                        }
-                    }
+                    $this->dumpDataRow($table, $fields, $row, $keys, $style);
                 }
-                if ($buffer) {
-                    $this->queries[] = $buffer . $suffix;
+                if ($this->buffer) {
+                    $this->queries[] = $this->buffer . $this->suffix;
                 }
             } elseif ($this->options['format'] == 'sql') {
-                $this->queries[] = '-- ' . \str_replace("\n", ' ', $this->driver->error()) . "\n";
+                $this->queries[] = '-- ' . str_replace("\n", ' ', $this->driver->error()) . "\n";
             }
         }
+    }
+
+    /**
+     * @param string $table
+     * @param TableEntity $tableStatus
+     * @param bool $dumpTable
+     * @param bool $dumpData
+     *
+     * @return bool
+     */
+    private function dumpTableOrView(string $table, TableEntity $tableStatus, bool $dumpTable, bool $dumpData): bool
+    {
+        $isView = false;
+        if ($dumpTable || $dumpData) {
+            $this->dumpTable($table, ($dumpTable ? $this->options['table_style'] : ''),
+                ($this->driver->isView($tableStatus) ? 2 : 0));
+            if ($this->driver->isView($tableStatus)) {
+                $isView = true;
+            } elseif ($dumpData) {
+                $fields = $this->driver->fields($table);
+                $query = 'SELECT *' . $this->driver->convertFields($fields, $fields) .
+                    ' FROM ' . $this->driver->table($table);
+                $this->dumpData($table, $this->options['data_style'], $query);
+            }
+            if ($this->options['is_sql'] && $this->options['triggers'] && $dumpTable &&
+                ($triggers = $this->driver->sqlForCreateTrigger($table))) {
+                $this->queries[] = 'DELIMITER ;';
+                $this->queries[] = $triggers;
+                $this->queries[] = 'DELIMITER ;';
+            }
+            if ($this->options['is_sql']) {
+                $this->queries[] = '';
+            }
+        }
+        return $isView;
     }
 
     /**
@@ -387,77 +496,74 @@ class ExportAdmin extends AbstractAdmin
      *
      * @param string $database      The database name
      *
-     * @return array
+     * @return void
      */
     protected function dumpTablesAndViews(string $database)
     {
         if (!$this->options['table_style'] && !$this->options['data_style']) {
-            return [];
+            return;
         }
 
-        $dbDumpTable = $this->tables['list'] === '*' &&
-            \in_array($database, $this->databases['list']);
-        $dbDumpData = \in_array($database, $this->databases['data']);
+        $dbDumpTable = $this->tables['list'] === '*' && in_array($database, $this->databases['list']);
+        $dbDumpData = in_array($database, $this->databases['data']);
         $views = [];
         $dbTables = $this->driver->tableStatuses(true);
         foreach ($dbTables as $table => $tableStatus) {
-            $dumpTable = $dbDumpTable || \in_array($table, $this->tables['list']);
-            $dumpData = $dbDumpData || \in_array($table, $this->tables['data']);
-            if ($dumpTable || $dumpData) {
-                // if($ext == 'tar')
-                // {
-                //     $tmp_file = new TmpFile;
-                //     ob_start([$tmp_file, 'write'], 1e5);
-                // }
-
-                $this->dumpTable(
-                    $table,
-                    ($dumpTable ? $this->options['table_style'] : ''),
-                    ($this->driver->isView($tableStatus) ? 2 : 0)
-                );
-                if ($this->driver->isView($tableStatus)) {
-                    $views[] = $table;
-                } elseif ($dumpData) {
-                    $fields = $this->driver->fields($table);
-                    $query = 'SELECT *' . $this->driver->convertFields($fields, $fields) .
-                        ' FROM ' . $this->driver->table($table);
-                    $this->dumpData($table, $this->options['data_style'], $query);
-                }
-                if ($this->options['is_sql'] && $this->options['triggers'] && $dumpTable &&
-                    ($triggers = $this->driver->sqlForCreateTrigger($table))) {
-                    $this->queries[] = 'DELIMITER ;';
-                    $this->queries[] = $triggers;
-                    $this->queries[] = 'DELIMITER ;';
-                }
-
-                // if($ext == 'tar')
-                // {
-                //     ob_end_flush();
-                //     tar_file((DB != '' ? '' : "$db/") . "$table.csv", $tmp_file);
-                // } else
-                if ($this->options['is_sql']) {
-                    $this->queries[] = '';
-                }
+            $dumpTable = $dbDumpTable || in_array($table, $this->tables['list']);
+            $dumpData = $dbDumpData || in_array($table, $this->tables['data']);
+            $isView = $this->dumpTableOrView($table, $tableStatus, $dumpTable, $dumpData);
+            if ($isView) {
+                $views[] = $table;
             }
         }
 
         // add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
         if ($this->driver->support('fkeys_sql')) {
             foreach ($dbTables as $table => $tableStatus) {
-                $dumpTable = true; // (DB == '' || \in_array($table, $this->options['tables']));
-                if ($dumpTable && !$this->driver->isView($tableStatus)) {
+                // $dumpTable = true; // (DB == '' || in_array($table, $this->options['tables']));
+                if (/*$dumpTable && */!$this->driver->isView($tableStatus)) {
                     $this->queries[] = $this->driver->sqlForForeignKeys($table);
                 }
             }
         }
 
+        // Dump the views after all the tables
         foreach ($views as $view) {
             $this->dumpTable($view, $this->options['table_style'], 1);
         }
+    }
 
-        // if($ext == 'tar') {
-        //     $this->queries[] = pack('x512');
-        // }
+    /**
+     * @param string $database
+     * @param string $style
+     *
+     * @return void
+     */
+    private function dumpDatabase(string $database, string $style)
+    {
+        $this->driver->connect($database, '');
+        $sql = 'SHOW CREATE DATABASE ' . $this->driver->escapeId($database);
+        if ($this->options['is_sql'] && preg_match('~CREATE~', $style) &&
+            ($create = $this->driver->result($sql, 1))) {
+            $this->driver->setUtf8mb4($create);
+            if ($style == 'DROP+CREATE') {
+                $this->queries[] = 'DROP DATABASE IF EXISTS ' . $this->driver->escapeId($database) . ';';
+            }
+            $this->queries[] = $create . ";\n";
+        }
+        if ($this->options['is_sql'] && $this->driver->jush() === 'sql') {
+            // Dump routines and events currently works only for MySQL.
+            if ($style) {
+                if (($query = $this->driver->sqlForUseDatabase($database))) {
+                    $this->queries[] = $query . ';';
+                }
+                $this->queries[] = ''; // Empty line
+            }
+
+            $this->dumpRoutinesAndEvents($database);
+        }
+
+        $this->dumpTablesAndViews($database);
     }
 
     /**
@@ -474,7 +580,7 @@ class ExportAdmin extends AbstractAdmin
         // From dump.inc.php
         // $tables = array_flip($options['tables']) + array_flip($options['data']);
         // $ext = dump_headers((count($tables) == 1 ? key($tables) : DB), (DB == '' || count($tables) > 1));
-        $options['is_sql'] = \preg_match('~sql~', $options['format']);
+        $options['is_sql'] = preg_match('~sql~', $options['format']);
         $this->databases = $databases;
         $this->tables = $tables;
         $this->options = $options;
@@ -484,7 +590,7 @@ class ExportAdmin extends AbstractAdmin
             $headers = [
                 'version' => $this->driver->version(),
                 'driver' => $this->driver->name(),
-                'server' => \str_replace("\n", ' ', $this->driver->serverInfo()),
+                'server' => str_replace("\n", ' ', $this->driver->serverInfo()),
                 'sql' => false,
                 'data_style' => false,
             ];
@@ -501,32 +607,9 @@ class ExportAdmin extends AbstractAdmin
 
         $style = $options['db_style'];
 
-        foreach (\array_unique(\array_merge($databases['list'], $databases['data'])) as $database) {
-            // $this->util->dumpDatabase($database);
+        foreach (array_unique(array_merge($databases['list'], $databases['data'])) as $database) {
             try {
-                $this->driver->connect($database, '');
-                $sql = 'SHOW CREATE DATABASE ' . $this->driver->escapeId($database);
-                if ($this->options['is_sql'] && \preg_match('~CREATE~', $style) &&
-                    ($create = $this->driver->result($sql, 1))) {
-                    $this->driver->setUtf8mb4($create);
-                    if ($style == 'DROP+CREATE') {
-                        $this->queries[] = 'DROP DATABASE IF EXISTS ' . $this->driver->escapeId($database) . ';';
-                    }
-                    $this->queries[] = $create . ";\n";
-                }
-                if ($this->options['is_sql'] && $this->driver->jush() === 'sql') {
-                    // Dump routines and events currently works only for MySQL.
-                    if ($style) {
-                        if (($query = $this->driver->sqlForUseDatabase($database))) {
-                            $this->queries[] = $query . ';';
-                        }
-                        $this->queries[] = ''; // Empty line
-                    }
-
-                    $this->dumpRoutinesAndEvents($database);
-                }
-
-                $this->dumpTablesAndViews($database);
+                $this->dumpDatabase($database, $style);
             }
             catch (\Exception $e) {
                 return $e->getMessage();
