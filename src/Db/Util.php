@@ -8,13 +8,16 @@ use Lagdo\DbAdmin\Driver\Input;
 use Lagdo\DbAdmin\Driver\TranslatorInterface;
 use Lagdo\DbAdmin\Driver\UtilInterface;
 use Lagdo\DbAdmin\Driver\UtilTrait;
-use function intval;
+
+use function preg_match;
+use function strlen;
 
 class Util implements UtilInterface
 {
     use UtilTrait;
     use Traits\UtilTrait;
-    use Traits\SelectQueryTrait;
+    use Traits\SelectUtilTrait;
+    use Traits\QueryInputTrait;
     use Traits\DumpUtilTrait;
 
     /**
@@ -55,10 +58,10 @@ class Util implements UtilInterface
      *
      * @return array
      */
-    public function uniqueIds(array $row, array $indexes)
+    public function uniqueIds(array $row, array $indexes): array
     {
         foreach ($indexes as $index) {
-            if (\preg_match('~PRIMARY|UNIQUE~', $index->type)) {
+            if (preg_match('~PRIMARY|UNIQUE~', $index->type)) {
                 $ids = [];
                 foreach ($index->columns as $key) {
                     if (!isset($row[$key])) { // NULL is ambiguous
@@ -79,7 +82,7 @@ class Util implements UtilInterface
      *
      * @return string
      */
-    public function tableName(TableEntity $table)
+    public function tableName(TableEntity $table): string
     {
         return $this->html($table->name);
     }
@@ -92,9 +95,34 @@ class Util implements UtilInterface
      *
      * @return string
      */
-    public function fieldName(TableFieldEntity $field, /** @scrutinizer ignore-unused */ int $order = 0)
+    public function fieldName(TableFieldEntity $field, /** @scrutinizer ignore-unused */ int $order = 0): string
     {
         return '<span title="' . $this->html($field->fullType) . '">' . $this->html($field->name) . '</span>';
+    }
+
+    /**
+     * @param TableFieldEntity $field
+     * @param array $values First entries
+     * @param bool $update
+     *
+     * @return string[]
+     */
+    private function getEditFunctionNames(TableFieldEntity $field, array $values, bool $update): array
+    {
+        $names = $values;
+        foreach ($this->driver->editFunctions() as $key => $functions) {
+            if (!$key || (!isset($this->input->values['call']) && $update)) { // relative functions
+                foreach ($functions as $pattern => $value) {
+                    if (!$pattern || preg_match("~$pattern~", $field->type)) {
+                        $names[] = $value;
+                    }
+                }
+            }
+            if ($key && !preg_match('~set|blob|bytea|raw|file|bool~', $field->type)) {
+                $names[] = 'SQL';
+            }
+        }
+        return $names;
     }
 
     /**
@@ -111,207 +139,66 @@ class Util implements UtilInterface
             return [$this->trans->lang('Auto Increment')];
         }
 
-        $clauses = ($field->null ? 'NULL/' : '');
-        foreach ($this->driver->editFunctions() as $key => $functions) {
-            if (!$key || (!isset($this->input->values['call']) && $update)) { // relative functions
-                foreach ($functions as $pattern => $value) {
-                    if (!$pattern || \preg_match("~$pattern~", $field->type)) {
-                        $clauses .= "/$value";
-                    }
-                }
-            }
-            if ($key && !\preg_match('~set|blob|bytea|raw|file|bool~', $field->type)) {
-                $clauses .= '/SQL';
-            }
-        }
-        return \explode('/', $clauses);
-    }
-
-    /**
-     * Get file contents from $_FILES
-     *
-     * @param string $key
-     * @param bool $decompress
-     *
-     * @return int|string
-     */
-    private function getFile(string $key, bool $decompress = false)
-    {
-        $file = $_FILES[$key];
-        if (!$file) {
-            return null;
-        }
-        foreach ($file as $key => $val) {
-            $file[$key] = (array) $val;
-        }
-        $queries = '';
-        foreach ($file['error'] as $key => $error) {
-            if ($error) {
-                return $error;
-            }
-            $name = $file['name'][$key];
-            $tmpName = $file['tmp_name'][$key];
-            $content = \file_get_contents($decompress && \preg_match('~\.gz$~', $name) ?
-                "compress.zlib://$tmpName" : $tmpName); //! may not be reachable because of open_basedir
-            if ($decompress) {
-                $start = \substr($content, 0, 3);
-                if (\function_exists('iconv') && \preg_match("~^\xFE\xFF|^\xFF\xFE~", $start, $regs)) {
-                    // not ternary operator to save memory
-                    $content = \iconv('utf-16', 'utf-8', $content);
-                } elseif ($start == "\xEF\xBB\xBF") { // UTF-8 BOM
-                    $content = \substr($content, 3);
-                }
-                $queries .= $content . "\n\n";
-            } else {
-                $queries .= $content;
-            }
-        }
-        //! support SQL files not ending with semicolon
-        return $queries;
-    }
-
-    /**
-     * Process sent input
-     *
-     * @param TableFieldEntity $field Single field from fields()
-     * @param string $value
-     * @param string $function
-     *
-     * @return string
-     */
-    private function _processInput(TableFieldEntity $field, string $value, string $function = '')
-    {
-        if ($function == 'SQL') {
-            return $value; // SQL injection
-        }
-        $name = $field->name;
-        $expression = $this->driver->quote($value);
-        if (\preg_match('~^(now|getdate|uuid)$~', $function)) {
-            $expression = "$function()";
-        } elseif (\preg_match('~^current_(date|timestamp)$~', $function)) {
-            $expression = $function;
-        } elseif (\preg_match('~^([+-]|\|\|)$~', $function)) {
-            $expression = $this->driver->escapeId($name) . " $function $expression";
-        } elseif (\preg_match('~^[+-] interval$~', $function)) {
-            $expression = $this->driver->escapeId($name) . " $function " .
-                (\preg_match("~^(\\d+|'[0-9.: -]') [A-Z_]+\$~i", $value) ? $value : $expression);
-        } elseif (\preg_match('~^(addtime|subtime|concat)$~', $function)) {
-            $expression = "$function(" . $this->driver->escapeId($name) . ", $expression)";
-        } elseif (\preg_match('~^(md5|sha1|password|encrypt)$~', $function)) {
-            $expression = "$function($expression)";
-        }
-        return $this->driver->unconvertField($field, $expression);
-    }
-
-    /**
-     * Process edit input field
-     *
-     * @param TableFieldEntity $field
-     * @param array $inputs The user inputs
-     *
-     * @return mixed
-     */
-    public function processInput(TableFieldEntity $field, array $inputs)
-    {
-        $idf = $this->bracketEscape($field->name);
-        $function = $inputs['function'][$idf] ?? '';
-        $value = $inputs['fields'][$idf];
-        if ($field->type == 'enum') {
-            if ($value == -1) {
-                return false;
-            }
-            if ($value == '') {
-                return 'NULL';
-            }
-            return +$value;
-        }
-        if ($field->autoIncrement && $value == '') {
-            return null;
-        }
-        if ($function == 'orig') {
-            return (\preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) ?
-                $this->driver->escapeId($field->name) : false);
-        }
-        if ($function == 'NULL') {
-            return 'NULL';
-        }
-        if ($field->type == 'set') {
-            return \array_sum((array) $value);
-        }
-        if ($function == 'json') {
-            $value = \json_decode($value, true);
-            if (!\is_array($value)) {
-                return false; //! report errors
-            }
-            return $value;
-        }
-        if (\preg_match('~blob|bytea|raw|file~', $field->type) && $this->iniBool('file_uploads')) {
-            $file = $this->getFile("fields-$idf");
-            if (!\is_string($file)) {
-                return false; //! report errors
-            }
-            return $this->driver->quoteBinary($file);
-        }
-        return $this->_processInput($field, $value, $function);
+        $names = ($field->null ? ['NULL', ''] : ['']);
+        return $this->getEditFunctionNames($field, $names, $update);
     }
 
     /**
      * Value printed in select table
      *
      * @param mixed $value HTML-escaped value to print
-     * @param string $link Link to foreign key
      * @param string $type Field type
      * @param mixed $original Original value before escaping
      *
      * @return string
      */
-    private function _selectValue($value, string $link, string $type, $original): string
+    private function getSelectFieldValue($value, string $type, $original): string
     {
-        $clause = ($value === null ? '<i>NULL</i>' :
-            (\preg_match('~char|binary|boolean~', $type) && !\preg_match('~var~', $type) ?
-            "<code>$value</code>" : $value));
-        if (\preg_match('~blob|bytea|raw|file~', $type) && !$this->isUtf8($value)) {
-            $clause = '<i>' . $this->trans->lang('%d byte(s)', \strlen($original)) . '</i>';
+        if ($value === null) {
+            return '<i>NULL</i>';
         }
-        if (\preg_match('~json~', $type)) {
-            $clause = "<code class='jush-js'>$clause</code>";
+        if (preg_match('~char|binary|boolean~', $type) && !preg_match('~var~', $type)) {
+            return "<code>$value</code>";
         }
-        return ($link ? "<a href='" . $this->html($link) . "'" .
-            ($this->isUrl($link) ? $this->blankTarget() : '') . ">$clause</a>" : $clause);
+        if (preg_match('~blob|bytea|raw|file~', $type) && !$this->isUtf8($value)) {
+            return '<i>' . $this->trans->lang('%d byte(s)', strlen($original)) . '</i>';
+        }
+        if (preg_match('~json~', $type)) {
+            return "<code>$value</code>";
+        }
+        if ($this->isMail($value)) {
+            return '<a href="' . $this->html("mailto:$value") . '">' . $value . '</a>';
+        }
+        elseif ($this->isUrl($value)) {
+            // IE 11 and all modern browsers hide referrer
+            return '<a href="' . $this->html($value) . '"' . $this->blankTarget() . '>' . $value . '</a>';
+        }
+        return $value;
     }
 
     /**
      * Format value to use in select
      *
-     * @param mixed $value
-     * @param string $link
      * @param TableFieldEntity $field
+     * @param mixed $value
      * @param int|string|null $textLength
      *
      * @return string
      */
-    public function selectValue($value, string $link, TableFieldEntity $field, $textLength): string
+    public function selectValue(TableFieldEntity $field, $value, $textLength): string
     {
         // if (\is_array($value)) {
         //     $expression = '';
         //     foreach ($value as $k => $v) {
         //         $expression .= '<tr>' . ($value != \array_values($value) ?
         //             '<th>' . $this->html($k) :
-        //             '') . '<td>' . $this->selectValue($v, $link, $field, $textLength);
+        //             '') . '<td>' . $this->selectValue($field, $v, $textLength);
         //     }
         //     return "<table cellspacing='0'>$expression</table>";
         // }
         // if (!$link) {
         //     $link = $this->selectLink($value, $field);
         // }
-        if ($link === '') {
-            if ($this->isMail($value)) {
-                $link = "mailto:$value";
-            }
-            elseif ($this->isUrl($value)) {
-                $link = $value; // IE 11 and all modern browsers hide referrer
-            }
-        }
         $expression = $value;
         if (!empty($expression)) {
             if (!$this->isUtf8($expression)) {
@@ -324,18 +211,51 @@ class Util implements UtilInterface
                 $expression = $this->html($expression);
             }
         }
-        return $this->_selectValue($expression, $link, $field->type, $value);
+        return $this->getSelectFieldValue($expression, $field->type, $value);
     }
 
     /**
-     * Query printed in SQL command before execution
+     * Create SQL string from field type
      *
-     * @param string $query Query to be executed
+     * @param TableFieldEntity $field
+     * @param string $collate
      *
      * @return string
      */
-    public function sqlCommandQuery(string $query)
+    private function processType(TableFieldEntity $field, string $collate = 'COLLATE'): string
     {
-        return $this->shortenUtf8(trim($query), 1000);
+        $collation = '';
+        if (preg_match('~char|text|enum|set~', $field->type) && $field->collation) {
+            $collation = " $collate " . $this->driver->quote($field->collation);
+        }
+        $sign = '';
+        if (preg_match($this->driver->numberRegex(), $field->type) && in_array($field->unsigned, $this->driver->unsigned())) {
+            $sign = ' ' . $field->unsigned;
+        }
+        return ' ' . $field->type . $this->processLength($field->length) . $sign . $collation;
+    }
+
+    /**
+     * Create SQL string from field
+     *
+     * @param TableFieldEntity $field Basic field information
+     * @param TableFieldEntity $typeField Information about field type
+     *
+     * @return array
+     */
+    public function processField(TableFieldEntity $field, TableFieldEntity $typeField): array
+    {
+        $onUpdate = '';
+        if (preg_match('~timestamp|datetime~', $field->type) && $field->onUpdate) {
+            $onUpdate = ' ON UPDATE ' . $field->onUpdate;
+        }
+        $comment = '';
+        if ($this->driver->support('comment') && $field->comment !== '') {
+            $comment = ' COMMENT ' . $this->driver->quote($field->comment);
+        }
+        $null = $field->null ? ' NULL' : ' NOT NULL'; // NULL for timestamp
+        $autoIncrement = $field->autoIncrement ? $this->driver->autoIncrement() : null;
+        return [$this->driver->escapeId(trim($field->name)), $this->processType($typeField),
+            $null, $this->driver->defaultValue($field), $onUpdate, $comment, $autoIncrement];
     }
 }

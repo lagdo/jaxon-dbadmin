@@ -71,7 +71,7 @@ class TableSelectAdmin extends AbstractAdmin
         $indexes = $this->driver->indexes($table);
         $foreignKeys = $this->admin->columnForeignKeys($table);
         list($select, $group) = $this->util->processSelectColumns();
-        $where = $this->util->processSelectSearch($fields, $indexes);
+        $where = $this->util->processSelectWhere($fields, $indexes);
         $order = $this->util->processSelectOrder();
         $limit = $this->util->processSelectLimit();
         $tableStatus = $this->driver->tableStatusOrName($table);
@@ -306,11 +306,10 @@ class TableSelectAdmin extends AbstractAdmin
                     //! filled e-mails can be contained on other pages
                     $email_fields[$key] = ($this->util->isMail($value) ? $names[$key] : "");
                 }*/
-                $link = "";
                 $cols[] = [
                     // 'id',
                     'text' => preg_match('~text|lob~', $field->type),
-                    'value' => $this->util->selectValue($value, $link, $field, $textLength),
+                    'value' => $this->util->selectValue($field, $value, $textLength),
                     // 'editable' => false,
                 ];
             }

@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Db\Traits;
 
+use function function_exists;
+
 trait DumpUtilTrait
 {
     /**
@@ -22,7 +24,7 @@ trait DumpUtilTrait
     public function dumpOutput(): array
     {
         $output = ['text' => $this->trans->lang('open'), 'file' => $this->trans->lang('save')];
-        if (\function_exists('gzencode')) {
+        if (function_exists('gzencode')) {
             $output['gz'] = 'gzip';
         }
         return $output;
