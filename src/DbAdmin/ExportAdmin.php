@@ -5,7 +5,6 @@ namespace Lagdo\DbAdmin\DbAdmin;
 use Exception;
 
 use function count;
-use function in_array;
 use function preg_match;
 use function str_replace;
 use function array_unique;
@@ -119,61 +118,6 @@ class ExportAdmin extends AbstractAdmin
     }
 
     /**
-     * @param string $table
-     * @param bool $dumpTable
-     * @param bool $dumpData
-     *
-     * @return void
-     */
-    private function dumpTable(string $table, bool $dumpTable, bool $dumpData)
-    {
-        $this->dumpTableOrView($table, ($dumpTable ? $this->options['table_style'] : ''));
-        if ($dumpData) {
-            $fields = $this->driver->fields($table);
-            $query = 'SELECT *' . $this->driver->convertFields($fields, $fields) .
-                ' FROM ' . $this->driver->table($table);
-            $this->dumpData($table, $query);
-        }
-        if ($this->options['is_sql'] && $this->options['triggers'] && $dumpTable &&
-            ($triggers = $this->driver->sqlForCreateTrigger($table))) {
-            $this->queries[] = 'DELIMITER ;';
-            $this->queries[] = $triggers;
-            $this->queries[] = 'DELIMITER ;';
-        }
-        if ($this->options['is_sql']) {
-            $this->queries[] = '';
-        }
-    }
-
-    /**
-     * @param string $database      The database name
-     *
-     * @return void
-     */
-    private function dumpTables(string $database)
-    {
-        $dbDumpTable = $this->tables['list'] === '*' && in_array($database, $this->databases['list']);
-        $dbDumpData = in_array($database, $this->databases['data']);
-        $this->views = []; // View names
-        $this->fkeys = []; // Table names for foreign keys
-        $dbTables = $this->driver->tableStatuses(true);
-        foreach ($dbTables as $table => $tableStatus) {
-            $isView = $this->driver->isView($tableStatus);
-            if ($isView) {
-                // The views will be dumped after the tables
-                $this->views[] = $table;
-                continue;
-            }
-            $this->fkeys[] = $table;
-            $dumpTable = $dbDumpTable || in_array($table, $this->tables['list']);
-            $dumpData = $dbDumpData || in_array($table, $this->tables['data']);
-            if ($dumpTable || $dumpData) {
-                $this->dumpTable($table, $dumpTable, $dumpData);
-            }
-        }
-    }
-
-    /**
      * @return void
      */
     private function dumpViewsAndFKeys()
@@ -186,7 +130,37 @@ class ExportAdmin extends AbstractAdmin
         }
         // Dump the views after all the tables
         foreach ($this->views as $view) {
-            $this->dumpTableOrView($view, $this->options['table_style'], 1);
+            $this->dumpCreateTableOrView($view, $this->options['table_style'], 1);
+        }
+    }
+
+    /**
+     * @param string $database
+     *
+     * @return string
+     */
+    private function getCreateDatabaseQuery(string $database): string
+    {
+        if (!$this->options['is_sql'] || preg_match('~CREATE~', $this->options['db_style']) === false) {
+            return '';
+        }
+        $sql = 'SHOW CREATE DATABASE ' . $this->driver->escapeId($database);
+        return $this->driver->result($sql, 1);
+    }
+
+    /**
+     * @param string $database
+     *
+     * @return void
+     */
+    private function dumpUseDatabaseQuery(string $database)
+    {
+        if (!$this->options['is_sql'] || !$this->options['db_style'] || $this->driver->jush() !== 'sql') {
+            return;
+        }
+        if (($query = $this->driver->sqlForUseDatabase($database))) {
+            $this->queries[] = $query . ';';
+            $this->queries[] = ''; // Empty line
         }
     }
 
@@ -195,26 +169,19 @@ class ExportAdmin extends AbstractAdmin
      *
      * @return void
      */
-    private function dumpDatabaseCreation(string $database)
+    private function dumpCreateDatabaseQuery(string $database)
     {
-        $style = $this->options['db_style'];
-        $this->driver->connect($database, '');
-        $sql = 'SHOW CREATE DATABASE ' . $this->driver->escapeId($database);
-        if ($this->options['is_sql'] && preg_match('~CREATE~', $style) &&
-            ($create = $this->driver->result($sql, 1))) {
-            $this->driver->setUtf8mb4($create);
-            if ($style == 'DROP+CREATE') {
-                $this->queries[] = 'DROP DATABASE IF EXISTS ' . $this->driver->escapeId($database) . ';';
-            }
-            $this->queries[] = $create . ';';
-            $this->queries[] = ''; // Empty line
+        if (!($create = $this->getCreateDatabaseQuery($database))) {
+            return;
         }
-        if ($this->options['is_sql'] && $this->options['db_style'] && $this->driver->jush() === 'sql') {
-            if (($query = $this->driver->sqlForUseDatabase($database))) {
-                $this->queries[] = $query . ';';
-            }
-            $this->queries[] = ''; // Empty line
+        if (($query = $this->driver->setUtf8mb4($create))) {
+            $this->queries[] = $query . ';';
         }
+        if ($this->options['db_style'] === 'DROP+CREATE') {
+            $this->queries[] = 'DROP DATABASE IF EXISTS ' . $this->driver->escapeId($database) . ';';
+        }
+        $this->queries[] = $create . ';';
+        $this->queries[] = ''; // Empty line
     }
 
     /**
@@ -224,7 +191,9 @@ class ExportAdmin extends AbstractAdmin
      */
     private function dumpDatabase(string $database)
     {
-        $this->dumpDatabaseCreation($database);
+        $this->driver->connect($database, '');
+        $this->dumpCreateDatabaseQuery($database);
+        $this->dumpUseDatabaseQuery($database);
         if ($this->options['is_sql'] && $this->driver->jush() === 'sql') {
             $count = count($this->queries);
             $this->queries[] = "DELIMITER ;;\n";
@@ -264,7 +233,7 @@ class ExportAdmin extends AbstractAdmin
         ];
         if ($this->driver->jush() == 'sql') {
             $headers['sql'] = true;
-            if (isset($options['data_style'])) {
+            if (isset($this->options['data_style'])) {
                 $headers['data_style'] = true;
             }
             // Set some options in database server
