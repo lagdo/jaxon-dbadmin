@@ -8,11 +8,9 @@ use function file_get_contents;
 use function substr;
 use function function_exists;
 use function iconv;
-use function array_sum;
 use function json_decode;
 use function is_array;
 use function preg_match;
-use function is_string;
 
 trait QueryInputTrait
 {
@@ -153,66 +151,11 @@ trait QueryInputTrait
      *
      * @return array|false
      */
-    private function getJsonFieldValue($value): string
+    private function getJsonFieldValue($value)
     {
         if (!is_array($value = json_decode($value, true))) {
             return false; //! Report errors
         }
         return $value;
-    }
-
-    /**
-     * @param TableFieldEntity $field
-     *
-     * @return string|false
-     */
-    private function getBinaryFieldValue(TableFieldEntity $field)
-    {
-        if (!$this->iniBool('file_uploads')) {
-            return false;
-        }
-        $idf = $this->bracketEscape($field->name);
-        $file = $this->getFileContents("fields-$idf");
-        if (!is_string($file)) {
-            return false; //! report errors
-        }
-        return $this->driver->quoteBinary($file);
-    }
-
-    /**
-     * Process edit input field
-     *
-     * @param TableFieldEntity $field
-     * @param array $inputs The user inputs
-     *
-     * @return array|false|float|int|string|null
-     */
-    public function processInput(TableFieldEntity $field, array $inputs)
-    {
-        $idf = $this->bracketEscape($field->name);
-        $function = $inputs['function'][$idf] ?? '';
-        $value = $inputs['fields'][$idf];
-        if ($field->autoIncrement && $value === '') {
-            return null;
-        }
-        if ($function === 'NULL') {
-            return 'NULL';
-        }
-        if ($field->type === 'enum') {
-            return $this->getEnumFieldValue($value);
-        }
-        if ($function === 'orig') {
-            return $this->getOrigFieldValue($field);
-        }
-        if ($field->type === 'set') {
-            return array_sum((array) $value);
-        }
-        if ($function == 'json') {
-            return $this->getJsonFieldValue($value);
-        }
-        if (preg_match('~blob|bytea|raw|file~', $field->type)) {
-            return $this->getBinaryFieldValue($field);
-        }
-        return $this->getUnconvertedFieldValue($field, $value, $function);
     }
 }

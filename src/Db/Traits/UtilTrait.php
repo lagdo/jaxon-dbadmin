@@ -14,7 +14,6 @@ use function str_replace;
 use function preg_quote;
 use function str_repeat;
 use function strtr;
-use function array_split;
 
 trait UtilTrait
 {
