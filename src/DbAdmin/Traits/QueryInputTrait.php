@@ -30,10 +30,10 @@ trait QueryInputTrait
     private function getEntryFunctions(TableFieldEntity $field, string $name, $function, array $functions): array
     {
         // Input for functions
-        if ($field->type == "enum") {
+        if ($field->type === 'enum') {
             return [
                 'type' => 'name',
-                'name' => $this->util->html($functions[""] ?? ''),
+                'name' => $this->util->html($functions[''] ?? ''),
             ];
         }
         if (count($functions) > 1) {
@@ -42,7 +42,7 @@ trait QueryInputTrait
                 'type' => 'select',
                 'name' => "function[$name]",
                 'options' => $functions,
-                'selected' => $function === null || $hasFunction ? $function : "",
+                'selected' => $function === null || $hasFunction ? $function : '',
             ];
         }
         return [
@@ -52,8 +52,21 @@ trait QueryInputTrait
     }
 
     /**
-     * Get options to display edit field
+     * @param string $val
+     * @param int $i
+     * @param mixed $value
      *
+     * @return array
+     */
+    private function getEnumItemValue(string $val, int $i, $value): array
+    {
+        $val = stripcslashes(str_replace("''", "'", $val));
+        $checked = (is_int($value) ? $value == $i + 1 :
+            (is_array($value) ? in_array($i+1, $value) : $value === $val));
+        return ['value' => $i + 1, 'checked' => $checked, 'text' => $this->util->html($val)];
+    }
+
+    /**
      * @param TableFieldEntity $field
      * @param bool $select
      * @param mixed $value
@@ -78,10 +91,7 @@ trait QueryInputTrait
 
         preg_match_all("~'((?:[^']|'')*)'~", $field->fullType, $matches);
         foreach ($matches[1] as $i => $val) {
-            $val = stripcslashes(str_replace("''", "'", $val));
-            $checked = (is_int($value) ? $value == $i + 1 :
-                (is_array($value) ? in_array($i+1, $value) : $value === $val));
-            $values[] = ['value' => $i + 1, 'checked' => $checked, 'text' => $this->util->html($val)];
+            $values[] = $this->getEnumItemValue($val, $i, $value);
         }
 
         return $values;
@@ -100,7 +110,7 @@ trait QueryInputTrait
         preg_match_all("~'((?:[^']|'')*)'~", $field->length, $matches);
         foreach ($matches[1] as $i => $val) {
             $val = stripcslashes(str_replace("''", "'", $val));
-            $checked = (is_int($value) ? ($value >> $i) & 1 : in_array($val, explode(",", $value), true));
+            $checked = (is_int($value) ? ($value >> $i) & 1 : in_array($val, explode(',', $value), true));
             $values[] = ['value=' => (1 << $i), 'checked' => $checked, 'text' => $this->util->html($val)];
         }
         return ['type' => 'checkbox', 'attrs' => $attrs, 'values' => $values];
@@ -115,7 +125,7 @@ trait QueryInputTrait
      */
     private function getBlobInput(TableFieldEntity $field, array $attrs, $value): array
     {
-        if (preg_match('~text|lob|memo~i', $field->type) && $this->driver->jush() != "sqlite") {
+        if (preg_match('~text|lob|memo~i', $field->type) && $this->driver->jush() !== 'sqlite') {
             $attrs['cols'] = 50;
             $attrs['rows'] = 12;
         } else {
@@ -134,12 +144,12 @@ trait QueryInputTrait
      *
      * @return int
      */
-    private function _getMaxLength(TableFieldEntity $field): int
+    private function getLengthValue(TableFieldEntity $field): int
     {
         // int(3) is only a display hint
         if (!preg_match('~int~', $field->type) &&
             preg_match('~^(\d+)(,(\d+))?$~', $field->length, $match)) {
-            $length1 = preg_match("~binary~", $field->type) ? 2 : 1;
+            $length1 = preg_match('~binary~', $field->type) ? 2 : 1;
             $length2 = ($match[3] ?? false) ? 1 : 0;
             $length3 = ($match[2] ?? false) && !$field->unsigned ? 1 : 0;
             return $length1 * $match[1] + $length2 + $length3;
@@ -157,7 +167,7 @@ trait QueryInputTrait
      */
     private function getMaxLength(TableFieldEntity $field): int
     {
-        $maxlength = $this->_getMaxLength($field);
+        $maxlength = $this->getLengthValue($field);
         if ($this->driver->jush() == 'sql' && $this->driver->minVersion(5.6) &&
             preg_match('~time~', $field->type)) {
             return $maxlength + 7; // microtime
@@ -210,7 +220,7 @@ trait QueryInputTrait
     {
         $this->setDataLength($field, $attrs);
         $hasFunction = (in_array($function, $functions) || isset($functions[$function]));
-        if (!$hasFunction || $function === "") {
+        if (!$hasFunction || $function === '') {
             $this->setDataType($field, $attrs);
         }
         $attrs['value'] = $this->util->html($value);
@@ -230,25 +240,25 @@ trait QueryInputTrait
     private function getEntryInput(TableFieldEntity $field, string $name, $value, $function, array $functions, array $options): array
     {
         $attrs = ['name' => "fields[$name]"];
-        if ($field->type == "enum") {
+        if ($field->type === 'enum') {
             return ['type' => 'radio', 'attrs' => $attrs,
-                'values' => $this->getEnumValues($field, isset($options["select"]), $value)];
+                'values' => $this->getEnumValues($field, isset($options['select']), $value)];
         }
         if (preg_match('~bool~', $field->type)) {
             $attrs['checked'] = preg_match('~^(1|t|true|y|yes|on)$~i', $value);
             return ['type' => 'bool', 'attrs' => $attrs];
         }
-        if ($field->type == "set") {
+        if ($field->type === 'set') {
             return $this->getSetInput($field, $attrs, $value);
         }
-        if (preg_match('~blob|bytea|raw|file~', $field->type) && $this->util->iniBool("file_uploads")) {
+        if (preg_match('~blob|bytea|raw|file~', $field->type) && $this->util->iniBool('file_uploads')) {
             $attrs['name'] = "fields-$name";
             return ['type' => 'file', 'attrs' => $attrs];
         }
         if (preg_match('~text|lob|memo~i', $field->type) || preg_match("~\n~", $value)) {
             return $this->getBlobInput($field, $attrs, $value);
         }
-        if ($function == "json" || preg_match('~^jsonb?$~', $field->type)) {
+        if ($function === 'json' || preg_match('~^jsonb?$~', $field->type)) {
             $attrs['cols'] = 50;
             $attrs['rows'] = 12;
             return ['type' => 'textarea', 'attrs' => $attrs, 'value' => $this->util->html($value)];

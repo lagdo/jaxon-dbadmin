@@ -106,6 +106,32 @@ trait TableDumpTrait
      *
      * @return void
      */
+    private function addCreateTableQuery(string $table, string $style, int $tableType)
+    {
+        $create = $this->getCreateTableQuery($table, $style, $tableType);
+        $this->driver->setUtf8mb4($create);
+        if (!$create) {
+            return;
+        }
+        if ($style === 'DROP+CREATE' || $tableType === 1) {
+            $this->queries[] = 'DROP ' . ($tableType === 2 ? 'VIEW' : 'TABLE') .
+                ' IF EXISTS ' . $this->driver->table($table) . ';';
+        }
+        if ($tableType === 1) {
+            $create = $this->admin->removeDefiner($create);
+        }
+        $this->queries[] = $create . ';';
+    }
+
+    /**
+     * Export table structure
+     *
+     * @param string $table
+     * @param string $style
+     * @param int    $tableType       0 table, 1 view, 2 temporary view table
+     *
+     * @return void
+     */
     private function dumpTableOrView(string $table, string $style, int $tableType = 0)
     {
         // From adminer.inc.php
@@ -120,19 +146,7 @@ trait TableDumpTrait
             return;
         }
 
-        $create = $this->getCreateTableQuery($table, $style, $tableType);
-        $this->driver->setUtf8mb4($create);
-        if (!$create) {
-            return;
-        }
-        if ($style === 'DROP+CREATE' || $tableType === 1) {
-            $this->queries[] = 'DROP ' . ($tableType === 2 ? 'VIEW' : 'TABLE') .
-                ' IF EXISTS ' . $this->driver->table($table) . ';';
-        }
-        if ($tableType === 1) {
-            $create = $this->admin->removeDefiner($create);
-        }
-        $this->queries[] = $create . ';';
+        $this->addCreateTableQuery($table, $style, $tableType);
     }
 
     /**
@@ -213,6 +227,38 @@ trait TableDumpTrait
         $this->saveRowInBuffer($row);
     }
 
+    /**
+     * @param string $table
+     *
+     * @return void
+     */
+    private function dumpTruncateTableQuery(string $table)
+    {
+        if ($this->options['format'] === 'sql' &&
+            $this->options['data_style'] === 'TRUNCATE+INSERT') {
+            $this->queries[] = $this->driver->sqlForTruncateTable($table) . ";\n";
+        }
+    }
+
+    /**
+     * @param string $table
+     * @param StatementInterface $statement
+     *
+     * @return void
+     */
+    private function dumpRows(string $table, StatementInterface $statement)
+    {
+        $fields = $this->options['format'] !== 'sql' ? [] : $this->driver->fields($table);
+        $keys = [];
+        $fetch_function = ($table !== '' ? 'fetchAssoc' : 'fetchRow');
+        while ($row = $statement->$fetch_function()) {
+            if (empty($keys)) {
+                $keys = $this->getDataRowKeys($row, $statement);
+            }
+            $this->dumpRow($table, $fields, $row, $keys);
+        }
+    }
+
     /** Export table data
      *
      * @param string $table
@@ -225,13 +271,6 @@ trait TableDumpTrait
         if (!$this->options['data_style']) {
             return;
         }
-        $fields = [];
-        if ($this->options['format'] === 'sql') {
-            if ($this->options['data_style'] === 'TRUNCATE+INSERT') {
-                $this->queries[] = $this->driver->sqlForTruncateTable($table) . ";\n";
-            }
-            $fields = $this->driver->fields($table);
-        }
         $statement = $this->driver->query($query); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
         if (!$statement) {
             if ($this->options['format'] === 'sql') {
@@ -239,18 +278,13 @@ trait TableDumpTrait
             }
             return;
         }
+
         $this->insert = '';
         $this->buffer = '';
         $this->suffix = '';
-        $keys = [];
-        $fetch_function = ($table !== '' ? 'fetchAssoc' : 'fetchRow');
-        while ($row = $statement->$fetch_function()) {
-            if (empty($keys)) {
-                $keys = $this->getDataRowKeys($row, $statement);
-            }
-            $this->dumpRow($table, $fields, $row, $keys);
-        }
-        if (($this->buffer)) {
+        $this->dumpTruncateTableQuery($table);
+        $this->dumpRows($table, $statement);
+        if (!empty($this->buffer)) {
             $this->queries[] = $this->buffer . $this->suffix;
         }
     }

@@ -10,6 +10,7 @@ use function preg_match;
 use function str_replace;
 use function array_unique;
 use function array_merge;
+use function array_pop;
 
 /**
  * Admin export functions
@@ -59,59 +60,61 @@ class ExportAdmin extends AbstractAdmin
     }
 
     /**
-     * Dump routines and events in the connected database
+     * Dump routines in the connected database
      *
      * @param string $database      The database name
      *
      * @return void
      */
-    private function dumpRoutinesAndEvents(string $database)
+    private function dumpRoutines(string $database)
     {
         // From dump.inc.php
         $style = $this->options['db_style'];
-        $queries = [];
 
         if ($this->options['routines']) {
             $sql = 'SHOW FUNCTION STATUS WHERE Db = ' . $this->driver->quote($database);
             foreach ($this->driver->rows($sql) as $row) {
                 $sql = 'SHOW CREATE FUNCTION ' . $this->driver->escapeId($row['Name']);
                 $create = $this->admin->removeDefiner($this->driver->result($sql, 2));
-                $queries[] = $this->driver->setUtf8mb4($create);
+                $this->queries[] = $this->driver->setUtf8mb4($create);
                 if ($style != 'DROP+CREATE') {
-                    $queries[] = 'DROP FUNCTION IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';
+                    $this->queries[] = 'DROP FUNCTION IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';
                 }
-                $queries[] = "$create;;\n";
+                $this->queries[] = "$create;;\n";
             }
             $sql = 'SHOW PROCEDURE STATUS WHERE Db = ' . $this->driver->quote($database);
             foreach ($this->driver->rows($sql) as $row) {
                 $sql = 'SHOW CREATE PROCEDURE ' . $this->driver->escapeId($row['Name']);
                 $create = $this->admin->removeDefiner($this->driver->result($sql, 2));
-                $queries[] = $this->driver->setUtf8mb4($create);
+                $this->queries[] = $this->driver->setUtf8mb4($create);
                 if ($style != 'DROP+CREATE') {
-                    $queries[] = 'DROP PROCEDURE IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';
+                    $this->queries[] = 'DROP PROCEDURE IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';
                 }
-                $queries[] = "$create;;\n";
+                $this->queries[] = "$create;;\n";
             }
         }
+    }
+
+    /**
+     * Dump events in the connected database
+     *
+     * @return void
+     */
+    private function dumpEvents()
+    {
+        // From dump.inc.php
+        $style = $this->options['db_style'];
 
         if ($this->options['events']) {
             foreach ($this->driver->rows('SHOW EVENTS') as $row) {
                 $sql = 'SHOW CREATE EVENT ' . $this->driver->escapeId($row['Name']);
                 $create = $this->admin->removeDefiner($this->driver->result($sql, 3));
-                $queries[] = $this->driver->setUtf8mb4($create);
+                $this->queries[] = $this->driver->setUtf8mb4($create);
                 if ($style != 'DROP+CREATE') {
-                    $queries[] = 'DROP EVENT IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';
+                    $this->queries[] = 'DROP EVENT IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';
                 }
-                $queries[] = "$create;;\n";
+                $this->queries[] = "$create;;\n";
             }
-        }
-
-        if (count($queries) > 0) {
-            $this->queries[] = "DELIMITER ;;\n";
-            foreach ($queries as $query) {
-                $this->queries[] = $query;
-            }
-            $this->queries[] = "DELIMITER ;;\n";
         }
     }
 
@@ -143,8 +146,6 @@ class ExportAdmin extends AbstractAdmin
     }
 
     /**
-     * Dump tables
-     *
      * @param string $database      The database name
      *
      * @return void
@@ -205,7 +206,14 @@ class ExportAdmin extends AbstractAdmin
             if ($style == 'DROP+CREATE') {
                 $this->queries[] = 'DROP DATABASE IF EXISTS ' . $this->driver->escapeId($database) . ';';
             }
-            $this->queries[] = $create . ";\n";
+            $this->queries[] = $create . ';';
+            $this->queries[] = ''; // Empty line
+        }
+        if ($this->options['is_sql'] && $this->options['db_style'] && $this->driver->jush() === 'sql') {
+            if (($query = $this->driver->sqlForUseDatabase($database))) {
+                $this->queries[] = $query . ';';
+            }
+            $this->queries[] = ''; // Empty line
         }
     }
 
@@ -218,14 +226,17 @@ class ExportAdmin extends AbstractAdmin
     {
         $this->dumpDatabaseCreation($database);
         if ($this->options['is_sql'] && $this->driver->jush() === 'sql') {
+            $count = count($this->queries);
+            $this->queries[] = "DELIMITER ;;\n";
             // Dump routines and events currently works only for MySQL.
-            if ($this->options['db_style']) {
-                if (($query = $this->driver->sqlForUseDatabase($database))) {
-                    $this->queries[] = $query . ';';
-                }
-                $this->queries[] = ''; // Empty line
+            $this->dumpRoutines($database);
+            $this->dumpEvents();
+            $this->queries[] = "DELIMITER ;;\n";
+            if ($count + 2 === count($this->queries)) {
+                // No routine or event were dumped, so the last 2 entries are removed.
+                array_pop($this->queries);
+                array_pop($this->queries);
             }
-            $this->dumpRoutinesAndEvents($database);
         }
 
         if (!$this->options['table_style'] && !$this->options['data_style']) {
@@ -234,6 +245,33 @@ class ExportAdmin extends AbstractAdmin
 
         $this->dumpTables($database);
         $this->dumpViewsAndFKeys();
+    }
+
+    /**
+     * @return array|null
+     */
+    private function getDatabaseExportHeaders()
+    {
+        if (!$this->options['is_sql']) {
+            return null;
+        }
+        $headers = [
+            'version' => $this->driver->version(),
+            'driver' => $this->driver->name(),
+            'server' => str_replace("\n", ' ', $this->driver->serverInfo()),
+            'sql' => false,
+            'data_style' => false,
+        ];
+        if ($this->driver->jush() == 'sql') {
+            $headers['sql'] = true;
+            if (isset($options['data_style'])) {
+                $headers['data_style'] = true;
+            }
+            // Set some options in database server
+            $this->driver->query("SET time_zone = '+00:00'");
+            $this->driver->query("SET sql_mode = ''");
+        }
+        return $headers;
     }
 
     /**
@@ -255,25 +293,7 @@ class ExportAdmin extends AbstractAdmin
         $this->tables = $tables;
         $this->options = $options;
 
-        $headers = null;
-        if ($this->options['is_sql']) {
-            $headers = [
-                'version' => $this->driver->version(),
-                'driver' => $this->driver->name(),
-                'server' => str_replace("\n", ' ', $this->driver->serverInfo()),
-                'sql' => false,
-                'data_style' => false,
-            ];
-            if ($this->driver->jush() == 'sql') {
-                $headers['sql'] = true;
-                if (isset($options['data_style'])) {
-                    $headers['data_style'] = true;
-                }
-                // Set some options in database server
-                $this->driver->query("SET time_zone = '+00:00'");
-                $this->driver->query("SET sql_mode = ''");
-            }
-        }
+        $headers = $this->getDatabaseExportHeaders();
 
         foreach (array_unique(array_merge($databases['list'], $databases['data'])) as $database) {
             try {
