@@ -28,7 +28,7 @@ class Translator implements TranslatorInterface
      *
      * @var array
      */
-    protected $languages = [
+    /*protected $languages = [
         'en' => 'English', // Jakub Vrána - https://www.vrana.cz
         'ar' => 'العربية', // Y.M Amine - Algeria - nbr7@live.fr
         'bg' => 'Български', // Deyan Delchev
@@ -72,7 +72,7 @@ class Translator implements TranslatorInterface
         'vi' => 'Tiếng Việt', // Giang Manh @ manhgd google mail
         'zh' => '简体中文', // Mr. Lodar, vea - urn2.net - vea.urn2@gmail.com
         'zh-tw' => '繁體中文', // http://tzangms.com
-    ];
+    ];*/
 
     /**
      * Current language
@@ -103,7 +103,7 @@ class Translator implements TranslatorInterface
      *
      * @return void
      */
-    public function setLanguage($language)
+    public function setLanguage(string $language)
     {
         $this->language = $language;
         $this->translations = require __DIR__ . "/../../translations/$language.inc.php";
@@ -114,23 +114,25 @@ class Translator implements TranslatorInterface
      *
      * @return string
      */
-    public function getLanguage()
+    /*public function getLanguage()
     {
         return $this->language;
-    }
+    }*/
 
     /**
      * Get a translated string
      *
-     * @param string $idf
+     * @param string $string
      * @param mixed $number
      *
      * @return string
      */
-    public function lang(string $idf, $number = null): string
+    public function lang(string $string, $number = null): string
     {
-        $translation = (array_key_exists($idf, $this->translations) ? $this->translations[$idf] : $idf);
-        if (is_array($translation)) {
+        /*if (array_key_exists($string, $this->translations)) {
+            $string = $this->translations[$string];
+        }
+        if (is_array($string)) {
             $pos = ($number == 1 ? 0
                 // different forms for 1, 2-4, other
                 : ($this->language == 'cs' || $this->language == 'sk' ? ($number && $number < 5 ? 1 : 2)
@@ -150,12 +152,12 @@ class Translator implements TranslatorInterface
                     : ($number % 10 > 1 && $number % 10 < 5 && $number / 10 % 10 != 1 ? 1 : 2))
                 : 1 // different forms for 1, other
             ))))))); // http://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html
-            $translation = $translation[$pos];
-        }
+            $string = $string[$pos];
+        }*/
         $args = func_get_args();
         array_shift($args);
-        $format = str_replace("%d", "%s", $translation);
-        if ($format != $translation) {
+        $format = str_replace("%d", "%s", $string);
+        if ($format !== $string) {
             $args[0] = $this->formatNumber($number);
         }
         return vsprintf($format, $args);
