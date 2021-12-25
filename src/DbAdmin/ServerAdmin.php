@@ -2,6 +2,14 @@
 
 namespace Lagdo\DbAdmin\DbAdmin;
 
+use function array_key_exists;
+use function is_array;
+use function array_intersect;
+use function array_values;
+use function compact;
+use function count;
+use function array_keys;
+
 /**
  * Admin server functions
  */
@@ -29,10 +37,10 @@ class ServerAdmin extends AbstractAdmin
     public function __construct(array $options)
     {
         // Set the user databases, if defined.
-        if (\array_key_exists('access', $options) &&
-            \is_array($options['access']) &&
-            \array_key_exists('databases', $options['access']) &&
-            \is_array($options['access']['databases'])) {
+        if (array_key_exists('access', $options) &&
+            is_array($options['access']) &&
+            array_key_exists('databases', $options['access']) &&
+            is_array($options['access']['databases'])) {
             $this->userDatabases = $options['access']['databases'];
         }
     }
@@ -49,10 +57,10 @@ class ServerAdmin extends AbstractAdmin
         // which outputs data to the browser are prepended to the Jaxon response.
         if ($this->finalDatabases === null) {
             $this->finalDatabases = $this->driver->databases(false);
-            if (\is_array($this->userDatabases)) {
+            if (is_array($this->userDatabases)) {
                 // Only keep databases that appear in the config.
-                $this->finalDatabases = \array_intersect($this->finalDatabases, $this->userDatabases);
-                $this->finalDatabases = \array_values($this->finalDatabases);
+                $this->finalDatabases = array_intersect($this->finalDatabases, $this->userDatabases);
+                $this->finalDatabases = array_values($this->finalDatabases);
             }
         }
         return $this->finalDatabases;
@@ -63,7 +71,7 @@ class ServerAdmin extends AbstractAdmin
      *
      * @return array
      */
-    public function getServerInfo()
+    public function getServerInfo(): array
     {
         $server = $this->trans->lang(
             '%s version: %s. PHP extension %s.',
@@ -100,7 +108,7 @@ class ServerAdmin extends AbstractAdmin
             $menuActions['status'] = $this->trans->lang('Status');
         }
 
-        return \compact('server', 'user', 'sqlActions', 'menuActions');
+        return compact('server', 'user', 'sqlActions', 'menuActions');
     }
 
     /**
@@ -111,7 +119,7 @@ class ServerAdmin extends AbstractAdmin
      *
      * @return bool
      */
-    public function createDatabase(string $database, string $collation = '')
+    public function createDatabase(string $database, string $collation = ''): bool
     {
         return $this->driver->createDatabase($database, $collation);
     }
@@ -123,7 +131,7 @@ class ServerAdmin extends AbstractAdmin
      *
      * @return bool
      */
-    public function dropDatabase(string $database)
+    public function dropDatabase(string $database): bool
     {
         return $this->driver->dropDatabases([$database]);
     }
@@ -133,7 +141,7 @@ class ServerAdmin extends AbstractAdmin
      *
      * @return array
      */
-    public function getCollations()
+    public function getCollations(): array
     {
         return $this->driver->collations();
     }
@@ -143,7 +151,7 @@ class ServerAdmin extends AbstractAdmin
      *
      * @return array
      */
-    public function getDatabases()
+    public function getDatabases(): array
     {
         $mainActions = [
             'add-database' => $this->trans->lang('Create database'),
@@ -166,12 +174,12 @@ class ServerAdmin extends AbstractAdmin
             $details[] = [
                 'name' => $this->util->html($database),
                 'collation' => $this->util->html($this->driver->databaseCollation($database, $collations)),
-                'tables' => \array_key_exists($database, $tables) ? $tables[$database] : 0,
+                'tables' => array_key_exists($database, $tables) ? $tables[$database] : 0,
                 'size' => $this->trans->formatNumber($this->driver->databaseSize($database)),
             ];
         }
 
-        return \compact('headers', 'databases', 'details', 'mainActions');
+        return compact('headers', 'databases', 'details', 'mainActions');
     }
 
     /**
@@ -179,36 +187,27 @@ class ServerAdmin extends AbstractAdmin
      *
      * @return array
      */
-    public function getProcesses()
+    public function getProcesses(): array
     {
         // From processlist.inc.php
         $processes = $this->driver->processes();
 
-        $jush = $this->driver->jush();
         // From processlist.inc.php
         // TODO: Add a kill column in the headers
         $headers = [];
         $details = [];
         foreach ($processes as $process) {
             // Set the keys of the first etry as headers
-            if (\count($headers) === 0) {
-                $headers = \array_keys($process);
+            if (!$headers) {
+                $headers = array_keys($process);
             }
-            $detail = [];
+            $attrs = [];
             foreach ($process as $key => $val) {
-                $match = \array_key_exists('Command', $process) &&
-                    \preg_match("~Query|Killed~", $process["Command"]);
-                $detail[] =
-                    ($jush == "sql" && $key == "Info" && $match && $val != "") ||
-                    ($jush == "pgsql" && $key == "current_query" && $val != "<IDLE>") ||
-                    ($jush == "oracle" && $key == "sql_text" && $val != "") ?
-                    "<code class='jush-{$jush}'>" . $this->util->shortenUtf8($val, 50) .
-                    "</code>" . $this->trans->lang('Clone') : $this->util->html($val);
+                $attrs[] = $this->driver->processAttr($process, $key, $val);
             }
-            $details[] = $detail;
+            $details[] = $attrs;
         }
-
-        return \compact('headers', 'details');
+        return compact('headers', 'details');
     }
 
     /**
@@ -216,7 +215,7 @@ class ServerAdmin extends AbstractAdmin
      *
      * @return array
      */
-    public function getVariables()
+    public function getVariables(): array
     {
         // From variables.inc.php
         $variables = $this->driver->variables();
@@ -229,7 +228,7 @@ class ServerAdmin extends AbstractAdmin
             $details[] = [$this->util->html($key), $this->util->shortenUtf8($val, 50)];
         }
 
-        return \compact('headers', 'details');
+        return compact('headers', 'details');
     }
 
     /**
@@ -249,6 +248,6 @@ class ServerAdmin extends AbstractAdmin
             $details[] = [$this->util->html($key), $this->util->html($val)];
         }
 
-        return \compact('headers', 'details');
+        return compact('headers', 'details');
     }
 }
