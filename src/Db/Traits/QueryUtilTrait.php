@@ -7,6 +7,15 @@ use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 trait QueryUtilTrait
 {
     /**
+     * Filter length value including enums
+     *
+     * @param string $length
+     *
+     * @return string
+     */
+    abstract public function processLength(string $length): string;
+
+    /**
      * @param TableFieldEntity $field
      * @param array $values First entries
      * @param bool $update
