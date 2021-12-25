@@ -140,10 +140,8 @@ class TableSelectAdmin extends AbstractAdmin
     private function executeQuery(string $query, int $page): array
     {
         // From driver.inc.php
-        $start = microtime(true);
         $statement = $this->driver->execute($query);
         // From adminer.inc.php
-        $duration = $this->trans->formatTime($start); // Compute and format the duration
 
         if (!$statement) {
             return ['error' => $this->driver->error()];
@@ -157,7 +155,7 @@ class TableSelectAdmin extends AbstractAdmin
             $rows[] = $row;
         }
 
-        return [$rows, $duration];
+        return [$rows, 0];
     }
 
     /**
