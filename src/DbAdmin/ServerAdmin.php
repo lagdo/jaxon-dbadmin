@@ -198,7 +198,7 @@ class ServerAdmin extends AbstractAdmin
         $details = [];
         foreach ($processes as $process) {
             // Set the keys of the first etry as headers
-            if (!$headers) {
+            if (empty($headers)) {
                 $headers = array_keys($process);
             }
             $attrs = [];
