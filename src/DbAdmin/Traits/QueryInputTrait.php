@@ -16,6 +16,7 @@ use function is_int;
 use function explode;
 use function substr_count;
 use function min;
+use function array_pad;
 
 trait QueryInputTrait
 {
@@ -149,9 +150,10 @@ trait QueryInputTrait
         // int(3) is only a display hint
         if (!preg_match('~int~', $field->type) &&
             preg_match('~^(\d+)(,(\d+))?$~', $field->length, $match)) {
+            $match = array_pad($match, 4, false);
             $length1 = preg_match('~binary~', $field->type) ? 2 : 1;
-            $length2 = ($match[3] ?? false) ? 1 : 0;
-            $length3 = ($match[2] ?? false) && !$field->unsigned ? 1 : 0;
+            $length2 = empty($match[3]) ? 0 : 1;
+            $length3 = empty($match[2]) || $field->unsigned ? 0 : 1;
             return $length1 * $match[1] + $length2 + $length3;
         }
         if ($this->driver->typeExists($field->type)) {
