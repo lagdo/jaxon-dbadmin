@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Table;
 
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Table;
 use Lagdo\DbAdmin\App\CallableClass;
 
@@ -29,9 +30,9 @@ class Query extends CallableClass
      * @param string $schema      The schema name
      * @param string $table       The table name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showInsert(string $server, string $database, string $schema, string $table)
+    public function showInsert(string $server, string $database, string $schema, string $table): Response
     {
         $queryData = $this->dbAdmin->getQueryData($server, $database, $schema, $table);
         // Show the error
@@ -75,10 +76,10 @@ class Query extends CallableClass
      * @param array  $options     The query options
      * @param bool $addNew        Add a new entry after saving the current one.
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function execInsert(string $server, string $database, string $schema,
-        string $table, array $options, bool $addNew)
+        string $table, array $options, bool $addNew): Response
     {
         $results = $this->dbAdmin->insertItem($server, $database, $schema, $table, $options);
 
@@ -106,10 +107,10 @@ class Query extends CallableClass
      * @param array  $rowIds        The row identifiers
      * @param array  $selects       The select options
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function showUpdate(string $server, string $database, string $schema,
-        string $table, array $rowIds, array $selects)
+        string $table, array $rowIds, array $selects): Response
     {
         $queryData = $this->dbAdmin->getQueryData($server, $database, $schema, $table, $rowIds, 'Edit item');
         // Show the error
@@ -151,10 +152,10 @@ class Query extends CallableClass
      * @param array  $options       The query options
      * @param array  $selects       The select options
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function execUpdate(string $server, string $database, string $schema,
-        string $table, array $rowIds, array $options, array $selects)
+        string $table, array $rowIds, array $options, array $selects): Response
     {
         $options['where'] = $rowIds['where'];
         $options['null'] = $rowIds['null'];
@@ -182,10 +183,10 @@ class Query extends CallableClass
      * @param array  $rowIds        The row identifiers
      * @param array  $selects       The select options
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function execDelete(string $server, string $database, string $schema,
-        string $table, array $rowIds, array $selects)
+        string $table, array $rowIds, array $selects): Response
     {
         $results = $this->dbAdmin->deleteItem($server, $database, $schema, $table, $rowIds);
 
@@ -210,9 +211,9 @@ class Query extends CallableClass
      * @param string $table         The table name
      * @param array  $options       The query options
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function backToSelect(string $server, string $database, string $schema, string $table, array $options)
+    public function backToSelect(string $server, string $database, string $schema, string $table, array $options): Response
     {
         $select = $this->cl(Select::class);
         $select->show($server, $database, $schema, $table);

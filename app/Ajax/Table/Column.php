@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Table;
 
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
@@ -27,9 +28,9 @@ class Column extends CallableClass
      * @param string $content     The new element content
      * @param array  $attrs       The new element attributes
      *
-     * @return \Jaxon\Response\Response
+     * @return void
      */
-    private function insertBefore($target, $id, $class, $content, array $attrs = [])
+    private function insertBefore(string $target, string $id, string $class, string $content, array $attrs = [])
     {
         // Insert a div with the id before the target
         $this->response->insertBefore($target, 'div', $id);
@@ -53,9 +54,9 @@ class Column extends CallableClass
      * @param string $content     The new element content
      * @param array  $attrs       The new element attributes
      *
-     * @return \Jaxon\Response\Response
+     * @return void
      */
-    private function insertAfter($target, $id, $class, $content, array $attrs = [])
+    private function insertAfter(string $target, string $id, string $class, string $content, array $attrs = [])
     {
         // Insert a div with the id after the target
         $this->response->insertAfter($target, 'div', $id);
@@ -75,12 +76,13 @@ class Column extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      * @param int    $length      The number of columns in the table
      * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function add($server, $database, $schema, $length, $target = -1)
+    public function add(string $server, string $database, string $schema, int $length, int $target = -1): Response
     {
         $tableData = $this->dbAdmin->getTableData($server, $database, $schema);
         // Make data available to views
@@ -137,12 +139,13 @@ class Column extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      * @param int    $length      The number of columns in the table
      * @param int    $index       The column index
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function del($server, $database, $schema, $length, $index)
+    public function del(string $server, string $database, string $schema, int $length, int $index): Response
     {
         $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
 
@@ -168,11 +171,12 @@ class Column extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      * @param int    $index       The column index
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function setForDelete($server, $database, $schema, $index)
+    public function setForDelete(string $server, string $database, string $schema, int $index): Response
     {
         $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
 
@@ -198,11 +202,12 @@ class Column extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      * @param int    $index       The column index
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function cancelDelete($server, $database, $schema, $index)
+    public function cancelDelete(string $server, string $database, string $schema, int $index): Response
     {
         $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
         $columnName = \sprintf('fields[%d][field]', $index + 1);

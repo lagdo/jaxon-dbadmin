@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax;
 
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
@@ -17,9 +18,9 @@ class Export extends CallableClass
      * @param string $server      The database server
      * @param string $database    The database name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    protected function showForm(string $server, string $database)
+    protected function showForm(string $server, string $database): Response
     {
         $exportOptions = $this->dbAdmin->getExportOptions($server, $database);
 
@@ -67,9 +68,9 @@ class Export extends CallableClass
      *
      * @param string $server      The database server
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showServerForm(string $server)
+    public function showServerForm(string $server): Response
     {
         return $this->showForm($server, '');
     }
@@ -80,9 +81,9 @@ class Export extends CallableClass
      * @param string $server      The database server
      * @param string $database    The database name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showDatabaseForm(string $server, string $database = '')
+    public function showDatabaseForm(string $server, string $database = ''): Response
     {
         return $this->showForm($server, $database);
     }
@@ -95,9 +96,9 @@ class Export extends CallableClass
      * @param array  $tables        The tables to dump
      * @param array  $formValues
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    protected function export(string $server, array $databases, array $tables, array $formValues)
+    protected function export(string $server, array $databases, array $tables, array $formValues): Response
     {
         // Convert checkbox values to boolean
         $formValues['routines'] = \array_key_exists('routines', $formValues);
@@ -146,9 +147,9 @@ class Export extends CallableClass
      * @param string $server      The database server
      * @param array $formValues
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function exportSet(string $server, array $formValues)
+    public function exportSet(string $server, array $formValues): Response
     {
         $databases = [
             'list' => $formValues['database_list'] ?? [],
@@ -170,9 +171,9 @@ class Export extends CallableClass
      * @param string $database    The database name
      * @param array $formValues
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function exportOne(string $server, string $database, array $formValues)
+    public function exportOne(string $server, string $database, array $formValues): Response
     {
         $databases = [
             'list' => [$database],

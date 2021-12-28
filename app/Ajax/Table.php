@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax;
 
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Table\Column;
 use Lagdo\DbAdmin\App\Ajax\Table\Select;
 use Lagdo\DbAdmin\App\Ajax\Table\Query;
@@ -46,11 +47,12 @@ class Table extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      * @param string $table       The table name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function show($server, $database, $schema, $table)
+    public function show(string $server, string $database, string $schema, string $table): Response
     {
         $tableInfo = $this->dbAdmin->getTableInfo($server, $database, $schema, $table);
         // Make table info available to views
@@ -106,10 +108,11 @@ class Table extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function add($server, $database, $schema)
+    public function add(string $server, string $database, string $schema): Response
     {
         $tableData = $this->dbAdmin->getTableData($server, $database, $schema);
         // Make data available to views
@@ -144,11 +147,12 @@ class Table extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      * @param string $table       The table name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function edit($server, $database, $schema, $table)
+    public function edit(string $server, string $database, string $schema, string $table): Response
     {
         $tableData = $this->dbAdmin->getTableData($server, $database, $schema, $table);
         // Make data available to views
@@ -188,11 +192,12 @@ class Table extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      * @param array  $values      The table values
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function create($server, $database, $schema, array $values)
+    public function create(string $server, string $database, string $schema, array $values)
     {
         if(!isset($values['comment']))
         {
@@ -225,11 +230,12 @@ class Table extends CallableClass
      * @param string $server      The database server
      * @param string $database    The database name
      * @param string $table       The table name
+     * @param string $schema      The database schema
      * @param array  $values      The table values
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function alter($server, $database, $schema, $table, array $values)
+    public function alter(string $server, string $database, string $schema, string $table, array $values)
     {
         if(!isset($values['comment']))
         {
@@ -261,11 +267,12 @@ class Table extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      * @param string $table       The table name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function drop($server, $database, $schema, $table)
+    public function drop(string $server, string $database, string $schema, string $table): Response
     {
         $result = $this->dbAdmin->dropTable($server, $database, $schema, $table);
         if(!$result['success'])

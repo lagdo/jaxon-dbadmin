@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax;
 
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
@@ -18,7 +19,7 @@ class Server extends CallableClass
      *
      * @return array
      */
-    protected function showDatabaseMenu($server)
+    protected function showDatabaseMenu(string $server): array
     {
         // Access to servers is forbidden. Show the first database.
         $databasesInfo = $this->dbAdmin->getDatabases($server);
@@ -48,9 +49,9 @@ class Server extends CallableClass
      *
      * @param string $server      The database server
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function connect($server)
+    public function connect(string $server): Response
     {
         $serverInfo = $this->dbAdmin->getServerInfo($server);
         // Make server info available to views
@@ -108,9 +109,9 @@ class Server extends CallableClass
      *
      * @param string $server      The database server
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showDatabases($server)
+    public function showDatabases(string $server): Response
     {
         if(!$this->checkServerAccess($server))
         {
@@ -176,9 +177,9 @@ class Server extends CallableClass
      *
      * @param string $server      The database server
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showPrivileges($server)
+    public function showPrivileges(string $server): Response
     {
         if(!$this->checkServerAccess($server))
         {
@@ -236,9 +237,9 @@ class Server extends CallableClass
      *
      * @param string $server      The database server
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showProcesses($server)
+    public function showProcesses(string $server): Response
     {
         if(!$this->checkServerAccess($server))
         {
@@ -263,9 +264,9 @@ class Server extends CallableClass
      *
      * @param string $server      The database server
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showVariables($server)
+    public function showVariables(string $server): Response
     {
         if(!$this->checkServerAccess($server))
         {
@@ -290,9 +291,9 @@ class Server extends CallableClass
      *
      * @param string $server      The database server
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showStatus($server)
+    public function showStatus(string $server): Response
     {
         if(!$this->checkServerAccess($server))
         {

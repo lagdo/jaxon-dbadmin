@@ -196,11 +196,11 @@ class ServerAdmin extends AbstractAdmin
         // TODO: Add a kill column in the headers
         $headers = [];
         $details = [];
+        if (($process = reset($processes)) !== false) {
+            // Set the keys of the first entry as headers
+            $headers = array_keys($process);
+        }
         foreach ($processes as $process) {
-            // Set the keys of the first etry as headers
-            if (empty($headers)) {
-                $headers = array_keys($process);
-            }
             $attrs = [];
             foreach ($process as $key => $val) {
                 $attrs[] = $this->driver->processAttr($process, $key, $val);

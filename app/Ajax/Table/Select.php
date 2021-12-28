@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Table;
 
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Table;
 use Lagdo\DbAdmin\App\Ajax\Command;
 use Lagdo\DbAdmin\App\CallableClass;
@@ -76,9 +77,9 @@ class Select extends CallableClass
      * @param string $schema      The schema name
      * @param string $table       The table name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function show(string $server, string $database, string $schema, string $table)
+    public function show(string $server, string $database, string $schema, string $table): Response
     {
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table);
         // Make data available to views
@@ -146,10 +147,10 @@ class Select extends CallableClass
      * @param array  $options     The query options
      * @param integer $page       The page number
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function execSelect(string $server, string $database, string $schema,
-        string $table, array $options, int $page = 1)
+        string $table, array $options, int $page = 1): Response
     {
         $options['page'] = $page;
         $results = $this->dbAdmin->execSelect($server, $database, $schema, $table, $options);
@@ -218,10 +219,10 @@ class Select extends CallableClass
      * @param string $table       The table name
      * @param array  $options     The query options
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function setQueryOptions(string $server, string $database, string $schema,
-        string $table, array $options)
+        string $table, array $options): Response
     {
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Display the new query
@@ -239,10 +240,10 @@ class Select extends CallableClass
      * @param string $table       The table name
      * @param array  $options     The query options
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function editColumns(string $server, string $database, string $schema,
-        string $table, array $options)
+        string $table, array $options): Response
     {
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
@@ -288,10 +289,10 @@ class Select extends CallableClass
      * @param array  $options     The current query options
      * @param array  $changed     The changed query options
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function saveColumns(string $server, string $database, string $schema,
-        string $table, array $options, array $changed)
+        string $table, array $options, array $changed): Response
     {
         $options['columns'] = $changed['columns'] ?? [];
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
@@ -319,10 +320,10 @@ class Select extends CallableClass
      * @param string $table       The table name
      * @param array  $options     The query options
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function editFilters(string $server, string $database, string $schema,
-        string $table, array $options)
+        string $table, array $options): Response
     {
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
@@ -368,10 +369,10 @@ class Select extends CallableClass
      * @param array  $options     The current query options
      * @param array  $changed     The changed query options
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function saveFilters(string $server, string $database, string $schema,
-        string $table, array $options, array $changed)
+        string $table, array $options, array $changed): Response
     {
         $options['where'] = $changed['where'] ?? [];
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
@@ -399,10 +400,10 @@ class Select extends CallableClass
      * @param string $table       The table name
      * @param array  $options     The query options
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function editSorting(string $server, string $database, string $schema,
-        string $table, array $options)
+        string $table, array $options): Response
     {
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
@@ -448,10 +449,10 @@ class Select extends CallableClass
      * @param array  $options     The current query options
      * @param array  $changed     The changed query options
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function saveSorting(string $server, string $database, string $schema,
-        string $table, array $options, array $changed)
+        string $table, array $options, array $changed): Response
     {
         $options['order'] = $changed['order'] ?? [];
         $options['desc'] = $changed['desc'] ?? [];

@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax;
 
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
@@ -33,11 +34,12 @@ class View extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      * @param string $view        The view name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function show($server, $database, $schema, $view)
+    public function show(string $server, string $database, string $schema, string $view): Response
     {
         $viewInfo = $this->dbAdmin->getViewInfo($server, $database, $schema, $view);
         // Make view info available to views
@@ -75,10 +77,11 @@ class View extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function add($server, $database, $schema)
+    public function add(string $server, string $database, string $schema): Response
     {
         $this->dbAdmin->connect($server);
         $formId = 'view-form';
@@ -106,11 +109,12 @@ class View extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      * @param string $view        The view name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function edit($server, $database, $schema, $view)
+    public function edit(string $server, string $database, string $schema, string $view): Response
     {
         $viewData = $this->dbAdmin->getView($server, $database, $schema, $view);
         // Make view info available to views
@@ -141,11 +145,12 @@ class View extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
-     * @param string $values      The view values
+     * @param string $schema      The database schema
+     * @param array $values      The view values
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function create($server, $database, $schema, array $values)
+    public function create(string $server, string $database, string $schema, array $values): Response
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
@@ -167,12 +172,13 @@ class View extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      * @param string $view        The view name
-     * @param string $values      The view values
+     * @param array $values      The view values
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function update($server, $database, $schema, $view, array $values)
+    public function update(string $server, string $database, string $schema, string $view, array $values): Response
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
@@ -194,11 +200,12 @@ class View extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      * @param string $view        The view name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function drop($server, $database, $schema, $view)
+    public function drop(string $server, string $database, string $schema, string $view): Response
     {
         $result = $this->dbAdmin->dropView($server, $database, $schema, $view);
         if(!$result['success'])

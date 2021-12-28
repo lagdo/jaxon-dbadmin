@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax;
 
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
@@ -16,9 +17,9 @@ class User extends CallableClass
      *
      * @param string $server      The database server
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function add(string $server)
+    public function add(string $server): Response
     {
         $userInfo = $this->dbAdmin->newUserPrivileges($server);
 
@@ -53,9 +54,9 @@ class User extends CallableClass
      * @param string $server      The database server
      * @param array  $formValues  The form values
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function create(string $server, array $formValues)
+    public function create(string $server, array $formValues): Response
     {
         // $this->logger()->debug('Form values', $formValues);
 
@@ -74,9 +75,9 @@ class User extends CallableClass
      * @param string $hostname  The host name
      * @param string $database  The database name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function edit(string $server, string $username, string $hostname, string $database)
+    public function edit(string $server, string $username, string $hostname, string $database): Response
     {
         $userInfo = $this->dbAdmin->getUserPrivileges($server, $username, $hostname, $database);
 
@@ -111,9 +112,9 @@ class User extends CallableClass
      * @param string $server      The database server
      * @param array  $formValues  The form values
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function update(string $server, array $formValues)
+    public function update(string $server, array $formValues): Response
     {
         // $this->logger()->debug('Form values', $formValues);
 

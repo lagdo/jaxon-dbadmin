@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax;
 
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
@@ -17,9 +18,9 @@ class Import extends CallableClass
      * @param string $server      The database server
      * @param string $database    The database name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    protected function showForm(string $server, string $database = '')
+    protected function showForm(string $server, string $database = ''): Response
     {
         $importOptions = $this->dbAdmin->getImportOptions($server, $database);
 
@@ -53,9 +54,9 @@ class Import extends CallableClass
      *
      * @param string $server      The database server
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showServerForm(string $server)
+    public function showServerForm(string $server): Response
     {
         return $this->showForm($server, '');
     }
@@ -66,9 +67,9 @@ class Import extends CallableClass
      * @param string $server      The database server
      * @param string $database    The database name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showDatabaseForm(string $server, string $database = '')
+    public function showDatabaseForm(string $server, string $database = ''): Response
     {
         return $this->showForm($server, $database);
     }
@@ -79,9 +80,9 @@ class Import extends CallableClass
      * @param string $server      The database server
      * @param string $database    The database name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function executeWebFile(string $server, string $database)
+    public function executeWebFile(string $server, string $database): Response
     {
         return $this->response;
     }
@@ -93,9 +94,9 @@ class Import extends CallableClass
      * @param string $database    The database name
      * @param array $formValues
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function executeSqlFiles(string $server, string $database, array $formValues)
+    public function executeSqlFiles(string $server, string $database, array $formValues): Response
     {
         $files = \array_map(function($file) {
             return $file->path();

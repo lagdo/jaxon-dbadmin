@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax;
 
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 use Lagdo\DbAdmin\App\Ajax\Table\Select;
 
@@ -17,9 +18,9 @@ class Database extends CallableClass
      *
      * @param string $server      The database server
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function add($server)
+    public function add(string $server): Response
     {
         $collations = $this->dbAdmin->getCollations($server);
 
@@ -46,11 +47,11 @@ class Database extends CallableClass
      * Show the  create database dialog
      *
      * @param string $server      The database server
-     * @param string $formValues  The form values
+     * @param array $formValues  The form values
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function create($server, array $formValues)
+    public function create(string $server, array $formValues): Response
     {
         $database = $formValues['name'];
         $collation = $formValues['collation'];
@@ -74,9 +75,9 @@ class Database extends CallableClass
      * @param string $server      The database server
      * @param string $database    The database name
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function drop($server, $database)
+    public function drop(string $server, string $database): Response
     {
         if(!$this->dbAdmin->dropDatabase($server, $database))
         {
@@ -96,9 +97,9 @@ class Database extends CallableClass
      * @param string $database    The database name
      * @param string $schema      The database schema
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function select($server, $database, $schema = '')
+    public function select(string $server, string $database, string $schema = ''): Response
     {
         $databaseInfo = $this->dbAdmin->getDatabaseInfo($server, $database);
         // Make database info available to views
@@ -182,10 +183,11 @@ class Database extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showTables($server, $database, $schema)
+    public function showTables(string $server, string $database, string $schema): Response
     {
         $tablesInfo = $this->dbAdmin->getTables($server, $database, $schema);
 
@@ -228,10 +230,11 @@ class Database extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showViews($server, $database, $schema)
+    public function showViews(string $server, string $database, string $schema): Response
     {
         $viewsInfo = $this->dbAdmin->getViews($server, $database, $schema);
 
@@ -270,10 +273,11 @@ class Database extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showRoutines($server, $database, $schema)
+    public function showRoutines(string $server, string $database, string $schema): Response
     {
         $routinesInfo = $this->dbAdmin->getRoutines($server, $database, $schema);
         $this->showSection($routinesInfo);
@@ -286,10 +290,11 @@ class Database extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showSequences($server, $database, $schema)
+    public function showSequences(string $server, string $database, string $schema): Response
     {
         $sequencesInfo = $this->dbAdmin->getSequences($server, $database, $schema);
         $this->showSection($sequencesInfo);
@@ -302,10 +307,11 @@ class Database extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showUserTypes($server, $database, $schema)
+    public function showUserTypes(string $server, string $database, string $schema): Response
     {
         $userTypesInfo = $this->dbAdmin->getUserTypes($server, $database, $schema);
         $this->showSection($userTypesInfo);
@@ -318,10 +324,11 @@ class Database extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showEvents($server, $database, $schema)
+    public function showEvents(string $server, string $database, string $schema): Response
     {
         $eventsInfo = $this->dbAdmin->getEvents($server, $database, $schema);
         $this->showSection($eventsInfo);

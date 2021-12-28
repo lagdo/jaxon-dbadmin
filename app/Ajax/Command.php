@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax;
 
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
@@ -21,9 +22,9 @@ class Command extends CallableClass
      * @param string $schema      The schema name
      * @param string $query       The SQL query to display
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    protected function showForm(string $server, string $database, string $schema, string $query)
+    protected function showForm(string $server, string $database, string $schema, string $query): Response
     {
         $commandOptions = $this->dbAdmin->prepareCommand($server, $database, $schema);
 
@@ -60,9 +61,9 @@ class Command extends CallableClass
      * @param string $server      The database server
      * @param string $query       The SQL query to display
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function showServerForm(string $server, string $query = '')
+    public function showServerForm(string $server, string $query = ''): Response
     {
         return $this->showForm($server, '', '', $query);
     }
@@ -75,10 +76,10 @@ class Command extends CallableClass
      * @param string $schema      The schema name
      * @param string $query       The SQL query to display
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
     public function showDatabaseForm(string $server, string $database = '',
-        string $schema = '', string $query = '')
+        string $schema = '', string $query = ''): Response
     {
         return $this->showForm($server, $database, $schema, $query);
     }
@@ -91,9 +92,9 @@ class Command extends CallableClass
      * @param string $schema      The schema name
      * @param array $formValues
      *
-     * @return \Jaxon\Response\Response
+     * @return Response
      */
-    public function execute(string $server, string $database, string $schema, array $formValues)
+    public function execute(string $server, string $database, string $schema, array $formValues): Response
     {
         $query = \trim($formValues['query'] ?? '');
         $limit = \intval($formValues['limit'] ?? 0);
