@@ -1,0 +1,14 @@
+default:
+  extensions:
+    DVDoug\Behat\CodeCoverage\Extension:
+      filter:
+        include:
+          directories:
+            'src': ~
+      reports:
+        html:
+          target: build/logs/html
+        clover:
+          target: build/logs/clover.xml
+        text:
+          showColors: true
