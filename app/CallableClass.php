@@ -7,6 +7,7 @@ use Jaxon\Utils\View\Store;
 
 use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\DbAdmin;
+use Lagdo\DbAdmin\Ui\Builder;
 
 /**
  * Callable base class
@@ -28,15 +29,22 @@ class CallableClass extends JaxonCallableClass
     protected $dbAdmin;
 
     /**
+     * @var Builder
+     */
+    protected $uiBuilder;
+
+    /**
      * The constructor
      *
      * @param Package $package    The Adminer package
      * @param DbAdmin $dbAdmin    The facade to database functions
+     * @param Builder $uiBuilder  The HTML UI builder
      */
-    public function __construct(Package $package, DbAdmin $dbAdmin)
+    public function __construct(Package $package, DbAdmin $dbAdmin, Builder $uiBuilder)
     {
         $this->package = $package;
         $this->dbAdmin = $dbAdmin;
+        $this->uiBuilder = $uiBuilder;
     }
 
     /**

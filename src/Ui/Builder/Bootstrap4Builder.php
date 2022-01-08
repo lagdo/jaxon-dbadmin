@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\Ui\Builder;
 
-use Lagdo\DbAdmin\Ui\Html\BuilderInterface;
-
 class Bootstrap4Builder extends AbstractBuilder
 {
     /**

@@ -116,15 +116,16 @@ class Database extends CallableClass
         {
             $schema = $schemas[0]; // Select the first schema
 
-            $content = $this->render('menu/schemas');
+            // $content = $this->render('menu/schemas');
+            $content = $this->uiBuilder->menuSchemas($schemas);
             $this->response->html($this->package->getSchemaListId(), $content);
-            // $this->response->assign($this->package->getSchemaListId(), 'style.display', 'block');
 
             $this->jq('#adminer-schema-select-btn')
                 ->click($this->rq()->select($server, $database, \pm()->select('adminer-schema-select')));
         }
 
-        $content = $this->render('menu/commands');
+        // $content = $this->render('menu/commands');
+        $content = $this->uiBuilder->menuCommands($databaseInfo['sqlActions']);
         $this->response->html($this->package->getDbActionsId(), $content);
 
         // Set the click handlers
@@ -135,7 +136,8 @@ class Database extends CallableClass
         $this->jq('#adminer-menu-action-database-export')
             ->click($this->cl(Export::class)->rq()->showDatabaseForm($server, $database));
 
-        $content = $this->render('menu/actions');
+        // $content = $this->render('menu/actions');
+        $content = $this->uiBuilder->menuActions($databaseInfo['menuActions']);
         $this->response->html($this->package->getDbMenuId(), $content);
 
         // Set the click handlers

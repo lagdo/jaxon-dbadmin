@@ -28,7 +28,8 @@ class Server extends CallableClass
         $this->view()->shareValues($databasesInfo);
 
         // Set the database dropdown list
-        $content = $this->render('menu/databases');
+        // $content = $this->render('menu/databases');
+        $content = $this->uiBuilder->menuDatabases($databasesInfo['databases']);
         $this->response->html($this->package->getDbListId(), $content);
 
         // Hide schema list
@@ -57,14 +58,11 @@ class Server extends CallableClass
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
 
-        $content = $this->render('info/user');
-        $this->response->html($this->package->getUserInfoId(), $content);
-
-        $content = $this->render('info/server');
-        $this->response->html($this->package->getServerInfoId(), $content);
+        $this->response->html($this->package->getServerInfoId(), $this->uiBuilder->serverInfo($serverInfo));
 
         // Show the server
-        $content = $this->render('menu/commands');
+        // $content = $this->render('menu/commands');
+        $content = $this->uiBuilder->menuCommands($serverInfo['sqlActions']);
         $this->response->html($this->package->getServerActionsId(), $content);
         $this->response->html($this->package->getDbActionsId(), '');
 
@@ -76,7 +74,8 @@ class Server extends CallableClass
         $this->jq('#adminer-menu-action-server-export')
             ->click($this->cl(Export::class)->rq()->showServerForm($server));
 
-        $content = $this->render('menu/actions');
+        // $content = $this->render('menu/actions');
+        $content = $this->uiBuilder->menuActions($serverInfo['menuActions']);
         $this->response->html($this->package->getDbMenuId(), $content);
 
         if(!$this->checkServerAccess($server, false))

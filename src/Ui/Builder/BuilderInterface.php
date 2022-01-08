@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ui\Html;
+namespace Lagdo\DbAdmin\Ui\Builder;
 
 interface BuilderInterface
 {

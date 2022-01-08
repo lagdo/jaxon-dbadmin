@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\Ui\Builder;
 
 use Lagdo\DbAdmin\Ui\Html\HtmlBuilder;
-use Lagdo\DbAdmin\Ui\Html\BuilderInterface;
 
 abstract class AbstractBuilder extends HtmlBuilder implements BuilderInterface
 {
