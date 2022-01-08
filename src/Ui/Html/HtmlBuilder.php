@@ -16,6 +16,14 @@ use AvpLab\Element\Element;
 use AvpLab\Element\Text;
 use AvpLab\Element\Tag;
 
+use function strtolower;
+use function preg_replace;
+use function stripos;
+use function substr;
+use function func_get_args;
+use function array_shift;
+use function implode;
+
 /**
  * Provides API for easy building of HTML code in php
  * Copied from https://github.com/avplab/php-html-builder/blob/master/src/PhpHtmlBuilder.php,
@@ -29,7 +37,7 @@ class HtmlBuilder
     protected $elements = [];
 
     /**
-     * @var \stdClass
+     * @var HtmlScope|null
      */
     protected $scope = null;
 
@@ -46,11 +54,10 @@ class HtmlBuilder
             if ($this->scope === null) {
                 throw new \LogicException('Attributes can be set for elements only');
             }
-            $this->scope->attributes[substr($tagName, 4)] = isset($arguments[0]) ? $arguments[0] : null;
-        } else {
-            $this->createScope($tagName, $arguments);
+            $this->scope->attributes[substr($tagName, 4)] = $arguments[0] ?? null;
+            return $this;
         }
-        return $this;
+        return $this->createScope($tagName, $arguments);
     }
 
     /**
@@ -65,27 +72,13 @@ class HtmlBuilder
 
     /**
      * @param string $name
-     * @param array $arguments
      * @return $this
      */
-    protected function createScope(string $name, array $arguments = [])
+    protected function createScope(string $name)
     {
-        // Create new scope
-        $scope = new HtmlScope($name, $this->scope);
-
-        // resolve arguments
-        if ($arguments) {
-            if (is_array($arguments[0])) {
-                $scope->attributes = $arguments[0];
-            } else {
-                $scope->elements[] = new Text($arguments[0], false);
-                if (isset($arguments[1]) && is_array($arguments[1])) {
-                    $scope->attributes = $arguments[1];
-                }
-            }
-        }
-
-        $this->scope = $scope;
+        $arguments = func_get_args();
+        array_shift($arguments);
+        $this->scope = new HtmlScope($name, $this->scope, $arguments);
         return $this;
     }
 
@@ -104,9 +97,9 @@ class HtmlBuilder
      */
     public function tag(string $name)
     {
+        // TODO: check the tag name validity
         $arguments = func_get_args();
-        array_shift($arguments);
-        $this->createScope($name, $arguments);
+        $this->createScope(...$arguments);
         return $this;
     }
 
@@ -195,11 +188,7 @@ class HtmlBuilder
      */
     public function build()
     {
-        $result = '';
-        foreach ($this->elements as $element) {
-            $result .= $element;
-        }
-        return $result;
+        return implode('', $this->elements);
     }
 
     /**

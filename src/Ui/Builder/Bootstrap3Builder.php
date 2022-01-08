@@ -9,8 +9,10 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function row(string $class = ''): BuilderInterface
     {
-        $class = rtrim('row ' . trim($class));
-        $this->createScope('div')->setClass($class);
+        $attributes = [
+            'class' => rtrim('row ' . ltrim($class)),
+        ];
+        $this->createScope('div', $attributes);
         return $this;
     }
 
@@ -22,8 +24,10 @@ class Bootstrap3Builder extends AbstractBuilder
         if ($width < 1 || $width > 12) {
             $width = 12; // Full width by default.
         }
-        $class = rtrim("col-md-$width "  . trim($class));
-        $this->createScope('div')->setClass($class);
+        $attributes = [
+            'class' => rtrim("col-md-$width "  . ltrim($class)),
+        ];
+        $this->createScope('div', $attributes);
         return $this;
     }
 
@@ -32,8 +36,10 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function inputGroup(string $class = ''): BuilderInterface
     {
-        $class = rtrim('input-group ' . trim($class));
-        $this->createScope('div')->setClass($class);
+        $attributes = [
+            'class' => rtrim('input-group ' . ltrim($class)),
+        ];
+        $this->createScope('div', $attributes);
         $this->scope->isInputGroup = true;
         return $this;
     }
@@ -43,8 +49,12 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function buttonGroup(string $class = ''): BuilderInterface
     {
-        $class = rtrim('btn-group ' . trim($class));
-        $this->createScope('div')->setClass($class)->setRole('group')->setAriaLabel('...');
+        $attributes = [
+            'class' => rtrim('btn-group ' . ltrim($class)),
+            'role' => 'group',
+            'aria-label' => '...',
+        ];
+        $this->createScope('div', $attributes);
         return $this;
     }
 
@@ -56,12 +66,15 @@ class Bootstrap3Builder extends AbstractBuilder
         // A button in an input group must be wrapped into a div with class "input-group-btn".
         // Check the parent scope.
         if ($this->scope !== null && $this->scope->isInputGroup) {
-            $this->createScope('div')->setClass('input-group-btn');
+            $this->createScope('div', ['class' => 'input-group-btn']);
             // The new scope is a wrapper.
             $this->scope->isWrapper = true;
         }
-        $class = rtrim("btn btn-$style "  . trim($class));
-        $this->createScope('button', [$title])->setClass($class)->setType('button');
+        $attributes = [
+            'class' => rtrim("btn btn-$style "  . ltrim($class)),
+            'type' => 'button',
+        ];
+        $this->createScope('button', $title, $attributes);
         return $this;
     }
 
@@ -70,8 +83,10 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function select(string $class = ''): BuilderInterface
     {
-        $class = rtrim('form-control ' . trim($class));
-        $this->createScope('select')->setClass($class);
+        $attributes = [
+            'class' => rtrim('form-control ' . ltrim($class)),
+        ];
+        $this->createScope('select', $attributes);
         return $this;
     }
 
@@ -80,8 +95,10 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function option(string $title, string $class = ''): BuilderInterface
     {
-        $class = rtrim('form-control ' . trim($class));
-        $this->createScope('option', [$title])->setClass($class);
+        $attributes = [
+            'class' => rtrim('form-control ' . ltrim($class)),
+        ];
+        $this->createScope('option', $title, $attributes);
         return $this;
     }
 
@@ -90,8 +107,10 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function panel(string $style = 'default', string $class = ''): BuilderInterface
     {
-        $class = rtrim("panel panel-$style "  . trim($class));
-        $this->createScope('div')->setClass($class);
+        $attributes = [
+            'class' => rtrim("panel panel-$style "  . ltrim($class)),
+        ];
+        $this->createScope('div', $attributes);
         return $this;
     }
 
@@ -100,8 +119,10 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function panelHeader(string $class = ''): BuilderInterface
     {
-        $class = rtrim('panel-header '  . trim($class));
-        $this->createScope('div')->setClass($class);
+        $attributes = [
+            'class' => rtrim('panel-header '  . ltrim($class)),
+        ];
+        $this->createScope('div', $attributes);
         return $this;
     }
 
@@ -110,8 +131,10 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function panelBody(string $class = ''): BuilderInterface
     {
-        $class = rtrim('panel-body '  . trim($class));
-        $this->createScope('div')->setClass($class);
+        $attributes = [
+            'class' => rtrim('panel-body '  . ltrim($class)),
+        ];
+        $this->createScope('div', $attributes);
         return $this;
     }
 
@@ -120,8 +143,10 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function panelFooter(string $class = ''): BuilderInterface
     {
-        $class = rtrim('panel-footer '  . trim($class));
-        $this->createScope('div')->setClass($class);
+        $attributes = [
+            'class' => rtrim('panel-footer '  . ltrim($class)),
+        ];
+        $this->createScope('div', $attributes);
         return $this;
     }
 
@@ -130,8 +155,10 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function menu(string $class = ''): BuilderInterface
     {
-        $class = rtrim('list-group '  . trim($class));
-        $this->createScope('div')->setClass($class);
+        $attributes = [
+            'class' => rtrim('list-group '  . ltrim($class)),
+        ];
+        $this->createScope('div', $attributes);
         return $this;
     }
 
@@ -140,8 +167,11 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function menuItem(string $title, string $class = ''): BuilderInterface
     {
-        $class = rtrim('list-group-item ' . trim($class));
-        $this->createScope('a', [$title])->setHref('javascript:void(0)')->setClass($class);
+        $attributes = [
+            'class' => rtrim('list-group-item ' . ltrim($class)),
+            'href' => 'javascript:void(0)',
+        ];
+        $this->createScope('a', $title, $attributes);
         return $this;
     }
 }
