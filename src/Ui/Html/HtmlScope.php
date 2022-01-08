@@ -15,6 +15,13 @@ class HtmlScope
     public $isInputGroup = false;
 
     /**
+     * True if the scope was added to wrap another one, due to a framework requirement.
+     *
+     * @var bool
+     */
+    public $isWrapper = false;
+
+    /**
      * @var array
      */
     public $attributes = [];

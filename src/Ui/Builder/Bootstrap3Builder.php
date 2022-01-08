@@ -41,24 +41,27 @@ class Bootstrap3Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function button(string $title, string $style = 'default', string $class = ''): BuilderInterface
+    public function buttonGroup(string $class = ''): BuilderInterface
     {
-        if ($this->scope !== null && $this->scope->isInputGroup) {
-            $this->createScope('div')->setClass('input-group-btn');
-            $this->scope->isInputGroup = true;
-        }
-        $class = rtrim("btn btn-$style "  . trim($class));
-        $this->createScope('button', [$title])->setClass($class)->setType('button');
+        $class = rtrim('btn-group ' . trim($class));
+        $this->createScope('div')->setClass($class)->setRole('group')->setAriaLabel('...');
         return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function buttonGroup(string $class = ''): BuilderInterface
+    public function button(string $title, string $style = 'default', string $class = ''): BuilderInterface
     {
-        $class = rtrim('btn-group ' . trim($class));
-        $this->createScope('div')->setClass($class)->setRole('group')->setAriaLabel('...');
+        // A button in an input group must be wrapped into a div with class "input-group-btn".
+        // Check the parent scope.
+        if ($this->scope !== null && $this->scope->isInputGroup) {
+            $this->createScope('div')->setClass('input-group-btn');
+            // The new scope is a wrapper.
+            $this->scope->isWrapper = true;
+        }
+        $class = rtrim("btn btn-$style "  . trim($class));
+        $this->createScope('button', [$title])->setClass($class)->setType('button');
         return $this;
     }
 

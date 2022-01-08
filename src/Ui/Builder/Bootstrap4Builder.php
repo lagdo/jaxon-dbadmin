@@ -31,7 +31,7 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function button(string $title, string $style = 'default', string $class = ''): BuilderInterface
+    public function buttonGroup(string $class = ''): BuilderInterface
     {
         return $this;
     }
@@ -39,7 +39,7 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function buttonGroup(string $class = ''): BuilderInterface
+    public function button(string $title, string $style = 'default', string $class = ''): BuilderInterface
     {
         return $this;
     }
