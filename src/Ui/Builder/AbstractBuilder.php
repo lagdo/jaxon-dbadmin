@@ -7,6 +7,11 @@ use Lagdo\DbAdmin\Ui\Html\HtmlBuilder;
 abstract class AbstractBuilder extends HtmlBuilder implements BuilderInterface
 {
     /**
+     * @var array
+     */
+    protected $options = [];
+
+    /**
      * @return BuilderInterface
      */
     public function end(): BuilderInterface

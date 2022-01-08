@@ -37,10 +37,11 @@ interface BuilderInterface
      * @param string $title
      * @param string $style
      * @param string $class
+     * @param bool $outline
      *
      * @return BuilderInterface
      */
-    public function button(string $title, string $style = 'default', string $class = ''): BuilderInterface;
+    public function button(string $title, string $style = 'default', string $class = '', bool $outline = false): BuilderInterface;
 
     /**
      * @param string $class

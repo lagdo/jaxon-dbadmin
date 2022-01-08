@@ -61,7 +61,7 @@ class Bootstrap3Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function button(string $title, string $style = 'default', string $class = ''): BuilderInterface
+    public function button(string $title, string $style = 'default', string $class = '', bool $outline = false): BuilderInterface
     {
         // A button in an input group must be wrapped into a div with class "input-group-btn".
         // Check the parent scope.
@@ -120,7 +120,7 @@ class Bootstrap3Builder extends AbstractBuilder
     public function panelHeader(string $class = ''): BuilderInterface
     {
         $attributes = [
-            'class' => rtrim('panel-header '  . ltrim($class)),
+            'class' => rtrim('panel-heading '  . ltrim($class)),
         ];
         $this->createScope('div', $attributes);
         return $this;

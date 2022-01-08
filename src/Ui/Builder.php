@@ -138,7 +138,7 @@ class Builder
         foreach($sqlActions as $id => $title)
         {
             $this->htmlBuilder
-                ->button($title, 'default', 'adminer-menu-item')->setId("adminer-menu-action-$id")
+                ->button($title, 'secondary', 'adminer-menu-item', true)->setId("adminer-menu-action-$id")
                 ->end();
         }
         $this->htmlBuilder
