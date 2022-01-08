@@ -21,7 +21,7 @@
         "ext-json": "*",
         "ext-iconv": "*",
         "lagdo/dbadmin-driver": "^0.7.0",
-        "jaxon-php/jaxon-core": ">=3.6.0",
+        "jaxon-php/jaxon-core": ">=3.6.2",
         "jaxon-php/jaxon-dialogs": "^3.0",
         "avplab/php-html-builder": "^2.0"
     },

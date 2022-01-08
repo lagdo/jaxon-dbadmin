@@ -1,8 +1,5 @@
 <?php
 
-use Lagdo\DbAdmin\Ui\Builder;
-use Lagdo\DbAdmin\Ui\Builder\Bootstrap3Builder;
-
 return [
     'directories' => [
         __DIR__ . '/../app/Ajax' => [
@@ -31,10 +28,6 @@ return [
         Lagdo\DbAdmin\DbAdmin::class => function($di) {
             $package = $di->get(Lagdo\DbAdmin\Package::class);
             return new Lagdo\DbAdmin\DbAdmin($package);
-        },
-        Builder::class => function() {
-            $bootstrap3Builder = new Bootstrap3Builder();
-            return new Builder($bootstrap3Builder);
         },
     ],
 ];

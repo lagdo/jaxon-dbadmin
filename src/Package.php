@@ -23,14 +23,13 @@ class Package extends JaxonPackage
 
     /**
      * The constructor
-     *
-     * @param Builder $uiBuilder
      */
-    public function __construct(Builder $uiBuilder)
+    public function __construct()
     {
-        $this->uiBuilder = $uiBuilder;
         jaxon()->callback()->boot(function() {
             $template = $this->getConfig()->getOption('template', 'bootstrap3');
+            jaxon()->di()->val('adminer_config_builder', $template);
+            $this->uiBuilder = jaxon()->di()->get(Builder::class);
             jaxon()->template()->pagination(__DIR__ . "/../templates/views/$template/pagination/");
         });
     }
