@@ -29,7 +29,7 @@ before_script:
     - mkdir -p build/logs/html # Create a folder to store clover files
 
 script:
-    - vendor/bin/behat
+    - XDEBUG_MODE=coverage vendor/bin/behat
 
 after_script:
     - travis_retry php vendor/bin/php-coveralls -v
