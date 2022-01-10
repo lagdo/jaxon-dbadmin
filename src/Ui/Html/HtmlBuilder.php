@@ -15,6 +15,8 @@ use AvpLab\Element\Comment;
 use AvpLab\Element\Element;
 use AvpLab\Element\Text;
 use AvpLab\Element\Tag;
+use LogicException;
+use RuntimeException;
 
 use function strtolower;
 use function preg_replace;
@@ -29,7 +31,7 @@ use function implode;
  * Copied from https://github.com/avplab/php-html-builder/blob/master/src/PhpHtmlBuilder.php,
  * and modified to change the properties' visibility from private to protected.
  */
-class HtmlBuilder
+abstract class HtmlBuilder
 {
     /**
      * @var Element[]
@@ -42,19 +44,33 @@ class HtmlBuilder
     protected $scope = null;
 
     /**
+     * @param string $tagName
+     *
+     * @return string
+     */
+    protected abstract function getFormElementClass(string $tagName): string;
+
+    /**
      * @param string $method
      * @param array $arguments
      * @return $this
-     * @throws \LogicException When element is not initialized yet
+     * @throws LogicException When element is not initialized yet
      */
     public function __call(string $method, array $arguments)
     {
         $tagName = strtolower(preg_replace('/(?<!^)([A-Z])/', '-$1', $method));
         if (stripos($tagName, 'set-') === 0) {
             if ($this->scope === null) {
-                throw new \LogicException('Attributes can be set for elements only');
+                throw new LogicException('Attributes can be set for elements only');
             }
             $this->scope->attributes[substr($tagName, 4)] = $arguments[0] ?? null;
+            return $this;
+        }
+        if (stripos($tagName, 'form-') === 0) {
+            $tagName = substr($tagName, 5);
+            $this->createScope($tagName, $arguments);
+            $class = $this->scope->attributes['class'] ?? '';
+            $this->scope->attributes['class'] = trim($this->getFormElementClass($tagName) . ' ' . $class);
             return $this;
         }
         return $this->createScope($tagName, $arguments);
@@ -138,12 +154,12 @@ class HtmlBuilder
 
     /**
      * @return $this
-     * @throws \RuntimeException When element is not initialized yet.
+     * @throws RuntimeException When element is not initialized yet.
      */
     public function end()
     {
         if ($this->scope === null) {
-            throw new \RuntimeException('Abnormal element completion');
+            throw new RuntimeException('Abnormal element completion');
         }
         $element = new Tag($this->scope->name, $this->scope->attributes, $this->scope->elements);
         $this->scope = $this->scope->parent;
@@ -153,12 +169,12 @@ class HtmlBuilder
 
     /**
      * @return $this
-     * @throws \RuntimeException When element is not initialized yet.
+     * @throws RuntimeException When element is not initialized yet.
      */
     public function endShorted()
     {
         if ($this->scope === null) {
-            throw new \RuntimeException('Abnormal element completion');
+            throw new RuntimeException('Abnormal element completion');
         }
         $element = new Tag($this->scope->name, $this->scope->attributes);
         $element->setShort(true);
@@ -169,12 +185,12 @@ class HtmlBuilder
 
     /**
      * @return $this
-     * @throws \RuntimeException When element is not initialized yet.
+     * @throws RuntimeException When element is not initialized yet.
      */
     public function endOpened()
     {
         if ($this->scope === null) {
-            throw new \RuntimeException('Abnormal element completion');
+            throw new RuntimeException('Abnormal element completion');
         }
         $element = new Tag($this->scope->name, $this->scope->attributes);
         $element->setOpened(true);
@@ -186,7 +202,7 @@ class HtmlBuilder
     /**
      * @return string
      */
-    public function build()
+    public function build(): string
     {
         return implode('', $this->elements);
     }

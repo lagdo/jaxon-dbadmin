@@ -45,7 +45,9 @@ class Query extends CallableClass
         $this->view()->shareValues($queryData);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($queryData['mainActions']) ?
+            $this->uiBuilder->mainActions($queryData['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         $content = $this->render('table/query', [
             'formId' => $this->queryFormId,
@@ -123,7 +125,9 @@ class Query extends CallableClass
         $this->view()->shareValues($queryData);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($queryData['mainActions']) ?
+            $this->uiBuilder->mainActions($queryData['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         $content = $this->render('table/query', [
             'formId' => $this->queryFormId,

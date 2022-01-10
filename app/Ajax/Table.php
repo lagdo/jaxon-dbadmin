@@ -38,7 +38,7 @@ class Table extends CallableClass
         // Make data available to views
         $this->view()->shareValues($tableData);
 
-        $content = $this->render('main/content');
+        $content = $this->uiBuilder->mainContent($this->renderMainContent());
         $this->response->html($tabId, $content);
     }
 
@@ -59,9 +59,11 @@ class Table extends CallableClass
         $this->view()->shareValues($tableInfo);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($tableInfo['mainActions']) ?
+            $this->uiBuilder->mainActions($tableInfo['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->render('main/db-table');
+        $content = $this->uiBuilder->mainDbTable($tableInfo['tabs']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show fields
@@ -119,7 +121,9 @@ class Table extends CallableClass
         $this->view()->shareValues($tableData);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($tableData['mainActions']) ?
+            $this->uiBuilder->mainActions($tableData['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         $contentId = $this->package->getDbContentId();
         $content = $this->render('table/add', [
@@ -159,7 +163,9 @@ class Table extends CallableClass
         $this->view()->shareValues($tableData);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($tableData['mainActions']) ?
+            $this->uiBuilder->mainActions($tableData['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         $contentId = $this->package->getDbContentId();
         $content = $this->render('table/edit', [

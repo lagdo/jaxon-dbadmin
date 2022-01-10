@@ -143,11 +143,13 @@ class Server extends CallableClass
         $this->view()->share('details', $details);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($databasesInfo['mainActions']) ?
+            $this->uiBuilder->mainActions($databasesInfo['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         // Add checkboxes to database table
         $checkbox = 'database';
-        $content = $this->render('main/content', ['checkbox' => $checkbox]);
+        $content = $this->uiBuilder->mainContent($this->renderMainContent(['checkbox' => $checkbox]), $checkbox);
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Set onclick handlers on table checkbox
@@ -212,9 +214,11 @@ class Server extends CallableClass
         $this->view()->shareValues($privilegesInfo);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($privilegesInfo['mainActions']) ?
+            $this->uiBuilder->mainActions($privilegesInfo['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->render('main/content');
+        $content = $this->uiBuilder->mainContent($this->renderMainContent());
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Set onclick handlers on database names
@@ -250,9 +254,11 @@ class Server extends CallableClass
         $this->view()->shareValues($processesInfo);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($processesInfo['mainActions']) ?
+            $this->uiBuilder->mainActions($processesInfo['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->render('main/content');
+        $content = $this->uiBuilder->mainContent($this->renderMainContent());
         $this->response->html($this->package->getDbContentId(), $content);
 
         return $this->response;
@@ -277,9 +283,11 @@ class Server extends CallableClass
         $this->view()->shareValues($variablesInfo);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($variablesInfo['mainActions']) ?
+            $this->uiBuilder->mainActions($variablesInfo['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->render('main/content');
+        $content = $this->uiBuilder->mainContent($this->renderMainContent());
         $this->response->html($this->package->getDbContentId(), $content);
 
         return $this->response;
@@ -304,9 +312,11 @@ class Server extends CallableClass
         $this->view()->shareValues($statusInfo);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($statusInfo['mainActions']) ?
+            $this->uiBuilder->mainActions($statusInfo['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->render('main/content');
+        $content = $this->uiBuilder->mainContent($this->renderMainContent());
         $this->response->html($this->package->getDbContentId(), $content);
 
         return $this->response;

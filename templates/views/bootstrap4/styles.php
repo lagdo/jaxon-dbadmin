@@ -1,4 +1,7 @@
-<style type="text/css">
+<style>
+    .modal-header : {
+        display: block;
+    }
 #<?php echo $this->containerId ?> {
     margin: 20px 0 0 0;
 }
@@ -106,5 +109,8 @@
 }
 #<?php echo $this->containerId ?> #sql-command-editor .card-body {
     padding: 0 1px;
+}
+#<?php echo $this->containerId ?> .adminer-main-action-group {
+    padding: 10px;
 }
 </style>

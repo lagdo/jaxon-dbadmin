@@ -28,7 +28,9 @@ class Export extends CallableClass
         $this->view()->shareValues($exportOptions);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($exportOptions['mainActions']) ?
+            $this->uiBuilder->mainActions($exportOptions['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         $btnId = 'adminer-main-export-submit';
         $formId = 'adminer-main-export-form';

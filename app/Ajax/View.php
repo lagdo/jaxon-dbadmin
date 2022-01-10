@@ -25,7 +25,7 @@ class View extends CallableClass
         // Make data available to views
         $this->view()->shareValues($viewData);
 
-        $content = $this->render('main/content');
+        $content = $this->uiBuilder->mainContent($this->renderMainContent());
         $this->response->html($tabId, $content);
     }
 
@@ -46,9 +46,11 @@ class View extends CallableClass
         $this->view()->shareValues($viewInfo);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($viewInfo['mainActions']) ?
+            $this->uiBuilder->mainActions($viewInfo['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->render('main/db-table');
+        $content = $this->uiBuilder->mainDbTable($viewInfo['tabs']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show fields

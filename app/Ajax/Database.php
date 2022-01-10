@@ -106,7 +106,9 @@ class Database extends CallableClass
         $this->view()->shareValues($databaseInfo);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($databaseInfo['mainActions']) ?
+            $this->uiBuilder->mainActions($databaseInfo['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         // Set the selected entry on database dropdown select
         $this->jq('#adminer-dbname-select')->val($database)->change();
@@ -174,9 +176,12 @@ class Database extends CallableClass
         $this->view()->shareValues($viewData);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($viewData['mainActions']) ?
+            $this->uiBuilder->mainActions($viewData['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->render('main/content', $contentData);
+        $counterId = $contentData['checkbox'] ?? '';
+        $content = $this->uiBuilder->mainContent($this->renderMainContent($contentData), $counterId);
         $this->response->html($this->package->getDbContentId(), $content);
     }
 

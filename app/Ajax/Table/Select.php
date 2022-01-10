@@ -86,7 +86,9 @@ class Select extends CallableClass
         $this->view()->shareValues($selectData);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($selectData['mainActions']) ?
+            $this->uiBuilder->mainActions($selectData['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         $btnColumnsId = 'adminer-table-select-columns';
         $btnFiltersId = 'adminer-table-select-filters';

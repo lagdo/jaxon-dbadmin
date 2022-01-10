@@ -1,4 +1,7 @@
-<style type="text/css">
+<style>
+    .modal-header : {
+        display: block;
+    }
 #<?php echo $this->containerId ?> {
     margin: 20px 0 0 0;
 }

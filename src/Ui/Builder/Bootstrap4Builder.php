@@ -7,6 +7,17 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
+    protected function getFormElementClass(string $tagName): string
+    {
+        if ($tagName === 'label') {
+            return 'col-form-label';
+        }
+        return 'form-control';
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function row(string $class = ''): BuilderInterface
     {
         $attributes = [
@@ -47,10 +58,11 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function buttonGroup(string $class = ''): BuilderInterface
+    public function buttonGroup(bool $fullWidth, string $class = ''): BuilderInterface
     {
+        $btnClass = $fullWidth ? 'btn-group d-flex ' : 'btn-group ';
         $attributes = [
-            'class' => rtrim('btn-group d-flex ' . ltrim($class)),
+            'class' => rtrim($btnClass . ltrim($class)),
             'role' => 'group',
         ];
         $this->createScope('div', $attributes);
@@ -177,6 +189,119 @@ class Bootstrap4Builder extends AbstractBuilder
             'href' => 'javascript:void(0)',
         ];
         $this->createScope('a', $title, $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function breadcrumb(string $class = ''): BuilderInterface
+    {
+        $this->createScope('nav', ['aria-label' => 'breadcrumb']);
+        $this->scope->isWrapper = true;
+        $attributes = [
+            'class' => rtrim('breadcrumb '  . ltrim($class)),
+        ];
+        $this->createScope('ol', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function breadcrumbItem(string $label, string $class = ''): BuilderInterface
+    {
+        $attributes = [
+            'class' => rtrim('breadcrumb-item '  . ltrim($class)),
+        ];
+        $this->createScope('li', $label, $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function tabHeader(string $class = ''): BuilderInterface
+    {
+        $attributes = [
+            'class' => rtrim('nav nav-pills '  . ltrim($class)),
+        ];
+        $this->createScope('ul', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function tabHeaderItem(string $id, bool $active, string $label, string $class = ''): BuilderInterface
+    {
+        $attributes = ['role' => 'presentation', 'class' => rtrim('nav-item ' . ltrim($class))];
+        $this->createScope('li', $attributes);
+        $attributes = ['class' => $active ? 'nav-link active' : 'nav-link',
+            'data-toggle' => 'tab', 'role' => 'tab', 'href' => "#$id"];
+        $this->createScope('a', $label, $attributes);
+        $this->end();
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function tabContent(string $class = ''): BuilderInterface
+    {
+        $attributes = [
+            'class' => rtrim('tab-content '  . ltrim($class)),
+            'style' => 'margin-top:10px;',
+        ];
+        $this->createScope('div', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function tabContentItem(string $id, bool $active, string $class = ''): BuilderInterface
+    {
+        $tabClass = $active ? 'tab-pane fade show active ' : 'tab-pane fade ';
+        $attributes = [ 'id' => $id, 'class' => rtrim($tabClass . ltrim($class))];
+        $this->createScope('div', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function table(bool $responsive, string $style = '', string $class = ''): BuilderInterface
+    {
+        if ($responsive) {
+            $this->createScope('div', ['class' => 'table-responsive']);
+            $this->scope->isWrapper = true;
+        }
+        $tableClass = ($style) ? "table table-$style " : 'table ';
+        $attributes = ['class' => rtrim($tableClass . ltrim($class))];
+        $this->createScope('table', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function form(bool $horizontal, string $class = ''): BuilderInterface
+    {
+        $this->createScope('div', ['class' => 'portlet-body form']);
+        $this->scope->isWrapper = true;
+        $attributes = ['class' => trim($class)];
+        $this->createScope('table', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function formRow(string $class = ''): BuilderInterface
+    {
+        $attributes = ['class' => rtrim('form-group row '  . ltrim($class))];
+        $this->createScope('div', $attributes);
         return $this;
     }
 }

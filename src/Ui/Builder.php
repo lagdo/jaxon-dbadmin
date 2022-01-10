@@ -86,9 +86,9 @@ class Builder
     /**
      * @param array $values
      *
-     * @return mixed
+     * @return string
      */
-    public function serverInfo(array $values)
+    public function serverInfo(array $values): string
     {
         $this->htmlBuilder->clear()
             ->col(8)
@@ -109,9 +109,9 @@ class Builder
     /**
      * @param array $menuActions
      *
-     * @return mixed
+     * @return string
      */
-    public function menuActions(array $menuActions)
+    public function menuActions(array $menuActions): string
     {
         $this->htmlBuilder->clear()
             ->menu();
@@ -129,12 +129,12 @@ class Builder
     /**
      * @param array $sqlActions
      *
-     * @return mixed
+     * @return string
      */
-    public function menuCommands(array $sqlActions)
+    public function menuCommands(array $sqlActions): string
     {
         $this->htmlBuilder->clear()
-            ->buttonGroup();
+            ->buttonGroup(true);
         foreach($sqlActions as $id => $title)
         {
             $this->htmlBuilder
@@ -149,9 +149,9 @@ class Builder
     /**
      * @param array $databases
      *
-     * @return mixed
+     * @return string
      */
-    public function menuDatabases(array $databases)
+    public function menuDatabases(array $databases): string
     {
         $this->htmlBuilder->clear()
             ->inputGroup()
@@ -175,9 +175,9 @@ class Builder
     /**
      * @param array $schemas
      *
-     * @return mixed
+     * @return string
      */
-    public function menuSchemas(array $schemas)
+    public function menuSchemas(array $schemas): string
     {
         $this->htmlBuilder->clear()
             ->inputGroup()
@@ -192,6 +192,161 @@ class Builder
                 ->end()
                 ->button('Show', 'primary', 'btn-select')->setId('adminer-schema-select-btn')
                 ->end()
+            ->end();
+        return $this->htmlBuilder->build();
+    }
+
+    /**
+     * @param array $mainActions
+     *
+     * @return string
+     */
+    public function mainActions(array $mainActions): string
+    {
+        $this->htmlBuilder->clear()
+            ->buttonGroup(false, 'adminer-main-action-group');
+        foreach($mainActions as $id => $title)
+        {
+            $this->htmlBuilder
+                ->button($title, 'secondary', '', true)->setId("adminer-main-action-$id")
+                ->end();
+        }
+        $this->htmlBuilder
+            ->end();
+        return $this->htmlBuilder->build();
+    }
+
+    /**
+     * @param array $breadcrumbs
+     *
+     * @return string
+     */
+    public function breadcrumbs(array $breadcrumbs): string
+    {
+        $this->htmlBuilder->clear()
+            ->breadcrumb();
+        foreach($breadcrumbs as $breadcrumb)
+        {
+            $this->htmlBuilder
+                ->breadcrumbItem($breadcrumb)
+                ->end();
+        }
+        $this->htmlBuilder
+            ->end();
+        return $this->htmlBuilder->build();
+    }
+
+    /**
+     * @param array $tabs
+     *
+     * @return string
+     */
+    public function mainDbTable(array $tabs): string
+    {
+        $this->htmlBuilder->clear()
+            ->row()
+                ->col(12)
+                    ->tabHeader();
+        $active = true;
+        foreach($tabs as $id => $tab)
+        {
+            $this->htmlBuilder
+                        ->tabHeaderItem("tab-content-$id", $active, $tab)
+                        ->end();
+            $active = false;
+        }
+        $this->htmlBuilder
+                    ->end()
+                    ->tabContent();
+        $active = true;
+        foreach($tabs as $id => $tab)
+        {
+            $this->htmlBuilder
+                        ->tabContentItem("tab-content-$id", $active)
+                        ->end();
+            $active = false;
+        }
+        $this->htmlBuilder
+                    ->end()
+                ->end()
+            ->end();
+        return $this->htmlBuilder->build();
+    }
+
+    /**
+     * @param string $content
+     * @param string $counterId
+     *
+     * @return string
+     */
+    public function mainContent(string $content, string $counterId = ''): string
+    {
+        $this->htmlBuilder->clear()
+            ->table(true, 'bordered')->addHtml($content)
+            ->end();
+        if (($counterId)) {
+            $this->htmlBuilder
+                ->panel()
+                    ->panelBody()->addHtml('Selected (<span id="adminer-table-' . $counterId . '-count">0</span>)')
+                    ->end()
+                ->end();
+        }
+        return $this->htmlBuilder->build();
+    }
+
+    /**
+     * @param string $formId
+     * @param array $user
+     * @param string $privileges
+     *
+     * @return string
+     */
+    public function mainUser(string $formId,  array $user, string $privileges): string
+    {
+        $this->htmlBuilder->clear()
+            ->form(true)->setId($formId)
+                ->formRow()
+                    ->formCol(3)
+                        ->formLabel()->setFor('host')
+                            ->addText($user['host']['label'])
+                        ->end()
+                    ->end()
+                    ->formCol(6)
+                        ->formInput()->setType('text')->setName('host')
+                            ->setValue($user['host']['value'])->setDataMaxlength('60')
+                        ->end()
+                    ->end()
+                ->end()
+                ->formRow()
+                    ->formCol(3)
+                        ->formLabel()->setFor('name')->addText($user['name']['label'])
+                        ->end()
+                    ->end()
+                    ->formCol(6)
+                        ->formInput()->setType('text')->setName('name')
+                            ->setValue($user['name']['value'])->setDataMaxlength('80')
+                        ->end()
+                    ->end()
+                ->end()
+                ->formRow()
+                    ->formCol(3)
+                        ->formLabel()->setFor('pass')->addText($user['pass']['label'])
+                        ->end()
+                    ->end()
+                    ->formCol(6)
+                        ->formInput()->setType('text')->setName('pass')
+                            ->setValue($user['pass']['value'])->setAutocomplete('new-password')
+                        ->end()
+                    ->end()
+                    ->formCol(3, 'checkbox')
+                        ->formLabel()->setFor('hashed')
+                            ->checkbox($user['hashed']['value'])->setName('hashed')
+                            ->end()
+                            ->addText($user['hashed']['label'])
+                        ->end()
+                    ->end()
+                ->end()
+                ->addHtml($privileges)
             ->end();
         return $this->htmlBuilder->build();
     }

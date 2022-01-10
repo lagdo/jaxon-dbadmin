@@ -32,7 +32,9 @@ class Command extends CallableClass
         $this->view()->shareValues($commandOptions);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($commandOptions['mainActions']) ?
+            $this->uiBuilder->mainActions($commandOptions['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         $btnId = 'adminer-main-command-execute';
         $formId = 'adminer-main-command-form';

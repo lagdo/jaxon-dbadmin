@@ -28,7 +28,9 @@ class Import extends CallableClass
         $this->view()->shareValues($importOptions);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($importOptions['mainActions']) ?
+            $this->uiBuilder->mainActions($importOptions['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         $formId = 'adminer-import-form';
         $webFileBtnId = 'adminer-import-web-file-btn';
