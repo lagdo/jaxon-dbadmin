@@ -24,11 +24,11 @@
         "jaxon-php/jaxon-dialogs": "^3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^8.0",
         "behat/behat": "^3.10",
         "dvdoug/behat-code-coverage": "5.0.*",
         "php-coveralls/php-coveralls": "^2.5",
-        "phpunit/phpcov": "^8.2"
+        "phpunit/phpcov": "^6.0"
     },
     "autoload": {
         "psr-4": {
