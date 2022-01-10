@@ -17,7 +17,7 @@
 <?php endif ?>
             </div>
             <div class="col-md-7">
-<?php echo $this->render('adminer::views::table/input/' . $field['input']['type'], $field['input']) ?>
+<?php echo $this->render('adminer::templates::table/input/' . $field['input']['type'], $field['input']) ?>
             </div>
         </div>
 <?php endforeach ?>

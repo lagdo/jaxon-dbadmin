@@ -45,19 +45,19 @@
             </div>
             <div class="form-group" style="display:none">
                 <div class="col-md-4" id="adminer-table-select-columns-show">
-<?php echo $this->render('adminer::views::table/select/columns-show', [
+<?php echo $this->render('adminer::templates::table/select/columns-show', [
     'trans' => $this->trans,
     'options' => $this->options['columns'],
 ]) ?>
                 </div>
                 <div class="col-md-4" id="adminer-table-select-filters-show">
-<?php echo $this->render('adminer::views::table/select/filters-show', [
+<?php echo $this->render('adminer::templates::table/select/filters-show', [
     'trans' => $this->trans,
     'options' => $this->options['filters'],
 ]) ?>
                 </div>
                 <div class="col-md-4" id="adminer-table-select-sorting-show">
-<?php echo $this->render('adminer::views::table/select/sorting-show', [
+<?php echo $this->render('adminer::templates::table/select/sorting-show', [
     'trans' => $this->trans,
     'options' => $this->options['sorting'],
 ]) ?>

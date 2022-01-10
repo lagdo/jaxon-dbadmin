@@ -62,7 +62,7 @@
             </div>
         </div>
 <?php $index = 0; foreach($this->fields as $field): ?>
-<?php echo $this->render('adminer::views::table/column', [
+<?php echo $this->render('adminer::templates::table/column', [
     'trans' => $this->trans,
     'class' => $this->formId . '-column',
     'index' => $index,

@@ -18,6 +18,11 @@ return [
             'directory' => __DIR__ . '/../templates/views',
             'extension' => '.php',
             'renderer' => 'jaxon',
+        ],
+        'adminer::templates' => [
+            'directory' => __DIR__ . '/../templates/views',
+            'extension' => '.php',
+            'renderer' => 'jaxon',
             'template' => [
                 'option' => 'template',
                 'default' => 'bootstrap3',

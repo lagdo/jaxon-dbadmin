@@ -57,7 +57,19 @@ class CallableClass extends JaxonCallableClass
      */
     protected function render($sViewName, array $aViewData = [])
     {
-        return $this->view()->render('adminer::views::' . $sViewName, $aViewData);
+        return $this->view()->render('adminer::templates::' . $sViewName, $aViewData);
+    }
+
+    /**
+     * Render the manin/content view
+     *
+     * @param array         $aViewData        The view data
+     *
+     * @return null|Store   A store populated with the view data
+     */
+    protected function renderMainContent(array $aViewData = [])
+    {
+        return $this->view()->render('adminer::views::main/content', $aViewData);
     }
 
     /**
@@ -67,9 +79,7 @@ class CallableClass extends JaxonCallableClass
      */
     protected function showBreadcrumbs()
     {
-        $content = $this->render('main/breadcrumbs', [
-            'breadcrumbs' => $this->dbAdmin->getBreadcrumbs(),
-        ]);
+        $content = $this->uiBuilder->breadcrumbs($this->dbAdmin->getBreadcrumbs());
         $this->response->html($this->package->getBreadcrumbsId(), $content);
     }
 
