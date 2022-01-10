@@ -245,6 +245,7 @@ class Bootstrap3Builder extends AbstractBuilder
     {
         $attributes = [
             'class' => rtrim('tab-content '  . ltrim($class)),
+            'style' => 'margin-top:10px;',
         ];
         $this->createScope('div', $attributes);
         return $this;
@@ -285,7 +286,7 @@ class Bootstrap3Builder extends AbstractBuilder
         $this->scope->isWrapper = true;
         $formClass = $horizontal ? 'form-horizontal ' : '';
         $attributes = ['class' => rtrim($formClass . ltrim($class))];
-        $this->createScope('table', $attributes);
+        $this->createScope('form', $attributes);
         return $this;
     }
 

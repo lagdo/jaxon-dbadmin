@@ -1,7 +1,7 @@
 <style>
-    .modal-header : {
-        display: block;
-    }
+.modal-header : {
+    display: block;
+}
 #<?php echo $this->containerId ?> {
     margin: 20px 0 0 0;
 }
@@ -17,6 +17,9 @@
 #<?php echo $this->containerId ?> .btn-select {
     margin-top: 0;
     margin-bottom: 0;
+}
+#<?php echo $this->mainActionsId ?> .btn-group {
+    padding: 10px;
 }
 #<?php echo $this->dbListId ?> {
     margin: 10px 0;

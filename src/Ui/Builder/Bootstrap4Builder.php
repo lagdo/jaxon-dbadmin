@@ -72,8 +72,11 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function button(string $title, string $style = 'default', string $class = '', bool $outline = false): BuilderInterface
+    public function button(string $title, string $style = 'secondary', string $class = '', bool $outline = false): BuilderInterface
     {
+        if ($style === 'default') {
+            $style = 'secondary'; // The default style is "secondary
+        }
         // A button in an input group must be wrapped into a div with class "input-group-btn".
         // Check the parent scope.
         if ($this->scope !== null && $this->scope->isInputGroup) {
@@ -291,7 +294,7 @@ class Bootstrap4Builder extends AbstractBuilder
         $this->createScope('div', ['class' => 'portlet-body form']);
         $this->scope->isWrapper = true;
         $attributes = ['class' => trim($class)];
-        $this->createScope('table', $attributes);
+        $this->createScope('form', $attributes);
         return $this;
     }
 

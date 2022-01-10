@@ -138,7 +138,7 @@ class Builder
         foreach($sqlActions as $id => $title)
         {
             $this->htmlBuilder
-                ->button($title, 'secondary', 'adminer-menu-item', true)->setId("adminer-menu-action-$id")
+                ->button($title, 'default', 'adminer-menu-item', true)->setId("adminer-menu-action-$id")
                 ->end();
         }
         $this->htmlBuilder
@@ -208,7 +208,7 @@ class Builder
         foreach($mainActions as $id => $title)
         {
             $this->htmlBuilder
-                ->button($title, 'secondary', '', true)->setId("adminer-main-action-$id")
+                ->button($title, 'default', '', true)->setId("adminer-main-action-$id")
                 ->end();
         }
         $this->htmlBuilder
