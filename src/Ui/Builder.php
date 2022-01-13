@@ -4,11 +4,15 @@ namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\DbAdmin\Ui\Builder\BuilderInterface;
 
+use function htmlentities;
+
 class Builder
 {
     use Traits\MenuTrait;
     use Traits\MainTrait;
     use Traits\ServerTrait;
+    use Traits\DatabaseTrait;
+    use Traits\QueryTrait;
 
     /**
      * @var BuilderInterface
@@ -84,6 +88,29 @@ class Builder
                     ->end()
                 ->end()
             ->end();
+        return $this->htmlBuilder->build();
+    }
+
+    /**
+     * @param array $options
+     * @param string $optionClass
+     * @param bool $useKeys
+     *
+     * @return string
+     */
+    public function htmlSelect(array $options, string $optionClass, bool $useKeys = false): string
+    {
+        $this->htmlBuilder->clear()
+                ->select();
+        foreach($options as $key => $label)
+        {
+            $value = $useKeys ? $key : $label;
+            $this->htmlBuilder
+                    ->option($label, $optionClass)->setValue(htmlentities($value))
+                    ->end();
+        }
+        $this->htmlBuilder
+                ->end();
         return $this->htmlBuilder->build();
     }
 }

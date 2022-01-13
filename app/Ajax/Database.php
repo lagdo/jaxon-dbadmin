@@ -26,10 +26,7 @@ class Database extends CallableClass
 
         $formId = 'database-form';
         $title = 'Create a database';
-        $content = $this->render('database/add', [
-            'formId' => $formId,
-            'collations' => $collations,
-        ]);
+        $content = $this->uiBuilder->addDbForm($formId, $collations);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -118,7 +115,6 @@ class Database extends CallableClass
         {
             $schema = $schemas[0]; // Select the first schema
 
-            // $content = $this->render('menu/schemas');
             $content = $this->uiBuilder->menuSchemas($schemas);
             $this->response->html($this->package->getSchemaListId(), $content);
 
@@ -126,7 +122,6 @@ class Database extends CallableClass
                 ->click($this->rq()->select($server, $database, \pm()->select('adminer-schema-select')));
         }
 
-        // $content = $this->render('menu/commands');
         $content = $this->uiBuilder->menuCommands($databaseInfo['sqlActions']);
         $this->response->html($this->package->getDbActionsId(), $content);
 
@@ -138,7 +133,6 @@ class Database extends CallableClass
         $this->jq('#adminer-menu-action-database-export')
             ->click($this->cl(Export::class)->rq()->showDatabaseForm($server, $database));
 
-        // $content = $this->render('menu/actions');
         $content = $this->uiBuilder->menuActions($databaseInfo['menuActions']);
         $this->response->html($this->package->getDbMenuId(), $content);
 

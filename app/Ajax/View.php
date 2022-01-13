@@ -88,10 +88,8 @@ class View extends CallableClass
         $this->dbAdmin->connect($server);
         $formId = 'view-form';
         $title = 'Create a view';
-        $content = $this->render('view/add', [
-            'formId' => $formId,
-            'materializedview' => $this->dbAdmin->driver->support('materializedview'),
-        ]);
+        $materializedView = $this->dbAdmin->driver->support('materializedview');
+        $content = $this->uiBuilder->viewForm($formId, $materializedView);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -124,10 +122,8 @@ class View extends CallableClass
 
         $formId = 'view-form';
         $title = 'Edit a view';
-        $content = $this->render('view/edit', [
-            'formId' => $formId,
-            'materializedview' => $this->dbAdmin->driver->support('materializedview'),
-        ]);
+        $materializedView = $this->dbAdmin->driver->support('materializedview');
+        $content = $this->uiBuilder->viewForm($formId, $materializedView, $viewData['view']);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

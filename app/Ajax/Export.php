@@ -116,7 +116,7 @@ class Export extends CallableClass
             return $this->response;
         }
 
-        $content = $this->render('sql/dump.sql', $results);
+        $content = $this->view()->render('adminer::views::sql/dump', $results);
         // Dump file
         $output = $formValues['output'] ?? 'text';
         $extension = $output === 'gz' ? '.gz' : ($output === 'file' ? '.sql' : '.txt');

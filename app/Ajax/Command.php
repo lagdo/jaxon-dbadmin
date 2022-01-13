@@ -111,9 +111,8 @@ class Command extends CallableClass
 
         $queryResults = $this->dbAdmin->executeCommands($server,
             $query, $limit, $errorStops, $onlyErrors, $database, $schema);
-        // $this->logger()->debug(\json_encode($queryResults));
 
-        $content = $this->render('sql/results', $queryResults);
+        $content = $this->uiBuilder->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
 
         return $this->response;

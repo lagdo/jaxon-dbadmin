@@ -116,7 +116,7 @@ class Import extends CallableClass
             $files, $errorStops, $onlyErrors, $database);
         // $this->logger()->debug(\json_encode($queryResults));
 
-        $content = $this->render('sql/results', $queryResults);
+        $content = $this->uiBuilder->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
 
         return $this->response;

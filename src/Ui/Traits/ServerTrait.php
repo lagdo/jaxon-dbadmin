@@ -35,7 +35,7 @@ trait ServerTrait
      *
      * @return string
      */
-    public function userForm(string $formId,  array $user, string $privileges): string
+    public function userForm(string $formId, array $user, string $privileges): string
     {
         $this->htmlBuilder->clear()
             ->form(true)->setId($formId)
@@ -81,6 +81,56 @@ trait ServerTrait
                     ->end()
                 ->end()
                 ->addHtml($privileges)
+            ->end();
+        return $this->htmlBuilder->build();
+    }
+
+    /**
+     * @param string $formId
+     * @param array $collations
+     *
+     * @return string
+     */
+    public function addDbForm(string $formId, array $collations): string
+    {
+        $this->htmlBuilder->clear()
+            ->form(true)->setId($formId)
+                ->formRow()
+                    ->formCol(3)
+                        ->formLabel()->setFor('name')->addText('Name')
+                        ->end()
+                    ->end()
+                    ->formCol(6)
+                        ->formInput()->setType('text')->setName('name')->setPlaceholder('Name')
+                        ->end()
+                    ->end()
+                ->end()
+                ->formRow()
+                    ->formCol(3)
+                        ->formLabel()->setFor('collation')->addText('Collation')
+                        ->end()
+                    ->end()
+                    ->formCol(6)
+                        ->select()
+                            ->option('')->setSelected('selected')->addText('(collation)')
+                            ->end();
+        foreach($collations as $group => $_collations)
+        {
+            $this->htmlBuilder
+                            ->optgroup()->setLabel($group);
+            foreach($_collations as $collation)
+            {
+                $this->htmlBuilder
+                                ->option($collation)
+                                ->end();
+            }
+            $this->htmlBuilder
+                            ->end();
+        }
+        $this->htmlBuilder
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
         return $this->htmlBuilder->build();
     }

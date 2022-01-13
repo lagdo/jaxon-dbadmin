@@ -28,7 +28,6 @@ class Server extends CallableClass
         $this->view()->shareValues($databasesInfo);
 
         // Set the database dropdown list
-        // $content = $this->render('menu/databases');
         $content = $this->uiBuilder->menuDatabases($databasesInfo['databases']);
         $this->response->html($this->package->getDbListId(), $content);
 
@@ -62,7 +61,6 @@ class Server extends CallableClass
         $this->response->html($this->package->getServerInfoId(), $content);
 
         // Show the server
-        // $content = $this->render('menu/commands');
         $content = $this->uiBuilder->menuCommands($serverInfo['sqlActions']);
         $this->response->html($this->package->getServerActionsId(), $content);
         $this->response->html($this->package->getDbActionsId(), '');
@@ -75,7 +73,6 @@ class Server extends CallableClass
         $this->jq('#adminer-menu-action-server-export')
             ->click($this->cl(Export::class)->rq()->showServerForm($server));
 
-        // $content = $this->render('menu/actions');
         $content = $this->uiBuilder->menuActions($serverInfo['menuActions']);
         $this->response->html($this->package->getDbMenuId(), $content);
 
@@ -195,11 +192,8 @@ class Server extends CallableClass
         // Add links, classes and data values to privileges.
         $privilegesInfo['details'] = \array_map(function($detail) use($editClass, $optionClass) {
             // Set the grant select options.
-            $detail['grants'] = $this->render('html/select', [
-                'options' => $detail['grants'],
-                'optionClass' => $optionClass,
-            ]);
-            // Set the Edit button.
+            $detail['grants'] = $this->uiBuilder->htmlSelect($detail['grants'], $optionClass);
+                // Set the Edit button.
             $detail['edit'] = [
                 'label' => '<a href="javascript:void(0)">Edit</a>',
                 'props' => [
