@@ -58,7 +58,8 @@ class Server extends CallableClass
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
 
-        $this->response->html($this->package->getServerInfoId(), $this->uiBuilder->serverInfo($serverInfo));
+        $content = $this->uiBuilder->serverInfo($serverInfo['server'], $serverInfo['user']);
+        $this->response->html($this->package->getServerInfoId(), $content);
 
         // Show the server
         // $content = $this->render('menu/commands');

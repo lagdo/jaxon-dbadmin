@@ -29,7 +29,7 @@ class User extends CallableClass
         $formId = 'user-form';
         $title = 'Add user privileges';
         $privileges = $this->uiBuilder->mainContent($this->renderMainContent());
-        $content = $this->uiBuilder->mainUser($formId, $userInfo['user'], $privileges);
+        $content = $this->uiBuilder->userForm($formId, $userInfo['user'], $privileges);
         // $this->response->html($this->package->getDbContentId(), $content);
 
         $buttons = [[
@@ -85,7 +85,7 @@ class User extends CallableClass
         $formId = 'user-form';
         $title = 'Edit user privileges';
         $privileges = $this->uiBuilder->mainContent($this->renderMainContent());
-        $content = $this->uiBuilder->mainUser($formId, $userInfo['user'], $privileges);
+        $content = $this->uiBuilder->userForm($formId, $userInfo['user'], $privileges);
         // $this->response->html($this->package->getDbContentId(), $content);
 
         $buttons = [[
