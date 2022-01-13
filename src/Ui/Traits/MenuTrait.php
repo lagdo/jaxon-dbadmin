@@ -36,7 +36,7 @@ trait MenuTrait
         foreach($sqlActions as $id => $title)
         {
             $this->htmlBuilder
-                ->button($title, 'default', 'adminer-menu-item', true)->setId("adminer-menu-action-$id")
+                ->button($title, 'default', 'adminer-menu-item', false, true)->setId("adminer-menu-action-$id")
                 ->end();
         }
         $this->htmlBuilder

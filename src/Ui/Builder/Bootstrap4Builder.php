@@ -18,6 +18,23 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
+    public function checkbox(bool $checked = false): BuilderInterface
+    {
+        if ($this->scope !== null && $this->scope->isInputGroup) {
+            $this->createScope('div', ['class' => 'input-group-append']);
+            // The new scope is a wrapper.
+            $this->scope->isWrapper = true;
+            $this->createScope('div', ['class' => 'input-group-text', 'style' => 'background-color:white;']);
+            // The new scope is a wrapper.
+            $this->scope->isWrapper = true;
+        }
+        $arguments = func_get_args();
+        return parent::checkbox(...$arguments);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function row(string $class = ''): BuilderInterface
     {
         $attributes = [
@@ -58,6 +75,25 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
+    public function text(string $class = ''): BuilderInterface
+    {
+        // A label in an input group must be wrapped into a span with class "input-group-addon".
+        // Check the parent scope.
+        if ($this->scope !== null && $this->scope->isInputGroup) {
+            $this->createScope('div', ['class' => 'input-group-prepend']);
+            // The new scope is a wrapper.
+            $this->scope->isWrapper = true;
+            // Set the element class
+            $class = rtrim('input-group-text ' . ltrim($class));
+        }
+        $attributes = ['class' => $class];
+        $this->createScope('label', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function buttonGroup(bool $fullWidth, string $class = ''): BuilderInterface
     {
         $btnClass = $fullWidth ? 'btn-group d-flex ' : 'btn-group ';
@@ -72,7 +108,8 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function button(string $title, string $style = 'secondary', string $class = '', bool $outline = false): BuilderInterface
+    public function button(string $title, string $style = 'secondary', string $class = '',
+                           bool $fullWidth = false, bool $outline = false): BuilderInterface
     {
         if ($style === 'default') {
             $style = 'secondary'; // The default style is "secondary
@@ -84,7 +121,7 @@ class Bootstrap4Builder extends AbstractBuilder
             // The new scope is a wrapper.
             $this->scope->isWrapper = true;
         }
-        $btnClass = 'btn btn';
+        $btnClass = $fullWidth ? 'btn btn-block btn' : 'btn btn';
         if ($outline) {
             $btnClass .= '-outline';
         }

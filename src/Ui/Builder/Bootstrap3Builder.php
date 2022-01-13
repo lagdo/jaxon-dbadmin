@@ -18,6 +18,23 @@ class Bootstrap3Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
+    public function checkbox(bool $checked = false): BuilderInterface
+    {
+        if ($this->scope !== null && $this->scope->isInputGroup) {
+            $this->createScope('span', [
+                'class' => 'input-group-addon',
+                'style' => 'background-color:white;padding:8px;',
+            ]);
+            // The new scope is a wrapper.
+            $this->scope->isWrapper = true;
+        }
+        $arguments = func_get_args();
+        return parent::checkbox(...$arguments);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function row(string $class = ''): BuilderInterface
     {
         $attributes = [
@@ -58,6 +75,22 @@ class Bootstrap3Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
+    public function text(string $class = ''): BuilderInterface
+    {
+        // A label in an input group must be wrapped into a span with class "input-group-addon".
+        if ($this->scope !== null && $this->scope->isInputGroup) {
+            $this->createScope('span', ['class' => 'input-group-addon']);
+            // The new scope is a wrapper.
+            $this->scope->isWrapper = true;
+        }
+        $attributes = ['class' => trim($class)];
+        $this->createScope('span', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function buttonGroup(bool $fullWidth, string $class = ''): BuilderInterface
     {
         $attributes = [
@@ -72,7 +105,8 @@ class Bootstrap3Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function button(string $title, string $style = 'default', string $class = '', bool $outline = false): BuilderInterface
+    public function button(string $title, string $style = 'default', string $class = '',
+                           bool $fullWidth = false, bool $outline = false): BuilderInterface
     {
         // A button in an input group must be wrapped into a div with class "input-group-btn".
         // Check the parent scope.
@@ -81,10 +115,8 @@ class Bootstrap3Builder extends AbstractBuilder
             // The new scope is a wrapper.
             $this->scope->isWrapper = true;
         }
-        $attributes = [
-            'class' => rtrim("btn btn-$style "  . ltrim($class)),
-            'type' => 'button',
-        ];
+        $btnClass = $fullWidth ? "btn btn-block btn-$style " : "btn btn-$style ";
+        $attributes = [ 'class' => rtrim($btnClass . ltrim($class)), 'type' => 'button'];
         $this->createScope('button', $title, $attributes);
         return $this;
     }

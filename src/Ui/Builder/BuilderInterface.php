@@ -34,6 +34,13 @@ interface BuilderInterface
     public function inputGroup(string $class = ''): BuilderInterface;
 
     /**
+     * @param string $class
+     *
+     * @return BuilderInterface
+     */
+    public function text(string $class = ''): BuilderInterface;
+
+    /**
      * @param bool $fullWidth
      * @param string $class
      *
@@ -45,11 +52,13 @@ interface BuilderInterface
      * @param string $title
      * @param string $style
      * @param string $class
+     * @param bool $fullWidth
      * @param bool $outline
      *
      * @return BuilderInterface
      */
-    public function button(string $title, string $style = 'default', string $class = '', bool $outline = false): BuilderInterface;
+    public function button(string $title, string $style = 'default', string $class = '',
+                           bool $fullWidth = false, bool $outline = false): BuilderInterface;
 
     /**
      * @param string $class

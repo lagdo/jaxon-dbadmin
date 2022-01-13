@@ -68,12 +68,12 @@ abstract class HtmlBuilder
         }
         if (stripos($tagName, 'form-') === 0) {
             $tagName = substr($tagName, 5);
-            $this->createScope($tagName, $arguments);
+            $this->createScope($tagName, ...$arguments);
             $class = $this->scope->attributes['class'] ?? '';
             $this->scope->attributes['class'] = trim($this->getFormElementClass($tagName) . ' ' . $class);
             return $this;
         }
-        return $this->createScope($tagName, $arguments);
+        return $this->createScope($tagName, ...$arguments);
     }
 
     /**

@@ -2,8 +2,75 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
+use function count;
+
 trait QueryTrait
 {
+    /**
+     * @param string $formId
+     * @param string $queryId
+     * @param string $btnId
+     * @param string $query
+     * @param int $defaultLimit
+     * @param array $labels
+     *
+     * @return string
+     */
+    public function queryCommand(string $formId, string $queryId, string $btnId, string $query, int $defaultLimit, array $labels): string
+    {
+        $this->htmlBuilder->clear()
+            ->col(12)->setId('adminer-command-details')
+            ->end()
+            ->col(12)
+                ->form(true)->setId($formId)
+                    ->formRow()
+                        ->panel('default')->setId('sql-command-editor')
+                            ->panelBody()
+                                ->formTextarea()->setName('query')->setId($queryId)->setDataLanguage('sql')->setRows('10')
+                                    ->setSpellcheck('false')->setWrap('on')->addHtml($query)
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->formRow()
+                        ->formCol(3)
+                            ->inputGroup()
+                                ->text()->addText($labels['limit_rows'])
+                                ->end()
+                                ->formInput()->setName('limit')->setType('number')->setValue($defaultLimit)
+                                ->end()
+                            ->end()
+                        ->end()
+                        ->formCol(3)
+                            ->inputGroup()
+                                ->text()->addText($labels['error_stops'])
+                                ->end()
+                                ->checkbox()->setName('error_stops')
+                                ->end()
+                            ->end()
+                        ->end()
+                        ->formCol(3)
+                            ->inputGroup()
+                                ->text()->addText($labels['only_errors'])
+                                ->end()
+                                ->checkbox()->setName('only_errors')
+                                ->end()
+                            ->end()
+                        ->end()
+                        ->formCol(2)
+                            ->button($labels['execute'], 'primary', '', true)->setId($btnId)
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+            ->col(12)->setId('adminer-command-history')
+            ->end()
+            ->col(12)->setId('adminer-command-results')
+            ->end();
+        return $this->htmlBuilder->build();
+    }
+
     /**
      * @param array $results
      *
@@ -43,7 +110,7 @@ trait QueryTrait
                         ->end()
                     ->end();
             }
-            if (($result['select'])) {
+            if (isset($result['select'])) {
                 $this->htmlBuilder
                     ->table(true, 'bordered')
                         ->thead()

@@ -40,13 +40,8 @@ class Command extends CallableClass
         $formId = 'adminer-main-command-form';
         $queryId = 'adminer-main-command-query';
 
-        $content = $this->render('sql/command', [
-            'btnId' => $btnId,
-            'formId' => $formId,
-            'queryId' => $queryId,
-            'defaultLimit' => 20,
-            'query' => $query,
-        ]);
+        $defaultLimit = 20;
+        $content = $this->uiBuilder->queryCommand($formId, $queryId, $btnId, $query, $defaultLimit, $commandOptions['labels']);
         $this->response->html($this->package->getDbContentId(), $content);
         $this->response->script("jaxon.adminer.highlightSqlEditor('$queryId', '$server')");
 
