@@ -187,10 +187,233 @@ trait QueryTrait
         return $this->htmlBuilder->build();
     }
 
-    public function exportPage()
+    public function exportPage(array $htmlIds, array $databases, array $tables, array $options, array $labels)
     {
         $this->htmlBuilder->clear()
             ->col(12)
+                ->form(true, false)->setId($htmlIds['formId'])
+                    ->row()
+                        ->col(7)
+                            ->formRow()
+                                ->formCol(3)
+                                    ->label($options['output']['label'])->setFor('output')
+                                    ->end()
+                                ->end()
+                                ->formCol(8);
+        foreach ($options['output']['options'] as $value => $label) {
+            $this->htmlBuilder
+                                    ->radio($options['output']['value'] === $value)
+                                    ->end()
+                                    ->addHtml('&nbsp;' . $label . '&nbsp;');
+        }
+        $this->htmlBuilder
+                                ->end()
+                            ->end()
+                            ->formRow()
+                                ->formCol(3)
+                                    ->label($options['format']['label'])->setFor('format')
+                                    ->end()
+                                ->end()
+                                ->formCol(8);
+        foreach ($options['format']['options'] as $value => $label) {
+            $this->htmlBuilder
+                                    ->radio($options['format']['value'] === $value)
+                                    ->end()
+                                    ->addHtml('&nbsp;' . $label . '&nbsp;');
+        }
+        $this->htmlBuilder
+                                ->end()
+                            ->end();
+        if (isset($options['db_style'])) {
+            $this->htmlBuilder
+                            ->formRow()
+                                ->formCol(3)
+                                    ->label($options['db_style']['label'])->setFor('db_style')
+                                    ->end()
+                                ->end()
+                                ->formCol(8)
+                                    ->select()->setName('db_style');
+            foreach ($options['db_style']['options'] as $label) {
+                $this->htmlBuilder
+                                        ->option($label, ($options['db_style']['value'] == $label))
+                                        ->end();
+            }
+            $this->htmlBuilder
+                                    ->end()
+                                ->end()
+                            ->end();
+        }
+        if (isset($options['routines']) || isset($options['events'])) {
+            $this->htmlBuilder
+                            ->formRow()
+                                ->formCol(3)->addHtml('&nbsp;') // Actually an offset. TODO: a parameter for that.
+                                ->end();
+            if (isset($options['routines'])) {
+                $this->htmlBuilder
+                                ->formCol(4)
+                                    ->checkbox($options['routines']['checked'])->setName('routines')
+                                        ->setValue($options['routines']['value'])
+                                    ->end()
+                                    ->addHtml('&nbsp;' . $options['routines']['label'])
+                                ->end();
+            }
+            if (isset($options['events'])) {
+                $this->htmlBuilder
+                                ->formCol(4)
+                                    ->checkbox($options['events']['checked'])->setName('events')
+                                        ->setValue($options['events']['value'])
+                                    ->end()
+                                    ->addHtml('&nbsp;' . $options['events']['label'])
+                                ->end();
+            }
+            $this->htmlBuilder
+                            ->end();
+        }
+        $this->htmlBuilder
+                            ->formRow()
+                                ->formCol(3)
+                                    ->label($options['table_style']['label'])->setFor('table_style')
+                                    ->end()
+                                ->end()
+                                ->formCol(8)
+                                    ->select()->setName('table_style');
+        foreach ($options['table_style']['options'] as $label) {
+            $this->htmlBuilder
+                                        ->option($label, ($options['table_style']['value'] == $label))
+                                        ->end();
+        }
+        $this->htmlBuilder
+                                    ->end()
+                                ->end()
+                            ->end()
+                            ->formRow()
+                                ->formCol(3)->addHtml('&nbsp;') // Actually an offset. TODO: a parameter for that.
+                                ->end()
+                                ->formCol(4)
+                                    ->checkbox($options['auto_increment']['checked'])->setName('auto_increment')
+                                        ->setValue($options['auto_increment']['value'])
+                                    ->end()
+                                    ->addHtml('&nbsp;' . $options['auto_increment']['label'])
+                                ->end();
+        if (isset($options['triggers'])) {
+            $this->htmlBuilder
+                                ->formCol(4)
+                                    ->checkbox($options['triggers']['checked'])->setName('triggers')
+                                        ->setValue($options['triggers']['value'])
+                                    ->end()
+                                    ->addHtml('&nbsp;' . $options['triggers']['label'])
+                                ->end();
+        }
+        $this->htmlBuilder
+                            ->end()
+                            ->formRow()
+                                ->formCol(3)
+                                    ->label($options['data_style']['label'])->setFor('data_style')
+                                    ->end()
+                                ->end()
+                                ->formCol(8)
+                                    ->select()->setName('data_style');
+        foreach ($options['data_style']['options'] as $label) {
+            $this->htmlBuilder
+                                        ->option($label, ($options['data_style']['value'] == $label))
+                                        ->end();
+        }
+        $this->htmlBuilder
+                                    ->end()
+                                ->end()
+                            ->end()
+                            ->formRow()
+                                ->formCol(3)->addHtml('&nbsp;') // Actually an offset. TODO: a parameter for that.
+                                ->end()
+                                ->formCol(4)
+                                    ->button($labels['export'], 'primary', '', true)->setId($htmlIds['btnId'])
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                        ->col(5);
+        if (($databases)) {
+            $this->htmlBuilder
+                            ->table(true, 'bordered')
+                                ->thead()
+                                    ->tr()
+                                        ->th()
+                                            ->checkbox(true)->setId($htmlIds['databaseNameId'] . '-all')
+                                            ->end()
+                                            ->addHtml('&nbsp;' . $databases['headers'][0])
+                                        ->end()
+                                        ->th()
+                                            ->checkbox(true)->setId($htmlIds['databaseDataId'] . '-all')
+                                            ->end()
+                                            ->addHtml('&nbsp;' . $databases['headers'][1])
+                                        ->end()
+                                    ->end()
+                                ->end()
+                                ->tbody();
+            foreach ($databases['details'] as $database) {
+                $this->htmlBuilder
+                                    ->tr()
+                                        ->td()
+                                            ->checkbox(true)->setName('database_list[]')
+                                                ->setClass($htmlIds['databaseNameId'])->setValue($database['name'])
+                                            ->end()
+                                            ->addHtml('&nbsp;' . $database['name'])
+                                        ->end()
+                                        ->td()
+                                            ->checkbox(true)->setName('database_data[]')
+                                                ->setClass($htmlIds['databaseDataId'])->setValue($database['name'])
+                                            ->end()
+                                        ->end()
+                                    ->end();
+            }
+            $this->htmlBuilder
+                                ->end()
+                            ->end();
+        }
+        if (($tables)) {
+            $this->htmlBuilder
+                            ->table(true, 'bordered')
+                                ->thead()
+                                    ->tr()
+                                        ->th()
+                                            ->checkbox(true)->setId($htmlIds['tableNameId'] . '-all')
+                                            ->end()
+                                            ->addHtml('&nbsp;' . $tables['headers'][0])
+                                        ->end()
+                                        ->th()
+                                            ->checkbox(true)->setId($htmlIds['tableDataId'] . '-all')
+                                            ->end()
+                                            ->addHtml('&nbsp;' . $tables['headers'][1])
+                                        ->end()
+                                    ->end()
+                                ->end()
+                                ->tbody();
+            foreach ($tables['details'] as $table) {
+                $this->htmlBuilder
+                                    ->tr()
+                                        ->td()
+                                            ->checkbox(true)->setName('table_list[]')
+                                                ->setClass($htmlIds['tableNameId'])->setValue($table['name'])
+                                            ->end()
+                                            ->addHtml('&nbsp;' . $table['name'])
+                                        ->end()
+                                        ->td()
+                                            ->checkbox(true)->setName('table_data[]')
+                                                ->setClass($htmlIds['tableDataId'])->setValue($table['name'])
+                                            ->end()
+                                        ->end()
+                                    ->end();
+            }
+            $this->htmlBuilder
+                                ->end()
+                            ->end();
+        }
+        $this->htmlBuilder
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+            ->col(12)->setId('adminer-export-results')
             ->end();
         return $this->htmlBuilder->build();
     }

@@ -44,13 +44,7 @@ class Builder
         foreach($values['servers'] as $name => $title)
         {
             $this->htmlBuilder
-                                    ->option($title)->setValue($name);
-            if ($name == $values['default'])
-            {
-                $this->htmlBuilder
-                                        ->setSelected('selected');
-            }
-            $this->htmlBuilder
+                                    ->option($title, ($name == $values['default']))->setValue($name)
                                     ->end();
         }
         $this->htmlBuilder
@@ -106,7 +100,7 @@ class Builder
         {
             $value = $useKeys ? $key : $label;
             $this->htmlBuilder
-                    ->option($label, $optionClass)->setValue(htmlentities($value))
+                    ->option($label, false, $optionClass)->setValue(htmlentities($value))
                     ->end();
         }
         $this->htmlBuilder

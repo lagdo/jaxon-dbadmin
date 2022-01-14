@@ -39,14 +39,16 @@ class Export extends CallableClass
         $tableNameId = 'adminer-export-table-name';
         $tableDataId = 'adminer-export-table-data';
 
-        $content = $this->render('sql/export', [
+        $htmlIds = [
             'btnId' => $btnId,
             'formId' => $formId,
             'databaseNameId' => $databaseNameId,
             'databaseDataId' => $databaseDataId,
             'tableNameId' => $tableNameId,
             'tableDataId' => $tableDataId,
-        ]);
+        ];
+        $content = $this->uiBuilder->exportPage($htmlIds, $exportOptions['databases'] ?? [],
+            $exportOptions['tables'] ?? [], $exportOptions['options'], $exportOptions['labels']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         if(($database))

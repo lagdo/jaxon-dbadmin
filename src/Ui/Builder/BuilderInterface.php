@@ -12,6 +12,13 @@ interface BuilderInterface
     public function checkbox(bool $checked = false): BuilderInterface;
 
     /**
+     * @param bool $checked
+     *
+     * @return BuilderInterface
+     */
+    public function radio(bool $checked = false): BuilderInterface;
+
+    /**
      * @param string $class
      *
      * @return BuilderInterface
@@ -69,11 +76,12 @@ interface BuilderInterface
 
     /**
      * @param string $title
+     * @param bool $selected
      * @param string $class
      *
      * @return BuilderInterface
      */
-    public function option(string $title, string $class = ''): BuilderInterface;
+    public function option(string $title, bool $selected = false, string $class = ''): BuilderInterface;
 
     /**
      * @param string $style

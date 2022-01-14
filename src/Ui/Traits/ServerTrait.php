@@ -112,7 +112,7 @@ trait ServerTrait
                     ->end()
                     ->formCol(6)
                         ->select()
-                            ->option('')->setSelected('selected')->addText('(collation)')
+                            ->option('', true)->addText('(collation)')
                             ->end();
         foreach($collations as $group => $_collations)
         {

@@ -29,6 +29,21 @@ abstract class AbstractBuilder extends HtmlBuilder implements BuilderInterface
     /**
      * @inheritDoc
      */
+    public function radio(bool $checked = false): BuilderInterface
+    {
+        $arguments = func_get_args();
+        array_shift($arguments);
+        $this->createScope('input', $arguments);
+        $this->scope->attributes['type'] = 'radio';
+        if ($checked) {
+            $this->scope->attributes['checked'] = 'checked';
+        }
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function formCol(int $width = 12, string $class = ''): BuilderInterface
     {
         return $this->col($width, $class);

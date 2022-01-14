@@ -148,9 +148,12 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function option(string $title, string $class = ''): BuilderInterface
+    public function option(string $title, bool $selected = false, string $class = ''): BuilderInterface
     {
         $attributes = ($class) ? ['class' => trim($class)] : [];
+        if ($selected) {
+            $attributes['selected'] = 'selected';
+        }
         $this->createScope('option', $title, $attributes);
         return $this;
     }
