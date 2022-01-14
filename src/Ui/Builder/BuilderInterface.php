@@ -177,12 +177,13 @@ interface BuilderInterface
     public function table(bool $responsive, string $style = '', string $class = ''): BuilderInterface;
 
     /**
-     * @param string $class
      * @param bool $horizontal
+     * @param bool $wrapped
+     * @param string $class
      *
      * @return BuilderInterface
      */
-    public function form(bool $horizontal, string $class = ''): BuilderInterface;
+    public function form(bool $horizontal, bool $wrapped = true, string $class = ''): BuilderInterface;
 
     /**
      * @param string $class

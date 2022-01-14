@@ -7,6 +7,8 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
+use function compact;
+
 /**
  * Adminer Ajax client
  */
@@ -38,8 +40,9 @@ class Import extends CallableClass
         $sqlChooseBtnId = 'adminer-import-choose-files-btn';
         $sqlFilesDivId = 'adminer-import-sql-files-wrapper';
         $sqlFilesInputId = 'adminer-import-sql-files-input';
-        $content = $this->render('sql/import', \compact('formId', 'sqlFilesBtnId',
-            'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId'));
+        $htmlIds = compact('formId', 'sqlFilesBtnId', 'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId');
+        $content = $this->uiBuilder->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
+        $this->logger()->debug('******** Content', compact('content'));
 
         $this->response->html($this->package->getDbContentId(), $content);
         $this->response->script("jaxon.adminer.setFileUpload('#$sqlFilesDivId', '#$sqlChooseBtnId', '#$sqlFilesInputId')");

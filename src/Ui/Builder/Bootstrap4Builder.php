@@ -326,10 +326,12 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function form(bool $horizontal, string $class = ''): BuilderInterface
+    public function form(bool $horizontal, bool $wrapped = true, string $class = ''): BuilderInterface
     {
-        $this->createScope('div', ['class' => 'portlet-body form']);
-        $this->scope->isWrapper = true;
+        if ($wrapped) {
+            $this->createScope('div', ['class' => 'portlet-body form']);
+            $this->scope->isWrapper = true;
+        }
         $attributes = ['class' => trim($class)];
         $this->createScope('form', $attributes);
         return $this;
