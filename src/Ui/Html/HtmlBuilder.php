@@ -28,27 +28,18 @@ use function implode;
 
 /**
  * Provides API for easy building of HTML code in php
- * Copied from https://github.com/avplab/php-html-builder/blob/master/src/PhpHtmlBuilder.php,
- * and modified to change the properties' visibility from private to protected.
  */
-abstract class HtmlBuilder
+class HtmlBuilder
 {
     /**
      * @var Element[]
      */
-    protected $elements = [];
+    protected $elements = array();
 
     /**
-     * @var HtmlScope|null
+     * @var Scope
      */
-    protected $scope = null;
-
-    /**
-     * @param string $tagName
-     *
-     * @return string
-     */
-    protected abstract function getFormElementClass(string $tagName): string;
+    protected $scope;
 
     /**
      * @param string $method
@@ -63,17 +54,10 @@ abstract class HtmlBuilder
             if ($this->scope === null) {
                 throw new LogicException('Attributes can be set for elements only');
             }
-            $this->scope->attributes[substr($tagName, 4)] = $arguments[0] ?? null;
+            $this->scope->attributes[substr($tagName, 4)] = isset($arguments[0]) ? $arguments[0] : null;
             return $this;
         }
-        if (stripos($tagName, 'form-') === 0) {
-            $tagName = substr($tagName, 5);
-            $this->createScope($tagName, ...$arguments);
-            $class = $this->scope->attributes['class'] ?? '';
-            $this->scope->attributes['class'] = trim($this->getFormElementClass($tagName) . ' ' . $class);
-            return $this;
-        }
-        return $this->createScope($tagName, ...$arguments);
+        return $this->createScope($tagName, $arguments);
     }
 
     /**
@@ -88,34 +72,37 @@ abstract class HtmlBuilder
 
     /**
      * @param string $name
+     * @param array $arguments
      * @return $this
      */
-    protected function createScope(string $name)
+    protected function createScope(string $name, array $arguments)
     {
-        $arguments = func_get_args();
-        array_shift($arguments);
-        $this->scope = new HtmlScope($name, $this->scope, $arguments);
+        $this->scope = new Scope($name, $arguments, $this->scope);
         return $this;
     }
 
-    private function addElementToScope(Element $element)
+    /**
+     * @param Element $element
+     * @return void
+     */
+    protected function addElementToScope(Element $element)
     {
-        if ($this->scope) {
-            $this->scope->elements[] = $element;
-        } else {
+        if ($this->scope === null) {
             $this->elements[] = $element;
+            return;
         }
+        $this->scope->elements[] = $element;
     }
 
     /**
      * @param string $name
      * @return $this
      */
-    public function tag(string $name)
+    public function tag($name)
     {
-        // TODO: check the tag name validity
         $arguments = func_get_args();
-        $this->createScope(...$arguments);
+        array_shift($arguments);
+        $this->createScope($name, $arguments);
         return $this;
     }
 
@@ -123,7 +110,7 @@ abstract class HtmlBuilder
      * @param string $text
      * @return $this
      */
-    public function addText(string $text)
+    public function addText($text)
     {
         $element = new Text($text);
         $this->addElementToScope($element);
@@ -134,7 +121,7 @@ abstract class HtmlBuilder
      * @param string $html
      * @return $this
      */
-    public function addHtml(string $html)
+    public function addHtml($html)
     {
         $element = new Text($html, false);
         $this->addElementToScope($element);
@@ -145,7 +132,7 @@ abstract class HtmlBuilder
      * @param string $comment
      * @return $this
      */
-    public function addComment(string $comment)
+    public function addComment($comment)
     {
         $element = new Comment($comment);
         $this->addElementToScope($element);
@@ -202,7 +189,7 @@ abstract class HtmlBuilder
     /**
      * @return string
      */
-    public function build(): string
+    public function build()
     {
         return implode('', $this->elements);
     }

@@ -21,10 +21,10 @@ class Bootstrap4Builder extends AbstractBuilder
     public function checkbox(bool $checked = false): BuilderInterface
     {
         if ($this->scope !== null && $this->scope->isInputGroup) {
-            $this->createScope('div', ['class' => 'input-group-append']);
+            $this->tag('div', ['class' => 'input-group-append']);
             // The new scope is a wrapper.
             $this->scope->isWrapper = true;
-            $this->createScope('div', ['class' => 'input-group-text', 'style' => 'background-color:white;']);
+            $this->tag('div', ['class' => 'input-group-text', 'style' => 'background-color:white;']);
             // The new scope is a wrapper.
             $this->scope->isWrapper = true;
         }
@@ -40,7 +40,7 @@ class Bootstrap4Builder extends AbstractBuilder
         $attributes = [
             'class' => rtrim('row ' . ltrim($class)),
         ];
-        $this->createScope('div', $attributes);
+        $this->tag('div', $attributes);
         return $this;
     }
 
@@ -55,7 +55,7 @@ class Bootstrap4Builder extends AbstractBuilder
         $attributes = [
             'class' => rtrim("col-md-$width "  . ltrim($class)),
         ];
-        $this->createScope('div', $attributes);
+        $this->tag('div', $attributes);
         return $this;
     }
 
@@ -67,7 +67,7 @@ class Bootstrap4Builder extends AbstractBuilder
         $attributes = [
             'class' => rtrim('input-group ' . ltrim($class)),
         ];
-        $this->createScope('div', $attributes);
+        $this->tag('div', $attributes);
         $this->scope->isInputGroup = true;
         return $this;
     }
@@ -80,14 +80,14 @@ class Bootstrap4Builder extends AbstractBuilder
         // A label in an input group must be wrapped into a span with class "input-group-addon".
         // Check the parent scope.
         if ($this->scope !== null && $this->scope->isInputGroup) {
-            $this->createScope('div', ['class' => 'input-group-prepend']);
+            $this->tag('div', ['class' => 'input-group-prepend']);
             // The new scope is a wrapper.
             $this->scope->isWrapper = true;
             // Set the element class
             $class = rtrim('input-group-text ' . ltrim($class));
         }
         $attributes = ['class' => $class];
-        $this->createScope('label', $attributes);
+        $this->tag('label', $attributes);
         return $this;
     }
 
@@ -101,7 +101,7 @@ class Bootstrap4Builder extends AbstractBuilder
             'class' => rtrim($btnClass . ltrim($class)),
             'role' => 'group',
         ];
-        $this->createScope('div', $attributes);
+        $this->tag('div', $attributes);
         return $this;
     }
 
@@ -117,7 +117,7 @@ class Bootstrap4Builder extends AbstractBuilder
         // A button in an input group must be wrapped into a div with class "input-group-btn".
         // Check the parent scope.
         if ($this->scope !== null && $this->scope->isInputGroup) {
-            $this->createScope('div', ['class' => 'input-group-append']);
+            $this->tag('div', ['class' => 'input-group-append']);
             // The new scope is a wrapper.
             $this->scope->isWrapper = true;
         }
@@ -129,7 +129,7 @@ class Bootstrap4Builder extends AbstractBuilder
             'class' => rtrim("$btnClass-$style "  . ltrim($class)),
             'type' => 'button',
         ];
-        $this->createScope('button', $title, $attributes);
+        $this->tag('button', $title, $attributes);
         return $this;
     }
 
@@ -141,7 +141,7 @@ class Bootstrap4Builder extends AbstractBuilder
         $attributes = [
             'class' => rtrim('form-control ' . ltrim($class)),
         ];
-        $this->createScope('select', $attributes);
+        $this->tag('select', $attributes);
         return $this;
     }
 
@@ -154,7 +154,7 @@ class Bootstrap4Builder extends AbstractBuilder
         if ($selected) {
             $attributes['selected'] = 'selected';
         }
-        $this->createScope('option', $title, $attributes);
+        $this->tag('option', $title, $attributes);
         return $this;
     }
 
@@ -167,7 +167,7 @@ class Bootstrap4Builder extends AbstractBuilder
         $attributes = [
             'class' => rtrim("card border-$style w-100 "  . ltrim($class)),
         ];
-        $this->createScope('div', $attributes);
+        $this->tag('div', $attributes);
         return $this;
     }
 
@@ -180,7 +180,7 @@ class Bootstrap4Builder extends AbstractBuilder
         $attributes = [
             'class' => rtrim("card-header border-$style "  . ltrim($class)),
         ];
-        $this->createScope('div', $attributes);
+        $this->tag('div', $attributes);
         return $this;
     }
 
@@ -193,7 +193,7 @@ class Bootstrap4Builder extends AbstractBuilder
         $attributes = [
             'class' => rtrim("card-body text-$style "  . ltrim($class)),
         ];
-        $this->createScope('div', $attributes);
+        $this->tag('div', $attributes);
         return $this;
     }
 
@@ -206,7 +206,7 @@ class Bootstrap4Builder extends AbstractBuilder
         $attributes = [
             'class' => rtrim("card-footer border-$style "  . ltrim($class)),
         ];
-        $this->createScope('div', $attributes);
+        $this->tag('div', $attributes);
         return $this;
     }
 
@@ -218,7 +218,7 @@ class Bootstrap4Builder extends AbstractBuilder
         $attributes = [
             'class' => rtrim('list-group '  . ltrim($class)),
         ];
-        $this->createScope('div', $attributes);
+        $this->tag('div', $attributes);
         return $this;
     }
 
@@ -231,7 +231,7 @@ class Bootstrap4Builder extends AbstractBuilder
             'class' => rtrim('list-group-item list-group-item-action ' . ltrim($class)),
             'href' => 'javascript:void(0)',
         ];
-        $this->createScope('a', $title, $attributes);
+        $this->tag('a', $title, $attributes);
         return $this;
     }
 
@@ -240,12 +240,12 @@ class Bootstrap4Builder extends AbstractBuilder
      */
     public function breadcrumb(string $class = ''): BuilderInterface
     {
-        $this->createScope('nav', ['aria-label' => 'breadcrumb']);
+        $this->tag('nav', ['aria-label' => 'breadcrumb']);
         $this->scope->isWrapper = true;
         $attributes = [
             'class' => rtrim('breadcrumb '  . ltrim($class)),
         ];
-        $this->createScope('ol', $attributes);
+        $this->tag('ol', $attributes);
         return $this;
     }
 
@@ -257,7 +257,7 @@ class Bootstrap4Builder extends AbstractBuilder
         $attributes = [
             'class' => rtrim('breadcrumb-item '  . ltrim($class)),
         ];
-        $this->createScope('li', $label, $attributes);
+        $this->tag('li', $label, $attributes);
         return $this;
     }
 
@@ -269,7 +269,7 @@ class Bootstrap4Builder extends AbstractBuilder
         $attributes = [
             'class' => rtrim('nav nav-pills '  . ltrim($class)),
         ];
-        $this->createScope('ul', $attributes);
+        $this->tag('ul', $attributes);
         return $this;
     }
 
@@ -279,10 +279,10 @@ class Bootstrap4Builder extends AbstractBuilder
     public function tabHeaderItem(string $id, bool $active, string $label, string $class = ''): BuilderInterface
     {
         $attributes = ['role' => 'presentation', 'class' => rtrim('nav-item ' . ltrim($class))];
-        $this->createScope('li', $attributes);
+        $this->tag('li', $attributes);
         $attributes = ['class' => $active ? 'nav-link active' : 'nav-link',
             'data-toggle' => 'tab', 'role' => 'tab', 'href' => "#$id"];
-        $this->createScope('a', $label, $attributes);
+        $this->tag('a', $label, $attributes);
         $this->end();
         return $this;
     }
@@ -296,7 +296,7 @@ class Bootstrap4Builder extends AbstractBuilder
             'class' => rtrim('tab-content '  . ltrim($class)),
             'style' => 'margin-top:10px;',
         ];
-        $this->createScope('div', $attributes);
+        $this->tag('div', $attributes);
         return $this;
     }
 
@@ -307,7 +307,7 @@ class Bootstrap4Builder extends AbstractBuilder
     {
         $tabClass = $active ? 'tab-pane fade show active ' : 'tab-pane fade ';
         $attributes = [ 'id' => $id, 'class' => rtrim($tabClass . ltrim($class))];
-        $this->createScope('div', $attributes);
+        $this->tag('div', $attributes);
         return $this;
     }
 
@@ -317,12 +317,12 @@ class Bootstrap4Builder extends AbstractBuilder
     public function table(bool $responsive, string $style = '', string $class = ''): BuilderInterface
     {
         if ($responsive) {
-            $this->createScope('div', ['class' => 'table-responsive']);
+            $this->tag('div', ['class' => 'table-responsive']);
             $this->scope->isWrapper = true;
         }
         $tableClass = ($style) ? "table table-$style " : 'table ';
         $attributes = ['class' => rtrim($tableClass . ltrim($class))];
-        $this->createScope('table', $attributes);
+        $this->tag('table', $attributes);
         return $this;
     }
 
@@ -332,11 +332,11 @@ class Bootstrap4Builder extends AbstractBuilder
     public function form(bool $horizontal, bool $wrapped = true, string $class = ''): BuilderInterface
     {
         if ($wrapped) {
-            $this->createScope('div', ['class' => 'portlet-body form']);
+            $this->tag('div', ['class' => 'portlet-body form']);
             $this->scope->isWrapper = true;
         }
         $attributes = ['class' => trim($class)];
-        $this->createScope('form', $attributes);
+        $this->tag('form', $attributes);
         return $this;
     }
 
@@ -346,7 +346,7 @@ class Bootstrap4Builder extends AbstractBuilder
     public function formRow(string $class = ''): BuilderInterface
     {
         $attributes = ['class' => rtrim('form-group row '  . ltrim($class))];
-        $this->createScope('div', $attributes);
+        $this->tag('div', $attributes);
         return $this;
     }
 }

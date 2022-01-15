@@ -4,12 +4,20 @@ namespace Lagdo\DbAdmin\Ui\Html;
 
 use AvpLab\Element\Text;
 
-class HtmlScope
+use function is_string;
+use function is_array;
+
+class Scope
 {
     /**
      * @var string
      */
     public $name;
+
+    /**
+     * @var Scope|null
+     */
+    public $parent;
 
     /**
      * @var array
@@ -22,32 +30,16 @@ class HtmlScope
     public $elements = [];
 
     /**
-     * @var bool
-     */
-    public $isInputGroup = false;
-
-    /**
-     * True if the scope was added to wrap another one, due to a framework requirement.
-     *
-     * @var bool
-     */
-    public $isWrapper = false;
-
-    /**
-     * @var HtmlScope|null
-     */
-    public $parent = null;
-
-    /**
      * The constructor
      *
      * @param string $name
-     * @param HtmlScope|null $parent
      * @param array $arguments
+     * @param Scope|null $parent
      */
-    public function __construct(string $name, ?HtmlScope $parent = null, array $arguments = [])
+    public function __construct(string $name, array $arguments = [], ?Scope $parent = null)
     {
         $this->name = $name;
+        $this->parent = $parent;
         // Resolve arguments
         foreach ($arguments as $argument) {
             if (is_string($argument)) {
@@ -56,6 +48,5 @@ class HtmlScope
                 $this->attributes = $argument;
             }
         }
-        $this->parent = $parent;
     }
 }
