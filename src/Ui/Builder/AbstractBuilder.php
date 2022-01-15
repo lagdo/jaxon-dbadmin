@@ -8,6 +8,11 @@ use LogicException;
 abstract class AbstractBuilder extends HtmlBuilder implements BuilderInterface
 {
     /**
+     * @var array
+     */
+    protected $options = [];
+
+    /**
      * @param string $tagName
      *
      * @return string
