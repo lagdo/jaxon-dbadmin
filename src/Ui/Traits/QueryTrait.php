@@ -187,6 +187,15 @@ trait QueryTrait
         return $this->htmlBuilder->build();
     }
 
+    /**
+     * @param array $htmlIds
+     * @param array $databases
+     * @param array $tables
+     * @param array $options
+     * @param array $labels
+     *
+     * @return void
+     */
     public function exportPage(array $htmlIds, array $databases, array $tables, array $options, array $labels)
     {
         $this->htmlBuilder->clear()
@@ -202,7 +211,7 @@ trait QueryTrait
                                 ->formCol(8);
         foreach ($options['output']['options'] as $value => $label) {
             $this->htmlBuilder
-                                    ->radio($options['output']['value'] === $value)
+                                    ->radio($options['output']['value'] === $value)->setName('output')
                                     ->end()
                                     ->addHtml('&nbsp;' . $label . '&nbsp;');
         }
@@ -217,7 +226,7 @@ trait QueryTrait
                                 ->formCol(8);
         foreach ($options['format']['options'] as $value => $label) {
             $this->htmlBuilder
-                                    ->radio($options['format']['value'] === $value)
+                                    ->radio($options['format']['value'] === $value)->setName('format')
                                     ->end()
                                     ->addHtml('&nbsp;' . $label . '&nbsp;');
         }
