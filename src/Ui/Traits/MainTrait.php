@@ -16,7 +16,7 @@ trait MainTrait
         foreach($mainActions as $id => $title)
         {
             $this->htmlBuilder
-                ->button($title, 'default', '', true)->setId("adminer-main-action-$id")
+                ->button($title, 'default', '', false)->setId("adminer-main-action-$id")
                 ->end();
         }
         $this->htmlBuilder
