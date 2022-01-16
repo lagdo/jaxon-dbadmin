@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui;
 
+use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Builder\BuilderInterface;
 
 use function htmlentities;
@@ -20,11 +21,18 @@ class Builder
     protected $htmlBuilder;
 
     /**
-     * @param BuilderInterface $htmlBuilder
+     * @var Translator
      */
-    public function __construct(BuilderInterface $htmlBuilder)
+    protected $trans;
+
+    /**
+     * @param BuilderInterface $htmlBuilder
+     * @param Translator $trans
+     */
+    public function __construct(BuilderInterface $htmlBuilder, Translator $trans)
     {
         $this->htmlBuilder = $htmlBuilder;
+        $this->trans = $trans;
     }
 
     /**
@@ -49,7 +57,7 @@ class Builder
         }
         $this->htmlBuilder
                                 ->end()
-                                ->button('Show', 'primary', 'btn-select')->setOnclick($values['connect'] . ';return false;')
+                                ->button('primary', 'btn-select')->setOnclick($values['connect'] . ';return false;')->addText('Show')
                                 ->end()
                             ->end()
                         ->end()
