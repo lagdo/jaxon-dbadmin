@@ -91,6 +91,19 @@ class Bootstrap3Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
+    public function icon(string $icon, string $class = ''): BuilderInterface
+    {
+        $attributes = [
+            'class' => rtrim("glyphicon glyphicon-$icon " . ltrim($class)),
+            'aria-hidden' => 'true',
+        ];
+        $this->tag('span', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function buttonGroup(bool $fullWidth, string $class = ''): BuilderInterface
     {
         $attributes = [

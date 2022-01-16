@@ -94,6 +94,16 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
+    public function icon(string $icon, string $class = ''): BuilderInterface
+    {
+        $attributes = ['class' => rtrim("bi bi-$icon " . ltrim($class))];
+        $this->tag('i', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function buttonGroup(bool $fullWidth, string $class = ''): BuilderInterface
     {
         $btnClass = $fullWidth ? 'btn-group d-flex ' : 'btn-group ';

@@ -48,6 +48,14 @@ interface BuilderInterface
     public function text(string $class = ''): BuilderInterface;
 
     /**
+     * @param string $icon
+     * @param string $class
+     *
+     * @return BuilderInterface
+     */
+    public function icon(string $icon, string $class = ''): BuilderInterface;
+
+    /**
      * @param bool $fullWidth
      * @param string $class
      *
