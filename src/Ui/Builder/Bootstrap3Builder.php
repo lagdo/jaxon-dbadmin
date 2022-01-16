@@ -105,7 +105,7 @@ class Bootstrap3Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function button(string $title, string $style = 'default', string $class = '',
+    public function button(string $style = 'default', string $class = '',
                            bool $fullWidth = false, bool $outline = false): BuilderInterface
     {
         // A button in an input group must be wrapped into a div with class "input-group-btn".
@@ -117,7 +117,7 @@ class Bootstrap3Builder extends AbstractBuilder
         }
         $btnClass = $fullWidth ? "btn btn-block btn-$style " : "btn btn-$style ";
         $attributes = [ 'class' => rtrim($btnClass . ltrim($class)), 'type' => 'button'];
-        $this->tag('button', $title, $attributes);
+        $this->tag('button', $attributes);
         return $this;
     }
 

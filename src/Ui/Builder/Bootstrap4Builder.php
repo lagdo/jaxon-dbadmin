@@ -108,7 +108,7 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function button(string $title, string $style = 'secondary', string $class = '',
+    public function button(string $style = 'secondary', string $class = '',
                            bool $fullWidth = false, bool $outline = false): BuilderInterface
     {
         if ($style === 'default') {
@@ -129,7 +129,7 @@ class Bootstrap4Builder extends AbstractBuilder
             'class' => rtrim("$btnClass-$style "  . ltrim($class)),
             'type' => 'button',
         ];
-        $this->tag('button', $title, $attributes);
+        $this->tag('button', $attributes);
         return $this;
     }
 

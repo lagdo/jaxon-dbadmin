@@ -56,7 +56,6 @@ interface BuilderInterface
     public function buttonGroup(bool $fullWidth, string $class = ''): BuilderInterface;
 
     /**
-     * @param string $title
      * @param string $style
      * @param string $class
      * @param bool $fullWidth
@@ -64,7 +63,7 @@ interface BuilderInterface
      *
      * @return BuilderInterface
      */
-    public function button(string $title, string $style = 'default', string $class = '',
+    public function button(string $style = 'default', string $class = '',
                            bool $fullWidth = false, bool $outline = false): BuilderInterface;
 
     /**

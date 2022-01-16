@@ -36,7 +36,7 @@ trait MenuTrait
         foreach($sqlActions as $id => $title)
         {
             $this->htmlBuilder
-                ->button($title, 'default', 'adminer-menu-item', false, true)->setId("adminer-menu-action-$id")
+                ->button('default', 'adminer-menu-item', false, true)->setId("adminer-menu-action-$id")->addText($title)
                 ->end();
         }
         $this->htmlBuilder
@@ -64,7 +64,7 @@ trait MenuTrait
         }
         $this->htmlBuilder
                 ->end()
-                ->button('Show', 'primary', 'btn-select')->setId('adminer-dbname-select-btn')
+                ->button('primary', 'btn-select')->setId('adminer-dbname-select-btn')->addText('Show')
                 ->end()
             ->end();
         return $this->htmlBuilder->build();
@@ -88,7 +88,7 @@ trait MenuTrait
         }
         $this->htmlBuilder
                 ->end()
-                ->button('Show', 'primary', 'btn-select')->setId('adminer-schema-select-btn')
+                ->button('primary', 'btn-select')->setId('adminer-schema-select-btn')->addText('Show')
                 ->end()
             ->end();
         return $this->htmlBuilder->build();
