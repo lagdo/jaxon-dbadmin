@@ -133,7 +133,7 @@ class ServerAdmin extends AbstractAdmin
      */
     public function dropDatabase(string $database): bool
     {
-        return $this->driver->dropDatabases([$database]);
+        return $this->driver->dropDatabase($database);
     }
 
     /**

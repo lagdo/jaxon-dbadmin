@@ -91,14 +91,17 @@ class Bootstrap3Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function icon(string $icon, string $class = ''): BuilderInterface
+    public function addIcon(string $icon): BuilderInterface
     {
-        $attributes = [
-            'class' => rtrim("glyphicon glyphicon-$icon " . ltrim($class)),
-            'aria-hidden' => 'true',
-        ];
-        $this->tag('span', $attributes);
-        return $this;
+        return $this->addHtml('<span class="glyphicon glyphicon-' . $icon . '" aria-hidden="true" />');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addCaret(): BuilderInterface
+    {
+        return $this->addHtml('<span class="caret" />');
     }
 
     /**
@@ -179,7 +182,7 @@ class Bootstrap3Builder extends AbstractBuilder
     public function panelHeader(string $class = ''): BuilderInterface
     {
         $attributes = [
-            'class' => rtrim('panel-heading '  . ltrim($class)),
+            'class' => rtrim('panel-heading ' . ltrim($class)),
         ];
         $this->tag('div', $attributes);
         return $this;
@@ -191,7 +194,7 @@ class Bootstrap3Builder extends AbstractBuilder
     public function panelBody(string $class = ''): BuilderInterface
     {
         $attributes = [
-            'class' => rtrim('panel-body '  . ltrim($class)),
+            'class' => rtrim('panel-body ' . ltrim($class)),
         ];
         $this->tag('div', $attributes);
         return $this;
@@ -203,7 +206,7 @@ class Bootstrap3Builder extends AbstractBuilder
     public function panelFooter(string $class = ''): BuilderInterface
     {
         $attributes = [
-            'class' => rtrim('panel-footer '  . ltrim($class)),
+            'class' => rtrim('panel-footer ' . ltrim($class)),
         ];
         $this->tag('div', $attributes);
         return $this;
@@ -215,7 +218,7 @@ class Bootstrap3Builder extends AbstractBuilder
     public function menu(string $class = ''): BuilderInterface
     {
         $attributes = [
-            'class' => rtrim('list-group '  . ltrim($class)),
+            'class' => rtrim('list-group ' . ltrim($class)),
         ];
         $this->tag('div', $attributes);
         return $this;
@@ -240,7 +243,7 @@ class Bootstrap3Builder extends AbstractBuilder
     public function breadcrumb(string $class = ''): BuilderInterface
     {
         $attributes = [
-            'class' => rtrim('breadcrumb '  . ltrim($class)),
+            'class' => rtrim('breadcrumb ' . ltrim($class)),
         ];
         $this->tag('ol', $attributes);
         return $this;
@@ -252,7 +255,7 @@ class Bootstrap3Builder extends AbstractBuilder
     public function breadcrumbItem(string $label, string $class = ''): BuilderInterface
     {
         $attributes = [
-            'class' => rtrim('active '  . ltrim($class)),
+            'class' => rtrim('active ' . ltrim($class)),
         ];
         $this->tag('li', $label, $attributes);
         return $this;
@@ -264,7 +267,7 @@ class Bootstrap3Builder extends AbstractBuilder
     public function tabHeader(string $class = ''): BuilderInterface
     {
         $attributes = [
-            'class' => rtrim('nav nav-pills '  . ltrim($class)),
+            'class' => rtrim('nav nav-pills ' . ltrim($class)),
         ];
         $this->tag('ul', $attributes);
         return $this;
@@ -292,7 +295,7 @@ class Bootstrap3Builder extends AbstractBuilder
     public function tabContent(string $class = ''): BuilderInterface
     {
         $attributes = [
-            'class' => rtrim('tab-content '  . ltrim($class)),
+            'class' => rtrim('tab-content ' . ltrim($class)),
             'style' => 'margin-top:10px;',
         ];
         $this->tag('div', $attributes);
@@ -345,8 +348,50 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function formRow(string $class = ''): BuilderInterface
     {
-        $attributes = ['class' => rtrim('form-group '  . ltrim($class))];
+        $attributes = ['class' => rtrim('form-group ' . ltrim($class))];
         $this->tag('div', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dropdown(string $class = ''): BuilderInterface
+    {
+        $attributes = ['class' => rtrim('btn-group ' . ltrim($class)), 'role' => 'group'];
+        $this->tag('div', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dropdownItem(string $style = 'default', string $class = ''): BuilderInterface
+    {
+        $attributes = ['class' => rtrim("btn btn-sm btn-$style dropdown-toggle " . ltrim($class)),
+            'data-toggle' => 'dropdown', 'aria-haspopup' => 'true', 'aria-expanded' => 'false'];
+        $this->tag('button', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dropdownMenu(string $class = ''): BuilderInterface
+    {
+        $attributes = ['class' => rtrim('dropdown-menu ' . ltrim($class))];
+        $this->tag('ul', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dropdownMenuItem(string $class = ''): BuilderInterface
+    {
+        $this->tag('li');
+        $this->scope->isWrapper = true;
+        $this->tag('a', ['class' => trim($class), 'href' => '#']);
         return $this;
     }
 }

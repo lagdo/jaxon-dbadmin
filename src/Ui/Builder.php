@@ -14,6 +14,8 @@ class Builder
     use Traits\ServerTrait;
     use Traits\DatabaseTrait;
     use Traits\QueryTrait;
+    use Traits\TableTrait;
+    use Traits\SelectTrait;
 
     /**
      * @var BuilderInterface

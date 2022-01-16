@@ -94,10 +94,20 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function icon(string $icon, string $class = ''): BuilderInterface
+    public function addIcon(string $icon): BuilderInterface
     {
-        $attributes = ['class' => rtrim("bi bi-$icon " . ltrim($class))];
-        $this->tag('i', $attributes);
+        if ($icon === 'remove') {
+            $icon = 'x';
+        }
+        return $this->addHtml('<i class="bi bi-' . $icon . '"></i>');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addCaret(): BuilderInterface
+    {
+        // Nothing to do.
         return $this;
     }
 
@@ -357,6 +367,46 @@ class Bootstrap4Builder extends AbstractBuilder
     {
         $attributes = ['class' => rtrim('form-group row '  . ltrim($class))];
         $this->tag('div', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dropdown(string $class = ''): BuilderInterface
+    {
+        $attributes = ['class' => rtrim('btn-group ' . ltrim($class)), 'role' => 'group'];
+        $this->tag('div', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dropdownItem(string $style = 'default', string $class = ''): BuilderInterface
+    {
+        $attributes = ['class' => rtrim("btn btn-sm btn-$style dropdown-toggle " . ltrim($class)),
+            'data-toggle' => 'dropdown', 'aria-haspopup' => 'true', 'aria-expanded' => 'false'];
+        $this->tag('button', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dropdownMenu(string $class = ''): BuilderInterface
+    {
+        $attributes = ['class' => rtrim('dropdown-menu ' . ltrim($class))];
+        $this->tag('div', $attributes);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dropdownMenuItem(string $class = ''): BuilderInterface
+    {
+        $this->tag('a', ['class' => rtrim('dropdown-item ' . ltrim($class)), 'href' => '#']);
         return $this;
     }
 }

@@ -49,11 +49,15 @@ interface BuilderInterface
 
     /**
      * @param string $icon
-     * @param string $class
      *
      * @return BuilderInterface
      */
-    public function icon(string $icon, string $class = ''): BuilderInterface;
+    public function addIcon(string $icon): BuilderInterface;
+
+    /**
+     * @return BuilderInterface
+     */
+    public function addCaret(): BuilderInterface;
 
     /**
      * @param bool $fullWidth
@@ -214,4 +218,33 @@ interface BuilderInterface
      * @return BuilderInterface
      */
     public function formCol(int $width = 12, string $class = ''): BuilderInterface;
+
+    /**
+     * @param string $class
+     *
+     * @return BuilderInterface
+     */
+    public function dropdown(string $class = ''): BuilderInterface;
+
+    /**
+     * @param string $style
+     * @param string $class
+     *
+     * @return BuilderInterface
+     */
+    public function dropdownItem(string $style = 'default', string $class = ''): BuilderInterface;
+
+    /**
+     * @param string $class
+     *
+     * @return BuilderInterface
+     */
+    public function dropdownMenu(string $class = ''): BuilderInterface;
+
+    /**
+     * @param string $class
+     *
+     * @return BuilderInterface
+     */
+    public function dropdownMenuItem(string $class = ''): BuilderInterface;
 }

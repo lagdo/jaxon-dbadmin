@@ -126,10 +126,8 @@ class Table extends CallableClass
         $this->response->html($this->package->getMainActionsId(), $content);
 
         $contentId = $this->package->getDbContentId();
-        $content = $this->render('table/add', [
-            'formId' => $this->formId,
-            'tableId' => $this->tableId,
-        ]);
+        $content = $this->uiBuilder->tableForm($this->formId, $tableData['support'],
+            $tableData['engines'], $tableData['collations']);
         $this->response->html($contentId, $content);
 
         // Set onclick handlers on toolbar buttons
@@ -168,10 +166,15 @@ class Table extends CallableClass
         $this->response->html($this->package->getMainActionsId(), $content);
 
         $contentId = $this->package->getDbContentId();
-        $content = $this->render('table/edit', [
-            'formId' => $this->formId,
-            'tableId' => $this->tableId,
-        ]);
+        $editedTable = [
+            'name' => $tableData['table']->name,
+            'engine' => $tableData['table']->engine,
+            'collation' => $tableData['table']->collation,
+            'comment' => $tableData['table']->comment,
+        ];
+        $content = $this->uiBuilder->tableForm($this->formId, $tableData['support'], $tableData['engines'],
+            $tableData['collations'], $tableData['unsigned'] ?? [], $tableData['foreignKeys'],
+            $tableData['options'], $editedTable, $tableData['fields']);
         $this->response->html($contentId, $content);
 
         // Set onclick handlers on toolbar buttons
@@ -184,7 +187,7 @@ class Table extends CallableClass
         $length = \jq(".{$this->formId}-column", "#$contentId")->length;
         $this->jq('#adminer-table-column-add')
             ->click($this->cl(Column::class)->rq()->add($server, $database, $schema, $length));
-        $index = \jq()->parent()->parent()->attr('data-index');
+        $index = \jq()->attr('data-index');
         $this->jq('.adminer-table-column-add')
             ->click($this->cl(Column::class)->rq()->add($server, $database, $schema, $length, $index));
         $this->jq('.adminer-table-column-del')
