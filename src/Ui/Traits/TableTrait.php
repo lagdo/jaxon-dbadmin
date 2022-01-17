@@ -355,4 +355,50 @@ trait TableTrait
         $this->_tableColumn($class, $index, $field, $prefixFields, $support, $collations, $unsigned, $options, $wrap);
         return $this->htmlBuilder->build();
     }
+
+    /**
+     * @param string $formId
+     * @param array $fields
+     *
+     * @return string
+     */
+    public function tableQueryForm(string $formId, array $fields): string
+    {
+        $this->htmlBuilder->clear()
+            ->form(true, false)->setId($formId);
+        foreach ($fields as $name => $field) {
+            $this->htmlBuilder
+                ->formRow()
+                    ->formCol(3)
+                        ->label($field['name'])->setTitle($field['type'])
+                        ->end()
+                    ->end()
+                    ->formCol(2);
+            if($field['functions']['type'] === 'name') {
+                $this->htmlBuilder
+                        ->label($field['functions']['name'])
+                        ->end();
+            } elseif($field['functions']['type'] === 'select') {
+                $this->htmlBuilder
+                        ->select()->setName($field['functions']['name']);
+                foreach($field['functions']['options'] as $function) {
+                    $this->htmlBuilder
+                            ->option($function, $function === $field['functions']['selected'])
+                            ->end();
+                }
+                $this->htmlBuilder
+                        ->end();
+            }
+            $this->htmlBuilder
+                    ->end()
+                    ->formCol(7);
+            $this->inputBuilder->build($field['input']['type'], $field['input']);
+            $this->htmlBuilder
+                    ->end()
+                ->end();
+        }
+        $this->htmlBuilder
+            ->end();
+        return $this->htmlBuilder->build();
+    }
 }

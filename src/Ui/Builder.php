@@ -18,6 +18,11 @@ class Builder
     use Traits\SelectTrait;
 
     /**
+     * @var InputBuilder
+     */
+    protected $inputBuilder;
+
+    /**
      * @var BuilderInterface
      */
     protected $htmlBuilder;
@@ -35,6 +40,7 @@ class Builder
     {
         $this->htmlBuilder = $htmlBuilder;
         $this->trans = $trans;
+        $this->inputBuilder = new InputBuilder($this->htmlBuilder, $this->trans);
     }
 
     /**

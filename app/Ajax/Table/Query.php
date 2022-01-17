@@ -49,9 +49,7 @@ class Query extends CallableClass
             $this->uiBuilder->mainActions($queryData['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->render('table/query', [
-            'formId' => $this->queryFormId,
-        ]);
+        $content = $this->uiBuilder->tableQueryForm($this->queryFormId, $queryData['fields']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         $options = pm()->form($this->queryFormId);
@@ -129,9 +127,7 @@ class Query extends CallableClass
             $this->uiBuilder->mainActions($queryData['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->render('table/query', [
-            'formId' => $this->queryFormId,
-        ]);
+        $content = $this->uiBuilder->tableQueryForm($this->queryFormId, $queryData['fields']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         $options = pm()->form($this->queryFormId);
