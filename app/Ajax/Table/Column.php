@@ -33,9 +33,9 @@ class Column extends CallableClass
     private function insertBefore(string $target, string $id, string $class, string $content, array $attrs = [])
     {
         // Insert a div with the id before the target
-        $this->response->insertBefore($target, 'div', $id);
+        $this->response->insertBefore($target, $this->uiBuilder->formRowTag(), $id);
         // Set the new element class
-        $this->jq("#$id")->attr('class', "form-group $class");
+        $this->jq("#$id")->attr('class', $this->uiBuilder->formRowClass($class));
         // Set the new element attributes
         foreach($attrs as $name => $value)
         {
@@ -59,9 +59,9 @@ class Column extends CallableClass
     private function insertAfter(string $target, string $id, string $class, string $content, array $attrs = [])
     {
         // Insert a div with the id after the target
-        $this->response->insertAfter($target, 'div', $id);
+        $this->response->insertAfter($target, $this->uiBuilder->formRowTag(), $id);
         // Set the new element class
-        $this->jq("#$id")->attr('class', "form-group $class");
+        $this->jq("#$id")->attr('class', $this->uiBuilder->formRowClass($class));
         // Set the new element attributes
         foreach($attrs as $name => $value)
         {
@@ -90,17 +90,10 @@ class Column extends CallableClass
 
         $columnClass = "{$this->formId}-column";
         $columnId = \sprintf('%s-%02d', $columnClass, $length);
-        $vars = [
-            'index' => $length,
-            'field' => $this->dbAdmin->getTableField($server, $database, $schema),
-            'prefixFields' => sprintf("fields[%d]", $length + 1),
-        ];
-        if($target < 0)
-        {
-            // Get the content with wrapper
-            $vars['class'] = $columnClass;
-        }
-        $content = $this->render('table/column', $vars);
+        $field = $this->dbAdmin->getTableField($server, $database, $schema);
+        $prefixFields = sprintf("fields[%d]", $length + 1);
+        $content = $this->uiBuilder->tableColumn($columnClass, $length, $field, $prefixFields, $tableData['support'],
+            $tableData['collations'], $tableData['unsigned'], $tableData['options'], $target < 0);
 
         if($target < 0)
         {
@@ -121,7 +114,7 @@ class Column extends CallableClass
 
         $contentId = $this->package->getDbContentId();
         $length = \jq(".$columnClass", "#$contentId")->length;
-        $index = \jq()->parent()->parent()->attr('data-index');
+        $index = \jq()->attr('data-index');
         // Set the button event handlers on the new column
         $this->jq('[data-field]', "#$columnId")
             ->on('jaxon.adminer.renamed', \pm()->js('jaxon.adminer.onColumnRenamed'));

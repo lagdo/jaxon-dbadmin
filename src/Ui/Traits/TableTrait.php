@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
+use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+
 use function strcasecmp;
 use function is_string;
 use function sprintf;
@@ -119,7 +121,7 @@ trait TableTrait
         $index = 0;
         foreach ($fields as $field) {
             $this->_tableColumn($formId . '-column', $index, $field, sprintf("fields[%d]", ++$index),
-                $support, $collations, $unsigned, $foreignKeys, $options);
+                $support, $collations, $unsigned, $options);
             $index++;
         }
         $this->htmlBuilder
@@ -130,20 +132,20 @@ trait TableTrait
     /**
      * @param string $class
      * @param int $index
-     * @param $field
+     * @param TableFieldEntity $field
      * @param string $prefixFields
      * @param array $support
      * @param array $collations
      * @param array $unsigned
-     * @param array $foreignKeys
      * @param array $options
+     * @param bool $wrap
      *
      * @return void
      */
-    private function _tableColumn(string $class, int $index, $field, string $prefixFields, array $support,
-                                  array $collations, array $unsigned, array $foreignKeys, array $options)
+    private function _tableColumn(string $class, int $index, TableFieldEntity $field, string $prefixFields,
+                                  array $support, array $collations, array $unsigned, array $options, bool $wrap = true)
     {
-        if (($class)) {
+        if ($wrap) {
             $this->htmlBuilder->formRow($class)->setDataIndex($index)->setId(sprintf('%s-%02d', $class, $index));
         }
         $this->htmlBuilder
@@ -212,7 +214,7 @@ trait TableTrait
                         ->end()
                     ->end()
                     ->col(4, 'adminer-table-column-right');
-        if ($support['comment']) {
+        if (/*$support['comment']*/true) {
             $this->htmlBuilder
                         ->formInput()->setType('text')->setName($prefixFields  . '[comment]')->setValue($field->comment)
                             ->setDataField('comment')->setPlaceholder($this->trans->lang('Comment'))
@@ -295,6 +297,19 @@ trait TableTrait
                         ->end()
                     ->end()
                     ->col(1, 'adminer-table-column-buttons second-line')
+                        /*->buttonGroup(false);
+        if ($support['move_col']) {
+            $this->htmlBuilder
+                            ->button('primary', 'adminer-table-column-add')->setDataIndex($index)->addIcon('plus')
+                            ->end();
+        }
+        if ($support['drop_col']) {
+            $this->htmlBuilder
+                            ->button('primary', 'adminer-table-column-del')->setDataIndex($index)->addIcon('remove')
+                            ->end();
+        }
+        $this->htmlBuilder
+                        ->end()*/
                         ->dropdown('adminer-table-column-buttons')
                             ->dropdownItem('primary')->setDiv("adminer-table-column-button-group-drop-$index")->addCaret()
                             ->end()
@@ -315,8 +330,29 @@ trait TableTrait
                     ->end()
                 ->end()
             ->end();
-        if (($class)) {
+        if ($wrap) {
             $this->htmlBuilder->end();
         }
+    }
+
+    /**
+     * @param string $class
+     * @param int $index
+     * @param TableFieldEntity $field
+     * @param string $prefixFields
+     * @param array $support
+     * @param array $collations
+     * @param array $unsigned
+     * @param array $options
+     * @param bool $wrap
+     *
+     * @return string
+     */
+    public function tableColumn(string $class, int $index, TableFieldEntity $field, string $prefixFields,
+                                array $support, array $collations, array $unsigned, array $options, bool $wrap): string
+    {
+        $this->htmlBuilder->clear();
+        $this->_tableColumn($class, $index, $field, $prefixFields, $support, $collations, $unsigned, $options, $wrap);
+        return $this->htmlBuilder->build();
     }
 }

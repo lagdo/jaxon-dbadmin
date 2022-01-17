@@ -38,6 +38,24 @@ class Builder
     }
 
     /**
+     * @return string
+     */
+    public function formRowTag(): string
+    {
+        return $this->htmlBuilder->formRowTag();
+    }
+
+    /**
+     * @param string $class
+     *
+     * @return string
+     */
+    public function formRowClass(string $class = ''): string
+    {
+        return $this->htmlBuilder->formRowClass($class);
+    }
+
+    /**
      * @param array $values
      *
      * @return string

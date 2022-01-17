@@ -220,6 +220,18 @@ interface BuilderInterface
     public function formCol(int $width = 12, string $class = ''): BuilderInterface;
 
     /**
+     * @return string
+     */
+    public function formRowTag(): string;
+
+    /**
+     * @param string $class
+     *
+     * @return string
+     */
+    public function formRowClass(string $class = ''): string;
+
+    /**
      * @param string $class
      *
      * @return BuilderInterface

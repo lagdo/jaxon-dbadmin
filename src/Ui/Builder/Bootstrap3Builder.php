@@ -356,6 +356,14 @@ class Bootstrap3Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
+    public function formRowClass(string $class = ''): string
+    {
+        return rtrim('form-group ' . ltrim($class));
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function dropdown(string $class = ''): BuilderInterface
     {
         $attributes = ['class' => rtrim('btn-group ' . ltrim($class)), 'role' => 'group'];

@@ -373,6 +373,14 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
+    public function formRowClass(string $class = ''): string
+    {
+        return rtrim('form-group row ' . ltrim($class));
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function dropdown(string $class = ''): BuilderInterface
     {
         $attributes = ['class' => rtrim('btn-group ' . ltrim($class)), 'role' => 'group'];
@@ -385,7 +393,7 @@ class Bootstrap4Builder extends AbstractBuilder
      */
     public function dropdownItem(string $style = 'default', string $class = ''): BuilderInterface
     {
-        $attributes = ['class' => rtrim("btn btn-sm btn-$style dropdown-toggle " . ltrim($class)),
+        $attributes = ['class' => rtrim("btn btn-$style dropdown-toggle " . ltrim($class)),
             'data-toggle' => 'dropdown', 'aria-haspopup' => 'true', 'aria-expanded' => 'false'];
         $this->tag('button', $attributes);
         return $this;

@@ -95,6 +95,14 @@ abstract class AbstractBuilder extends HtmlBuilder implements BuilderInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function formRowTag(): string
+    {
+        return 'div';
+    }
+
+    /**
      * @return BuilderInterface
      */
     public function end(): BuilderInterface

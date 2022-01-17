@@ -84,9 +84,6 @@
     padding-left: 1px;
     padding-right: 1px;
 }
-#<?php echo $this->containerId ?> .adminer-table-column-buttons button {
-    margin-top: 5px;
-}
 #<?php echo $this->containerId ?> .second-line {
     margin-top: 2px;
 }
