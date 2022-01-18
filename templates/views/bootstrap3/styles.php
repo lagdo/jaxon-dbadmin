@@ -1,6 +1,6 @@
 <style>
-.modal-header : {
-    display: block;
+#bootbox-container .modal-header {
+    display: block !important;
 }
 #<?php echo $this->containerId ?> {
     margin: 20px 0 0 0;

@@ -361,7 +361,7 @@ trait SelectTrait
             ->end()
             // Empty line for new entry (must be outside the form)
             ->div()->setId("$formId-item-template")->setStyle('display:none');
-        $this->editSortingValue('__index__', $formId, ['fun' => '', 'col' => ''], $options);
+        $this->editSortingValue('__index__', $formId, ['col' => '', 'desc' => false], $options);
         $this->htmlBuilder
             ->end();
         return $this->htmlBuilder->build();
@@ -419,6 +419,12 @@ trait SelectTrait
         return $this->htmlBuilder->build();
     }
 
+    /**
+     * @param array $ids
+     * @param array $options
+     *
+     * @return string
+     */
     public function tableSelect(array $ids, array $options): string
     {
         $this->htmlBuilder->clear()
