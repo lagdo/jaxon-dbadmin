@@ -46,7 +46,7 @@ trait TableSelectTrait
      *
      * @return TableSelectAdmin
      */
-    protected function tableSelect()
+    protected function tableSelect(): TableSelectAdmin
     {
         if (!$this->tableSelectAdmin) {
             $this->tableSelectAdmin = new TableSelectAdmin();
@@ -58,21 +58,16 @@ trait TableSelectTrait
     /**
      * Get required data for create/update on tables
      *
-     * @param string $server        The selected server
-     * @param string $database      The database name
-     * @param string $schema        The database schema
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
+     * @param string $server The selected server
+     * @param string $database The database name
+     * @param string $schema The database schema
+     * @param string $table The table name
+     * @param array $queryOptions The query options
      *
      * @return array
+     * @throws Exception
      */
-    public function getSelectData(
-        string $server,
-        string $database,
-        string $schema,
-        string $table,
-        array $queryOptions = []
-    )
+    public function getSelectData(string $server, string $database, string $schema, string $table, array $queryOptions = []): array
     {
         $this->connect($server, $database, $schema);
 
@@ -88,21 +83,16 @@ trait TableSelectTrait
     /**
      * Get required data for create/update on tables
      *
-     * @param string $server        The selected server
-     * @param string $database      The database name
-     * @param string $schema        The database schema
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
+     * @param string $server The selected server
+     * @param string $database The database name
+     * @param string $schema The database schema
+     * @param string $table The table name
+     * @param array $queryOptions The query options
      *
      * @return array
+     * @throws Exception
      */
-    public function execSelect(
-        string $server,
-        string $database,
-        string $schema,
-        string $table,
-        array $queryOptions = []
-    )
+    public function execSelect(string $server, string $database, string $schema, string $table, array $queryOptions = []): array
     {
         $this->connect($server, $database, $schema);
 

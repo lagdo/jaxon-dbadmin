@@ -110,11 +110,12 @@ class Bootstrap3Builder extends AbstractBuilder
     public function buttonGroup(bool $fullWidth, string $class = ''): BuilderInterface
     {
         $attributes = [
-            'class' => rtrim('btn-group ' . ltrim($class)),
+            'class' => rtrim(($fullWidth ? 'btn-group btn-group-justified ' : 'btn-group ') . ltrim($class)),
             'role' => 'group',
             'aria-label' => '...',
         ];
         $this->tag('div', $attributes);
+        $this->scope->isButtonGroup = true;
         return $this;
     }
 
@@ -125,10 +126,19 @@ class Bootstrap3Builder extends AbstractBuilder
     {
         // A button in an input group must be wrapped into a div with class "input-group-btn".
         // Check the parent scope.
-        if ($this->scope !== null && $this->scope->isInputGroup) {
-            $this->tag('div', ['class' => 'input-group-btn']);
-            // The new scope is a wrapper.
-            $this->scope->isWrapper = true;
+        $isInButtonGroup = false;
+        if ($this->scope !== null) {
+            if ($this->scope->isInputGroup) {
+                $this->tag('div', ['class' => 'input-group-btn']);
+                // The new scope is a wrapper.
+                $this->scope->isWrapper = true;
+            }
+            if ($this->scope->isButtonGroup && $flags & self::BTN_FULL_WIDTH) {
+                $this->tag('div', ['class' => 'btn-group', 'role' => 'group']);
+                // The new scope is a wrapper.
+                $this->scope->isWrapper = true;
+                $isInButtonGroup = true;
+            }
         }
         $style = 'default';
         if ($flags & self::BTN_PRIMARY) {
@@ -137,7 +147,10 @@ class Bootstrap3Builder extends AbstractBuilder
         if ($flags & self::BTN_DANGER) {
             $style = 'danger';
         }
-        $btnClass = ($flags & self::BTN_FULL_WIDTH) ? "btn btn-block btn-$style " : "btn btn-$style ";
+        $btnClass = "btn btn-$style ";
+        if (($flags & self::BTN_FULL_WIDTH) && !$isInButtonGroup) {
+            $btnClass .= 'btn-block ';
+        }
         if ($flags & self::BTN_SMALL) {
             $btnClass .= 'btn-sm ';
         }

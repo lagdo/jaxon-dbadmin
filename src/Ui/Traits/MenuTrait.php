@@ -38,7 +38,7 @@ trait MenuTrait
         foreach($sqlActions as $id => $title)
         {
             $this->htmlBuilder
-                ->button(AbstractBuilder::BTN_OUTLINE, 'adminer-menu-item')
+                ->button(AbstractBuilder::BTN_OUTLINE + AbstractBuilder::BTN_FULL_WIDTH, 'adminer-menu-item')
                     ->setId("adminer-menu-action-$id")->addText($title)
                 ->end();
         }

@@ -10,6 +10,11 @@ class Scope extends \Lagdo\DbAdmin\Ui\Html\Scope
     public $isInputGroup = false;
 
     /**
+     * @var bool
+     */
+    public $isButtonGroup = false;
+
+    /**
      * True if the scope was added to wrap another one, due to a framework requirement.
      *
      * @var bool

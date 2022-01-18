@@ -5,6 +5,10 @@
 #<?php echo $this->containerId ?> {
     margin: 20px 0 0 0;
 }
+#<?php echo $this->containerId ?> #adminer-table-select-query {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
 #<?php echo $this->containerId ?> .row>[class*=col-] {
     margin-bottom: 10px;
 }

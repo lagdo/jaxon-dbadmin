@@ -100,6 +100,8 @@ class Bootstrap4Builder extends AbstractBuilder
             $icon = 'x';
         } elseif ($icon === 'edit') {
             $icon = 'pencil';
+        } elseif ($icon === 'ok') {
+            $icon = 'check';
         }
         return $this->addHtml('<i class="bi bi-' . $icon . '"></i>');
     }
@@ -124,6 +126,7 @@ class Bootstrap4Builder extends AbstractBuilder
             'role' => 'group',
         ];
         $this->tag('div', $attributes);
+        $this->scope->isButtonGroup = true;
         return $this;
     }
 
@@ -134,10 +137,14 @@ class Bootstrap4Builder extends AbstractBuilder
     {
         // A button in an input group must be wrapped into a div with class "input-group-btn".
         // Check the parent scope.
-        if ($this->scope !== null && $this->scope->isInputGroup) {
-            $this->tag('div', ['class' => 'input-group-append']);
-            // The new scope is a wrapper.
-            $this->scope->isWrapper = true;
+        $isInButtonGroup = false;
+        if ($this->scope !== null) {
+            if ($this->scope->isInputGroup) {
+                $this->tag('div', ['class' => 'input-group-append']);
+                // The new scope is a wrapper.
+                $this->scope->isWrapper = true;
+            }
+            $isInButtonGroup = $this->scope->isButtonGroup;
         }
         $style = 'secondary'; // The default style is "secondary"
         if ($flags & self::BTN_PRIMARY) {
@@ -147,8 +154,8 @@ class Bootstrap4Builder extends AbstractBuilder
             $style = 'danger';
         }
         $btnClass = ($flags & self::BTN_OUTLINE) ? "btn btn-outline-$style " : "btn btn-$style ";
-        if ($flags & self::BTN_FULL_WIDTH) {
-            $btnClass .= 'btn-block ';
+        if (($flags & self::BTN_FULL_WIDTH) && !$isInButtonGroup) {
+            $btnClass .= 'w-100 ';
         }
         if ($flags & self::BTN_SMALL) {
             $btnClass .= 'btn-sm ';
