@@ -121,8 +121,7 @@ class Bootstrap3Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function button(string $style = 'default', string $class = '',
-                           bool $fullWidth = false, bool $outline = false): BuilderInterface
+    public function button(int $flags = 0, string $class = ''): BuilderInterface
     {
         // A button in an input group must be wrapped into a div with class "input-group-btn".
         // Check the parent scope.
@@ -131,7 +130,17 @@ class Bootstrap3Builder extends AbstractBuilder
             // The new scope is a wrapper.
             $this->scope->isWrapper = true;
         }
-        $btnClass = $fullWidth ? "btn btn-block btn-$style " : "btn btn-$style ";
+        $style = 'default';
+        if ($flags & self::BTN_PRIMARY) {
+            $style = 'primary';
+        }
+        if ($flags & self::BTN_DANGER) {
+            $style = 'danger';
+        }
+        $btnClass = ($flags & self::BTN_FULL_WIDTH) ? "btn btn-block btn-$style " : "btn btn-$style ";
+        if ($flags & self::BTN_SMALL) {
+            $btnClass .= 'btn-sm ';
+        }
         $attributes = [ 'class' => rtrim($btnClass . ltrim($class)), 'type' => 'button'];
         $this->tag('button', $attributes);
         return $this;
@@ -376,7 +385,7 @@ class Bootstrap3Builder extends AbstractBuilder
      */
     public function dropdownItem(string $style = 'default', string $class = ''): BuilderInterface
     {
-        $attributes = ['class' => rtrim("btn btn-sm btn-$style dropdown-toggle " . ltrim($class)),
+        $attributes = ['class' => rtrim("btn btn-$style dropdown-toggle " . ltrim($class)),
             'data-toggle' => 'dropdown', 'aria-haspopup' => 'true', 'aria-expanded' => 'false'];
         $this->tag('button', $attributes);
         return $this;

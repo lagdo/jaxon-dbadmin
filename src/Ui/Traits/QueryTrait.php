@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
+use Lagdo\DbAdmin\Ui\Builder\AbstractBuilder;
 use function count;
 
 trait QueryTrait
@@ -58,7 +59,8 @@ trait QueryTrait
                             ->end()
                         ->end()
                         ->formCol(2)
-                            ->button('primary', '', true)->setId($btnId)->addText($labels['execute'])
+                            ->button(AbstractBuilder::BTN_PRIMARY + AbstractBuilder::BTN_FULL_WIDTH)
+                                ->setId($btnId)->addText($labels['execute'])
                             ->end()
                         ->end()
                     ->end()
@@ -108,7 +110,8 @@ trait QueryTrait
             $this->htmlBuilder
                                 ->formCol(12)
                                     ->inputGroup()->setId($htmlIds['sqlFilesDivId'])
-                                        ->button('primary')->setId($htmlIds['sqlChooseBtnId'])->addHtml($labels['select'] . '&hellip;')
+                                        ->button(AbstractBuilder::BTN_PRIMARY)->setId($htmlIds['sqlChooseBtnId'])
+                                            ->addHtml($labels['select'] . '&hellip;')
                                         ->end()
                                         ->input()->setType('file')->setName('sql_files[]')->setId($htmlIds['sqlFilesInputId'])
                                             ->setMultiple('multiple')->setStyle('display:none;')
@@ -122,7 +125,8 @@ trait QueryTrait
                             ->end()
                             ->formRow()
                                 ->formCol(4)
-                                    ->button('primary', '', true)->setId($htmlIds['sqlFilesBtnId'])->addText($labels['execute'])
+                                    ->button(AbstractBuilder::BTN_PRIMARY + AbstractBuilder::BTN_FULL_WIDTH)
+                                        ->setId($htmlIds['sqlFilesBtnId'])->addText($labels['execute'])
                                     ->end()
                                 ->end()
                             ->end()
@@ -146,7 +150,8 @@ trait QueryTrait
                             ->end()
                             ->formRow()
                                 ->formCol(4)
-                                    ->button('primary', '', true)->setId($htmlIds['webFileBtnId'])->addText($labels['run_file'])
+                                    ->button(AbstractBuilder::BTN_PRIMARY + AbstractBuilder::BTN_FULL_WIDTH)
+                                        ->setId($htmlIds['webFileBtnId'])->addText($labels['run_file'])
                                     ->end()
                                 ->end()
                             ->end()
@@ -335,7 +340,8 @@ trait QueryTrait
                                 ->formCol(3)->addHtml('&nbsp;') // Actually an offset. TODO: a parameter for that.
                                 ->end()
                                 ->formCol(4)
-                                    ->button('primary', '', true)->setId($htmlIds['btnId'])->addText($labels['export'])
+                                    ->button(AbstractBuilder::BTN_PRIMARY + AbstractBuilder::BTN_FULL_WIDTH)
+                                        ->setId($htmlIds['btnId'])->addText($labels['export'])
                                     ->end()
                                 ->end()
                             ->end()

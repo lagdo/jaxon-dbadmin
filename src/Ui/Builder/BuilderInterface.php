@@ -68,15 +68,12 @@ interface BuilderInterface
     public function buttonGroup(bool $fullWidth, string $class = ''): BuilderInterface;
 
     /**
-     * @param string $style
+     * @param int $flags
      * @param string $class
-     * @param bool $fullWidth
-     * @param bool $outline
      *
      * @return BuilderInterface
      */
-    public function button(string $style = 'default', string $class = '',
-                           bool $fullWidth = false, bool $outline = false): BuilderInterface;
+    public function button(int $flags = 0, string $class = ''): BuilderInterface;
 
     /**
      * @param string $class

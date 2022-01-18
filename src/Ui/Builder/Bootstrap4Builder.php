@@ -128,12 +128,8 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function button(string $style = 'secondary', string $class = '',
-                           bool $fullWidth = false, bool $outline = false): BuilderInterface
+    public function button(int $flags = 0, string $class = ''): BuilderInterface
     {
-        if ($style === 'default') {
-            $style = 'secondary'; // The default style is "secondary
-        }
         // A button in an input group must be wrapped into a div with class "input-group-btn".
         // Check the parent scope.
         if ($this->scope !== null && $this->scope->isInputGroup) {
@@ -141,9 +137,19 @@ class Bootstrap4Builder extends AbstractBuilder
             // The new scope is a wrapper.
             $this->scope->isWrapper = true;
         }
-        $btnClass = $fullWidth ? 'btn btn-block btn' : 'btn btn';
-        if ($outline) {
-            $btnClass .= '-outline';
+        $style = 'secondary'; // The default style is "secondary"
+        if ($flags & self::BTN_PRIMARY) {
+            $style = 'primary';
+        }
+        if ($flags & self::BTN_DANGER) {
+            $style = 'danger';
+        }
+        $btnClass = ($flags & self::BTN_OUTLINE) ? "btn btn-outline-$style " : "btn btn-$style ";
+        if ($flags & self::BTN_FULL_WIDTH) {
+            $btnClass .= 'btn-block ';
+        }
+        if ($flags & self::BTN_SMALL) {
+            $btnClass .= 'btn-sm ';
         }
         $attributes = [
             'class' => rtrim("$btnClass-$style "  . ltrim($class)),

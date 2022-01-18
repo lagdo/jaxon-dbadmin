@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ui\Traits;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Ui\Builder\AbstractBuilder;
 
 use function strcasecmp;
 use function is_string;
@@ -112,7 +113,8 @@ trait TableTrait
                     ->formCol(1, 'adminer-table-column-buttons-header');
         if ($support['columns']) {
             $this->htmlBuilder
-                        ->button('primary')->setId('adminer-table-column-add')->addIcon('plus')
+                        ->button(AbstractBuilder::BTN_PRIMARY)
+                            ->setId('adminer-table-column-add')->addIcon('plus')
                         ->end();
         }
         $this->htmlBuilder
@@ -300,12 +302,12 @@ trait TableTrait
                         /*->buttonGroup(false);
         if ($support['move_col']) {
             $this->htmlBuilder
-                            ->button('primary', 'adminer-table-column-add')->setDataIndex($index)->addIcon('plus')
+                            ->button(AbstractBuilder::BTN_PRIMARY, 'adminer-table-column-add')->setDataIndex($index)->addIcon('plus')
                             ->end();
         }
         if ($support['drop_col']) {
             $this->htmlBuilder
-                            ->button('primary', 'adminer-table-column-del')->setDataIndex($index)->addIcon('remove')
+                            ->button(AbstractBuilder::BTN_PRIMARY, 'adminer-table-column-del')->setDataIndex($index)->addIcon('remove')
                             ->end();
         }
         $this->htmlBuilder

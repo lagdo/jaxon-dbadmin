@@ -7,6 +7,13 @@ use LogicException;
 
 abstract class AbstractBuilder extends HtmlBuilder implements BuilderInterface
 {
+    const BTN_PRIMARY = 1;
+    const BTN_SECONDARY = 2;
+    const BTN_DANGER = 4;
+    const BTN_FULL_WIDTH = 8;
+    const BTN_OUTLINE = 16;
+    const BTN_SMALL = 32;
+
     /**
      * @var array
      */

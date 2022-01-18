@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
+use Lagdo\DbAdmin\Ui\Builder\AbstractBuilder;
+
 trait MainTrait
 {
     /**
@@ -16,7 +18,7 @@ trait MainTrait
         foreach($mainActions as $id => $title)
         {
             $this->htmlBuilder
-                ->button('default', '', false, true)->setId("adminer-main-action-$id")->addText($title)
+                ->button(AbstractBuilder::BTN_OUTLINE)->setId("adminer-main-action-$id")->addText($title)
                 ->end();
         }
         $this->htmlBuilder

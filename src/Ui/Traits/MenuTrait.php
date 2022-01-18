@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
+use Lagdo\DbAdmin\Ui\Builder\AbstractBuilder;
+
 trait MenuTrait
 {
     /**
@@ -36,7 +38,8 @@ trait MenuTrait
         foreach($sqlActions as $id => $title)
         {
             $this->htmlBuilder
-                ->button('default', 'adminer-menu-item', false, true)->setId("adminer-menu-action-$id")->addText($title)
+                ->button(AbstractBuilder::BTN_OUTLINE, 'adminer-menu-item')
+                    ->setId("adminer-menu-action-$id")->addText($title)
                 ->end();
         }
         $this->htmlBuilder
@@ -64,7 +67,7 @@ trait MenuTrait
         }
         $this->htmlBuilder
                 ->end()
-                ->button('primary', 'btn-select')->setId('adminer-dbname-select-btn')->addText('Show')
+                ->button(AbstractBuilder::BTN_PRIMARY, 'btn-select')->setId('adminer-dbname-select-btn')->addText('Show')
                 ->end()
             ->end();
         return $this->htmlBuilder->build();
@@ -88,7 +91,7 @@ trait MenuTrait
         }
         $this->htmlBuilder
                 ->end()
-                ->button('primary', 'btn-select')->setId('adminer-schema-select-btn')->addText('Show')
+                ->button(AbstractBuilder::BTN_PRIMARY, 'btn-select')->setId('adminer-schema-select-btn')->addText('Show')
                 ->end()
             ->end();
         return $this->htmlBuilder->build();

@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Ui\Builder\AbstractBuilder;
 use Lagdo\DbAdmin\Ui\Builder\BuilderInterface;
 
 use function htmlentities;
@@ -83,7 +84,8 @@ class Builder
         }
         $this->htmlBuilder
                                 ->end()
-                                ->button('primary', 'btn-select')->setOnclick($values['connect'] . ';return false;')->addText('Show')
+                                ->button(AbstractBuilder::BTN_PRIMARY, 'btn-select')
+                                    ->setOnclick($values['connect'] . ';return false;')->addText('Show')
                                 ->end()
                             ->end()
                         ->end()
