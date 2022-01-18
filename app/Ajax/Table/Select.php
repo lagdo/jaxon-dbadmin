@@ -178,11 +178,8 @@ class Select extends CallableClass
         $resultsId = 'adminer-table-select-results';
         $btnEditRowClass = 'adminer-table-select-row-edit';
         $btnDeleteRowClass = 'adminer-table-select-row-delete';
-        $content = $this->render('table/select/results', [
-            'rowIds' => $rowIds,
-            'btnEditRowClass' => $btnEditRowClass,
-            'btnDeleteRowClass' => $btnDeleteRowClass,
-        ]);
+        $content = $this->uiBuilder->selectResults($results['headers'], $results['rows'],
+            $btnEditRowClass, $btnDeleteRowClass);
         $this->response->html($resultsId, $content);
 
         // The Jaxon ajax calls
@@ -197,9 +194,9 @@ class Select extends CallableClass
 
         // Set the functions as button event handlers
         $this->jq(".$btnEditRowClass", "#$resultsId")
-            ->click(\rq()->func('updateRowItem', \jq()->parent()->attr('data-row-id')));
+            ->click(\rq()->func('updateRowItem', \jq()->attr('data-row-id')));
         $this->jq(".$btnDeleteRowClass", "#$resultsId")
-            ->click(\rq()->func('deleteRowItem', \jq()->parent()->attr('data-row-id')));
+            ->click(\rq()->func('deleteRowItem', \jq()->attr('data-row-id')));
 
         // Show the query
         $this->showQuery($server, $results['query']);

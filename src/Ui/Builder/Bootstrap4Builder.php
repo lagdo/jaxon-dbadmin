@@ -98,6 +98,8 @@ class Bootstrap4Builder extends AbstractBuilder
     {
         if ($icon === 'remove') {
             $icon = 'x';
+        } elseif ($icon === 'edit') {
+            $icon = 'pencil';
         }
         return $this->addHtml('<i class="bi bi-' . $icon . '"></i>');
     }
@@ -152,7 +154,7 @@ class Bootstrap4Builder extends AbstractBuilder
             $btnClass .= 'btn-sm ';
         }
         $attributes = [
-            'class' => rtrim("$btnClass-$style "  . ltrim($class)),
+            'class' => rtrim($btnClass  . ltrim($class)),
             'type' => 'button',
         ];
         $this->tag('button', $attributes);

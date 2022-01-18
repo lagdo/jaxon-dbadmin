@@ -217,7 +217,7 @@ class Query extends CallableClass
     {
         $select = $this->cl(Select::class);
         $select->show($server, $database, $schema, $table);
-        $select->execSelect($server, $database, $schema, $table, $options);
+        $this->response->script($select->rq()->execSelect($server, $database, $schema, $table, $options));
 
         return $this->response;
     }
