@@ -5,6 +5,14 @@ namespace Lagdo\DbAdmin\Ui\Builder;
 use Lagdo\DbAdmin\Ui\Html\HtmlBuilder;
 use LogicException;
 
+use function trim;
+use function strtolower;
+use function preg_replace;
+use function stripos;
+use function substr;
+use function array_shift;
+use function func_get_args;
+
 abstract class AbstractBuilder extends HtmlBuilder implements BuilderInterface
 {
     const BTN_PRIMARY = 1;
@@ -60,6 +68,20 @@ abstract class AbstractBuilder extends HtmlBuilder implements BuilderInterface
     protected function createScope(string $name, array $arguments)
     {
         $this->scope = new Scope($name, $arguments, $this->scope);
+        return $this;
+    }
+
+    /**
+     * @param string $class
+     * @return $this
+     */
+    public function setClass(string $class): BuilderInterface
+    {
+        if ($this->scope === null) {
+            throw new LogicException('Attributes can be set for elements only');
+        }
+        // Append the added class to the existing one.
+        $this->scope->attributes['class'] = ($this->scope->attributes['class'] ?? '') . ' ' . $class;
         return $this;
     }
 
@@ -129,6 +151,21 @@ abstract class AbstractBuilder extends HtmlBuilder implements BuilderInterface
     public function end(): BuilderInterface
     {
         parent::end();
+        // Wrappers are scopes that were automatically added.
+        // They also need to be automatically ended.
+        while($this->scope !== null && $this->scope->isWrapper)
+        {
+            parent::end();
+        }
+        return $this;
+    }
+
+    /**
+     * @return BuilderInterface
+     */
+    public function endShorted(): BuilderInterface
+    {
+        parent::endShorted();
         // Wrappers are scopes that were automatically added.
         // They also need to be automatically ended.
         while($this->scope !== null && $this->scope->isWrapper)
