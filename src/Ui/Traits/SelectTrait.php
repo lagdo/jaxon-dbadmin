@@ -84,12 +84,12 @@ trait SelectTrait
             ->formRow()->setId("$formId-item-$rowId")
                 ->formCol(6)
                     ->formSelect()->setName("columns[$rowId][fun]")
-                        ->option('', false)
+                        ->option(false, '')
                         ->end()
                         ->optgroup()->setLabel($this->trans->lang('Functions'));
         foreach ($options['functions'] as $function) {
             $this->htmlBuilder
-                            ->option($function, $value['fun'] == $function)
+                            ->option($value['fun'] == $function, $function)
                             ->end();
         }
         $this->htmlBuilder
@@ -97,7 +97,7 @@ trait SelectTrait
                         ->optgroup()->setLabel($this->trans->lang('Aggregation'));
         foreach ($options['grouping'] as $grouping) {
             $this->htmlBuilder
-                            ->option($grouping, $value['fun'] == $grouping)
+                            ->option($value['fun'] == $grouping, $grouping)
                             ->end();
         }
         $this->htmlBuilder
@@ -108,7 +108,7 @@ trait SelectTrait
                     ->formSelect()->setName("columns[$rowId][col]");
         foreach ($options['columns'] as $column) {
             $this->htmlBuilder
-                        ->option($column, $value['col'] == $column)
+                        ->option($value['col'] == $column, $column)
                         ->end();
         }
         $this->htmlBuilder
@@ -205,11 +205,11 @@ trait SelectTrait
             ->formRow()->setId("$formId-item-$rowId")
                 ->formCol(4)
                     ->formSelect()->setName("where[$rowId][col]")
-                        ->option('(' . $this->trans->lang('anywhere') . ')', false)
+                        ->option(false, '(' . $this->trans->lang('anywhere') . ')')
                         ->end();
         foreach ($options['columns'] as $column) {
             $this->htmlBuilder
-                        ->option($column, $value['col'] == $column)
+                        ->option($value['col'] == $column, $column)
                         ->end();
         }
         $this->htmlBuilder
@@ -219,7 +219,7 @@ trait SelectTrait
                     ->formSelect()->setName("where[$rowId][op]");
         foreach ($options['operators'] as $operator) {
             $this->htmlBuilder
-                        ->option($operator, $value['op'] == $operator)
+                        ->option($value['op'] == $operator, $operator)
                         ->end();
         }
         $this->htmlBuilder
@@ -318,7 +318,7 @@ trait SelectTrait
                     ->formSelect()->setName("order[$rowId]");
         foreach ($options['columns'] as $column) {
             $this->htmlBuilder
-                        ->option($column, $value['col'] == $column)
+                        ->option($value['col'] == $column, $column)
                         ->end();
         }
         $this->htmlBuilder

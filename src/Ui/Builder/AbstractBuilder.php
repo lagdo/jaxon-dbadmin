@@ -70,7 +70,7 @@ abstract class AbstractBuilder extends HtmlBuilder implements BuilderInterface
     {
         $arguments = func_get_args();
         array_shift($arguments);
-        $this->tag('input', $arguments);
+        $this->tag('input', ...$arguments);
         $this->scope->attributes['type'] = 'checkbox';
         if ($checked) {
             $this->scope->attributes['checked'] = 'checked';
@@ -85,10 +85,24 @@ abstract class AbstractBuilder extends HtmlBuilder implements BuilderInterface
     {
         $arguments = func_get_args();
         array_shift($arguments);
-        $this->tag('input', $arguments);
+        $this->tag('input', ...$arguments);
         $this->scope->attributes['type'] = 'radio';
         if ($checked) {
             $this->scope->attributes['checked'] = 'checked';
+        }
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function option(bool $selected = false): BuilderInterface
+    {
+        $arguments = func_get_args();
+        array_shift($arguments);
+        $this->tag('option', ...$arguments);
+        if ($selected) {
+            $this->scope->attributes['selected'] = 'selected';
         }
         return $this;
     }

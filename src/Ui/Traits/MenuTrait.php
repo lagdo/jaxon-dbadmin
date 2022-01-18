@@ -57,12 +57,12 @@ trait MenuTrait
         $this->htmlBuilder->clear()
             ->inputGroup()
                 ->select()->setId('adminer-dbname-select')
-                    ->option('')->setValue('')
+                    ->option(false, '')
                     ->end();
         foreach($databases as $database)
         {
             $this->htmlBuilder
-                    ->option($database)->setValue($database)
+                    ->option(false, $database)
                     ->end();
         }
         $this->htmlBuilder
@@ -86,7 +86,7 @@ trait MenuTrait
         foreach ($schemas as $schema)
         {
             $this->htmlBuilder
-                    ->option($schema)->setValue($schema)
+                    ->option(false, $schema)
                     ->end();
         }
         $this->htmlBuilder

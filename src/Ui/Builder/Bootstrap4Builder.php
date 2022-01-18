@@ -183,19 +183,6 @@ class Bootstrap4Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function option(string $title, bool $selected = false, string $class = ''): BuilderInterface
-    {
-        $attributes = ($class) ? ['class' => trim($class)] : [];
-        if ($selected) {
-            $attributes['selected'] = 'selected';
-        }
-        $this->tag('option', $title, $attributes);
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function panel(string $style = 'default', string $class = ''): BuilderInterface
     {
         $this->options['card-style'] = $style;

@@ -83,13 +83,11 @@ interface BuilderInterface
     public function select(string $class = ''): BuilderInterface;
 
     /**
-     * @param string $title
      * @param bool $selected
-     * @param string $class
      *
      * @return BuilderInterface
      */
-    public function option(string $title, bool $selected = false, string $class = ''): BuilderInterface;
+    public function option(bool $selected = false): BuilderInterface;
 
     /**
      * @param string $style

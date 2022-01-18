@@ -174,21 +174,6 @@ class Bootstrap3Builder extends AbstractBuilder
     /**
      * @inheritDoc
      */
-    public function option(string $title, bool $selected = false, string $class = ''): BuilderInterface
-    {
-        $attributes = [
-            'class' => rtrim('form-control ' . ltrim($class)),
-        ];
-        if ($selected) {
-            $attributes['selected'] = 'selected';
-        }
-        $this->tag('option', $title, $attributes);
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function panel(string $style = 'default', string $class = ''): BuilderInterface
     {
         $attributes = [

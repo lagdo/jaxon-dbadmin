@@ -46,11 +46,11 @@ trait TableTrait
             $this->htmlBuilder
                     ->formCol(2, 'adminer-edit-table-engine')
                         ->formSelect()->setName('engine')
-                            ->option('(engine)')->setValue('')
+                            ->option(false, '(engine)')->setValue('')
                             ->end();
             foreach ($engines as $engine) {
                 $this->htmlBuilder
-                            ->option($engine, !strcasecmp($currentEngine, $engine))
+                            ->option(!strcasecmp($currentEngine, $engine), $engine)
                             ->end();
             }
             $this->htmlBuilder
@@ -62,12 +62,12 @@ trait TableTrait
             $this->htmlBuilder
                     ->formCol(3, 'adminer-edit-table-collation')
                         ->formSelect()->setName('collation')
-                            ->option('(' . $this->trans->lang('collation') . ')')->setValue('')
+                            ->option(false, '(' . $this->trans->lang('collation') . ')')->setValue('')
                             ->end();
             foreach ($collations as $group => $_collations) {
                 if (is_string($_collations)) {
                     $this->htmlBuilder
-                            ->option($_collations, $currentCollation === $_collations)
+                            ->option($currentCollation === $_collations, $_collations)
                             ->end();
                     continue;
                 }
@@ -75,7 +75,7 @@ trait TableTrait
                             ->optgroup()->setLabel($group);
                 foreach ($_collations as $collation) {
                     $this->htmlBuilder
-                                ->option($collation, $currentCollation === $collation)
+                                ->option($currentCollation === $collation, $collation)
                                 ->end();
                 }
                 $this->htmlBuilder
@@ -176,12 +176,12 @@ trait TableTrait
                                 ->setReadonly('readonly');
         }
         $this->htmlBuilder
-                            ->option('(' . $this->trans->lang('collation') . ')')->setValue('')
+                            ->option(false, '(' . $this->trans->lang('collation') . ')')->setValue('')
                             ->end();
         foreach ($collations as $group => $_collations) {
             if (is_string($_collations)) {
                 $this->htmlBuilder
-                            ->option($_collations, $field->collation === $_collations)
+                            ->option($field->collation === $_collations, $_collations)
                             ->end();
                 continue;
             }
@@ -189,7 +189,7 @@ trait TableTrait
                             ->optgroup()->setLabel($group);
             foreach ($_collations as $collation) {
                 $this->htmlBuilder
-                                ->option($collation, $field->collation === $collation)
+                                ->option($field->collation === $collation, $collation)
                                 ->end();
             }
             $this->htmlBuilder
@@ -205,11 +205,11 @@ trait TableTrait
                                 ->setReadonly('readonly');
         }
         $this->htmlBuilder
-                            ->option('(' . $this->trans->lang('ON UPDATE') . ')')->setValue('')
+                            ->option(false, '(' . $this->trans->lang('ON UPDATE') . ')')->setValue('')
                             ->end();
         foreach ($options['onUpdate'] as $option) {
             $this->htmlBuilder
-                            ->option($option, $field->onUpdate === $option)
+                            ->option($field->onUpdate === $option, $option)
                             ->end();
         }
         $this->htmlBuilder
@@ -231,7 +231,7 @@ trait TableTrait
                             ->optgroup()->setLabel($group);
             foreach ($_types as $type) {
                 $this->htmlBuilder
-                                ->option($type, $field->type === $type)
+                                ->option($field->type === $type, $type)
                                 ->end();
             }
             $this->htmlBuilder
@@ -262,11 +262,11 @@ trait TableTrait
                                 ->setReadonly('readonly');
         }
         $this->htmlBuilder
-                            ->option('')->setValue('')
+                            ->option(false, '')
                             ->end();
         foreach ($unsigned as $option) {
             $this->htmlBuilder
-                            ->option($option, $field->unsigned === $option)
+                            ->option($field->unsigned === $option, $option)
                             ->end();
         }
         $this->htmlBuilder
@@ -279,11 +279,11 @@ trait TableTrait
                                 ->setReadonly('readonly');
         }
         $this->htmlBuilder
-                            ->option('(' . $this->trans->lang('ON DELETE') . ')')->setValue('')
+                            ->option(false, '(' . $this->trans->lang('ON DELETE') . ')')->setValue('')
                             ->end();
         foreach ($options['onDelete'] as $option) {
             $this->htmlBuilder
-                            ->option($option, $field->onDelete === $option)
+                            ->option($field->onDelete === $option, $option)
                             ->end();
         }
         $this->htmlBuilder
@@ -385,7 +385,7 @@ trait TableTrait
                         ->select()->setName($field['functions']['name']);
                 foreach($field['functions']['options'] as $function) {
                     $this->htmlBuilder
-                            ->option($function, $function === $field['functions']['selected'])
+                            ->option($function === $field['functions']['selected'], $function)
                             ->end();
                 }
                 $this->htmlBuilder

@@ -112,7 +112,7 @@ trait ServerTrait
                     ->end()
                     ->formCol(6)
                         ->select()
-                            ->option('', true)->addText('(collation)')
+                            ->option(true, '(collation)')
                             ->end();
         foreach($collations as $group => $_collations)
         {
@@ -121,7 +121,7 @@ trait ServerTrait
             foreach($_collations as $collation)
             {
                 $this->htmlBuilder
-                                ->option($collation)
+                                ->option(false, $collation)
                                 ->end();
             }
             $this->htmlBuilder

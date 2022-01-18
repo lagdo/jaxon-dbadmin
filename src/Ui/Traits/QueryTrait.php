@@ -249,7 +249,7 @@ trait QueryTrait
                                     ->select()->setName('db_style');
             foreach ($options['db_style']['options'] as $label) {
                 $this->htmlBuilder
-                                        ->option($label, ($options['db_style']['value'] == $label))
+                                        ->option($options['db_style']['value'] == $label, $label)
                                         ->end();
             }
             $this->htmlBuilder
@@ -293,7 +293,7 @@ trait QueryTrait
                                     ->select()->setName('table_style');
         foreach ($options['table_style']['options'] as $label) {
             $this->htmlBuilder
-                                        ->option($label, ($options['table_style']['value'] == $label))
+                                        ->option($options['table_style']['value'] == $label, $label)
                                         ->end();
         }
         $this->htmlBuilder
@@ -329,7 +329,7 @@ trait QueryTrait
                                     ->select()->setName('data_style');
         foreach ($options['data_style']['options'] as $label) {
             $this->htmlBuilder
-                                        ->option($label, ($options['data_style']['value'] == $label))
+                                        ->option($options['data_style']['value'] == $label, $label)
                                         ->end();
         }
         $this->htmlBuilder
