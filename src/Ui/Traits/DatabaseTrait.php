@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
-use Lagdo\DbAdmin\Ui\Builder\AbstractBuilder;
+use Lagdo\UiBuilder\AbstractBuilder;
 
 trait DatabaseTrait
 {

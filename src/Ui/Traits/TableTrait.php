@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ui\Traits;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
-use Lagdo\DbAdmin\Ui\Builder\AbstractBuilder;
+use Lagdo\UiBuilder\AbstractBuilder;
 
 use function strcasecmp;
 use function is_string;
