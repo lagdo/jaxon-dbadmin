@@ -16,18 +16,14 @@ $di->auto(Lagdo\DbAdmin\Db\Admin::class);
 // Selected database driver
 $di->set(Lagdo\DbAdmin\Driver\DriverInterface::class, function($di) {
     // The key below is defined by the corresponding plugin package.
-    return $di->get('adminer_driver_' . $di->get('adminer_config_driver'));
+    return $di->get('dbadmin_driver_' . $di->get('dbadmin_config_driver'));
 });
 
 // Register the template builders
 $di->auto(Lagdo\DbAdmin\Ui\Builder::class);
-$di->auto(Lagdo\DbAdmin\Ui\Builder\Bootstrap3Builder::class);
-$di->alias('adminer_builder_bootstrap3', Lagdo\DbAdmin\Ui\Builder\Bootstrap3Builder::class);
-$di->auto(Lagdo\DbAdmin\Ui\Builder\Bootstrap4Builder::class);
-$di->alias('adminer_builder_bootstrap4', Lagdo\DbAdmin\Ui\Builder\Bootstrap4Builder::class);
 
 // Selected HTML template builder
-$di->set(Lagdo\DbAdmin\Ui\Builder\BuilderInterface::class, function($di) {
+$di->set(Lagdo\UiBuilder\BuilderInterface::class, function($di) {
     // The key below is defined by the corresponding plugin package.
-    return $di->get('adminer_builder_' . $di->get('adminer_config_builder'));
+    return $di->get('dbadmin_builder_' . $di->get('dbadmin_config_builder'));
 });
