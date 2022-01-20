@@ -9,9 +9,6 @@ use Exception;
 
 use function pm;
 
-/**
- * Adminer Ajax client
- */
 class Command extends CallableClass
 {
     /**
