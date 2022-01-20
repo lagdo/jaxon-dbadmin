@@ -34,7 +34,7 @@ class DbAdmin extends AbstractAdmin
     protected $breadcrumbs = [];
 
     /**
-     * The Jaxon Adminer package
+     * The Jaxon DbAdmin package
      *
      * @var Package
      */
@@ -43,7 +43,7 @@ class DbAdmin extends AbstractAdmin
     /**
      * The constructor
      *
-     * @param Package $package    The Adminer package
+     * @param Package $package    The DbAdmin package
      */
     public function __construct(Package $package)
     {

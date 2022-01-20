@@ -7,9 +7,6 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
-/**
- * Adminer Ajax
- */
 class User extends CallableClass
 {
     /**

@@ -19,7 +19,7 @@ All its operations are performed with Ajax requests.
 Howtos
 ------
 
-This blog post on the `Jaxon` website explains how to install `Jaxon Adminer` on [Voyager](https://voyager-docs.devdojo.com), an admin panel based on the `Laravel` framework: [In english](https://www.jaxon-php.org/blog/2021/03/install-jaxon-adminer-on-voyager.html), and [in french](https://www.jaxon-php.org/blog/2021/03/installer-jaxon-adminer-dans-voyager.html).
+This blog post on the `Jaxon` website explains how to install `Jaxon DbAdmin` on [Voyager](https://voyager-docs.devdojo.com), an admin panel based on the `Laravel` framework: [In english](https://www.jaxon-php.org/blog/2021/03/install-jaxon-adminer-on-voyager.html), and [in french](https://www.jaxon-php.org/blog/2021/03/installer-jaxon-adminer-dans-voyager.html).
 
 Documentation
 -------------
@@ -63,9 +63,9 @@ In the page that displays the dashboard, insert the HTML code returned by the ca
 Additional config options
 -------------------------
 
-There are other config options that can be used to customize `Jaxon Adminer` operation.
+There are other config options that can be used to customize `Jaxon DbAdmin` operation.
 
-The `default` option sets a database server `Jaxon Adminer` must connect to when it starts.
+The `default` option sets a database server `Jaxon DbAdmin` must connect to when it starts.
 
 ```php
     'app' => [
@@ -225,8 +225,8 @@ More UI frameworks will be added in future releases.
 Contribute
 ----------
 
-- Issue Tracker: github.com/lagdo/jaxon-adminer/issues
-- Source Code: github.com/lagdo/jaxon-adminer
+- Issue Tracker: github.com/lagdo/jaxon-dbadmin/issues
+- Source Code: github.com/lagdo/jaxon-dbadmin
 
 License
 -------

@@ -1,5 +1,5 @@
 <?php if(is_array($this->headers)): ?>
--- Adminer <?php echo $this->headers['version'], ' ',
+-- Jaxon DbAdmin <?php echo $this->headers['version'], ' ',
                     $this->headers['driver'], ' ',
                     $this->headers['server'] ?> dump
 

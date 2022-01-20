@@ -9,9 +9,6 @@ use Exception;
 
 use function compact;
 
-/**
- * Adminer Ajax client
- */
 class Import extends CallableClass
 {
     /**

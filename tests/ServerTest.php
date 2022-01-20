@@ -11,7 +11,7 @@ use Exception;
 final class ServerTest extends TestCase
 {
     /**
-     * The Jaxon Adminer package
+     * The Jaxon DbAdmin package
      *
      * @var Package
      */

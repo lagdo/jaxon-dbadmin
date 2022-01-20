@@ -12,7 +12,7 @@ use function jaxon;
 use function pm;
 
 /**
- * Adminer package
+ * Jaxon DbAdmin package
  */
 class Package extends JaxonPackage
 {

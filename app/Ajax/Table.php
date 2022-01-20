@@ -10,9 +10,6 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
-/**
- * Adminer Ajax client
- */
 class Table extends CallableClass
 {
     /**

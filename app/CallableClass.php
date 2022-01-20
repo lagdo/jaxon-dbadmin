@@ -15,7 +15,7 @@ use Lagdo\DbAdmin\Ui\Builder;
 class CallableClass extends JaxonCallableClass
 {
     /**
-     * The Jaxon Adminer package
+     * The Jaxon DbAdmin package
      *
      * @var Package
      */
@@ -36,7 +36,7 @@ class CallableClass extends JaxonCallableClass
     /**
      * The constructor
      *
-     * @param Package $package    The Adminer package
+     * @param Package $package    The DbAdmin package
      * @param DbAdmin $dbAdmin    The facade to database functions
      * @param Builder $uiBuilder  The HTML UI builder
      */

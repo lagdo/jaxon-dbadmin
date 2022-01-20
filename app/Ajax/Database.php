@@ -8,9 +8,6 @@ use Lagdo\DbAdmin\App\Ajax\Table\Select;
 
 use Exception;
 
-/**
- * Adminer Ajax client
- */
 class Database extends CallableClass
 {
     /**
