@@ -38,7 +38,7 @@ trait ServerTrait
     public function userForm(string $formId, array $user, string $privileges): string
     {
         $this->htmlBuilder->clear()
-            ->form(true)->setId($formId)
+            ->form(true, true)->setId($formId)
                 ->formRow()
                     ->formCol(3)
                         ->formLabel()->setFor('host')
@@ -94,7 +94,7 @@ trait ServerTrait
     public function addDbForm(string $formId, array $collations): string
     {
         $this->htmlBuilder->clear()
-            ->form(true)->setId($formId)
+            ->form(true, true)->setId($formId)
                 ->formRow()
                     ->formCol(3)
                         ->formLabel()->setFor('name')->addText('Name')
@@ -111,7 +111,7 @@ trait ServerTrait
                         ->end()
                     ->end()
                     ->formCol(6)
-                        ->select()
+                        ->formSelect()
                             ->option(true, '(collation)')
                             ->end();
         foreach($collations as $group => $_collations)

@@ -29,14 +29,14 @@ trait TableTrait
     {
         $this->htmlBuilder->clear()
             ->form(true, false)->setId($formId)
-                ->formRow('adminer-edit-table-header')
+                ->formRow()->setClass('adminer-edit-table-header')
                     ->formCol(2)
                         ->label()->addText('Table')
                         ->end()
                     ->end()
                 ->end()
-                ->formRow('adminer-edit-table-header')
-                    ->formCol(3, 'adminer-edit-table-name')
+                ->formRow()->setClass('adminer-edit-table-header')
+                    ->formCol(3)->setClass('adminer-edit-table-name')
                         ->formInput()->setType('text')->setName('name')
                             ->setValue($table['name'] ?? '')->setPlaceholder('Name')
                         ->end()
@@ -44,7 +44,7 @@ trait TableTrait
         if (($engines)) {
             $currentEngine = $table['engine'] ?? '';
             $this->htmlBuilder
-                    ->formCol(2, 'adminer-edit-table-engine')
+                    ->formCol(2)->setClass('adminer-edit-table-engine')
                         ->formSelect()->setName('engine')
                             ->option(false, '(engine)')->setValue('')
                             ->end();
@@ -60,7 +60,7 @@ trait TableTrait
         if (($collations)) {
             $currentCollation = $table['collation'] ?? '';
             $this->htmlBuilder
-                    ->formCol(3, 'adminer-edit-table-collation')
+                    ->formCol(3)->setClass('adminer-edit-table-collation')
                         ->formSelect()->setName('collation')
                             ->option(false, '(' . $this->trans->lang('collation') . ')')->setValue('')
                             ->end();
@@ -87,7 +87,7 @@ trait TableTrait
         }
         if ($support['comment']) {
             $this->htmlBuilder
-                    ->formCol(4, 'adminer-table-column-middle')
+                    ->formCol(4)->setClass('adminer-table-column-middle')
                         ->formInput()->setType('text')->setName('comment')
                             ->setValue($table['comment'] ?? '')->setPlaceholder($this->trans->lang('Comment'))
                         ->end()
@@ -95,22 +95,22 @@ trait TableTrait
         }
         $this->htmlBuilder
                 ->end()
-                ->formRow('adminer-table-column-header')
-                    ->formCol(3, 'adminer-table-column-left')
+                ->formRow()->setClass('adminer-table-column-header')
+                    ->formCol(3)->setClass('adminer-table-column-left')
                         ->label()->addText($this->trans->lang('Column'))
                         ->end()
                     ->end()
-                    ->formCol(1, 'adminer-table-column-null-header')
+                    ->formCol(1)->setClass('adminer-table-column-null-header')
                         ->radio(true)->setName('autoIncrementCol')->setValue('0')
                         ->end()
                         ->label()->addHtml('&nbsp;AI-P')
                         ->end()
                     ->end()
-                    ->formCol(7, 'adminer-table-column-middle')
+                    ->formCol(7)->setClass('adminer-table-column-middle')
                         ->label()->addText($this->trans->lang('Options'))
                         ->end()
                     ->end()
-                    ->formCol(1, 'adminer-table-column-buttons-header');
+                    ->formCol(1)->setClass('adminer-table-column-buttons-header');
         if ($support['columns']) {
             $this->htmlBuilder
                         ->button(AbstractBuilder::BTN_PRIMARY)
@@ -153,27 +153,27 @@ trait TableTrait
         $this->htmlBuilder
             ->col(12)
                 ->row()
-                    ->col(3, 'adminer-table-column-left')
-                        ->formInput(['class' => 'column-name'])->setName($prefixFields  . '[name]')
+                    ->col(3)->setClass('adminer-table-column-left')
+                        ->formInput(['class' => 'column-name'])->setName($prefixFields . '[name]')
                             ->setPlaceholder($this->trans->lang('Name'))->setValue($field->name)
                             ->setDataField('name')->setDataMaxlength('64')->setAutocapitalize('off')
                         ->endShorted()
-                        ->input()->setType('hidden')->setName($prefixFields  . '[orig]')
+                        ->input()->setType('hidden')->setName($prefixFields . '[orig]')
                             ->setValue($field->name)->setDataField('orig')
                         ->endShorted()
                     ->end()
-                    ->col(1, 'adminer-table-column-null')
+                    ->col(1)->setClass('adminer-table-column-null')
                         ->radio($field->autoIncrement)->setName('autoIncrementCol')->setValue($index + 1)
                         ->endShorted()
                         ->addHtml('&nbsp;AI&nbsp;')
-                        ->checkbox($field->primary)->setName($prefixFields  . '[primary]')
+                        ->checkbox($field->primary)->setName($prefixFields . '[primary]')
                         ->endShorted()
                     ->end()
-                    ->col(2, 'adminer-table-column-middle')
-                        ->formSelect()->setName($prefixFields  . '[collation]')->setDataField('collation');
+                    ->col(2)->setClass('adminer-table-column-middle')
+                        ->formSelect()->setName($prefixFields . '[collation]')->setDataField('collation');
         if ($field->collationHidden) {
             $this->htmlBuilder
-                                ->setReadonly('readonly');
+                            ->setReadonly('readonly');
         }
         $this->htmlBuilder
                             ->option(false, '(' . $this->trans->lang('collation') . ')')->setValue('')
@@ -198,8 +198,8 @@ trait TableTrait
         $this->htmlBuilder
                         ->end()
                     ->end()
-                    ->col(2, 'adminer-table-column-middle')
-                        ->formSelect()->setName($prefixFields  . '[onUpdate]')->setDataField('onUpdate');
+                    ->col(2)->setClass('adminer-table-column-middle')
+                        ->formSelect()->setName($prefixFields . '[onUpdate]')->setDataField('onUpdate');
         if ($field->onUpdateHidden) {
             $this->htmlBuilder
                                 ->setReadonly('readonly');
@@ -215,17 +215,17 @@ trait TableTrait
         $this->htmlBuilder
                         ->end()
                     ->end()
-                    ->col(4, 'adminer-table-column-right');
+                    ->col(4)->setClass('adminer-table-column-right');
         if (/*$support['comment']*/true) {
             $this->htmlBuilder
-                        ->formInput()->setType('text')->setName($prefixFields  . '[comment]')->setValue($field->comment)
+                        ->formInput()->setType('text')->setName($prefixFields . '[comment]')->setValue($field->comment)
                             ->setDataField('comment')->setPlaceholder($this->trans->lang('Comment'))
                         ->end();
         }
         $this->htmlBuilder
                     ->end()
-                    ->col(2, 'adminer-table-column-left second-line')
-                        ->formSelect()->setName($prefixFields  . '[type]')->setDataField('type');
+                    ->col(2)->setClass('adminer-table-column-left second-line')
+                        ->formSelect()->setName($prefixFields . '[type]')->setDataField('type');
         foreach ($field->types as $group => $_types) {
             $this->htmlBuilder
                             ->optgroup()->setLabel($group);
@@ -240,8 +240,8 @@ trait TableTrait
         $this->htmlBuilder
                         ->end()
                     ->end()
-                    ->col(1, 'adminer-table-column-middle second-line')
-                        ->formInput()->setName($prefixFields  . '[length]')->setDataField('length')->setSize('3')
+                    ->col(1)->setClass('adminer-table-column-middle second-line')
+                        ->formInput()->setName($prefixFields . '[length]')->setDataField('length')->setSize('3')
                             ->setPlaceholder($this->trans->lang('Length'))->setValue($field->length);
         if ($field->lengthRequired) {
             $this->htmlBuilder
@@ -250,16 +250,16 @@ trait TableTrait
         $this->htmlBuilder
                         ->endShorted()
                     ->end()
-                    ->col(1, 'adminer-table-column-null second-line')
-                        ->checkbox($field->null)->setName($prefixFields  . '[null]')->setDataField('null')->setValue('1')
+                    ->col(1)->setClass('adminer-table-column-null second-line')
+                        ->checkbox($field->null)->setName($prefixFields . '[null]')->setDataField('null')->setValue('1')
                         ->endShorted()
                         ->addHtml('&nbsp;Null')
                     ->end()
-                    ->col(2, 'adminer-table-column-middle second-line')
-                        ->formSelect()->setName($prefixFields  . '[unsigned]')->setDataField('unsigned');
+                    ->col(2)->setClass('adminer-table-column-middle second-line')
+                        ->formSelect()->setName($prefixFields . '[unsigned]')->setDataField('unsigned');
         if ($field->unsignedHidden) {
             $this->htmlBuilder
-                                ->setReadonly('readonly');
+                            ->setReadonly('readonly');
         }
         $this->htmlBuilder
                             ->option(false, '')
@@ -272,8 +272,8 @@ trait TableTrait
         $this->htmlBuilder
                         ->end()
                     ->end()
-                    ->col(2, 'adminer-table-column-middle second-line')
-                        ->formSelect()->setName($prefixFields  . '[onDelete]')->setDataField('onDelete');
+                    ->col(2)->setClass('adminer-table-column-middle second-line')
+                        ->formSelect()->setName($prefixFields . '[onDelete]')->setDataField('onDelete');
         if ($field->onDeleteHidden) {
             $this->htmlBuilder
                                 ->setReadonly('readonly');
@@ -289,41 +289,45 @@ trait TableTrait
         $this->htmlBuilder
                         ->end()
                     ->end()
-                    ->col(3, 'adminer-table-column-middle second-line')
+                    ->col(3)->setClass('adminer-table-column-middle second-line')
                         ->inputGroup()
-                            ->checkbox($field->hasDefault)->setName($prefixFields  . '[hasDefault]')->setDataField('hasDefault')
+                            ->checkbox($field->hasDefault)->setName($prefixFields . '[hasDefault]')->setDataField('hasDefault')
                             ->end()
-                            ->formInput()->setName($prefixFields  . '[default]')->setDataField('default')
+                            ->formInput()->setName($prefixFields . '[default]')->setDataField('default')
                                 ->setPlaceholder($this->trans->lang('Default value'))->setValue($field->default ?? '')
                             ->end()
                         ->end()
                     ->end()
-                    ->col(1, 'adminer-table-column-buttons second-line')
+                    ->col(1)->setClass('adminer-table-column-buttons second-line')
                         /*->buttonGroup(false);
         if ($support['move_col']) {
             $this->htmlBuilder
-                            ->button(AbstractBuilder::BTN_PRIMARY, 'adminer-table-column-add')->setDataIndex($index)->addIcon('plus')
+                            ->button(AbstractBuilder::BTN_PRIMARY)
+                                ->setClass('adminer-table-column-add')->setDataIndex($index)->addIcon('plus')
                             ->end();
         }
         if ($support['drop_col']) {
             $this->htmlBuilder
-                            ->button(AbstractBuilder::BTN_PRIMARY, 'adminer-table-column-del')->setDataIndex($index)->addIcon('remove')
+                            ->button(AbstractBuilder::BTN_PRIMARY)
+                                ->setClass('adminer-table-column-del')->setDataIndex($index)->addIcon('remove')
                             ->end();
         }
         $this->htmlBuilder
                         ->end()*/
-                        ->dropdown('adminer-table-column-buttons')
+                        ->dropdown()->setClass('adminer-table-column-buttons')
                             ->dropdownItem('primary')->setDiv("adminer-table-column-button-group-drop-$index")->addCaret()
                             ->end()
                             ->dropdownMenu();
         if ($support['move_col']) {
             $this->htmlBuilder
-                                ->dropdownMenuItem('adminer-table-column-add')->setDataIndex($index)->addIcon('plus')
+                                ->dropdownMenuItem()
+                                    ->setClass('adminer-table-column-add')->setDataIndex($index)->addIcon('plus')
                                 ->end();
         }
         if ($support['drop_col']) {
             $this->htmlBuilder
-                                ->dropdownMenuItem('adminer-table-column-del')->setDataIndex($index)->addIcon('remove')
+                                ->dropdownMenuItem()
+                                    ->setClass('adminer-table-column-del')->setDataIndex($index)->addIcon('remove')
                                 ->end();
         }
         $this->htmlBuilder
@@ -382,7 +386,7 @@ trait TableTrait
                         ->end();
             } elseif($field['functions']['type'] === 'select') {
                 $this->htmlBuilder
-                        ->select()->setName($field['functions']['name']);
+                        ->formSelect()->setName($field['functions']['name']);
                 foreach($field['functions']['options'] as $function) {
                     $this->htmlBuilder
                             ->option($function === $field['functions']['selected'], $function)

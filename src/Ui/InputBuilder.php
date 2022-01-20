@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Builder\BuilderInterface;
+use Lagdo\UiBuilder\BuilderInterface;
 
 class InputBuilder
 {

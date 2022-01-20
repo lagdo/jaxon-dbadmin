@@ -14,7 +14,7 @@ trait MainTrait
     public function mainActions(array $mainActions): string
     {
         $this->htmlBuilder->clear()
-            ->buttonGroup(false, 'adminer-main-action-group');
+            ->buttonGroup(false, ['class' => 'adminer-main-action-group']);
         foreach($mainActions as $id => $title)
         {
             $this->htmlBuilder

@@ -16,7 +16,7 @@ trait DatabaseTrait
     public function viewForm(string $formId, bool $materializedView, array $view = []): string
     {
         $this->htmlBuilder->clear()
-            ->form(false)->setId($formId)
+            ->form(false, true)->setId($formId)
                 ->formRow()
                     ->formLabel()->setFor('name')->addText('Name')
                     ->end()
@@ -224,7 +224,7 @@ trait DatabaseTrait
                                     ->end()
                                 ->end()
                                 ->formCol(8)
-                                    ->select()->setName('db_style');
+                                    ->formSelect()->setName('db_style');
             foreach ($options['db_style']['options'] as $label) {
                 $this->htmlBuilder
                                         ->option($options['db_style']['value'] == $label, $label)
@@ -268,7 +268,7 @@ trait DatabaseTrait
                                     ->end()
                                 ->end()
                                 ->formCol(8)
-                                    ->select()->setName('table_style');
+                                    ->formSelect()->setName('table_style');
         foreach ($options['table_style']['options'] as $label) {
             $this->htmlBuilder
                                         ->option($options['table_style']['value'] == $label, $label)
@@ -304,7 +304,7 @@ trait DatabaseTrait
                                     ->end()
                                 ->end()
                                 ->formCol(8)
-                                    ->select()->setName('data_style');
+                                    ->formSelect()->setName('data_style');
         foreach ($options['data_style']['options'] as $label) {
             $this->htmlBuilder
                                         ->option($options['data_style']['value'] == $label, $label)

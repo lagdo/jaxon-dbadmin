@@ -28,7 +28,7 @@ class Package extends JaxonPackage
     {
         jaxon()->callback()->boot(function() {
             $template = $this->getConfig()->getOption('template', 'bootstrap3');
-            jaxon()->di()->val('adminer_config_builder', $template);
+            jaxon()->di()->val('dbadmin_config_builder', $template);
             $this->uiBuilder = jaxon()->di()->get(Builder::class);
             jaxon()->template()->pagination(__DIR__ . "/../templates/views/$template/pagination/");
         });

@@ -18,7 +18,7 @@ trait MenuTrait
         foreach($menuActions as $id => $title)
         {
             $this->htmlBuilder
-                ->menuItem($title, "adminer-menu-item menu-action-$id")->setId("adminer-menu-action-$id")
+                ->menuItem($title)->setClass("adminer-menu-item menu-action-$id")->setId("adminer-menu-action-$id")
                 ->end();
         }
         $this->htmlBuilder
@@ -38,8 +38,8 @@ trait MenuTrait
         foreach($sqlActions as $id => $title)
         {
             $this->htmlBuilder
-                ->button(AbstractBuilder::BTN_OUTLINE + AbstractBuilder::BTN_FULL_WIDTH, 'adminer-menu-item')
-                    ->setId("adminer-menu-action-$id")->addText($title)
+                ->button(AbstractBuilder::BTN_OUTLINE + AbstractBuilder::BTN_FULL_WIDTH)
+                    ->setClass('adminer-menu-item')->setId("adminer-menu-action-$id")->addText($title)
                 ->end();
         }
         $this->htmlBuilder
@@ -56,7 +56,7 @@ trait MenuTrait
     {
         $this->htmlBuilder->clear()
             ->inputGroup()
-                ->select()->setId('adminer-dbname-select')
+                ->formSelect()->setId('adminer-dbname-select')
                     ->option(false, '')
                     ->end();
         foreach($databases as $database)
@@ -67,7 +67,8 @@ trait MenuTrait
         }
         $this->htmlBuilder
                 ->end()
-                ->button(AbstractBuilder::BTN_PRIMARY, 'btn-select')->setId('adminer-dbname-select-btn')->addText('Show')
+                ->button(AbstractBuilder::BTN_PRIMARY)->setClass('btn-select')
+                    ->setId('adminer-dbname-select-btn')->addText('Show')
                 ->end()
             ->end();
         return $this->htmlBuilder->build();
@@ -82,7 +83,7 @@ trait MenuTrait
     {
         $this->htmlBuilder->clear()
             ->inputGroup()
-                ->select()->setId('adminer-schema-select');
+                ->formSelect()->setId('adminer-schema-select');
         foreach ($schemas as $schema)
         {
             $this->htmlBuilder
@@ -91,7 +92,8 @@ trait MenuTrait
         }
         $this->htmlBuilder
                 ->end()
-                ->button(AbstractBuilder::BTN_PRIMARY, 'btn-select')->setId('adminer-schema-select-btn')->addText('Show')
+                ->button(AbstractBuilder::BTN_PRIMARY)->setClass('btn-select')
+                    ->setId('adminer-schema-select-btn')->addText('Show')
                 ->end()
             ->end();
         return $this->htmlBuilder->build();

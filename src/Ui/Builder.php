@@ -3,8 +3,8 @@
 namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Builder\AbstractBuilder;
-use Lagdo\DbAdmin\Ui\Builder\BuilderInterface;
+use Lagdo\UiBuilder\AbstractBuilder;
+use Lagdo\UiBuilder\BuilderInterface;
 
 use function htmlentities;
 
@@ -75,7 +75,7 @@ class Builder
                     ->row()
                         ->col(12)
                             ->inputGroup()
-                                ->select()->setId('adminer-dbhost-select');
+                                ->formSelect()->setId('adminer-dbhost-select');
         foreach($values['servers'] as $name => $title)
         {
             $this->htmlBuilder
@@ -84,7 +84,7 @@ class Builder
         }
         $this->htmlBuilder
                                 ->end()
-                                ->button(AbstractBuilder::BTN_PRIMARY, 'btn-select')
+                                ->button(AbstractBuilder::BTN_PRIMARY)->setClass('btn-select')
                                     ->setOnclick($values['connect'] . ';return false;')->addText('Show')
                                 ->end()
                             ->end()
@@ -131,12 +131,12 @@ class Builder
     public function htmlSelect(array $options, string $optionClass, bool $useKeys = false): string
     {
         $this->htmlBuilder->clear()
-                ->select();
+                ->formSelect();
         foreach($options as $key => $label)
         {
             $value = $useKeys ? $key : $label;
             $this->htmlBuilder
-                    ->option(false, $label, $optionClass)->setValue(htmlentities($value))
+                    ->option(false, $label)->setClass($optionClass)->setValue(htmlentities($value))
                     ->end();
         }
         $this->htmlBuilder
