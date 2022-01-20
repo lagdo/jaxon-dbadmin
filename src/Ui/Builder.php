@@ -143,4 +143,34 @@ class Builder
                 ->end();
         return $this->htmlBuilder->build();
     }
+
+    /**
+     * @param array $pages
+     *
+     * @return string
+     */
+    public function pagination(array $pages): string
+    {
+        $this->htmlBuilder->clear()
+                ->pagination();
+        foreach($pages as $page)
+        {
+            if ($page->type === 'disabled') {
+                $this->htmlBuilder
+                    ->paginationDisabledItem()->addHtml($page->text)
+                    ->end();
+            } elseif ($page->type === 'current') {
+                $this->htmlBuilder
+                    ->paginationActiveItem()->addHtml($page->text)
+                    ->end();
+            } else {
+                $this->htmlBuilder
+                    ->paginationItem(['href' => 'javascript:void;', 'onclick' => $page->call])->addHtml($page->text)
+                    ->end();
+            }
+        }
+        $this->htmlBuilder
+                ->end();
+        return $this->htmlBuilder->build();
+    }
 }
