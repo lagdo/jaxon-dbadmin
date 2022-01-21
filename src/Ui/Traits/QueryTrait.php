@@ -17,7 +17,8 @@ trait QueryTrait
      *
      * @return string
      */
-    public function queryCommand(string $formId, string $queryId, string $btnId, string $query, int $defaultLimit, array $labels): string
+    public function queryCommand(string $formId, string $queryId, string $btnId,
+                                 string $query, int $defaultLimit, array $labels): string
     {
         $this->htmlBuilder->clear()
             ->col(12)->setId('adminer-command-details')
@@ -26,7 +27,7 @@ trait QueryTrait
                 ->form(true, true)->setId($formId)
                     ->formRow()
                         ->panel('default')->setId('sql-command-editor')
-                            ->panelBody()
+                            ->panelBody()->setClass('sql-command-editor-panel')
                                 ->formTextarea()->setName('query')
                                     ->setId($queryId)->setDataLanguage('sql')->setRows('10')
                                     ->setSpellcheck('false')->setWrap('on')->addHtml($query)

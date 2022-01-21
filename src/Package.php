@@ -229,7 +229,7 @@ class Package extends JaxonPackage
     public function getCss()
     {
         return $this->view()->render('adminer::codes::css', $this->getIds()) .
-            "\n" . $this->view()->render('adminer::templates::styles', $this->getIds());
+            "\n" . $this->view()->render('adminer::views::styles', $this->getIds());
     }
 
     /**

@@ -22,6 +22,9 @@
     margin-top: 0;
     margin-bottom: 0;
 }
+#<?php echo $this->mainActionsId ?> .btn-group {
+    padding: 10px;
+}
 #<?php echo $this->dbListId ?> {
     margin: 10px 0;
 }
@@ -91,9 +94,6 @@
 #<?php echo $this->containerId ?> .second-line {
     margin-top: 2px;
 }
-#<?php echo $this->containerId ?> .input-group-btn .btn {
-    margin: 0;
-}
 #<?php echo $this->containerId ?> pre {
     overflow-x: auto;
     white-space: pre-wrap;
@@ -108,7 +108,7 @@
 #<?php echo $this->containerId ?> #sql-command-editor {
     width: 100%;
 }
-#<?php echo $this->containerId ?> #sql-command-editor .card-body {
+#<?php echo $this->containerId ?> #sql-command-editor .sql-command-editor-panel {
     padding: 0 1px;
 }
 #<?php echo $this->containerId ?> .adminer-main-action-group {

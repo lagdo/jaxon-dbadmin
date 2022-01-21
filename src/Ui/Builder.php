@@ -151,6 +151,10 @@ class Builder
      */
     public function pagination(array $pages): string
     {
+        // There must be at least 2 pages to show in pagination.
+        if (count($pages) < 4) {
+            return '';
+        }
         $this->htmlBuilder->clear()
                 ->pagination();
         foreach($pages as $page)
