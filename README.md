@@ -34,9 +34,16 @@ The following drivers are available:
 - PostgreSQL: [https://github.com/lagdo/dbadmin-driver-pgsql](https://github.com/lagdo/dbadmin-driver-mysql)
 - Sqlite: [https://github.com/lagdo/dbadmin-driver-sqlite](https://github.com/lagdo/dbadmin-driver-sqlite)
 
+This package uses the [HTML UI builder](https://github.com/lagdo/ui-builder) to build UI components for various frontend frameworks.
+The packages for the UI framework in use must also be installed.
+The following builders are available:
+- Bootstrap 3 and 4: [https://github.com/lagdo/ui-builder-bootstrap](https://github.com/lagdo/ui-builder-bootstrap)
+
 Declare the package and the database servers in the `app` section of the [Jaxon configuration file](https://www.jaxon-php.org/docs/v3x/advanced/bootstrap.html).
 
-See the corresponding package for specific database server options.
+In this case, the UI will be built with Bootstrap3 components, using the [https://github.com/lagdo/ui-builder-bootstrap](https://github.com/lagdo/ui-builder-bootstrap) package.
+
+See the corresponding database driver package for specific database server options.
 
 ```php
     'app' => [
@@ -44,6 +51,7 @@ See the corresponding package for specific database server options.
         // ...
         'packages' => [
             Lagdo\DbAdmin\Package::class => [
+                'template' => 'bootstrap3',
                 'servers' => [
                     // The database servers
                 ],
