@@ -86,7 +86,9 @@ class Select extends CallableClass
         $this->view()->shareValues($selectData);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($selectData['mainActions']) ?
+            $this->uiBuilder->mainActions($selectData['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         $btnColumnsId = 'adminer-table-select-columns';
         $btnFiltersId = 'adminer-table-select-filters';
@@ -95,7 +97,7 @@ class Select extends CallableClass
         $btnExecId = 'adminer-table-select-exec';
         $btnLimitId = 'adminer-table-select-limit';
         $btnLengthId = 'adminer-table-select-length';
-        $content = $this->render('table/select', [
+        $ids = [
             'formId' => $this->selectFormId,
             'btnColumnsId' => $btnColumnsId,
             'btnFiltersId' => $btnFiltersId,
@@ -105,7 +107,8 @@ class Select extends CallableClass
             'btnLimitId' => $btnLimitId,
             'btnLengthId' => $btnLengthId,
             'txtQueryId' => $this->txtQueryId,
-        ]);
+        ];
+        $content = $this->uiBuilder->tableSelect($ids, $selectData['options']);
         $this->response->html($this->package->getDbContentId(), $content);
         // Show the query
         $this->showQuery($server, $selectData['query']);
@@ -176,11 +179,8 @@ class Select extends CallableClass
         $resultsId = 'adminer-table-select-results';
         $btnEditRowClass = 'adminer-table-select-row-edit';
         $btnDeleteRowClass = 'adminer-table-select-row-delete';
-        $content = $this->render('table/select/results', [
-            'rowIds' => $rowIds,
-            'btnEditRowClass' => $btnEditRowClass,
-            'btnDeleteRowClass' => $btnDeleteRowClass,
-        ]);
+        $content = $this->uiBuilder->selectResults($results['headers'], $results['rows'],
+            $btnEditRowClass, $btnDeleteRowClass);
         $this->response->html($resultsId, $content);
 
         // The Jaxon ajax calls
@@ -195,16 +195,17 @@ class Select extends CallableClass
 
         // Set the functions as button event handlers
         $this->jq(".$btnEditRowClass", "#$resultsId")
-            ->click(\rq()->func('updateRowItem', \jq()->parent()->attr('data-row-id')));
+            ->click(\rq()->func('updateRowItem', \jq()->attr('data-row-id')));
         $this->jq(".$btnDeleteRowClass", "#$resultsId")
-            ->click(\rq()->func('deleteRowItem', \jq()->parent()->attr('data-row-id')));
+            ->click(\rq()->func('deleteRowItem', \jq()->attr('data-row-id')));
 
         // Show the query
         $this->showQuery($server, $results['query']);
 
         // Pagination
-        $pagination = $this->rq()->execSelect($server, $database, $schema, $table, $options, pm()->page())
+        $paginator = $this->rq()->execSelect($server, $database, $schema, $table, $options, pm()->page())
             ->paginate($page, $results['limit'], $results['total']);
+        $pagination = $this->uiBuilder->pagination($paginator->getPages());
         $this->response->html("adminer-table-select-pagination", $pagination);
 
         return $this->response;
@@ -255,12 +256,9 @@ class Select extends CallableClass
         $checkboxClass = "$targetId-item-checkbox";
 
         $title = 'Edit columns';
-        $content = $this->render('table/select/columns-edit', [
-            'formId' => $this->columnsFormId,
-            'options' => $selectData['options']['columns'],
-            'btnAdd' => "jaxon.adminer.insertSelectQueryItem('$targetId', '$sourceId')",
-            'btnDel' => "jaxon.adminer.removeSelectQueryItems('$targetId', '$checkboxClass')"
-        ]);
+        $content = $this->uiBuilder->editQueryColumns($this->columnsFormId, $selectData['options']['columns'],
+            "jaxon.adminer.insertSelectQueryItem('$targetId', '$sourceId')",
+            "jaxon.adminer.removeSelectQueryItems('$targetId', '$checkboxClass')");
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -301,9 +299,7 @@ class Select extends CallableClass
         $this->response->dialog->hide();
 
         // Display the new values
-        $content = $this->render('table/select/columns-show', [
-            'options' => $selectData['options']['columns'],
-        ]);
+        $content = $this->uiBuilder->showQueryColumns($selectData['options']['columns']['values']);
         $this->response->html('adminer-table-select-columns-show', $content);
         // Display the new query
         $this->showQuery($server, $selectData['query']);
@@ -335,12 +331,9 @@ class Select extends CallableClass
         $checkboxClass = "$targetId-item-checkbox";
 
         $title = 'Edit filters';
-        $content = $this->render('table/select/filters-edit', [
-            'formId' => $this->filtersFormId,
-            'options' => $selectData['options']['filters'],
-            'btnAdd' => "jaxon.adminer.insertSelectQueryItem('$targetId', '$sourceId')",
-            'btnDel' => "jaxon.adminer.removeSelectQueryItems('$targetId', '$checkboxClass')"
-        ]);
+        $content = $this->uiBuilder->editQueryFilters($this->filtersFormId, $selectData['options']['filters'],
+            "jaxon.adminer.insertSelectQueryItem('$targetId', '$sourceId')",
+            "jaxon.adminer.removeSelectQueryItems('$targetId', '$checkboxClass')");
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -381,9 +374,7 @@ class Select extends CallableClass
         $this->response->dialog->hide();
 
         // Display the new values
-        $content = $this->render('table/select/filters-show', [
-            'options' => $selectData['options']['filters'],
-        ]);
+        $content = $this->uiBuilder->showQueryFilters($selectData['options']['filters']['values']);
         $this->response->html('adminer-table-select-filters-show', $content);
         // Display the new query
         $this->showQuery($server, $selectData['query']);
@@ -415,12 +406,9 @@ class Select extends CallableClass
         $checkboxClass = "$targetId-item-checkbox";
 
         $title = 'Edit order';
-        $content = $this->render('table/select/sorting-edit', [
-            'formId' => $this->sortingFormId,
-            'options' => $selectData['options']['sorting'],
-            'btnAdd' => "jaxon.adminer.insertSelectQueryItem('$targetId', '$sourceId')",
-            'btnDel' => "jaxon.adminer.removeSelectQueryItems('$targetId', '$checkboxClass')"
-        ]);
+        $content = $this->uiBuilder->editQuerySorting($this->sortingFormId, $selectData['options']['sorting'],
+            "jaxon.adminer.insertSelectQueryItem('$targetId', '$sourceId')",
+            "jaxon.adminer.removeSelectQueryItems('$targetId', '$checkboxClass')");
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -462,9 +450,7 @@ class Select extends CallableClass
         $this->response->dialog->hide();
 
         // Display the new values
-        $content = $this->render('table/select/sorting-show', [
-            'options' => $selectData['options']['sorting'],
-        ]);
+        $content = $this->uiBuilder->showQuerySorting($selectData['options']['sorting']['values']);
         $this->response->html('adminer-table-select-sorting-show', $content);
         // Display the new query
         $this->showQuery($server, $selectData['query']);

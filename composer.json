@@ -17,10 +17,12 @@
         "source": "https://github.com/lagdo/jaxon-dbadmin"
     },
     "require": {
+        "php": ">=7.1.0",
         "ext-json": "*",
         "ext-iconv": "*",
-        "lagdo/dbadmin-driver": "^0.7.0",
-        "jaxon-php/jaxon-core": ">=3.6.0",
+        "lagdo/dbadmin-driver": "^0.8",
+        "lagdo/ui-builder": "^0.1",
+        "jaxon-php/jaxon-core": "^3.7",
         "jaxon-php/jaxon-dialogs": "^3.0"
     },
     "require-dev": {

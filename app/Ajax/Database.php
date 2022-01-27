@@ -8,9 +8,6 @@ use Lagdo\DbAdmin\App\Ajax\Table\Select;
 
 use Exception;
 
-/**
- * Adminer Ajax client
- */
 class Database extends CallableClass
 {
     /**
@@ -26,10 +23,7 @@ class Database extends CallableClass
 
         $formId = 'database-form';
         $title = 'Create a database';
-        $content = $this->render('database/add', [
-            'formId' => $formId,
-            'collations' => $collations,
-        ]);
+        $content = $this->uiBuilder->addDbForm($formId, $collations);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -106,7 +100,9 @@ class Database extends CallableClass
         $this->view()->shareValues($databaseInfo);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($databaseInfo['mainActions']) ?
+            $this->uiBuilder->mainActions($databaseInfo['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         // Set the selected entry on database dropdown select
         $this->jq('#adminer-dbname-select')->val($database)->change();
@@ -116,15 +112,14 @@ class Database extends CallableClass
         {
             $schema = $schemas[0]; // Select the first schema
 
-            $content = $this->render('menu/schemas');
+            $content = $this->uiBuilder->menuSchemas($schemas);
             $this->response->html($this->package->getSchemaListId(), $content);
-            // $this->response->assign($this->package->getSchemaListId(), 'style.display', 'block');
 
             $this->jq('#adminer-schema-select-btn')
                 ->click($this->rq()->select($server, $database, \pm()->select('adminer-schema-select')));
         }
 
-        $content = $this->render('menu/commands');
+        $content = $this->uiBuilder->menuCommands($databaseInfo['sqlActions']);
         $this->response->html($this->package->getDbActionsId(), $content);
 
         // Set the click handlers
@@ -135,7 +130,7 @@ class Database extends CallableClass
         $this->jq('#adminer-menu-action-database-export')
             ->click($this->cl(Export::class)->rq()->showDatabaseForm($server, $database));
 
-        $content = $this->render('menu/actions');
+        $content = $this->uiBuilder->menuActions($databaseInfo['menuActions']);
         $this->response->html($this->package->getDbMenuId(), $content);
 
         // Set the click handlers
@@ -172,9 +167,12 @@ class Database extends CallableClass
         $this->view()->shareValues($viewData);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($viewData['mainActions']) ?
+            $this->uiBuilder->mainActions($viewData['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->render('main/content', $contentData);
+        $counterId = $contentData['checkbox'] ?? '';
+        $content = $this->uiBuilder->mainContent($this->renderMainContent($contentData), $counterId);
         $this->response->html($this->package->getDbContentId(), $content);
     }
 

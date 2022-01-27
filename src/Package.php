@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin;
 
 use Jaxon\Plugin\Package as JaxonPackage;
 use Lagdo\DbAdmin\App\Ajax\Server;
+use Lagdo\DbAdmin\Ui\Builder;
 
 use function array_key_exists;
 use function array_walk;
@@ -11,10 +12,15 @@ use function jaxon;
 use function pm;
 
 /**
- * Adminer package
+ * Jaxon DbAdmin package
  */
 class Package extends JaxonPackage
 {
+    /**
+     * @var Builder
+     */
+    protected $uiBuilder;
+
     /**
      * The constructor
      */
@@ -22,7 +28,8 @@ class Package extends JaxonPackage
     {
         jaxon()->callback()->boot(function() {
             $template = $this->getConfig()->getOption('template', 'bootstrap3');
-            jaxon()->template()->pagination(__DIR__ . "/../templates/views/$template/pagination/");
+            jaxon()->di()->val('dbadmin_config_builder', $template);
+            $this->uiBuilder = jaxon()->di()->get(Builder::class);
         });
     }
 
@@ -278,9 +285,11 @@ class Package extends JaxonPackage
 
         $connect = jaxon()->request(Server::class)->connect(pm()->select('adminer-dbhost-select'));
 
-        return $this->view()->render('adminer::views::home', $this->getIds())
-            ->with('connect', $connect)
-            ->with('servers', $servers)
-            ->with('default', $this->getConfig()->getOption('default', ''));
+        $values = $this->getIds();
+        $values['connect'] = $connect;
+        $values['servers'] = $servers;
+        $values['default'] = $this->getConfig()->getOption('default', '');
+
+        return $this->uiBuilder->home($values);
     }
 }

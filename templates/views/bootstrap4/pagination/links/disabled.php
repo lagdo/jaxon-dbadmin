@@ -1,1 +1,0 @@
-        <li class="page-item disabled"><a class="page-link" href="javascript:void;"><span><?php echo $this->text ?></span></a></li>

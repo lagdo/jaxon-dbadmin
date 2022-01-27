@@ -7,6 +7,7 @@ use Jaxon\Utils\View\Store;
 
 use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\DbAdmin;
+use Lagdo\DbAdmin\Ui\Builder;
 
 /**
  * Callable base class
@@ -14,7 +15,7 @@ use Lagdo\DbAdmin\DbAdmin;
 class CallableClass extends JaxonCallableClass
 {
     /**
-     * The Jaxon Adminer package
+     * The Jaxon DbAdmin package
      *
      * @var Package
      */
@@ -28,15 +29,22 @@ class CallableClass extends JaxonCallableClass
     protected $dbAdmin;
 
     /**
+     * @var Builder
+     */
+    protected $uiBuilder;
+
+    /**
      * The constructor
      *
-     * @param Package $package    The Adminer package
+     * @param Package $package    The DbAdmin package
      * @param DbAdmin $dbAdmin    The facade to database functions
+     * @param Builder $uiBuilder  The HTML UI builder
      */
-    public function __construct(Package $package, DbAdmin $dbAdmin)
+    public function __construct(Package $package, DbAdmin $dbAdmin, Builder $uiBuilder)
     {
         $this->package = $package;
         $this->dbAdmin = $dbAdmin;
+        $this->uiBuilder = $uiBuilder;
     }
 
     /**
@@ -49,7 +57,19 @@ class CallableClass extends JaxonCallableClass
      */
     protected function render($sViewName, array $aViewData = [])
     {
-        return $this->view()->render('adminer::views::' . $sViewName, $aViewData);
+        return $this->view()->render('adminer::templates::' . $sViewName, $aViewData);
+    }
+
+    /**
+     * Render the manin/content view
+     *
+     * @param array         $aViewData        The view data
+     *
+     * @return null|Store   A store populated with the view data
+     */
+    protected function renderMainContent(array $aViewData = [])
+    {
+        return $this->view()->render('adminer::views::main/content', $aViewData);
     }
 
     /**
@@ -59,9 +79,7 @@ class CallableClass extends JaxonCallableClass
      */
     protected function showBreadcrumbs()
     {
-        $content = $this->render('main/breadcrumbs', [
-            'breadcrumbs' => $this->dbAdmin->getBreadcrumbs(),
-        ]);
+        $content = $this->uiBuilder->breadcrumbs($this->dbAdmin->getBreadcrumbs());
         $this->response->html($this->package->getBreadcrumbsId(), $content);
     }
 

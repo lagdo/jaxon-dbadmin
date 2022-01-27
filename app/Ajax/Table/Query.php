@@ -45,11 +45,11 @@ class Query extends CallableClass
         $this->view()->shareValues($queryData);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($queryData['mainActions']) ?
+            $this->uiBuilder->mainActions($queryData['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->render('table/query', [
-            'formId' => $this->queryFormId,
-        ]);
+        $content = $this->uiBuilder->tableQueryForm($this->queryFormId, $queryData['fields']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         $options = pm()->form($this->queryFormId);
@@ -123,11 +123,11 @@ class Query extends CallableClass
         $this->view()->shareValues($queryData);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($queryData['mainActions']) ?
+            $this->uiBuilder->mainActions($queryData['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->render('table/query', [
-            'formId' => $this->queryFormId,
-        ]);
+        $content = $this->uiBuilder->tableQueryForm($this->queryFormId, $queryData['fields']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         $options = pm()->form($this->queryFormId);
@@ -217,7 +217,7 @@ class Query extends CallableClass
     {
         $select = $this->cl(Select::class);
         $select->show($server, $database, $schema, $table);
-        $select->execSelect($server, $database, $schema, $table, $options);
+        $this->response->script($select->rq()->execSelect($server, $database, $schema, $table, $options));
 
         return $this->response;
     }

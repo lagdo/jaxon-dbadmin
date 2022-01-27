@@ -7,9 +7,8 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
-/**
- * Adminer Ajax client
- */
+use function compact;
+
 class Import extends CallableClass
 {
     /**
@@ -28,7 +27,9 @@ class Import extends CallableClass
         $this->view()->shareValues($importOptions);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($importOptions['mainActions']) ?
+            $this->uiBuilder->mainActions($importOptions['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         $formId = 'adminer-import-form';
         $webFileBtnId = 'adminer-import-web-file-btn';
@@ -36,8 +37,9 @@ class Import extends CallableClass
         $sqlChooseBtnId = 'adminer-import-choose-files-btn';
         $sqlFilesDivId = 'adminer-import-sql-files-wrapper';
         $sqlFilesInputId = 'adminer-import-sql-files-input';
-        $content = $this->render('sql/import', \compact('formId', 'sqlFilesBtnId',
-            'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId'));
+        $htmlIds = compact('formId', 'sqlFilesBtnId', 'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId');
+        $content = $this->uiBuilder->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
+        $this->logger()->debug('******** Content', compact('content'));
 
         $this->response->html($this->package->getDbContentId(), $content);
         $this->response->script("jaxon.adminer.setFileUpload('#$sqlFilesDivId', '#$sqlChooseBtnId', '#$sqlFilesInputId')");
@@ -114,7 +116,7 @@ class Import extends CallableClass
             $files, $errorStops, $onlyErrors, $database);
         // $this->logger()->debug(\json_encode($queryResults));
 
-        $content = $this->render('sql/results', $queryResults);
+        $content = $this->uiBuilder->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
 
         return $this->response;

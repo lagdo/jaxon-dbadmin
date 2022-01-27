@@ -7,9 +7,6 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
-/**
- * Adminer Ajax
- */
 class User extends CallableClass
 {
     /**
@@ -28,10 +25,8 @@ class User extends CallableClass
 
         $formId = 'user-form';
         $title = 'Add user privileges';
-        $content = $this->render('main/user', [
-            'formId' => $formId,
-            'content' => $content = $this->render('main/content'),
-        ]);
+        $privileges = $this->uiBuilder->mainContent($this->renderMainContent());
+        $content = $this->uiBuilder->userForm($formId, $userInfo['user'], $privileges);
         // $this->response->html($this->package->getDbContentId(), $content);
 
         $buttons = [[
@@ -86,10 +81,8 @@ class User extends CallableClass
 
         $formId = 'user-form';
         $title = 'Edit user privileges';
-        $content = $this->render('main/user', [
-            'formId' => $formId,
-            'content' => $content = $this->render('main/content'),
-        ]);
+        $privileges = $this->uiBuilder->mainContent($this->renderMainContent());
+        $content = $this->uiBuilder->userForm($formId, $userInfo['user'], $privileges);
         // $this->response->html($this->package->getDbContentId(), $content);
 
         $buttons = [[

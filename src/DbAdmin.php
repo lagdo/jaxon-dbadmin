@@ -34,7 +34,7 @@ class DbAdmin extends AbstractAdmin
     protected $breadcrumbs = [];
 
     /**
-     * The Jaxon Adminer package
+     * The Jaxon DbAdmin package
      *
      * @var Package
      */
@@ -43,7 +43,7 @@ class DbAdmin extends AbstractAdmin
     /**
      * The constructor
      *
-     * @param Package $package    The Adminer package
+     * @param Package $package    The DbAdmin package
      */
     public function __construct(Package $package)
     {
@@ -113,8 +113,8 @@ class DbAdmin extends AbstractAdmin
         if (!$this->driver) {
             $di = \jaxon()->di();
             // Save the selected server options in the di container.
-            $di->val('adminer_config_driver', $this->package->getServerDriver($server));
-            $di->val('adminer_config_options', $this->package->getServerOptions($server));
+            $di->val('dbadmin_config_driver', $this->package->getServerDriver($server));
+            $di->val('dbadmin_config_options', $this->package->getServerOptions($server));
             $this->driver = $di->get(DriverInterface::class);
             $this->util = $di->get(UtilInterface::class);
             $this->admin = $di->get(Admin::class);

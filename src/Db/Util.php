@@ -39,7 +39,7 @@ class Util implements UtilInterface
      */
     public function name(): string
     {
-        return '<a href="https://www.adminer.org/"' . $this->blankTarget() . ' id="h1">Adminer</a>';
+        return '<span class="jaxon_dbadmin_name">Jaxon DbAdmin</span>';
     }
 
     /**

@@ -9,9 +9,6 @@ use Exception;
 
 use function pm;
 
-/**
- * Adminer Ajax client
- */
 class Command extends CallableClass
 {
     /**
@@ -32,19 +29,16 @@ class Command extends CallableClass
         $this->view()->shareValues($commandOptions);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($commandOptions['mainActions']) ?
+            $this->uiBuilder->mainActions($commandOptions['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         $btnId = 'adminer-main-command-execute';
         $formId = 'adminer-main-command-form';
         $queryId = 'adminer-main-command-query';
 
-        $content = $this->render('sql/command', [
-            'btnId' => $btnId,
-            'formId' => $formId,
-            'queryId' => $queryId,
-            'defaultLimit' => 20,
-            'query' => $query,
-        ]);
+        $defaultLimit = 20;
+        $content = $this->uiBuilder->queryCommand($formId, $queryId, $btnId, $query, $defaultLimit, $commandOptions['labels']);
         $this->response->html($this->package->getDbContentId(), $content);
         $this->response->script("jaxon.adminer.highlightSqlEditor('$queryId', '$server')");
 
@@ -109,9 +103,8 @@ class Command extends CallableClass
 
         $queryResults = $this->dbAdmin->executeCommands($server,
             $query, $limit, $errorStops, $onlyErrors, $database, $schema);
-        // $this->logger()->debug(\json_encode($queryResults));
 
-        $content = $this->render('sql/results', $queryResults);
+        $content = $this->uiBuilder->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
 
         return $this->response;

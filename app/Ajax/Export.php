@@ -7,9 +7,6 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
-/**
- * Adminer Ajax client
- */
 class Export extends CallableClass
 {
     /**
@@ -28,7 +25,9 @@ class Export extends CallableClass
         $this->view()->shareValues($exportOptions);
 
         // Set main menu buttons
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
+        $content = isset($exportOptions['mainActions']) ?
+            $this->uiBuilder->mainActions($exportOptions['mainActions']) : '';
+        $this->response->html($this->package->getMainActionsId(), $content);
 
         $btnId = 'adminer-main-export-submit';
         $formId = 'adminer-main-export-form';
@@ -37,14 +36,16 @@ class Export extends CallableClass
         $tableNameId = 'adminer-export-table-name';
         $tableDataId = 'adminer-export-table-data';
 
-        $content = $this->render('sql/export', [
+        $htmlIds = [
             'btnId' => $btnId,
             'formId' => $formId,
             'databaseNameId' => $databaseNameId,
             'databaseDataId' => $databaseDataId,
             'tableNameId' => $tableNameId,
             'tableDataId' => $tableDataId,
-        ]);
+        ];
+        $content = $this->uiBuilder->exportPage($htmlIds, $exportOptions['databases'] ?? [],
+            $exportOptions['tables'] ?? [], $exportOptions['options'], $exportOptions['labels']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         if(($database))
@@ -114,7 +115,7 @@ class Export extends CallableClass
             return $this->response;
         }
 
-        $content = $this->render('sql/dump.sql', $results);
+        $content = $this->view()->render('adminer::views::sql/dump', $results);
         // Dump file
         $output = $formValues['output'] ?? 'text';
         $extension = $output === 'gz' ? '.gz' : ($output === 'file' ? '.sql' : '.txt');
