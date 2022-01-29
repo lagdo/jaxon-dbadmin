@@ -148,7 +148,8 @@ trait TableTrait
                                   array $support, array $collations, array $unsigned, array $options, bool $wrap = true)
     {
         if ($wrap) {
-            $this->htmlBuilder->formRow($class)->setDataIndex($index)->setId(sprintf('%s-%02d', $class, $index));
+            $this->htmlBuilder->formRow()->setClass($class)
+                ->setDataIndex($index)->setId(sprintf('%s-%02d', $class, $index));
         }
         $this->htmlBuilder
             ->col(12)
