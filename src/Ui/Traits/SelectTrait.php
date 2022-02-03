@@ -19,11 +19,11 @@ trait SelectTrait
         foreach ($values as $value) {
             $this->htmlBuilder
                 ->col(7)
-                    ->formInput("columns[$i][fun]")->setName()->setValue($value['fun'])
+                    ->formInput()->setName("columns[$i][fun]")->setValue($value['fun'])
                     ->endShorted()
                 ->end()
                 ->col(5)
-                    ->formInput("columns[$i][col]")->setName()->setValue($value['col'])
+                    ->formInput()->setName("columns[$i][col]")->setValue($value['col'])
                     ->endShorted()
                 ->end();
             $i++;
@@ -162,15 +162,15 @@ trait SelectTrait
         foreach ($values as $value) {
             $this->htmlBuilder
                 ->col(4)
-                    ->formInput("where[$i][col]")->setName()->setValue($value['col'])
+                    ->formInput()->setName("where[$i][col]")->setValue($value['col'])
                     ->endShorted()
                 ->end()
                 ->col(2)
-                    ->formInput("where[$i][op]")->setName()->setValue($value['op'])
+                    ->formInput()->setName("where[$i][op]")->setValue($value['op'])
                     ->endShorted()
                 ->end()
                 ->col(6)
-                    ->formInput("where[$i][val]")->setName()->setValue($value['val'])
+                    ->formInput()->setName("where[$i][val]")->setValue($value['val'])
                     ->endShorted()
                 ->end();
             $i++;
@@ -277,11 +277,11 @@ trait SelectTrait
         foreach ($values as $value) {
             $this->htmlBuilder
                 ->col(6)
-                    ->formInput("order[$i]")->setName()->setValue($value['col'])
+                    ->formInput()->setName("order[$i]")->setValue($value['col'])
                     ->endShorted()
                 ->end()
                 ->col(6)
-                    ->formInput("desc[$i]")->setName()->setValue($value['desc'])
+                    ->formInput()->setName("desc[$i]")->setValue($value['desc'])
                     ->endShorted()
                 ->end();
             $i++;
