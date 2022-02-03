@@ -59,18 +59,18 @@ trait SelectUtilTrait
      */
     public function processSelectOrder(): array
     {
+        $values = $this->input->values;
         $expressions = [];
-        foreach ((array) $this->input->values['order'] as $key => $value) {
+        foreach ($values['order'] as $key => $value) {
             if ($value !== '') {
                 $regexp = '~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~';
-                $expression = $value;
-                if (preg_match($regexp, $expression) === false) {
-                    $expression = $this->driver->escapeId($expression);
+                if (preg_match($regexp, $value) !== false) {
+                    $value = $this->driver->escapeId($value);
                 }
-                if (isset($this->input->values['desc'][$key])) {
-                    $expression .= ' DESC';
+                if (isset($values['desc'][$key]) && intval($values['desc'][$key]) !== 0) {
+                    $value .= ' DESC';
                 }
-                $expressions[] = $expression;
+                $expressions[] = $value;
             }
         }
         return $expressions;
@@ -133,7 +133,8 @@ trait SelectUtilTrait
     {
         $select = []; // select expressions, empty for *
         $group = []; // expressions without aggregation - will be used for GROUP BY if an aggregation function is used
-        foreach ((array) $this->input->values['columns'] as $key => $value) {
+        $values = $this->input->values;
+        foreach ($values['columns'] as $key => $value) {
             if ($this->colHasValidValue($value)) {
                 $fields = '*';
                 if ($value['col'] !== '') {
