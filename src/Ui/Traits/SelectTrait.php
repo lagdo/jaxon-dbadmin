@@ -13,23 +13,15 @@ trait SelectTrait
      */
     private function _showQueryColumns(array $values)
     {
-        $this->htmlBuilder
-            ->row();
         $i = 0;
         foreach ($values as $value) {
             $this->htmlBuilder
-                ->col(7)
-                    ->formInput()->setName("columns[$i][fun]")->setValue($value['fun'])
-                    ->endShorted()
-                ->end()
-                ->col(5)
-                    ->formInput()->setName("columns[$i][col]")->setValue($value['col'])
-                    ->endShorted()
-                ->end();
+                ->input()->setName("columns[$i][fun]")->setValue($value['fun'])
+                ->endShorted()
+                ->input()->setName("columns[$i][col]")->setValue($value['col'])
+                ->endShorted();
             $i++;
         }
-        $this->htmlBuilder
-            ->end();
     }
 
     /**
@@ -156,27 +148,17 @@ trait SelectTrait
      */
     private function _showQueryFilters(array $values)
     {
-        $this->htmlBuilder
-            ->row();
         $i = 0;
         foreach ($values as $value) {
             $this->htmlBuilder
-                ->col(4)
-                    ->formInput()->setName("where[$i][col]")->setValue($value['col'])
-                    ->endShorted()
-                ->end()
-                ->col(2)
-                    ->formInput()->setName("where[$i][op]")->setValue($value['op'])
-                    ->endShorted()
-                ->end()
-                ->col(6)
-                    ->formInput()->setName("where[$i][val]")->setValue($value['val'])
-                    ->endShorted()
-                ->end();
+                ->input()->setName("where[$i][col]")->setValue($value['col'])
+                ->endShorted()
+                ->input()->setName("where[$i][op]")->setValue($value['op'])
+                ->endShorted()
+                ->input()->setName("where[$i][val]")->setValue($value['val'])
+                ->endShorted();
             $i++;
         }
-        $this->htmlBuilder
-            ->end();
     }
 
     /**
@@ -271,23 +253,15 @@ trait SelectTrait
      */
     private function _showQuerySorting(array $values)
     {
-        $this->htmlBuilder
-            ->row();
         $i = 0;
         foreach ($values as $value) {
             $this->htmlBuilder
-                ->col(6)
-                    ->formInput()->setName("order[$i]")->setValue($value['col'])
-                    ->endShorted()
-                ->end()
-                ->col(6)
-                    ->formInput()->setName("desc[$i]")->setValue($value['desc'])
-                    ->endShorted()
-                ->end();
+                ->input()->setName("order[$i]")->setValue($value['col'])
+                ->endShorted()
+                ->input()->setName("desc[$i]")->setValue($value['desc'])
+                ->endShorted();
             $i++;
         }
-        $this->htmlBuilder
-            ->end();
     }
 
     /**
@@ -431,6 +405,20 @@ trait SelectTrait
             ->row()
                 ->col(12)
                     ->form(true, true)->setId($ids['formId'])
+                        ->div()->setStyle('display:none')
+                            ->div()->setId('adminer-table-select-columns-show');
+        $this->_showQueryColumns($options['columns']['values']);
+        $this->htmlBuilder
+                            ->end()
+                            ->div()->setId('adminer-table-select-filters-show');
+        $this->_showQueryFilters($options['filters']['values']);
+        $this->htmlBuilder
+                            ->end()
+                            ->div()->setId('adminer-table-select-sorting-show');
+        $this->_showQuerySorting($options['sorting']['values']);
+        $this->htmlBuilder
+                            ->end()
+                        ->end()
                         ->formRow()
                             ->formCol(6)
                                 ->buttonGroup(true)
@@ -464,20 +452,6 @@ trait SelectTrait
                                     ->button(AbstractBuilder::BTN_OUTLINE)->setId($ids['btnLengthId'])->addIcon('ok')
                                     ->end()
                                 ->end()
-                            ->end()
-                        ->end()
-                        ->formRow()->setStyle('display:none')
-                            ->formCol(4)->setId('adminer-table-select-columns-show');
-        $this->_showQueryColumns($options['columns']['values']);
-        $this->htmlBuilder
-                            ->end()
-                            ->formCol(4)->setId('adminer-table-select-filters-show');
-        $this->_showQueryFilters($options['filters']['values']);
-        $this->htmlBuilder
-                            ->end()
-                            ->formCol(4)->setId('adminer-table-select-sorting-show');
-        $this->_showQuerySorting($options['sorting']['values']);
-        $this->htmlBuilder
                             ->end()
                         ->end()
                         ->formRow()
