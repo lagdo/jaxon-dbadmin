@@ -28,20 +28,15 @@ Install the jaxon library so it bootstraps from a config file and handles ajax r
 
 Install this package with Composer. If a [Jaxon plugin](https://www.jaxon-php.org/docs/v3x/plugins/frameworks.html) exists for your framework, you can also install it. It will automate the previous step.
 
-Install the drivers packages for the databases servers you need to manage.
+### The database drivers
+
+Install the drivers packages for the database servers you need to manage.
 The following drivers are available:
 - MySQL: [https://github.com/lagdo/dbadmin-driver-mysql](https://github.com/lagdo/dbadmin-driver-mysql)
 - PostgreSQL: [https://github.com/lagdo/dbadmin-driver-pgsql](https://github.com/lagdo/dbadmin-driver-mysql)
 - Sqlite: [https://github.com/lagdo/dbadmin-driver-sqlite](https://github.com/lagdo/dbadmin-driver-sqlite)
 
-This package uses the [HTML UI builder](https://github.com/lagdo/ui-builder) to build UI components for various frontend frameworks.
-The packages for the UI framework in use must also be installed.
-The following builders are available:
-- Bootstrap 3, 4 and 5: [https://github.com/lagdo/ui-builder-bootstrap](https://github.com/lagdo/ui-builder-bootstrap)
-
 Declare the package and the database servers in the `app` section of the [Jaxon configuration file](https://www.jaxon-php.org/docs/v3x/advanced/bootstrap.html).
-
-In this case, the UI will be built with Bootstrap3 components, using the [https://github.com/lagdo/ui-builder-bootstrap](https://github.com/lagdo/ui-builder-bootstrap) package.
 
 See the corresponding database driver package for specific database server options.
 
@@ -51,7 +46,6 @@ See the corresponding database driver package for specific database server optio
         // ...
         'packages' => [
             Lagdo\DbAdmin\Package::class => [
-                'template' => 'bootstrap3',
                 'servers' => [
                     // The database servers
                 ],
@@ -67,6 +61,25 @@ In the page that displays the dashboard, insert the HTML code returned by the ca
 - If the dashboard is displayed on a dedicated page, make a call to `jaxon()->package(\Lagdo\DbAdmin\Package::class)->ready()` in your PHP code when loading the page.
 
 - If the dashboard is loaded with an Ajax request in a page already displayed, execute the javascript code returned the call to `jaxon()->package(\Lagdo\DbAdmin\Package::class)->getReadyScript()` after the page is loaded.
+
+### The UI builder
+
+This package uses the [HTML UI builder](https://github.com/lagdo/ui-builder) to build UI components for various frontend frameworks.
+The packages for the UI framework in use must also be installed.
+The following builders are available:
+- Bootstrap 3, 4 and 5: [https://github.com/lagdo/ui-builder-bootstrap](https://github.com/lagdo/ui-builder-bootstrap)
+
+In this case, the UI will be built with Bootstrap3 components, using the [https://github.com/lagdo/ui-builder-bootstrap](https://github.com/lagdo/ui-builder-bootstrap) package.
+
+```php
+    'app' => [
+        'packages' => [
+            Lagdo\DbAdmin\Package::class => [
+                'template' => 'bootstrap3',
+            ],
+        ],
+    ],
+```
 
 Additional config options
 -------------------------
@@ -203,32 +216,6 @@ A directory where the exported files are going to be saved must then be defined 
     ],
 ```
 The web server needs to be setup to serve the files in the directory `dir` from url `url`.
-
-### Change the UI framework
-
-Starting from version 0.6, this package is designed to support multiple UI frameworks, and multiple templates.
-
-The current template is set using the `template` option, and it default value is `bootstrap3`.
-
-```php
-    'app' => [
-        'packages' => [
-            Lagdo\DbAdmin\Package::class => [
-                'template' => 'bootstrap3',
-                'servers' => [
-                    // The database servers
-                ],
-            ],
-        ],
-    ],
-```
-
-The following UI frameworks are supported:
-
-- [Bootstrap 3](https://getbootstrap.com/) (`bootstrap3`)
-- [Bootstrap 4](https://getbootstrap.com/) (`bootstrap4`)
-
-More UI frameworks will be added in future releases.
 
 Contribute
 ----------
