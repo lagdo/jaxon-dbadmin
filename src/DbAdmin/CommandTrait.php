@@ -73,7 +73,7 @@ trait CommandTrait
         if (($database)) {
             $breadcrumbs[] = $database;
         }
-        $breadcrumbs[] = $this->trans->lang('SQL command');
+        $breadcrumbs[] = $this->trans->lang('Query');
         $this->setBreadcrumbs($breadcrumbs);
 
         $labels = [

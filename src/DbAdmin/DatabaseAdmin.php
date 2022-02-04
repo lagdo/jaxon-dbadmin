@@ -64,7 +64,7 @@ class DatabaseAdmin extends AbstractAdmin
     public function getDatabaseInfo()
     {
         $sqlActions = [
-            'database-command' => $this->trans->lang('SQL command'),
+            'database-command' => $this->trans->lang('Query'),
             'database-import' => $this->trans->lang('Import'),
             'database-export' => $this->trans->lang('Export'),
         ];

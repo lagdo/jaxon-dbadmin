@@ -82,7 +82,7 @@ class ServerAdmin extends AbstractAdmin
         $user = $this->trans->lang('Logged as: %s.', "<b>" . $this->util->html($this->driver->user()) . "</b>");
 
         $sqlActions = [
-            'server-command' => $this->trans->lang('SQL command'),
+            'server-command' => $this->trans->lang('Query'),
             'server-import' => $this->trans->lang('Import'),
             'server-export' => $this->trans->lang('Export'),
         ];

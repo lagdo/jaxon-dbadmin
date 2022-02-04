@@ -35,11 +35,14 @@ trait MainTrait
     {
         $this->htmlBuilder->clear()
             ->breadcrumb();
+        $last = count($breadcrumbs) - 1;
+        $curr = 0;
         foreach($breadcrumbs as $breadcrumb)
         {
             $this->htmlBuilder
-                ->breadcrumbItem($breadcrumb)
+                ->breadcrumbItem($curr === $last)->addText($breadcrumb)
                 ->end();
+            $curr++;
         }
         $this->htmlBuilder
             ->end();
@@ -56,12 +59,12 @@ trait MainTrait
         $this->htmlBuilder->clear()
             ->row()
                 ->col(12)
-                    ->tabHeader();
+                    ->tabNav();
         $active = true;
         foreach($tabs as $id => $tab)
         {
             $this->htmlBuilder
-                        ->tabHeaderItem("tab-content-$id", $active, $tab)
+                        ->tabNavItem("tab-content-$id", $active, $tab)
                         ->end();
             $active = false;
         }
