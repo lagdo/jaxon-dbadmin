@@ -76,9 +76,8 @@ class ViewAdmin extends AbstractAdmin
         // From table.inc.php
         $status = $this->status($table);
         $name = $this->util->tableName($status);
-        $title = ($status->engine == 'materialized view' ?
-            $this->trans->lang('Materialized view') : $this->trans->lang('View')) .
-            ': ' . ($name != '' ? $name : $this->util->html($table));
+        $title = ($status->engine == 'materialized view' ? $this->trans->lang('Materialized view') :
+            $this->trans->lang('View')) . ': ' . ($name != '' ? $name : $this->util->html($table));
 
         $comment = $status->comment;
 
@@ -139,7 +138,7 @@ class ViewAdmin extends AbstractAdmin
             if ($field->autoIncrement) {
                 $type .= ' <i>' . $this->trans->lang('Auto Increment') . '</i>';
             }
-            if (\array_key_exists('default', $field)) {
+            if ($field->hasDefault) {
                 $type .= /*' ' . $this->trans->lang('Default value') .*/ ' [<b>' . $this->util->html($field->default) . '</b>]';
             }
             $detail = [

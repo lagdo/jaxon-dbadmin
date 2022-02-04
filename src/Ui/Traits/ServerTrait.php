@@ -111,7 +111,7 @@ trait ServerTrait
                         ->end()
                     ->end()
                     ->formCol(6)
-                        ->formSelect()
+                        ->formSelect()->setName('collation')
                             ->option(true, '(collation)')
                             ->end();
         foreach($collations as $group => $_collations)

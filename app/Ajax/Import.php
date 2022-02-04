@@ -39,7 +39,6 @@ class Import extends CallableClass
         $sqlFilesInputId = 'adminer-import-sql-files-input';
         $htmlIds = compact('formId', 'sqlFilesBtnId', 'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId');
         $content = $this->uiBuilder->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
-        $this->logger()->debug('******** Content', compact('content'));
 
         $this->response->html($this->package->getDbContentId(), $content);
         $this->response->script("jaxon.adminer.setFileUpload('#$sqlFilesDivId', '#$sqlChooseBtnId', '#$sqlFilesInputId')");
