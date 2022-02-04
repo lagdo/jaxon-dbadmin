@@ -37,7 +37,7 @@ The following drivers are available:
 This package uses the [HTML UI builder](https://github.com/lagdo/ui-builder) to build UI components for various frontend frameworks.
 The packages for the UI framework in use must also be installed.
 The following builders are available:
-- Bootstrap 3 and 4: [https://github.com/lagdo/ui-builder-bootstrap](https://github.com/lagdo/ui-builder-bootstrap)
+- Bootstrap 3, 4 and 5: [https://github.com/lagdo/ui-builder-bootstrap](https://github.com/lagdo/ui-builder-bootstrap)
 
 Declare the package and the database servers in the `app` section of the [Jaxon configuration file](https://www.jaxon-php.org/docs/v3x/advanced/bootstrap.html).
 
