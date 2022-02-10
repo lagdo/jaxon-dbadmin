@@ -331,7 +331,7 @@ class TableSelectAdmin extends AbstractAdmin
 
         list($rows, $duration) = $this->executeQuery($query, $page);
         if (!$rows) {
-            return ['error' => $this->trans->lang('No rows.')];
+            return ['message' => $this->trans->lang('No rows.')];
         }
         // $backward_keys = $this->driver->backwardKeys($table, $tableName);
         // lengths = $this->getValuesLengths($rows, $queryOptions);
@@ -350,7 +350,7 @@ class TableSelectAdmin extends AbstractAdmin
         $total = $this->driver->result($this->driver->sqlForRowCount($table, $where, $isGroup, $group));
 
         $rows = $results;
-        $error = null;
-        return compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'error');
+        $message = null;
+        return compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'message');
     }
 }

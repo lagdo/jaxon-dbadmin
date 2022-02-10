@@ -143,24 +143,26 @@ class Select extends CallableClass
     /**
      * Execute the query
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The schema name
-     * @param string $table       The table name
-     * @param array  $options     The query options
-     * @param integer $page       The page number
+     * @param string $server The database server
+     * @param string $database The database name
+     * @param string $schema The schema name
+     * @param string $table The table name
+     * @param array $options The query options
+     * @param integer $page The page number
      *
      * @return Response
+     * @throws Exception
      */
     public function execSelect(string $server, string $database, string $schema,
         string $table, array $options, int $page = 1): Response
     {
         $options['page'] = $page;
         $results = $this->dbAdmin->execSelect($server, $database, $schema, $table, $options);
-        // Show the error
-        if(($results['error']))
+        // Show the message
+        $resultsId = 'adminer-table-select-results';
+        if(($results['message']))
         {
-            $this->response->dialog->error($results['error'], $this->dbAdmin->lang('Error'));
+            $this->response->html($resultsId, $results['message']);
             return $this->response;
         }
         // Make data available to views
@@ -176,7 +178,6 @@ class Select extends CallableClass
         // because it will not make the variable globally accessible.
         $this->response->script("rowIds = JSON.parse('" . json_encode($rowIds) . "')");
 
-        $resultsId = 'adminer-table-select-results';
         $btnEditRowClass = 'adminer-table-select-row-edit';
         $btnDeleteRowClass = 'adminer-table-select-row-delete';
         $content = $this->uiBuilder->selectResults($results['headers'], $results['rows'],
