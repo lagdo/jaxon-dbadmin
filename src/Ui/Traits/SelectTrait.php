@@ -4,6 +4,8 @@ namespace Lagdo\DbAdmin\Ui\Traits;
 
 use Lagdo\UiBuilder\AbstractBuilder;
 
+use function array_shift;
+
 trait SelectTrait
 {
     /**
@@ -354,7 +356,10 @@ trait SelectTrait
         $this->htmlBuilder->clear()
             ->table(true, 'bordered')
                 ->thead()
-                    ->tr();
+                    ->tr()
+                        ->th(['style' => 'width:30px'])
+                        ->end();
+        array_shift($headers);
         foreach ($headers as $header) {
             $this->htmlBuilder
                         ->th($header['key'] ?? '')
@@ -368,13 +373,17 @@ trait SelectTrait
         foreach($rows as $row) {
             $this->htmlBuilder
                     ->tr()
-                        ->th()
-                            ->buttonGroup(false)
-                                ->button(AbstractBuilder::BTN_PRIMARY + AbstractBuilder::BTN_SMALL)
-                                    ->setClass($btnEditRowClass)->setDataRowId($rowId)->addIcon('edit')
+                        ->td()
+                            ->dropdown()
+                                ->dropdownItem('primary')->addCaret()
                                 ->end()
-                                ->button(AbstractBuilder::BTN_DANGER + AbstractBuilder::BTN_SMALL)
-                                    ->setClass($btnDeleteRowClass)->setDataRowId($rowId)->addIcon('remove')
+                                ->dropdownMenu()
+                                    ->dropdownMenuItem()
+                                        ->setClass($btnEditRowClass)->setDataRowId($rowId)->addIcon('edit')
+                                    ->end()
+                                    ->dropdownMenuItem()
+                                        ->setClass($btnDeleteRowClass)->setDataRowId($rowId)->addIcon('remove')
+                                    ->end()
                                 ->end()
                             ->end()
                         ->end();
