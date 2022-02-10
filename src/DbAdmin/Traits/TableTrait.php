@@ -144,11 +144,11 @@ trait TableTrait
         $typeField = ($foreignKey === null ? $field :
             TableFieldEntity::make($this->referencableTables[$foreignKey]));
         $processedField = $this->util->processField($field, $typeField);
-        $origField = $this->fields[$this->fieldName] ?? null;
-        if ($this->fieldName === '') {
+        $origField = $this->fields[$field->name] ?? null;
+        if ($field->name === '') {
             $this->attrs->fields[] = ['', $processedField, $this->after];
         } elseif ($origField !== null && $field->changed($origField)) {
-            $this->attrs->edited[] = [$this->fieldName, $processedField, $this->after];
+            $this->attrs->edited[] = [$field->name, $processedField, $this->after];
         }
         if ($foreignKey !== null) {
             $fkey = new ForeignKeyEntity();
