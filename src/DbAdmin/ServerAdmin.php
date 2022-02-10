@@ -7,7 +7,7 @@ use function is_array;
 use function array_intersect;
 use function array_values;
 use function compact;
-use function count;
+use function is_string;
 use function array_keys;
 
 /**
@@ -203,7 +203,7 @@ class ServerAdmin extends AbstractAdmin
         foreach ($processes as $process) {
             $attrs = [];
             foreach ($process as $key => $val) {
-                $attrs[] = $this->driver->processAttr($process, $key, $val);
+                $attrs[] = is_string($val) ? $this->driver->processAttr($process, $key, $val) : '(null)';
             }
             $details[] = $attrs;
         }
@@ -225,7 +225,7 @@ class ServerAdmin extends AbstractAdmin
         $details = [];
         // From variables.inc.php
         foreach ($variables as $key => $val) {
-            $details[] = [$this->util->html($key), $this->util->shortenUtf8($val, 50)];
+            $details[] = [$this->util->html($key), is_string($val) ? $this->util->shortenUtf8($val, 50) : '(null)'];
         }
 
         return compact('headers', 'details');
@@ -245,7 +245,7 @@ class ServerAdmin extends AbstractAdmin
         $details = [];
         // From variables.inc.php
         foreach ($status as $key => $val) {
-            $details[] = [$this->util->html($key), $this->util->html($val)];
+            $details[] = [$this->util->html($key), is_string($val) ? $this->util->html($val) : '(null)'];
         }
 
         return compact('headers', 'details');
