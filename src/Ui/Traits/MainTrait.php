@@ -11,14 +11,36 @@ trait MainTrait
      *
      * @return string
      */
-    public function mainActions(array $mainActions): string
+    public function mainActions(array $actions): string
     {
+        $backActions = [];
+        $mainActions = [];
+        foreach($actions as $id => $title)
+        {
+            if(strpos($id, 'back') !== false || strpos($id, 'cancel') !== false)
+            {
+                $backActions[$id] = $title;
+            }
+            else
+            {
+                $mainActions[$id] = $title;
+            }
+        }
         $this->htmlBuilder->clear()
             ->buttonGroup(false, ['class' => 'adminer-main-action-group']);
         foreach($mainActions as $id => $title)
         {
             $this->htmlBuilder
                 ->button(AbstractBuilder::BTN_OUTLINE)->setId("adminer-main-action-$id")->addText($title)
+                ->end();
+        }
+        $this->htmlBuilder
+            ->end()
+            ->buttonGroup(false, ['class' => 'adminer-main-action-group', 'style' => 'float:right']);
+        foreach($backActions as $id => $title)
+        {
+            $this->htmlBuilder
+                ->button(AbstractBuilder::BTN_SECONDARY)->setId("adminer-main-action-$id")->addText($title)
                 ->end();
         }
         $this->htmlBuilder
