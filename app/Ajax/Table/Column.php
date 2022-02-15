@@ -117,7 +117,7 @@ class Column extends CallableClass
         $index = \jq()->attr('data-index');
         // Set the button event handlers on the new column
         $this->jq('[data-field]', "#$columnId")
-            ->on('jaxon.adminer.renamed', \pm()->js('jaxon.adminer.onColumnRenamed'));
+            ->on('jaxon.dbadmin.renamed', \pm()->js('jaxon.dbadmin.onColumnRenamed'));
         $this->jq('.adminer-table-column-add', "#$columnId")
             ->click($this->rq()->add($server, $database, $schema, $length, $index));
         $this->jq('.adminer-table-column-del', "#$columnId")
@@ -153,7 +153,7 @@ class Column extends CallableClass
             $nextId = \sprintf('%s-column-%02d', $this->formId, $id);
             $this->jq("#$currId")->attr('data-index', $id)->attr('id', $nextId);
             $this->jq('.adminer-table-column-buttons', "#$nextId")->attr('data-index', $id);
-            $this->jq('[data-field]', "#$nextId")->trigger('jaxon.adminer.renamed');
+            $this->jq('[data-field]', "#$nextId")->trigger('jaxon.dbadmin.renamed');
         }
 
         return $this->response;

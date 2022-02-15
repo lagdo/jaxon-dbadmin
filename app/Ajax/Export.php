@@ -50,15 +50,15 @@ class Export extends CallableClass
 
         if(($database))
         {
-            $this->response->script("jaxon.adminer.selectAllCheckboxes('$tableNameId')");
-            $this->response->script("jaxon.adminer.selectAllCheckboxes('$tableDataId')");
+            $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$tableNameId')");
+            $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$tableDataId')");
             $this->jq("#$btnId")
                  ->click($this->rq()->exportOne($server, $database, \pm()->form($formId)));
             return $this->response;
         }
 
-        $this->response->script("jaxon.adminer.selectAllCheckboxes('$databaseNameId')");
-        $this->response->script("jaxon.adminer.selectAllCheckboxes('$databaseDataId')");
+        $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$databaseNameId')");
+        $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$databaseDataId')");
         $this->jq("#$btnId")
              ->click($this->rq()->exportSet($server, \pm()->form($formId)));
         return $this->response;

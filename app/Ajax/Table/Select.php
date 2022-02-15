@@ -70,7 +70,7 @@ class Select extends CallableClass
     private function showQuery(string $server, string $query)
     {
         $this->response->html($this->txtQueryId, '');
-        // $this->response->script("jaxon.adminer.highlightSqlQuery('{$this->txtQueryId}', '$server', '$query')");
+        // $this->response->script("jaxon.dbadmin.highlightSqlQuery('{$this->txtQueryId}', '$server', '$query')");
         $this->response->addCommand([
             'cmd' => 'dbadmin.hsql',
             'id' => $this->txtQueryId,
@@ -147,7 +147,7 @@ class Select extends CallableClass
             ->click($this->cl(Query::class)->rq()->showInsert($server, $database, $schema, $table));
         $this->jq("#$btnExecId")
             ->click($this->rq()->execSelect($server, $database, $schema, $table));
-        $query = pm()->js('jaxon.adminer.editor.query');
+        $query = pm()->js('jaxon.dbadmin.editor.query');
         $this->jq("#$btnEditId")
             ->click($this->cl(Command::class)->rq()->showDatabaseForm($server, $database, $schema, $query));
         // Select options form
@@ -202,7 +202,7 @@ class Select extends CallableClass
         }
         // Note: don't use the var keyword when setting a variable,
         // because it will not make the variable globally accessible.
-        $this->response->script("jaxon.adminer.rowIds = JSON.parse('" . json_encode($rowIds) . "')");
+        $this->response->script("jaxon.dbadmin.rowIds = JSON.parse('" . json_encode($rowIds) . "')");
 
         $btnEditRowClass = 'adminer-table-select-row-edit';
         $btnDeleteRowClass = 'adminer-table-select-row-delete';
@@ -212,9 +212,9 @@ class Select extends CallableClass
 
         // The Jaxon ajax calls
         $updateCall = $this->cl(Query::class)->rq()->showUpdate($server, $database, $schema, $table,
-            pm()->js("jaxon.adminer.rowIds[rowId]"));
+            pm()->js("jaxon.dbadmin.rowIds[rowId]"));
         $deleteCall = $this->cl(Query::class)->rq()->execDelete($server, $database, $schema, $table,
-            pm()->js("jaxon.adminer.rowIds[rowId]"))->confirm($this->dbAdmin->lang('Delete this item?'));
+            pm()->js("jaxon.dbadmin.rowIds[rowId]"))->confirm($this->dbAdmin->lang('Delete this item?'));
 
         // Wrap the ajax calls into functions
         $this->response->setFunction('updateRowItem', 'rowId', $updateCall);
@@ -291,8 +291,8 @@ class Select extends CallableClass
 
         $title = 'Edit columns';
         $content = $this->uiBuilder->editQueryColumns($this->columnsFormId, $selectData['options']['columns'],
-            "jaxon.adminer.insertSelectQueryItem('$targetId', '$sourceId')",
-            "jaxon.adminer.removeSelectQueryItems('$targetId', '$checkboxClass')");
+            "jaxon.dbadmin.insertSelectQueryItem('$targetId', '$sourceId')",
+            "jaxon.dbadmin.removeSelectQueryItems('$targetId', '$checkboxClass')");
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -305,7 +305,7 @@ class Select extends CallableClass
         $this->response->dialog->show($title, $content, $buttons);
 
         $count = \count($selectData['options']['columns']['values']);
-        $this->response->script("jaxon.adminer.newItemIndex=$count");
+        $this->response->script("jaxon.dbadmin.newItemIndex=$count");
 
         return $this->response;
     }
@@ -364,8 +364,8 @@ class Select extends CallableClass
 
         $title = 'Edit filters';
         $content = $this->uiBuilder->editQueryFilters($this->filtersFormId, $selectData['options']['filters'],
-            "jaxon.adminer.insertSelectQueryItem('$targetId', '$sourceId')",
-            "jaxon.adminer.removeSelectQueryItems('$targetId', '$checkboxClass')");
+            "jaxon.dbadmin.insertSelectQueryItem('$targetId', '$sourceId')",
+            "jaxon.dbadmin.removeSelectQueryItems('$targetId', '$checkboxClass')");
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -378,7 +378,7 @@ class Select extends CallableClass
         $this->response->dialog->show($title, $content, $buttons);
 
         $count = \count($selectData['options']['filters']['values']);
-        $this->response->script("jaxon.adminer.newItemIndex=$count");
+        $this->response->script("jaxon.dbadmin.newItemIndex=$count");
 
         return $this->response;
     }
@@ -437,8 +437,8 @@ class Select extends CallableClass
 
         $title = 'Edit order';
         $content = $this->uiBuilder->editQuerySorting($this->sortingFormId, $selectData['options']['sorting'],
-            "jaxon.adminer.insertSelectQueryItem('$targetId', '$sourceId')",
-            "jaxon.adminer.removeSelectQueryItems('$targetId', '$checkboxClass')");
+            "jaxon.dbadmin.insertSelectQueryItem('$targetId', '$sourceId')",
+            "jaxon.dbadmin.removeSelectQueryItems('$targetId', '$checkboxClass')");
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -451,7 +451,7 @@ class Select extends CallableClass
         $this->response->dialog->show($title, $content, $buttons);
 
         $count = \count($selectData['options']['sorting']['values']);
-        $this->response->script("jaxon.adminer.newItemIndex=$count");
+        $this->response->script("jaxon.dbadmin.newItemIndex=$count");
 
         return $this->response;
     }

@@ -1,4 +1,4 @@
-jaxon.adminer = {
+jaxon.dbadmin = {
     countTableCheckboxes: function(checkboxId) {
         $('#adminer-table-' + checkboxId + '-count').html($('.adminer-table-' + checkboxId + ':checked').length);
     },
@@ -6,10 +6,10 @@ jaxon.adminer = {
         $('#adminer-table-' + checkboxId + '-all').change(function() {
             $('.adminer-table-' + checkboxId, '#<?php
                 echo $this->containerId ?>').prop('checked', this.checked);
-            jaxon.adminer.countTableCheckboxes(checkboxId);
+            jaxon.dbadmin.countTableCheckboxes(checkboxId);
         });
         $('.adminer-table-' + checkboxId).change(function() {
-            jaxon.adminer.countTableCheckboxes(checkboxId);
+            jaxon.dbadmin.countTableCheckboxes(checkboxId);
         });
     },
     selectAllCheckboxes: function(checkboxId) {
@@ -48,7 +48,7 @@ jaxon.adminer = {
         $(this).attr('name', 'fields[' + index + '][' + $(this).attr('data-field') + ']');
     },
     insertSelectQueryItem: function(targetId, templateId) {
-        const index = jaxon.adminer.newItemIndex++;
+        const index = jaxon.dbadmin.newItemIndex++;
         const itemHtml = $('#' + templateId).html().replace(/__index__/g, index);
         const targetElt = jaxon.$(targetId);
         targetElt.insertAdjacentHTML('beforeend', itemHtml);
@@ -70,15 +70,15 @@ jaxon.adminer = {
         },
     },
     highlightSqlQuery: function(containerId, driver, query) {
-        const mode = jaxon.adminer.editor.modes[driver] || jaxon.adminer.editor.modes.sql;
+        const mode = jaxon.dbadmin.editor.modes[driver] || jaxon.dbadmin.editor.modes.sql;
         const element = document.getElementById(containerId);
-        jaxon.adminer.editor.query = query;
+        jaxon.dbadmin.editor.query = query;
         CodeMirror(element, { value: query, mode, lineNumbers: false, readOnly: true });
     },
     highlightSqlEditor: function(containerId, driver) {
-        const mode = jaxon.adminer.editor.modes[driver] || jaxon.adminer.editor.modes.sql;
+        const mode = jaxon.dbadmin.editor.modes[driver] || jaxon.dbadmin.editor.modes.sql;
         const element = document.getElementById(containerId);
-        jaxon.adminer.editor.element = CodeMirror.fromTextArea(element, {
+        jaxon.dbadmin.editor.element = CodeMirror.fromTextArea(element, {
             mode,
             indentWithTabs: true,
             smartIndent: true,
@@ -86,7 +86,7 @@ jaxon.adminer = {
             matchBrackets : true,
             autofocus: true,
             extraKeys: {'Ctrl-Space': 'autocomplete'},
-            hintOptions: jaxon.adminer.editor.hintOptions,
+            hintOptions: jaxon.dbadmin.editor.hintOptions,
             /*hintOptions: {
                 tables: {
                     users: ["name", "score", "birthDate"],
@@ -96,15 +96,14 @@ jaxon.adminer = {
         });
     },
     saveSqlEditorContent: function() {
-        jaxon.adminer.editor.element.save();
+        jaxon.dbadmin.editor.element.save();
     },
 };
 
 jaxon.dom.ready(function() {
     jaxon.ajax.handler.register('dbadmin.hsql', function(command) {
         command.fullName = 'highlightSqlQuery';
-        jaxon.adminer.highlightSqlQuery(command.id, command.driver, command.data);
+        jaxon.dbadmin.highlightSqlQuery(command.id, command.driver, command.data);
         return true;
     });
 });
-

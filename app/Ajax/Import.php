@@ -41,7 +41,7 @@ class Import extends CallableClass
         $content = $this->uiBuilder->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
 
         $this->response->html($this->package->getDbContentId(), $content);
-        $this->response->script("jaxon.adminer.setFileUpload('#$sqlFilesDivId', '#$sqlChooseBtnId', '#$sqlFilesInputId')");
+        $this->response->script("jaxon.dbadmin.setFileUpload('#$sqlFilesDivId', '#$sqlChooseBtnId', '#$sqlFilesInputId')");
 
         $this->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($server, $database));
         $this->jq("#$sqlFilesBtnId")
