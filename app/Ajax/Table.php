@@ -10,17 +10,27 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
+use function array_merge;
+
 class Table extends CallableClass
 {
     /**
      * The form id
+     * @var string
      */
     protected $formId = 'adminer-table-form';
 
     /**
      * The table id
+     * @var string
      */
     protected $tableId = 'adminer-table-header';
+
+    /**
+     * Default values for tables
+     * @var string[]
+     */
+    protected $defaults = ['autoIncrementCol' => '', 'engine' => '', 'collation' => ''];
 
     /**
      * Display the content of a tab
@@ -54,6 +64,8 @@ class Table extends CallableClass
         $tableInfo = $this->dbAdmin->getTableInfo($server, $database, $schema, $table);
         // Make table info available to views
         $this->view()->shareValues($tableInfo);
+
+        // Test the data bag
 
         // Set main menu buttons
         $content = isset($tableInfo['mainActions']) ?
@@ -205,18 +217,7 @@ class Table extends CallableClass
      */
     public function create(string $server, string $database, string $schema, array $values)
     {
-        if(!isset($values['comment']))
-        {
-            $values['comment'] = null;
-        }
-        if(!isset($values['engine']))
-        {
-            $values['engine'] = '';
-        }
-        if(!isset($values['collation']))
-        {
-            $values['collation'] = '';
-        }
+        $values = array_merge($this->defaults, $values);
 
         $result = $this->dbAdmin->createTable($server, $database, $schema, $values);
         if(!$result['success'])
@@ -243,18 +244,7 @@ class Table extends CallableClass
      */
     public function alter(string $server, string $database, string $schema, string $table, array $values)
     {
-        if(!isset($values['comment']))
-        {
-            $values['comment'] = null;
-        }
-        if(!isset($values['engine']))
-        {
-            $values['engine'] = '';
-        }
-        if(!isset($values['collation']))
-        {
-            $values['collation'] = '';
-        }
+        $values = array_merge($this->defaults, $values);
 
         $result = $this->dbAdmin->alterTable($server, $database, $schema, $table, $values);
         if(!$result['success'])

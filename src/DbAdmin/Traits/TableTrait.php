@@ -133,22 +133,30 @@ trait TableTrait
 
     /**
      * @param TableFieldEntity $field
+     * @param string $orig
      * @param string $table
      *
      * @return void
      */
-    private function addFieldToAttrs(TableFieldEntity $field, string $table)
+    private function addFieldToAttrs(TableFieldEntity $field, string $orig, string $table)
     {
+        if ($field->name === '' && $orig !== '') {
+            // A missing "name" field and a not empty "orig" field means the column is to be dropped.
+            $this->attrs->dropped[] = $orig;
+            return;
+        }
         $foreignKey = $this->foreignKeys[$field->type] ?? null;
         //! Can collide with user defined type
         $typeField = ($foreignKey === null ? $field :
             TableFieldEntity::make($this->referencableTables[$foreignKey]));
         $processedField = $this->util->processField($field, $typeField);
         $origField = $this->fields[$field->name] ?? null;
-        if ($field->name === '') {
+        $this->after = '';
+        if ($orig === '') {
             $this->attrs->fields[] = ['', $processedField, $this->after];
+            $this->after = ' AFTER ' . $this->driver->escapeId($field->name);
         } elseif ($origField !== null && $field->changed($origField)) {
-            $this->attrs->edited[] = [$field->name, $processedField, $this->after];
+            $this->attrs->edited[] = [$orig, $processedField, $this->after];
         }
         if ($foreignKey !== null) {
             $fkey = new ForeignKeyEntity();

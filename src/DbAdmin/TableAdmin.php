@@ -13,7 +13,7 @@ use function ksort;
 use function array_key_exists;
 use function array_map;
 use function implode;
-
+use function trim;
 
 /**
  * Admin table functions
@@ -369,33 +369,23 @@ class TableAdmin extends AbstractAdmin
     private function makeTableAttrs(array $values, string $table = '')
     {
         // From create.inc.php
-        $values['fields'] = (array)$values['fields'];
         if ($values['autoIncrementCol']) {
             $values['fields'][$values['autoIncrementCol']]['autoIncrement'] = true;
         }
 
-        $this->attrs = new TableEntity(\trim($values['name']));
+        $this->attrs = new TableEntity(trim($values['name']));
         $this->after = ' FIRST';
 
         $this->getForeignKeys();
 
         $this->fields = ($table !== '' ? $this->driver->fields($table) : []);
         foreach ($values['fields'] as $key => $field) {
-            $fieldName = $field['orig'];
+            $orig = $field['orig'];
             $field = TableFieldEntity::make($field);
+            $field->autoIncrement = ($key == $values['autoIncrementCol']);
             // Originally, deleted fields have the "field" field set to an empty string.
             // But in our implementation, the "name" field is not set.
-            if ($field->name != '') {
-                $field->autoIncrement = ($key == $values['autoIncrementCol']);
-                $this->addFieldToAttrs($field, $table);
-                $this->after = ' AFTER ' . $this->driver->escapeId($field->name);
-            } elseif ($fieldName !== '') {
-                // A missing "name" field and a not empty "orig" field means the column is to be dropped.
-                $this->attrs->dropped[] = $fieldName;
-            }
-            if ($fieldName !== '') {
-                $this->after = '';
-            }
+            $this->addFieldToAttrs($field, $orig, $table);
         }
 
         // For now, partitioning is not implemented
