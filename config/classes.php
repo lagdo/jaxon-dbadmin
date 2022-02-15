@@ -18,6 +18,9 @@ return [
         'execInsert,execUpdate,execDelete' => [
             '__after' => 'debugQueries',
         ],
+        'backToSelect,execUpdate,execDelete' => [
+            'bags' => ['dbadmin.select'],
+        ],
     ],
     Lagdo\DbAdmin\App\Ajax\Table\Select::class => [
         'show' => [
@@ -25,7 +28,9 @@ return [
         ],
         'execSelect' => [
             '__after' => 'debugQueries',
-            'bags' => ['dbadmin.table'],
+        ],
+        '*' => [
+            'bags' => ['dbadmin.select'],
         ],
     ],
     Lagdo\DbAdmin\App\Ajax\Server::class => [

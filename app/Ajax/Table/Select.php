@@ -10,6 +10,8 @@ use Lagdo\DbAdmin\App\CallableClass;
 use Exception;
 
 use function html_entity_decode;
+use function jq;
+use function rq;
 use function pm;
 
 /**
@@ -22,7 +24,7 @@ class Select extends CallableClass
      *
      * @var string
      */
-    private $selectFormId = 'adminer-table-select-form';
+    private $formOptionsId = 'adminer-table-select-options-form';
 
     /**
      * The columns form div id
@@ -53,6 +55,13 @@ class Select extends CallableClass
     private $txtQueryId = 'adminer-table-select-query';
 
     /**
+     * Default select options
+     *
+     * @var array
+     */
+    private $selectOptions = ['limit' => 50, 'text_length' => 100];
+
+    /**
      * @param string $server
      * @param string $query
      *
@@ -76,14 +85,21 @@ class Select extends CallableClass
      * @param string $database    The database name
      * @param string $schema      The schema name
      * @param string $table       The table name
+     * @param bool   $init
      *
      * @return Response
+     * @throws Exception
      */
-    public function show(string $server, string $database, string $schema, string $table): Response
+    public function show(string $server, string $database, string $schema, string $table, bool $init = true): Response
     {
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table);
         // Make data available to views
         $this->view()->shareValues($selectData);
+
+        // Initialize select options
+        if ($init) {
+            $this->bag('dbadmin.select')->set('options', $this->selectOptions);
+        }
 
         // Set main menu buttons
         $content = isset($selectData['mainActions']) ?
@@ -98,7 +114,7 @@ class Select extends CallableClass
         $btnLimitId = 'adminer-table-select-limit';
         $btnLengthId = 'adminer-table-select-length';
         $ids = [
-            'formId' => $this->selectFormId,
+            'formId' => $this->formOptionsId,
             'btnColumnsId' => $btnColumnsId,
             'btnFiltersId' => $btnFiltersId,
             'btnSortingId' => $btnSortingId,
@@ -110,32 +126,36 @@ class Select extends CallableClass
         ];
         $content = $this->uiBuilder->tableSelect($ids, $selectData['options']);
         $this->response->html($this->package->getDbContentId(), $content);
-        // Show the query
-        $this->showQuery($server, $selectData['query']);
 
-        $options = pm()->form($this->selectFormId);
+        // Show the query
+        if ($init) {
+            $this->showQuery($server, $selectData['query']);
+        }
+
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-select-back')
             ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
         $this->jq("#$btnColumnsId")
-            ->click($this->rq()->editColumns($server, $database, $schema, $table, $options));
+            ->click($this->rq()->editColumns($server, $database, $schema, $table));
         $this->jq("#$btnFiltersId")
-            ->click($this->rq()->editFilters($server, $database, $schema, $table, $options));
+            ->click($this->rq()->editFilters($server, $database, $schema, $table));
         $this->jq("#$btnSortingId")
-            ->click($this->rq()->editSorting($server, $database, $schema, $table, $options));
+            ->click($this->rq()->editSorting($server, $database, $schema, $table));
+        $this->jq('#adminer-main-action-select-exec')
+            ->click($this->rq()->execSelect($server, $database, $schema, $table));
+        $this->jq('#adminer-main-action-insert-table')
+            ->click($this->cl(Query::class)->rq()->showInsert($server, $database, $schema, $table));
+        $this->jq("#$btnExecId")
+            ->click($this->rq()->execSelect($server, $database, $schema, $table));
+        $query = pm()->js('jaxon.adminer.editor.query');
+        $this->jq("#$btnEditId")
+            ->click($this->cl(Command::class)->rq()->showDatabaseForm($server, $database, $schema, $query));
+        // Select options form
+        $options = pm()->form($this->formOptionsId);
         $this->jq("#$btnLimitId")
             ->click($this->rq()->setQueryOptions($server, $database, $schema, $table, $options));
         $this->jq("#$btnLengthId")
             ->click($this->rq()->setQueryOptions($server, $database, $schema, $table, $options));
-        $this->jq('#adminer-main-action-select-exec')
-            ->click($this->rq()->execSelect($server, $database, $schema, $table, $options));
-        $this->jq('#adminer-main-action-insert-table')
-            ->click($this->cl(Query::class)->rq()->showInsert($server, $database, $schema, $table));
-        $this->jq("#$btnExecId")
-            ->click($this->rq()->execSelect($server, $database, $schema, $table, $options));
-        $query = pm()->js('jaxon.adminer.editor.query');
-        $this->jq("#$btnEditId")
-            ->click($this->cl(Command::class)->rq()->showDatabaseForm($server, $database, $schema, $query));
 
         return $this->response;
     }
@@ -147,20 +167,20 @@ class Select extends CallableClass
      * @param string $database The database name
      * @param string $schema The schema name
      * @param string $table The table name
-     * @param array $options The query options
      * @param integer $page The page number
      *
      * @return Response
      * @throws Exception
      */
-    public function execSelect(string $server, string $database, string $schema,
-        string $table, array $options, int $page = 0): Response
+    public function execSelect(string $server, string $database, string $schema, string $table, int $page = 0): Response
     {
+        // Select options
+        $options = $this->bag('dbadmin.select')->get('options', $this->selectOptions);
         if($page < 1)
         {
-            $page = $this->bag('dbadmin.table')->get('select.page', 1);
+            $page = $this->bag('dbadmin.select')->get('exec.page', 1);
         }
-        $this->bag('dbadmin.table')->set('select.page', $page);
+        $this->bag('dbadmin.select')->set('exec.page', $page);
 
         $options['page'] = $page;
         $results = $this->dbAdmin->execSelect($server, $database, $schema, $table, $options);
@@ -182,7 +202,7 @@ class Select extends CallableClass
         }
         // Note: don't use the var keyword when setting a variable,
         // because it will not make the variable globally accessible.
-        $this->response->script("rowIds = JSON.parse('" . json_encode($rowIds) . "')");
+        $this->response->script("jaxon.adminer.rowIds = JSON.parse('" . json_encode($rowIds) . "')");
 
         $btnEditRowClass = 'adminer-table-select-row-edit';
         $btnDeleteRowClass = 'adminer-table-select-row-delete';
@@ -192,9 +212,9 @@ class Select extends CallableClass
 
         // The Jaxon ajax calls
         $updateCall = $this->cl(Query::class)->rq()->showUpdate($server, $database, $schema, $table,
-            pm()->js("rowIds[rowId]"), $options);
+            pm()->js("jaxon.adminer.rowIds[rowId]"));
         $deleteCall = $this->cl(Query::class)->rq()->execDelete($server, $database, $schema, $table,
-            pm()->js("rowIds[rowId]"), $options)->confirm($this->dbAdmin->lang('Delete this item?'));
+            pm()->js("jaxon.adminer.rowIds[rowId]"))->confirm($this->dbAdmin->lang('Delete this item?'));
 
         // Wrap the ajax calls into functions
         $this->response->setFunction('updateRowItem', 'rowId', $updateCall);
@@ -202,15 +222,15 @@ class Select extends CallableClass
 
         // Set the functions as button event handlers
         $this->jq(".$btnEditRowClass", "#$resultsId")
-            ->click(\rq()->func('updateRowItem', \jq()->attr('data-row-id')));
+            ->click(rq()->func('updateRowItem', jq()->attr('data-row-id')));
         $this->jq(".$btnDeleteRowClass", "#$resultsId")
-            ->click(\rq()->func('deleteRowItem', \jq()->attr('data-row-id')));
+            ->click(rq()->func('deleteRowItem', jq()->attr('data-row-id')));
 
         // Show the query
         $this->showQuery($server, $results['query']);
 
         // Pagination
-        $paginator = $this->rq()->execSelect($server, $database, $schema, $table, $options, pm()->page())
+        $paginator = $this->rq()->execSelect($server, $database, $schema, $table, pm()->page())
             ->paginate($page, $results['limit'], $results['total']);
         $pagination = $this->uiBuilder->pagination($paginator->getPages());
         $this->response->html("adminer-table-select-pagination", $pagination);
@@ -225,13 +245,19 @@ class Select extends CallableClass
      * @param string $database    The database name
      * @param string $schema      The schema name
      * @param string $table       The table name
-     * @param array  $options     The query options
+     * @param array  $formValues  The form values
      *
      * @return Response
      */
     public function setQueryOptions(string $server, string $database, string $schema,
-        string $table, array $options): Response
+        string $table, array $formValues): Response
     {
+        // Select options
+        $options = $this->bag('dbadmin.select')->get('options', $this->selectOptions);
+        $options['limit'] = $formValues['limit'] ?? 50;
+        $options['text_length'] = $formValues['text_length'] ?? 100;
+        $this->bag('dbadmin.select')->set('options', $options);
+
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Display the new query
         $this->showQuery($server, $selectData['query']);
@@ -246,13 +272,14 @@ class Select extends CallableClass
      * @param string $database    The database name
      * @param string $schema      The schema name
      * @param string $table       The table name
-     * @param array  $options     The query options
      *
      * @return Response
      */
-    public function editColumns(string $server, string $database, string $schema,
-        string $table, array $options): Response
+    public function editColumns(string $server, string $database, string $schema, string $table): Response
     {
+        // Select options
+        $options = $this->bag('dbadmin.select')->get('options', $this->selectOptions);
+
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
@@ -273,8 +300,7 @@ class Select extends CallableClass
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->saveColumns($server, $database, $schema, $table,
-                pm()->form($this->selectFormId), pm()->form($this->columnsFormId)),
+            'click' => $this->rq()->saveColumns($server, $database, $schema, $table, pm()->form($this->columnsFormId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
@@ -291,23 +317,21 @@ class Select extends CallableClass
      * @param string $database    The database name
      * @param string $schema      The schema name
      * @param string $table       The table name
-     * @param array  $options     The current query options
-     * @param array  $changed     The changed query options
+     * @param array  $formValues  The form values
      *
      * @return Response
      */
     public function saveColumns(string $server, string $database, string $schema,
-        string $table, array $options, array $changed): Response
+        string $table, array $formValues): Response
     {
-        $options['columns'] = $changed['columns'] ?? [];
-        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
+        // Select options
+        $options = $this->bag('dbadmin.select')->get('options', $this->selectOptions);
+        $options['columns'] = $formValues['columns'] ?? [];
+        $this->bag('dbadmin.select')->set('options', $options);
 
+        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Hide the dialog
         $this->response->dialog->hide();
-
-        // Display the new values
-        $content = $this->uiBuilder->showQueryColumns($selectData['options']['columns']['values']);
-        $this->response->html('adminer-table-select-columns-show', $content);
         // Display the new query
         $this->showQuery($server, $selectData['query']);
 
@@ -321,13 +345,14 @@ class Select extends CallableClass
      * @param string $database    The database name
      * @param string $schema      The schema name
      * @param string $table       The table name
-     * @param array  $options     The query options
      *
      * @return Response
      */
-    public function editFilters(string $server, string $database, string $schema,
-        string $table, array $options): Response
+    public function editFilters(string $server, string $database, string $schema, string $table): Response
     {
+        // Select options
+        $options = $this->bag('dbadmin.select')->get('options', $this->selectOptions);
+
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
@@ -348,8 +373,7 @@ class Select extends CallableClass
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->saveFilters($server, $database, $schema, $table,
-                pm()->form($this->selectFormId), pm()->form($this->filtersFormId)),
+            'click' => $this->rq()->saveFilters($server, $database, $schema, $table, pm()->form($this->filtersFormId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
@@ -366,23 +390,21 @@ class Select extends CallableClass
      * @param string $database    The database name
      * @param string $schema      The schema name
      * @param string $table       The table name
-     * @param array  $options     The current query options
-     * @param array  $changed     The changed query options
+     * @param array  $formValues  The form values
      *
      * @return Response
      */
     public function saveFilters(string $server, string $database, string $schema,
-        string $table, array $options, array $changed): Response
+        string $table, array $formValues): Response
     {
-        $options['where'] = $changed['where'] ?? [];
-        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
+        // Select options
+        $options = $this->bag('dbadmin.select')->get('options', $this->selectOptions);
+        $options['where'] = $formValues['where'] ?? [];
+        $this->bag('dbadmin.select')->set('options', $options);
 
+        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Hide the dialog
         $this->response->dialog->hide();
-
-        // Display the new values
-        $content = $this->uiBuilder->showQueryFilters($selectData['options']['filters']['values']);
-        $this->response->html('adminer-table-select-filters-show', $content);
         // Display the new query
         $this->showQuery($server, $selectData['query']);
 
@@ -396,13 +418,14 @@ class Select extends CallableClass
      * @param string $database    The database name
      * @param string $schema      The schema name
      * @param string $table       The table name
-     * @param array  $options     The query options
      *
      * @return Response
      */
-    public function editSorting(string $server, string $database, string $schema,
-        string $table, array $options): Response
+    public function editSorting(string $server, string $database, string $schema, string $table): Response
     {
+        // Select options
+        $options = $this->bag('dbadmin.select')->get('options', $this->selectOptions);
+
         $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
@@ -423,8 +446,7 @@ class Select extends CallableClass
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->saveSorting($server, $database, $schema, $table,
-                pm()->form($this->selectFormId), pm()->form($this->sortingFormId)),
+            'click' => $this->rq()->saveSorting($server, $database, $schema, $table, pm()->form($this->sortingFormId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
@@ -441,24 +463,22 @@ class Select extends CallableClass
      * @param string $database    The database name
      * @param string $schema      The schema name
      * @param string $table       The table name
-     * @param array  $options     The current query options
-     * @param array  $changed     The changed query options
+     * @param array  $formValues  The form values
      *
      * @return Response
      */
     public function saveSorting(string $server, string $database, string $schema,
-        string $table, array $options, array $changed): Response
+        string $table, array $formValues): Response
     {
-        $options['order'] = $changed['order'] ?? [];
-        $options['desc'] = $changed['desc'] ?? [];
-        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
+        // Select options
+        $options = $this->bag('dbadmin.select')->get('options', $this->selectOptions);
+        $options['order'] = $formValues['order'] ?? [];
+        $options['desc'] = $formValues['desc'] ?? [];
+        $this->bag('dbadmin.select')->set('options', $options);
 
+        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
         // Hide the dialog
         $this->response->dialog->hide();
-
-        // Display the new values
-        $content = $this->uiBuilder->showQuerySorting($selectData['options']['sorting']['values']);
-        $this->response->html('adminer-table-select-sorting-show', $content);
         // Display the new query
         $this->showQuery($server, $selectData['query']);
 

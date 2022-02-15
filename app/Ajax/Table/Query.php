@@ -98,6 +98,25 @@ class Query extends CallableClass
     }
 
     /**
+     * Get back to the select query from which the update or delete was called
+     *
+     * @param string $server        The database server
+     * @param string $database      The database name
+     * @param string $schema        The schema name
+     * @param string $table         The table name
+     *
+     * @return Response
+     */
+    public function backToSelect(string $server, string $database, string $schema, string $table): Response
+    {
+        $select = $this->cl(Select::class);
+        $select->show($server, $database, $schema, $table, false);
+        $select->execSelect($server, $database, $schema, $table);
+
+        return $this->response;
+    }
+
+    /**
      * Show the update query form
      *
      * @param string $server        The database server
@@ -105,12 +124,11 @@ class Query extends CallableClass
      * @param string $schema        The schema name
      * @param string $table         The table name
      * @param array  $rowIds        The row identifiers
-     * @param array  $selects       The select options
      *
      * @return Response
      */
     public function showUpdate(string $server, string $database, string $schema,
-        string $table, array $rowIds, array $selects): Response
+        string $table, array $rowIds): Response
     {
         $queryData = $this->dbAdmin->getQueryData($server, $database, $schema, $table, $rowIds, 'Edit item');
         // Show the error
@@ -133,10 +151,10 @@ class Query extends CallableClass
         $options = pm()->form($this->queryFormId);
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')
-            ->click($this->rq()->execUpdate($server, $database, $schema, $table, $rowIds, $options, $selects)
+            ->click($this->rq()->execUpdate($server, $database, $schema, $table, $rowIds, $options)
             ->confirm($this->dbAdmin->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-back')
-            ->click($this->rq()->backToSelect($server, $database, $schema, $table, $selects));
+            ->click($this->rq()->backToSelect($server, $database, $schema, $table));
 
         return $this->response;
     }
@@ -150,12 +168,11 @@ class Query extends CallableClass
      * @param string $table         The table name
      * @param array  $rowIds        The row selector
      * @param array  $options       The query options
-     * @param array  $selects       The select options
      *
      * @return Response
      */
     public function execUpdate(string $server, string $database, string $schema,
-        string $table, array $rowIds, array $options, array $selects): Response
+        string $table, array $rowIds, array $options): Response
     {
         $options['where'] = $rowIds['where'];
         $options['null'] = $rowIds['null'];
@@ -168,7 +185,7 @@ class Query extends CallableClass
             return $this->response;
         }
         $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
-        $this->backToSelect($server, $database, $schema, $table, $selects);
+        $this->backToSelect($server, $database, $schema, $table);
 
         return $this->response;
     }
@@ -181,12 +198,11 @@ class Query extends CallableClass
      * @param string $schema        The schema name
      * @param string $table         The table name
      * @param array  $rowIds        The row identifiers
-     * @param array  $selects       The select options
      *
      * @return Response
      */
     public function execDelete(string $server, string $database, string $schema,
-        string $table, array $rowIds, array $selects): Response
+        string $table, array $rowIds): Response
     {
         $results = $this->dbAdmin->deleteItem($server, $database, $schema, $table, $rowIds);
 
@@ -197,27 +213,7 @@ class Query extends CallableClass
             return $this->response;
         }
         $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
-        $this->backToSelect($server, $database, $schema, $table, $selects);
-
-        return $this->response;
-    }
-
-    /**
-     * Get back to the select query from which the update or delete was called
-     *
-     * @param string $server        The database server
-     * @param string $database      The database name
-     * @param string $schema        The schema name
-     * @param string $table         The table name
-     * @param array  $options       The query options
-     *
-     * @return Response
-     */
-    public function backToSelect(string $server, string $database, string $schema, string $table, array $options): Response
-    {
-        $select = $this->cl(Select::class);
-        $select->show($server, $database, $schema, $table);
-        $this->response->script($select->rq()->execSelect($server, $database, $schema, $table, $options));
+        $this->cl(Select::class)->rq()->execSelect($server, $database, $schema, $table);
 
         return $this->response;
     }

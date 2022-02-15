@@ -9,36 +9,6 @@ use function array_shift;
 trait SelectTrait
 {
     /**
-     * @param array $values
-     *
-     * @return void
-     */
-    private function _showQueryColumns(array $values)
-    {
-        $i = 0;
-        foreach ($values as $value) {
-            $this->htmlBuilder
-                ->input()->setName("columns[$i][fun]")->setValue($value['fun'])
-                ->endShorted()
-                ->input()->setName("columns[$i][col]")->setValue($value['col'])
-                ->endShorted();
-            $i++;
-        }
-    }
-
-    /**
-     * @param array $values
-     *
-     * @return string
-     */
-    public function showQueryColumns(array $values): string
-    {
-        $this->htmlBuilder->clear();
-        $this->_showQueryColumns($values);
-        return $this->htmlBuilder->build();
-    }
-
-    /**
      * @param string $formId
      * @param string $btnAddOnClick
      * @param string $btnDelOnClick
@@ -144,38 +114,6 @@ trait SelectTrait
     }
 
     /**
-     * @param array $values
-     *
-     * @return void
-     */
-    private function _showQueryFilters(array $values)
-    {
-        $i = 0;
-        foreach ($values as $value) {
-            $this->htmlBuilder
-                ->input()->setName("where[$i][col]")->setValue($value['col'])
-                ->endShorted()
-                ->input()->setName("where[$i][op]")->setValue($value['op'])
-                ->endShorted()
-                ->input()->setName("where[$i][val]")->setValue($value['val'])
-                ->endShorted();
-            $i++;
-        }
-    }
-
-    /**
-     * @param array $values
-     *
-     * @return string
-     */
-    public function showQueryFilters(array $values): string
-    {
-        $this->htmlBuilder->clear();
-        $this->_showQueryFilters($values);
-        return $this->htmlBuilder->build();
-    }
-
-    /**
      * @param string $rowId
      * @param string $formId
      * @param array $value
@@ -245,36 +183,6 @@ trait SelectTrait
         $this->editFilterValue('__index__', $formId, ['col' => '', 'op' => '', 'val' => ''], $options);
         $this->htmlBuilder
             ->end();
-        return $this->htmlBuilder->build();
-    }
-
-    /**
-     * @param array $values
-     *
-     * @return void
-     */
-    private function _showQuerySorting(array $values)
-    {
-        $i = 0;
-        foreach ($values as $value) {
-            $this->htmlBuilder
-                ->input()->setName("order[$i]")->setValue($value['col'])
-                ->endShorted()
-                ->input()->setName("desc[$i]")->setValue($value['desc'])
-                ->endShorted();
-            $i++;
-        }
-    }
-
-    /**
-     * @param array $values
-     *
-     * @return string
-     */
-    public function showQuerySorting(array $values): string
-    {
-        $this->htmlBuilder->clear();
-        $this->_showQuerySorting($values);
         return $this->htmlBuilder->build();
     }
 
@@ -414,20 +322,6 @@ trait SelectTrait
             ->row()
                 ->col(12)
                     ->form(true, true)->setId($ids['formId'])
-                        ->div()->setStyle('display:none')
-                            ->div()->setId('adminer-table-select-columns-show');
-        $this->_showQueryColumns($options['columns']['values']);
-        $this->htmlBuilder
-                            ->end()
-                            ->div()->setId('adminer-table-select-filters-show');
-        $this->_showQueryFilters($options['filters']['values']);
-        $this->htmlBuilder
-                            ->end()
-                            ->div()->setId('adminer-table-select-sorting-show');
-        $this->_showQuerySorting($options['sorting']['values']);
-        $this->htmlBuilder
-                            ->end()
-                        ->end()
                         ->formRow()
                             ->formCol(6)
                                 ->buttonGroup(true)
