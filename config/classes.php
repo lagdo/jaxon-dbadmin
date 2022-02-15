@@ -25,6 +25,7 @@ return [
         ],
         'execSelect' => [
             '__after' => 'debugQueries',
+            'bags' => ['dbadmin.table'],
         ],
     ],
     Lagdo\DbAdmin\App\Ajax\Server::class => [

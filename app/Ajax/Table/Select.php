@@ -154,8 +154,14 @@ class Select extends CallableClass
      * @throws Exception
      */
     public function execSelect(string $server, string $database, string $schema,
-        string $table, array $options, int $page = 1): Response
+        string $table, array $options, int $page = 0): Response
     {
+        if($page < 1)
+        {
+            $page = $this->bag('dbadmin.table')->get('select.page', 1);
+        }
+        $this->bag('dbadmin.table')->set('select.page', $page);
+
         $options['page'] = $page;
         $results = $this->dbAdmin->execSelect($server, $database, $schema, $table, $options);
         // Show the message
