@@ -2,13 +2,15 @@
 
 namespace Lagdo\DbAdmin;
 
+use Lagdo\DbAdmin\Db\Admin;
+use Lagdo\DbAdmin\DbAdmin\AbstractAdmin;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\UtilInterface;
-use Lagdo\DbAdmin\Db\Admin;
+use Lagdo\DbAdmin\Db\Translator;
+use Jaxon\Di\Container;
 
-use Lagdo\DbAdmin\DbAdmin\AbstractAdmin;
-
-use Exception;
+use function call_user_func_array;
+use function func_get_args;
 
 /**
  * Admin to calls to the database functions
@@ -34,6 +36,11 @@ class DbAdmin extends AbstractAdmin
     protected $breadcrumbs = [];
 
     /**
+     * @var Container
+     */
+    protected $di;
+
+    /**
      * The Jaxon DbAdmin package
      *
      * @var Package
@@ -45,14 +52,13 @@ class DbAdmin extends AbstractAdmin
      *
      * @param Package $package    The DbAdmin package
      */
-    public function __construct(Package $package)
+    public function __construct(Container $di, Package $package, Translator $trans)
     {
+        $this->di = $di;
         $this->package = $package;
-
-        $jaxon = \jaxon();
-        $this->trans = $jaxon->di()->get(Db\Translator::class);
+        $this->trans = $trans;
         // Make the translator available into views
-        $jaxon->view()->share('trans', /** @scrutinizer ignore-type */ $this->trans);
+        $package->view()->share('trans', $this->trans);
     }
 
     /**
@@ -63,9 +69,9 @@ class DbAdmin extends AbstractAdmin
      *
      * @return string
      */
-    public function lang($idf)
+    public function lang($idf): string
     {
-        return \call_user_func_array([$this->trans, "lang"], \func_get_args());
+        return call_user_func_array([$this->trans, "lang"], func_get_args());
     }
 
     /**
@@ -73,7 +79,7 @@ class DbAdmin extends AbstractAdmin
      *
      * @return array
      */
-    public function getBreadcrumbs()
+    public function getBreadcrumbs(): array
     {
         return $this->breadcrumbs;
     }
@@ -93,7 +99,7 @@ class DbAdmin extends AbstractAdmin
     /**
      * @return AbstractAdmin
      */
-    public function admin()
+    public function admin(): AbstractAdmin
     {
         return $this;
     }
@@ -111,13 +117,12 @@ class DbAdmin extends AbstractAdmin
     {
         // Prevent multiple calls.
         if (!$this->driver) {
-            $di = \jaxon()->di();
             // Save the selected server options in the di container.
-            $di->val('dbadmin_config_driver', $this->package->getServerDriver($server));
-            $di->val('dbadmin_config_options', $this->package->getServerOptions($server));
-            $this->driver = $di->get(DriverInterface::class);
-            $this->util = $di->get(UtilInterface::class);
-            $this->admin = $di->get(Admin::class);
+            $this->di->val('dbadmin_config_driver', $this->package->getServerDriver($server));
+            $this->di->val('dbadmin_config_options', $this->package->getServerOptions($server));
+            $this->driver = $this->di->get(DriverInterface::class);
+            $this->util = $this->di->get(UtilInterface::class);
+            $this->admin = $this->di->get(Admin::class);
         }
         // Connect to the selected server
         $this->driver->connect($database, $schema);
@@ -128,7 +133,7 @@ class DbAdmin extends AbstractAdmin
      *
      * @return array
      */
-    public function queries()
+    public function queries(): array
     {
         return $this->driver->queries();
     }

@@ -76,10 +76,10 @@ class Builder
                         ->col(12)
                             ->inputGroup()
                                 ->formSelect()->setId('adminer-dbhost-select');
-        foreach($values['servers'] as $name => $title)
+        foreach($values['servers'] as $serverId => $server)
         {
             $this->htmlBuilder
-                                    ->option($name == $values['default'], $title)->setValue($name)
+                                    ->option($serverId == $values['default'], $server['name'])->setValue($serverId)
                                     ->end();
         }
         $this->htmlBuilder

@@ -230,9 +230,9 @@ class Select extends CallableClass
         $this->showQuery($server, $results['query']);
 
         // Pagination
-        $paginator = $this->rq()->execSelect($server, $database, $schema, $table, pm()->page())
-            ->paginate($page, $results['limit'], $results['total']);
-        $pagination = $this->uiBuilder->pagination($paginator->getPages());
+        $pages = $this->rq()->execSelect($server, $database, $schema, $table, pm()->page())
+            ->pages($page, $results['limit'], $results['total']);
+        $pagination = $this->uiBuilder->pagination($pages);
         $this->response->html("adminer-table-select-pagination", $pagination);
 
         return $this->response;

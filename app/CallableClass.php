@@ -93,9 +93,9 @@ class CallableClass extends JaxonCallableClass
      */
     protected function checkServerAccess(string $server, $showError = true)
     {
-        $serverAccess = $this->package->getConfig()->getOption("servers.$server.access.server", null);
+        $serverAccess = $this->package->getOption("servers.$server.access.server", null);
         if($serverAccess === true ||
-            ($serverAccess === null && $this->package->getConfig()->getOption('access.server', true)))
+            ($serverAccess === null && $this->package->getOption('access.server', true)))
         {
             return true;
         }

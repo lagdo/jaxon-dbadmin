@@ -29,10 +29,5 @@ return [
             ],
         ],
     ],
-    'container' => [
-        Lagdo\DbAdmin\DbAdmin::class => function($di) {
-            $package = $di->get(Lagdo\DbAdmin\Package::class);
-            return new Lagdo\DbAdmin\DbAdmin($package);
-        },
-    ],
+    'container' => require( __DIR__ . '/container.php'),
 ];

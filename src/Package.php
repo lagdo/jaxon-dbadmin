@@ -2,13 +2,13 @@
 
 namespace Lagdo\DbAdmin;
 
+use Jaxon\Jaxon;
 use Jaxon\Plugin\Package as JaxonPackage;
 use Lagdo\DbAdmin\App\Ajax\Server;
 use Lagdo\DbAdmin\Ui\Builder;
 
-use function array_key_exists;
-use function array_walk;
-use function jaxon;
+use function is_string;
+use function realpath;
 use function pm;
 
 /**
@@ -17,20 +17,35 @@ use function pm;
 class Package extends JaxonPackage
 {
     /**
+     * @var Jaxon
+     */
+    private $jaxon;
+
+    /**
      * @var Builder
      */
     protected $uiBuilder;
 
     /**
      * The constructor
+     *
+     * @param Jaxon $jaxon
+     * @param Builder $uiBuilder
      */
-    public function __construct()
+    public function __construct(Jaxon $jaxon, Builder $uiBuilder)
     {
-        jaxon()->callback()->boot(function() {
-            $template = $this->getConfig()->getOption('template', 'bootstrap3');
-            jaxon()->di()->val('dbadmin_config_builder', $template);
-            $this->uiBuilder = jaxon()->di()->get(Builder::class);
-        });
+        $this->jaxon = $jaxon;
+        $this->uiBuilder = $uiBuilder;
+    }
+
+    /**
+     * Get the path to the config file
+     *
+     * @return string|array
+     */
+    public static function config()
+    {
+        return realpath(__DIR__ . '/../config/config.php');
     }
 
     /**
@@ -38,7 +53,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getContainerId()
+    public function getContainerId(): string
     {
         return 'adminer';
     }
@@ -48,7 +63,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getUserInfoId()
+    public function getUserInfoId(): string
     {
         return 'adminer-user-info';
     }
@@ -58,7 +73,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getServerInfoId()
+    public function getServerInfoId(): string
     {
         return 'adminer-server-info';
     }
@@ -68,7 +83,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getBreadcrumbsId()
+    public function getBreadcrumbsId(): string
     {
         return 'adminer-breadcrumbs';
     }
@@ -78,7 +93,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getMainActionsId()
+    public function getMainActionsId(): string
     {
         return 'adminer-main-actions';
     }
@@ -88,7 +103,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getServerActionsId()
+    public function getServerActionsId(): string
     {
         return 'adminer-server-actions';
     }
@@ -98,7 +113,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getDbListId()
+    public function getDbListId(): string
     {
         return 'adminer-database-list';
     }
@@ -108,7 +123,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getSchemaListId()
+    public function getSchemaListId(): string
     {
         return 'adminer-schema-list';
     }
@@ -118,7 +133,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getDbMenuId()
+    public function getDbMenuId(): string
     {
         return 'adminer-database-menu';
     }
@@ -128,7 +143,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getDbActionsId()
+    public function getDbActionsId(): string
     {
         return 'adminer-database-actions';
     }
@@ -138,7 +153,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getDbContentId()
+    public function getDbContentId(): string
     {
         return 'adminer-database-content';
     }
@@ -148,7 +163,7 @@ class Package extends JaxonPackage
      *
      * @return array
      */
-    public function getIds()
+    public function getIds(): array
     {
         return [
             'containerId' => $this->getContainerId(),
@@ -166,25 +181,15 @@ class Package extends JaxonPackage
     }
 
     /**
-     * Get the path to the config file
-     *
-     * @return string
-     */
-    public static function getConfigFile()
-    {
-        return realpath(__DIR__ . '/../config/config.php');
-    }
-
-    /**
      * Get a given server options
      *
      * @param string $server    The server name in the configuration
      *
      * @return array
      */
-    public function getServerOptions(string $server)
+    public function getServerOptions(string $server): array
     {
-        return $this->getConfig()->getOption("servers.$server", []);
+        return $this->getOption("servers.$server", []);
     }
 
     /**
@@ -194,29 +199,9 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getServerDriver(string $server)
+    public function getServerDriver(string $server): string
     {
-        return $this->getConfig()->getOption("servers.$server.driver", '');
-    }
-
-    /**
-     * Get the default server to connect to
-     *
-     * @return string
-     */
-    private function getDefaultServer()
-    {
-        $servers = $this->getConfig()->getOption('servers', []);
-        $default = $this->getConfig()->getOption('default', '');
-        if(array_key_exists($default, $servers))
-        {
-            return $default;
-        }
-        // if(count($servers) > 0)
-        // {
-        //     return $servers[0];
-        // }
-        return '';
+        return $this->getOption("servers.$server.driver", '');
     }
 
     /**
@@ -226,7 +211,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getCss()
+    public function getCss(): string
     {
         return $this->view()->render('adminer::codes::css', $this->getIds()) .
             "\n" . $this->view()->render('adminer::views::styles', $this->getIds());
@@ -239,7 +224,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getJs()
+    public function getJs(): string
     {
         return $this->view()->render('adminer::codes::js', $this->getIds());
     }
@@ -251,7 +236,7 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getScript()
+    public function getScript(): string
     {
         return $this->view()->render('adminer::codes::script', $this->getIds());
     }
@@ -261,13 +246,15 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getReadyScript()
+    public function getReadyScript(): string
     {
-        if(!($server = $this->getDefaultServer()))
+        $servers = $this->getOption('servers', []);
+        $default = $this->getOption('default', '');
+        if(!is_string($default) || empty($servers[$default]))
         {
             return '';
         }
-        return jaxon()->request(Server::class)->connect($server);
+        return $this->jaxon->request(Server::class)->connect($default);
     }
 
     /**
@@ -275,20 +262,17 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getHtml()
+    public function getHtml(): string
     {
         // Add an HTML container block for each server in the config file
-        $servers = $this->getConfig()->getOption('servers', []);
-        array_walk($servers, function(&$server) {
-            $server = $server['name'];
-        });
+        $servers = $this->getOption('servers', []);
 
-        $connect = jaxon()->request(Server::class)->connect(pm()->select('adminer-dbhost-select'));
+        $connect = $this->jaxon->request(Server::class)->connect(pm()->select('adminer-dbhost-select'));
 
         $values = $this->getIds();
         $values['connect'] = $connect;
         $values['servers'] = $servers;
-        $values['default'] = $this->getConfig()->getOption('default', '');
+        $values['default'] = $this->getOption('default', '');
 
         return $this->uiBuilder->home($values);
     }
