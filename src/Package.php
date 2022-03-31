@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin;
 
-use Jaxon\Jaxon;
 use Jaxon\Plugin\Package as JaxonPackage;
 use Lagdo\DbAdmin\App\Ajax\Server;
 use Lagdo\DbAdmin\Ui\Builder;
@@ -17,11 +16,6 @@ use function pm;
 class Package extends JaxonPackage
 {
     /**
-     * @var Jaxon
-     */
-    private $jaxon;
-
-    /**
      * @var Builder
      */
     protected $uiBuilder;
@@ -29,12 +23,10 @@ class Package extends JaxonPackage
     /**
      * The constructor
      *
-     * @param Jaxon $jaxon
      * @param Builder $uiBuilder
      */
-    public function __construct(Jaxon $jaxon, Builder $uiBuilder)
+    public function __construct(Builder $uiBuilder)
     {
-        $this->jaxon = $jaxon;
         $this->uiBuilder = $uiBuilder;
     }
 
@@ -254,7 +246,7 @@ class Package extends JaxonPackage
         {
             return '';
         }
-        return $this->jaxon->request(Server::class)->connect($default);
+        return $this->factory()->request(Server::class)->connect($default);
     }
 
     /**
@@ -267,7 +259,7 @@ class Package extends JaxonPackage
         // Add an HTML container block for each server in the config file
         $servers = $this->getOption('servers', []);
 
-        $connect = $this->jaxon->request(Server::class)->connect(pm()->select('adminer-dbhost-select'));
+        $connect = $this->factory()->request(Server::class)->connect(pm()->select('adminer-dbhost-select'));
 
         $values = $this->getIds();
         $values['connect'] = $connect;

@@ -42,5 +42,7 @@
         "psr-4": {
             "Lagdo\\DbAdmin\\Tests\\": "tests/"
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
