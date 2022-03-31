@@ -17,16 +17,16 @@ use function func_get_args;
  */
 class DbAdmin extends AbstractAdmin
 {
-    use DbAdmin\ServerTrait;
-    use DbAdmin\UserTrait;
-    use DbAdmin\DatabaseTrait;
-    use DbAdmin\TableTrait;
-    use DbAdmin\TableSelectTrait;
-    use DbAdmin\TableQueryTrait;
-    use DbAdmin\ViewTrait;
-    use DbAdmin\CommandTrait;
-    use DbAdmin\ExportTrait;
-    use DbAdmin\ImportTrait;
+    use DbAdmin\Server\ServerTrait;
+    use DbAdmin\User\UserTrait;
+    use DbAdmin\Database\DatabaseTrait;
+    use DbAdmin\Table\TableTrait;
+    use DbAdmin\Select\SelectTrait;
+    use DbAdmin\Query\QueryTrait;
+    use DbAdmin\View\ViewTrait;
+    use DbAdmin\Command\CommandTrait;
+    use DbAdmin\Export\ExportTrait;
+    use DbAdmin\Import\ImportTrait;
 
     /**
      * The breadcrumbs items
@@ -58,7 +58,7 @@ class DbAdmin extends AbstractAdmin
         $this->package = $package;
         $this->trans = $trans;
         // Make the translator available into views
-        $package->view()->share('trans', $this->trans);
+        $this->package->view()->share('trans', $this->trans);
     }
 
     /**
