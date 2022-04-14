@@ -53,6 +53,9 @@ class Import extends CallableClass
     /**
      * Show the import form for a server
      *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-import', 'adminer-server-actions'])
+     *
      * @param string $server      The database server
      *
      * @return Response
@@ -64,6 +67,9 @@ class Import extends CallableClass
 
     /**
      * Show the import form for a database
+     *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-import', 'adminer-database-actions'])
      *
      * @param string $server      The database server
      * @param string $database    The database name
@@ -90,6 +96,8 @@ class Import extends CallableClass
 
     /**
      * Run a webfile
+     *
+     * @upload('field' => 'adminer-import-sql-files-input')
      *
      * @param string $server      The database server
      * @param string $database    The database name

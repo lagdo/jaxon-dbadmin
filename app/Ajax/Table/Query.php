@@ -25,6 +25,8 @@ class Query extends CallableClass
     /**
      * Show the insert query form
      *
+     * @after('call' => 'showBreadcrumbs')
+     *
      * @param string $server      The database server
      * @param string $database    The database name
      * @param string $schema      The schema name
@@ -69,6 +71,8 @@ class Query extends CallableClass
     /**
      * Execute the insert query
      *
+     * @after('call' => 'debugQueries')
+     *
      * @param string $server      The database server
      * @param string $database    The database name
      * @param string $schema      The schema name
@@ -100,6 +104,8 @@ class Query extends CallableClass
     /**
      * Get back to the select query from which the update or delete was called
      *
+     * @databag('name' => 'dbadmin.select')
+     *
      * @param string $server        The database server
      * @param string $database      The database name
      * @param string $schema        The schema name
@@ -118,6 +124,8 @@ class Query extends CallableClass
 
     /**
      * Show the update query form
+     *
+     * @after('call' => 'showBreadcrumbs')
      *
      * @param string $server        The database server
      * @param string $database      The database name
@@ -162,6 +170,9 @@ class Query extends CallableClass
     /**
      * Execute the update query
      *
+     * @databag('name' => 'dbadmin.select')
+     * @after('call' => 'debugQueries')
+     *
      * @param string $server        The database server
      * @param string $database      The database name
      * @param string $schema        The schema name
@@ -192,6 +203,9 @@ class Query extends CallableClass
 
     /**
      * Execute the delete query
+     *
+     * @databag('name' => 'dbadmin.select')
+     * @after('call' => 'debugQueries')
      *
      * @param string $server        The database server
      * @param string $database      The database name

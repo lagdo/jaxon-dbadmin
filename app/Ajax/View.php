@@ -29,6 +29,8 @@ class View extends CallableClass
     /**
      * Show detailed info of a given view
      *
+     * @after('call' => 'showBreadcrumbs')
+     *
      * @param string $server      The database server
      * @param string $database    The database name
      * @param string $schema      The database schema

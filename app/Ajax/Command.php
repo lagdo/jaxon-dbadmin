@@ -52,6 +52,9 @@ class Command extends CallableClass
     /**
      * Show the SQL command form for a server
      *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-command', 'adminer-server-actions'])
+     *
      * @param string $server      The database server
      * @param string $query       The SQL query to display
      *
@@ -64,6 +67,9 @@ class Command extends CallableClass
 
     /**
      * Show the SQL command form for a database
+     *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-command', 'adminer-database-actions'])
      *
      * @param string $server      The database server
      * @param string $database    The database name
@@ -80,6 +86,8 @@ class Command extends CallableClass
 
     /**
      * Execute an SQL query and display the results
+     *
+     * @after('call' => 'debugQueries')
      *
      * @param string $server      The database server
      * @param string $database    The database name

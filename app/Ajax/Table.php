@@ -52,6 +52,8 @@ class Table extends CallableClass
     /**
      * Show detailed info of a given table
      *
+     * @after('call' => 'showBreadcrumbs')
+     *
      * @param string $server      The database server
      * @param string $database    The database name
      * @param string $schema      The database schema
@@ -117,6 +119,8 @@ class Table extends CallableClass
     /**
      * Create a new table
      *
+     * @after('call' => 'showBreadcrumbs')
+     *
      * @param string $server      The database server
      * @param string $database    The database name
      * @param string $schema      The database schema
@@ -155,6 +159,8 @@ class Table extends CallableClass
 
     /**
      * Update a given table
+     *
+     * @after('call' => 'showBreadcrumbs')
      *
      * @param string $server      The database server
      * @param string $database    The database name

@@ -44,6 +44,8 @@ class Server extends CallableClass
      * Connect to a db server.
      * The database list will be displayed in the HTML select component.
      *
+     * @after('call' => 'showBreadcrumbs')
+     *
      * @param string $server      The database server
      *
      * @return Response
@@ -100,6 +102,9 @@ class Server extends CallableClass
 
     /**
      * Show the databases of a server
+     *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-databases', 'adminer-database-menu'])
      *
      * @param string $server      The database server
      *
@@ -171,6 +176,9 @@ class Server extends CallableClass
     /**
      * Show the privileges of a server
      *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-privileges', 'adminer-database-menu'])
+     *
      * @param string $server      The database server
      *
      * @return Response
@@ -230,6 +238,9 @@ class Server extends CallableClass
     /**
      * Show the processes of a server
      *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-processes', 'adminer-database-menu'])
+     *
      * @param string $server      The database server
      *
      * @return Response
@@ -259,6 +270,9 @@ class Server extends CallableClass
     /**
      * Show the variables of a server
      *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-variables', 'adminer-database-menu'])
+     *
      * @param string $server      The database server
      *
      * @return Response
@@ -287,6 +301,9 @@ class Server extends CallableClass
 
     /**
      * Show the status of a server
+     *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-status', 'adminer-database-menu'])
      *
      * @param string $server      The database server
      *

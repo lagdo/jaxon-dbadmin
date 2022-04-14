@@ -16,6 +16,8 @@ use function pm;
 
 /**
  * This class provides select query features on tables.
+ *
+ * @databag('name' => 'dbadmin.select')
  */
 class Select extends CallableClass
 {
@@ -80,6 +82,8 @@ class Select extends CallableClass
 
     /**
      * Show the select query form
+     *
+     * @after('call' => 'showBreadcrumbs')
      *
      * @param string $server      The database server
      * @param string $database    The database name
@@ -162,6 +166,8 @@ class Select extends CallableClass
 
     /**
      * Execute the query
+     *
+     * @after('call' => 'debugQueries')
      *
      * @param string $server The database server
      * @param string $database The database name

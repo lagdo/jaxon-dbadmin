@@ -67,6 +67,9 @@ class Export extends CallableClass
     /**
      * Show the export form for a server
      *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-export', 'adminer-server-actions'])
+     *
      * @param string $server      The database server
      *
      * @return Response
@@ -78,6 +81,9 @@ class Export extends CallableClass
 
     /**
      * Show the export form for a database
+     *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-export', 'adminer-database-actions'])
      *
      * @param string $server      The database server
      * @param string $database    The database name

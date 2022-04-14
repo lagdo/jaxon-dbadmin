@@ -87,6 +87,9 @@ class Database extends CallableClass
     /**
      * Select a database
      *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-table', 'adminer-database-menu'])
+     *
      * @param string $server      The database server
      * @param string $database    The database name
      * @param string $schema      The database schema
@@ -179,6 +182,9 @@ class Database extends CallableClass
     /**
      * Show the tables of a given database
      *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-table', 'adminer-database-menu'])
+     *
      * @param string $server      The database server
      * @param string $database    The database name
      * @param string $schema      The database schema
@@ -226,6 +232,9 @@ class Database extends CallableClass
     /**
      * Show the views of a given database
      *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-view', 'adminer-database-menu'])
+     *
      * @param string $server      The database server
      * @param string $database    The database name
      * @param string $schema      The database schema
@@ -269,6 +278,9 @@ class Database extends CallableClass
     /**
      * Show the routines of a given database
      *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-routine', 'adminer-database-menu'])
+     *
      * @param string $server      The database server
      * @param string $database    The database name
      * @param string $schema      The database schema
@@ -285,6 +297,9 @@ class Database extends CallableClass
 
     /**
      * Show the sequences of a given database
+     *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-sequence', 'adminer-database-menu'])
      *
      * @param string $server      The database server
      * @param string $database    The database name
@@ -303,6 +318,9 @@ class Database extends CallableClass
     /**
      * Show the user types of a given database
      *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-type', 'adminer-database-menu'])
+     *
      * @param string $server      The database server
      * @param string $database    The database name
      * @param string $schema      The database schema
@@ -319,6 +337,9 @@ class Database extends CallableClass
 
     /**
      * Show the events of a given database
+     *
+     * @after('call' => 'showBreadcrumbs')
+     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-event', 'adminer-database-menu'])
      *
      * @param string $server      The database server
      * @param string $database    The database name
