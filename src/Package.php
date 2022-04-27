@@ -259,7 +259,8 @@ class Package extends JaxonPackage
         // Add an HTML container block for each server in the config file
         $servers = $this->getOption('servers', []);
 
-        $connect = $this->factory()->request(Server::class)->connect(pm()->select('adminer-dbhost-select'));
+        $connect = $this->factory()->request(Server::class)
+            ->connect(pm()->select('adminer-dbhost-select'));
 
         $values = $this->getIds();
         $values['connect'] = $connect;
