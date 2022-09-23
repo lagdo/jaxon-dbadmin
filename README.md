@@ -54,13 +54,13 @@ See the corresponding database driver package for specific database server optio
     ],
 ```
 
-Insert the CSS and javascript codes in the HTML pages of your application using calls to `jaxon()->getCss()` and `jaxon()->getScript(true)`.
+Insert the CSS and javascript codes in the HTML pages of your application using calls to `Jaxon\jaxon()->getCss()` and `Jaxon\jaxon()->getScript(true)`.
 
-In the page that displays the dashboard, insert the HTML code returned by the call to `jaxon()->package(\Lagdo\DbAdmin\Package::class)->getHtml()`. Two cases are then possible.
+In the page that displays the dashboard, insert the HTML code returned by the call to `Jaxon\jaxon()->package(\Lagdo\DbAdmin\Package::class)->getHtml()`. Two cases are then possible.
 
-- If the dashboard is displayed on a dedicated page, make a call to `jaxon()->package(\Lagdo\DbAdmin\Package::class)->ready()` in your PHP code when loading the page.
+- If the dashboard is displayed on a dedicated page, make a call to `Jaxon\jaxon()->package(\Lagdo\DbAdmin\Package::class)->ready()` in your PHP code when loading the page.
 
-- If the dashboard is loaded with an Ajax request in a page already displayed, execute the javascript code returned the call to `jaxon()->package(\Lagdo\DbAdmin\Package::class)->getReadyScript()` after the page is loaded.
+- If the dashboard is loaded with an Ajax request in a page already displayed, execute the javascript code returned the call to `Jaxon\jaxon()->package(\Lagdo\DbAdmin\Package::class)->getReadyScript()` after the page is loaded.
 
 ### The UI builder
 

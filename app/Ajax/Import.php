@@ -8,6 +8,7 @@ use Lagdo\DbAdmin\App\CallableClass;
 use Exception;
 
 use function compact;
+use function Jaxon\pm;
 
 class Import extends CallableClass
 {
@@ -45,7 +46,7 @@ class Import extends CallableClass
 
         $this->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($server, $database));
         $this->jq("#$sqlFilesBtnId")
-            ->click($this->rq()->executeSqlFiles($server, $database, \pm()->form($formId)));
+            ->click($this->rq()->executeSqlFiles($server, $database, pm()->form($formId)));
 
         return $this->response;
     }

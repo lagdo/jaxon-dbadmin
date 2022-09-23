@@ -7,6 +7,8 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
+use function Jaxon\pm;
+
 class View extends CallableClass
 {
     /**
@@ -96,7 +98,7 @@ class View extends CallableClass
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create($server, $database, $schema, \pm()->form($formId)),
+            'click' => $this->rq()->create($server, $database, $schema, pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
@@ -130,7 +132,7 @@ class View extends CallableClass
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->update($server, $database, $schema, $view, \pm()->form($formId)),
+            'click' => $this->rq()->update($server, $database, $schema, $view, pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 

@@ -8,7 +8,7 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
-use function pm;
+use function Jaxon\pm;
 
 /**
  * This class provides insert and update query features on tables.

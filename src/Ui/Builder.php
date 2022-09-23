@@ -169,7 +169,7 @@ class Builder
                     ->end();
             } else {
                 $this->htmlBuilder
-                    ->paginationItem(['href' => 'javascript:void;', 'onclick' => $page->call])->addHtml($page->text)
+                    ->paginationItem(['href' => 'javascript:void(0)', 'onclick' => $page->call])->addHtml($page->text)
                     ->end();
             }
         }

@@ -7,6 +7,9 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
+use function Jaxon\jq;
+use function Jaxon\pm;
+
 /**
  * When creating or modifying a table, this class
  * provides CRUD features on table columns.
@@ -113,11 +116,11 @@ class Column extends CallableClass
         }
 
         $contentId = $this->package->getDbContentId();
-        $length = \jq(".$columnClass", "#$contentId")->length;
-        $index = \jq()->attr('data-index');
+        $length = jq(".$columnClass", "#$contentId")->length;
+        $index = jq()->attr('data-index');
         // Set the button event handlers on the new column
         $this->jq('[data-field]', "#$columnId")
-            ->on('jaxon.dbadmin.renamed', \pm()->js('jaxon.dbadmin.onColumnRenamed'));
+            ->on('jaxon.dbadmin.renamed', pm()->js('jaxon.dbadmin.onColumnRenamed'));
         $this->jq('.adminer-table-column-add', "#$columnId")
             ->click($this->rq()->add($server, $database, $schema, $length, $index));
         $this->jq('.adminer-table-column-del', "#$columnId")

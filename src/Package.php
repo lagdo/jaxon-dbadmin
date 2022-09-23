@@ -8,7 +8,7 @@ use Lagdo\DbAdmin\Ui\Builder;
 
 use function is_string;
 use function realpath;
-use function pm;
+use function Jaxon\pm;
 
 /**
  * Jaxon DbAdmin package

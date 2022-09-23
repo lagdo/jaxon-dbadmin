@@ -7,6 +7,9 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
+use function Jaxon\jq;
+use function Jaxon\pm;
+
 class Server extends CallableClass
 {
     /**
@@ -33,7 +36,7 @@ class Server extends CallableClass
         $this->response->clear($this->package->getSchemaListId());
 
         // Set onclick handlers on database dropdown select
-        $database = \pm()->select('adminer-dbname-select');
+        $database = pm()->select('adminer-dbname-select');
         $this->jq('#adminer-dbname-select-btn')
             ->click($this->cl(Database::class)->rq()->select($server, $database)->when($database));
 
@@ -160,12 +163,12 @@ class Server extends CallableClass
             ->click($this->cl(Database::class)->rq()->add($server));
 
         // Set onclick handlers on database names
-        $database = \jq()->parent()->attr('data-name');
+        $database = jq()->parent()->attr('data-name');
         $this->jq('.' . $dbNameClass . '>a', '#' . $this->package->getDbContentId())
             ->click($this->cl(Database::class)->rq()->select($server, $database));
 
         // Set onclick handlers on database drop
-        $database = \jq()->parent()->attr('data-name');
+        $database = jq()->parent()->attr('data-name');
         $this->jq('.' . $dbDropClass . '>a', '#' . $this->package->getDbContentId())
             ->click($this->cl(Database::class)->rq()->drop($server, $database)
             ->confirm("Delete database {1}?", $database));
@@ -222,9 +225,9 @@ class Server extends CallableClass
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Set onclick handlers on database names
-        $user = \jq()->parent()->attr('data-user');
-        $host = \jq()->parent()->attr('data-host');
-        $database = \jq()->parent()->parent()->find("option.$optionClass:selected")->val();
+        $user = jq()->parent()->attr('data-user');
+        $host = jq()->parent()->attr('data-host');
+        $database = jq()->parent()->parent()->find("option.$optionClass:selected")->val();
         $this->jq('.' . $editClass . '>a', '#' . $this->package->getDbContentId())
             ->click($this->cl(User::class)->rq()->edit($server, $user, $host, $database));
 

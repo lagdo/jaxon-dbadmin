@@ -10,9 +10,9 @@ use Lagdo\DbAdmin\App\CallableClass;
 use Exception;
 
 use function html_entity_decode;
-use function jq;
-use function rq;
-use function pm;
+use function Jaxon\jq;
+use function Jaxon\rq;
+use function Jaxon\pm;
 
 /**
  * This class provides select query features on tables.
@@ -228,9 +228,9 @@ class Select extends CallableClass
 
         // Set the functions as button event handlers
         $this->jq(".$btnEditRowClass", "#$resultsId")
-            ->click(rq()->func('updateRowItem', jq()->attr('data-row-id')));
+            ->click(rq('.')->updateRowItem(jq()->attr('data-row-id')));
         $this->jq(".$btnDeleteRowClass", "#$resultsId")
-            ->click(rq()->func('deleteRowItem', jq()->attr('data-row-id')));
+            ->click(rq('.')->deleteRowItem(jq()->attr('data-row-id')));
 
         // Show the query
         $this->showQuery($server, $results['query']);

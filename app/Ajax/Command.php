@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
-use function pm;
+use function Jaxon\pm;
 
 class Command extends CallableClass
 {

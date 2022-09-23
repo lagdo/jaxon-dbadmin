@@ -7,6 +7,8 @@ use Lagdo\DbAdmin\App\CallableClass;
 
 use Exception;
 
+use function Jaxon\pm;
+
 class Export extends CallableClass
 {
     /**
@@ -53,14 +55,14 @@ class Export extends CallableClass
             $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$tableNameId')");
             $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$tableDataId')");
             $this->jq("#$btnId")
-                 ->click($this->rq()->exportOne($server, $database, \pm()->form($formId)));
+                 ->click($this->rq()->exportOne($server, $database, pm()->form($formId)));
             return $this->response;
         }
 
         $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$databaseNameId')");
         $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$databaseDataId')");
         $this->jq("#$btnId")
-             ->click($this->rq()->exportSet($server, \pm()->form($formId)));
+             ->click($this->rq()->exportSet($server, pm()->form($formId)));
         return $this->response;
     }
 

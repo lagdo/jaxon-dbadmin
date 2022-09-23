@@ -11,6 +11,8 @@ use Lagdo\DbAdmin\App\CallableClass;
 use Exception;
 
 use function array_merge;
+use function Jaxon\jq;
+use function Jaxon\pm;
 
 class Table extends CallableClass
 {
@@ -144,8 +146,8 @@ class Table extends CallableClass
         $this->response->html($contentId, $content);
 
         // Set onclick handlers on toolbar buttons
-        $length = \jq(".{$this->formId}-column", "#$contentId")->length;
-        $values = \pm()->form($this->formId);
+        $length = jq(".{$this->formId}-column", "#$contentId")->length;
+        $values = pm()->form($this->formId);
         $this->jq('#adminer-main-action-table-save')
             ->click($this->rq()->create($server, $database, $schema, $values)
             ->when($length));
@@ -193,16 +195,16 @@ class Table extends CallableClass
         $this->response->html($contentId, $content);
 
         // Set onclick handlers on toolbar buttons
-        $values = \pm()->form($this->formId);
+        $values = pm()->form($this->formId);
         $this->jq('#adminer-main-action-table-save')
             ->click($this->rq()->alter($server, $database, $schema, $table, $values)
             ->confirm("Save changes on table $table?"));
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->rq()->show($server, $database, $schema, $table));
-        $length = \jq(".{$this->formId}-column", "#$contentId")->length;
+        $length = jq(".{$this->formId}-column", "#$contentId")->length;
         $this->jq('#adminer-table-column-add')
             ->click($this->cl(Column::class)->rq()->add($server, $database, $schema, $length));
-        $index = \jq()->attr('data-index');
+        $index = jq()->attr('data-index');
         $this->jq('.adminer-table-column-add')
             ->click($this->cl(Column::class)->rq()->add($server, $database, $schema, $length, $index));
         $this->jq('.adminer-table-column-del')

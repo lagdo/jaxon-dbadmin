@@ -8,6 +8,9 @@ use Lagdo\DbAdmin\App\Ajax\Table\Select;
 
 use Exception;
 
+use function Jaxon\jq;
+use function Jaxon\pm;
+
 class Database extends CallableClass
 {
     /**
@@ -31,7 +34,7 @@ class Database extends CallableClass
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create($server, \pm()->form($formId)),
+            'click' => $this->rq()->create($server, pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
         return $this->response;
@@ -119,7 +122,7 @@ class Database extends CallableClass
             $this->response->html($this->package->getSchemaListId(), $content);
 
             $this->jq('#adminer-schema-select-btn')
-                ->click($this->rq()->select($server, $database, \pm()->select('adminer-schema-select')));
+                ->click($this->rq()->select($server, $database, pm()->select('adminer-schema-select')));
         }
 
         $content = $this->uiBuilder->menuCommands($databaseInfo['sqlActions']);
@@ -220,7 +223,7 @@ class Database extends CallableClass
         // Set onclick handlers on table checkbox
         $this->response->script("jaxon.dbadmin.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on table names
-        $table = \jq()->parent()->attr('data-name');
+        $table = jq()->parent()->attr('data-name');
         $this->jq('.' . $tableNameClass . '>a.name', '#' . $this->package->getDbContentId())
             ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
         $this->jq('.' . $tableNameClass . '>a.select', '#' . $this->package->getDbContentId())
@@ -268,7 +271,7 @@ class Database extends CallableClass
         // Set onclick handlers on view checkbox
         $this->response->script("jaxon.dbadmin.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on view names
-        $view = \jq()->parent()->attr('data-name');
+        $view = jq()->parent()->attr('data-name');
         $this->jq('.' . $viewNameClass . '>a', '#' . $this->package->getDbContentId())
             ->click($this->cl(View::class)->rq()->show($server, $database, $schema, $view));
 
