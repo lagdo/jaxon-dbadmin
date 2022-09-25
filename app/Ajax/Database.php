@@ -4,24 +4,25 @@ namespace Lagdo\DbAdmin\App\Ajax;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
-use Lagdo\DbAdmin\App\Ajax\Table\Select;
 
 use Exception;
 
 use function Jaxon\jq;
 use function Jaxon\pm;
 
+/**
+ * @databag selection
+ */
 class Database extends CallableClass
 {
     /**
      * Show the  create database dialog
      *
-     * @param string $server      The database server
-     *
      * @return Response
      */
-    public function add(string $server): Response
+    public function add(): Response
     {
+        [$server,] = $this->bag('selection')->get('db');
         $collations = $this->dbAdmin->getCollations($server);
 
         $formId = 'database-form';
@@ -34,7 +35,7 @@ class Database extends CallableClass
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create($server, pm()->form($formId)),
+            'click' => $this->rq()->create(pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
         return $this->response;
@@ -43,13 +44,13 @@ class Database extends CallableClass
     /**
      * Show the  create database dialog
      *
-     * @param string $server      The database server
      * @param array $formValues  The form values
      *
      * @return Response
      */
-    public function create(string $server, array $formValues): Response
+    public function create(array $formValues): Response
     {
+        [$server,] = $this->bag('selection')->get('db');
         $database = $formValues['name'];
         $collation = $formValues['collation'];
 
@@ -69,13 +70,13 @@ class Database extends CallableClass
     /**
      * Drop a database
      *
-     * @param string $server      The database server
      * @param string $database    The database name
      *
      * @return Response
      */
-    public function drop(string $server, string $database): Response
+    public function drop(string $database): Response
     {
+        [$server,] = $this->bag('selection')->get('db');
         if(!$this->dbAdmin->dropDatabase($server, $database))
         {
             $this->response->dialog->error("Cannot delete database $database.");
@@ -93,14 +94,14 @@ class Database extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-table', 'adminer-database-menu'])
      *
-     * @param string $server      The database server
      * @param string $database    The database name
      * @param string $schema      The database schema
      *
      * @return Response
      */
-    public function select(string $server, string $database, string $schema = ''): Response
+    public function select(string $database, string $schema = ''): Response
     {
+        [$server,] = $this->bag('selection')->get('db');
         $databaseInfo = $this->dbAdmin->getDatabaseInfo($server, $database);
         // Make database info available to views
         $this->view()->shareValues($databaseInfo);
@@ -122,7 +123,7 @@ class Database extends CallableClass
             $this->response->html($this->package->getSchemaListId(), $content);
 
             $this->jq('#adminer-schema-select-btn')
-                ->click($this->rq()->select($server, $database, pm()->select('adminer-schema-select')));
+                ->click($this->rq()->select($database, pm()->select('adminer-schema-select')));
         }
 
         $content = $this->uiBuilder->menuCommands($databaseInfo['sqlActions']);
@@ -130,31 +131,28 @@ class Database extends CallableClass
 
         // Set the click handlers
         $this->jq('#adminer-menu-action-database-command')
-            ->click($this->cl(Command::class)->rq()->showDatabaseForm($server, $database, $schema));
+            ->click($this->cl(Command::class)->rq()->showDatabaseForm());
         $this->jq('#adminer-menu-action-database-import')
-            ->click($this->cl(Import::class)->rq()->showDatabaseForm($server, $database));
+            ->click($this->cl(Import::class)->rq()->showDatabaseForm());
         $this->jq('#adminer-menu-action-database-export')
-            ->click($this->cl(Export::class)->rq()->showDatabaseForm($server, $database));
+            ->click($this->cl(Export::class)->rq()->showDatabaseForm());
 
         $content = $this->uiBuilder->menuActions($databaseInfo['menuActions']);
         $this->response->html($this->package->getDbMenuId(), $content);
 
+        // Save the selection in the databag
+        $this->bag('selection')->set('db', [$server, $database, $schema, '']);
+
         // Set the click handlers
-        $this->jq('#adminer-menu-action-table')
-            ->click($this->rq()->showTables($server, $database, $schema));
-        $this->jq('#adminer-menu-action-view')
-            ->click($this->rq()->showViews($server, $database, $schema));
-        $this->jq('#adminer-menu-action-routine')
-            ->click($this->rq()->showRoutines($server, $database, $schema));
-        $this->jq('#adminer-menu-action-sequence')
-            ->click($this->rq()->showSequences($server, $database, $schema));
-        $this->jq('#adminer-menu-action-type')
-            ->click($this->rq()->showUserTypes($server, $database, $schema));
-        $this->jq('#adminer-menu-action-event')
-            ->click($this->rq()->showEvents($server, $database, $schema));
+        $this->jq('#adminer-menu-action-table')->click($this->rq()->showTables());
+        $this->jq('#adminer-menu-action-view')->click($this->rq()->showViews());
+        $this->jq('#adminer-menu-action-routine')->click($this->rq()->showRoutines());
+        $this->jq('#adminer-menu-action-sequence')->click($this->rq()->showSequences());
+        $this->jq('#adminer-menu-action-type')->click($this->rq()->showUserTypes());
+        $this->jq('#adminer-menu-action-event')->click($this->rq()->showEvents());
 
         // Show the database tables
-        $this->showTables($server, $database, $schema);
+        $this->showTables();
 
         return $this->response;
     }
@@ -188,14 +186,11 @@ class Database extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-table', 'adminer-database-menu'])
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
-     *
      * @return Response
      */
-    public function showTables(string $server, string $database, string $schema): Response
+    public function showTables(): Response
     {
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $tablesInfo = $this->dbAdmin->getTables($server, $database, $schema);
 
         $tableNameClass = 'adminer-table-name';
@@ -218,16 +213,16 @@ class Database extends CallableClass
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-add-table')
-            ->click($this->cl(Table::class)->rq()->add($server, $database, $schema));
+            ->click($this->cl(Table::class)->rq()->add());
 
         // Set onclick handlers on table checkbox
         $this->response->script("jaxon.dbadmin.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on table names
         $table = jq()->parent()->attr('data-name');
         $this->jq('.' . $tableNameClass . '>a.name', '#' . $this->package->getDbContentId())
-            ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
+            ->click($this->cl(Table::class)->rq()->show($table));
         $this->jq('.' . $tableNameClass . '>a.select', '#' . $this->package->getDbContentId())
-            ->click($this->cl(Select::class)->rq()->show($server, $database, $schema, $table));
+            ->click($this->cl(Table::class)->rq()->select($table));
 
         return $this->response;
     }
@@ -238,14 +233,11 @@ class Database extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-view', 'adminer-database-menu'])
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
-     *
      * @return Response
      */
-    public function showViews(string $server, string $database, string $schema): Response
+    public function showViews(): Response
     {
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $viewsInfo = $this->dbAdmin->getViews($server, $database, $schema);
 
         $viewNameClass = 'adminer-view-name';
@@ -265,15 +257,14 @@ class Database extends CallableClass
         $this->showSection($viewsInfo, ['checkbox' => $checkbox]);
 
         // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-main-action-add-view')
-            ->click($this->cl(View::class)->rq()->add($server, $database, $schema));
+        $this->jq('#adminer-main-action-add-view')->click($this->cl(View::class)->rq()->add());
 
         // Set onclick handlers on view checkbox
         $this->response->script("jaxon.dbadmin.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on view names
         $view = jq()->parent()->attr('data-name');
         $this->jq('.' . $viewNameClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->cl(View::class)->rq()->show($server, $database, $schema, $view));
+            ->click($this->cl(View::class)->rq()->show($view));
 
         return $this->response;
     }
@@ -284,14 +275,11 @@ class Database extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-routine', 'adminer-database-menu'])
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
-     *
      * @return Response
      */
-    public function showRoutines(string $server, string $database, string $schema): Response
+    public function showRoutines(): Response
     {
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $routinesInfo = $this->dbAdmin->getRoutines($server, $database, $schema);
         $this->showSection($routinesInfo);
 
@@ -304,14 +292,11 @@ class Database extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-sequence', 'adminer-database-menu'])
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
-     *
      * @return Response
      */
-    public function showSequences(string $server, string $database, string $schema): Response
+    public function showSequences(): Response
     {
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $sequencesInfo = $this->dbAdmin->getSequences($server, $database, $schema);
         $this->showSection($sequencesInfo);
 
@@ -324,14 +309,11 @@ class Database extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-type', 'adminer-database-menu'])
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
-     *
      * @return Response
      */
-    public function showUserTypes(string $server, string $database, string $schema): Response
+    public function showUserTypes(): Response
     {
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $userTypesInfo = $this->dbAdmin->getUserTypes($server, $database, $schema);
         $this->showSection($userTypesInfo);
 
@@ -344,14 +326,11 @@ class Database extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-event', 'adminer-database-menu'])
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
-     *
      * @return Response
      */
-    public function showEvents(string $server, string $database, string $schema): Response
+    public function showEvents(): Response
     {
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $eventsInfo = $this->dbAdmin->getEvents($server, $database, $schema);
         $this->showSection($eventsInfo);
 

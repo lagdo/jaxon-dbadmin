@@ -9,6 +9,9 @@ use Exception;
 
 use function Jaxon\pm;
 
+/**
+ * @databag selection
+ */
 class Command extends CallableClass
 {
     /**
@@ -38,13 +41,14 @@ class Command extends CallableClass
         $queryId = 'adminer-main-command-query';
 
         $defaultLimit = 20;
-        $content = $this->uiBuilder->queryCommand($formId, $queryId, $btnId, $query, $defaultLimit, $commandOptions['labels']);
+        $content = $this->uiBuilder->queryCommand($formId, $queryId, $btnId,
+            $query, $defaultLimit, $commandOptions['labels']);
         $this->response->html($this->package->getDbContentId(), $content);
         $this->response->script("jaxon.dbadmin.highlightSqlEditor('$queryId', '$server')");
 
         $this->jq("#$btnId")->click(pm()->js("jaxon.dbadmin.saveSqlEditorContent"));
-        $this->jq("#$btnId")->click($this->rq()->execute($server, $database, $schema,
-            pm()->form($formId))->when(pm()->input($queryId)));
+        $this->jq("#$btnId")->click($this->rq()->execute(pm()->form($formId))
+            ->when(pm()->input($queryId)));
 
         return $this->response;
     }
@@ -55,13 +59,13 @@ class Command extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-command', 'adminer-server-actions'])
      *
-     * @param string $server      The database server
      * @param string $query       The SQL query to display
      *
      * @return Response
      */
-    public function showServerForm(string $server, string $query = ''): Response
+    public function showServerForm(string $query = ''): Response
     {
+        [$server,] = $this->bag('selection')->get('db');
         return $this->showForm($server, '', '', $query);
     }
 
@@ -71,16 +75,13 @@ class Command extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-command', 'adminer-database-actions'])
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The schema name
      * @param string $query       The SQL query to display
      *
      * @return Response
      */
-    public function showDatabaseForm(string $server, string $database = '',
-        string $schema = '', string $query = ''): Response
+    public function showDatabaseForm(string $query = ''): Response
     {
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         return $this->showForm($server, $database, $schema, $query);
     }
 
@@ -89,14 +90,11 @@ class Command extends CallableClass
      *
      * @after('call' => 'debugQueries')
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The schema name
      * @param array $formValues
      *
      * @return Response
      */
-    public function execute(string $server, string $database, string $schema, array $formValues): Response
+    public function execute(array $formValues): Response
     {
         $query = \trim($formValues['query'] ?? '');
         $limit = \intval($formValues['limit'] ?? 0);
@@ -109,6 +107,7 @@ class Command extends CallableClass
             return $this->response;
         }
 
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $queryResults = $this->dbAdmin->executeCommands($server,
             $query, $limit, $errorStops, $onlyErrors, $database, $schema);
 

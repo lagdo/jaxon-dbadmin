@@ -38,7 +38,7 @@ class Server extends CallableClass
         // Set onclick handlers on database dropdown select
         $database = pm()->select('adminer-dbname-select');
         $this->jq('#adminer-dbname-select-btn')
-            ->click($this->cl(Database::class)->rq()->select($server, $database)->when($database));
+            ->click($this->cl(Database::class)->rq()->select($database)->when($database));
 
         return $databasesInfo;
     }
@@ -67,13 +67,15 @@ class Server extends CallableClass
         $this->response->html($this->package->getServerActionsId(), $content);
         $this->response->html($this->package->getDbActionsId(), '');
 
+        // Save the selected server
+        $this->bag('selection')->set('db', [$server, '', '', '']);
         // Set the click handlers
         $this->jq('#adminer-menu-action-server-command')
-            ->click($this->cl(Command::class)->rq()->showServerForm($server));
+            ->click($this->cl(Command::class)->rq()->showServerForm());
         $this->jq('#adminer-menu-action-server-import')
-            ->click($this->cl(Import::class)->rq()->showServerForm($server));
+            ->click($this->cl(Import::class)->rq()->showServerForm());
         $this->jq('#adminer-menu-action-server-export')
-            ->click($this->cl(Export::class)->rq()->showServerForm($server));
+            ->click($this->cl(Export::class)->rq()->showServerForm());
 
         $content = $this->uiBuilder->menuActions($serverInfo['menuActions']);
         $this->response->html($this->package->getDbMenuId(), $content);
@@ -159,18 +161,17 @@ class Server extends CallableClass
         $this->response->script("jaxon.dbadmin.selectTableCheckboxes('$checkbox')");
 
         // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-main-action-add-database')
-            ->click($this->cl(Database::class)->rq()->add($server));
+        $this->jq('#adminer-main-action-add-database')->click($this->cl(Database::class)->rq()->add());
 
         // Set onclick handlers on database names
         $database = jq()->parent()->attr('data-name');
         $this->jq('.' . $dbNameClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->cl(Database::class)->rq()->select($server, $database));
+            ->click($this->cl(Database::class)->rq()->select($database));
 
         // Set onclick handlers on database drop
         $database = jq()->parent()->attr('data-name');
         $this->jq('.' . $dbDropClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->cl(Database::class)->rq()->drop($server, $database)
+            ->click($this->cl(Database::class)->rq()->drop($database)
             ->confirm("Delete database {1}?", $database));
 
         return $this->response;
@@ -229,11 +230,10 @@ class Server extends CallableClass
         $host = jq()->parent()->attr('data-host');
         $database = jq()->parent()->parent()->find("option.$optionClass:selected")->val();
         $this->jq('.' . $editClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->cl(User::class)->rq()->edit($server, $user, $host, $database));
+            ->click($this->cl(User::class)->rq()->edit($user, $host, $database));
 
         // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-main-action-add-user')
-            ->click($this->cl(User::class)->rq()->add($server));
+        $this->jq('#adminer-main-action-add-user')->click($this->cl(User::class)->rq()->add());
 
         return $this->response;
     }

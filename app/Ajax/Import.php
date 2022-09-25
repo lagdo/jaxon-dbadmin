@@ -10,18 +10,21 @@ use Exception;
 use function compact;
 use function Jaxon\pm;
 
+/**
+ * @databag selection
+ */
 class Import extends CallableClass
 {
     /**
      * Show the import form
      *
-     * @param string $server      The database server
      * @param string $database    The database name
      *
      * @return Response
      */
-    protected function showForm(string $server, string $database = ''): Response
+    protected function showForm(string $database = ''): Response
     {
+        [$server,] = $this->bag('selection')->get('db');
         $importOptions = $this->dbAdmin->getImportOptions($server, $database);
 
         // Make data available to views
@@ -44,9 +47,8 @@ class Import extends CallableClass
         $this->response->html($this->package->getDbContentId(), $content);
         $this->response->script("jaxon.dbadmin.setFileUpload('#$sqlFilesDivId', '#$sqlChooseBtnId', '#$sqlFilesInputId')");
 
-        $this->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($server, $database));
-        $this->jq("#$sqlFilesBtnId")
-            ->click($this->rq()->executeSqlFiles($server, $database, pm()->form($formId)));
+        $this->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($database));
+        $this->jq("#$sqlFilesBtnId")->click($this->rq()->executeSqlFiles($database, pm()->form($formId)));
 
         return $this->response;
     }
@@ -57,13 +59,11 @@ class Import extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-import', 'adminer-server-actions'])
      *
-     * @param string $server      The database server
-     *
      * @return Response
      */
-    public function showServerForm(string $server): Response
+    public function showServerForm(): Response
     {
-        return $this->showForm($server, '');
+        return $this->showForm();
     }
 
     /**
@@ -72,25 +72,23 @@ class Import extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-import', 'adminer-database-actions'])
      *
-     * @param string $server      The database server
      * @param string $database    The database name
      *
      * @return Response
      */
-    public function showDatabaseForm(string $server, string $database = ''): Response
+    public function showDatabaseForm(string $database = ''): Response
     {
-        return $this->showForm($server, $database);
+        return $this->showForm($database);
     }
 
     /**
      * Run a webfile
      *
-     * @param string $server      The database server
      * @param string $database    The database name
      *
      * @return Response
      */
-    public function executeWebFile(string $server, string $database): Response
+    public function executeWebFile(string $database): Response
     {
         return $this->response;
     }
@@ -100,13 +98,12 @@ class Import extends CallableClass
      *
      * @upload('field' => 'adminer-import-sql-files-input')
      *
-     * @param string $server      The database server
      * @param string $database    The database name
      * @param array $formValues
      *
      * @return Response
      */
-    public function executeSqlFiles(string $server, string $database, array $formValues): Response
+    public function executeSqlFiles(string $database, array $formValues): Response
     {
         $files = \array_map(function($file) {
             return $file->path();
@@ -120,9 +117,9 @@ class Import extends CallableClass
             return $this->response;
         }
 
+        [$server,] = $this->bag('selection')->get('db');
         $queryResults = $this->dbAdmin->executeSqlFiles($server,
             $files, $errorStops, $onlyErrors, $database);
-        // $this->logger()->debug(\json_encode($queryResults));
 
         $content = $this->uiBuilder->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);

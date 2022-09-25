@@ -9,6 +9,7 @@ use Exception;
 
 use function Jaxon\jq;
 use function Jaxon\pm;
+use function sprintf;
 
 /**
  * When creating or modifying a table, this class
@@ -77,22 +78,22 @@ class Column extends CallableClass
     /**
      * Insert a new column at a given position
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
+     * @databag selection
+     *
      * @param int    $length      The number of columns in the table
      * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
      *
      * @return Response
      */
-    public function add(string $server, string $database, string $schema, int $length, int $target = -1): Response
+    public function add(int $length, int $target = -1): Response
     {
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $tableData = $this->dbAdmin->getTableData($server, $database, $schema);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
         $columnClass = "{$this->formId}-column";
-        $columnId = \sprintf('%s-%02d', $columnClass, $length);
+        $columnId = sprintf('%s-%02d', $columnClass, $length);
         $field = $this->dbAdmin->getTableField($server, $database, $schema);
         $prefixFields = sprintf("fields[%d]", $length + 1);
         $content = $this->uiBuilder->tableColumn($columnClass, $length, $field, $prefixFields, $tableData['support'],
@@ -110,7 +111,7 @@ class Column extends CallableClass
             * The prepend() function is not suitable here because it rewrites the
             * $targetId element, resetting all its event handlers and inputs.
             */
-            $targetId = \sprintf('%s-%02d', $columnClass, $target);
+            $targetId = sprintf('%s-%02d', $columnClass, $target);
             $this->insertAfter($targetId, $columnId, $columnClass, $content, ['data-index' => $length]);
             // $this->response->prepend($targetId, 'outerHTML', $content);
         }
@@ -121,10 +122,8 @@ class Column extends CallableClass
         // Set the button event handlers on the new column
         $this->jq('[data-field]', "#$columnId")
             ->on('jaxon.dbadmin.renamed', pm()->js('jaxon.dbadmin.onColumnRenamed'));
-        $this->jq('.adminer-table-column-add', "#$columnId")
-            ->click($this->rq()->add($server, $database, $schema, $length, $index));
-        $this->jq('.adminer-table-column-del', "#$columnId")
-            ->click($this->rq()->del($server, $database, $schema, $length, $index)
+        $this->jq('.adminer-table-column-add', "#$columnId")->click($this->rq()->add($length, $index));
+        $this->jq('.adminer-table-column-del', "#$columnId")->click($this->rq()->del($length, $index)
             ->confirm('Delete this column?'));
 
         return $this->response;
@@ -133,17 +132,14 @@ class Column extends CallableClass
     /**
      * Delete a column
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
      * @param int    $length      The number of columns in the table
      * @param int    $index       The column index
      *
      * @return Response
      */
-    public function del(string $server, string $database, string $schema, int $length, int $index): Response
+    public function del(int $length, int $index): Response
     {
-        $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
+        $columnId = sprintf('%s-column-%02d', $this->formId, $index);
 
         // Delete the column
         $this->response->remove($columnId);
@@ -152,8 +148,8 @@ class Column extends CallableClass
         $length--;
         for($id = $index; $id < $length; $id++)
         {
-            $currId = \sprintf('%s-column-%02d', $this->formId, $id + 1);
-            $nextId = \sprintf('%s-column-%02d', $this->formId, $id);
+            $currId = sprintf('%s-column-%02d', $this->formId, $id + 1);
+            $nextId = sprintf('%s-column-%02d', $this->formId, $id);
             $this->jq("#$currId")->attr('data-index', $id)->attr('id', $nextId);
             $this->jq('.adminer-table-column-buttons', "#$nextId")->attr('data-index', $id);
             $this->jq('[data-field]', "#$nextId")->trigger('jaxon.dbadmin.renamed');
@@ -165,16 +161,13 @@ class Column extends CallableClass
     /**
      * Mark an existing column as to be deleted
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
      * @param int    $index       The column index
      *
      * @return Response
      */
-    public function setForDelete(string $server, string $database, string $schema, int $index): Response
+    public function setForDelete(int $index): Response
     {
-        $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
+        $columnId = sprintf('%s-column-%02d', $this->formId, $index);
 
         // To mark a column as to be dropped, set its name to an empty string.
         $this->jq('input.column-name', "#$columnId")->attr('name', '');
@@ -184,8 +177,7 @@ class Column extends CallableClass
             ->addClass('btn-danger');
         $this->jq('.adminer-table-column-del', "#$columnId")
             // Remove the current onClick handler before setting a new one.
-            ->unbind('click')
-            ->click($this->rq()->cancelDelete($server, $database, $schema, $index));
+            ->unbind('click')->click($this->rq()->cancelDelete($index));
         // $this->jq('.adminer-table-column-del>span', "#$columnId")
         //     ->removeClass('glyphicon-remove')
         //     ->addClass('glyphicon-trash');
@@ -196,17 +188,14 @@ class Column extends CallableClass
     /**
      * Cancel delete on an existing column
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
      * @param int    $index       The column index
      *
      * @return Response
      */
-    public function cancelDelete(string $server, string $database, string $schema, int $index): Response
+    public function cancelDelete(int $index): Response
     {
-        $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
-        $columnName = \sprintf('fields[%d][field]', $index + 1);
+        $columnId = sprintf('%s-column-%02d', $this->formId, $index);
+        $columnName = sprintf('fields[%d][field]', $index + 1);
 
         // To cancel the drop, reset the column name to its initial value.
         $this->jq('input.column-name', "#$columnId")->attr('name', $columnName);
@@ -216,8 +205,7 @@ class Column extends CallableClass
             ->addClass('btn-primary');
         $this->jq('.adminer-table-column-del', "#$columnId")
             // Remove the current onClick handler before setting a new one.
-            ->unbind('click')
-            ->click($this->rq()->setForDelete($server, $database, $schema, $index));
+            ->unbind('click')->click($this->rq()->setForDelete($index));
         // $this->jq('.adminer-table-column-del>span', "#$columnId")
         //     ->removeClass('glyphicon-trash')
         //     ->addClass('glyphicon-remove');

@@ -9,18 +9,21 @@ use Exception;
 
 use function Jaxon\pm;
 
+/**
+ * @databag selection
+ */
 class Export extends CallableClass
 {
     /**
      * Show the export form
      *
-     * @param string $server      The database server
      * @param string $database    The database name
      *
      * @return Response
      */
-    protected function showForm(string $server, string $database): Response
+    protected function showForm(string $database = ''): Response
     {
+        [$server,] = $this->bag('selection')->get('db');
         $exportOptions = $this->dbAdmin->getExportOptions($server, $database);
 
         // Make data available to views
@@ -54,15 +57,13 @@ class Export extends CallableClass
         {
             $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$tableNameId')");
             $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$tableDataId')");
-            $this->jq("#$btnId")
-                 ->click($this->rq()->exportOne($server, $database, pm()->form($formId)));
+            $this->jq("#$btnId")->click($this->rq()->exportOne($database, pm()->form($formId)));
             return $this->response;
         }
 
         $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$databaseNameId')");
         $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$databaseDataId')");
-        $this->jq("#$btnId")
-             ->click($this->rq()->exportSet($server, pm()->form($formId)));
+        $this->jq("#$btnId")->click($this->rq()->exportSet(pm()->form($formId)));
         return $this->response;
     }
 
@@ -72,13 +73,11 @@ class Export extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-export', 'adminer-server-actions'])
      *
-     * @param string $server      The database server
-     *
      * @return Response
      */
-    public function showServerForm(string $server): Response
+    public function showServerForm(): Response
     {
-        return $this->showForm($server, '');
+        return $this->showForm();
     }
 
     /**
@@ -87,34 +86,33 @@ class Export extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-export', 'adminer-database-actions'])
      *
-     * @param string $server      The database server
      * @param string $database    The database name
      *
      * @return Response
      */
-    public function showDatabaseForm(string $server, string $database = ''): Response
+    public function showDatabaseForm(string $database = ''): Response
     {
-        return $this->showForm($server, $database);
+        return $this->showForm($database);
     }
 
     /**
      * Execute an SQL query and display the results
      *
-     * @param string $server        The database server
      * @param array  $databases     The databases to dump
      * @param array  $tables        The tables to dump
      * @param array  $formValues
      *
      * @return Response
      */
-    protected function export(string $server, array $databases, array $tables, array $formValues): Response
+    protected function export(array $databases, array $tables, array $formValues): Response
     {
         // Convert checkbox values to boolean
-        $formValues['routines'] = \array_key_exists('routines', $formValues);
-        $formValues['events'] = \array_key_exists('events', $formValues);
-        $formValues['autoIncrement'] = \array_key_exists('auto_increment', $formValues);
-        $formValues['triggers'] = \array_key_exists('triggers', $formValues);
+        $formValues['routines'] = isset($formValues['routines']);
+        $formValues['events'] = isset($formValues['events']);
+        $formValues['autoIncrement'] = isset($formValues['auto_increment']);
+        $formValues['triggers'] = isset($formValues['triggers']);
 
+        [$server,] = $this->bag('selection')->get('db');
         $results = $this->dbAdmin->exportDatabases($server, $databases, $tables, $formValues);
         if(\is_string($results))
         {
@@ -153,12 +151,11 @@ class Export extends CallableClass
     /**
      * Export a set of databases on a server
      *
-     * @param string $server      The database server
      * @param array $formValues
      *
      * @return Response
      */
-    public function exportSet(string $server, array $formValues): Response
+    public function exportSet(array $formValues): Response
     {
         $databases = [
             'list' => $formValues['database_list'] ?? [],
@@ -168,21 +165,19 @@ class Export extends CallableClass
             'list' => '*',
             'data' => [],
         ];
-        // $this->logger()->debug('exportServer', \compact('databases', 'tables'));
 
-        return $this->export($server, $databases, $tables, $formValues);
+        return $this->export($databases, $tables, $formValues);
     }
 
     /**
      * Export one database on a server
      *
-     * @param string $server      The database server
      * @param string $database    The database name
      * @param array $formValues
      *
      * @return Response
      */
-    public function exportOne(string $server, string $database, array $formValues): Response
+    public function exportOne(string $database, array $formValues): Response
     {
         $databases = [
             'list' => [$database],
@@ -192,8 +187,7 @@ class Export extends CallableClass
             'list' => $formValues['table_list'] ?? [],
             'data' => $formValues['table_data'] ?? [],
         ];
-        // $this->logger()->debug('exportDatabase', \compact('databases', 'tables'));
 
-        return $this->export($server, $databases, $tables, $formValues);
+        return $this->export($databases, $tables, $formValues);
     }
 }

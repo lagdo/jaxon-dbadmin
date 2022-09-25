@@ -11,9 +11,13 @@ use Lagdo\DbAdmin\App\CallableClass;
 use Exception;
 
 use function array_merge;
+use function is_array;
 use function Jaxon\jq;
 use function Jaxon\pm;
 
+/**
+ * @databag selection
+ */
 class Table extends CallableClass
 {
     /**
@@ -52,19 +56,35 @@ class Table extends CallableClass
     }
 
     /**
-     * Show detailed info of a given table
+     * Show the select page for a given table
      *
      * @after('call' => 'showBreadcrumbs')
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
      * @param string $table       The table name
      *
      * @return Response
      */
-    public function show(string $server, string $database, string $schema, string $table): Response
+    public function select(string $table): Response
     {
+        // Save the table name in tha databag and show the select page.
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        $this->bag('selection')->set('db', [$server, $database, $schema, $table]);
+
+        return $this->cl(Select::class)->show();
+    }
+
+    /**
+     * Show detailed info of a given table
+     *
+     * @after('call' => 'showBreadcrumbs')
+     *
+     * @param string $table       The table name
+     *
+     * @return Response
+     */
+    public function show(string $table): Response
+    {
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $tableInfo = $this->dbAdmin->getTableInfo($server, $database, $schema, $table);
         // Make table info available to views
         $this->view()->shareValues($tableInfo);
@@ -85,35 +105,33 @@ class Table extends CallableClass
 
         // Show indexes
         $indexesInfo = $this->dbAdmin->getTableIndexes($server, $database, $schema, $table);
-        if(\is_array($indexesInfo))
+        if(is_array($indexesInfo))
         {
             $this->showTab($indexesInfo, 'tab-content-indexes');
         }
 
         // Show foreign keys
         $foreignKeysInfo = $this->dbAdmin->getTableForeignKeys($server, $database, $schema, $table);
-        if(\is_array($foreignKeysInfo))
+        if(is_array($foreignKeysInfo))
         {
             $this->showTab($foreignKeysInfo, 'tab-content-foreign-keys');
         }
 
         // Show triggers
         $triggersInfo = $this->dbAdmin->getTableTriggers($server, $database, $schema, $table);
-        if(\is_array($triggersInfo))
+        if(is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
         }
 
+        $this->bag('selection')->set('db', [$server, $database, $schema, $table]);
+
         // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-main-action-edit-table')
-            ->click($this->rq()->edit($server, $database, $schema, $table));
-        $this->jq('#adminer-main-action-drop-table')
-            ->click($this->rq()->drop($server, $database, $schema, $table)
+        $this->jq('#adminer-main-action-edit-table')->click($this->rq()->edit($table));
+        $this->jq('#adminer-main-action-drop-table')->click($this->rq()->drop($table)
             ->confirm("Drop table $table?"));
-        $this->jq('#adminer-main-action-select-table')
-            ->click($this->cl(Select::class)->rq()->show($server, $database, $schema, $table));
-        $this->jq('#adminer-main-action-insert-table')
-            ->click($this->cl(Query::class)->rq()->showInsert($server, $database, $schema, $table));
+        $this->jq('#adminer-main-action-select-table')->click($this->cl(Select::class)->rq()->show());
+        $this->jq('#adminer-main-action-insert-table')->click($this->cl(Query::class)->rq()->showInsert());
 
         return $this->response;
     }
@@ -123,14 +141,11 @@ class Table extends CallableClass
      *
      * @after('call' => 'showBreadcrumbs')
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
-     *
      * @return Response
      */
-    public function add(string $server, string $database, string $schema): Response
+    public function add(): Response
     {
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $tableData = $this->dbAdmin->getTableData($server, $database, $schema);
         // Make data available to views
         $this->view()->shareValues($tableData);
@@ -148,13 +163,9 @@ class Table extends CallableClass
         // Set onclick handlers on toolbar buttons
         $length = jq(".{$this->formId}-column", "#$contentId")->length;
         $values = pm()->form($this->formId);
-        $this->jq('#adminer-main-action-table-save')
-            ->click($this->rq()->create($server, $database, $schema, $values)
-            ->when($length));
-        $this->jq('#adminer-main-action-table-cancel')
-            ->click($this->cl(Database::class)->rq()->showTables($server, $database, $schema));
-        $this->jq('#adminer-table-column-add')
-            ->click($this->cl(Column::class)->rq()->add($server, $database, $schema, $length));
+        $this->jq('#adminer-main-action-table-save')->click($this->rq()->create($values)->when($length));
+        $this->jq('#adminer-main-action-table-cancel')->click($this->cl(Database::class)->rq()->showTables());
+        $this->jq('#adminer-table-column-add')->click($this->cl(Column::class)->rq()->add($length));
 
         return $this->response;
     }
@@ -164,15 +175,13 @@ class Table extends CallableClass
      *
      * @after('call' => 'showBreadcrumbs')
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
      * @param string $table       The table name
      *
      * @return Response
      */
-    public function edit(string $server, string $database, string $schema, string $table): Response
+    public function edit(string $table): Response
     {
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $tableData = $this->dbAdmin->getTableData($server, $database, $schema, $table);
         // Make data available to views
         $this->view()->shareValues($tableData);
@@ -196,19 +205,14 @@ class Table extends CallableClass
 
         // Set onclick handlers on toolbar buttons
         $values = pm()->form($this->formId);
-        $this->jq('#adminer-main-action-table-save')
-            ->click($this->rq()->alter($server, $database, $schema, $table, $values)
+        $this->jq('#adminer-main-action-table-save')->click($this->rq()->alter($table, $values)
             ->confirm("Save changes on table $table?"));
-        $this->jq('#adminer-main-action-table-cancel')
-            ->click($this->rq()->show($server, $database, $schema, $table));
+        $this->jq('#adminer-main-action-table-cancel')->click($this->rq()->show($table));
         $length = jq(".{$this->formId}-column", "#$contentId")->length;
-        $this->jq('#adminer-table-column-add')
-            ->click($this->cl(Column::class)->rq()->add($server, $database, $schema, $length));
+        $this->jq('#adminer-table-column-add')->click($this->cl(Column::class)->rq()->add($length));
         $index = jq()->attr('data-index');
-        $this->jq('.adminer-table-column-add')
-            ->click($this->cl(Column::class)->rq()->add($server, $database, $schema, $length, $index));
-        $this->jq('.adminer-table-column-del')
-            ->click($this->cl(Column::class)->rq()->setForDelete($server, $database, $schema, $index));
+        $this->jq('.adminer-table-column-add')->click($this->cl(Column::class)->rq()->add($length, $index));
+        $this->jq('.adminer-table-column-del')->click($this->cl(Column::class)->rq()->setForDelete($index));
 
         return $this->response;
     }
@@ -216,17 +220,15 @@ class Table extends CallableClass
     /**
      * Create a new table
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
      * @param array  $values      The table values
      *
      * @return Response
      */
-    public function create(string $server, string $database, string $schema, array $values)
+    public function create(array $values)
     {
         $values = array_merge($this->defaults, $values);
 
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $result = $this->dbAdmin->createTable($server, $database, $schema, $values);
         if(!$result['success'])
         {
@@ -234,7 +236,7 @@ class Table extends CallableClass
             return $this->response;
         }
 
-        $this->show($server, $database, $schema, $values['name']);
+        $this->show($values['name']);
         $this->response->dialog->success($result['message']);
         return $this->response;
     }
@@ -242,18 +244,16 @@ class Table extends CallableClass
     /**
      * Update a given table
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
      * @param string $table       The table name
-     * @param string $schema      The database schema
      * @param array  $values      The table values
      *
      * @return Response
      */
-    public function alter(string $server, string $database, string $schema, string $table, array $values)
+    public function alter(string $table, array $values)
     {
         $values = array_merge($this->defaults, $values);
 
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $result = $this->dbAdmin->alterTable($server, $database, $schema, $table, $values);
         if(!$result['success'])
         {
@@ -261,7 +261,7 @@ class Table extends CallableClass
             return $this->response;
         }
 
-        $this->show($server, $database, $schema, $values['name']);
+        $this->show($values['name']);
         $this->response->dialog->success($result['message']);
         return $this->response;
     }
@@ -269,15 +269,13 @@ class Table extends CallableClass
     /**
      * Drop a given table
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The database schema
      * @param string $table       The table name
      *
      * @return Response
      */
-    public function drop(string $server, string $database, string $schema, string $table): Response
+    public function drop(string $table): Response
     {
+        [$server, $database, $schema] = $this->bag('selection')->get('db');
         $result = $this->dbAdmin->dropTable($server, $database, $schema, $table);
         if(!$result['success'])
         {
@@ -285,7 +283,7 @@ class Table extends CallableClass
             return $this->response;
         }
 
-        $this->cl(Database::class)->showTables($server, $database, $schema);
+        $this->cl(Database::class)->showTables();
         $this->response->dialog->success($result['message']);
         return $this->response;
     }
