@@ -29,9 +29,9 @@ trait ServerTrait
      * @param string $database  The database name
      * @param string $schema    The database schema
      *
-     * @return array
+     * @return void
      */
-    abstract public function connect(string $server, string $database = '', string $schema = ''): array;
+    abstract public function connect(string $server, string $database = '', string $schema = '');
 
     /**
      * Set the breadcrumbs items
