@@ -24,7 +24,7 @@
         "lagdo/ui-builder": "^0.1",
         "jaxon-php/jaxon-core": "^4.0",
         "jaxon-php/jaxon-dialogs": "^4.0",
-        "jaxon-php/jaxon-annotations": "^1.0"
+        "jaxon-php/jaxon-annotations": "^2.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
