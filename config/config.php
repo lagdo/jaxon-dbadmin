@@ -32,8 +32,8 @@ return [
         'set' => [
             // The package config builder
             'dbadmin_config_builder' => function($di) {
-                $config = $di->getPackageConfig(Lagdo\DbAdmin\App\Package::class);
-                return $config->getOption('template', 'bootstrap3');
+                $package = $di->g(Lagdo\DbAdmin\App\Package::class);
+                return $package->getOption('template', 'bootstrap3');
             },
             // Selected database driver
             Lagdo\DbAdmin\Driver\DriverInterface::class => function($di) {
