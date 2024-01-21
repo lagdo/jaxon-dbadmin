@@ -158,6 +158,28 @@ The `access.schemas` option will apply only on servers which provide that featur
 ```
 In this configuration, the user will be able to get access only to three databases on the server with id `server_id`.
 
+### Customizing the package config
+
+The app admin may need to customize the access parameters, depending for example on the connected user account or group.
+
+In this case, the `provider` option can be used to define a callable that returns the access options as an array,
+which will then be used to configure the package.
+
+The defined options are passed to the callable, so it can be used as a basis to build the customized config.
+
+```php
+    'app' => [
+        // Other config options
+        // ...
+        'packages' => [
+            Lagdo\DbAdmin\App\Package::class => [
+                // A callable that return the access options.
+                'provider' => $configCallable,
+            ],
+        ],
+    ],
+```
+
 ### Debug console output
 
 Starting from version `0.9.0`, the SQL queries that are executed can also be printed in the browser debug console,

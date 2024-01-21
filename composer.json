@@ -22,9 +22,9 @@
         "ext-iconv": "*",
         "lagdo/dbadmin-driver": "^0.8",
         "lagdo/ui-builder": "^0.1",
-        "jaxon-php/jaxon-core": "^4.0",
+        "jaxon-php/jaxon-core": "^4.6",
         "jaxon-php/jaxon-dialogs": "^4.0",
-        "jaxon-php/jaxon-annotations": "^2.1"
+        "jaxon-php/jaxon-annotations": "^2.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
