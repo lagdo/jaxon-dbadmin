@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\App;
 
 use Jaxon\App\CallableClass as JaxonCallableClass;
-use Jaxon\Utils\View\Store;
+use Jaxon\App\View\Store;
 
 use Lagdo\DbAdmin\DbAdmin;
 use Lagdo\DbAdmin\Ui\Builder;
