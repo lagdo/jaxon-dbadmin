@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin;
 
+use Lagdo\DbAdmin\App\Package;
 use Lagdo\DbAdmin\Db\Admin;
 use Lagdo\DbAdmin\DbAdmin\AbstractAdmin;
 use Lagdo\DbAdmin\Driver\DriverInterface;

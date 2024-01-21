@@ -35,8 +35,10 @@
     },
     "autoload": {
         "psr-4": {
-            "Lagdo\\DbAdmin\\App\\": "app/",
-            "Lagdo\\DbAdmin\\": "src/"
+            "Lagdo\\DbAdmin\\App\\": "src/app/",
+            "Lagdo\\DbAdmin\\Db\\": "src/db/",
+            "Lagdo\\DbAdmin\\Ui\\": "src/ui/",
+            "Lagdo\\DbAdmin\\": "src/lib/"
         }
     },
     "autoload-dev": {

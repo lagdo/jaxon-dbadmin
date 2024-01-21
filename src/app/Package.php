@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin;
+namespace Lagdo\DbAdmin\App;
 
 use Jaxon\Plugin\Package as JaxonPackage;
 use Lagdo\DbAdmin\App\Ajax\Server;
