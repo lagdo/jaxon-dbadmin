@@ -48,6 +48,24 @@ class SelectAdmin extends AbstractAdmin
     }
 
     /**
+     * Find out foreign keys for each column
+     *
+     * @param string $table
+     *
+     * @return array
+     */
+    private function foreignKeys(string $table): array
+    {
+        $keys = [];
+        foreach ($this->driver->foreignKeys($table) as $foreignKey) {
+            foreach ($foreignKey->source as $val) {
+                $keys[$val][] = $foreignKey;
+            }
+        }
+        return $keys;
+    }
+
+    /**
      * Get required data for create/update on tables
      *
      * @param string $table The table name
@@ -70,7 +88,7 @@ class SelectAdmin extends AbstractAdmin
         }
 
         $indexes = $this->driver->indexes($table);
-        $foreignKeys = $this->admin->columnForeignKeys($table);
+        $foreignKeys = $this->foreignKeys($table);
         list($select, $group) = $this->util->processSelectColumns();
         $where = $this->util->processSelectWhere($fields, $indexes);
         $order = $this->util->processSelectOrder();
@@ -138,7 +156,7 @@ class SelectAdmin extends AbstractAdmin
      *
      * @return array
      */
-    private function executeQuery(string $query, int $page): array
+    private function executeSelect(string $query, int $page): array
     {
         // From driver.inc.php
         $statement = $this->driver->execute($query);
@@ -330,7 +348,7 @@ class SelectAdmin extends AbstractAdmin
         list(, $query, $select, $fields, , , $indexes, $where, $group, , $limit, $page,
             $textLength, , $unselected) = $this->prepareSelect($table, $queryOptions);
 
-        list($rows, $duration) = $this->executeQuery($query, $page);
+        list($rows, $duration) = $this->executeSelect($query, $page);
         if (!$rows) {
             return ['message' => $this->trans->lang('No rows.')];
         }

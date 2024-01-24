@@ -56,7 +56,7 @@ trait TableDumpTrait
                 ' IF EXISTS ' . $this->driver->table($table) . ';';
         }
         if ($tableType === 1) {
-            $create = $this->admin->removeDefiner($create);
+            $create = $this->driver->removeDefiner($create);
         }
         $this->queries[] = $create . ';';
     }

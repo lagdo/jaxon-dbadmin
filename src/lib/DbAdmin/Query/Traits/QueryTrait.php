@@ -26,7 +26,7 @@ trait QueryTrait
 
         //!!!! $queryOptions["select"] is never set here !!!!//
 
-        $where = $this->admin->where($queryOptions, $fields);
+        $where = $this->driver->where($queryOptions, $fields);
         $update = $where;
         foreach ($fields as $name => $field) {
             $generated = $field->generated ?? false;

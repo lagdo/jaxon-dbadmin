@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin;
 
 use Lagdo\DbAdmin\App\Package;
-use Lagdo\DbAdmin\Db\Admin;
 use Lagdo\DbAdmin\DbAdmin\AbstractAdmin;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\UtilInterface;
@@ -123,7 +122,6 @@ class DbAdmin extends AbstractAdmin
             $this->di->val('dbadmin_config_options', $this->package->getServerOptions($server));
             $this->driver = $this->di->get(DriverInterface::class);
             $this->util = $this->di->get(UtilInterface::class);
-            $this->admin = $this->di->get(Admin::class);
         }
         // Connect to the selected server
         $this->driver->connect($database, $schema);

@@ -75,7 +75,7 @@ class ExportAdmin extends AbstractAdmin
             $sql = 'SHOW FUNCTION STATUS WHERE Db = ' . $this->driver->quote($database);
             foreach ($this->driver->rows($sql) as $row) {
                 $sql = 'SHOW CREATE FUNCTION ' . $this->driver->escapeId($row['Name']);
-                $create = $this->admin->removeDefiner($this->driver->result($sql, 2));
+                $create = $this->driver->removeDefiner($this->driver->result($sql, 2));
                 $this->queries[] = $this->driver->setUtf8mb4($create);
                 if ($style != 'DROP+CREATE') {
                     $this->queries[] = 'DROP FUNCTION IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';
@@ -85,7 +85,7 @@ class ExportAdmin extends AbstractAdmin
             $sql = 'SHOW PROCEDURE STATUS WHERE Db = ' . $this->driver->quote($database);
             foreach ($this->driver->rows($sql) as $row) {
                 $sql = 'SHOW CREATE PROCEDURE ' . $this->driver->escapeId($row['Name']);
-                $create = $this->admin->removeDefiner($this->driver->result($sql, 2));
+                $create = $this->driver->removeDefiner($this->driver->result($sql, 2));
                 $this->queries[] = $this->driver->setUtf8mb4($create);
                 if ($style != 'DROP+CREATE') {
                     $this->queries[] = 'DROP PROCEDURE IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';
@@ -108,7 +108,7 @@ class ExportAdmin extends AbstractAdmin
         if ($this->options['events']) {
             foreach ($this->driver->rows('SHOW EVENTS') as $row) {
                 $sql = 'SHOW CREATE EVENT ' . $this->driver->escapeId($row['Name']);
-                $create = $this->admin->removeDefiner($this->driver->result($sql, 3));
+                $create = $this->driver->removeDefiner($this->driver->result($sql, 3));
                 $this->queries[] = $this->driver->setUtf8mb4($create);
                 if ($style != 'DROP+CREATE') {
                     $this->queries[] = 'DROP EVENT IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';

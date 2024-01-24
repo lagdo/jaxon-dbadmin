@@ -2,8 +2,10 @@
 
 namespace Lagdo\DbAdmin\DbAdmin\View;
 
-use Lagdo\DbAdmin\DbAdmin\AbstractAdmin;
 use Exception;
+use Lagdo\DbAdmin\DbAdmin\AbstractAdmin;
+
+use function compact;
 
 /**
  * Admin view functions
@@ -92,7 +94,7 @@ class ViewAdmin extends AbstractAdmin
             $tabs['triggers'] = $this->trans->lang('Triggers');
         }
 
-        return \compact('mainActions', 'title', 'comment', 'tabs');
+        return compact('mainActions', 'title', 'comment', 'tabs');
     }
 
     /**
@@ -155,7 +157,7 @@ class ViewAdmin extends AbstractAdmin
             $details[] = $detail;
         }
 
-        return \compact('mainActions', 'headers', 'details');
+        return compact('mainActions', 'headers', 'details');
     }
 
     /**
@@ -194,7 +196,7 @@ class ViewAdmin extends AbstractAdmin
             ];
         }
 
-        return \compact('mainActions', 'headers', 'details');
+        return compact('mainActions', 'headers', 'details');
     }
 
     /**
@@ -226,11 +228,11 @@ class ViewAdmin extends AbstractAdmin
      */
     public function createView(array $values): array
     {
-        $success = $this->admin->createView($values);
+        $success = $this->driver->createView($values);
         $message = $this->trans->lang('View has been created.');
         $error = $this->driver->error();
 
-        return \compact('success', 'message', 'error');
+        return compact('success', 'message', 'error');
     }
 
     /**
@@ -244,12 +246,12 @@ class ViewAdmin extends AbstractAdmin
      */
     public function updateView(string $view, array $values): array
     {
-        $result = $this->admin->updateView($view, $values);
+        $result = $this->driver->updateView($view, $values);
         $message = $this->trans->lang("View has been $result.");
         $error = $this->driver->error();
         $success = !$error;
 
-        return \compact('success', 'message', 'error');
+        return compact('success', 'message', 'error');
     }
 
     /**
@@ -262,10 +264,10 @@ class ViewAdmin extends AbstractAdmin
      */
     public function dropView(string $view): array
     {
-        $success = $this->admin->dropView($view);
+        $success = $this->driver->dropView($view);
         $message = $this->trans->lang('View has been dropped.');
         $error = $this->driver->error();
 
-        return \compact('success', 'message', 'error');
+        return compact('success', 'message', 'error');
     }
 }

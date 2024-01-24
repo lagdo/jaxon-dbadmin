@@ -28,11 +28,6 @@ class AbstractAdmin
     public $trans = null;
 
     /**
-     * @var Admin
-     */
-    public $admin = null;
-
-    /**
      * Initialize the facade
      *
      * @param AbstractAdmin $dbAdmin
@@ -44,6 +39,5 @@ class AbstractAdmin
         $this->driver = $dbAdmin->driver;
         $this->util = $dbAdmin->util;
         $this->trans = $dbAdmin->trans;
-        $this->admin = $dbAdmin->admin;
     }
 }

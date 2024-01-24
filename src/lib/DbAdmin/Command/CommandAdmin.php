@@ -150,7 +150,7 @@ class CommandAdmin extends AbstractAdmin
      *
      * @return bool
      */
-    private function executeQuery(string $query, int $limit, bool $errorStops, bool $onlyErrors): bool
+    private function executeCommand(string $query, int $limit, bool $errorStops, bool $onlyErrors): bool
     {
         //! Don't allow changing of character_set_results, convert encoding of displayed query
         if ($this->driver->multiQuery($query) && ($connection = $this->connection()) !== null) {
@@ -224,7 +224,7 @@ class CommandAdmin extends AbstractAdmin
         $queryEntity = new QueryEntity($queries);
         while ($this->driver->parseQueries($queryEntity)) {
             $commands++;
-            if (!$this->executeQuery($queryEntity->query, $limit, $errorStops, $onlyErrors)) {
+            if (!$this->executeCommand($queryEntity->query, $limit, $errorStops, $onlyErrors)) {
                 $errors++;
                 if ($errorStops) {
                     break;
