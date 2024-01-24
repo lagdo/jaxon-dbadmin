@@ -20,7 +20,7 @@
         "php": ">=7.1.0",
         "ext-json": "*",
         "ext-iconv": "*",
-        "lagdo/dbadmin-driver": "^0.8",
+        "lagdo/dbadmin-driver": "^0.9",
         "lagdo/ui-builder": "^0.1",
         "jaxon-php/jaxon-core": "^4.6",
         "jaxon-php/jaxon-dialogs": "^4.0",
@@ -35,7 +35,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Lagdo\\DbAdmin\\App\\": "src/app/",
+            "Lagdo\\DbAdmin\\App\\": "app/",
             "Lagdo\\DbAdmin\\Db\\": "src/db/",
             "Lagdo\\DbAdmin\\Ui\\": "src/ui/",
             "Lagdo\\DbAdmin\\": "src/lib/"

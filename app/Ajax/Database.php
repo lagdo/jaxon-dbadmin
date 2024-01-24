@@ -131,11 +131,11 @@ class Database extends CallableClass
 
         // Set the click handlers
         $this->jq('#adminer-menu-action-database-command')
-            ->click($this->cl(Command::class)->rq()->showDatabaseForm());
+            ->click($this->rq(Command::class)->showDatabaseForm());
         $this->jq('#adminer-menu-action-database-import')
-            ->click($this->cl(Import::class)->rq()->showDatabaseForm());
+            ->click($this->rq(Import::class)->showDatabaseForm());
         $this->jq('#adminer-menu-action-database-export')
-            ->click($this->cl(Export::class)->rq()->showDatabaseForm());
+            ->click($this->rq(Export::class)->showDatabaseForm());
 
         $content = $this->uiBuilder->menuActions($databaseInfo['menuActions']);
         $this->response->html($this->package->getDbMenuId(), $content);
@@ -213,16 +213,16 @@ class Database extends CallableClass
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-add-table')
-            ->click($this->cl(Table::class)->rq()->add());
+            ->click($this->rq(Table::class)->add());
 
         // Set onclick handlers on table checkbox
         $this->response->script("jaxon.dbadmin.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on table names
         $table = jq()->parent()->attr('data-name');
         $this->jq('.' . $tableNameClass . '>a.name', '#' . $this->package->getDbContentId())
-            ->click($this->cl(Table::class)->rq()->show($table));
+            ->click($this->rq(Table::class)->show($table));
         $this->jq('.' . $tableNameClass . '>a.select', '#' . $this->package->getDbContentId())
-            ->click($this->cl(Table::class)->rq()->select($table));
+            ->click($this->rq(Table::class)->select($table));
 
         return $this->response;
     }
@@ -257,14 +257,14 @@ class Database extends CallableClass
         $this->showSection($viewsInfo, ['checkbox' => $checkbox]);
 
         // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-main-action-add-view')->click($this->cl(View::class)->rq()->add());
+        $this->jq('#adminer-main-action-add-view')->click($this->rq(View::class)->add());
 
         // Set onclick handlers on view checkbox
         $this->response->script("jaxon.dbadmin.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on view names
         $view = jq()->parent()->attr('data-name');
         $this->jq('.' . $viewNameClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->cl(View::class)->rq()->show($view));
+            ->click($this->rq(View::class)->show($view));
 
         return $this->response;
     }

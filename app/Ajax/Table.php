@@ -130,8 +130,8 @@ class Table extends CallableClass
         $this->jq('#adminer-main-action-edit-table')->click($this->rq()->edit($table));
         $this->jq('#adminer-main-action-drop-table')->click($this->rq()->drop($table)
             ->confirm("Drop table $table?"));
-        $this->jq('#adminer-main-action-select-table')->click($this->cl(Select::class)->rq()->show());
-        $this->jq('#adminer-main-action-insert-table')->click($this->cl(Query::class)->rq()->showInsert());
+        $this->jq('#adminer-main-action-select-table')->click($this->rq(Select::class)->show());
+        $this->jq('#adminer-main-action-insert-table')->click($this->rq(Query::class)->showInsert());
 
         return $this->response;
     }
@@ -164,8 +164,8 @@ class Table extends CallableClass
         $length = jq(".{$this->formId}-column", "#$contentId")->length;
         $values = pm()->form($this->formId);
         $this->jq('#adminer-main-action-table-save')->click($this->rq()->create($values)->when($length));
-        $this->jq('#adminer-main-action-table-cancel')->click($this->cl(Database::class)->rq()->showTables());
-        $this->jq('#adminer-table-column-add')->click($this->cl(Column::class)->rq()->add($length));
+        $this->jq('#adminer-main-action-table-cancel')->click($this->rq(Database::class)->showTables());
+        $this->jq('#adminer-table-column-add')->click($this->rq(Column::class)->add($length));
 
         return $this->response;
     }
@@ -209,10 +209,10 @@ class Table extends CallableClass
             ->confirm("Save changes on table $table?"));
         $this->jq('#adminer-main-action-table-cancel')->click($this->rq()->show($table));
         $length = jq(".{$this->formId}-column", "#$contentId")->length;
-        $this->jq('#adminer-table-column-add')->click($this->cl(Column::class)->rq()->add($length));
+        $this->jq('#adminer-table-column-add')->click($this->rq(Column::class)->add($length));
         $index = jq()->attr('data-index');
-        $this->jq('.adminer-table-column-add')->click($this->cl(Column::class)->rq()->add($length, $index));
-        $this->jq('.adminer-table-column-del')->click($this->cl(Column::class)->rq()->setForDelete($index));
+        $this->jq('.adminer-table-column-add')->click($this->rq(Column::class)->add($length, $index));
+        $this->jq('.adminer-table-column-del')->click($this->rq(Column::class)->setForDelete($index));
 
         return $this->response;
     }

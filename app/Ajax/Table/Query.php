@@ -58,7 +58,7 @@ class Query extends CallableClass
             ->confirm($this->dbAdmin->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-save-select')->click($this->rq()->execInsert($options, false)
             ->confirm($this->dbAdmin->lang('Save this item?')));
-        $this->jq('#adminer-main-action-query-back')->click($this->cl(Table::class)->rq()->show($table));
+        $this->jq('#adminer-main-action-query-back')->click($this->rq(Table::class)->show($table));
 
         return $this->response;
     }
@@ -198,7 +198,7 @@ class Query extends CallableClass
             return $this->response;
         }
         $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
-        $this->cl(Select::class)->rq()->execSelect();
+        $this->rq(Select::class)->execSelect();
 
         return $this->response;
     }

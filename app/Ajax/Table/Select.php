@@ -135,15 +135,15 @@ class Select extends CallableClass
         }
 
         // Set onclick handlers on buttons
-        $this->jq('#adminer-main-action-select-back')->click($this->cl(Table::class)->rq()->show($table));
+        $this->jq('#adminer-main-action-select-back')->click($this->rq(Table::class)->show($table));
         $this->jq("#$btnColumnsId")->click($this->rq()->editColumns());
         $this->jq("#$btnFiltersId")->click($this->rq()->editFilters());
         $this->jq("#$btnSortingId")->click($this->rq()->editSorting());
         $this->jq('#adminer-main-action-select-exec')->click($this->rq()->execSelect());
-        $this->jq('#adminer-main-action-insert-table')->click($this->cl(Query::class)->rq()->showInsert());
+        $this->jq('#adminer-main-action-insert-table')->click($this->rq(Query::class)->showInsert());
         $this->jq("#$btnExecId")->click($this->rq()->execSelect());
         $query = pm()->js('jaxon.dbadmin.editor.query');
-        $this->jq("#$btnEditId")->click($this->cl(Command::class)->rq()->showDatabaseForm($query));
+        $this->jq("#$btnEditId")->click($this->rq(Command::class)->showDatabaseForm($query));
         // Select options form
         $options = pm()->form($this->formOptionsId);
         $this->jq("#$btnLimitId")->click($this->rq()->setQueryOptions($options));
@@ -202,8 +202,8 @@ class Select extends CallableClass
         $this->response->html($resultsId, $content);
 
         // The Jaxon ajax calls
-        $updateCall = $this->cl(Query::class)->rq()->showUpdate(pm()->js("jaxon.dbadmin.rowIds[rowId]"));
-        $deleteCall = $this->cl(Query::class)->rq()->execDelete(pm()->js("jaxon.dbadmin.rowIds[rowId]"))
+        $updateCall = $this->rq(Query::class)->showUpdate(pm()->js("jaxon.dbadmin.rowIds[rowId]"));
+        $deleteCall = $this->rq(Query::class)->execDelete(pm()->js("jaxon.dbadmin.rowIds[rowId]"))
             ->confirm($this->dbAdmin->lang('Delete this item?'));
 
         // Wrap the ajax calls into functions

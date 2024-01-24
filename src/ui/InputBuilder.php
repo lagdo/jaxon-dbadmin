@@ -36,9 +36,14 @@ class InputBuilder
     {
         $this->htmlBuilder
             ->div()->setClass('checkbox')
-                ->input()->setName($input['attrs']['name'])->setValue('0')->setType('hidden')
+                ->input()
+                    ->setName($input['attrs']['name'])
+                    ->setValue('0')
+                    ->setType('hidden')
                 ->end()
-                ->checkbox($input['attrs']['checked'])->setName($input['attrs']['name'])->setValue('1')
+                ->checkbox($input['attrs']['checked'])
+                    ->setName($input['attrs']['name'])
+                    ->setValue('1')
                 ->end()
             ->end();
     }
