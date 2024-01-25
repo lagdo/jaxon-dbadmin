@@ -39,11 +39,8 @@ class ServerAdmin extends AbstractAdmin
     public function __construct(array $options)
     {
         // Set the user databases, if defined.
-        if (array_key_exists('access', $options) &&
-            is_array($options['access']) &&
-            array_key_exists('databases', $options['access']) &&
-            is_array($options['access']['databases'])) {
-            $this->userDatabases = $options['access']['databases'];
+        if (is_array(($userDatabases = $options['access']['databases'] ?? null))) {
+            $this->userDatabases = $userDatabases;
         }
     }
 
@@ -59,11 +56,13 @@ class ServerAdmin extends AbstractAdmin
             // Passing false as parameter to this call prevent from using the slow_query() function,
             // which outputs data to the browser are prepended to the Jaxon response.
             $this->finalDatabases = $this->driver->databases(false);
+            \Log::debug('All databases', ['databases' => $this->finalDatabases]);
             if (is_array($this->userDatabases)) {
                 // Only keep databases that appear in the config.
                 $this->finalDatabases = array_values(array_intersect($this->finalDatabases, $this->userDatabases));
             }
         }
+        \Log::debug('Final databases', ['databases' => $this->finalDatabases]);
         return $this->finalDatabases;
     }
 

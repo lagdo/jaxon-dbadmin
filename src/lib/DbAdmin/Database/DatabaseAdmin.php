@@ -4,6 +4,10 @@ namespace Lagdo\DbAdmin\DbAdmin\Database;
 
 use Lagdo\DbAdmin\DbAdmin\AbstractAdmin;
 
+use function array_intersect;
+use function array_values;
+use function is_array;
+
 /**
  * Admin database functions
  */
@@ -12,7 +16,7 @@ class DatabaseAdmin extends AbstractAdmin
     /**
      * The final schema list
      *
-     * @var array
+     * @var array|null
      */
     protected $finalSchemas = null;
 
@@ -31,11 +35,8 @@ class DatabaseAdmin extends AbstractAdmin
     public function __construct(array $options)
     {
         // Set the user schemas, if defined.
-        if (\array_key_exists('access', $options) &&
-            \is_array($options['access']) &&
-            \array_key_exists('schemas', $options['access']) &&
-            \is_array($options['access']['schemas'])) {
-            $this->userSchemas = $options['access']['schemas'];
+        if (is_array(($userSchemas = $options['access']['schemas'] ?? null))) {
+            $this->userSchemas = $userSchemas;
         }
     }
 
@@ -49,10 +50,9 @@ class DatabaseAdmin extends AbstractAdmin
         // Get the schema lists
         if ($this->finalSchemas === null) {
             $this->finalSchemas = $this->driver->schemas();
-            if (\is_array($this->userSchemas)) {
+            if ($this->userSchemas !== null) {
                 // Only keep schemas that appear in the config.
-                $this->finalSchemas = \array_intersect($this->finalSchemas, $this->userSchemas);
-                $this->finalSchemas = \array_values($this->finalSchemas);
+                $this->finalSchemas = array_values(array_intersect($this->finalSchemas, $this->userSchemas));
             }
         }
         return $this->finalSchemas;

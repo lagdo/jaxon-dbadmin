@@ -5,8 +5,8 @@ namespace Lagdo\DbAdmin\App\Ajax;
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
-use Exception;
-
+use function array_values;
+use function count;
 use function Jaxon\jq;
 use function Jaxon\pm;
 
@@ -83,10 +83,10 @@ class Server extends CallableClass
         if(!$this->checkServerAccess($server, false))
         {
             $databasesInfo = $this->showDatabaseMenu($server);
-            if(($database = \reset($databasesInfo['databases'])))
+            if(count($databasesInfo['databases']) > 0)
             {
-                // $database = $databasesInfo['databases'][0];
-                $this->cl(Database::class)->select($server, $database);
+                $database = array_values($databasesInfo['databases'])[0];
+                $this->cl(Database::class)->select($database);
                 $this->selectMenuItem('.menu-action-table', 'adminer-database-menu');
             }
 

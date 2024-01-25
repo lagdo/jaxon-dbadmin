@@ -5,8 +5,6 @@ namespace Lagdo\DbAdmin\App\Ajax;
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
-use Exception;
-
 use function Jaxon\jq;
 use function Jaxon\pm;
 

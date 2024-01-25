@@ -6,8 +6,6 @@ use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Table;
 use Lagdo\DbAdmin\App\CallableClass;
 
-use Exception;
-
 use function Jaxon\pm;
 
 /**
@@ -86,7 +84,7 @@ class Query extends CallableClass
         }
         $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
 
-        $addNew ? $this->showInsert() : $this->cl(Select::class)->show($table);
+        $addNew ? $this->showInsert() : $this->cl(Select::class)->show();
 
         return $this->response;
     }
