@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui;
 
-use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\AbstractBuilder;
 use Lagdo\UiBuilder\BuilderInterface;
 

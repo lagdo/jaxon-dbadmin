@@ -50,19 +50,19 @@ return [
             // The user input
             Lagdo\DbAdmin\Driver\Input::class,
             // The facade to the database features
-            Lagdo\DbAdmin\DbAdmin::class,
+            Lagdo\DbAdmin\Db\DbAdmin::class,
             // The translator
-            Lagdo\DbAdmin\Db\Translator::class,
+            Lagdo\DbAdmin\Translator::class,
             // The db classes
-            Lagdo\DbAdmin\Db\Util::class,
+            Lagdo\DbAdmin\Util::class,
             // The template builder
             Lagdo\DbAdmin\Ui\Builder::class,
         ],
         'alias' => [
             // The translator
-            Lagdo\DbAdmin\Driver\TranslatorInterface::class => Lagdo\DbAdmin\Db\Translator::class,
+            Lagdo\DbAdmin\Driver\TranslatorInterface::class => Lagdo\DbAdmin\Translator::class,
             // The db util
-            Lagdo\DbAdmin\Driver\UtilInterface::class => Lagdo\DbAdmin\Db\Util::class,
+            Lagdo\DbAdmin\Driver\UtilInterface::class => Lagdo\DbAdmin\Util::class,
         ],
     ],
 ];
