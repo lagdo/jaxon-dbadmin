@@ -73,8 +73,8 @@ trait SelectTrait
     {
         $this->connect($server, $database, $schema);
 
-        $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database,
+        $package = $this->admin()->package;
+        $this->setBreadcrumbs([$package->getServerName($server), $database,
             $this->trans->lang('Tables'), $table, $this->trans->lang('Select')]);
 
         $this->util->input()->table = $table;

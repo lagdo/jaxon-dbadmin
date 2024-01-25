@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\DbAdmin;
 
+use Lagdo\DbAdmin\App\Package;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Util;
 use Lagdo\DbAdmin\Translator;
@@ -27,6 +28,13 @@ class AbstractAdmin
     public $trans = null;
 
     /**
+     * The Jaxon DbAdmin package
+     *
+     * @var Package
+     */
+    public $package;
+
+    /**
      * Initialize the facade
      *
      * @param AbstractAdmin $dbAdmin
@@ -38,5 +46,6 @@ class AbstractAdmin
         $this->driver = $dbAdmin->driver;
         $this->util = $dbAdmin->util;
         $this->trans = $dbAdmin->trans;
+        $this->package = $dbAdmin->package;
     }
 }

@@ -70,8 +70,8 @@ trait ViewTrait
     {
         $this->connect($server, $database, $schema);
 
-        $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Views'), $view]);
+        $package = $this->admin()->package;
+        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Views'), $view]);
 
         $this->util->input()->table = $view;
         return $this->view()->getViewInfo($view);

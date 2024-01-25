@@ -173,6 +173,18 @@ class Package extends JaxonPackage
     }
 
     /**
+     * Get the name of a given server
+     *
+     * @param string $server    The server name in the configuration
+     *
+     * @return string
+     */
+    public function getServerName(string $server): string
+    {
+        return $this->getOption("servers.$server.name", '');
+    }
+
+    /**
      * Get a given server options
      *
      * @param string $server    The server name in the configuration

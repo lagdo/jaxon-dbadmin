@@ -41,13 +41,6 @@ class DbAdmin extends AbstractAdmin
     protected $di;
 
     /**
-     * The Jaxon DbAdmin package
-     *
-     * @var Package
-     */
-    protected $package;
-
-    /**
      * The constructor
      *
      * @param Package $package    The DbAdmin package

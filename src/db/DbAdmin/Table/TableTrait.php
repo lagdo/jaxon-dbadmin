@@ -71,8 +71,8 @@ trait TableTrait
     {
         $this->connect($server, $database, $schema);
 
-        $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Tables'), $table]);
+        $package = $this->admin()->package;
+        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Tables'), $table]);
 
         $this->util->input()->table = $table;
         return $this->table()->getTableInfo($table);
@@ -162,8 +162,8 @@ trait TableTrait
     {
         $this->connect($server, $database, $schema);
 
-        $options = $this->package->getServerOptions($server);
-        $breadcrumbs = [$options['name'], $database, $this->trans->lang('Tables')];
+        $package = $this->admin()->package;
+        $breadcrumbs = [$package->getServerName($server), $database, $this->trans->lang('Tables')];
         if (($table)) {
             $breadcrumbs[] = $table;
             $breadcrumbs[] = $this->trans->lang('Alter table');

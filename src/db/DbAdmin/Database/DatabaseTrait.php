@@ -70,10 +70,10 @@ trait DatabaseTrait
     {
         $this->connect($server, $database);
 
-        $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database]);
+        $package = $this->admin()->package;
+        $this->setBreadcrumbs([$package->getServerName($server), $database]);
 
-        return $this->database($options)->getDatabaseInfo();
+        return $this->database($package->getServerOptions($server))->getDatabaseInfo();
     }
 
     /**
@@ -89,10 +89,10 @@ trait DatabaseTrait
     {
         $this->connect($server, $database, $schema);
 
-        $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Tables')]);
+        $package = $this->admin()->package;
+        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Tables')]);
 
-        return $this->database($options)->getTables();
+        return $this->database($package->getServerOptions($server))->getTables();
     }
 
     /**
@@ -108,10 +108,10 @@ trait DatabaseTrait
     {
         $this->connect($server, $database, $schema);
 
-        $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Views')]);
+        $package = $this->admin()->package;
+        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Views')]);
 
-        return $this->database($options)->getViews();
+        return $this->database($package->getServerOptions($server))->getViews();
     }
 
     /**
@@ -127,10 +127,10 @@ trait DatabaseTrait
     {
         $this->connect($server, $database, $schema);
 
-        $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Routines')]);
+        $package = $this->admin()->package;
+        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Routines')]);
 
-        return $this->database($options)->getRoutines();
+        return $this->database($package->getServerOptions($server))->getRoutines();
     }
 
     /**
@@ -146,10 +146,10 @@ trait DatabaseTrait
     {
         $this->connect($server, $database, $schema);
 
-        $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Sequences')]);
+        $package = $this->admin()->package;
+        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Sequences')]);
 
-        return $this->database($options)->getSequences();
+        return $this->database($package->getServerOptions($server))->getSequences();
     }
 
     /**
@@ -165,10 +165,10 @@ trait DatabaseTrait
     {
         $this->connect($server, $database, $schema);
 
-        $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('User types')]);
+        $package = $this->admin()->package;
+        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('User types')]);
 
-        return $this->database($options)->getUserTypes();
+        return $this->database($package->getServerOptions($server))->getUserTypes();
     }
 
     /**
@@ -184,9 +184,9 @@ trait DatabaseTrait
     {
         $this->connect($server, $database, $schema);
 
-        $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $database, $this->trans->lang('Events')]);
+        $package = $this->admin()->package;
+        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Events')]);
 
-        return $this->database($options)->getEvents();
+        return $this->database($package->getServerOptions($server))->getEvents();
     }
 }

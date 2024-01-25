@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\DbAdmin\Import;
 
-use Lagdo\DbAdmin\DbAdmin\Command\CommandAdmin;
+use Lagdo\DbAdmin\Db\DbAdmin\Command\CommandAdmin;
 
 /**
  * Admin import functions

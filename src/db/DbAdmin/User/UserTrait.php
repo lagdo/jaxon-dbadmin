@@ -69,8 +69,8 @@ trait UserTrait
     {
         $this->connect($server);
 
-        $options = $this->package->getServerOptions($server);
-        $this->setBreadcrumbs([$options['name'], $this->trans->lang('Privileges')]);
+        $package = $this->admin()->package;
+        $this->setBreadcrumbs([$package->getServerName($server), $this->trans->lang('Privileges')]);
 
         return $this->user()->getPrivileges($database);
     }

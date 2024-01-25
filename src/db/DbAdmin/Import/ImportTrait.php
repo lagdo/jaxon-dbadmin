@@ -68,8 +68,8 @@ trait ImportTrait
     {
         $this->connect($server, $database);
 
-        $options = $this->package->getServerOptions($server);
-        $breadcrumbs = [$options['name']];
+        $package = $this->admin()->package;
+        $breadcrumbs = [$package->getServerName($server)];
         if (($database)) {
             $breadcrumbs[] = $database;
         }
