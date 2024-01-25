@@ -80,7 +80,7 @@ class Server extends CallableClass
         $content = $this->uiBuilder->menuActions($serverInfo['menuActions']);
         $this->response->html($this->package->getDbMenuId(), $content);
 
-        if(!$this->checkServerAccess($server, false))
+        if(!$this->package->getServerAccess($server))
         {
             $databasesInfo = $this->showDatabaseMenu($server);
             if(count($databasesInfo['databases']) > 0)

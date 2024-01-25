@@ -56,13 +56,11 @@ class ServerAdmin extends AbstractAdmin
             // Passing false as parameter to this call prevent from using the slow_query() function,
             // which outputs data to the browser are prepended to the Jaxon response.
             $this->finalDatabases = $this->driver->databases(false);
-            \Log::debug('All databases', ['databases' => $this->finalDatabases]);
             if (is_array($this->userDatabases)) {
                 // Only keep databases that appear in the config.
                 $this->finalDatabases = array_values(array_intersect($this->finalDatabases, $this->userDatabases));
             }
         }
-        \Log::debug('Final databases', ['databases' => $this->finalDatabases]);
         return $this->finalDatabases;
     }
 

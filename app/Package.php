@@ -197,6 +197,25 @@ class Package extends JaxonPackage
     }
 
     /**
+     * Check if the user has access to a server
+     *
+     * @param string $server      The database server
+     *
+     * return bool
+     */
+    public function getServerAccess(string $server)
+    {
+        // Check in server options
+        $serverAccess = $this->getOption("servers.$server.access.server", null);
+        if($serverAccess === true || $serverAccess === false)
+        {
+            return $serverAccess;
+        }
+        // Check in global options
+        return $this->getOption('access.server', true) === true;
+    }
+
+    /**
      * Get the HTML tags to include CSS code and files into the page
      *
      * The code must be enclosed in the appropriate HTML tags.
