@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App;
 
 use Jaxon\Plugin\Package as JaxonPackage;
 use Lagdo\DbAdmin\App\Ajax\Server;
-use Lagdo\DbAdmin\Ui\Builder;
+use Lagdo\DbAdmin\Ui\UiBuilder;
 
 use function is_string;
 use function realpath;
@@ -16,18 +16,18 @@ use function Jaxon\pm;
 class Package extends JaxonPackage
 {
     /**
-     * @var Builder
+     * @var UiBuilder
      */
-    protected $uiBuilder;
+    protected $ui;
 
     /**
      * The constructor
      *
-     * @param Builder $uiBuilder
+     * @param UiBuilder $ui
      */
-    public function __construct(Builder $uiBuilder)
+    public function __construct(UiBuilder $ui)
     {
-        $this->uiBuilder = $uiBuilder;
+        $this->ui = $ui;
     }
 
     /**
@@ -298,6 +298,6 @@ class Package extends JaxonPackage
         $values['servers'] = $servers;
         $values['default'] = $this->getOption('default', '');
 
-        return $this->uiBuilder->home($values);
+        return $this->ui->home($values);
     }
 }

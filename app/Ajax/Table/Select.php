@@ -94,7 +94,7 @@ class Select extends CallableClass
     public function show(bool $init = true): Response
     {
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table);
+        $selectData = $this->db->getSelectData($server, $database, $schema, $table);
         // Make data available to views
         $this->view()->shareValues($selectData);
 
@@ -105,7 +105,7 @@ class Select extends CallableClass
 
         // Set main menu buttons
         $content = isset($selectData['mainActions']) ?
-            $this->uiBuilder->mainActions($selectData['mainActions']) : '';
+            $this->ui->mainActions($selectData['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
         $btnColumnsId = 'adminer-table-select-columns';
@@ -126,7 +126,7 @@ class Select extends CallableClass
             'btnLengthId' => $btnLengthId,
             'txtQueryId' => $this->txtQueryId,
         ];
-        $content = $this->uiBuilder->tableSelect($ids, $selectData['options']);
+        $content = $this->ui->tableSelect($ids, $selectData['options']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show the query
@@ -174,7 +174,7 @@ class Select extends CallableClass
 
         $options['page'] = $page;
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $results = $this->dbAdmin->execSelect($server, $database, $schema, $table, $options);
+        $results = $this->db->execSelect($server, $database, $schema, $table, $options);
         // Show the message
         $resultsId = 'adminer-table-select-results';
         if(($results['message']))
@@ -197,14 +197,14 @@ class Select extends CallableClass
 
         $btnEditRowClass = 'adminer-table-select-row-edit';
         $btnDeleteRowClass = 'adminer-table-select-row-delete';
-        $content = $this->uiBuilder->selectResults($results['headers'], $results['rows'],
+        $content = $this->ui->selectResults($results['headers'], $results['rows'],
             $btnEditRowClass, $btnDeleteRowClass);
         $this->response->html($resultsId, $content);
 
         // The Jaxon ajax calls
         $updateCall = $this->rq(Query::class)->showUpdate(pm()->js("jaxon.dbadmin.rowIds[rowId]"));
         $deleteCall = $this->rq(Query::class)->execDelete(pm()->js("jaxon.dbadmin.rowIds[rowId]"))
-            ->confirm($this->dbAdmin->lang('Delete this item?'));
+            ->confirm($this->db->lang('Delete this item?'));
 
         // Wrap the ajax calls into functions
         $this->response->setFunction('updateRowItem', 'rowId', $updateCall);
@@ -219,7 +219,7 @@ class Select extends CallableClass
 
         // Pagination
         $pages = $this->rq()->execSelect(pm()->page())->pages($page, $results['limit'], $results['total']);
-        $pagination = $this->uiBuilder->pagination($pages);
+        $pagination = $this->ui->pagination($pages);
         $this->response->html("adminer-table-select-pagination", $pagination);
 
         return $this->response;
@@ -241,7 +241,7 @@ class Select extends CallableClass
         $this->bag('selection')->set('options', $options);
 
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Display the new query
         $this->showQuery($server, $selectData['query']);
 
@@ -258,7 +258,7 @@ class Select extends CallableClass
         // Select options
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
         $options = $this->bag('selection')->get('options', $this->selectOptions);
-        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
 
@@ -268,7 +268,7 @@ class Select extends CallableClass
         $checkboxClass = "$targetId-item-checkbox";
 
         $title = 'Edit columns';
-        $content = $this->uiBuilder->editQueryColumns($this->columnsFormId,
+        $content = $this->ui->editQueryColumns($this->columnsFormId,
             $selectData['options']['columns'],
             "jaxon.dbadmin.insertSelectQueryItem('$targetId', '$sourceId')",
             "jaxon.dbadmin.removeSelectQueryItems('$targetId', '$checkboxClass')");
@@ -304,7 +304,7 @@ class Select extends CallableClass
         $this->bag('selection')->set('options', $options);
 
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Hide the dialog
         $this->response->dialog->hide();
         // Display the new query
@@ -323,7 +323,7 @@ class Select extends CallableClass
         // Select options
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
         $options = $this->bag('selection')->get('options', $this->selectOptions);
-        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
 
@@ -333,7 +333,7 @@ class Select extends CallableClass
         $checkboxClass = "$targetId-item-checkbox";
 
         $title = 'Edit filters';
-        $content = $this->uiBuilder->editQueryFilters($this->filtersFormId,
+        $content = $this->ui->editQueryFilters($this->filtersFormId,
             $selectData['options']['filters'],
             "jaxon.dbadmin.insertSelectQueryItem('$targetId', '$sourceId')",
             "jaxon.dbadmin.removeSelectQueryItems('$targetId', '$checkboxClass')");
@@ -369,7 +369,7 @@ class Select extends CallableClass
         $this->bag('selection')->set('options', $options);
 
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Hide the dialog
         $this->response->dialog->hide();
         // Display the new query
@@ -388,7 +388,7 @@ class Select extends CallableClass
         // Select options
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
         $options = $this->bag('selection')->get('options', $this->selectOptions);
-        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
 
@@ -398,7 +398,7 @@ class Select extends CallableClass
         $checkboxClass = "$targetId-item-checkbox";
 
         $title = 'Edit order';
-        $content = $this->uiBuilder->editQuerySorting($this->sortingFormId,
+        $content = $this->ui->editQuerySorting($this->sortingFormId,
             $selectData['options']['sorting'],
             "jaxon.dbadmin.insertSelectQueryItem('$targetId', '$sourceId')",
             "jaxon.dbadmin.removeSelectQueryItems('$targetId', '$checkboxClass')");
@@ -435,7 +435,7 @@ class Select extends CallableClass
         $this->bag('selection')->set('options', $options);
 
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $selectData = $this->dbAdmin->getSelectData($server, $database, $schema, $table, $options);
+        $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Hide the dialog
         $this->response->dialog->hide();
         // Display the new query

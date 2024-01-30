@@ -22,13 +22,13 @@ class Server extends CallableClass
     protected function showDatabaseMenu(string $server): array
     {
         // Access to servers is forbidden. Show the first database.
-        $databasesInfo = $this->dbAdmin->getDatabases($server);
+        $databasesInfo = $this->db->getDatabases($server);
 
         // Make databases info available to views
         $this->view()->shareValues($databasesInfo);
 
         // Set the database dropdown list
-        $content = $this->uiBuilder->menuDatabases($databasesInfo['databases']);
+        $content = $this->ui->menuDatabases($databasesInfo['databases']);
         $this->response->html($this->package->getDbListId(), $content);
 
         // Hide schema list
@@ -55,15 +55,15 @@ class Server extends CallableClass
      */
     public function connect(string $server): Response
     {
-        $serverInfo = $this->dbAdmin->getServerInfo($server);
+        $serverInfo = $this->db->getServerInfo($server);
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
 
-        $content = $this->uiBuilder->serverInfo($serverInfo['server'], $serverInfo['user']);
+        $content = $this->ui->serverInfo($serverInfo['server'], $serverInfo['user']);
         $this->response->html($this->package->getServerInfoId(), $content);
 
         // Show the server
-        $content = $this->uiBuilder->menuCommands($serverInfo['sqlActions']);
+        $content = $this->ui->menuCommands($serverInfo['sqlActions']);
         $this->response->html($this->package->getServerActionsId(), $content);
         $this->response->html($this->package->getDbActionsId(), '');
 
@@ -77,7 +77,7 @@ class Server extends CallableClass
         $this->jq('#adminer-menu-action-server-export')
             ->click($this->rq(Export::class)->showServerForm());
 
-        $content = $this->uiBuilder->menuActions($serverInfo['menuActions']);
+        $content = $this->ui->menuActions($serverInfo['menuActions']);
         $this->response->html($this->package->getDbMenuId(), $content);
 
         if(!$this->package->getServerAccess($server))
@@ -149,12 +149,12 @@ class Server extends CallableClass
 
         // Set main menu buttons
         $content = isset($databasesInfo['mainActions']) ?
-            $this->uiBuilder->mainActions($databasesInfo['mainActions']) : '';
+            $this->ui->mainActions($databasesInfo['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
         // Add checkboxes to database table
         $checkbox = 'database';
-        $content = $this->uiBuilder->mainContent($this->renderMainContent(['checkbox' => $checkbox]), $checkbox);
+        $content = $this->ui->mainContent($this->renderMainContent(['checkbox' => $checkbox]), $checkbox);
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Set onclick handlers on table checkbox
@@ -194,14 +194,14 @@ class Server extends CallableClass
             return $this->response;
         }
 
-        $privilegesInfo = $this->dbAdmin->getPrivileges($server);
+        $privilegesInfo = $this->db->getPrivileges($server);
 
         $editClass = 'adminer-privilege-name';
         $optionClass = 'jaxon-adminer-grant';
         // Add links, classes and data values to privileges.
         $privilegesInfo['details'] = \array_map(function($detail) use($editClass, $optionClass) {
             // Set the grant select options.
-            $detail['grants'] = $this->uiBuilder->htmlSelect($detail['grants'], $optionClass);
+            $detail['grants'] = $this->ui->htmlSelect($detail['grants'], $optionClass);
                 // Set the Edit button.
             $detail['edit'] = [
                 'label' => '<a href="javascript:void(0)">Edit</a>',
@@ -219,10 +219,10 @@ class Server extends CallableClass
 
         // Set main menu buttons
         $content = isset($privilegesInfo['mainActions']) ?
-            $this->uiBuilder->mainActions($privilegesInfo['mainActions']) : '';
+            $this->ui->mainActions($privilegesInfo['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->uiBuilder->mainContent($this->renderMainContent());
+        $content = $this->ui->mainContent($this->renderMainContent());
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Set onclick handlers on database names
@@ -255,16 +255,16 @@ class Server extends CallableClass
             return $this->response;
         }
 
-        $processesInfo = $this->dbAdmin->getProcesses($server);
+        $processesInfo = $this->db->getProcesses($server);
         // Make processes info available to views
         $this->view()->shareValues($processesInfo);
 
         // Set main menu buttons
         $content = isset($processesInfo['mainActions']) ?
-            $this->uiBuilder->mainActions($processesInfo['mainActions']) : '';
+            $this->ui->mainActions($processesInfo['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->uiBuilder->mainContent($this->renderMainContent());
+        $content = $this->ui->mainContent($this->renderMainContent());
         $this->response->html($this->package->getDbContentId(), $content);
 
         return $this->response;
@@ -287,16 +287,16 @@ class Server extends CallableClass
             return $this->response;
         }
 
-        $variablesInfo = $this->dbAdmin->getVariables($server);
+        $variablesInfo = $this->db->getVariables($server);
         // Make variables info available to views
         $this->view()->shareValues($variablesInfo);
 
         // Set main menu buttons
         $content = isset($variablesInfo['mainActions']) ?
-            $this->uiBuilder->mainActions($variablesInfo['mainActions']) : '';
+            $this->ui->mainActions($variablesInfo['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->uiBuilder->mainContent($this->renderMainContent());
+        $content = $this->ui->mainContent($this->renderMainContent());
         $this->response->html($this->package->getDbContentId(), $content);
 
         return $this->response;
@@ -319,16 +319,16 @@ class Server extends CallableClass
             return $this->response;
         }
 
-        $statusInfo = $this->dbAdmin->getStatus($server);
+        $statusInfo = $this->db->getStatus($server);
         // Make status info available to views
         $this->view()->shareValues($statusInfo);
 
         // Set main menu buttons
         $content = isset($statusInfo['mainActions']) ?
-            $this->uiBuilder->mainActions($statusInfo['mainActions']) : '';
+            $this->ui->mainActions($statusInfo['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->uiBuilder->mainContent($this->renderMainContent());
+        $content = $this->ui->mainContent($this->renderMainContent());
         $this->response->html($this->package->getDbContentId(), $content);
 
         return $this->response;

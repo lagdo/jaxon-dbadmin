@@ -51,7 +51,7 @@ class Table extends CallableClass
         // Make data available to views
         $this->view()->shareValues($tableData);
 
-        $content = $this->uiBuilder->mainContent($this->renderMainContent());
+        $content = $this->ui->mainContent($this->renderMainContent());
         $this->response->html($tabId, $content);
     }
 
@@ -85,7 +85,7 @@ class Table extends CallableClass
     public function show(string $table): Response
     {
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $tableInfo = $this->dbAdmin->getTableInfo($server, $database, $schema, $table);
+        $tableInfo = $this->db->getTableInfo($server, $database, $schema, $table);
         // Make table info available to views
         $this->view()->shareValues($tableInfo);
 
@@ -93,32 +93,32 @@ class Table extends CallableClass
 
         // Set main menu buttons
         $content = isset($tableInfo['mainActions']) ?
-            $this->uiBuilder->mainActions($tableInfo['mainActions']) : '';
+            $this->ui->mainActions($tableInfo['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->uiBuilder->mainDbTable($tableInfo['tabs']);
+        $content = $this->ui->mainDbTable($tableInfo['tabs']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show fields
-        $fieldsInfo = $this->dbAdmin->getTableFields($server, $database, $schema, $table);
+        $fieldsInfo = $this->db->getTableFields($server, $database, $schema, $table);
         $this->showTab($fieldsInfo, 'tab-content-fields');
 
         // Show indexes
-        $indexesInfo = $this->dbAdmin->getTableIndexes($server, $database, $schema, $table);
+        $indexesInfo = $this->db->getTableIndexes($server, $database, $schema, $table);
         if(is_array($indexesInfo))
         {
             $this->showTab($indexesInfo, 'tab-content-indexes');
         }
 
         // Show foreign keys
-        $foreignKeysInfo = $this->dbAdmin->getTableForeignKeys($server, $database, $schema, $table);
+        $foreignKeysInfo = $this->db->getTableForeignKeys($server, $database, $schema, $table);
         if(is_array($foreignKeysInfo))
         {
             $this->showTab($foreignKeysInfo, 'tab-content-foreign-keys');
         }
 
         // Show triggers
-        $triggersInfo = $this->dbAdmin->getTableTriggers($server, $database, $schema, $table);
+        $triggersInfo = $this->db->getTableTriggers($server, $database, $schema, $table);
         if(is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
@@ -146,17 +146,17 @@ class Table extends CallableClass
     public function add(): Response
     {
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $tableData = $this->dbAdmin->getTableData($server, $database, $schema);
+        $tableData = $this->db->getTableData($server, $database, $schema);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
         // Set main menu buttons
         $content = isset($tableData['mainActions']) ?
-            $this->uiBuilder->mainActions($tableData['mainActions']) : '';
+            $this->ui->mainActions($tableData['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
         $contentId = $this->package->getDbContentId();
-        $content = $this->uiBuilder->tableForm($this->formId, $tableData['support'],
+        $content = $this->ui->tableForm($this->formId, $tableData['support'],
             $tableData['engines'], $tableData['collations']);
         $this->response->html($contentId, $content);
 
@@ -182,13 +182,13 @@ class Table extends CallableClass
     public function edit(string $table): Response
     {
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $tableData = $this->dbAdmin->getTableData($server, $database, $schema, $table);
+        $tableData = $this->db->getTableData($server, $database, $schema, $table);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
         // Set main menu buttons
         $content = isset($tableData['mainActions']) ?
-            $this->uiBuilder->mainActions($tableData['mainActions']) : '';
+            $this->ui->mainActions($tableData['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
         $contentId = $this->package->getDbContentId();
@@ -198,7 +198,7 @@ class Table extends CallableClass
             'collation' => $tableData['table']->collation,
             'comment' => $tableData['table']->comment,
         ];
-        $content = $this->uiBuilder->tableForm($this->formId, $tableData['support'], $tableData['engines'],
+        $content = $this->ui->tableForm($this->formId, $tableData['support'], $tableData['engines'],
             $tableData['collations'], $tableData['unsigned'] ?? [], $tableData['foreignKeys'],
             $tableData['options'], $editedTable, $tableData['fields']);
         $this->response->html($contentId, $content);
@@ -229,7 +229,7 @@ class Table extends CallableClass
         $values = array_merge($this->defaults, $values);
 
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $result = $this->dbAdmin->createTable($server, $database, $schema, $values);
+        $result = $this->db->createTable($server, $database, $schema, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -254,7 +254,7 @@ class Table extends CallableClass
         $values = array_merge($this->defaults, $values);
 
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $result = $this->dbAdmin->alterTable($server, $database, $schema, $table, $values);
+        $result = $this->db->alterTable($server, $database, $schema, $table, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -276,7 +276,7 @@ class Table extends CallableClass
     public function drop(string $table): Response
     {
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $result = $this->dbAdmin->dropTable($server, $database, $schema, $table);
+        $result = $this->db->dropTable($server, $database, $schema, $table);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);

@@ -24,14 +24,14 @@ class Export extends CallableClass
     protected function showForm(string $database = ''): Response
     {
         [$server,] = $this->bag('selection')->get('db');
-        $exportOptions = $this->dbAdmin->getExportOptions($server, $database);
+        $exportOptions = $this->db->getExportOptions($server, $database);
 
         // Make data available to views
         $this->view()->shareValues($exportOptions);
 
         // Set main menu buttons
         $content = isset($exportOptions['mainActions']) ?
-            $this->uiBuilder->mainActions($exportOptions['mainActions']) : '';
+            $this->ui->mainActions($exportOptions['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
         $btnId = 'adminer-main-export-submit';
@@ -49,7 +49,7 @@ class Export extends CallableClass
             'tableNameId' => $tableNameId,
             'tableDataId' => $tableDataId,
         ];
-        $content = $this->uiBuilder->exportPage($htmlIds, $exportOptions['databases'] ?? [],
+        $content = $this->ui->exportPage($htmlIds, $exportOptions['databases'] ?? [],
             $exportOptions['tables'] ?? [], $exportOptions['options'], $exportOptions['labels']);
         $this->response->html($this->package->getDbContentId(), $content);
 
@@ -113,7 +113,7 @@ class Export extends CallableClass
         $formValues['triggers'] = isset($formValues['triggers']);
 
         [$server,] = $this->bag('selection')->get('db');
-        $results = $this->dbAdmin->exportDatabases($server, $databases, $tables, $formValues);
+        $results = $this->db->exportDatabases($server, $databases, $tables, $formValues);
         if(\is_string($results))
         {
             // Error

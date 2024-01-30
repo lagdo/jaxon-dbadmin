@@ -27,7 +27,7 @@ class View extends CallableClass
         // Make data available to views
         $this->view()->shareValues($viewData);
 
-        $content = $this->uiBuilder->mainContent($this->renderMainContent());
+        $content = $this->ui->mainContent($this->renderMainContent());
         $this->response->html($tabId, $content);
     }
 
@@ -43,24 +43,24 @@ class View extends CallableClass
     public function show(string $view): Response
     {
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $viewInfo = $this->dbAdmin->getViewInfo($server, $database, $schema, $view);
+        $viewInfo = $this->db->getViewInfo($server, $database, $schema, $view);
         // Make view info available to views
         $this->view()->shareValues($viewInfo);
 
         // Set main menu buttons
         $content = isset($viewInfo['mainActions']) ?
-            $this->uiBuilder->mainActions($viewInfo['mainActions']) : '';
+            $this->ui->mainActions($viewInfo['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->uiBuilder->mainDbTable($viewInfo['tabs']);
+        $content = $this->ui->mainDbTable($viewInfo['tabs']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show fields
-        $fieldsInfo = $this->dbAdmin->getViewFields($server, $database, $schema, $view);
+        $fieldsInfo = $this->db->getViewFields($server, $database, $schema, $view);
         $this->showTab($fieldsInfo, 'tab-content-fields');
 
         // Show triggers
-        $triggersInfo = $this->dbAdmin->getViewTriggers($server, $database, $schema, $view);
+        $triggersInfo = $this->db->getViewTriggers($server, $database, $schema, $view);
         if(\is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
@@ -82,11 +82,11 @@ class View extends CallableClass
     public function add(): Response
     {
         [$server] = $this->bag('selection')->get('db');
-        $this->dbAdmin->connect($server);
+        $this->db->connect($server);
         $formId = 'view-form';
         $title = 'Create a view';
-        $materializedView = $this->dbAdmin->driver->support('materializedview');
-        $content = $this->uiBuilder->viewForm($formId, $materializedView);
+        $materializedView = $this->db->driver->support('materializedview');
+        $content = $this->ui->viewForm($formId, $materializedView);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -111,14 +111,14 @@ class View extends CallableClass
     public function edit(string $view): Response
     {
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $viewData = $this->dbAdmin->getView($server, $database, $schema, $view);
+        $viewData = $this->db->getView($server, $database, $schema, $view);
         // Make view info available to views
         $this->view()->shareValues($viewData);
 
         $formId = 'view-form';
         $title = 'Edit a view';
-        $materializedView = $this->dbAdmin->driver->support('materializedview');
-        $content = $this->uiBuilder->viewForm($formId, $materializedView, $viewData['view']);
+        $materializedView = $this->db->driver->support('materializedview');
+        $content = $this->ui->viewForm($formId, $materializedView, $viewData['view']);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -145,7 +145,7 @@ class View extends CallableClass
         $values['materialized'] = \array_key_exists('materialized', $values);
 
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $result = $this->dbAdmin->createView($server, $database, $schema, $values);
+        $result = $this->db->createView($server, $database, $schema, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -171,7 +171,7 @@ class View extends CallableClass
         $values['materialized'] = \array_key_exists('materialized', $values);
 
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $result = $this->dbAdmin->updateView($server, $database, $schema, $view, $values);
+        $result = $this->db->updateView($server, $database, $schema, $view, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -194,7 +194,7 @@ class View extends CallableClass
     public function drop(string $view): Response
     {
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $result = $this->dbAdmin->dropView($server, $database, $schema, $view);
+        $result = $this->db->dropView($server, $database, $schema, $view);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);

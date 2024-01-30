@@ -26,14 +26,14 @@ class Command extends CallableClass
      */
     protected function showForm(string $server, string $database, string $schema, string $query): Response
     {
-        $commandOptions = $this->dbAdmin->prepareCommand($server, $database, $schema);
+        $commandOptions = $this->db->prepareCommand($server, $database, $schema);
 
         // Make data available to views
         $this->view()->shareValues($commandOptions);
 
         // Set main menu buttons
         $content = isset($commandOptions['mainActions']) ?
-            $this->uiBuilder->mainActions($commandOptions['mainActions']) : '';
+            $this->ui->mainActions($commandOptions['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
         $btnId = 'adminer-main-command-execute';
@@ -41,7 +41,7 @@ class Command extends CallableClass
         $queryId = 'adminer-main-command-query';
 
         $defaultLimit = 20;
-        $content = $this->uiBuilder->queryCommand($formId, $queryId, $btnId,
+        $content = $this->ui->queryCommand($formId, $queryId, $btnId,
             $query, $defaultLimit, $commandOptions['labels']);
         $this->response->html($this->package->getDbContentId(), $content);
         $this->response->script("jaxon.dbadmin.highlightSqlEditor('$queryId', '$server')");
@@ -108,10 +108,10 @@ class Command extends CallableClass
         }
 
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $queryResults = $this->dbAdmin->executeCommands($server,
+        $queryResults = $this->db->executeCommands($server,
             $query, $limit, $errorStops, $onlyErrors, $database, $schema);
 
-        $content = $this->uiBuilder->queryResults($queryResults['results']);
+        $content = $this->ui->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
 
         return $this->response;

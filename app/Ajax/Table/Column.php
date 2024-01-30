@@ -37,9 +37,9 @@ class Column extends CallableClass
     private function insertBefore(string $target, string $id, string $class, string $content, array $attrs = [])
     {
         // Insert a div with the id before the target
-        $this->response->insertBefore($target, $this->uiBuilder->formRowTag(), $id);
+        $this->response->insertBefore($target, $this->ui->formRowTag(), $id);
         // Set the new element class
-        $this->jq("#$id")->attr('class', $this->uiBuilder->formRowClass($class));
+        $this->jq("#$id")->attr('class', $this->ui->formRowClass($class));
         // Set the new element attributes
         foreach($attrs as $name => $value)
         {
@@ -63,9 +63,9 @@ class Column extends CallableClass
     private function insertAfter(string $target, string $id, string $class, string $content, array $attrs = [])
     {
         // Insert a div with the id after the target
-        $this->response->insertAfter($target, $this->uiBuilder->formRowTag(), $id);
+        $this->response->insertAfter($target, $this->ui->formRowTag(), $id);
         // Set the new element class
-        $this->jq("#$id")->attr('class', $this->uiBuilder->formRowClass($class));
+        $this->jq("#$id")->attr('class', $this->ui->formRowClass($class));
         // Set the new element attributes
         foreach($attrs as $name => $value)
         {
@@ -88,15 +88,15 @@ class Column extends CallableClass
     public function add(int $length, int $target = -1): Response
     {
         [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $tableData = $this->dbAdmin->getTableData($server, $database, $schema);
+        $tableData = $this->db->getTableData($server, $database, $schema);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
         $columnClass = "{$this->formId}-column";
         $columnId = sprintf('%s-%02d', $columnClass, $length);
-        $field = $this->dbAdmin->getTableField($server, $database, $schema);
+        $field = $this->db->getTableField($server, $database, $schema);
         $prefixFields = sprintf("fields[%d]", $length + 1);
-        $content = $this->uiBuilder->tableColumn($columnClass, $length, $field, $prefixFields, $tableData['support'],
+        $content = $this->ui->tableColumn($columnClass, $length, $field, $prefixFields, $tableData['support'],
             $tableData['collations'], $tableData['unsigned'], $tableData['options'], $target < 0);
 
         if($target < 0)

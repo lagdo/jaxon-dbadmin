@@ -32,11 +32,11 @@ class Query extends CallableClass
     public function showInsert(): Response
     {
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $queryData = $this->dbAdmin->getQueryData($server, $database, $schema, $table);
+        $queryData = $this->db->getQueryData($server, $database, $schema, $table);
         // Show the error
         if(($queryData['error']))
         {
-            $this->response->dialog->error($queryData['error'], $this->dbAdmin->lang('Error'));
+            $this->response->dialog->error($queryData['error'], $this->db->lang('Error'));
             return $this->response;
         }
         // Make data available to views
@@ -44,18 +44,18 @@ class Query extends CallableClass
 
         // Set main menu buttons
         $content = isset($queryData['mainActions']) ?
-            $this->uiBuilder->mainActions($queryData['mainActions']) : '';
+            $this->ui->mainActions($queryData['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->uiBuilder->tableQueryForm($this->queryFormId, $queryData['fields']);
+        $content = $this->ui->tableQueryForm($this->queryFormId, $queryData['fields']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         $options = pm()->form($this->queryFormId);
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')->click($this->rq()->execInsert($options, true)
-            ->confirm($this->dbAdmin->lang('Save this item?')));
+            ->confirm($this->db->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-save-select')->click($this->rq()->execInsert($options, false)
-            ->confirm($this->dbAdmin->lang('Save this item?')));
+            ->confirm($this->db->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-back')->click($this->rq(Table::class)->show($table));
 
         return $this->response;
@@ -74,15 +74,15 @@ class Query extends CallableClass
     public function execInsert(array $options, bool $addNew): Response
     {
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $results = $this->dbAdmin->insertItem($server, $database, $schema, $table, $options);
+        $results = $this->db->insertItem($server, $database, $schema, $table, $options);
 
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], $this->dbAdmin->lang('Error'));
+            $this->response->dialog->error($results['error'], $this->db->lang('Error'));
             return $this->response;
         }
-        $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
+        $this->response->dialog->success($results['message'], $this->db->lang('Success'));
 
         $addNew ? $this->showInsert() : $this->cl(Select::class)->show();
 
@@ -117,11 +117,11 @@ class Query extends CallableClass
     public function showUpdate(array $rowIds): Response
     {
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $queryData = $this->dbAdmin->getQueryData($server, $database, $schema, $table, $rowIds, 'Edit item');
+        $queryData = $this->db->getQueryData($server, $database, $schema, $table, $rowIds, 'Edit item');
         // Show the error
         if(($queryData['error']))
         {
-            $this->response->dialog->error($queryData['error'], $this->dbAdmin->lang('Error'));
+            $this->response->dialog->error($queryData['error'], $this->db->lang('Error'));
             return $this->response;
         }
         // Make data available to views
@@ -129,16 +129,16 @@ class Query extends CallableClass
 
         // Set main menu buttons
         $content = isset($queryData['mainActions']) ?
-            $this->uiBuilder->mainActions($queryData['mainActions']) : '';
+            $this->ui->mainActions($queryData['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
-        $content = $this->uiBuilder->tableQueryForm($this->queryFormId, $queryData['fields']);
+        $content = $this->ui->tableQueryForm($this->queryFormId, $queryData['fields']);
         $this->response->html($this->package->getDbContentId(), $content);
 
         $options = pm()->form($this->queryFormId);
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')->click($this->rq()->execUpdate($rowIds, $options)
-            ->confirm($this->dbAdmin->lang('Save this item?')));
+            ->confirm($this->db->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-back')->click($this->rq()->backToSelect());
 
         return $this->response;
@@ -160,15 +160,15 @@ class Query extends CallableClass
         $options['where'] = $rowIds['where'];
         $options['null'] = $rowIds['null'];
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $results = $this->dbAdmin->updateItem($server, $database, $schema, $table, $options);
+        $results = $this->db->updateItem($server, $database, $schema, $table, $options);
 
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], $this->dbAdmin->lang('Error'));
+            $this->response->dialog->error($results['error'], $this->db->lang('Error'));
             return $this->response;
         }
-        $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
+        $this->response->dialog->success($results['message'], $this->db->lang('Success'));
         $this->backToSelect();
 
         return $this->response;
@@ -187,15 +187,15 @@ class Query extends CallableClass
     public function execDelete(array $rowIds): Response
     {
         [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $results = $this->dbAdmin->deleteItem($server, $database, $schema, $table, $rowIds);
+        $results = $this->db->deleteItem($server, $database, $schema, $table, $rowIds);
 
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], $this->dbAdmin->lang('Error'));
+            $this->response->dialog->error($results['error'], $this->db->lang('Error'));
             return $this->response;
         }
-        $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
+        $this->response->dialog->success($results['message'], $this->db->lang('Success'));
         $this->rq(Select::class)->execSelect();
 
         return $this->response;

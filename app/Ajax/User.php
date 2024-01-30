@@ -22,15 +22,15 @@ class User extends CallableClass
     public function add(): Response
     {
         [$server,] = $this->bag('selection')->get('db');
-        $userInfo = $this->dbAdmin->newUserPrivileges($server);
+        $userInfo = $this->db->newUserPrivileges($server);
 
         // Make user info available to views
         $this->view()->shareValues($userInfo);
 
         $formId = 'user-form';
         $title = 'Add user privileges';
-        $privileges = $this->uiBuilder->mainContent($this->renderMainContent());
-        $content = $this->uiBuilder->userForm($formId, $userInfo['user'], $privileges);
+        $privileges = $this->ui->mainContent($this->renderMainContent());
+        $content = $this->ui->userForm($formId, $userInfo['user'], $privileges);
 
         $buttons = [[
             'title' => 'Cancel',
@@ -74,15 +74,15 @@ class User extends CallableClass
     public function edit(string $username, string $hostname, string $database): Response
     {
         [$server,] = $this->bag('selection')->get('db');
-        $userInfo = $this->dbAdmin->getUserPrivileges($server, $username, $hostname, $database);
+        $userInfo = $this->db->getUserPrivileges($server, $username, $hostname, $database);
 
         // Make user info available to views
         $this->view()->shareValues($userInfo);
 
         $formId = 'user-form';
         $title = 'Edit user privileges';
-        $privileges = $this->uiBuilder->mainContent($this->renderMainContent());
-        $content = $this->uiBuilder->userForm($formId, $userInfo['user'], $privileges);
+        $privileges = $this->ui->mainContent($this->renderMainContent());
+        $content = $this->ui->userForm($formId, $userInfo['user'], $privileges);
 
         $buttons = [[
             'title' => 'Cancel',

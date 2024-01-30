@@ -5,8 +5,8 @@ namespace Lagdo\DbAdmin\App;
 use Jaxon\App\CallableClass as JaxonCallableClass;
 use Jaxon\App\View\Store;
 
-use Lagdo\DbAdmin\Db\DbAdmin;
-use Lagdo\DbAdmin\Ui\Builder;
+use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Ui\UiBuilder;
 
 /**
  * Callable base class
@@ -23,27 +23,27 @@ class CallableClass extends JaxonCallableClass
     /**
      * The facade to database functions
      *
-     * @var DbAdmin
+     * @var DbFacade
      */
-    protected $dbAdmin;
+    protected $db;
 
     /**
-     * @var Builder
+     * @var UiBuilder
      */
-    protected $uiBuilder;
+    protected $ui;
 
     /**
      * The constructor
      *
      * @param Package $package    The DbAdmin package
-     * @param DbAdmin $dbAdmin    The facade to database functions
-     * @param Builder $uiBuilder  The HTML UI builder
+     * @param DbFacade $db    The facade to database functions
+     * @param UiBuilder $ui  The HTML UI builder
      */
-    public function __construct(Package $package, DbAdmin $dbAdmin, Builder $uiBuilder)
+    public function __construct(Package $package, DbFacade $db, UiBuilder $ui)
     {
         $this->package = $package;
-        $this->dbAdmin = $dbAdmin;
-        $this->uiBuilder = $uiBuilder;
+        $this->db = $db;
+        $this->ui = $ui;
     }
 
     /**
@@ -78,7 +78,7 @@ class CallableClass extends JaxonCallableClass
      */
     protected function showBreadcrumbs()
     {
-        $content = $this->uiBuilder->breadcrumbs($this->dbAdmin->getBreadcrumbs());
+        $content = $this->ui->breadcrumbs($this->db->getBreadcrumbs());
         $this->response->html($this->package->getBreadcrumbsId(), $content);
     }
 
@@ -125,7 +125,7 @@ class CallableClass extends JaxonCallableClass
         {
             return;
         }
-        foreach($this->dbAdmin->queries() as $query)
+        foreach($this->db->queries() as $query)
         {
             $this->response->debug($query['start'] . ' => ' . $query['query']);
         }

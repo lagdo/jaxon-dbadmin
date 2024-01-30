@@ -25,14 +25,14 @@ class Import extends CallableClass
     protected function showForm(string $database = ''): Response
     {
         [$server,] = $this->bag('selection')->get('db');
-        $importOptions = $this->dbAdmin->getImportOptions($server, $database);
+        $importOptions = $this->db->getImportOptions($server, $database);
 
         // Make data available to views
         $this->view()->shareValues($importOptions);
 
         // Set main menu buttons
         $content = isset($importOptions['mainActions']) ?
-            $this->uiBuilder->mainActions($importOptions['mainActions']) : '';
+            $this->ui->mainActions($importOptions['mainActions']) : '';
         $this->response->html($this->package->getMainActionsId(), $content);
 
         $formId = 'adminer-import-form';
@@ -42,7 +42,7 @@ class Import extends CallableClass
         $sqlFilesDivId = 'adminer-import-sql-files-wrapper';
         $sqlFilesInputId = 'adminer-import-sql-files-input';
         $htmlIds = compact('formId', 'sqlFilesBtnId', 'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId');
-        $content = $this->uiBuilder->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
+        $content = $this->ui->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
 
         $this->response->html($this->package->getDbContentId(), $content);
         $this->response->script("jaxon.dbadmin.setFileUpload('#$sqlFilesDivId', '#$sqlChooseBtnId', '#$sqlFilesInputId')");
@@ -118,10 +118,10 @@ class Import extends CallableClass
         }
 
         [$server,] = $this->bag('selection')->get('db');
-        $queryResults = $this->dbAdmin->executeSqlFiles($server,
+        $queryResults = $this->db->executeSqlFiles($server,
             $files, $errorStops, $onlyErrors, $database);
 
-        $content = $this->uiBuilder->queryResults($queryResults['results']);
+        $content = $this->ui->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
 
         return $this->response;
