@@ -9,9 +9,6 @@ use Exception;
 
 use function Jaxon\pm;
 
-/**
- * @databag selection
- */
 class Export extends CallableClass
 {
     /**
@@ -23,7 +20,7 @@ class Export extends CallableClass
      */
     protected function showForm(string $database = ''): Response
     {
-        [$server,] = $this->bag('selection')->get('db');
+        [$server,] = $this->bag('dbadmin')->get('db');
         $exportOptions = $this->db->getExportOptions($server, $database);
 
         // Make data available to views
@@ -51,7 +48,7 @@ class Export extends CallableClass
         ];
         $content = $this->ui->exportPage($htmlIds, $exportOptions['databases'] ?? [],
             $exportOptions['tables'] ?? [], $exportOptions['options'], $exportOptions['labels']);
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->response->html($this->package->getDbContentId(), (string)$content);
 
         if(($database))
         {
@@ -112,7 +109,7 @@ class Export extends CallableClass
         $formValues['autoIncrement'] = isset($formValues['auto_increment']);
         $formValues['triggers'] = isset($formValues['triggers']);
 
-        [$server,] = $this->bag('selection')->get('db');
+        [$server,] = $this->bag('dbadmin')->get('db');
         $results = $this->db->exportDatabases($server, $databases, $tables, $formValues);
         if(\is_string($results))
         {

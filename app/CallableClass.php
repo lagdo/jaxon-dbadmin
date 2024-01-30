@@ -10,6 +10,8 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
 
 /**
  * Callable base class
+ *
+ * @databag dbadmin
  */
 class CallableClass extends JaxonCallableClass
 {
@@ -35,9 +37,9 @@ class CallableClass extends JaxonCallableClass
     /**
      * The constructor
      *
-     * @param Package $package    The DbAdmin package
-     * @param DbFacade $db    The facade to database functions
-     * @param UiBuilder $ui  The HTML UI builder
+     * @param Package       $package    The DbAdmin package
+     * @param DbFacade      $db         The facade to database functions
+     * @param UiBuilder     $ui         The HTML UI builder
      */
     public function __construct(Package $package, DbFacade $db, UiBuilder $ui)
     {

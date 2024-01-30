@@ -17,8 +17,6 @@ use function Jaxon\pm;
 
 /**
  * This class provides select query features on tables.
- *
- * @databag selection
  */
 class Select extends CallableClass
 {
@@ -93,14 +91,14 @@ class Select extends CallableClass
      */
     public function show(bool $init = true): Response
     {
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
         $selectData = $this->db->getSelectData($server, $database, $schema, $table);
         // Make data available to views
         $this->view()->shareValues($selectData);
 
         // Initialize select options
         if ($init) {
-            $this->bag('selection')->set('options', $this->selectOptions);
+            $this->bag('dbadmin')->set('options', $this->selectOptions);
         }
 
         // Set main menu buttons
@@ -165,15 +163,15 @@ class Select extends CallableClass
     public function execSelect(int $page = 0): Response
     {
         // Select options
-        $options = $this->bag('selection')->get('options', $this->selectOptions);
+        $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
         if($page < 1)
         {
-            $page = $this->bag('selection')->get('exec.page', 1);
+            $page = $this->bag('dbadmin')->get('exec.page', 1);
         }
-        $this->bag('selection')->set('exec.page', $page);
+        $this->bag('dbadmin')->set('exec.page', $page);
 
         $options['page'] = $page;
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
         $results = $this->db->execSelect($server, $database, $schema, $table, $options);
         // Show the message
         $resultsId = 'adminer-table-select-results';
@@ -235,12 +233,12 @@ class Select extends CallableClass
     public function setQueryOptions(array $formValues): Response
     {
         // Select options
-        $options = $this->bag('selection')->get('options', $this->selectOptions);
+        $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
         $options['limit'] = $formValues['limit'] ?? 50;
         $options['text_length'] = $formValues['text_length'] ?? 100;
-        $this->bag('selection')->set('options', $options);
+        $this->bag('dbadmin')->set('options', $options);
 
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
         $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Display the new query
         $this->showQuery($server, $selectData['query']);
@@ -256,8 +254,8 @@ class Select extends CallableClass
     public function editColumns(): Response
     {
         // Select options
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $options = $this->bag('selection')->get('options', $this->selectOptions);
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
+        $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
         $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
@@ -299,11 +297,11 @@ class Select extends CallableClass
     public function saveColumns(array $formValues): Response
     {
         // Select options
-        $options = $this->bag('selection')->get('options', $this->selectOptions);
+        $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
         $options['columns'] = $formValues['columns'] ?? [];
-        $this->bag('selection')->set('options', $options);
+        $this->bag('dbadmin')->set('options', $options);
 
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
         $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Hide the dialog
         $this->response->dialog->hide();
@@ -321,8 +319,8 @@ class Select extends CallableClass
     public function editFilters(): Response
     {
         // Select options
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $options = $this->bag('selection')->get('options', $this->selectOptions);
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
+        $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
         $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
@@ -364,11 +362,11 @@ class Select extends CallableClass
     public function saveFilters(array $formValues): Response
     {
         // Select options
-        $options = $this->bag('selection')->get('options', $this->selectOptions);
+        $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
         $options['where'] = $formValues['where'] ?? [];
-        $this->bag('selection')->set('options', $options);
+        $this->bag('dbadmin')->set('options', $options);
 
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
         $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Hide the dialog
         $this->response->dialog->hide();
@@ -386,8 +384,8 @@ class Select extends CallableClass
     public function editSorting(): Response
     {
         // Select options
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
-        $options = $this->bag('selection')->get('options', $this->selectOptions);
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
+        $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
         $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
@@ -429,12 +427,12 @@ class Select extends CallableClass
     public function saveSorting(array $formValues): Response
     {
         // Select options
-        $options = $this->bag('selection')->get('options', $this->selectOptions);
+        $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
         $options['order'] = $formValues['order'] ?? [];
         $options['desc'] = $formValues['desc'] ?? [];
-        $this->bag('selection')->set('options', $options);
+        $this->bag('dbadmin')->set('options', $options);
 
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
         $selectData = $this->db->getSelectData($server, $database, $schema, $table, $options);
         // Hide the dialog
         $this->response->dialog->hide();

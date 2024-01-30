@@ -9,9 +9,6 @@ use Exception;
 
 use function Jaxon\pm;
 
-/**
- * @databag selection
- */
 class User extends CallableClass
 {
     /**
@@ -21,7 +18,7 @@ class User extends CallableClass
      */
     public function add(): Response
     {
-        [$server,] = $this->bag('selection')->get('db');
+        [$server,] = $this->bag('dbadmin')->get('db');
         $userInfo = $this->db->newUserPrivileges($server);
 
         // Make user info available to views
@@ -73,7 +70,7 @@ class User extends CallableClass
      */
     public function edit(string $username, string $hostname, string $database): Response
     {
-        [$server,] = $this->bag('selection')->get('db');
+        [$server,] = $this->bag('dbadmin')->get('db');
         $userInfo = $this->db->getUserPrivileges($server, $username, $hostname, $database);
 
         // Make user info available to views

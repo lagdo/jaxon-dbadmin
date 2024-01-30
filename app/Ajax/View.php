@@ -9,9 +9,6 @@ use Exception;
 
 use function Jaxon\pm;
 
-/**
- * @databag selection
- */
 class View extends CallableClass
 {
     /**
@@ -42,7 +39,7 @@ class View extends CallableClass
      */
     public function show(string $view): Response
     {
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $viewInfo = $this->db->getViewInfo($server, $database, $schema, $view);
         // Make view info available to views
         $this->view()->shareValues($viewInfo);
@@ -81,7 +78,7 @@ class View extends CallableClass
      */
     public function add(): Response
     {
-        [$server] = $this->bag('selection')->get('db');
+        [$server] = $this->bag('dbadmin')->get('db');
         $this->db->connect($server);
         $formId = 'view-form';
         $title = 'Create a view';
@@ -110,7 +107,7 @@ class View extends CallableClass
      */
     public function edit(string $view): Response
     {
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $viewData = $this->db->getView($server, $database, $schema, $view);
         // Make view info available to views
         $this->view()->shareValues($viewData);
@@ -144,7 +141,7 @@ class View extends CallableClass
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $result = $this->db->createView($server, $database, $schema, $values);
         if(!$result['success'])
         {
@@ -170,7 +167,7 @@ class View extends CallableClass
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $result = $this->db->updateView($server, $database, $schema, $view, $values);
         if(!$result['success'])
         {
@@ -193,7 +190,7 @@ class View extends CallableClass
      */
     public function drop(string $view): Response
     {
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $result = $this->db->dropView($server, $database, $schema, $view);
         if(!$result['success'])
         {

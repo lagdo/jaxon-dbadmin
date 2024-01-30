@@ -78,8 +78,6 @@ class Column extends CallableClass
     /**
      * Insert a new column at a given position
      *
-     * @databag selection
-     *
      * @param int    $length      The number of columns in the table
      * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
      *
@@ -87,7 +85,7 @@ class Column extends CallableClass
      */
     public function add(int $length, int $target = -1): Response
     {
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $tableData = $this->db->getTableData($server, $database, $schema);
         // Make data available to views
         $this->view()->shareValues($tableData);

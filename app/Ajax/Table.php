@@ -15,9 +15,6 @@ use function is_array;
 use function Jaxon\jq;
 use function Jaxon\pm;
 
-/**
- * @databag selection
- */
 class Table extends CallableClass
 {
     /**
@@ -67,8 +64,8 @@ class Table extends CallableClass
     public function select(string $table): Response
     {
         // Save the table name in tha databag and show the select page.
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
-        $this->bag('selection')->set('db', [$server, $database, $schema, $table]);
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
+        $this->bag('dbadmin')->set('db', [$server, $database, $schema, $table]);
 
         return $this->cl(Select::class)->show();
     }
@@ -84,7 +81,7 @@ class Table extends CallableClass
      */
     public function show(string $table): Response
     {
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $tableInfo = $this->db->getTableInfo($server, $database, $schema, $table);
         // Make table info available to views
         $this->view()->shareValues($tableInfo);
@@ -124,7 +121,7 @@ class Table extends CallableClass
             $this->showTab($triggersInfo, 'tab-content-triggers');
         }
 
-        $this->bag('selection')->set('db', [$server, $database, $schema, $table]);
+        $this->bag('dbadmin')->set('db', [$server, $database, $schema, $table]);
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-edit-table')->click($this->rq()->edit($table));
@@ -145,7 +142,7 @@ class Table extends CallableClass
      */
     public function add(): Response
     {
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $tableData = $this->db->getTableData($server, $database, $schema);
         // Make data available to views
         $this->view()->shareValues($tableData);
@@ -181,7 +178,7 @@ class Table extends CallableClass
      */
     public function edit(string $table): Response
     {
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $tableData = $this->db->getTableData($server, $database, $schema, $table);
         // Make data available to views
         $this->view()->shareValues($tableData);
@@ -228,7 +225,7 @@ class Table extends CallableClass
     {
         $values = array_merge($this->defaults, $values);
 
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $result = $this->db->createTable($server, $database, $schema, $values);
         if(!$result['success'])
         {
@@ -253,7 +250,7 @@ class Table extends CallableClass
     {
         $values = array_merge($this->defaults, $values);
 
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $result = $this->db->alterTable($server, $database, $schema, $table, $values);
         if(!$result['success'])
         {
@@ -275,7 +272,7 @@ class Table extends CallableClass
      */
     public function drop(string $table): Response
     {
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $result = $this->db->dropTable($server, $database, $schema, $table);
         if(!$result['success'])
         {

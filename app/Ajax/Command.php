@@ -9,9 +9,6 @@ use Exception;
 
 use function Jaxon\pm;
 
-/**
- * @databag selection
- */
 class Command extends CallableClass
 {
     /**
@@ -65,7 +62,7 @@ class Command extends CallableClass
      */
     public function showServerForm(string $query = ''): Response
     {
-        [$server,] = $this->bag('selection')->get('db');
+        [$server,] = $this->bag('dbadmin')->get('db');
         return $this->showForm($server, '', '', $query);
     }
 
@@ -81,7 +78,7 @@ class Command extends CallableClass
      */
     public function showDatabaseForm(string $query = ''): Response
     {
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         return $this->showForm($server, $database, $schema, $query);
     }
 
@@ -107,7 +104,7 @@ class Command extends CallableClass
             return $this->response;
         }
 
-        [$server, $database, $schema] = $this->bag('selection')->get('db');
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $queryResults = $this->db->executeCommands($server,
             $query, $limit, $errorStops, $onlyErrors, $database, $schema);
 

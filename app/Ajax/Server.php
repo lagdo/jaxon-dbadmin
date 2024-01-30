@@ -68,7 +68,7 @@ class Server extends CallableClass
         $this->response->html($this->package->getDbActionsId(), '');
 
         // Save the selected server
-        $this->bag('selection')->set('db', [$server, '', '', '']);
+        $this->bag('dbadmin')->set('db', [$server, '', '', '']);
         // Set the click handlers
         $this->jq('#adminer-menu-action-server-command')
             ->click($this->rq(Command::class)->showServerForm());

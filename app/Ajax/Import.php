@@ -10,9 +10,6 @@ use Exception;
 use function compact;
 use function Jaxon\pm;
 
-/**
- * @databag selection
- */
 class Import extends CallableClass
 {
     /**
@@ -24,7 +21,7 @@ class Import extends CallableClass
      */
     protected function showForm(string $database = ''): Response
     {
-        [$server,] = $this->bag('selection')->get('db');
+        [$server,] = $this->bag('dbadmin')->get('db');
         $importOptions = $this->db->getImportOptions($server, $database);
 
         // Make data available to views
@@ -117,7 +114,7 @@ class Import extends CallableClass
             return $this->response;
         }
 
-        [$server,] = $this->bag('selection')->get('db');
+        [$server,] = $this->bag('dbadmin')->get('db');
         $queryResults = $this->db->executeSqlFiles($server,
             $files, $errorStops, $onlyErrors, $database);
 

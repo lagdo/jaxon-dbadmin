@@ -10,8 +10,6 @@ use function Jaxon\pm;
 
 /**
  * This class provides insert and update query features on tables.
- *
- * @databag selection
  */
 class Query extends CallableClass
 {
@@ -31,7 +29,7 @@ class Query extends CallableClass
      */
     public function showInsert(): Response
     {
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
         $queryData = $this->db->getQueryData($server, $database, $schema, $table);
         // Show the error
         if(($queryData['error']))
@@ -73,7 +71,7 @@ class Query extends CallableClass
      */
     public function execInsert(array $options, bool $addNew): Response
     {
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
         $results = $this->db->insertItem($server, $database, $schema, $table, $options);
 
         // Show the error
@@ -116,7 +114,7 @@ class Query extends CallableClass
      */
     public function showUpdate(array $rowIds): Response
     {
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
         $queryData = $this->db->getQueryData($server, $database, $schema, $table, $rowIds, 'Edit item');
         // Show the error
         if(($queryData['error']))
@@ -159,7 +157,7 @@ class Query extends CallableClass
     {
         $options['where'] = $rowIds['where'];
         $options['null'] = $rowIds['null'];
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
         $results = $this->db->updateItem($server, $database, $schema, $table, $options);
 
         // Show the error
@@ -186,7 +184,7 @@ class Query extends CallableClass
      */
     public function execDelete(array $rowIds): Response
     {
-        [$server, $database, $schema, $table] = $this->bag('selection')->get('db');
+        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
         $results = $this->db->deleteItem($server, $database, $schema, $table, $rowIds);
 
         // Show the error
