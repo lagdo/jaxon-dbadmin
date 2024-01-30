@@ -2,8 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Database;
 
-use Lagdo\DbAdmin\Db\AbstractFacade;
-use Exception;
+use Jaxon\Di\Container;
 
 /**
  * Facade to database functions
@@ -11,182 +10,139 @@ use Exception;
 trait DatabaseTrait
 {
     /**
-     * The proxy
-     *
-     * @var DatabaseFacade
+     * @return Container
      */
-    protected $databaseFacade = null;
-
-    /**
-     * @return AbstractFacade
-     */
-    abstract public function facade(): AbstractFacade;
+    abstract public function di(): Container;
 
     /**
      * Connect to a database server
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
+     * @return void
+     */
+    abstract public function connectToDatabase();
+
+    /**
+     * Connect to a database server
      *
      * @return void
      */
-    abstract public function connect(string $server, string $database = '', string $schema = '');
+    abstract public function connectToSchema();
 
     /**
      * Set the breadcrumbs items
      *
+     * @param bool $showDatabase
      * @param array $breadcrumbs
      *
      * @return void
      */
-    abstract protected function setBreadcrumbs(array $breadcrumbs);
+    abstract protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = []);
 
     /**
      * Get the proxy
      *
-     * @param array $options    The server config options
-     *
      * @return DatabaseFacade
      */
-    protected function database(array $options)
+    protected function database()
     {
-        if (!$this->databaseFacade) {
-            $this->databaseFacade = new DatabaseFacade($options);
-            $this->databaseFacade->init($this->facade());
-        }
-        return $this->databaseFacade;
+        return $this->di()->g(DatabaseFacade::class);
     }
 
     /**
      * Connect to a database server
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     *
      * @return array
      */
-    public function getDatabaseInfo(string $server, string $database)
+    public function getDatabaseInfo()
     {
-        $this->connect($server, $database);
+        $this->connectToDatabase();
 
-        $package = $this->facade()->package;
-        $this->setBreadcrumbs([$package->getServerName($server), $database]);
+        $this->setBreadcrumbs(true);
 
-        return $this->database($package->getServerOptions($server))->getDatabaseInfo();
+        return $this->database()->getDatabaseInfo();
     }
 
     /**
      * Get the tables from a database server
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return array
      */
-    public function getTables(string $server, string $database, string $schema)
+    public function getTables()
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
-        $package = $this->facade()->package;
-        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Tables')]);
+        $this->setBreadcrumbs(true, [$this->trans->lang('Tables')]);
 
-        return $this->database($package->getServerOptions($server))->getTables();
+        return $this->database()->getTables();
     }
 
     /**
      * Get the views from a database server
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return array
      */
-    public function getViews(string $server, string $database, string $schema)
+    public function getViews()
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
-        $package = $this->facade()->package;
-        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Views')]);
+        $this->setBreadcrumbs(true, [$this->trans->lang('Views')]);
 
-        return $this->database($package->getServerOptions($server))->getViews();
+        return $this->database()->getViews();
     }
 
     /**
      * Get the routines from a given database
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return array
      */
-    public function getRoutines(string $server, string $database, string $schema)
+    public function getRoutines()
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
-        $package = $this->facade()->package;
-        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Routines')]);
+        $this->setBreadcrumbs(true, [$this->trans->lang('Routines')]);
 
-        return $this->database($package->getServerOptions($server))->getRoutines();
+        return $this->database()->getRoutines();
     }
 
     /**
      * Get the sequences from a given database
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return array
      */
-    public function getSequences(string $server, string $database, string $schema)
+    public function getSequences()
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
-        $package = $this->facade()->package;
-        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Sequences')]);
+        $this->setBreadcrumbs(true, [$this->trans->lang('Sequences')]);
 
-        return $this->database($package->getServerOptions($server))->getSequences();
+        return $this->database()->getSequences();
     }
 
     /**
      * Get the user types from a given database
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return array
      */
-    public function getUserTypes(string $server, string $database, string $schema)
+    public function getUserTypes()
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
-        $package = $this->facade()->package;
-        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('User types')]);
+        $this->setBreadcrumbs(true, [$this->trans->lang('User types')]);
 
-        return $this->database($package->getServerOptions($server))->getUserTypes();
+        return $this->database()->getUserTypes();
     }
 
     /**
      * Get the events from a given database
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return array
      */
-    public function getEvents(string $server, string $database, string $schema)
+    public function getEvents()
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
-        $package = $this->facade()->package;
-        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Events')]);
+        $this->setBreadcrumbs(true, [$this->trans->lang('Events')]);
 
-        return $this->database($package->getServerOptions($server))->getEvents();
+        return $this->database()->getEvents();
     }
 }

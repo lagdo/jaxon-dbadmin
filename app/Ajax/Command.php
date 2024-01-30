@@ -5,8 +5,6 @@ namespace Lagdo\DbAdmin\App\Ajax;
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
-use Exception;
-
 use function Jaxon\pm;
 
 class Command extends CallableClass
@@ -14,16 +12,13 @@ class Command extends CallableClass
     /**
      * Show the SQL command form
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The schema name
      * @param string $query       The SQL query to display
      *
      * @return Response
      */
-    protected function showForm(string $server, string $database, string $schema, string $query): Response
+    protected function showForm(string $query): Response
     {
-        $commandOptions = $this->db->prepareCommand($server, $database, $schema);
+        $commandOptions = $this->db->prepareCommand();
 
         // Make data available to views
         $this->view()->shareValues($commandOptions);
@@ -38,6 +33,7 @@ class Command extends CallableClass
         $queryId = 'adminer-main-command-query';
 
         $defaultLimit = 20;
+        [$server,] = $this->bag('dbadmin')->get('db');
         $content = $this->ui->queryCommand($formId, $queryId, $btnId,
             $query, $defaultLimit, $commandOptions['labels']);
         $this->response->html($this->package->getDbContentId(), $content);
@@ -62,8 +58,7 @@ class Command extends CallableClass
      */
     public function showServerForm(string $query = ''): Response
     {
-        [$server,] = $this->bag('dbadmin')->get('db');
-        return $this->showForm($server, '', '', $query);
+        return $this->showForm($query);
     }
 
     /**
@@ -78,8 +73,7 @@ class Command extends CallableClass
      */
     public function showDatabaseForm(string $query = ''): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        return $this->showForm($server, $database, $schema, $query);
+        return $this->showForm($query);
     }
 
     /**

@@ -20,8 +20,10 @@ class Export extends CallableClass
      */
     protected function showForm(string $database = ''): Response
     {
-        [$server,] = $this->bag('dbadmin')->get('db');
-        $exportOptions = $this->db->getExportOptions($server, $database);
+        // Set the current database, but do not update the databag.
+        $this->db->setCurrentDbName($database);
+
+        $exportOptions = $this->db->getExportOptions($database);
 
         // Make data available to views
         $this->view()->shareValues($exportOptions);
@@ -109,8 +111,7 @@ class Export extends CallableClass
         $formValues['autoIncrement'] = isset($formValues['auto_increment']);
         $formValues['triggers'] = isset($formValues['triggers']);
 
-        [$server,] = $this->bag('dbadmin')->get('db');
-        $results = $this->db->exportDatabases($server, $databases, $tables, $formValues);
+        $results = $this->db->exportDatabases($databases, $tables, $formValues);
         if(\is_string($results))
         {
             // Error

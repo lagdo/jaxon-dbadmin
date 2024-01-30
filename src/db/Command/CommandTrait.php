@@ -2,8 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Command;
 
-use Lagdo\DbAdmin\Db\AbstractFacade;
-use Exception;
+use Jaxon\Di\Container;
 
 /**
  * Facade to command functions
@@ -11,36 +10,26 @@ use Exception;
 trait CommandTrait
 {
     /**
-     * The proxy
-     *
-     * @var CommandFacade
+     * @return Container
      */
-    protected $commandFacade = null;
-
-    /**
-     * @return AbstractFacade
-     */
-    abstract public function facade(): AbstractFacade;
+    abstract public function di(): Container;
 
     /**
      * Connect to a database server
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return void
      */
-    abstract public function connect(string $server, string $database = '', string $schema = '');
+    abstract public function connectToSchema();
 
     /**
      * Set the breadcrumbs items
      *
+     * @param bool $showDatabase
      * @param array $breadcrumbs
      *
      * @return void
      */
-    abstract protected function setBreadcrumbs(array $breadcrumbs);
+    abstract protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = []);
 
     /**
      * Get the proxy
@@ -49,33 +38,19 @@ trait CommandTrait
      */
     protected function command(): CommandFacade
     {
-        if (!$this->commandFacade) {
-            $this->commandFacade = new CommandFacade();
-            $this->commandFacade->init($this->facade());
-        }
-        return $this->commandFacade;
+        return $this->di()->g(CommandFacade::class);
     }
 
     /**
      * Prepare a query
      *
-     * @param string $server        The selected server
-     * @param string $database      The database name
-     * @param string $schema        The database schema
-     *
      * @return array
      */
-    public function prepareCommand(string $server, string $database = '', string $schema = ''): array
+    public function prepareCommand(): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
-        $package = $this->facade()->package;
-        $breadcrumbs = [$package->getServerName($server)];
-        if (($database)) {
-            $breadcrumbs[] = $database;
-        }
-        $breadcrumbs[] = $this->trans->lang('Query');
-        $this->setBreadcrumbs($breadcrumbs);
+        $this->setBreadcrumbs(!!$this->dbName, [$this->trans->lang('Query')]);
 
         $labels = [
             'execute' => $this->trans->lang('Execute'),
@@ -110,7 +85,7 @@ trait CommandTrait
         string $schema = ''
     ): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         return $this->command()->executeCommands($query, $limit, $errorStops, $onlyErrors);
     }
 }

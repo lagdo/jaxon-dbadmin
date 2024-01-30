@@ -2,8 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Export;
 
-use Lagdo\DbAdmin\Db\AbstractFacade;
-use Exception;
+use Jaxon\Di\Container;
 
 /**
  * Facade to export functions
@@ -11,36 +10,33 @@ use Exception;
 trait ExportTrait
 {
     /**
-     * The proxy
-     *
-     * @var ExportFacade
+     * @return Container
      */
-    protected $exportFacade = null;
-
-    /**
-     * @return AbstractFacade
-     */
-    abstract public function facade(): AbstractFacade;
+    abstract public function di(): Container;
 
     /**
      * Connect to a database server
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
+     * @return void
+     */
+    abstract public function connectToServer();
+
+    /**
+     * Connect to a database server
      *
      * @return void
      */
-    abstract public function connect(string $server, string $database = '', string $schema = '');
+    abstract public function connectToDatabase();
 
     /**
      * Set the breadcrumbs items
      *
+     * @param bool $showDatabase
      * @param array $breadcrumbs
      *
      * @return void
      */
-    abstract protected function setBreadcrumbs(array $breadcrumbs);
+    abstract protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = []);
 
     /**
      * Get the proxy
@@ -49,32 +45,21 @@ trait ExportTrait
      */
     protected function export(): ExportFacade
     {
-        if (!$this->exportFacade) {
-            $this->exportFacade = new ExportFacade();
-            $this->exportFacade->init($this->facade());
-        }
-        return $this->exportFacade;
+        return $this->di()->g(ExportFacade::class);
     }
 
     /**
      * Get data for export
      *
-     * @param string $server        The selected server
      * @param string $database      The database name
      *
      * @return array
      */
-    public function getExportOptions(string $server, string $database = ''): array
+    public function getExportOptions(string $database = ''): array
     {
-        $this->connect($server, $database);
+        $this->connectToDatabase();
 
-        $package = $this->facade()->package;
-        $breadcrumbs = [$package->getServerName($server)];
-        if (($database)) {
-            $breadcrumbs[] = $database;
-        }
-        $breadcrumbs[] = $this->trans->lang('Export');
-        $this->setBreadcrumbs($breadcrumbs);
+        $this->setBreadcrumbs(!!$this->dbName, [$this->trans->lang('Export')]);
 
         return $this->export()->getExportOptions($database);
     }
@@ -84,16 +69,15 @@ trait ExportTrait
      * The databases and tables parameters are array where the keys are names and the values
      * are boolean which indicate whether the corresponding data should be exported too.
      *
-     * @param string $server        The selected server
      * @param array  $databases     The databases to dump
      * @param array  $tables        The tables to dump
      * @param array  $dumpOptions   The export options
      *
      * @return array|string
      */
-    public function exportDatabases(string $server, array $databases, array $tables, array $dumpOptions)
+    public function exportDatabases(array $databases, array $tables, array $dumpOptions)
     {
-        $this->connect($server);
+        $this->connectToServer();
         return $this->export()->exportDatabases($databases, $tables, $dumpOptions);
     }
 }

@@ -8,8 +8,6 @@ use Lagdo\DbAdmin\App\Ajax\Table\Select;
 use Lagdo\DbAdmin\App\Ajax\Table\Query;
 use Lagdo\DbAdmin\App\CallableClass;
 
-use Exception;
-
 use function array_merge;
 use function is_array;
 use function Jaxon\jq;
@@ -64,8 +62,7 @@ class Table extends CallableClass
     public function select(string $table): Response
     {
         // Save the table name in tha databag and show the select page.
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $this->bag('dbadmin')->set('db', [$server, $database, $schema, $table]);
+        $this->bag('dbadmin')->set('db.table', $table);
 
         return $this->cl(Select::class)->show();
     }
@@ -81,8 +78,7 @@ class Table extends CallableClass
      */
     public function show(string $table): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $tableInfo = $this->db->getTableInfo($server, $database, $schema, $table);
+        $tableInfo = $this->db->getTableInfo($table);
         // Make table info available to views
         $this->view()->shareValues($tableInfo);
 
@@ -97,31 +93,29 @@ class Table extends CallableClass
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show fields
-        $fieldsInfo = $this->db->getTableFields($server, $database, $schema, $table);
+        $fieldsInfo = $this->db->getTableFields($table);
         $this->showTab($fieldsInfo, 'tab-content-fields');
 
         // Show indexes
-        $indexesInfo = $this->db->getTableIndexes($server, $database, $schema, $table);
+        $indexesInfo = $this->db->getTableIndexes($table);
         if(is_array($indexesInfo))
         {
             $this->showTab($indexesInfo, 'tab-content-indexes');
         }
 
         // Show foreign keys
-        $foreignKeysInfo = $this->db->getTableForeignKeys($server, $database, $schema, $table);
+        $foreignKeysInfo = $this->db->getTableForeignKeys($table);
         if(is_array($foreignKeysInfo))
         {
             $this->showTab($foreignKeysInfo, 'tab-content-foreign-keys');
         }
 
         // Show triggers
-        $triggersInfo = $this->db->getTableTriggers($server, $database, $schema, $table);
+        $triggersInfo = $this->db->getTableTriggers($table);
         if(is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
         }
-
-        $this->bag('dbadmin')->set('db', [$server, $database, $schema, $table]);
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-edit-table')->click($this->rq()->edit($table));
@@ -142,8 +136,7 @@ class Table extends CallableClass
      */
     public function add(): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $tableData = $this->db->getTableData($server, $database, $schema);
+        $tableData = $this->db->getTableData();
         // Make data available to views
         $this->view()->shareValues($tableData);
 
@@ -178,8 +171,7 @@ class Table extends CallableClass
      */
     public function edit(string $table): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $tableData = $this->db->getTableData($server, $database, $schema, $table);
+        $tableData = $this->db->getTableData($table);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
@@ -225,8 +217,7 @@ class Table extends CallableClass
     {
         $values = array_merge($this->defaults, $values);
 
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $result = $this->db->createTable($server, $database, $schema, $values);
+        $result = $this->db->createTable($values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -250,8 +241,7 @@ class Table extends CallableClass
     {
         $values = array_merge($this->defaults, $values);
 
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $result = $this->db->alterTable($server, $database, $schema, $table, $values);
+        $result = $this->db->alterTable($table, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -272,8 +262,7 @@ class Table extends CallableClass
      */
     public function drop(string $table): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $result = $this->db->dropTable($server, $database, $schema, $table);
+        $result = $this->db->dropTable($table);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);

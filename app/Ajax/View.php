@@ -5,8 +5,6 @@ namespace Lagdo\DbAdmin\App\Ajax;
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
-use Exception;
-
 use function Jaxon\pm;
 
 class View extends CallableClass
@@ -39,8 +37,7 @@ class View extends CallableClass
      */
     public function show(string $view): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $viewInfo = $this->db->getViewInfo($server, $database, $schema, $view);
+        $viewInfo = $this->db->getViewInfo($view);
         // Make view info available to views
         $this->view()->shareValues($viewInfo);
 
@@ -53,11 +50,11 @@ class View extends CallableClass
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show fields
-        $fieldsInfo = $this->db->getViewFields($server, $database, $schema, $view);
+        $fieldsInfo = $this->db->getViewFields($view);
         $this->showTab($fieldsInfo, 'tab-content-fields');
 
         // Show triggers
-        $triggersInfo = $this->db->getViewTriggers($server, $database, $schema, $view);
+        $triggersInfo = $this->db->getViewTriggers($view);
         if(\is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
@@ -107,8 +104,7 @@ class View extends CallableClass
      */
     public function edit(string $view): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $viewData = $this->db->getView($server, $database, $schema, $view);
+        $viewData = $this->db->getView($view);
         // Make view info available to views
         $this->view()->shareValues($viewData);
 
@@ -141,8 +137,7 @@ class View extends CallableClass
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $result = $this->db->createView($server, $database, $schema, $values);
+        $result = $this->db->createView($values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -167,8 +162,7 @@ class View extends CallableClass
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $result = $this->db->updateView($server, $database, $schema, $view, $values);
+        $result = $this->db->updateView($view, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -190,8 +184,7 @@ class View extends CallableClass
      */
     public function drop(string $view): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $result = $this->db->dropView($server, $database, $schema, $view);
+        $result = $this->db->dropView($view);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);

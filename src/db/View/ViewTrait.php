@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\View;
 
-use Lagdo\DbAdmin\Db\AbstractFacade;
+use Jaxon\Di\Container;
 use Exception;
 
 /**
@@ -11,36 +11,26 @@ use Exception;
 trait ViewTrait
 {
     /**
-     * The proxy
-     *
-     * @var ViewFacade
+     * @return Container
      */
-    protected $viewFacade = null;
-
-    /**
-     * @return AbstractFacade
-     */
-    abstract public function facade(): AbstractFacade;
+    abstract public function di(): Container;
 
     /**
      * Connect to a database server
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return void
      */
-    abstract public function connect(string $server, string $database = '', string $schema = '');
+    abstract public function connectToSchema();
 
     /**
      * Set the breadcrumbs items
      *
+     * @param bool $showDatabase
      * @param array $breadcrumbs
      *
      * @return void
      */
-    abstract protected function setBreadcrumbs(array $breadcrumbs);
+    abstract protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = []);
 
     /**
      * Get the proxy
@@ -49,29 +39,21 @@ trait ViewTrait
      */
     protected function view(): ViewFacade
     {
-        if (!$this->viewFacade) {
-            $this->viewFacade = new ViewFacade();
-            $this->viewFacade->init($this->facade());
-        }
-        return $this->viewFacade ;
+        return $this->di()->g(ViewFacade::class);
     }
 
     /**
      * Get details about a view
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
      * @param string $view      The view name
      *
      * @return array
      */
-    public function getViewInfo(string $server, string $database, string $schema, string $view): array
+    public function getViewInfo(string $view): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
-        $package = $this->facade()->package;
-        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Views'), $view]);
+        $this->setBreadcrumbs(true, [$this->trans->lang('Views'), $view]);
 
         $this->util->input()->table = $view;
         return $this->view()->getViewInfo($view);
@@ -80,17 +62,14 @@ trait ViewTrait
     /**
      * Get details about a view
      *
-     * @param string $server The selected server
-     * @param string $database The database name
-     * @param string $schema The database schema
      * @param string $view The view name
      *
      * @return array
      * @throws Exception
      */
-    public function getViewFields(string $server, string $database, string $schema, string $view): array
+    public function getViewFields(string $view): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         $this->util->input()->table = $view;
         return $this->view()->getViewFields($view);
     }
@@ -98,16 +77,13 @@ trait ViewTrait
     /**
      * Get the triggers of a view
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
      * @param string $view      The view name
      *
      * @return array|null
      */
-    public function getViewTriggers(string $server, string $database, string $schema, string $view): ?array
+    public function getViewTriggers(string $view): ?array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         $this->util->input()->table = $view;
         return $this->view()->getViewTriggers($view);
     }
@@ -115,17 +91,14 @@ trait ViewTrait
     /**
      * Get a view
      *
-     * @param string $server The selected server
-     * @param string $database The database name
-     * @param string $schema The database schema
      * @param string $view The view name
      *
      * @return array
      * @throws Exception
      */
-    public function getView(string $server, string $database, string $schema, string $view): array
+    public function getView(string $view): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         $this->util->input()->table = $view;
         return $this->view()->getView($view);
     }
@@ -133,17 +106,14 @@ trait ViewTrait
     /**
      * Create a view
      *
-     * @param string $server The selected server
-     * @param string $database The database name
-     * @param string $schema The database schema
      * @param array $values The view values
      *
      * @return array
      * @throws Exception
      */
-    public function createView(string $server, string $database, string $schema, array $values): array
+    public function createView(array $values): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         $this->util->input()->table = $values['name'];
         return $this->view()->createView($values);
     }
@@ -151,18 +121,15 @@ trait ViewTrait
     /**
      * Update a view
      *
-     * @param string $server The selected server
-     * @param string $database The database name
-     * @param string $schema The database schema
      * @param string $view The view name
      * @param array $values The view values
      *
      * @return array
      * @throws Exception
      */
-    public function updateView(string $server, string $database, string $schema, string $view, array $values): array
+    public function updateView(string $view, array $values): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         $this->util->input()->table = $view;
         return $this->view()->updateView($view, $values);
     }
@@ -170,17 +137,14 @@ trait ViewTrait
     /**
      * Drop a view
      *
-     * @param string $server The selected server
-     * @param string $database The database name
-     * @param string $schema The database schema
      * @param string $view The view name
      *
      * @return array
      * @throws Exception
      */
-    public function dropView(string $server, string $database, string $schema, string $view): array
+    public function dropView(string $view): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         $this->util->input()->table = $view;
         return $this->view()->dropView($view);
     }

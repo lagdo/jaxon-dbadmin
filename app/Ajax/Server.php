@@ -55,9 +55,15 @@ class Server extends CallableClass
      */
     public function connect(string $server): Response
     {
+        // Set the selected server
+        $this->db->setCurrentDb($server);
+
         $serverInfo = $this->db->getServerInfo($server);
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
+
+        // Save the selected server
+        $this->bag('dbadmin')->set('db', [$server, '', '', '']);
 
         $content = $this->ui->serverInfo($serverInfo['server'], $serverInfo['user']);
         $this->response->html($this->package->getServerInfoId(), $content);
@@ -67,8 +73,6 @@ class Server extends CallableClass
         $this->response->html($this->package->getServerActionsId(), $content);
         $this->response->html($this->package->getDbActionsId(), '');
 
-        // Save the selected server
-        $this->bag('dbadmin')->set('db', [$server, '', '', '']);
         // Set the click handlers
         $this->jq('#adminer-menu-action-server-command')
             ->click($this->rq(Command::class)->showServerForm());

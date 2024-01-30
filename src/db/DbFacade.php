@@ -8,6 +8,7 @@ use Lagdo\DbAdmin\Driver\UtilInterface;
 use Lagdo\DbAdmin\Translator;
 use Jaxon\Di\Container;
 
+use function array_unshift;
 use function call_user_func_array;
 use function func_get_args;
 
@@ -38,6 +39,21 @@ class DbFacade extends AbstractFacade
      * @var Container
      */
     protected $di;
+
+    /**
+     * @var string
+     */
+    protected $dbServer;
+
+    /**
+     * @var string
+     */
+    protected $dbName;
+
+    /**
+     * @var string
+     */
+    protected $dbSchema;
 
     /**
      * The constructor
@@ -81,21 +97,51 @@ class DbFacade extends AbstractFacade
     /**
      * Set the breadcrumbs items
      *
+     * @param bool $showDatabase
      * @param array $breadcrumbs
      *
      * @return void
      */
-    protected function setBreadcrumbs(array $breadcrumbs)
+    protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = [])
     {
         $this->breadcrumbs = $breadcrumbs;
+        array_unshift($this->breadcrumbs, $this->package->getServerName($this->dbServer));
     }
 
     /**
-     * @return AbstractFacade
+     * @return Container
      */
-    public function facade(): AbstractFacade
+    public function di(): Container
     {
-        return $this;
+        return $this->di;
+    }
+
+    /**
+     * Set the current database
+     *
+     * @param string $server    The selected server
+     * @param string $database  The database name
+     * @param string $schema    The database schema
+     *
+     * @return void
+     */
+    public function setCurrentDb(string $server, string $database = '', string $schema = '')
+    {
+        $this->dbServer = $server;
+        $this->dbName = $database;
+        $this->dbSchema = $schema;
+    }
+
+    /**
+     * Set the current database name
+     *
+     * @param string $database  The database name
+     *
+     * @return void
+     */
+    public function setCurrentDbName(string $database)
+    {
+        $this->dbName = $database;
     }
 
     /**
@@ -119,6 +165,38 @@ class DbFacade extends AbstractFacade
         }
         // Connect to the selected server
         $this->driver->connect($database, $schema);
+    }
+
+    /**
+     * @return void
+     */
+    public function connectToServer()
+    {
+        $this->connect($this->dbServer);
+    }
+
+    /**
+     * @return void
+     */
+    public function connectToDatabase()
+    {
+        $this->connect($this->dbServer, $this->dbName);
+    }
+
+    /**
+     * @return void
+     */
+    public function connectToSchema()
+    {
+        $this->connect($this->dbServer, $this->dbName, $this->dbSchema);
+    }
+
+    /**
+     * @return array
+     */
+    public function getServerOptions(): array
+    {
+        return $this->package->getServerOptions($this->dbServer);
     }
 
     /**

@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\Db\Table;
 
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
-use Lagdo\DbAdmin\Db\AbstractFacade;
 use Exception;
+use Jaxon\Di\Container;
+use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
 /**
  * Facade to table functions
@@ -12,36 +12,26 @@ use Exception;
 trait TableTrait
 {
     /**
-     * The proxy
-     *
-     * @var TableFacade
+     * @return Container
      */
-    protected $tableFacade = null;
-
-    /**
-     * @return AbstractFacade
-     */
-    abstract public function facade(): AbstractFacade;
+    abstract public function di(): Container;
 
     /**
      * Connect to a database server
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return void
      */
-    abstract public function connect(string $server, string $database = '', string $schema = '');
+    abstract public function connectToSchema();
 
     /**
      * Set the breadcrumbs items
      *
+     * @param bool $showDatabase
      * @param array $breadcrumbs
      *
      * @return void
      */
-    abstract protected function setBreadcrumbs(array $breadcrumbs);
+    abstract protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = []);
 
     /**
      * Get the proxy
@@ -50,29 +40,21 @@ trait TableTrait
      */
     protected function table(): TableFacade
     {
-        if (!$this->tableFacade) {
-            $this->tableFacade = new TableFacade();
-            $this->tableFacade->init($this->facade());
-        }
-        return $this->tableFacade;
+        return $this->di()->g(TableFacade::class);
     }
 
     /**
      * Get details about a table or a view
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
      * @param string $table     The table name
      *
      * @return array
      */
-    public function getTableInfo(string $server, string $database, string $schema, string $table): array
+    public function getTableInfo(string $table): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
-        $package = $this->facade()->package;
-        $this->setBreadcrumbs([$package->getServerName($server), $database, $this->trans->lang('Tables'), $table]);
+        $this->setBreadcrumbs(true, [$this->trans->lang('Tables'), $table]);
 
         $this->util->input()->table = $table;
         return $this->table()->getTableInfo($table);
@@ -81,17 +63,14 @@ trait TableTrait
     /**
      * Get details about a table or a view
      *
-     * @param string $server The selected server
-     * @param string $database The database name
-     * @param string $schema The database schema
      * @param string $table The table name
      *
      * @return array
      * @throws Exception
      */
-    public function getTableFields(string $server, string $database, string $schema, string $table): array
+    public function getTableFields(string $table): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         $this->util->input()->table = $table;
         return $this->table()->getTableFields($table);
     }
@@ -99,16 +78,13 @@ trait TableTrait
     /**
      * Get the indexes of a table
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function getTableIndexes(string $server, string $database, string $schema, string $table): ?array
+    public function getTableIndexes(string $table): ?array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         $this->util->input()->table = $table;
         return $this->table()->getTableIndexes($table);
     }
@@ -116,16 +92,13 @@ trait TableTrait
     /**
      * Get the foreign keys of a table
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function getTableForeignKeys(string $server, string $database, string $schema, string $table): ?array
+    public function getTableForeignKeys(string $table): ?array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         $this->util->input()->table = $table;
         return $this->table()->getTableForeignKeys($table);
     }
@@ -133,16 +106,13 @@ trait TableTrait
     /**
      * Get the triggers of a table
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function getTableTriggers(string $server, string $database, string $schema, string $table): ?array
+    public function getTableTriggers(string $table): ?array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         $this->util->input()->table = $table;
         return $this->table()->getTableTriggers($table);
     }
@@ -150,27 +120,23 @@ trait TableTrait
     /**
      * Get required data for create/update on tables
      *
-     * @param string $server The selected server
-     * @param string $database The database name
-     * @param string $schema The database schema
      * @param string $table The table name
      *
      * @return array
      * @throws Exception
      */
-    public function getTableData(string $server, string $database, string $schema, string $table = ''): array
+    public function getTableData(string $table = ''): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
-        $package = $this->facade()->package;
-        $breadcrumbs = [$package->getServerName($server), $database, $this->trans->lang('Tables')];
+        $breadcrumbs = [$this->trans->lang('Tables')];
         if (($table)) {
             $breadcrumbs[] = $table;
             $breadcrumbs[] = $this->trans->lang('Alter table');
         } else {
             $breadcrumbs[] = $this->trans->lang('Create table');
         }
-        $this->setBreadcrumbs($breadcrumbs);
+        $this->setBreadcrumbs(true, $breadcrumbs);
 
         $this->util->input()->table = $table;
         return $this->table()->getTableData($table);
@@ -179,15 +145,11 @@ trait TableTrait
     /**
      * Get fields for a new column
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return TableFieldEntity
      */
-    public function getTableField(string $server, string $database, string $schema): TableFieldEntity
+    public function getTableField(): TableFieldEntity
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
         return $this->table()->getTableField();
     }
@@ -195,16 +157,13 @@ trait TableTrait
     /**
      * Create a table
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
      * @param array  $values    The table values
      *
      * @return array|null
      */
-    public function createTable(string $server, string $database, string $schema, array $values): ?array
+    public function createTable(array $values): ?array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
         $this->util->input()->table = $values['name'];
         $this->util->input()->values = $values;
@@ -214,18 +173,15 @@ trait TableTrait
     /**
      * Alter a table
      *
-     * @param string $server The selected server
-     * @param string $database The database name
-     * @param string $schema The database schema
      * @param string $table The table name
      * @param array $values The table values
      *
      * @return array|null
      * @throws Exception
      */
-    public function alterTable(string $server, string $database, string $schema, string $table, array $values): ?array
+    public function alterTable(string $table, array $values): ?array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         $this->util->input()->table = $table;
         $this->util->input()->values = $values;
         return $this->table()->alterTable($table, $values);
@@ -234,16 +190,13 @@ trait TableTrait
     /**
      * Drop a table
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function dropTable(string $server, string $database, string $schema, string $table): ?array
+    public function dropTable(string $table): ?array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         $this->util->input()->table = $table;
         return $this->table()->dropTable($table);
     }

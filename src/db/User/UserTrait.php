@@ -2,8 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\User;
 
-use Lagdo\DbAdmin\Db\AbstractFacade;
-use Exception;
+use Jaxon\Di\Container;
 
 /**
  * Facade to user functions
@@ -11,36 +10,26 @@ use Exception;
 trait UserTrait
 {
     /**
-     * The proxy
-     *
-     * @var UserFacade
+     * @return Container
      */
-    protected $userFacade = null;
-
-    /**
-     * @return AbstractFacade
-     */
-    abstract public function facade(): AbstractFacade;
+    abstract public function di(): Container;
 
     /**
      * Connect to a database server
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return void
      */
-    abstract public function connect(string $server, string $database = '', string $schema = '');
+    abstract public function connectToServer();
 
     /**
      * Set the breadcrumbs items
      *
+     * @param bool $showDatabase
      * @param array $breadcrumbs
      *
      * @return void
      */
-    abstract protected function setBreadcrumbs(array $breadcrumbs);
+    abstract protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = []);
 
     /**
      * Get the proxy to user features
@@ -49,28 +38,22 @@ trait UserTrait
      */
     protected function user(): UserFacade
     {
-        if (!$this->userFacade) {
-            $this->userFacade = new UserFacade();
-            $this->userFacade->init($this->facade());
-        }
-        return $this->userFacade;
+        return $this->di()->g(UserFacade::class);
     }
 
     /**
      * Get the privilege list
      * This feature is available only for MySQL
      *
-     * @param string $server    The selected server
      * @param string $database  The database name
      *
      * @return array
      */
-    public function getPrivileges(string $server, string $database = ''): array
+    public function getPrivileges(string $database = ''): array
     {
-        $this->connect($server);
+        $this->connectToServer();
 
-        $package = $this->facade()->package;
-        $this->setBreadcrumbs([$package->getServerName($server), $this->trans->lang('Privileges')]);
+        $this->setBreadcrumbs(false, [$this->trans->lang('Privileges')]);
 
         return $this->user()->getPrivileges($database);
     }
@@ -84,7 +67,7 @@ trait UserTrait
      */
     public function newUserPrivileges(string $server): array
     {
-        $this->connect($server);
+        $this->connectToServer();
         return $this->user()->newUserPrivileges();
     }
 
@@ -100,7 +83,7 @@ trait UserTrait
      */
     public function getUserPrivileges(string $server, string $user, string $host, string $database): array
     {
-        $this->connect($server);
+        $this->connectToServer();
         return $this->user()->getUserPrivileges($user, $host, $database);
     }
 }

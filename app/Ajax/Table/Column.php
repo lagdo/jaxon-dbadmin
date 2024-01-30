@@ -5,8 +5,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Table;
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
-use Exception;
-
 use function Jaxon\jq;
 use function Jaxon\pm;
 use function sprintf;
@@ -85,14 +83,13 @@ class Column extends CallableClass
      */
     public function add(int $length, int $target = -1): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $tableData = $this->db->getTableData($server, $database, $schema);
+        $tableData = $this->db->getTableData();
         // Make data available to views
         $this->view()->shareValues($tableData);
 
         $columnClass = "{$this->formId}-column";
         $columnId = sprintf('%s-%02d', $columnClass, $length);
-        $field = $this->db->getTableField($server, $database, $schema);
+        $field = $this->db->getTableField();
         $prefixFields = sprintf("fields[%d]", $length + 1);
         $content = $this->ui->tableColumn($columnClass, $length, $field, $prefixFields, $tableData['support'],
             $tableData['collations'], $tableData['unsigned'], $tableData['options'], $target < 0);

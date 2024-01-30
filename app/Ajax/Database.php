@@ -17,8 +17,7 @@ class Database extends CallableClass
      */
     public function add(): Response
     {
-        [$server,] = $this->bag('dbadmin')->get('db');
-        $collations = $this->db->getCollations($server);
+        $collations = $this->db->getCollations();
 
         $formId = 'database-form';
         $title = 'Create a database';
@@ -45,16 +44,15 @@ class Database extends CallableClass
      */
     public function create(array $formValues): Response
     {
-        [$server,] = $this->bag('dbadmin')->get('db');
         $database = $formValues['name'];
         $collation = $formValues['collation'];
 
-        if(!$this->db->createDatabase($server, $database, $collation))
+        if(!$this->db->createDatabase($database, $collation))
         {
             $this->response->dialog->error("Cannot create database $database.");
             return $this->response;
         }
-        $this->cl(Server::class)->showDatabases($server);
+        $this->cl(Server::class)->showDatabases();
 
         $this->response->dialog->hide();
         $this->response->dialog->info("Database $database created.");
@@ -72,7 +70,7 @@ class Database extends CallableClass
     public function drop(string $database): Response
     {
         [$server,] = $this->bag('dbadmin')->get('db');
-        if(!$this->db->dropDatabase($server, $database))
+        if(!$this->db->dropDatabase($database))
         {
             $this->response->dialog->error("Cannot delete database $database.");
             return $this->response;
@@ -97,7 +95,10 @@ class Database extends CallableClass
     public function select(string $database, string $schema = ''): Response
     {
         [$server,] = $this->bag('dbadmin')->get('db');
-        $databaseInfo = $this->db->getDatabaseInfo($server, $database);
+        // Set the selected server
+        $this->db->setCurrentDb($server, $database);
+
+        $databaseInfo = $this->db->getDatabaseInfo();
         // Make database info available to views
         $this->view()->shareValues($databaseInfo);
 
@@ -121,6 +122,9 @@ class Database extends CallableClass
                 ->click($this->rq()->select($database, pm()->select('adminer-schema-select')));
         }
 
+        // Save the selection in the databag
+        $this->bag('dbadmin')->set('db', [$server, $database, $schema, '']);
+
         $content = $this->ui->menuCommands($databaseInfo['sqlActions']);
         $this->response->html($this->package->getDbActionsId(), $content);
 
@@ -134,9 +138,6 @@ class Database extends CallableClass
 
         $content = $this->ui->menuActions($databaseInfo['menuActions']);
         $this->response->html($this->package->getDbMenuId(), $content);
-
-        // Save the selection in the databag
-        $this->bag('dbadmin')->set('db', [$server, $database, $schema, '']);
 
         // Set the click handlers
         $this->jq('#adminer-menu-action-table')->click($this->rq()->showTables());
@@ -185,8 +186,7 @@ class Database extends CallableClass
      */
     public function showTables(): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $tablesInfo = $this->db->getTables($server, $database, $schema);
+        $tablesInfo = $this->db->getTables();
 
         $tableNameClass = 'adminer-table-name';
         $select = $tablesInfo['select'];
@@ -207,8 +207,7 @@ class Database extends CallableClass
         $this->showSection($tablesInfo, ['checkbox' => $checkbox]);
 
         // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-main-action-add-table')
-            ->click($this->rq(Table::class)->add());
+        $this->jq('#adminer-main-action-add-table')->click($this->rq(Table::class)->add());
 
         // Set onclick handlers on table checkbox
         $this->response->script("jaxon.dbadmin.selectTableCheckboxes('$checkbox')");
@@ -232,8 +231,7 @@ class Database extends CallableClass
      */
     public function showViews(): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $viewsInfo = $this->db->getViews($server, $database, $schema);
+        $viewsInfo = $this->db->getViews();
 
         $viewNameClass = 'adminer-view-name';
         // Add links, classes and data values to view names.
@@ -274,8 +272,7 @@ class Database extends CallableClass
      */
     public function showRoutines(): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $routinesInfo = $this->db->getRoutines($server, $database, $schema);
+        $routinesInfo = $this->db->getRoutines();
         $this->showSection($routinesInfo);
 
         return $this->response;
@@ -291,8 +288,7 @@ class Database extends CallableClass
      */
     public function showSequences(): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $sequencesInfo = $this->db->getSequences($server, $database, $schema);
+        $sequencesInfo = $this->db->getSequences();
         $this->showSection($sequencesInfo);
 
         return $this->response;
@@ -308,8 +304,7 @@ class Database extends CallableClass
      */
     public function showUserTypes(): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $userTypesInfo = $this->db->getUserTypes($server, $database, $schema);
+        $userTypesInfo = $this->db->getUserTypes();
         $this->showSection($userTypesInfo);
 
         return $this->response;
@@ -325,8 +320,7 @@ class Database extends CallableClass
      */
     public function showEvents(): Response
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $eventsInfo = $this->db->getEvents($server, $database, $schema);
+        $eventsInfo = $this->db->getEvents();
         $this->showSection($eventsInfo);
 
         return $this->response;

@@ -12,6 +12,7 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
  * Callable base class
  *
  * @databag dbadmin
+ * @before setCurrentDb
  */
 class CallableClass extends JaxonCallableClass
 {
@@ -46,6 +47,30 @@ class CallableClass extends JaxonCallableClass
         $this->package = $package;
         $this->db = $db;
         $this->ui = $ui;
+    }
+
+    /**
+     * Set the current database
+     *
+     * @return void
+     */
+    protected function setCurrentDb()
+    {
+        $server = $database = $schema = '';
+        $db = $this->bag('dbadmin')->get('db', []);
+        if(count($db) > 0)
+        {
+            $server = $db[0];
+        }
+        if(count($db) > 1)
+        {
+            $database = $db[1];
+        }
+        if(count($db) > 2)
+        {
+            $schema = $db[2];
+        }
+        $this->db->setCurrentDb($server, $database, $schema);
     }
 
     /**

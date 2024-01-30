@@ -5,8 +5,6 @@ namespace Lagdo\DbAdmin\App\Ajax;
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
 
-use Exception;
-
 use function compact;
 use function Jaxon\pm;
 
@@ -21,8 +19,10 @@ class Import extends CallableClass
      */
     protected function showForm(string $database = ''): Response
     {
-        [$server,] = $this->bag('dbadmin')->get('db');
-        $importOptions = $this->db->getImportOptions($server, $database);
+        // Set the current database, but do not update the databag.
+        $this->db->setCurrentDbName($database);
+
+        $importOptions = $this->db->getImportOptions();
 
         // Make data available to views
         $this->view()->shareValues($importOptions);
@@ -102,6 +102,9 @@ class Import extends CallableClass
      */
     public function executeSqlFiles(string $database, array $formValues): Response
     {
+        // Set the current database, but do not update the databag.
+        $this->db->setCurrentDbName($database);
+
         $files = \array_map(function($file) {
             return $file->path();
         }, $this->files()['sql_files']);
@@ -114,9 +117,7 @@ class Import extends CallableClass
             return $this->response;
         }
 
-        [$server,] = $this->bag('dbadmin')->get('db');
-        $queryResults = $this->db->executeSqlFiles($server,
-            $files, $errorStops, $onlyErrors, $database);
+        $queryResults = $this->db->executeSqlFiles($files, $errorStops, $onlyErrors);
 
         $content = $this->ui->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);

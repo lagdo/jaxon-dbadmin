@@ -2,9 +2,8 @@
 
 namespace Lagdo\DbAdmin\Db\Select;
 
-use Lagdo\DbAdmin\Db\AbstractFacade;
-
 use Exception;
+use Jaxon\Di\Container;
 
 /**
  * Facade to table select functions
@@ -12,36 +11,26 @@ use Exception;
 trait SelectTrait
 {
     /**
-     * The proxy
-     *
-     * @var SelectFacade
+     * @return Container
      */
-    protected $tableSelectFacade = null;
-
-    /**
-     * @return AbstractFacade
-     */
-    abstract public function facade(): AbstractFacade;
+    abstract public function di(): Container;
 
     /**
      * Connect to a database server
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return void
      */
-    abstract public function connect(string $server, string $database = '', string $schema = '');
+    abstract public function connectToSchema();
 
     /**
      * Set the breadcrumbs items
      *
+     * @param bool $showDatabase
      * @param array $breadcrumbs
      *
      * @return void
      */
-    abstract protected function setBreadcrumbs(array $breadcrumbs);
+    abstract protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = []);
 
     /**
      * Get the proxy
@@ -50,32 +39,23 @@ trait SelectTrait
      */
     protected function tableSelect(): SelectFacade
     {
-        if (!$this->tableSelectFacade) {
-            $this->tableSelectFacade = new SelectFacade();
-            $this->tableSelectFacade->init($this->facade());
-        }
-        return $this->tableSelectFacade;
+        return $this->di()->g(SelectFacade::class);
     }
 
     /**
      * Get required data for create/update on tables
      *
-     * @param string $server The selected server
-     * @param string $database The database name
-     * @param string $schema The database schema
      * @param string $table The table name
      * @param array $queryOptions The query options
      *
      * @return array
      * @throws Exception
      */
-    public function getSelectData(string $server, string $database, string $schema, string $table, array $queryOptions = []): array
+    public function getSelectData(string $table, array $queryOptions = []): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
-        $package = $this->facade()->package;
-        $this->setBreadcrumbs([$package->getServerName($server), $database,
-            $this->trans->lang('Tables'), $table, $this->trans->lang('Select')]);
+        $this->setBreadcrumbs(true, [$this->trans->lang('Tables'), $table, $this->trans->lang('Select')]);
 
         $this->util->input()->table = $table;
         $this->util->input()->values = $queryOptions;
@@ -85,18 +65,15 @@ trait SelectTrait
     /**
      * Get required data for create/update on tables
      *
-     * @param string $server The selected server
-     * @param string $database The database name
-     * @param string $schema The database schema
      * @param string $table The table name
      * @param array $queryOptions The query options
      *
      * @return array
      * @throws Exception
      */
-    public function execSelect(string $server, string $database, string $schema, string $table, array $queryOptions = []): array
+    public function execSelect(string $table, array $queryOptions = []): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
         $this->util->input()->table = $table;
         $this->util->input()->values = $queryOptions;

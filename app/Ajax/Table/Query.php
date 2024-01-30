@@ -29,8 +29,8 @@ class Query extends CallableClass
      */
     public function showInsert(): Response
     {
-        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
-        $queryData = $this->db->getQueryData($server, $database, $schema, $table);
+        $table = $this->bag('dbadmin')->get('db.table');
+        $queryData = $this->db->getQueryData($table);
         // Show the error
         if(($queryData['error']))
         {
@@ -71,8 +71,8 @@ class Query extends CallableClass
      */
     public function execInsert(array $options, bool $addNew): Response
     {
-        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
-        $results = $this->db->insertItem($server, $database, $schema, $table, $options);
+        $table = $this->bag('dbadmin')->get('db.table');
+        $results = $this->db->insertItem($table, $options);
 
         // Show the error
         if(($results['error']))
@@ -114,8 +114,8 @@ class Query extends CallableClass
      */
     public function showUpdate(array $rowIds): Response
     {
-        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
-        $queryData = $this->db->getQueryData($server, $database, $schema, $table, $rowIds, 'Edit item');
+        $table = $this->bag('dbadmin')->get('db.table');
+        $queryData = $this->db->getQueryData($table, $rowIds, 'Edit item');
         // Show the error
         if(($queryData['error']))
         {
@@ -157,8 +157,9 @@ class Query extends CallableClass
     {
         $options['where'] = $rowIds['where'];
         $options['null'] = $rowIds['null'];
-        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
-        $results = $this->db->updateItem($server, $database, $schema, $table, $options);
+
+        $table = $this->bag('dbadmin')->get('db.table');
+        $results = $this->db->updateItem($table, $options);
 
         // Show the error
         if(($results['error']))
@@ -184,8 +185,8 @@ class Query extends CallableClass
      */
     public function execDelete(array $rowIds): Response
     {
-        [$server, $database, $schema, $table] = $this->bag('dbadmin')->get('db');
-        $results = $this->db->deleteItem($server, $database, $schema, $table, $rowIds);
+        $table = $this->bag('dbadmin')->get('db.table');
+        $results = $this->db->deleteItem($table, $rowIds);
 
         // Show the error
         if(($results['error']))

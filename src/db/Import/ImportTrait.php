@@ -2,8 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Import;
 
-use Lagdo\DbAdmin\Db\AbstractFacade;
-use Exception;
+use Jaxon\Di\Container;
 
 /**
  * Facade to import functions
@@ -11,36 +10,33 @@ use Exception;
 trait ImportTrait
 {
     /**
-     * The proxy
-     *
-     * @var ImportFacade
+     * @return Container
      */
-    protected $importFacade = null;
-
-    /**
-     * @return AbstractFacade
-     */
-    abstract public function facade(): AbstractFacade;
+    abstract public function di(): Container;
 
     /**
      * Connect to a database server
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
+     * @return void
+     */
+    abstract public function connectToDatabase();
+
+    /**
+     * Connect to a database server
      *
      * @return void
      */
-    abstract public function connect(string $server, string $database = '', string $schema = '');
+    abstract public function connectToSchema();
 
     /**
      * Set the breadcrumbs items
      *
+     * @param bool $showDatabase
      * @param array $breadcrumbs
      *
      * @return void
      */
-    abstract protected function setBreadcrumbs(array $breadcrumbs);
+    abstract protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = []);
 
     /**
      * Get the proxy
@@ -49,32 +45,19 @@ trait ImportTrait
      */
     protected function import(): ImportFacade
     {
-        if (!$this->importFacade) {
-            $this->importFacade = new ImportFacade();
-            $this->importFacade->init($this->facade());
-        }
-        return $this->importFacade;
+        return $this->di()->g(ImportFacade::class);
     }
 
     /**
      * Get data for import
      *
-     * @param string $server        The selected server
-     * @param string $database      The database name
-     *
      * @return array
      */
-    public function getImportOptions(string $server, string $database = ''): array
+    public function getImportOptions(): array
     {
-        $this->connect($server, $database);
+        $this->connectToDatabase();
 
-        $package = $this->facade()->package;
-        $breadcrumbs = [$package->getServerName($server)];
-        if (($database)) {
-            $breadcrumbs[] = $database;
-        }
-        $breadcrumbs[] = $this->trans->lang('Import');
-        $this->setBreadcrumbs($breadcrumbs);
+        $this->setBreadcrumbs(!!$this->dbName, [$this->trans->lang('Import')]);
 
         return $this->import()->getImportOptions();
     }
@@ -82,19 +65,15 @@ trait ImportTrait
     /**
      * Run queries from uploaded files
      *
-     * @param string $server        The selected server
      * @param array  $files         The uploaded files
      * @param bool   $errorStops    Stop executing the requests in case of error
      * @param bool   $onlyErrors    Return only errors
-     * @param string $database      The database name
-     * @param string $schema        The database schema
      *
      * @return array
      */
-    public function executeSqlFiles(string $server, array $files, bool $errorStops, bool $onlyErrors,
-        string $database = '', string $schema = ''): array
+    public function executeSqlFiles(array $files, bool $errorStops, bool $onlyErrors): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
         return $this->import()->executeSqlFiles($files, $errorStops, $onlyErrors);
     }
 }

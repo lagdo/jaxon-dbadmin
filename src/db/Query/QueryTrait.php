@@ -2,8 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Query;
 
-use Lagdo\DbAdmin\Db\AbstractFacade;
-use Exception;
+use Jaxon\Di\Container;
 
 /**
  * Facade to table query functions
@@ -11,36 +10,26 @@ use Exception;
 trait QueryTrait
 {
     /**
-     * The proxy
-     *
-     * @var QueryFacade
+     * @return Container
      */
-    protected $tableQueryFacade = null;
-
-    /**
-     * @return AbstractFacade
-     */
-    abstract public function facade(): AbstractFacade;
+    abstract public function di(): Container;
 
     /**
      * Connect to a database server
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     *
      * @return void
      */
-    abstract public function connect(string $server, string $database = '', string $schema = '');
+    abstract public function connectToSchema();
 
     /**
      * Set the breadcrumbs items
      *
+     * @param bool $showDatabase
      * @param array $breadcrumbs
      *
      * @return void
      */
-    abstract protected function setBreadcrumbs(array $breadcrumbs);
+    abstract protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = []);
 
     /**
      * Get the proxy
@@ -49,33 +38,23 @@ trait QueryTrait
      */
     protected function tableQuery(): QueryFacade
     {
-        if (!$this->tableQueryFacade) {
-            $this->tableQueryFacade = new QueryFacade();
-            $this->tableQueryFacade->init($this->facade());
-        }
-        return $this->tableQueryFacade;
+        return $this->di()->g(QueryFacade::class);
     }
 
     /**
      * Get data for insert/update on a table
      *
-     * @param string $server        The selected server
-     * @param string $database      The database name
-     * @param string $schema        The database schema
      * @param string $table         The table name
      * @param array  $queryOptions  The query options
      * @param string $action        The action title
      *
      * @return array
      */
-    public function getQueryData(string $server, string $database, string $schema,
-        string $table, array $queryOptions = [], string $action = 'New item'): array
+    public function getQueryData(string $table, array $queryOptions = [], string $action = 'New item'): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
-        $package = $this->facade()->package;
-        $this->setBreadcrumbs([$package->getServerName($server), $database,
-            $this->trans->lang('Tables'), $table, $this->trans->lang($action)]);
+        $this->setBreadcrumbs(true, [$this->trans->lang('Tables'), $table, $this->trans->lang($action)]);
 
         $this->util->input()->table = $table;
         $this->util->input()->values = $queryOptions;
@@ -85,17 +64,14 @@ trait QueryTrait
     /**
      * Insert a new item in a table
      *
-     * @param string $server        The selected server
-     * @param string $database      The database name
-     * @param string $schema        The database schema
      * @param string $table         The table name
      * @param array  $queryOptions  The query options
      *
      * @return array
      */
-    public function insertItem(string $server, string $database, string $schema, string $table, array $queryOptions): array
+    public function insertItem(string $table, array $queryOptions): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
         $this->util->input()->table = $table;
         $this->util->input()->values = $queryOptions;
@@ -105,17 +81,14 @@ trait QueryTrait
     /**
      * Update one or more items in a table
      *
-     * @param string $server        The selected server
-     * @param string $database      The database name
-     * @param string $schema        The database schema
      * @param string $table         The table name
      * @param array  $queryOptions  The query options
      *
      * @return array
      */
-    public function updateItem(string $server, string $database, string $schema, string $table, array $queryOptions): array
+    public function updateItem(string $table, array $queryOptions): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
         $this->util->input()->table = $table;
         $this->util->input()->values = $queryOptions;
@@ -125,17 +98,14 @@ trait QueryTrait
     /**
      * Delete one or more items in a table
      *
-     * @param string $server        The selected server
-     * @param string $database      The database name
-     * @param string $schema        The database schema
      * @param string $table         The table name
      * @param array  $queryOptions  The query options
      *
      * @return array
      */
-    public function deleteItem(string $server, string $database, string $schema, string $table, array $queryOptions): array
+    public function deleteItem(string $table, array $queryOptions): array
     {
-        $this->connect($server, $database, $schema);
+        $this->connectToSchema();
 
         $this->util->input()->table = $table;
         $this->util->input()->values = $queryOptions;
