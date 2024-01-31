@@ -48,8 +48,6 @@ trait CommandTrait
      */
     public function prepareCommand(): array
     {
-        $this->connectToSchema();
-
         $this->setBreadcrumbs(!!$this->dbName, [$this->trans->lang('Query')]);
 
         $labels = [
@@ -65,27 +63,17 @@ trait CommandTrait
     /**
      * Execute a query
      *
-     * @param string $server        The selected server
      * @param string $query         The query to be executed
      * @param int    $limit         The max number of rows to return
      * @param bool   $errorStops    Stop executing the requests in case of error
      * @param bool   $onlyErrors    Return only errors
-     * @param string $database      The database name
-     * @param string $schema        The database schema
      *
      * @return array
      */
-    public function executeCommands(
-        string $server,
-        string $query,
-        int $limit,
-        bool $errorStops,
-        bool $onlyErrors,
-        string $database = '',
-        string $schema = ''
-    ): array
+    public function executeCommands(string $query, int $limit, bool $errorStops, bool $onlyErrors): array
     {
         $this->connectToSchema();
+
         return $this->command()->executeCommands($query, $limit, $errorStops, $onlyErrors);
     }
 }

@@ -98,9 +98,7 @@ class Command extends CallableClass
             return $this->response;
         }
 
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $queryResults = $this->db->executeCommands($server,
-            $query, $limit, $errorStops, $onlyErrors, $database, $schema);
+        $queryResults = $this->db->executeCommands($query, $limit, $errorStops, $onlyErrors);
 
         $content = $this->ui->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
