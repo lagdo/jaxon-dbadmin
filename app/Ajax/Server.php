@@ -4,14 +4,35 @@ namespace Lagdo\DbAdmin\App\Ajax;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableClass;
+use Lagdo\DbAdmin\Db\Exception\DbException;
 
 use function array_values;
 use function count;
 use function Jaxon\jq;
 use function Jaxon\pm;
 
+/**
+ * @before('call' => 'checkServerAccess')
+ */
 class Server extends CallableClass
 {
+    /**
+     * Check if the user has access to a server
+     *
+     * @return void
+     */
+    protected function checkServerAccess()
+    {
+        if($this->target()->method() === 'connect')
+        {
+            return; // No check for the connect() method.
+        }
+        if(!$this->package->getServerAccess($this->db->getCurrentServer()))
+        {
+            throw new DbException('Access to server data is forbidden');
+        }
+    }
+
     /**
      * Show the database dropdown list.
      *
@@ -117,11 +138,6 @@ class Server extends CallableClass
      */
     public function showDatabases(): Response
     {
-        if(!$this->checkServerAccess())
-        {
-            return $this->response;
-        }
-
         $databasesInfo = $this->showDatabaseMenu();
 
         $dbNameClass = 'adminer-database-name';
@@ -187,11 +203,6 @@ class Server extends CallableClass
      */
     public function showPrivileges(): Response
     {
-        if(!$this->checkServerAccess())
-        {
-            return $this->response;
-        }
-
         $privilegesInfo = $this->db->getPrivileges();
 
         $editClass = 'adminer-privilege-name';
@@ -246,11 +257,6 @@ class Server extends CallableClass
      */
     public function showProcesses(): Response
     {
-        if(!$this->checkServerAccess())
-        {
-            return $this->response;
-        }
-
         $processesInfo = $this->db->getProcesses();
         // Make processes info available to views
         $this->view()->shareValues($processesInfo);
@@ -276,11 +282,6 @@ class Server extends CallableClass
      */
     public function showVariables(): Response
     {
-        if(!$this->checkServerAccess())
-        {
-            return $this->response;
-        }
-
         $variablesInfo = $this->db->getVariables();
         // Make variables info available to views
         $this->view()->shareValues($variablesInfo);
@@ -306,11 +307,6 @@ class Server extends CallableClass
      */
     public function showStatus(): Response
     {
-        if(!$this->checkServerAccess())
-        {
-            return $this->response;
-        }
-
         $statusInfo = $this->db->getStatus();
         // Make status info available to views
         $this->view()->shareValues($statusInfo);

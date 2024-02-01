@@ -4,9 +4,10 @@ namespace Lagdo\DbAdmin\App;
 
 use Jaxon\App\CallableClass as JaxonCallableClass;
 use Jaxon\App\View\Store;
-
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Ui\UiBuilder;
+
+use function count;
 
 /**
  * Callable base class
@@ -110,21 +111,6 @@ class CallableClass extends JaxonCallableClass
     }
 
     /**
-     * Check if the user has access to a server
-     *
-     * return bool
-     */
-    protected function checkServerAccess()
-    {
-        [$server,] = $this->bag('dbadmin')->get('db');
-        if(!($serverAccess = $this->package->getServerAccess($server)))
-        {
-            $this->response->dialog->warning('Access to server data is forbidden');
-        }
-        return $serverAccess;
-    }
-
-    /**
      * Select a menu item
      *
      * @param string $menuId      The selected menu id
@@ -134,10 +120,10 @@ class CallableClass extends JaxonCallableClass
      */
     protected function selectMenuItem(string $menuId, string $wrapperId)
     {
-        $this->jq('.adminer-menu-item', '#'. $this->package->getServerActionsId())->removeClass('active');
-        $this->jq('.adminer-menu-item', '#'. $this->package->getDbActionsId())->removeClass('active');
-        $this->jq('.adminer-menu-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq($menuId, '#'. $wrapperId)->addClass('active');
+        $this->jq('.adminer-menu-item', '#' . $this->package->getServerActionsId())->removeClass('active');
+        $this->jq('.adminer-menu-item', '#' . $this->package->getDbActionsId())->removeClass('active');
+        $this->jq('.adminer-menu-item', '#' . $this->package->getDbMenuId())->removeClass('active');
+        $this->jq($menuId, '#' . $wrapperId)->addClass('active');
     }
 
     /**

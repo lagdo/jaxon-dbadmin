@@ -219,12 +219,12 @@ class Package extends JaxonPackage
     {
         // Check in server options
         $serverAccess = $this->getOption("servers.$server.access.server", null);
-        if($serverAccess === true || $serverAccess === false)
+        if($serverAccess == true || $serverAccess == false)
         {
-            return $serverAccess;
+            return (bool)$serverAccess;
         }
         // Check in global options
-        return $this->getOption('access.server', true) === true;
+        return $this->getOption('access.server', true) == true;
     }
 
     /**

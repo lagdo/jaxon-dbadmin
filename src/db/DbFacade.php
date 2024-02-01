@@ -151,6 +151,16 @@ class DbFacade extends AbstractFacade
     }
 
     /**
+     * Get the current server
+     *
+     * @return string
+     */
+    public function getCurrentServer(): string
+    {
+        return $this->dbServer;
+    }
+
+    /**
      * Connect to a database server
      *
      * @param string $server    The selected server
