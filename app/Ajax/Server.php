@@ -15,14 +15,12 @@ class Server extends CallableClass
     /**
      * Show the database dropdown list.
      *
-     * @param string $server      The database server
-     *
      * @return array
      */
-    protected function showDatabaseMenu(string $server): array
+    protected function showDatabaseMenu(): array
     {
         // Access to servers is forbidden. Show the first database.
-        $databasesInfo = $this->db->getDatabases($server);
+        $databasesInfo = $this->db->getDatabases();
 
         // Make databases info available to views
         $this->view()->shareValues($databasesInfo);
@@ -58,7 +56,7 @@ class Server extends CallableClass
         // Set the selected server
         $this->db->setCurrentDb($server);
 
-        $serverInfo = $this->db->getServerInfo($server);
+        $serverInfo = $this->db->getServerInfo();
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
 
@@ -86,7 +84,7 @@ class Server extends CallableClass
 
         if(!$this->package->getServerAccess($server))
         {
-            $databasesInfo = $this->showDatabaseMenu($server);
+            $databasesInfo = $this->showDatabaseMenu();
             if(count($databasesInfo['databases']) > 0)
             {
                 $database = array_values($databasesInfo['databases'])[0];
@@ -98,15 +96,15 @@ class Server extends CallableClass
         }
 
         // Set the click handlers
-        $this->jq('#adminer-menu-action-databases')->click($this->rq()->showDatabases($server));
-        $this->jq('#adminer-menu-action-privileges')->click($this->rq()->showPrivileges($server));
-        $this->jq('#adminer-menu-action-processes')->click($this->rq()->showProcesses($server));
-        $this->jq('#adminer-menu-action-variables')->click($this->rq()->showVariables($server));
-        $this->jq('#adminer-menu-action-status')->click($this->rq()->showStatus($server));
+        $this->jq('#adminer-menu-action-databases')->click($this->rq()->showDatabases());
+        $this->jq('#adminer-menu-action-privileges')->click($this->rq()->showPrivileges());
+        $this->jq('#adminer-menu-action-processes')->click($this->rq()->showProcesses());
+        $this->jq('#adminer-menu-action-variables')->click($this->rq()->showVariables());
+        $this->jq('#adminer-menu-action-status')->click($this->rq()->showStatus());
 
         // Show the database list
         $this->selectMenuItem('.menu-action-databases', 'adminer-database-menu');
-        return $this->showDatabases($server);
+        return $this->showDatabases();
     }
 
     /**
@@ -115,18 +113,16 @@ class Server extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-databases', 'adminer-database-menu'])
      *
-     * @param string $server      The database server
-     *
      * @return Response
      */
-    public function showDatabases(string $server): Response
+    public function showDatabases(): Response
     {
-        if(!$this->checkServerAccess($server))
+        if(!$this->checkServerAccess())
         {
             return $this->response;
         }
 
-        $databasesInfo = $this->showDatabaseMenu($server);
+        $databasesInfo = $this->showDatabaseMenu();
 
         $dbNameClass = 'adminer-database-name';
         $dbDropClass = 'adminer-database-drop';
@@ -187,18 +183,16 @@ class Server extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-privileges', 'adminer-database-menu'])
      *
-     * @param string $server      The database server
-     *
      * @return Response
      */
-    public function showPrivileges(string $server): Response
+    public function showPrivileges(): Response
     {
-        if(!$this->checkServerAccess($server))
+        if(!$this->checkServerAccess())
         {
             return $this->response;
         }
 
-        $privilegesInfo = $this->db->getPrivileges($server);
+        $privilegesInfo = $this->db->getPrivileges();
 
         $editClass = 'adminer-privilege-name';
         $optionClass = 'jaxon-adminer-grant';
@@ -248,18 +242,16 @@ class Server extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-processes', 'adminer-database-menu'])
      *
-     * @param string $server      The database server
-     *
      * @return Response
      */
-    public function showProcesses(string $server): Response
+    public function showProcesses(): Response
     {
-        if(!$this->checkServerAccess($server))
+        if(!$this->checkServerAccess())
         {
             return $this->response;
         }
 
-        $processesInfo = $this->db->getProcesses($server);
+        $processesInfo = $this->db->getProcesses();
         // Make processes info available to views
         $this->view()->shareValues($processesInfo);
 
@@ -280,18 +272,16 @@ class Server extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-variables', 'adminer-database-menu'])
      *
-     * @param string $server      The database server
-     *
      * @return Response
      */
-    public function showVariables(string $server): Response
+    public function showVariables(): Response
     {
-        if(!$this->checkServerAccess($server))
+        if(!$this->checkServerAccess())
         {
             return $this->response;
         }
 
-        $variablesInfo = $this->db->getVariables($server);
+        $variablesInfo = $this->db->getVariables();
         // Make variables info available to views
         $this->view()->shareValues($variablesInfo);
 
@@ -312,18 +302,16 @@ class Server extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-status', 'adminer-database-menu'])
      *
-     * @param string $server      The database server
-     *
      * @return Response
      */
-    public function showStatus(string $server): Response
+    public function showStatus(): Response
     {
-        if(!$this->checkServerAccess($server))
+        if(!$this->checkServerAccess())
         {
             return $this->response;
         }
 
-        $statusInfo = $this->db->getStatus($server);
+        $statusInfo = $this->db->getStatus();
         // Make status info available to views
         $this->view()->shareValues($statusInfo);
 

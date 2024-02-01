@@ -61,11 +61,9 @@ trait UserTrait
     /**
      * Get the privileges for a new user
      *
-     * @param string $server    The selected server
-     *
      * @return array
      */
-    public function newUserPrivileges(string $server): array
+    public function newUserPrivileges(): array
     {
         $this->connectToServer();
         return $this->user()->newUserPrivileges();
@@ -74,14 +72,13 @@ trait UserTrait
     /**
      * Get the privileges for a new user
      *
-     * @param string $server    The selected server
      * @param string $user      The user name
      * @param string $host      The host name
      * @param string $database  The database name
      *
      * @return array
      */
-    public function getUserPrivileges(string $server, string $user, string $host, string $database): array
+    public function getUserPrivileges(string $user, string $host, string $database): array
     {
         $this->connectToServer();
         return $this->user()->getUserPrivileges($user, $host, $database);

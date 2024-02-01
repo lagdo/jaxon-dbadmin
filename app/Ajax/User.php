@@ -18,8 +18,7 @@ class User extends CallableClass
      */
     public function add(): Response
     {
-        [$server,] = $this->bag('dbadmin')->get('db');
-        $userInfo = $this->db->newUserPrivileges($server);
+        $userInfo = $this->db->newUserPrivileges();
 
         // Make user info available to views
         $this->view()->shareValues($userInfo);
@@ -70,8 +69,7 @@ class User extends CallableClass
      */
     public function edit(string $username, string $hostname, string $database): Response
     {
-        [$server,] = $this->bag('dbadmin')->get('db');
-        $userInfo = $this->db->getUserPrivileges($server, $username, $hostname, $database);
+        $userInfo = $this->db->getUserPrivileges($username, $hostname, $database);
 
         // Make user info available to views
         $this->view()->shareValues($userInfo);

@@ -112,12 +112,11 @@ class CallableClass extends JaxonCallableClass
     /**
      * Check if the user has access to a server
      *
-     * @param string $server      The database server
-     *
      * return bool
      */
-    protected function checkServerAccess(string $server)
+    protected function checkServerAccess()
     {
+        [$server,] = $this->bag('dbadmin')->get('db');
         if(!($serverAccess = $this->package->getServerAccess($server)))
         {
             $this->response->dialog->warning('Access to server data is forbidden');
