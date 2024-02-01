@@ -1,5 +1,9 @@
 <?php
 
+use Lagdo\DbAdmin\Db\Exception\DbException;
+
+use function Jaxon\jaxon;
+
 return [
     'directories' => [
         __DIR__ . '/../app/Ajax' => [
@@ -105,5 +109,12 @@ return [
             // The db util
             Lagdo\DbAdmin\Driver\UtilInterface::class => Lagdo\DbAdmin\Util::class,
         ],
+    ],
+    'exceptions' => [
+        DbException::class => function(DbException $dbException) {
+            $response = jaxon()->getResponse();
+            $response->dialog->warning($dbException->getMessage());
+            return $response;
+        },
     ],
 ];
