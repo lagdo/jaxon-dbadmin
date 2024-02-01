@@ -1,0 +1,59 @@
+<?php
+
+namespace Lagdo\DbAdmin\Db\Traits;
+
+use Exception;
+use Lagdo\DbAdmin\Db\Facades\SelectFacade;
+
+/**
+ * Facade to table select functions
+ */
+trait SelectTrait
+{
+    use AbstractTrait;
+
+    /**
+     * Get the facade
+     *
+     * @return SelectFacade
+     */
+    protected function selectFacade(): SelectFacade
+    {
+        return $this->di()->g(SelectFacade::class);
+    }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string $table The table name
+     * @param array $queryOptions The query options
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getSelectData(string $table, array $queryOptions = []): array
+    {
+        $this->connectToSchema();
+        $this->setBreadcrumbs(true, [$this->trans->lang('Tables'), $table, $this->trans->lang('Select')]);
+        $this->util->input()->table = $table;
+        $this->util->input()->values = $queryOptions;
+        return $this->selectFacade()->getSelectData($table, $queryOptions);
+    }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string $table The table name
+     * @param array $queryOptions The query options
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function execSelect(string $table, array $queryOptions = []): array
+    {
+        $this->connectToSchema();
+        $this->util->input()->table = $table;
+        $this->util->input()->values = $queryOptions;
+        return $this->selectFacade()->execSelect($table, $queryOptions);
+    }
+}

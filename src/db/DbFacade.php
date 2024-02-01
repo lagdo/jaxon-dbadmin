@@ -2,11 +2,12 @@
 
 namespace Lagdo\DbAdmin\Db;
 
+use Jaxon\Di\Container;
 use Lagdo\DbAdmin\App\Package;
+use Lagdo\DbAdmin\Db\Facades\AbstractFacade;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\UtilInterface;
 use Lagdo\DbAdmin\Translator;
-use Jaxon\Di\Container;
 
 use function array_unshift;
 use function call_user_func_array;
@@ -17,16 +18,16 @@ use function func_get_args;
  */
 class DbFacade extends AbstractFacade
 {
-    use Server\ServerTrait;
-    use User\UserTrait;
-    use Database\DatabaseTrait;
-    use Table\TableTrait;
-    use Select\SelectTrait;
-    use Query\QueryTrait;
-    use View\ViewTrait;
-    use Command\CommandTrait;
-    use Export\ExportTrait;
-    use Import\ImportTrait;
+    use Traits\ServerTrait;
+    use Traits\UserTrait;
+    use Traits\DatabaseTrait;
+    use Traits\TableTrait;
+    use Traits\SelectTrait;
+    use Traits\QueryTrait;
+    use Traits\ViewTrait;
+    use Traits\CommandTrait;
+    use Traits\ExportTrait;
+    use Traits\ImportTrait;
 
     /**
      * The breadcrumbs items
@@ -105,7 +106,12 @@ class DbFacade extends AbstractFacade
     protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = [])
     {
         $this->breadcrumbs = $breadcrumbs;
-        array_unshift($this->breadcrumbs, $this->package->getServerName($this->dbServer));
+        if(!$showDatabase)
+        {
+            array_unshift($this->breadcrumbs, $this->package->getServerName($this->dbServer));
+            return;
+        }
+        array_unshift($this->breadcrumbs, $this->package->getServerName($this->dbServer), $this->dbName);
     }
 
     /**
