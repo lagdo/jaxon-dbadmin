@@ -33,7 +33,7 @@ trait TableTrait
     public function getTableInfo(string $table): array
     {
         $this->connectToSchema();
-        $this->setBreadcrumbs(true, [$this->trans->lang('Tables'), $table]);
+        $this->bcdb()->breadcrumb($this->trans->lang('Tables'))->breadcrumb($table);
         $this->util->input()->table = $table;
         return $this->tableFacade()->getTableInfo($table);
     }
@@ -106,14 +106,12 @@ trait TableTrait
     public function getTableData(string $table = ''): array
     {
         $this->connectToSchema();
-        $breadcrumbs = [$this->trans->lang('Tables')];
-        if (($table)) {
-            $breadcrumbs[] = $table;
-            $breadcrumbs[] = $this->trans->lang('Alter table');
+        $this->bcdb()->breadcrumb($this->trans->lang('Tables'));
+        if (!$table) {
+            $this->breadcrumb($this->trans->lang('Create table'));
         } else {
-            $breadcrumbs[] = $this->trans->lang('Create table');
+            $this->breadcrumb($table)->breadcrumb($this->trans->lang('Alter table'));
         }
-        $this->setBreadcrumbs(true, $breadcrumbs);
         $this->util->input()->table = $table;
         return $this->tableFacade()->getTableData($table);
     }

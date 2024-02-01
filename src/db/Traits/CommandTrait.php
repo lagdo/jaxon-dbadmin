@@ -28,7 +28,7 @@ trait CommandTrait
      */
     public function prepareCommand(): array
     {
-        $this->setBreadcrumbs(!!$this->dbName, [$this->trans->lang('Query')]);
+        $this->bcdb()->breadcrumb($this->trans->lang('Query'));
         $labels = [
             'execute' => $this->trans->lang('Execute'),
             'limit_rows' => $this->trans->lang('Limit rows'),

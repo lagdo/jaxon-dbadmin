@@ -29,7 +29,7 @@ trait DatabaseTrait
     public function getDatabaseInfo()
     {
         $this->connectToDatabase();
-        $this->setBreadcrumbs(true);
+        $this->bcdb();
         return $this->databaseFacade()->getDatabaseInfo();
     }
 
@@ -41,7 +41,7 @@ trait DatabaseTrait
     public function getTables()
     {
         $this->connectToSchema();
-        $this->setBreadcrumbs(true, [$this->trans->lang('Tables')]);
+        $this->bcdb()->breadcrumb($this->trans->lang('Tables'));
         return $this->databaseFacade()->getTables();
     }
 
@@ -53,7 +53,7 @@ trait DatabaseTrait
     public function getViews()
     {
         $this->connectToSchema();
-        $this->setBreadcrumbs(true, [$this->trans->lang('Views')]);
+        $this->bcdb()->breadcrumb($this->trans->lang('Views'));
         return $this->databaseFacade()->getViews();
     }
 
@@ -65,7 +65,7 @@ trait DatabaseTrait
     public function getRoutines()
     {
         $this->connectToSchema();
-        $this->setBreadcrumbs(true, [$this->trans->lang('Routines')]);
+        $this->bcdb()->breadcrumb($this->trans->lang('Routines'));
         return $this->databaseFacade()->getRoutines();
     }
 
@@ -77,7 +77,7 @@ trait DatabaseTrait
     public function getSequences()
     {
         $this->connectToSchema();
-        $this->setBreadcrumbs(true, [$this->trans->lang('Sequences')]);
+        $this->bcdb()->breadcrumb($this->trans->lang('Sequences'));
         return $this->databaseFacade()->getSequences();
     }
 
@@ -89,7 +89,7 @@ trait DatabaseTrait
     public function getUserTypes()
     {
         $this->connectToSchema();
-        $this->setBreadcrumbs(true, [$this->trans->lang('User types')]);
+        $this->bcdb()->breadcrumb($this->trans->lang('User types'));
         return $this->databaseFacade()->getUserTypes();
     }
 
@@ -101,7 +101,7 @@ trait DatabaseTrait
     public function getEvents()
     {
         $this->connectToSchema();
-        $this->setBreadcrumbs(true, [$this->trans->lang('Events')]);
+        $this->bcdb()->breadcrumb($this->trans->lang('Events'));
         return $this->databaseFacade()->getEvents();
     }
 }

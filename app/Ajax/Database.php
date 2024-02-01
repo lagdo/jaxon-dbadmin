@@ -96,7 +96,7 @@ class Database extends CallableClass
     {
         [$server,] = $this->bag('dbadmin')->get('db');
         // Set the selected server
-        $this->db->setCurrentDb($server, $database);
+        $this->db->selectDatabase($server, $database);
 
         $databaseInfo = $this->db->getDatabaseInfo();
         // Make database info available to views
@@ -123,7 +123,7 @@ class Database extends CallableClass
         }
 
         // Save the selection in the databag
-        $this->bag('dbadmin')->set('db', [$server, $database, $schema, '']);
+        $this->bag('dbadmin')->set('db', [$server, $database, $schema]);
 
         $content = $this->ui->menuCommands($databaseInfo['sqlActions']);
         $this->response->html($this->package->getDbActionsId(), $content);

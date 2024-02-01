@@ -9,7 +9,7 @@ use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\UtilInterface;
 use Lagdo\DbAdmin\Translator;
 
-use function array_unshift;
+use function array_merge;
 use function call_user_func_array;
 use function func_get_args;
 
@@ -92,26 +92,42 @@ class DbFacade extends AbstractFacade
      */
     public function getBreadcrumbs(): array
     {
-        return $this->breadcrumbs;
+        return array_merge([$this->package->getServerName($this->dbServer)], $this->breadcrumbs);
     }
 
     /**
-     * Set the breadcrumbs items
+     * Clear the breadcrumbs
      *
-     * @param bool $showDatabase
-     * @param array $breadcrumbs
-     *
-     * @return void
+     * @return self
      */
-    protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = [])
+    protected function bccl(): self
     {
-        $this->breadcrumbs = $breadcrumbs;
-        if(!$showDatabase)
-        {
-            array_unshift($this->breadcrumbs, $this->package->getServerName($this->dbServer));
-            return;
-        }
-        array_unshift($this->breadcrumbs, $this->package->getServerName($this->dbServer), $this->dbName);
+        $this->breadcrumbs = [];
+        return $this;
+    }
+
+    /**
+     * Add the selected DB name to the breadcrumbs
+     *
+     * @return self
+     */
+    protected function bcdb(): self
+    {
+        $this->breadcrumbs = !$this->dbName ? [] : [$this->dbName];
+        return $this;
+    }
+
+    /**
+     * Add an item to the breadcrumbs
+     *
+     * @param string $label
+     *
+     * @return self
+     */
+    protected function breadcrumb(string $label): self
+    {
+        $this->breadcrumbs[] = $label;
+        return $this;
     }
 
     /**
@@ -131,7 +147,7 @@ class DbFacade extends AbstractFacade
      *
      * @return void
      */
-    public function setCurrentDb(string $server, string $database = '', string $schema = '')
+    public function selectDatabase(string $server, string $database = '', string $schema = '')
     {
         $this->dbServer = $server;
         $this->dbName = $database;

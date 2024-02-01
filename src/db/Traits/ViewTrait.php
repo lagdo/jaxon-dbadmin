@@ -32,7 +32,7 @@ trait ViewTrait
     public function getViewInfo(string $view): array
     {
         $this->connectToSchema();
-        $this->setBreadcrumbs(true, [$this->trans->lang('Views'), $view]);
+        $this->bcdb()->breadcrumb($this->trans->lang('Views'))->breadcrumb($view);
         $this->util->input()->table = $view;
         return $this->viewFacade()->getViewInfo($view);
     }

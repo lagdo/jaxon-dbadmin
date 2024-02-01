@@ -34,7 +34,8 @@ trait SelectTrait
     public function getSelectData(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
-        $this->setBreadcrumbs(true, [$this->trans->lang('Tables'), $table, $this->trans->lang('Select')]);
+        $this->bcdb()->breadcrumb($this->trans->lang('Tables'))
+            ->breadcrumb($table)->breadcrumb($this->trans->lang('Select'));
         $this->util->input()->table = $table;
         $this->util->input()->values = $queryOptions;
         return $this->selectFacade()->getSelectData($table, $queryOptions);

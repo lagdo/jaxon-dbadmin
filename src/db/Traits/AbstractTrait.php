@@ -33,12 +33,25 @@ trait AbstractTrait
     abstract public function connectToSchema();
 
     /**
-     * Set the breadcrumbs items
+     * Clear the breadcrumbs
      *
-     * @param bool $showDatabase
-     * @param array $breadcrumbs
-     *
-     * @return void
+     * @return self
      */
-    abstract protected function setBreadcrumbs(bool $showDatabase = false, array $breadcrumbs = []);
+    abstract protected function bccl(): self;
+
+    /**
+     * Add the selected DB name to the breadcrumbs
+     *
+     * @return self
+     */
+    abstract protected function bcdb(): self;
+
+    /**
+     * Add an item to the breadcrumbs
+     *
+     * @param string $label
+     *
+     * @return self
+     */
+    abstract protected function breadcrumb(string $label): self;
 }

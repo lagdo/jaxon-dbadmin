@@ -75,14 +75,14 @@ class Server extends CallableClass
     public function connect(string $server): Response
     {
         // Set the selected server
-        $this->db->setCurrentDb($server);
+        $this->db->selectDatabase($server);
 
         $serverInfo = $this->db->getServerInfo();
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
 
         // Save the selected server
-        $this->bag('dbadmin')->set('db', [$server, '', '', '']);
+        $this->bag('dbadmin')->set('db', [$server, '', '']);
 
         $content = $this->ui->serverInfo($serverInfo['server'], $serverInfo['user']);
         $this->response->html($this->package->getServerInfoId(), $content);

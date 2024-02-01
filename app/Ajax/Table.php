@@ -78,6 +78,9 @@ class Table extends CallableClass
      */
     public function show(string $table): Response
     {
+        // Save the table name in tha databag.
+        $this->bag('dbadmin')->set('db.table', $table);
+
         $tableInfo = $this->db->getTableInfo($table);
         // Make table info available to views
         $this->view()->shareValues($tableInfo);

@@ -13,7 +13,7 @@ use function count;
  * Callable base class
  *
  * @databag dbadmin
- * @before setCurrentDb
+ * @before selectDatabase
  */
 class CallableClass extends JaxonCallableClass
 {
@@ -55,7 +55,7 @@ class CallableClass extends JaxonCallableClass
      *
      * @return void
      */
-    protected function setCurrentDb()
+    protected function selectDatabase()
     {
         $server = $database = $schema = '';
         $db = $this->bag('dbadmin')->get('db', []);
@@ -71,7 +71,7 @@ class CallableClass extends JaxonCallableClass
         {
             $schema = $db[2];
         }
-        $this->db->setCurrentDb($server, $database, $schema);
+        $this->db->selectDatabase($server, $database, $schema);
     }
 
     /**
