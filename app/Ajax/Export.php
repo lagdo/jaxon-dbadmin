@@ -85,12 +85,11 @@ class Export extends CallableClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-export', 'adminer-database-actions'])
      *
-     * @param string $database    The database name
-     *
      * @return Response
      */
-    public function showDatabaseForm(string $database = ''): Response
+    public function showDatabaseForm(): Response
     {
+        [, $database] = $this->bag('dbadmin')->get('db');
         return $this->showForm($database);
     }
 

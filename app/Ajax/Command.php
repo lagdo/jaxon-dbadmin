@@ -13,11 +13,15 @@ class Command extends CallableClass
      * Show the SQL command form
      *
      * @param string $query       The SQL query to display
+     * @param string $database    The database name
      *
      * @return Response
      */
-    protected function showForm(string $query): Response
+    protected function showForm(string $query, string $database = ''): Response
     {
+        // Set the current database, but do not update the databag.
+        $this->db->setCurrentDbName($database);
+
         $commandOptions = $this->db->prepareCommand();
 
         // Make data available to views
@@ -73,7 +77,8 @@ class Command extends CallableClass
      */
     public function showDatabaseForm(string $query = ''): Response
     {
-        return $this->showForm($query);
+        [, $database] = $this->bag('dbadmin')->get('db');
+        return $this->showForm($query, $database);
     }
 
     /**
