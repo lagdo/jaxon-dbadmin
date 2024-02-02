@@ -1,14 +1,14 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax;
+namespace Lagdo\DbAdmin\App\Ajax\Db;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\CallableClass;
+use Lagdo\DbAdmin\App\CallableDbClass;
 
 use function compact;
 use function Jaxon\pm;
 
-class Import extends CallableClass
+class Import extends CallableDbClass
 {
     /**
      * Show the import form

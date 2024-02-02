@@ -1,17 +1,17 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Table;
+namespace Lagdo\DbAdmin\App\Ajax\Db\Table;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\Ajax\Table;
-use Lagdo\DbAdmin\App\CallableClass;
+use Lagdo\DbAdmin\App\Ajax\Db\Table;
+use Lagdo\DbAdmin\App\CallableDbClass;
 
 use function Jaxon\pm;
 
 /**
  * This class provides insert and update query features on tables.
  */
-class Query extends CallableClass
+class Query extends CallableDbClass
 {
     /**
      * The query form div id

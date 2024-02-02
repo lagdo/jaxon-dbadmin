@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Table;
+namespace Lagdo\DbAdmin\App\Ajax\Db\Table;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\CallableClass;
+use Lagdo\DbAdmin\App\CallableDbClass;
 
 use function Jaxon\jq;
 use function Jaxon\pm;
@@ -14,7 +14,7 @@ use function sprintf;
  * provides CRUD features on table columns.
  * It does not persist data. It only updates the UI.
  */
-class Column extends CallableClass
+class Column extends CallableDbClass
 {
     /**
      * The form id

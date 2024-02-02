@@ -1,15 +1,15 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax;
+namespace Lagdo\DbAdmin\App\Ajax\Db;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\CallableClass;
+use Lagdo\DbAdmin\App\CallableDbClass;
 
 use Exception;
 
 use function Jaxon\pm;
 
-class User extends CallableClass
+class User extends CallableDbClass
 {
     /**
      * Show the new user form

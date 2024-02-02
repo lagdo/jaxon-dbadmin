@@ -1,19 +1,19 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax;
+namespace Lagdo\DbAdmin\App\Ajax\Db;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\Ajax\Table\Column;
-use Lagdo\DbAdmin\App\Ajax\Table\Select;
-use Lagdo\DbAdmin\App\Ajax\Table\Query;
-use Lagdo\DbAdmin\App\CallableClass;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Column;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Select;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Query;
+use Lagdo\DbAdmin\App\CallableDbClass;
 
 use function array_merge;
 use function is_array;
 use function Jaxon\jq;
 use function Jaxon\pm;
 
-class Table extends CallableClass
+class Table extends CallableDbClass
 {
     /**
      * The form id

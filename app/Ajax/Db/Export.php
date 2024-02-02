@@ -1,15 +1,13 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax;
+namespace Lagdo\DbAdmin\App\Ajax\Db;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\CallableClass;
-
-use Exception;
+use Lagdo\DbAdmin\App\CallableDbClass;
 
 use function Jaxon\pm;
 
-class Export extends CallableClass
+class Export extends CallableDbClass
 {
     /**
      * Show the export form

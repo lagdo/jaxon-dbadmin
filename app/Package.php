@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\App;
 
 use Jaxon\Plugin\Package as JaxonPackage;
-use Lagdo\DbAdmin\App\Ajax\Server;
+use Lagdo\DbAdmin\App\Ajax\Admin;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
 use function is_string;
@@ -272,12 +272,10 @@ class Package extends JaxonPackage
     public function getReadyScript(): string
     {
         $servers = $this->getOption('servers', []);
-        $default = $this->getOption('default', '');
-        if(!is_string($default) || empty($servers[$default]))
-        {
-            return '';
-        }
-        return $this->factory()->request(Server::class)->connect($default);
+        $server = $this->getOption('default', '');
+
+        return !is_string($server) || empty($servers[$server]) ? '' :
+            $this->factory()->request(Admin::class)->server($server);
     }
 
     /**
@@ -289,10 +287,8 @@ class Package extends JaxonPackage
     {
         // Add an HTML container block for each server in the config file
         $servers = $this->getOption('servers', []);
-
-        $connect = $this->factory()->request(Server::class)
-            ->connect(pm()->select('adminer-dbhost-select'));
-
+        $server = pm()->select('adminer-dbhost-select');
+        $connect = $this->factory()->request(Admin::class)->server($server);
         $values = $this->getIds();
         $values['connect'] = $connect;
         $values['servers'] = $servers;

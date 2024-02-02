@@ -1,11 +1,11 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Table;
+namespace Lagdo\DbAdmin\App\Ajax\Db\Table;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\Ajax\Table;
-use Lagdo\DbAdmin\App\Ajax\Command;
-use Lagdo\DbAdmin\App\CallableClass;
+use Lagdo\DbAdmin\App\Ajax\Db\Table;
+use Lagdo\DbAdmin\App\Ajax\Db\Command;
+use Lagdo\DbAdmin\App\CallableDbClass;
 
 use Exception;
 
@@ -18,7 +18,7 @@ use function Jaxon\pm;
 /**
  * This class provides select query features on tables.
  */
-class Select extends CallableClass
+class Select extends CallableDbClass
 {
     /**
      * The select form div id

@@ -9,14 +9,12 @@ use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
 use function call_user_func_array;
-use function count;
 use function func_get_args;
 
 /**
  * Callable base class
  *
  * @databag dbadmin
- * @before selectDatabase
  */
 class CallableClass extends JaxonCallableClass
 {
@@ -64,41 +62,13 @@ class CallableClass extends JaxonCallableClass
      * Get a translated string
      * The first parameter is mandatory. Optional parameters can follow.
      *
-     * @param string
+     * @param string $phrase
      *
      * @return string
      */
-    public function lang($idf): string
+    protected function lang($phrase): string
     {
         return call_user_func_array([$this->trans, "lang"], func_get_args());
-    }
-
-    /**
-     * Set the current database
-     *
-     * @return void
-     */
-    protected function selectDatabase()
-    {
-        $server = $database = $schema = '';
-        $db = $this->bag('dbadmin')->get('db', []);
-        if(count($db) === 0)
-        {
-            return; // No server selected yet.
-        }
-        if(count($db) > 0)
-        {
-            $server = $db[0];
-        }
-        if(count($db) > 1)
-        {
-            $database = $db[1];
-        }
-        if(count($db) > 2)
-        {
-            $schema = $db[2];
-        }
-        $this->db->selectDatabase($server, $database, $schema);
     }
 
     /**
@@ -115,7 +85,7 @@ class CallableClass extends JaxonCallableClass
     }
 
     /**
-     * Render the manin/content view
+     * Render the main/content view
      *
      * @param array         $aViewData        The view data
      *

@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax;
+namespace Lagdo\DbAdmin\App\Ajax\Db;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\CallableClass;
+use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\Db\Exception\DbException;
 
 use function array_values;
@@ -14,7 +14,7 @@ use function Jaxon\pm;
 /**
  * @before('call' => 'checkServerAccess')
  */
-class Server extends CallableClass
+class Server extends CallableDbClass
 {
     /**
      * Check if the user has access to a server
@@ -66,23 +66,17 @@ class Server extends CallableClass
      * Connect to a db server.
      * The database list will be displayed in the HTML select component.
      *
-     * @after('call' => 'showBreadcrumbs')
+     * @exclude
      *
-     * @param string $server      The database server
+     * @param bool $hasServerAccess
      *
      * @return Response
      */
-    public function connect(string $server): Response
+    public function connect(bool $hasServerAccess): Response
     {
-        // Set the selected server
-        $this->db->selectDatabase($server);
-
         $serverInfo = $this->db->getServerInfo();
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
-
-        // Save the selected server
-        $this->bag('dbadmin')->set('db', [$server, '', '']);
 
         $content = $this->ui->serverInfo($serverInfo['server'], $serverInfo['user']);
         $this->response->html($this->package->getServerInfoId(), $content);
@@ -103,7 +97,7 @@ class Server extends CallableClass
         $content = $this->ui->menuActions($serverInfo['menuActions']);
         $this->response->html($this->package->getDbMenuId(), $content);
 
-        if(!$this->package->getServerAccess($server))
+        if(!$hasServerAccess)
         {
             $databasesInfo = $this->showDatabaseMenu();
             if(count($databasesInfo['databases']) > 0)
