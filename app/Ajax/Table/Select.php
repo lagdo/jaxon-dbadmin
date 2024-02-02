@@ -202,7 +202,7 @@ class Select extends CallableClass
         // The Jaxon ajax calls
         $updateCall = $this->rq(Query::class)->showUpdate(pm()->js("jaxon.dbadmin.rowIds[rowId]"));
         $deleteCall = $this->rq(Query::class)->execDelete(pm()->js("jaxon.dbadmin.rowIds[rowId]"))
-            ->confirm($this->db->lang('Delete this item?'));
+            ->confirm($this->lang('Delete this item?'));
 
         // Wrap the ajax calls into functions
         $this->response->setFunction('updateRowItem', 'rowId', $updateCall);

@@ -5,9 +5,12 @@ namespace Lagdo\DbAdmin\App;
 use Jaxon\App\CallableClass as JaxonCallableClass;
 use Jaxon\App\View\Store;
 use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
+use function call_user_func_array;
 use function count;
+use function func_get_args;
 
 /**
  * Callable base class
@@ -37,17 +40,37 @@ class CallableClass extends JaxonCallableClass
     protected $ui;
 
     /**
+     * @var Translator
+     */
+    public $trans;
+
+    /**
      * The constructor
      *
      * @param Package       $package    The DbAdmin package
      * @param DbFacade      $db         The facade to database functions
      * @param UiBuilder     $ui         The HTML UI builder
+     * @param Translator    $trans
      */
-    public function __construct(Package $package, DbFacade $db, UiBuilder $ui)
+    public function __construct(Package $package, DbFacade $db, UiBuilder $ui, Translator $trans)
     {
         $this->package = $package;
         $this->db = $db;
         $this->ui = $ui;
+        $this->trans = $trans;
+    }
+
+    /**
+     * Get a translated string
+     * The first parameter is mandatory. Optional parameters can follow.
+     *
+     * @param string
+     *
+     * @return string
+     */
+    public function lang($idf): string
+    {
+        return call_user_func_array([$this->trans, "lang"], func_get_args());
     }
 
     /**
@@ -59,6 +82,10 @@ class CallableClass extends JaxonCallableClass
     {
         $server = $database = $schema = '';
         $db = $this->bag('dbadmin')->get('db', []);
+        if(count($db) === 0)
+        {
+            return; // No server selected yet.
+        }
         if(count($db) > 0)
         {
             $server = $db[0];

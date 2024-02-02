@@ -34,7 +34,7 @@ class Query extends CallableClass
         // Show the error
         if(($queryData['error']))
         {
-            $this->response->dialog->error($queryData['error'], $this->db->lang('Error'));
+            $this->response->dialog->error($queryData['error'], $this->lang('Error'));
             return $this->response;
         }
         // Make data available to views
@@ -51,9 +51,9 @@ class Query extends CallableClass
         $options = pm()->form($this->queryFormId);
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')->click($this->rq()->execInsert($options, true)
-            ->confirm($this->db->lang('Save this item?')));
+            ->confirm($this->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-save-select')->click($this->rq()->execInsert($options, false)
-            ->confirm($this->db->lang('Save this item?')));
+            ->confirm($this->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-back')->click($this->rq(Table::class)->show($table));
 
         return $this->response;
@@ -77,10 +77,10 @@ class Query extends CallableClass
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], $this->db->lang('Error'));
+            $this->response->dialog->error($results['error'], $this->lang('Error'));
             return $this->response;
         }
-        $this->response->dialog->success($results['message'], $this->db->lang('Success'));
+        $this->response->dialog->success($results['message'], $this->lang('Success'));
 
         $addNew ? $this->showInsert() : $this->cl(Select::class)->show();
 
@@ -119,7 +119,7 @@ class Query extends CallableClass
         // Show the error
         if(($queryData['error']))
         {
-            $this->response->dialog->error($queryData['error'], $this->db->lang('Error'));
+            $this->response->dialog->error($queryData['error'], $this->lang('Error'));
             return $this->response;
         }
         // Make data available to views
@@ -136,7 +136,7 @@ class Query extends CallableClass
         $options = pm()->form($this->queryFormId);
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')->click($this->rq()->execUpdate($rowIds, $options)
-            ->confirm($this->db->lang('Save this item?')));
+            ->confirm($this->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-back')->click($this->rq()->backToSelect());
 
         return $this->response;
@@ -164,10 +164,10 @@ class Query extends CallableClass
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], $this->db->lang('Error'));
+            $this->response->dialog->error($results['error'], $this->lang('Error'));
             return $this->response;
         }
-        $this->response->dialog->success($results['message'], $this->db->lang('Success'));
+        $this->response->dialog->success($results['message'], $this->lang('Success'));
         $this->backToSelect();
 
         return $this->response;
@@ -191,10 +191,10 @@ class Query extends CallableClass
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], $this->db->lang('Error'));
+            $this->response->dialog->error($results['error'], $this->lang('Error'));
             return $this->response;
         }
-        $this->response->dialog->success($results['message'], $this->db->lang('Success'));
+        $this->response->dialog->success($results['message'], $this->lang('Success'));
         $this->rq(Select::class)->execSelect();
 
         return $this->response;

@@ -10,8 +10,6 @@ use Lagdo\DbAdmin\Driver\UtilInterface;
 use Lagdo\DbAdmin\Translator;
 
 use function array_merge;
-use function call_user_func_array;
-use function func_get_args;
 
 /**
  * Facade to calls to the database functions
@@ -70,19 +68,6 @@ class DbFacade extends AbstractFacade
         $this->trans = $trans;
         // Make the translator available into views
         $this->package->view()->share('trans', $this->trans);
-    }
-
-    /**
-     * Get a translated string
-     * The first parameter is mandatory. Optional parameters can follow.
-     *
-     * @param string
-     *
-     * @return string
-     */
-    public function lang($idf): string
-    {
-        return call_user_func_array([$this->trans, "lang"], func_get_args());
     }
 
     /**
