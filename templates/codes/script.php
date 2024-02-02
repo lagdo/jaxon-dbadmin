@@ -105,7 +105,7 @@ jaxon.dbadmin = {
                 jaxon.ajax.parameters.bags.dbadmin = {
                     db: [],
                 };
-                // The onPrepare is called after the request parameters are read.
+                // The onPrepare callback is called after the request parameters are read.
                 // We then need to reread them after we have modified the databag content.
                 // Todo: move this to the oncoming 'beforeInitialize' callback.
                 jaxon.ajax.parameters.process(oRequest);
