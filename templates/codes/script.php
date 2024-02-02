@@ -98,6 +98,20 @@ jaxon.dbadmin = {
     saveSqlEditorContent: function() {
         jaxon.dbadmin.editor.element.save();
     },
+    callback: {
+        server: {
+            onPrepare: function(oRequest) {
+                // Clear the dbadmin.db databag content
+                jaxon.ajax.parameters.bags.dbadmin = {
+                    db: [],
+                };
+                // The onPrepare is called after the request parameters are read.
+                // We then need to reread them after we have modified the databag content.
+                // Todo: move this to the oncoming 'beforeInitialize' callback.
+                jaxon.ajax.parameters.process(oRequest);
+            },
+        },
+    },
 };
 
 jaxon.dom.ready(function() {
