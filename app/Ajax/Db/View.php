@@ -75,8 +75,6 @@ class View extends CallableDbClass
      */
     public function add(): Response
     {
-        [$server] = $this->bag('dbadmin')->get('db');
-        $this->db->connect($server);
         $formId = 'view-form';
         $title = 'Create a view';
         $materializedView = $this->db->driver->support('materializedview');

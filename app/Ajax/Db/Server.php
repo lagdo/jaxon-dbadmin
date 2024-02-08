@@ -168,7 +168,7 @@ class Server extends CallableDbClass
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Set onclick handlers on table checkbox
-        $this->response->script("jaxon.dbadmin.selectTableCheckboxes('$checkbox')");
+        $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-add-database')->click($this->rq(Database::class)->add());

@@ -116,13 +116,23 @@ jaxon.dbadmin = {
 
 jaxon.dom.ready(function() {
     jaxon.ajax.handler.register('dbadmin.hsqlquery', function({ id, server, data }) {
-        // command.fullName = 'highlightSqlQuery';
         jaxon.dbadmin.highlightSqlQuery(id, server, data);
         return true;
     });
     jaxon.ajax.handler.register('dbadmin.hsqleditor', function({ id, server }) {
-        // command.fullName = 'highlightSqlEditor';
         jaxon.dbadmin.highlightSqlEditor(id, server);
+        return true;
+    });
+    jaxon.ajax.handler.register('dbadmin.window.open', function({ data: link }) {
+        window.open(link, '_blank').focus();
+        return true;
+    });
+    jaxon.ajax.handler.register('dbadmin.row.ids.set', function({ data: ids }) {
+        jaxon.dbadmin.rowIds = ids;
+        return true;
+    });
+    jaxon.ajax.handler.register('dbadmin.new.index.set', function({ data: count }) {
+        jaxon.dbadmin.newItemIndex = count;
         return true;
     });
 });

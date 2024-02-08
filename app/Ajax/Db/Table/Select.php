@@ -71,7 +71,7 @@ class Select extends CallableDbClass
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
         $this->response->html($this->txtQueryId, '');
-        // $this->response->script("jaxon.dbadmin.highlightSqlQuery('{$this->txtQueryId}', '$server', '$query')");
+        // $this->response->call("jaxon.dbadmin.highlightSqlQuery", $this->txtQueryId, $server, $query);
         $this->response->addCommand([
             'cmd' => 'dbadmin.hsqlquery',
             'id' => $this->txtQueryId,
@@ -191,7 +191,8 @@ class Select extends CallableDbClass
         }
         // Note: don't use the var keyword when setting a variable,
         // because it will not make the variable globally accessible.
-        $this->response->script("jaxon.dbadmin.rowIds = JSON.parse('" . json_encode($rowIds) . "')");
+        // $this->response->script("jaxon.dbadmin.rowIds = JSON.parse('" . json_encode($rowIds) . "')");
+        $this->response->addCommand(['cmd' => 'dbadmin.row.ids.set'], $rowIds);
 
         $btnEditRowClass = 'adminer-table-select-row-edit';
         $btnDeleteRowClass = 'adminer-table-select-row-delete';
@@ -282,7 +283,8 @@ class Select extends CallableDbClass
         $this->response->dialog->show($title, $content, $buttons);
 
         $count = count($selectData['options']['columns']['values']);
-        $this->response->script("jaxon.dbadmin.newItemIndex=$count");
+        // $this->response->script("jaxon.dbadmin.newItemIndex=$count");
+        $this->response->addCommand(['cmd' => 'dbadmin.new.index.set'], $count);
 
         return $this->response;
     }
@@ -347,7 +349,8 @@ class Select extends CallableDbClass
         $this->response->dialog->show($title, $content, $buttons);
 
         $count = count($selectData['options']['filters']['values']);
-        $this->response->script("jaxon.dbadmin.newItemIndex=$count");
+        // $this->response->script("jaxon.dbadmin.newItemIndex=$count");
+        $this->response->addCommand(['cmd' => 'dbadmin.new.index.set'], $count);
 
         return $this->response;
     }
@@ -412,7 +415,8 @@ class Select extends CallableDbClass
         $this->response->dialog->show($title, $content, $buttons);
 
         $count = count($selectData['options']['sorting']['values']);
-        $this->response->script("jaxon.dbadmin.newItemIndex=$count");
+        // $this->response->script("jaxon.dbadmin.newItemIndex=$count");
+        $this->response->addCommand(['cmd' => 'dbadmin.new.index.set'], $count);
 
         return $this->response;
     }

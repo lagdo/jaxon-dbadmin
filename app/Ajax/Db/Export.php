@@ -52,14 +52,14 @@ class Export extends CallableDbClass
 
         if(($database))
         {
-            $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$tableNameId')");
-            $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$tableDataId')");
+            $this->response->call("jaxon.dbadmin.selectAllCheckboxes", $tableNameId);
+            $this->response->call("jaxon.dbadmin.selectAllCheckboxes", $tableDataId);
             $this->jq("#$btnId")->click($this->rq()->exportOne($database, pm()->form($formId)));
             return $this->response;
         }
 
-        $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$databaseNameId')");
-        $this->response->script("jaxon.dbadmin.selectAllCheckboxes('$databaseDataId')");
+        $this->response->call("jaxon.dbadmin.selectAllCheckboxes", $databaseNameId);
+        $this->response->call("jaxon.dbadmin.selectAllCheckboxes", $databaseDataId);
         $this->jq("#$btnId")->click($this->rq()->exportSet(pm()->form($formId)));
         return $this->response;
     }
@@ -139,7 +139,8 @@ class Export extends CallableDbClass
         }
 
         $link = \rtrim($this->package->getOption('export.url'), '/') . $name;
-        $this->response->script("window.open('$link', '_blank').focus()");
+        // $this->response->script("window.open('$link', '_blank').focus()");
+        $this->response->addCommand(['cmd' => 'dbadmin.window.open'], $link);
         return $this->response;
     }
 

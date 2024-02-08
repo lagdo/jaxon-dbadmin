@@ -210,7 +210,7 @@ class Database extends CallableDbClass
         $this->jq('#adminer-main-action-add-table')->click($this->rq(Table::class)->add());
 
         // Set onclick handlers on table checkbox
-        $this->response->script("jaxon.dbadmin.selectTableCheckboxes('$checkbox')");
+        $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);
         // Set onclick handlers on table names
         $table = jq()->parent()->attr('data-name');
         $this->jq('.' . $tableNameClass . '>a.name', '#' . $this->package->getDbContentId())
@@ -253,7 +253,7 @@ class Database extends CallableDbClass
         $this->jq('#adminer-main-action-add-view')->click($this->rq(View::class)->add());
 
         // Set onclick handlers on view checkbox
-        $this->response->script("jaxon.dbadmin.selectTableCheckboxes('$checkbox')");
+        $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);
         // Set onclick handlers on view names
         $view = jq()->parent()->attr('data-name');
         $this->jq('.' . $viewNameClass . '>a', '#' . $this->package->getDbContentId())
