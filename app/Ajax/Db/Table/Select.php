@@ -73,9 +73,9 @@ class Select extends CallableDbClass
         $this->response->html($this->txtQueryId, '');
         // $this->response->script("jaxon.dbadmin.highlightSqlQuery('{$this->txtQueryId}', '$server', '$query')");
         $this->response->addCommand([
-            'cmd' => 'dbadmin.hsql',
+            'cmd' => 'dbadmin.hsqlquery',
             'id' => $this->txtQueryId,
-            'driver' => $server,
+            'server' => $server,
         ], html_entity_decode($query, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
     }
 

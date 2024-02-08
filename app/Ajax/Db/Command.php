@@ -41,7 +41,12 @@ class Command extends CallableDbClass
         $content = $this->ui->queryCommand($formId, $queryId, $btnId,
             $query, $defaultLimit, $commandOptions['labels']);
         $this->response->html($this->package->getDbContentId(), $content);
-        $this->response->script("jaxon.dbadmin.highlightSqlEditor('$queryId', '$server')");
+        // $this->response->script("jaxon.dbadmin.highlightSqlEditor('$queryId', '$server')");
+        $this->response->addCommand([
+            'cmd' => 'dbadmin.hsqleditor',
+            'id' => $queryId,
+            'server' => $server,
+        ], '');
 
         $this->jq("#$btnId")->click(pm()->js("jaxon.dbadmin.saveSqlEditorContent"));
         $this->jq("#$btnId")->click($this->rq()->execute(pm()->form($formId))

@@ -115,9 +115,14 @@ jaxon.dbadmin = {
 };
 
 jaxon.dom.ready(function() {
-    jaxon.ajax.handler.register('dbadmin.hsql', function(command) {
-        command.fullName = 'highlightSqlQuery';
-        jaxon.dbadmin.highlightSqlQuery(command.id, command.driver, command.data);
+    jaxon.ajax.handler.register('dbadmin.hsqlquery', function({ id, server, data }) {
+        // command.fullName = 'highlightSqlQuery';
+        jaxon.dbadmin.highlightSqlQuery(id, server, data);
+        return true;
+    });
+    jaxon.ajax.handler.register('dbadmin.hsqleditor', function({ id, server }) {
+        // command.fullName = 'highlightSqlEditor';
+        jaxon.dbadmin.highlightSqlEditor(id, server);
         return true;
     });
 });
