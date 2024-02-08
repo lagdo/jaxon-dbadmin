@@ -21,6 +21,12 @@ Howtos
 
 This blog post on the `Jaxon` website explains how to install `Jaxon DbAdmin` on [Voyager](https://voyager-docs.devdojo.com), an admin panel based on the `Laravel` framework: [In english](https://www.jaxon-php.org/blog/2021/03/install-jaxon-adminer-on-voyager.html), and [in french](https://www.jaxon-php.org/blog/2021/03/installer-jaxon-adminer-dans-voyager.html).
 
+### Jaxon DbAdmin and Voyager
+
+The [https://github.com/lagdo/dbadmin-voyager](https://github.com/lagdo/dbadmin-voyager) repo provides a ready-to-use package, made with the [Voyager Admin](https://voyager.devdojo.com/) dashboard, and `Jaxon DbAdmin` included.
+
+The driver packages for [PostgreSQL](https://github.com/lagdo/dbadmin-driver-mysql), [MySQL](https://github.com/lagdo/dbadmin-driver-mysql) and [SQLite](https://github.com/lagdo/dbadmin-driver-sqlite) are also installed, so the user just need to add its databases in the config file.
+
 Documentation
 -------------
 
@@ -49,6 +55,22 @@ See the corresponding database driver package for specific database server optio
             Lagdo\DbAdmin\App\Package::class => [
                 'servers' => [
                     // The database servers
+                    'pgsql_server' => [ // A unique identifier for this server
+                        'driver' => 'pgsql',
+                        'name' => '',     // The name to be displayed in the dashboard UI.
+                        'host' => '',     // The database host name or address.
+                        'port' => 0,      // The database port. Optional.
+                        'username' => '', // The database user credentials.
+                        'password' => '', // The database user credentials.
+                    ],
+                    'mysql_server' => [ // A unique identifier for this server
+                        'driver' => 'mysql',
+                        'name' => '',     // The name to be displayed in the dashboard UI.
+                        'host' => '',     // The database host name or address.
+                        'port' => 0,      // The database port. Optional.
+                        'username' => '', // The database user credentials.
+                        'password' => '', // The database user credentials.
+                    ],
                 ],
             ],
         ],
@@ -168,13 +190,41 @@ which will then be used to configure the package.
 The defined options are passed to the callable, so it can be used as a basis to build the customized config.
 
 ```php
+$dbAdminOptionsGetter = function($config) {
+    $config['servers']['server_mysql'] = [
+        'driver' => 'mysql',
+        'name' => '',     // The name to be displayed in the dashboard UI.
+        'host' => '',     // The database host name or address.
+        'port' => 0,      // The database port. Optional.
+        'username' => '', // The database user credentials.
+        'password' => '', // The database user credentials.
+    ];
+    $config['servers']['server_pgsql'] = [
+        'driver' => 'pgsql',
+        'name' => '',     // The name to be displayed in the dashboard UI.
+        'host' => '',     // The database host name or address.
+        'port' => 0,      // The database port. Optional.
+        'username' => '', // The database user credentials.
+        'password' => '', // The database user credentials.
+    ];
+    return $config;
+};
+```
+
+```php
     'app' => [
         // Other config options
         // ...
         'packages' => [
             Lagdo\DbAdmin\App\Package::class => [
                 // A callable that return the access options.
-                'provider' => $configCallable,
+                'provider' => $dbAdminOptionsGetter,
+                'template' => 'bootstrap3',
+                'servers' => [],
+                'default' => 'server_mysql',
+                'access' => [
+                    'server' => false,
+                ],
             ],
         ],
     ],
