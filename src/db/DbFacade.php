@@ -180,8 +180,8 @@ class DbFacade extends AbstractFacade
             $this->driver = $this->di->get(DriverInterface::class);
             $this->util = $this->di->get(UtilInterface::class);
         }
-        // Connect to the selected server
-        $this->driver->connect($database, $schema);
+        // Open the selected database
+        $this->driver->open($database, $schema);
     }
 
     /**

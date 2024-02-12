@@ -20,7 +20,7 @@
         "php": ">=7.1.0",
         "ext-json": "*",
         "ext-iconv": "*",
-        "lagdo/dbadmin-driver": "^0.10",
+        "lagdo/dbadmin-driver": "^0.11",
         "lagdo/ui-builder": "^0.1",
         "jaxon-php/jaxon-core": "^4.7",
         "jaxon-php/jaxon-dialogs": "^4.0",

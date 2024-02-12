@@ -33,8 +33,7 @@ class CommandFacade extends AbstractFacade
         if ($this->connection === null && $this->driver->database() !== '') {
             // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
             //! PDO - silent error
-            $connection = $this->driver->createConnection();
-            $connection->open($this->driver->database(), $this->driver->schema());
+            $connection = $this->driver->connect($this->driver->database(), $this->driver->schema());
             $this->connection = $connection;
         }
         return $this->connection;
