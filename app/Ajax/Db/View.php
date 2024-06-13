@@ -4,6 +4,8 @@ namespace Lagdo\DbAdmin\App\Ajax\Db;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\pm;
 
@@ -42,12 +44,14 @@ class View extends CallableDbClass
         $this->view()->shareValues($viewInfo);
 
         // Set main menu buttons
-        $content = isset($viewInfo['mainActions']) ?
-            $this->ui->mainActions($viewInfo['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $actions = [
+            [$this->trans->lang('Edit view'), $this->rq()->edit($view)],
+            [$this->trans->lang('Drop view'), $this->rq()->drop($view)->confirm("Drop view $view?")],
+        ];
+        $this->cl(PageActions::class)->update($actions);
 
         $content = $this->ui->mainDbTable($viewInfo['tabs']);
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->cl(Content::class)->showHtml($content);
 
         // Show fields
         $fieldsInfo = $this->db->getViewFields($view);
@@ -59,11 +63,6 @@ class View extends CallableDbClass
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
         }
-
-        // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-main-action-edit-view')->click($this->rq()->edit($view));
-        $this->jq('#adminer-main-action-drop-view')->click($this->rq()->drop($view)
-            ->confirm("Drop view $view?"));
 
         return $this->response;
     }

@@ -7,6 +7,8 @@ use Lagdo\DbAdmin\App\Ajax\Db\Table\Column;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Select;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Query;
 use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function array_merge;
 use function is_array;
@@ -64,7 +66,7 @@ class Table extends CallableDbClass
         // Save the table name in tha databag and show the select page.
         $this->bag('dbadmin')->set('db.table', $table);
 
-        return $this->cl(Select::class)->show();
+        return $this->cl(Select::class)->refresh();
     }
 
     /**
@@ -88,12 +90,16 @@ class Table extends CallableDbClass
         // Test the data bag
 
         // Set main menu buttons
-        $content = isset($tableInfo['mainActions']) ?
-            $this->ui->mainActions($tableInfo['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $actions = [
+            [$this->trans->lang('Alter table'), $this->rq()->edit($table)],
+            [$this->trans->lang('Drop table'), $this->rq()->drop($table)->confirm("Drop table $table?")],
+            [$this->trans->lang('Select'), $this->rq(Select::class)->refresh()],
+            [$this->trans->lang('New item'), $this->rq(Query::class)->showInsert()],
+        ];
+        $this->cl(PageActions::class)->update($actions);
 
         $content = $this->ui->mainDbTable($tableInfo['tabs']);
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->cl(Content::class)->showHtml($content);
 
         // Show fields
         $fieldsInfo = $this->db->getTableFields($table);
@@ -120,13 +126,6 @@ class Table extends CallableDbClass
             $this->showTab($triggersInfo, 'tab-content-triggers');
         }
 
-        // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-main-action-edit-table')->click($this->rq()->edit($table));
-        $this->jq('#adminer-main-action-drop-table')->click($this->rq()->drop($table)
-            ->confirm("Drop table $table?"));
-        $this->jq('#adminer-main-action-select-table')->click($this->rq(Select::class)->show());
-        $this->jq('#adminer-main-action-insert-table')->click($this->rq(Query::class)->showInsert());
-
         return $this->response;
     }
 
@@ -144,20 +143,20 @@ class Table extends CallableDbClass
         $this->view()->shareValues($tableData);
 
         // Set main menu buttons
-        $content = isset($tableData['mainActions']) ?
-            $this->ui->mainActions($tableData['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
-
         $contentId = $this->package->getDbContentId();
-        $content = $this->ui->tableForm($this->formId, $tableData['support'],
-            $tableData['engines'], $tableData['collations']);
-        $this->response->html($contentId, $content);
-
-        // Set onclick handlers on toolbar buttons
         $length = jq(".{$this->formId}-column", "#$contentId")->length;
         $values = pm()->form($this->formId);
-        $this->jq('#adminer-main-action-table-save')->click($this->rq()->create($values)->when($length));
-        $this->jq('#adminer-main-action-table-cancel')->click($this->rq(Database::class)->showTables());
+        $actions = [
+            [$this->trans->lang('Save'), $this->rq()->create($values)->when($length)],
+            [$this->trans->lang('Cancel'), $this->rq(Database::class)->showTables(), true],
+        ];
+        $this->cl(PageActions::class)->update($actions);
+
+        $content = $this->ui->tableForm($this->formId, $tableData['support'],
+            $tableData['engines'], $tableData['collations']);
+        $this->cl(Content::class)->showHtml($content);
+
+        // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-table-column-add')->click($this->rq(Column::class)->add($length));
 
         return $this->response;
@@ -179,9 +178,13 @@ class Table extends CallableDbClass
         $this->view()->shareValues($tableData);
 
         // Set main menu buttons
-        $content = isset($tableData['mainActions']) ?
-            $this->ui->mainActions($tableData['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $values = pm()->form($this->formId);
+        $actions = [
+            [$this->trans->lang('Save'), $this->rq()->alter($table, $values)
+                ->confirm("Save changes on table $table?")],
+            [$this->trans->lang('Cancel'), $this->rq()->show($table), true],
+        ];
+        $this->cl(PageActions::class)->update($actions);
 
         $contentId = $this->package->getDbContentId();
         $editedTable = [
@@ -193,13 +196,9 @@ class Table extends CallableDbClass
         $content = $this->ui->tableForm($this->formId, $tableData['support'], $tableData['engines'],
             $tableData['collations'], $tableData['unsigned'] ?? [], $tableData['foreignKeys'],
             $tableData['options'], $editedTable, $tableData['fields']);
-        $this->response->html($contentId, $content);
+        $this->cl(Content::class)->showHtml($content);
 
         // Set onclick handlers on toolbar buttons
-        $values = pm()->form($this->formId);
-        $this->jq('#adminer-main-action-table-save')->click($this->rq()->alter($table, $values)
-            ->confirm("Save changes on table $table?"));
-        $this->jq('#adminer-main-action-table-cancel')->click($this->rq()->show($table));
         $length = jq(".{$this->formId}-column", "#$contentId")->length;
         $this->jq('#adminer-table-column-add')->click($this->rq(Column::class)->add($length));
         $index = jq()->attr('data-index');

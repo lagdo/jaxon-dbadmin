@@ -4,6 +4,8 @@ namespace Lagdo\DbAdmin\App\Ajax\Db;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\pm;
 
@@ -27,9 +29,7 @@ class Export extends CallableDbClass
         $this->view()->shareValues($exportOptions);
 
         // Set main menu buttons
-        $content = isset($exportOptions['mainActions']) ?
-            $this->ui->mainActions($exportOptions['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $this->cl(PageActions::class)->update([]);
 
         $btnId = 'adminer-main-export-submit';
         $formId = 'adminer-main-export-form';
@@ -48,7 +48,7 @@ class Export extends CallableDbClass
         ];
         $content = $this->ui->exportPage($htmlIds, $exportOptions['databases'] ?? [],
             $exportOptions['tables'] ?? [], $exportOptions['options'], $exportOptions['labels']);
-        $this->response->html($this->package->getDbContentId(), (string)$content);
+        $this->cl(Content::class)->showHtml($content);
 
         if(($database))
         {

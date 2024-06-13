@@ -100,8 +100,10 @@ return [
             Lagdo\DbAdmin\Translator::class,
             // The db classes
             Lagdo\DbAdmin\Util::class,
-            // The template builder
+            // The template builders
             Lagdo\DbAdmin\Ui\UiBuilder::class,
+            Lagdo\DbAdmin\Ui\MenuBuilder::class,
+            Lagdo\DbAdmin\Ui\PageBuilder::class,
         ],
         'alias' => [
             // The translator

@@ -4,12 +4,19 @@ namespace Lagdo\DbAdmin\App\Ajax\Db;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Menu\Db;
+use Lagdo\DbAdmin\App\Ajax\Menu\DbActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\DbList;
+use Lagdo\DbAdmin\App\Ajax\Menu\SchemaList;
+use Lagdo\DbAdmin\App\Ajax\Menu\Server as ServerInfo;
+use Lagdo\DbAdmin\App\Ajax\Menu\ServerActions;
+use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 use Lagdo\DbAdmin\Db\Exception\DbException;
 
 use function array_values;
 use function count;
 use function Jaxon\jq;
-use function Jaxon\pm;
 
 /**
  * @before('call' => 'checkServerAccess')
@@ -47,17 +54,10 @@ class Server extends CallableDbClass
         $this->view()->shareValues($databasesInfo);
 
         // Set the database dropdown list
-        $content = $this->ui->menuDatabases($databasesInfo['databases']);
-        $this->response->html($this->package->getDbListId(), $content);
+        $this->cl(DbList::class)->update($databasesInfo['databases']);
 
-        // Hide schema list
-        // $this->response->assign($this->package->getSchemaListId(), 'style.display', 'none');
-        $this->response->clear($this->package->getSchemaListId());
-
-        // Set onclick handlers on database dropdown select
-        $database = pm()->select('adminer-dbname-select');
-        $this->jq('#adminer-dbname-select-btn')
-            ->click($this->rq(Database::class)->select($database)->when($database));
+        // Clear schema list
+        $this->cl(SchemaList::class)->clear();
 
         return $databasesInfo;
     }
@@ -78,24 +78,13 @@ class Server extends CallableDbClass
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
 
-        $content = $this->ui->serverInfo($serverInfo['server'], $serverInfo['user']);
-        $this->response->html($this->package->getServerInfoId(), $content);
+        $this->cl(ServerInfo::class)->update($serverInfo['server'], $serverInfo['user']);
 
         // Show the server
-        $content = $this->ui->menuCommands($serverInfo['sqlActions']);
-        $this->response->html($this->package->getServerActionsId(), $content);
-        $this->response->html($this->package->getDbActionsId(), '');
+        $this->cl(ServerActions::class)->update($serverInfo['sqlActions']);
+        $this->cl(DbActions::class)->clear();
 
-        // Set the click handlers
-        $this->jq('#adminer-menu-action-server-command')
-            ->click($this->rq(Command::class)->showServerForm());
-        $this->jq('#adminer-menu-action-server-import')
-            ->click($this->rq(Import::class)->showServerForm());
-        $this->jq('#adminer-menu-action-server-export')
-            ->click($this->rq(Export::class)->showServerForm());
-
-        $content = $this->ui->menuActions($serverInfo['menuActions']);
-        $this->response->html($this->package->getDbMenuId(), $content);
+        $this->cl(Db::class)->showServer($serverInfo['menuActions']);
 
         if(!$hasServerAccess)
         {
@@ -109,13 +98,6 @@ class Server extends CallableDbClass
 
             return $this->response;
         }
-
-        // Set the click handlers
-        $this->jq('#adminer-menu-action-databases')->click($this->rq()->showDatabases());
-        $this->jq('#adminer-menu-action-privileges')->click($this->rq()->showPrivileges());
-        $this->jq('#adminer-menu-action-processes')->click($this->rq()->showProcesses());
-        $this->jq('#adminer-menu-action-variables')->click($this->rq()->showVariables());
-        $this->jq('#adminer-menu-action-status')->click($this->rq()->showStatus());
 
         // Show the database list
         $this->selectMenuItem('.menu-action-databases', 'adminer-database-menu');
@@ -158,20 +140,18 @@ class Server extends CallableDbClass
         $this->view()->share('details', $details);
 
         // Set main menu buttons
-        $content = isset($databasesInfo['mainActions']) ?
-            $this->ui->mainActions($databasesInfo['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $actions = [
+            [$this->trans->lang('Create database'), $this->rq(Database::class)->add()],
+        ];
+        $this->cl(PageActions::class)->update($actions);
 
         // Add checkboxes to database table
         $checkbox = 'database';
         $content = $this->ui->mainContent($this->renderMainContent(['checkbox' => $checkbox]), $checkbox);
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->cl(Content::class)->showHtml($content);
 
         // Set onclick handlers on table checkbox
         $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);
-
-        // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-main-action-add-database')->click($this->rq(Database::class)->add());
 
         // Set onclick handlers on database names
         $database = jq()->parent()->attr('data-name');
@@ -221,12 +201,10 @@ class Server extends CallableDbClass
         $this->view()->shareValues($privilegesInfo);
 
         // Set main menu buttons
-        $content = isset($privilegesInfo['mainActions']) ?
-            $this->ui->mainActions($privilegesInfo['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $this->cl(PageActions::class)->update($privilegesInfo['mainActions'] ?? []);
 
         $content = $this->ui->mainContent($this->renderMainContent());
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->cl(Content::class)->showHtml($content);
 
         // Set onclick handlers on database names
         $user = jq()->parent()->attr('data-user');
@@ -256,12 +234,10 @@ class Server extends CallableDbClass
         $this->view()->shareValues($processesInfo);
 
         // Set main menu buttons
-        $content = isset($processesInfo['mainActions']) ?
-            $this->ui->mainActions($processesInfo['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $this->cl(PageActions::class)->update($processesInfo['mainActions'] ?? []);
 
         $content = $this->ui->mainContent($this->renderMainContent());
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->cl(Content::class)->showHtml($content);
 
         return $this->response;
     }
@@ -281,12 +257,10 @@ class Server extends CallableDbClass
         $this->view()->shareValues($variablesInfo);
 
         // Set main menu buttons
-        $content = isset($variablesInfo['mainActions']) ?
-            $this->ui->mainActions($variablesInfo['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $this->cl(PageActions::class)->update($variablesInfo['mainActions'] ?? []);
 
         $content = $this->ui->mainContent($this->renderMainContent());
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->cl(Content::class)->showHtml($content);
 
         return $this->response;
     }
@@ -306,12 +280,10 @@ class Server extends CallableDbClass
         $this->view()->shareValues($statusInfo);
 
         // Set main menu buttons
-        $content = isset($statusInfo['mainActions']) ?
-            $this->ui->mainActions($statusInfo['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $this->cl(PageActions::class)->update($statusInfo['mainActions'] ?? []);
 
         $content = $this->ui->mainContent($this->renderMainContent());
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->cl(Content::class)->showHtml($content);
 
         return $this->response;
     }

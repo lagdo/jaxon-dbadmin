@@ -4,7 +4,10 @@ namespace Lagdo\DbAdmin\App\Ajax\Db;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
+use function Jaxon\js;
 use function Jaxon\pm;
 
 class Command extends CallableDbClass
@@ -28,9 +31,7 @@ class Command extends CallableDbClass
         $this->view()->shareValues($commandOptions);
 
         // Set main menu buttons
-        $content = isset($commandOptions['mainActions']) ?
-            $this->ui->mainActions($commandOptions['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $this->cl(PageActions::class)->update([]);
 
         $btnId = 'adminer-main-command-execute';
         $formId = 'adminer-main-command-form';
@@ -40,15 +41,15 @@ class Command extends CallableDbClass
         [$server,] = $this->bag('dbadmin')->get('db');
         $content = $this->ui->queryCommand($formId, $queryId, $btnId,
             $query, $defaultLimit, $commandOptions['labels']);
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->cl(Content::class)->showHtml($content);
+
         // $this->response->call("jaxon.dbadmin.highlightSqlEditor", $queryId, $server);
-        $this->response->addCommand([
-            'cmd' => 'dbadmin.hsqleditor',
+        $this->response->addCommand('dbadmin.hsqleditor', [
             'id' => $queryId,
             'server' => $server,
-        ], '');
+        ]);
 
-        $this->jq("#$btnId")->click(pm()->js("jaxon.dbadmin.saveSqlEditorContent"));
+        $this->jq("#$btnId")->click(js("jaxon.dbadmin")->saveSqlEditorContent());
         $this->jq("#$btnId")->click($this->rq()->execute(pm()->form($formId))
             ->when(pm()->input($queryId)));
 

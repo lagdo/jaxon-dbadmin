@@ -6,6 +6,8 @@ use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Table;
 use Lagdo\DbAdmin\App\Ajax\Db\Command;
 use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use Exception;
 
@@ -102,9 +104,12 @@ class Select extends CallableDbClass
         }
 
         // Set main menu buttons
-        $content = isset($selectData['mainActions']) ?
-            $this->ui->mainActions($selectData['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $actions = [
+            [$this->trans->lang('Execute'), $this->rq()->execSelect()],
+            [$this->trans->lang('New item'), $this->rq(Query::class)->showInsert()],
+            [$this->trans->lang('Back'), $this->rq(Table::class)->show($table), true],
+        ];
+        $this->cl(PageActions::class)->update($actions);
 
         $btnColumnsId = 'adminer-table-select-columns';
         $btnFiltersId = 'adminer-table-select-filters';
@@ -125,7 +130,7 @@ class Select extends CallableDbClass
             'txtQueryId' => $this->txtQueryId,
         ];
         $content = $this->ui->tableSelect($ids, $selectData['options']);
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->cl(Content::class)->showHtml($content);
 
         // Show the query
         if ($init) {
@@ -133,12 +138,9 @@ class Select extends CallableDbClass
         }
 
         // Set onclick handlers on buttons
-        $this->jq('#adminer-main-action-select-back')->click($this->rq(Table::class)->show($table));
         $this->jq("#$btnColumnsId")->click($this->rq()->editColumns());
         $this->jq("#$btnFiltersId")->click($this->rq()->editFilters());
         $this->jq("#$btnSortingId")->click($this->rq()->editSorting());
-        $this->jq('#adminer-main-action-select-exec')->click($this->rq()->execSelect());
-        $this->jq('#adminer-main-action-insert-table')->click($this->rq(Query::class)->showInsert());
         $this->jq("#$btnExecId")->click($this->rq()->execSelect());
         $query = pm()->js('jaxon.dbadmin.editor.query');
         $this->jq("#$btnEditId")->click($this->rq(Command::class)->showDatabaseForm($query));

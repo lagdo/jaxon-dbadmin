@@ -4,7 +4,14 @@ namespace Lagdo\DbAdmin\App\Ajax\Db;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Menu\Db;
+use Lagdo\DbAdmin\App\Ajax\Menu\DbActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\DbList;
+use Lagdo\DbAdmin\App\Ajax\Menu\SchemaList;
+use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
+use function count;
 use function Jaxon\jq;
 use function Jaxon\pm;
 
@@ -103,49 +110,25 @@ class Database extends CallableDbClass
         $this->view()->shareValues($databaseInfo);
 
         // Set main menu buttons
-        $content = isset($databaseInfo['mainActions']) ?
-            $this->ui->mainActions($databaseInfo['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $this->cl(PageActions::class)->update([]);
 
         // Set the selected entry on database dropdown select
-        $this->jq('#adminer-dbname-select')->val($database)->change();
+        $this->cl(DbList::class)->change($database);
 
         $schemas = $databaseInfo['schemas'];
         if(is_array($schemas) && count($schemas) > 0 && !$schema)
         {
             $schema = $schemas[0]; // Select the first schema
 
-            $content = $this->ui->menuSchemas($schemas);
-            $this->response->html($this->package->getSchemaListId(), $content);
-
-            $this->jq('#adminer-schema-select-btn')
-                ->click($this->rq()->select($database, pm()->select('adminer-schema-select')));
+            $this->cl(SchemaList::class)->update($database, $schemas);
         }
 
         // Save the selection in the databag
         $this->bag('dbadmin')->set('db', [$server, $database, $schema]);
 
-        $content = $this->ui->menuCommands($databaseInfo['sqlActions']);
-        $this->response->html($this->package->getDbActionsId(), $content);
+        $this->cl(DbActions::class)->update($databaseInfo['sqlActions']);
 
-        // Set the click handlers
-        $this->jq('#adminer-menu-action-database-command')
-            ->click($this->rq(Command::class)->showDatabaseForm());
-        $this->jq('#adminer-menu-action-database-import')
-            ->click($this->rq(Import::class)->showDatabaseForm());
-        $this->jq('#adminer-menu-action-database-export')
-            ->click($this->rq(Export::class)->showDatabaseForm());
-
-        $content = $this->ui->menuActions($databaseInfo['menuActions']);
-        $this->response->html($this->package->getDbMenuId(), $content);
-
-        // Set the click handlers
-        $this->jq('#adminer-menu-action-table')->click($this->rq()->showTables());
-        $this->jq('#adminer-menu-action-view')->click($this->rq()->showViews());
-        $this->jq('#adminer-menu-action-routine')->click($this->rq()->showRoutines());
-        $this->jq('#adminer-menu-action-sequence')->click($this->rq()->showSequences());
-        $this->jq('#adminer-menu-action-type')->click($this->rq()->showUserTypes());
-        $this->jq('#adminer-menu-action-event')->click($this->rq()->showEvents());
+        $this->cl(Db::class)->showDatabase($databaseInfo['menuActions']);
 
         // Show the database tables
         $this->showTables();
@@ -167,13 +150,11 @@ class Database extends CallableDbClass
         $this->view()->shareValues($viewData);
 
         // Set main menu buttons
-        $content = isset($viewData['mainActions']) ?
-            $this->ui->mainActions($viewData['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $this->cl(PageActions::class)->update($viewData['mainActions'] ?? []);
 
         $counterId = $contentData['checkbox'] ?? '';
         $content = $this->ui->mainContent($this->renderMainContent($contentData), $counterId);
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->cl(Content::class)->showHtml($content);
     }
 
     /**

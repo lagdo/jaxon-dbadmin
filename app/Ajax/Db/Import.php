@@ -4,6 +4,8 @@ namespace Lagdo\DbAdmin\App\Ajax\Db;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function compact;
 use function Jaxon\pm;
@@ -28,9 +30,7 @@ class Import extends CallableDbClass
         $this->view()->shareValues($importOptions);
 
         // Set main menu buttons
-        $content = isset($importOptions['mainActions']) ?
-            $this->ui->mainActions($importOptions['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $this->cl(PageActions::class)->update([]);
 
         $formId = 'adminer-import-form';
         $webFileBtnId = 'adminer-import-web-file-btn';
@@ -40,8 +40,8 @@ class Import extends CallableDbClass
         $sqlFilesInputId = 'adminer-import-sql-files-input';
         $htmlIds = compact('formId', 'sqlFilesBtnId', 'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId');
         $content = $this->ui->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
+        $this->cl(Content::class)->showHtml($content);
 
-        $this->response->html($this->package->getDbContentId(), $content);
         $this->response->call("jaxon.dbadmin.setFileUpload", "#$sqlFilesDivId", "#$sqlChooseBtnId", "#$sqlFilesInputId");
 
         $this->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($database));

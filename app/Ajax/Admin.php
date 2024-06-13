@@ -2,11 +2,34 @@
 
 namespace Lagdo\DbAdmin\App\Ajax;
 
-use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\CallableClass;
+use Jaxon\App\Component;
+use Jaxon\Response\AjaxResponse;
+use Lagdo\DbAdmin\App\Package;
+use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Ui\PageBuilder;
 
-class Admin extends CallableClass
+class Admin extends Component
 {
+    /**
+     * The constructor
+     *
+     * @param Package $package The DbAdmin package
+     * @param DbFacade $db The facade to database functions
+     * @param PageBuilder $ui The HTML UI builder
+     */
+    public function __construct(private Package $package, private DbFacade $db, private PageBuilder $ui)
+    {}
+
+    /**
+     * @inheritDoc
+     */
+    public function html(): string
+    {
+        $servers = $this->package->getOption('servers', []);
+        $default = $this->package->getOption('default', '');
+        return $this->ui->home($servers, $default);
+    }
+
     /**
      * Connect to a database server.
      *
@@ -15,9 +38,9 @@ class Admin extends CallableClass
      *
      * @param string $server      The database server id in the package config
      *
-     * @return Response
+     * @return AjaxResponse
      */
-    public function server(string $server): Response
+    public function server(string $server): AjaxResponse
     {
         // Set the selected server
         $this->db->selectDatabase($server);

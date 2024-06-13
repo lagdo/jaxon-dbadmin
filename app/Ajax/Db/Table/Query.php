@@ -5,6 +5,8 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Table;
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Table;
 use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\pm;
 
@@ -41,20 +43,18 @@ class Query extends CallableDbClass
         $this->view()->shareValues($queryData);
 
         // Set main menu buttons
-        $content = isset($queryData['mainActions']) ?
-            $this->ui->mainActions($queryData['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $options = pm()->form($this->queryFormId);
+        $actions = [
+            [$this->trans->lang('Back'), $this->rq(Table::class)->show($table), true],
+            [$this->trans->lang('Save'), $this->rq()->execInsert($options, true)
+                ->confirm($this->lang('Save this item?'))],
+            [$this->trans->lang('Save and select'), $this->rq()->execInsert($options, false)
+                ->confirm($this->lang('Save this item?'))],
+        ];
+        $this->cl(PageActions::class)->update($actions);
 
         $content = $this->ui->tableQueryForm($this->queryFormId, $queryData['fields']);
-        $this->response->html($this->package->getDbContentId(), $content);
-
-        $options = pm()->form($this->queryFormId);
-        // Set onclick handlers on buttons
-        $this->jq('#adminer-main-action-query-save')->click($this->rq()->execInsert($options, true)
-            ->confirm($this->lang('Save this item?')));
-        $this->jq('#adminer-main-action-query-save-select')->click($this->rq()->execInsert($options, false)
-            ->confirm($this->lang('Save this item?')));
-        $this->jq('#adminer-main-action-query-back')->click($this->rq(Table::class)->show($table));
+        $this->cl(Content::class)->showHtml($content);
 
         return $this->response;
     }
@@ -126,18 +126,16 @@ class Query extends CallableDbClass
         $this->view()->shareValues($queryData);
 
         // Set main menu buttons
-        $content = isset($queryData['mainActions']) ?
-            $this->ui->mainActions($queryData['mainActions']) : '';
-        $this->response->html($this->package->getMainActionsId(), $content);
+        $options = pm()->form($this->queryFormId);
+        $actions = [
+            [$this->trans->lang('Back'), $this->rq()->backToSelect(), true],
+            [$this->trans->lang('Save'), $this->rq()->execUpdate($rowIds, $options)
+                ->confirm($this->lang('Save this item?'))],
+        ];
+        $this->cl(PageActions::class)->update($actions);
 
         $content = $this->ui->tableQueryForm($this->queryFormId, $queryData['fields']);
-        $this->response->html($this->package->getDbContentId(), $content);
-
-        $options = pm()->form($this->queryFormId);
-        // Set onclick handlers on buttons
-        $this->jq('#adminer-main-action-query-save')->click($this->rq()->execUpdate($rowIds, $options)
-            ->confirm($this->lang('Save this item?')));
-        $this->jq('#adminer-main-action-query-back')->click($this->rq()->backToSelect());
+        $this->cl(Content::class)->showHtml($content);
 
         return $this->response;
     }
