@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\Ajax\Db\Table;
 use Lagdo\DbAdmin\App\Ajax\Db\Command;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
@@ -104,12 +103,7 @@ class Select extends CallableDbClass
         }
 
         // Set main menu buttons
-        $actions = [
-            [$this->trans->lang('Execute'), $this->rq()->execSelect()],
-            [$this->trans->lang('New item'), $this->rq(Query::class)->showInsert()],
-            [$this->trans->lang('Back'), $this->rq(Table::class)->show($table), true],
-        ];
-        $this->cl(PageActions::class)->update($actions);
+        $this->cl(PageActions::class)->showSelect($table);
 
         $btnColumnsId = 'adminer-table-select-columns';
         $btnFiltersId = 'adminer-table-select-filters';

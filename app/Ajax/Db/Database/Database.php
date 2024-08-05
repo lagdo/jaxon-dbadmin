@@ -110,7 +110,7 @@ class Database extends CallableDbClass
         $this->view()->shareValues($databaseInfo);
 
         // Set main menu buttons
-        $this->cl(PageActions::class)->update([]);
+        $this->cl(PageActions::class)->clear();
 
         // Set the selected entry on database dropdown select
         $this->cl(DbList::class)->change($database);

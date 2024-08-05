@@ -91,12 +91,11 @@ class QueryFacade extends AbstractFacade
      */
     public function getQueryData(string $table, array $queryOptions = []): array
     {
-        $isInsert = (count($queryOptions) === 0); // True only on insert.
         // Default options
         $queryOptions['clone'] = false;
         $queryOptions['save'] = false;
 
-        list($fields, $where, $update) = $this->getFields($table, $queryOptions);
+        [$fields, $where, $update] = $this->getFields($table, $queryOptions);
         $row = $this->getQueryFirstRow($table, $where, $fields, $queryOptions);
 
         /* TODO: Activate this code when a driver without table support will be supported */
@@ -136,16 +135,8 @@ class QueryFacade extends AbstractFacade
             $entries = $this->getQueryEntries($fields, $row, $update, $queryOptions);
         }
 
-        $mainActions = [
-            'query-back' => $this->trans->lang('Back'),
-            'query-save' => $this->trans->lang('Save'),
-        ];
-        if ($isInsert) {
-            $mainActions['query-save-select'] = $this->trans->lang('Save and select');
-        }
-
         $fields = $entries;
-        return compact('mainActions', 'tableName', 'error', 'fields');
+        return compact('tableName', 'error', 'fields');
     }
 
     /**

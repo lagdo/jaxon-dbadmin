@@ -31,8 +31,8 @@ class Processes extends Component
         $this->view()->shareValues($processesInfo);
 
         // Set main menu buttons
-        $this->cl(PageActions::class)->update([]);
+        $this->cl(PageActions::class)->clear();
 
-        return $this->refresh();
+        return $this->render();
     }
 }

@@ -43,15 +43,7 @@ class Query extends CallableDbClass
         $this->view()->shareValues($queryData);
 
         // Set main menu buttons
-        $options = pm()->form($this->queryFormId);
-        $actions = [
-            [$this->trans->lang('Back'), $this->rq(Table::class)->show($table), true],
-            [$this->trans->lang('Save'), $this->rq()->execInsert($options, true)
-                ->confirm($this->lang('Save this item?'))],
-            [$this->trans->lang('Save and select'), $this->rq()->execInsert($options, false)
-                ->confirm($this->lang('Save this item?'))],
-        ];
-        $this->cl(PageActions::class)->update($actions);
+        $this->cl(PageActions::class)->showQuery($table, $this->queryFormId, true);
 
         $content = $this->ui->tableQueryForm($this->queryFormId, $queryData['fields']);
         $this->cl(Content::class)->showHtml($content);

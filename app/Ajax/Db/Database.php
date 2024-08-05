@@ -111,7 +111,7 @@ class Database extends CallableDbClass
         $this->view()->shareValues($databaseInfo);
 
         // Set main menu buttons
-        $this->cl(PageActions::class)->update([]);
+        $this->cl(PageActions::class)->clear();
 
         // Set the selected entry on database dropdown select
         $this->cl(DbList::class)->change($database);
@@ -150,9 +150,6 @@ class Database extends CallableDbClass
         // Make data available to views
         $this->view()->shareValues($viewData);
 
-        // Set main menu buttons
-        $this->cl(PageActions::class)->update($viewData['mainActions'] ?? []);
-
         $counterId = $contentData['checkbox'] ?? '';
         $content = $this->ui->mainContent($this->renderMainContent($contentData), $counterId);
         $this->cl(Content::class)->showHtml($content);
@@ -185,11 +182,11 @@ class Database extends CallableDbClass
             return $detail;
         }, $tablesInfo['details']);
 
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbTables();
+
         $checkbox = 'table';
         $this->showSection($tablesInfo, ['checkbox' => $checkbox]);
-
-        // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-main-action-add-table')->click($this->rq(Table::class)->add());
 
         // Set onclick handlers on table checkbox
         $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);
@@ -228,11 +225,11 @@ class Database extends CallableDbClass
             return $detail;
         }, $viewsInfo['details']);
 
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbTables();
+
         $checkbox = 'view';
         $this->showSection($viewsInfo, ['checkbox' => $checkbox]);
-
-        // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-main-action-add-view')->click($this->rq(View::class)->add());
 
         // Set onclick handlers on view checkbox
         $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);
@@ -254,6 +251,9 @@ class Database extends CallableDbClass
      */
     public function showRoutines(): Response
     {
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbRoutines();
+
         $routinesInfo = $this->db->getRoutines();
         $this->showSection($routinesInfo);
 
@@ -270,6 +270,9 @@ class Database extends CallableDbClass
      */
     public function showSequences(): Response
     {
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbSequences();
+
         $sequencesInfo = $this->db->getSequences();
         $this->showSection($sequencesInfo);
 
@@ -286,6 +289,9 @@ class Database extends CallableDbClass
      */
     public function showUserTypes(): Response
     {
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbUserTypes();
+
         $userTypesInfo = $this->db->getUserTypes();
         $this->showSection($userTypesInfo);
 
@@ -302,6 +308,9 @@ class Database extends CallableDbClass
      */
     public function showEvents(): Response
     {
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbEvents();
+
         $eventsInfo = $this->db->getEvents();
         $this->showSection($eventsInfo);
 

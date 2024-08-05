@@ -45,13 +45,6 @@ class TableFacade extends AbstractFacade
      */
     public function getTableInfo(string $table): array
     {
-        $mainActions = [
-            'edit-table' => $this->trans->lang('Alter table'),
-            'drop-table' => $this->trans->lang('Drop table'),
-            'select-table' => $this->trans->lang('Select'),
-            'insert-table' => $this->trans->lang('New item'),
-        ];
-
         // From table.inc.php
         $status = $this->status($table);
         $name = $this->util->tableName($status);
@@ -81,7 +74,7 @@ class TableFacade extends AbstractFacade
             }
         }
 
-        return compact('mainActions', 'title', 'comment', 'tabs');
+        return compact('title', 'comment', 'tabs');
     }
 
     /**
@@ -99,8 +92,6 @@ class TableFacade extends AbstractFacade
         if (empty($fields)) {
             throw new Exception($this->driver->error());
         }
-
-        $mainActions = $this->getTableLinks();
 
         $headers = [
             $this->trans->lang('Name'),
@@ -125,7 +116,7 @@ class TableFacade extends AbstractFacade
             $details[] = $detail;
         }
 
-        return compact('mainActions', 'headers', 'details');
+        return compact('headers', 'details');
     }
 
     /**
@@ -143,9 +134,6 @@ class TableFacade extends AbstractFacade
 
         // From table.inc.php
         $indexes = $this->driver->indexes($table);
-        $mainActions = [
-            'create' => $this->trans->lang('Alter indexes'),
-        ];
 
         $headers = [
             $this->trans->lang('Name'),
@@ -175,7 +163,7 @@ class TableFacade extends AbstractFacade
             ];
         }
 
-        return compact('mainActions', 'headers', 'details');
+        return compact('headers', 'details');
     }
 
     /**
@@ -191,11 +179,6 @@ class TableFacade extends AbstractFacade
         if (!$this->driver->supportForeignKeys($status)) {
             return null;
         }
-
-        // From table.inc.php
-        $mainActions = [
-            $this->trans->lang('Add foreign key'),
-        ];
 
         $headers = [
             $this->trans->lang('Name'),
@@ -234,7 +217,7 @@ class TableFacade extends AbstractFacade
             ];
         }
 
-        return compact('mainActions', 'headers', 'details');
+        return compact('headers', 'details');
     }
 
     /**
@@ -249,10 +232,6 @@ class TableFacade extends AbstractFacade
         if (!$this->driver->support('trigger')) {
             return null;
         }
-
-        $mainActions = [
-            $this->trans->lang('Add trigger'),
-        ];
 
         $headers = [
             $this->trans->lang('Name'),
@@ -273,7 +252,7 @@ class TableFacade extends AbstractFacade
             ];
         }
 
-        return compact('mainActions', 'headers', 'details');
+        return compact('headers', 'details');
     }
 
     /**
@@ -286,11 +265,6 @@ class TableFacade extends AbstractFacade
      */
     public function getTableData(string $table = ''): array
     {
-        $mainActions = [
-            'table-save' => $this->trans->lang('Save'),
-            'table-cancel' => $this->trans->lang('Cancel'),
-        ];
-
         // From create.inc.php
         $status = [];
         $fields = [];
@@ -340,8 +314,8 @@ class TableFacade extends AbstractFacade
         $unsigned = $this->driver->unsigned();
         // Give the var a better name
         $table = $status;
-        return compact('mainActions', 'table', 'foreignKeys', 'fields',
-            'options', 'collations', 'engines', 'support', 'unsigned');
+        return compact('table', 'foreignKeys', 'fields', 'options', 'collations',
+            'engines', 'support', 'unsigned');
     }
 
     /**

@@ -88,10 +88,6 @@ class DatabaseFacade extends AbstractFacade
      */
     public function getTables()
     {
-        $mainActions = [
-            'add-table' => $this->trans->lang('Create table'),
-        ];
-
         $headers = [
             $this->trans->lang('Table'),
             $this->trans->lang('Engine'),
@@ -121,7 +117,7 @@ class DatabaseFacade extends AbstractFacade
         }
 
         $select = $this->trans->lang('Select');
-        return \compact('mainActions', 'headers', 'details', 'select');
+        return \compact('headers', 'details', 'select');
     }
 
     /**
@@ -132,10 +128,6 @@ class DatabaseFacade extends AbstractFacade
      */
     public function getViews()
     {
-        $mainActions = [
-            'add-view' => $this->trans->lang('Create view'),
-        ];
-
         $headers = [
             $this->trans->lang('View'),
             $this->trans->lang('Engine'),
@@ -162,7 +154,7 @@ class DatabaseFacade extends AbstractFacade
             }
         }
 
-        return \compact('mainActions', 'headers', 'details');
+        return \compact('headers', 'details');
     }
 
     /**
@@ -172,11 +164,6 @@ class DatabaseFacade extends AbstractFacade
      */
     public function getRoutines()
     {
-        $mainActions = [
-            'procedure' => $this->trans->lang('Create procedure'),
-            'function' => $this->trans->lang('Create function'),
-        ];
-
         $headers = [
             $this->trans->lang('Name'),
             $this->trans->lang('Type'),
@@ -199,7 +186,7 @@ class DatabaseFacade extends AbstractFacade
             ];
         }
 
-        return \compact('mainActions', 'headers', 'details');
+        return \compact('headers', 'details');
     }
 
     /**
@@ -209,10 +196,6 @@ class DatabaseFacade extends AbstractFacade
      */
     public function getSequences()
     {
-        $mainActions = [
-            'sequence' => $this->trans->lang('Create sequence'),
-        ];
-
         $headers = [
             $this->trans->lang('Name'),
         ];
@@ -224,7 +207,7 @@ class DatabaseFacade extends AbstractFacade
             ];
         }
 
-        return \compact('mainActions', 'headers', 'details');
+        return \compact('headers', 'details');
     }
 
     /**
@@ -234,10 +217,6 @@ class DatabaseFacade extends AbstractFacade
      */
     public function getUserTypes()
     {
-        $mainActions = [
-            'type' => $this->trans->lang('Create type'),
-        ];
-
         $headers = [
             $this->trans->lang('Name'),
         ];
@@ -250,7 +229,7 @@ class DatabaseFacade extends AbstractFacade
             ];
         }
 
-        return \compact('mainActions', 'headers', 'details');
+        return \compact('headers', 'details');
     }
 
     /**
@@ -260,10 +239,6 @@ class DatabaseFacade extends AbstractFacade
      */
     public function getEvents()
     {
-        $mainActions = [
-            'event' => $this->trans->lang('Create event'),
-        ];
-
         $headers = [
             $this->trans->lang('Name'),
             $this->trans->lang('Schedule'),
@@ -290,6 +265,6 @@ class DatabaseFacade extends AbstractFacade
             $details[] = $detail;
         }
 
-        return \compact('mainActions', 'headers', 'details');
+        return \compact('headers', 'details');
     }
 }

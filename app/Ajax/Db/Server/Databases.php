@@ -80,10 +80,7 @@ class Databases extends Component
         $this->view()->share('details', $details);
 
         // Set main menu buttons
-        $actions = [
-            [$this->trans->lang('Create database'), $this->rq(Database::class)->add()],
-        ];
-        $this->cl(PageActions::class)->update($actions);
+        $this->cl(PageActions::class)->databases();
 
         $this->render();
 

@@ -29,7 +29,7 @@ class Export extends CallableDbClass
         $this->view()->shareValues($exportOptions);
 
         // Set main menu buttons
-        $this->cl(PageActions::class)->update([]);
+        $this->cl(PageActions::class)->clear();
 
         $btnId = 'adminer-main-export-submit';
         $formId = 'adminer-main-export-form';

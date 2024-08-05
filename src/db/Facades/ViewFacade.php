@@ -34,34 +34,6 @@ class ViewFacade extends AbstractFacade
     }
 
     /**
-     * Print links after select heading
-     * Copied from selectLinks() in adminer.inc.php
-     *
-     * @param bool $new New item options, NULL for no new item
-     *
-     * @return array
-     */
-    protected function getViewLinks(bool $new = false): array
-    {
-        $links = [
-            'select' => $this->trans->lang('Select data'),
-        ];
-        if ($this->driver->support('indexes')) {
-            $links['table'] = $this->trans->lang('Show structure');
-        }
-        if ($this->driver->support('table')) {
-            $links['table'] = $this->trans->lang('Show structure');
-            $links['alter'] = $this->trans->lang('Alter view');
-        }
-        if ($new) {
-            $links['edit'] = $this->trans->lang('New item');
-        }
-        // $links['docs'] = \doc_link([$this->driver->jush() => $this->driver->tableHelp($name)], '?');
-
-        return $links;
-    }
-
-    /**
      * Get details about a view
      *
      * @param string $view      The view name
@@ -70,11 +42,6 @@ class ViewFacade extends AbstractFacade
      */
     public function getViewInfo(string $view): array
     {
-        $mainActions = [
-            'edit-view' => $this->trans->lang('Edit view'),
-            'drop-view' => $this->trans->lang('Drop view'),
-        ];
-
         // From table.inc.php
         $status = $this->status($view);
         $name = $this->util->tableName($status);
@@ -93,7 +60,7 @@ class ViewFacade extends AbstractFacade
             $tabs['triggers'] = $this->trans->lang('Triggers');
         }
 
-        return compact('mainActions', 'title', 'comment', 'tabs');
+        return compact('title', 'comment', 'tabs');
     }
 
     /**
@@ -111,8 +78,6 @@ class ViewFacade extends AbstractFacade
         if (empty($fields)) {
             throw new Exception($this->driver->error());
         }
-
-        $mainActions = $this->getViewLinks();
 
         $tabs = [
             'fields' => $this->trans->lang('Columns'),
@@ -156,7 +121,7 @@ class ViewFacade extends AbstractFacade
             $details[] = $detail;
         }
 
-        return compact('mainActions', 'headers', 'details');
+        return compact('headers', 'details');
     }
 
     /**
@@ -171,10 +136,6 @@ class ViewFacade extends AbstractFacade
         if (!$this->driver->support('view_trigger')) {
             return null;
         }
-
-        $mainActions = [
-            $this->trans->lang('Add trigger'),
-        ];
 
         $headers = [
             $this->trans->lang('Name'),
@@ -195,7 +156,7 @@ class ViewFacade extends AbstractFacade
             ];
         }
 
-        return compact('mainActions', 'headers', 'details');
+        return compact('headers', 'details');
     }
 
     /**

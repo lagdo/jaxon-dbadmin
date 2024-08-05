@@ -85,33 +85,6 @@ trait TableTrait
     }
 
     /**
-     * Print links after select heading
-     * Copied from selectLinks() in adminer.inc.php
-     *
-     * @param bool $new New item options, false for no new item
-     *
-     * @return array
-     */
-    protected function getTableLinks(bool $new = true): array
-    {
-        $links = [
-            'select' => $this->trans->lang('Select data'),
-        ];
-        if ($this->driver->support('table') || $this->driver->support('indexes')) {
-            $links['table'] = $this->trans->lang('Show structure');
-        }
-        if ($this->driver->support('table')) {
-            $links['alter'] = $this->trans->lang('Alter table');
-        }
-        if ($new) {
-            $links['edit'] = $this->trans->lang('New item');
-        }
-        // $links['docs'] = \doc_link([$this->driver->jush() => $this->driver->tableHelp($name)], '?');
-
-        return $links;
-    }
-
-    /**
      * @param TableFieldEntity $field
      *
      * @return string

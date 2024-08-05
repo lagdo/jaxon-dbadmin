@@ -30,7 +30,7 @@ class Import extends CallableDbClass
         $this->view()->shareValues($importOptions);
 
         // Set main menu buttons
-        $this->cl(PageActions::class)->update([]);
+        $this->cl(PageActions::class)->clear();
 
         $formId = 'adminer-import-form';
         $webFileBtnId = 'adminer-import-web-file-btn';

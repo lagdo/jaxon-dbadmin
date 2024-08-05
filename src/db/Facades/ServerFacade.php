@@ -124,10 +124,6 @@ class ServerFacade extends AbstractFacade
      */
     public function getDatabases(): array
     {
-        $mainActions = [
-            'add-database' => $this->trans->lang('Create database'),
-        ];
-
         $headers = [
             $this->trans->lang('Database'),
             $this->trans->lang('Collation'),
@@ -150,7 +146,7 @@ class ServerFacade extends AbstractFacade
             ];
         }
 
-        return compact('headers', 'databases', 'details', 'mainActions');
+        return compact('headers', 'databases', 'details');
     }
 
     /**

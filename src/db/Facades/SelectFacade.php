@@ -136,16 +136,10 @@ class SelectFacade extends AbstractFacade
      */
     public function getSelectData(string $table, array $queryOptions = []): array
     {
-        list($options, $query) = $this->prepareSelect($table, $queryOptions);
-
+        [$options, $query] = $this->prepareSelect($table, $queryOptions);
         $query = $this->util->html($query);
-        $mainActions = [
-            'select-exec' => $this->trans->lang('Execute'),
-            'insert-table' => $this->trans->lang('New item'),
-            'select-back' => $this->trans->lang('Back'),
-        ];
 
-        return compact('mainActions', 'options', 'query');
+        return compact('options', 'query');
     }
 
     /**

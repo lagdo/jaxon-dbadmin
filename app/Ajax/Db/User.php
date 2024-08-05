@@ -5,8 +5,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Db;
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
 
-use Exception;
-
 use function Jaxon\pm;
 
 class User extends CallableDbClass

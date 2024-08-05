@@ -44,11 +44,7 @@ class View extends CallableDbClass
         $this->view()->shareValues($viewInfo);
 
         // Set main menu buttons
-        $actions = [
-            [$this->trans->lang('Edit view'), $this->rq()->edit($view)],
-            [$this->trans->lang('Drop view'), $this->rq()->drop($view)->confirm("Drop view $view?")],
-        ];
-        $this->cl(PageActions::class)->update($actions);
+        $this->cl(PageActions::class)->showView($view);
 
         $content = $this->ui->mainDbTable($viewInfo['tabs']);
         $this->cl(Content::class)->showHtml($content);

@@ -22,10 +22,6 @@ class UserFacade extends AbstractFacade
      */
     public function getPrivileges(string $database = ''): array
     {
-        $mainActions = [
-            'add-user' => $this->trans->lang('Create user'),
-        ];
-
         $headers = [
             $this->trans->lang('Username'),
             $this->trans->lang('Server'),
@@ -44,7 +40,7 @@ class UserFacade extends AbstractFacade
             ];
         }
 
-        return \compact('headers', 'details', 'mainActions');
+        return \compact('headers', 'details');
     }
 
     /**
@@ -185,8 +181,6 @@ class UserFacade extends AbstractFacade
             $i++;
         }
 
-        $mainActions = [];
-
         $user = [
             'host' => [
                 'label' => $this->trans->lang('Server'),
@@ -208,7 +202,7 @@ class UserFacade extends AbstractFacade
 
         $details = $this->_getUserPrivileges($grants);
 
-        return \compact('user', 'headers', 'details', 'mainActions');
+        return \compact('user', 'headers', 'details');
     }
 
     /**
@@ -242,8 +236,6 @@ class UserFacade extends AbstractFacade
             $i++;
         }
 
-        $mainActions = [];
-
         $user = [
             'host' => [
                 'label' => $this->trans->lang('Server'),
@@ -265,6 +257,6 @@ class UserFacade extends AbstractFacade
 
         $details = $this->_getUserPrivileges($userEntity->grants);
 
-        return \compact('user', 'headers', 'details', 'mainActions');
+        return \compact('user', 'headers', 'details');
     }
 }

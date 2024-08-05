@@ -53,12 +53,9 @@ class Privileges extends Component
         $this->view()->shareValues($privilegesInfo);
 
         // Set main menu buttons
-        $actions = [
-            [$this->trans->lang('Create user'), $this->rq(User::class)->add()],
-        ];
-        $this->cl(PageActions::class)->update($actions);
+        $this->cl(PageActions::class)->userPrivileges();
 
-        $this->refresh();
+        $this->render();
 
         // Set onclick handlers on database names
         $user = jq()->parent()->attr('data-user');

@@ -31,7 +31,7 @@ class Command extends CallableDbClass
         $this->view()->shareValues($commandOptions);
 
         // Set main menu buttons
-        $this->cl(PageActions::class)->update([]);
+        $this->cl(PageActions::class)->clear();
 
         $btnId = 'adminer-main-command-execute';
         $formId = 'adminer-main-command-form';
