@@ -3,9 +3,9 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
 use Jaxon\Response\AjaxResponse;
+use Lagdo\DbAdmin\App\Ajax\Db\Database\Database;
 use Lagdo\DbAdmin\App\Ajax\Menu\DbList;
 use Lagdo\DbAdmin\App\Ajax\Menu\SchemaList;
-use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\jq;

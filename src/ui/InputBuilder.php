@@ -3,29 +3,15 @@
 namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\DbAdmin\Translator;
-use Lagdo\UiBuilder\BuilderInterface;
+use Lagdo\UiBuilder\Jaxon\Builder;
 
 class InputBuilder
 {
     /**
-     * @var BuilderInterface
-     */
-    protected $htmlBuilder;
-
-    /**
-     * @var Translator
-     */
-    protected $trans;
-
-    /**
-     * @param BuilderInterface $htmlBuilder
      * @param Translator $trans
      */
-    public function __construct(BuilderInterface $htmlBuilder, Translator $trans)
-    {
-        $this->htmlBuilder = $htmlBuilder;
-        $this->trans = $trans;
-    }
+    public function __construct(protected Translator $trans)
+    {}
 
     /**
      * @param array $input
@@ -34,7 +20,8 @@ class InputBuilder
      */
     protected function bool(array $input)
     {
-        $this->htmlBuilder
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->div()->setClass('checkbox')
                 ->input()
                     ->setName($input['attrs']['name'])
@@ -55,18 +42,19 @@ class InputBuilder
      */
     protected function checkbox(array $input)
     {
-        $this->htmlBuilder
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->div()->setClass('checkbox');
         foreach ($input['values'] as $value) {
             $name = $input['attrs']['name'] . '[' . $value['value'] . ']';
-            $this->htmlBuilder
+            $htmlBuilder
                 ->label()->setFor($name)
                     ->checkbox($value['checked'])->setName($name)
                     ->end()
                     ->addText($value['text'])
                 ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
             ->end();
     }
 
@@ -77,7 +65,8 @@ class InputBuilder
      */
     protected function file(array $input)
     {
-        $this->htmlBuilder
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->formInput($input['attrs'])->setType('file')
             ->end();
     }
@@ -89,7 +78,8 @@ class InputBuilder
      */
     protected function input(array $input)
     {
-        $this->htmlBuilder
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->formInput($input['attrs'])
             ->end();
     }
@@ -101,17 +91,18 @@ class InputBuilder
      */
     protected function radio(array $input)
     {
-        $this->htmlBuilder
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->div()->setClass('radio');
         foreach ($input['values'] as $value) {
-            $this->htmlBuilder
+            $htmlBuilder
                 ->label()
                     ->checkbox($value['checked'], $input['attrs'])->setValue($value['value'])
                     ->end()
                     ->addText($value['text'])
                 ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
             ->end();
     }
 
@@ -122,7 +113,8 @@ class InputBuilder
      */
     protected function textarea(array $input)
     {
-        $this->htmlBuilder
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->formTextarea($input['attrs'])
                 ->addText($input['value'])
             ->end();

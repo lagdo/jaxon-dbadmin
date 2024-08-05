@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
+use Lagdo\UiBuilder\Jaxon\Builder;
+
 trait ServerTrait
 {
     /**
@@ -12,7 +14,8 @@ trait ServerTrait
      */
     public function serverInfo(string $server, string $user): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->col(8)
                 ->panel()
                     ->panelBody()->addHtml($server)
@@ -25,7 +28,7 @@ trait ServerTrait
                     ->end()
                 ->end()
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -37,7 +40,8 @@ trait ServerTrait
      */
     public function userForm(string $formId, array $user, string $privileges): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->form(true, true)->setId($formId)
                 ->formRow()
                     ->formCol(3)
@@ -82,7 +86,7 @@ trait ServerTrait
                 ->end()
                 ->addHtml($privileges)
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -93,7 +97,8 @@ trait ServerTrait
      */
     public function addDbForm(string $formId, array $collations): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->form(true, true)->setId($formId)
                 ->formRow()
                     ->formCol(3)
@@ -116,22 +121,22 @@ trait ServerTrait
                             ->end();
         foreach($collations as $group => $_collations)
         {
-            $this->htmlBuilder
+            $htmlBuilder
                             ->optgroup()->setLabel($group);
             foreach($_collations as $collation)
             {
-                $this->htmlBuilder
+                $htmlBuilder
                                 ->option(false, $collation)
                                 ->end();
             }
-            $this->htmlBuilder
+            $htmlBuilder
                             ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                         ->end()
                     ->end()
                 ->end()
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 }

@@ -2,16 +2,40 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
-use Lagdo\UiBuilder\AbstractBuilder;
+use Lagdo\UiBuilder\Jaxon\Builder;
 
 trait MainTrait
 {
     /**
-     * @param array $mainActions
+     * @param array $breadcrumbs
      *
      * @return string
      */
-    public function mainActions(array $actions): string
+    public function breadcrumbs(array $breadcrumbs): string
+    {
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
+            ->breadcrumb();
+        $last = count($breadcrumbs) - 1;
+        $curr = 0;
+        foreach($breadcrumbs as $breadcrumb)
+        {
+            $htmlBuilder
+                ->breadcrumbItem($curr === $last)->addText($breadcrumb)
+                ->end();
+            $curr++;
+        }
+        $htmlBuilder
+            ->end();
+        return $htmlBuilder->build();
+    }
+
+    /**
+     * @param array $actions
+     *
+     * @return string
+     */
+    public function pageActions(array $actions): string
     {
         $backActions = [];
         $mainActions = [];
@@ -26,49 +50,28 @@ trait MainTrait
                 $mainActions[$id] = $title;
             }
         }
-        $this->htmlBuilder->clear()
+
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->buttonGroup(false, ['class' => 'adminer-main-action-group']);
         foreach($mainActions as $id => $title)
         {
-            $this->htmlBuilder
-                ->button(AbstractBuilder::BTN_OUTLINE)->setId("adminer-main-action-$id")->addText($title)
+            $htmlBuilder
+                ->button()->btnOutline()->setId("adminer-main-action-$id")->addText($title)
                 ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
             ->end()
             ->buttonGroup(false, ['class' => 'adminer-main-action-group', 'style' => 'float:right']);
         foreach($backActions as $id => $title)
         {
-            $this->htmlBuilder
-                ->button(AbstractBuilder::BTN_SECONDARY)->setId("adminer-main-action-$id")->addText($title)
+            $htmlBuilder
+                ->button()->btnSecondary()->setId("adminer-main-action-$id")->addText($title)
                 ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
             ->end();
-        return $this->htmlBuilder->build();
-    }
-
-    /**
-     * @param array $breadcrumbs
-     *
-     * @return string
-     */
-    public function breadcrumbs(array $breadcrumbs): string
-    {
-        $this->htmlBuilder->clear()
-            ->breadcrumb();
-        $last = count($breadcrumbs) - 1;
-        $curr = 0;
-        foreach($breadcrumbs as $breadcrumb)
-        {
-            $this->htmlBuilder
-                ->breadcrumbItem($curr === $last)->addText($breadcrumb)
-                ->end();
-            $curr++;
-        }
-        $this->htmlBuilder
-            ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -78,34 +81,35 @@ trait MainTrait
      */
     public function mainDbTable(array $tabs): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->row()
                 ->col(12)
                     ->tabNav();
         $active = true;
         foreach($tabs as $id => $tab)
         {
-            $this->htmlBuilder
+            $htmlBuilder
                         ->tabNavItem("tab-content-$id", $active, $tab)
                         ->end();
             $active = false;
         }
-        $this->htmlBuilder
+        $htmlBuilder
                     ->end()
                     ->tabContent();
         $active = true;
         foreach($tabs as $id => $tab)
         {
-            $this->htmlBuilder
+            $htmlBuilder
                         ->tabContentItem("tab-content-$id", $active)
                         ->end();
             $active = false;
         }
-        $this->htmlBuilder
+        $htmlBuilder
                     ->end()
                 ->end()
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -116,16 +120,18 @@ trait MainTrait
      */
     public function mainContent(string $content, string $counterId = ''): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->table(true, 'bordered')->addHtml($content)
             ->end();
         if (($counterId)) {
-            $this->htmlBuilder
+            $htmlBuilder
                 ->panel()
-                    ->panelBody()->addHtml('Selected (<span id="adminer-table-' . $counterId . '-count">0</span>)')
+                    ->panelBody()
+                        ->addHtml('Selected (<span id="adminer-table-' . $counterId . '-count">0</span>)')
                     ->end()
                 ->end();
         }
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 }

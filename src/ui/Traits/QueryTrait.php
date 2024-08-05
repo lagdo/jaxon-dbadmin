@@ -2,7 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
-use Lagdo\UiBuilder\AbstractBuilder;
+use Lagdo\UiBuilder\Jaxon\Builder;
+
 use function count;
 
 trait QueryTrait
@@ -20,7 +21,8 @@ trait QueryTrait
     public function queryCommand(string $formId, string $queryId, string $btnId,
                                  string $query, int $defaultLimit, array $labels): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->col(12)->setId('adminer-command-details')
             ->end()
             ->col(12)
@@ -61,7 +63,7 @@ trait QueryTrait
                             ->end()
                         ->end()
                         ->formCol(2)
-                            ->button(AbstractBuilder::BTN_PRIMARY + AbstractBuilder::BTN_FULL_WIDTH)
+                            ->button()->btnFullWidth()->btnPrimary()
                                 ->setId($btnId)->addText($labels['execute'])
                             ->end()
                         ->end()
@@ -72,7 +74,7 @@ trait QueryTrait
             ->end()
             ->col(12)->setId('adminer-command-results')
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -82,70 +84,71 @@ trait QueryTrait
      */
     public function queryResults(array $results): string
     {
-        $this->htmlBuilder->clear();
+        $htmlBuilder = Builder::new();
+        $htmlBuilder;
         foreach ($results as $result) {
-            $this->htmlBuilder
+            $htmlBuilder
                 ->row();
             if (count($result['errors']) > 0) {
-                $this->htmlBuilder
+                $htmlBuilder
                     ->panel('danger')
                         ->panelHeader()->addText($result['query'])
                         ->end()
                         ->panelBody()->setStyle('padding:5px 15px');
                 foreach($result['errors'] as $error) {
-                    $this->htmlBuilder
+                    $htmlBuilder
                             ->addHtml('<p style="margin:0">' . $error . '</p>');
                 }
-                $this->htmlBuilder
+                $htmlBuilder
                         ->end()
                     ->end();
             }
             if (count($result['messages']) > 0) {
-                $this->htmlBuilder
+                $htmlBuilder
                     ->panel('info')
                         ->panelHeader()->addText($result['query'])
                         ->end()
                         ->panelBody()->setStyle('padding:5px 15px');
                 foreach($result['messages'] as $message) {
-                    $this->htmlBuilder
+                    $htmlBuilder
                             ->addHtml('<p style="margin:0">' . $message . '</p>');
                 }
-                $this->htmlBuilder
+                $htmlBuilder
                         ->end()
                     ->end();
             }
             if (isset($result['select'])) {
-                $this->htmlBuilder
+                $htmlBuilder
                     ->table(true, 'bordered')
                         ->thead()
                             ->tr();
                 foreach ($result['select']['headers'] as $header) {
-                    $this->htmlBuilder
+                    $htmlBuilder
                                 ->th()->addHtml($header)
                                 ->end();
                 }
-                $this->htmlBuilder
+                $htmlBuilder
                             ->end()
                         ->end()
                         ->tbody();
                 foreach ($result['select']['details'] as $details) {
-                    $this->htmlBuilder
+                    $htmlBuilder
                             ->tr();
                     foreach ($details as $detail) {
-                        $this->htmlBuilder
+                        $htmlBuilder
                                 ->td()->addHtml($detail)
                                 ->end();
                     }
-                   $this->htmlBuilder
+                   $htmlBuilder
                             ->end();
                 }
-                $this->htmlBuilder
+                $htmlBuilder
                         ->end()
                     ->end();
             }
-            $this->htmlBuilder
+            $htmlBuilder
                 ->end();
         }
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 }

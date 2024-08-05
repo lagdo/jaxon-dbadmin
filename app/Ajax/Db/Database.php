@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Db;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Db\Server\Databases;
 use Lagdo\DbAdmin\App\Ajax\Menu\Db;
 use Lagdo\DbAdmin\App\Ajax\Menu\DbActions;
 use Lagdo\DbAdmin\App\Ajax\Menu\DbList;
@@ -59,7 +60,7 @@ class Database extends CallableDbClass
             $this->response->dialog->error("Cannot create database $database.");
             return $this->response;
         }
-        $this->cl(Server::class)->showDatabases();
+        $this->cl(Databases::class)->update();
 
         $this->response->dialog->hide();
         $this->response->dialog->info("Database $database created.");

@@ -3,10 +3,10 @@
 namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\DbAdmin\Translator;
-use Lagdo\UiBuilder\AbstractBuilder;
-use Lagdo\UiBuilder\BuilderInterface;
+use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function htmlentities;
+use function Jaxon\rq;
 
 class UiBuilder
 {
@@ -24,24 +24,11 @@ class UiBuilder
     protected $inputBuilder;
 
     /**
-     * @var BuilderInterface
-     */
-    protected $htmlBuilder;
-
-    /**
-     * @var Translator
-     */
-    protected $trans;
-
-    /**
-     * @param BuilderInterface $htmlBuilder
      * @param Translator $trans
      */
-    public function __construct(BuilderInterface $htmlBuilder, Translator $trans)
+    public function __construct(protected Translator $trans)
     {
-        $this->htmlBuilder = $htmlBuilder;
-        $this->trans = $trans;
-        $this->inputBuilder = new InputBuilder($this->htmlBuilder, $this->trans);
+        $this->inputBuilder = new InputBuilder($this->trans);
     }
 
     /**
@@ -49,7 +36,7 @@ class UiBuilder
      */
     public function formRowTag(): string
     {
-        return $this->htmlBuilder->formRowTag();
+        return Builder::new()->formRowTag();
     }
 
     /**
@@ -59,7 +46,7 @@ class UiBuilder
      */
     public function formRowClass(string $class = ''): string
     {
-        return $this->htmlBuilder->formRowClass($class);
+        return Builder::new()->formRowClass($class);
     }
 
     /**
@@ -69,7 +56,8 @@ class UiBuilder
      */
     public function home(array $values): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->row()->setId($values['containerId'])
                 ->col(3)
                     ->row()
@@ -78,13 +66,13 @@ class UiBuilder
                                 ->formSelect()->setId('adminer-dbhost-select');
         foreach($values['servers'] as $serverId => $server)
         {
-            $this->htmlBuilder
+            $htmlBuilder
                                     ->option($serverId == $values['default'], $server['name'])->setValue($serverId)
                                     ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                                 ->end()
-                                ->button(AbstractBuilder::BTN_PRIMARY)->setClass('btn-select')
+                                ->button()->btnPrimary()->setClass('btn-select')
                                     ->setOnclick($values['connect'] . ';return false;')->addText('Show')
                                 ->end()
                             ->end()
@@ -118,7 +106,7 @@ class UiBuilder
                     ->end()
                 ->end()
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -130,18 +118,19 @@ class UiBuilder
      */
     public function htmlSelect(array $options, string $optionClass, bool $useKeys = false): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
                 ->formSelect();
         foreach($options as $key => $label)
         {
             $value = $useKeys ? $key : $label;
-            $this->htmlBuilder
+            $htmlBuilder
                     ->option(false, $label)->setClass($optionClass)->setValue(htmlentities($value))
                     ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                 ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -155,27 +144,29 @@ class UiBuilder
         if (count($pages) < 4) {
             return '';
         }
-        $this->htmlBuilder->clear()
+
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
                 ->pagination();
         foreach($pages as $page)
         {
             if ($page->type === 'disabled') {
-                $this->htmlBuilder
+                $htmlBuilder
                     ->paginationDisabledItem()->addHtml($page->text)
                     ->end();
             } elseif ($page->type === 'current') {
-                $this->htmlBuilder
+                $htmlBuilder
                     ->paginationActiveItem()->addHtml($page->text)
                     ->end();
             } else {
-                $this->htmlBuilder
+                $htmlBuilder
                     ->paginationItem(['href' => 'javascript:void(0)', 'onclick' => $page->call])
                         ->addHtml($page->text)
                     ->end();
             }
         }
-        $this->htmlBuilder
+        $htmlBuilder
                 ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
-use Lagdo\UiBuilder\AbstractBuilder;
+use Lagdo\UiBuilder\Jaxon\Builder;
 
 trait MenuTrait
 {
@@ -13,17 +13,18 @@ trait MenuTrait
      */
     public function menuActions(array $menuActions): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->menu();
         foreach($menuActions as $id => $title)
         {
-            $this->htmlBuilder
+            $htmlBuilder
                 ->menuItem($title)->setClass("adminer-menu-item menu-action-$id")->setId("adminer-menu-action-$id")
                 ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -33,18 +34,19 @@ trait MenuTrait
      */
     public function menuCommands(array $sqlActions): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->buttonGroup(true);
         foreach($sqlActions as $id => $title)
         {
-            $this->htmlBuilder
-                ->button(AbstractBuilder::BTN_OUTLINE + AbstractBuilder::BTN_FULL_WIDTH)
+            $htmlBuilder
+                ->button()->btnOutline()->btnFullWidth()
                     ->setClass('adminer-menu-item')->setId("adminer-menu-action-$id")->addText($title)
                 ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -54,24 +56,25 @@ trait MenuTrait
      */
     public function menuDatabases(array $databases): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->inputGroup()
                 ->formSelect()->setId('adminer-dbname-select')
                     ->option(false, '')
                     ->end();
         foreach($databases as $database)
         {
-            $this->htmlBuilder
+            $htmlBuilder
                     ->option(false, $database)
                     ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                 ->end()
-                ->button(AbstractBuilder::BTN_PRIMARY)->setClass('btn-select')
+                ->button()->btnPrimary()->setClass('btn-select')
                     ->setId('adminer-dbname-select-btn')->addText('Show')
                 ->end()
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -81,21 +84,22 @@ trait MenuTrait
      */
     public function menuSchemas(array $schemas): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->inputGroup()
                 ->formSelect()->setId('adminer-schema-select');
         foreach ($schemas as $schema)
         {
-            $this->htmlBuilder
+            $htmlBuilder
                     ->option(false, $schema)
                     ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                 ->end()
-                ->button(AbstractBuilder::BTN_PRIMARY)->setClass('btn-select')
+                ->button()->btnPrimary()->setClass('btn-select')
                     ->setId('adminer-schema-select-btn')->addText('Show')
                 ->end()
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 }

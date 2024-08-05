@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
-use Lagdo\UiBuilder\AbstractBuilder;
+use Lagdo\UiBuilder\Jaxon\Builder;
 
 trait DatabaseTrait
 {
@@ -15,7 +15,8 @@ trait DatabaseTrait
      */
     public function viewForm(string $formId, bool $materializedView, array $view = []): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->form(false, true)->setId($formId)
                 ->formRow()
                     ->formLabel()->setFor('name')->addText('Name')
@@ -36,7 +37,7 @@ trait DatabaseTrait
                     ->end()
                 ->end();
         if ($materializedView) {
-            $this->htmlBuilder
+            $htmlBuilder
                 ->formRow()
                     ->formLabel()->setFor('materialized')->addText('Materialized')
                     ->end()
@@ -46,9 +47,9 @@ trait DatabaseTrait
                     ->end()
                 ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -60,7 +61,8 @@ trait DatabaseTrait
      */
     public function importPage(array $htmlIds, array $contents, array $labels): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->col(12)->setId('adminer-command-details')
             ->end()
             ->col(12)
@@ -73,22 +75,22 @@ trait DatabaseTrait
                                     ->end()
                                 ->end();
         if (isset($contents['upload'])) {
-            $this->htmlBuilder
+            $htmlBuilder
                                 ->formCol(8)->addHtml($contents['upload'])
                                 ->end();
         } else {
-            $this->htmlBuilder
+            $htmlBuilder
                                 ->formCol(8)->addHtml($contents['upload_disabled'])
                                 ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                             ->end()
                             ->formRow();
         if (isset($contents['upload'])) {
-            $this->htmlBuilder
+            $htmlBuilder
                                 ->formCol(12)
                                     ->inputGroup()->setId($htmlIds['sqlFilesDivId'])
-                                        ->button(AbstractBuilder::BTN_PRIMARY)->setId($htmlIds['sqlChooseBtnId'])
+                                        ->button()->btnPrimary()->setId($htmlIds['sqlChooseBtnId'])
                                             ->addHtml($labels['select'] . '&hellip;')
                                         ->end()
                                         ->input()->setType('file')->setName('sql_files[]')->setId($htmlIds['sqlFilesInputId'])
@@ -99,18 +101,18 @@ trait DatabaseTrait
                                     ->end()
                                 ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                             ->end()
                             ->formRow()
                                 ->formCol(4)
-                                    ->button(AbstractBuilder::BTN_PRIMARY + AbstractBuilder::BTN_FULL_WIDTH)
+                                    ->button()->btnFullWidth()->btnPrimary()
                                         ->setId($htmlIds['sqlFilesBtnId'])->addText($labels['execute'])
                                     ->end()
                                 ->end()
                             ->end()
                         ->end();
         if (isset($contents['path'])) {
-            $this->htmlBuilder
+            $htmlBuilder
                         ->col(6)
                             ->formRow()
                                 ->formCol(4)
@@ -128,14 +130,14 @@ trait DatabaseTrait
                             ->end()
                             ->formRow()
                                 ->formCol(4)
-                                    ->button(AbstractBuilder::BTN_PRIMARY + AbstractBuilder::BTN_FULL_WIDTH)
+                                    ->button()->btnFullWidth()->btnPrimary()
                                         ->setId($htmlIds['webFileBtnId'])->addText($labels['run_file'])
                                     ->end()
                                 ->end()
                             ->end()
                         ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                     ->end()
                     ->row()
                         ->col(12)
@@ -167,7 +169,7 @@ trait DatabaseTrait
             ->end()
             ->col(12)->setId('adminer-command-results')
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -177,11 +179,12 @@ trait DatabaseTrait
      * @param array $options
      * @param array $labels
      *
-     * @return void
+     * @return string
      */
-    public function exportPage(array $htmlIds, array $databases, array $tables, array $options, array $labels)
+    public function exportPage(array $htmlIds, array $databases, array $tables, array $options, array $labels): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->col(12)
                 ->form(true, false)->setId($htmlIds['formId'])
                     ->row()
@@ -193,12 +196,12 @@ trait DatabaseTrait
                                 ->end()
                                 ->formCol(8);
         foreach ($options['output']['options'] as $value => $label) {
-            $this->htmlBuilder
+            $htmlBuilder
                                     ->radio($options['output']['value'] === $value)->setName('output')
                                     ->end()
                                     ->addHtml('&nbsp;' . $label . '&nbsp;');
         }
-        $this->htmlBuilder
+        $htmlBuilder
                                 ->end()
                             ->end()
                             ->formRow()
@@ -208,16 +211,16 @@ trait DatabaseTrait
                                 ->end()
                                 ->formCol(8);
         foreach ($options['format']['options'] as $value => $label) {
-            $this->htmlBuilder
+            $htmlBuilder
                                     ->radio($options['format']['value'] === $value)->setName('format')
                                     ->end()
                                     ->addHtml('&nbsp;' . $label . '&nbsp;');
         }
-        $this->htmlBuilder
+        $htmlBuilder
                                 ->end()
                             ->end();
         if (isset($options['db_style'])) {
-            $this->htmlBuilder
+            $htmlBuilder
                             ->formRow()
                                 ->formCol(3)
                                     ->label($options['db_style']['label'])->setFor('db_style')
@@ -226,22 +229,22 @@ trait DatabaseTrait
                                 ->formCol(8)
                                     ->formSelect()->setName('db_style');
             foreach ($options['db_style']['options'] as $label) {
-                $this->htmlBuilder
+                $htmlBuilder
                                         ->option($options['db_style']['value'] == $label, $label)
                                         ->end();
             }
-            $this->htmlBuilder
+            $htmlBuilder
                                     ->end()
                                 ->end()
                             ->end();
         }
         if (isset($options['routines']) || isset($options['events'])) {
-            $this->htmlBuilder
+            $htmlBuilder
                             ->formRow()
                                 ->formCol(3)->addHtml('&nbsp;') // Actually an offset. TODO: a parameter for that.
                                 ->end();
             if (isset($options['routines'])) {
-                $this->htmlBuilder
+                $htmlBuilder
                                 ->formCol(4)
                                     ->checkbox($options['routines']['checked'])->setName('routines')
                                         ->setValue($options['routines']['value'])
@@ -250,7 +253,7 @@ trait DatabaseTrait
                                 ->end();
             }
             if (isset($options['events'])) {
-                $this->htmlBuilder
+                $htmlBuilder
                                 ->formCol(4)
                                     ->checkbox($options['events']['checked'])->setName('events')
                                         ->setValue($options['events']['value'])
@@ -258,10 +261,10 @@ trait DatabaseTrait
                                     ->addHtml('&nbsp;' . $options['events']['label'])
                                 ->end();
             }
-            $this->htmlBuilder
+            $htmlBuilder
                             ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                             ->formRow()
                                 ->formCol(3)
                                     ->label($options['table_style']['label'])->setFor('table_style')
@@ -270,11 +273,11 @@ trait DatabaseTrait
                                 ->formCol(8)
                                     ->formSelect()->setName('table_style');
         foreach ($options['table_style']['options'] as $label) {
-            $this->htmlBuilder
+            $htmlBuilder
                                         ->option($options['table_style']['value'] == $label, $label)
                                         ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                                     ->end()
                                 ->end()
                             ->end()
@@ -288,7 +291,7 @@ trait DatabaseTrait
                                     ->addHtml('&nbsp;' . $options['auto_increment']['label'])
                                 ->end();
         if (isset($options['triggers'])) {
-            $this->htmlBuilder
+            $htmlBuilder
                                 ->formCol(4)
                                     ->checkbox($options['triggers']['checked'])->setName('triggers')
                                         ->setValue($options['triggers']['value'])
@@ -296,7 +299,7 @@ trait DatabaseTrait
                                     ->addHtml('&nbsp;' . $options['triggers']['label'])
                                 ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                             ->end()
                             ->formRow()
                                 ->formCol(3)
@@ -306,11 +309,11 @@ trait DatabaseTrait
                                 ->formCol(8)
                                     ->formSelect()->setName('data_style');
         foreach ($options['data_style']['options'] as $label) {
-            $this->htmlBuilder
+            $htmlBuilder
                                         ->option($options['data_style']['value'] == $label, $label)
                                         ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                                     ->end()
                                 ->end()
                             ->end()
@@ -318,7 +321,7 @@ trait DatabaseTrait
                                 ->formCol(3)->addHtml('&nbsp;') // Actually an offset. TODO: a parameter for that.
                                 ->end()
                                 ->formCol(4)
-                                    ->button(AbstractBuilder::BTN_PRIMARY + AbstractBuilder::BTN_FULL_WIDTH)
+                                    ->button()->btnFullWidth()->btnPrimary()
                                         ->setId($htmlIds['btnId'])->addText($labels['export'])
                                     ->end()
                                 ->end()
@@ -326,7 +329,7 @@ trait DatabaseTrait
                         ->end()
                         ->col(5);
         if (($databases)) {
-            $this->htmlBuilder
+            $htmlBuilder
                             ->table(true, 'bordered')
                                 ->thead()
                                     ->tr()
@@ -344,7 +347,7 @@ trait DatabaseTrait
                                 ->end()
                                 ->tbody();
             foreach ($databases['details'] as $database) {
-                $this->htmlBuilder
+                $htmlBuilder
                                     ->tr()
                                         ->td()
                                             ->checkbox(true)->setName('database_list[]')
@@ -359,12 +362,12 @@ trait DatabaseTrait
                                         ->end()
                                     ->end();
             }
-            $this->htmlBuilder
+            $htmlBuilder
                                 ->end()
                             ->end();
         }
         if (($tables)) {
-            $this->htmlBuilder
+            $htmlBuilder
                             ->table(true, 'bordered')
                                 ->thead()
                                     ->tr()
@@ -382,7 +385,7 @@ trait DatabaseTrait
                                 ->end()
                                 ->tbody();
             foreach ($tables['details'] as $table) {
-                $this->htmlBuilder
+                $htmlBuilder
                                     ->tr()
                                         ->td()
                                             ->checkbox(true)->setName('table_list[]')
@@ -397,17 +400,17 @@ trait DatabaseTrait
                                         ->end()
                                     ->end();
             }
-            $this->htmlBuilder
+            $htmlBuilder
                                 ->end()
                             ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                         ->end()
                     ->end()
                 ->end()
             ->end()
             ->col(12)->setId('adminer-export-results')
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 }

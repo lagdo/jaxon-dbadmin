@@ -2,31 +2,34 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
-use Lagdo\UiBuilder\AbstractBuilder;
+use Lagdo\UiBuilder\BuilderInterface;
+use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function array_shift;
 
 trait SelectTrait
 {
     /**
+     * @param BuilderInterface $htmlBuilder
      * @param string $formId
      * @param string $btnAddOnClick
      * @param string $btnDelOnClick
      *
      * @return void
      */
-    private function editFormButtons(string $formId, string $btnAddOnClick, string $btnDelOnClick)
+    private function editFormButtons(BuilderInterface $htmlBuilder, string $formId,
+        string $btnAddOnClick, string $btnDelOnClick)
     {
-        $this->htmlBuilder
+        $htmlBuilder
             ->formRow()
                 ->formCol(9)->addHtml('&nbsp;') // Offset
                 ->end()
                 ->formCol(3)
                     ->buttonGroup(false)
-                        ->button(AbstractBuilder::BTN_PRIMARY)->setId($formId . '-add')
+                        ->button()->btnPrimary()->setId($formId . '-add')
                             ->setOnclick($btnAddOnClick)->addIcon('plus')
                         ->end()
-                        ->button(AbstractBuilder::BTN_DANGER)->setId($formId . '-del')
+                        ->button()->btnDanger()->setId($formId . '-del')
                             ->setOnclick($btnDelOnClick)->addIcon('remove')
                         ->end()
                     ->end()
@@ -35,6 +38,7 @@ trait SelectTrait
     }
 
     /**
+     * @param BuilderInterface $htmlBuilder
      * @param string $rowId
      * @param string $formId
      * @param array $value
@@ -42,9 +46,10 @@ trait SelectTrait
      *
      * @return void
      */
-    private function editColumnValue(string $rowId, string $formId, array $value, array $options)
+    private function editColumnValue(BuilderInterface $htmlBuilder, string $rowId,
+        string $formId, array $value, array $options)
     {
-        $this->htmlBuilder
+        $htmlBuilder
             ->formRow()->setId("$formId-item-$rowId")
                 ->formCol(6)
                     ->formSelect()->setName("columns[$rowId][fun]")
@@ -52,30 +57,30 @@ trait SelectTrait
                         ->end()
                         ->optgroup()->setLabel($this->trans->lang('Functions'));
         foreach ($options['functions'] as $function) {
-            $this->htmlBuilder
+            $htmlBuilder
                             ->option($value['fun'] == $function, $function)
                             ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                         ->end()
                         ->optgroup()->setLabel($this->trans->lang('Aggregation'));
         foreach ($options['grouping'] as $grouping) {
-            $this->htmlBuilder
+            $htmlBuilder
                             ->option($value['fun'] == $grouping, $grouping)
                             ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                         ->end()
                     ->end()
                 ->end()
                 ->formCol(5)
                     ->formSelect()->setName("columns[$rowId][col]");
         foreach ($options['columns'] as $column) {
-            $this->htmlBuilder
+            $htmlBuilder
                         ->option($value['col'] == $column, $column)
                         ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                     ->end()
                 ->end()
                 ->formCol(1)->setDataIndex($rowId)
@@ -95,25 +100,27 @@ trait SelectTrait
      */
     public function editQueryColumns(string $formId, array $options, string $btnAddOnClick, string $btnDelOnClick): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->form(true, false)->setId($formId);
-        $this->editFormButtons($formId, $btnAddOnClick, $btnDelOnClick);
+        $this->editFormButtons($htmlBuilder, $formId, $btnAddOnClick, $btnDelOnClick);
         $i = 0;
         foreach ($options['values'] as $value) {
-            $this->editColumnValue($i, $formId, $value, $options);
+            $this->editColumnValue($htmlBuilder, $i, $formId, $value, $options);
             $i++;
         }
-        $this->htmlBuilder
+        $htmlBuilder
             ->end()
             // Empty line for new entry (must be outside the form)
             ->div()->setId("$formId-item-template")->setStyle('display:none');
-        $this->editColumnValue('__index__', $formId, ['fun' => '', 'col' => ''], $options);
-        $this->htmlBuilder
+        $this->editColumnValue($htmlBuilder, '__index__', $formId, ['fun' => '', 'col' => ''], $options);
+        $htmlBuilder
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
+     * @param BuilderInterface $htmlBuilder
      * @param string $rowId
      * @param string $formId
      * @param array $value
@@ -121,30 +128,31 @@ trait SelectTrait
      *
      * @return void
      */
-    private function editFilterValue(string $rowId, string $formId, array $value, array $options)
+    private function editFilterValue(BuilderInterface $htmlBuilder, string $rowId,
+        string $formId, array $value, array $options)
     {
-        $this->htmlBuilder
+        $htmlBuilder
             ->formRow()->setId("$formId-item-$rowId")
                 ->formCol(4)
                     ->formSelect()->setName("where[$rowId][col]")
                         ->option(false, '(' . $this->trans->lang('anywhere') . ')')
                         ->end();
         foreach ($options['columns'] as $column) {
-            $this->htmlBuilder
+            $htmlBuilder
                         ->option($value['col'] == $column, $column)
                         ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                     ->end()
                 ->end()
                 ->formCol(2)
                     ->formSelect()->setName("where[$rowId][op]");
         foreach ($options['operators'] as $operator) {
-            $this->htmlBuilder
+            $htmlBuilder
                         ->option($value['op'] == $operator, $operator)
                         ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                     ->end()
                 ->end()
                 ->formCol(5)
@@ -168,25 +176,27 @@ trait SelectTrait
      */
     public function editQueryFilters(string $formId, array $options, string $btnAddOnClick, string $btnDelOnClick): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->form(true, false)->setId($formId);
-        $this->editFormButtons($formId, $btnAddOnClick, $btnDelOnClick);
+        $this->editFormButtons($htmlBuilder, $formId, $btnAddOnClick, $btnDelOnClick);
         $i = 0;
         foreach ($options['values'] as $value) {
-            $this->editFilterValue($i, $formId, $value, $options);
+            $this->editFilterValue($htmlBuilder, $i, $formId, $value, $options);
             $i++;
         }
-        $this->htmlBuilder
+        $htmlBuilder
             ->end()
             // Empty line for new entry (must be outside the form)
             ->div()->setId("$formId-item-template")->setStyle('display:none');
-        $this->editFilterValue('__index__', $formId, ['col' => '', 'op' => '', 'val' => ''], $options);
-        $this->htmlBuilder
+        $this->editFilterValue($htmlBuilder, '__index__', $formId, ['col' => '', 'op' => '', 'val' => ''], $options);
+        $htmlBuilder
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
+     * @param BuilderInterface $htmlBuilder
      * @param string $rowId
      * @param string $formId
      * @param array $value
@@ -194,18 +204,19 @@ trait SelectTrait
      *
      * @return void
      */
-    private function editSortingValue(string $rowId, string $formId, array $value, array $options)
+    private function editSortingValue(BuilderInterface $htmlBuilder, string $rowId,
+        string $formId, array $value, array $options)
     {
-        $this->htmlBuilder
+        $htmlBuilder
             ->formRow()->setId("$formId-item-$rowId")
                 ->formCol(6)
                     ->formSelect()->setName("order[$rowId]");
         foreach ($options['columns'] as $column) {
-            $this->htmlBuilder
+            $htmlBuilder
                         ->option($value['col'] == $column, $column)
                         ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                     ->end()
                 ->end()
                 ->formCol(5)
@@ -233,22 +244,23 @@ trait SelectTrait
      */
     public function editQuerySorting(string $formId, array $options, string $btnAddOnClick, string $btnDelOnClick): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->form(true, false)->setId($formId);
-        $this->editFormButtons($formId, $btnAddOnClick, $btnDelOnClick);
+        $this->editFormButtons($htmlBuilder, $formId, $btnAddOnClick, $btnDelOnClick);
         $i = 0;
         foreach ($options['values'] as $value) {
-            $this->editSortingValue($i, $formId, $value, $options);
+            $this->editSortingValue($htmlBuilder, $i, $formId, $value, $options);
             $i++;
         }
-        $this->htmlBuilder
+        $htmlBuilder
             ->end()
             // Empty line for new entry (must be outside the form)
             ->div()->setId("$formId-item-template")->setStyle('display:none');
-        $this->editSortingValue('__index__', $formId, ['col' => '', 'desc' => false], $options);
-        $this->htmlBuilder
+        $this->editSortingValue($htmlBuilder, '__index__', $formId, ['col' => '', 'desc' => false], $options);
+        $htmlBuilder
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -261,7 +273,8 @@ trait SelectTrait
      */
     public function selectResults(array $headers, array $rows, string $btnEditRowClass, string $btnDeleteRowClass): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->table(true, 'bordered')
                 ->thead()
                     ->tr()
@@ -269,17 +282,17 @@ trait SelectTrait
                         ->end();
         array_shift($headers);
         foreach ($headers as $header) {
-            $this->htmlBuilder
+            $htmlBuilder
                         ->th($header['key'] ?? '')
                         ->end();
         }
-        $this->htmlBuilder
+        $htmlBuilder
                     ->end()
                 ->end()
                 ->tbody();
         $rowId = 0;
         foreach($rows as $row) {
-            $this->htmlBuilder
+            $htmlBuilder
                     ->tr()
                         ->td()
                             ->dropdown()
@@ -296,18 +309,18 @@ trait SelectTrait
                             ->end()
                         ->end();
             foreach ($row['cols'] as $col) {
-                $this->htmlBuilder
+                $htmlBuilder
                         ->td($col['value'])
                         ->end();
             }
-            $this->htmlBuilder
+            $htmlBuilder
                     ->end();
             $rowId++;
         }
-        $this->htmlBuilder
+        $htmlBuilder
                 ->end()
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 
     /**
@@ -318,20 +331,21 @@ trait SelectTrait
      */
     public function tableSelect(array $ids, array $options): string
     {
-        $this->htmlBuilder->clear()
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
             ->row()
                 ->col(12)
                     ->form(true, true)->setId($ids['formId'])
                         ->formRow()
                             ->formCol(6)
                                 ->buttonGroup(true)
-                                    ->button(AbstractBuilder::BTN_OUTLINE + AbstractBuilder::BTN_FULL_WIDTH)
+                                    ->button()->btnOutline()->btnFullWidth()
                                         ->setId($ids['btnColumnsId'])->addText($this->trans->lang('Columns'))
                                     ->end()
-                                    ->button(AbstractBuilder::BTN_OUTLINE + AbstractBuilder::BTN_FULL_WIDTH)
+                                    ->button()->btnOutline()->btnFullWidth()
                                         ->setId($ids['btnFiltersId'])->addText($this->trans->lang('Filters'))
                                     ->end()
-                                    ->button(AbstractBuilder::BTN_OUTLINE + AbstractBuilder::BTN_FULL_WIDTH)
+                                    ->button()->btnOutline()->btnFullWidth()
                                         ->setId($ids['btnSortingId'])->addText($this->trans->lang('Order'))
                                     ->end()
                                 ->end()
@@ -342,7 +356,7 @@ trait SelectTrait
                                     ->end()
                                     ->formInput()->setType('number')->setName('limit')->setValue($options['limit']['value'])
                                     ->end()
-                                    ->button(AbstractBuilder::BTN_OUTLINE)->setId($ids['btnLimitId'])->addIcon('ok')
+                                    ->button()->btnOutline()->setId($ids['btnLimitId'])->addIcon('ok')
                                     ->end()
                                 ->end()
                             ->end()
@@ -352,7 +366,7 @@ trait SelectTrait
                                     ->end()
                                     ->formInput()->setType('number')->setName('text_length')->setValue($options['length']['value'])
                                     ->end()
-                                    ->button(AbstractBuilder::BTN_OUTLINE)->setId($ids['btnLengthId'])->addIcon('ok')
+                                    ->button()->btnOutline()->setId($ids['btnLengthId'])->addIcon('ok')
                                     ->end()
                                 ->end()
                             ->end()
@@ -364,10 +378,10 @@ trait SelectTrait
                             ->end()
                             ->formCol(3)
                                 ->buttonGroup(true)
-                                    ->button(AbstractBuilder::BTN_OUTLINE + AbstractBuilder::BTN_FULL_WIDTH)
+                                    ->button()->btnOutline()->btnFullWidth()
                                         ->setId($ids['btnEditId'])->addText($this->trans->lang('Edit'))
                                     ->end()
-                                    ->button(AbstractBuilder::BTN_PRIMARY + AbstractBuilder::BTN_FULL_WIDTH)
+                                    ->button()->btnFullWidth()->btnPrimary()
                                         ->setId($ids['btnExecId'])->addText($this->trans->lang('Execute'))
                                     ->end()
                                 ->end()
@@ -380,6 +394,6 @@ trait SelectTrait
                 ->col(12)->setId('adminer-table-select-results')
                 ->end()
             ->end();
-        return $this->htmlBuilder->build();
+        return $htmlBuilder->build();
     }
 }

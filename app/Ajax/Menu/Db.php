@@ -4,7 +4,11 @@ namespace Lagdo\DbAdmin\App\Ajax\Menu;
 
 use Jaxon\App\Component;
 use Lagdo\DbAdmin\App\Ajax\Db\Database;
-use Lagdo\DbAdmin\App\Ajax\Db\Server;
+use Lagdo\DbAdmin\App\Ajax\Db\Server\Databases;
+use Lagdo\DbAdmin\App\Ajax\Db\Server\Privileges;
+use Lagdo\DbAdmin\App\Ajax\Db\Server\Processes;
+use Lagdo\DbAdmin\App\Ajax\Db\Server\Status;
+use Lagdo\DbAdmin\App\Ajax\Db\Server\Variables;
 use Lagdo\DbAdmin\Ui\MenuBuilder;
 
 use function Jaxon\rq;
@@ -40,11 +44,11 @@ class Db extends Component
     public function showServer(array $actions)
     {
         $handlers = [
-            'databases' => rq(Server::class)->showDatabases(),
-            'privileges' => rq(Server::class)->showPrivileges(),
-            'processes' => rq(Server::class)->showProcesses(),
-            'variables' => rq(Server::class)->showVariables(),
-            'status' => rq(Server::class)->showStatus(),
+            'databases' => rq(Databases::class)->update(),
+            'privileges' => rq(Privileges::class)->update(),
+            'processes' => rq(Processes::class)->update(),
+            'variables' => rq(Variables::class)->update(),
+            'status' => rq(Status::class)->update(),
         ];
 
         $this->actions = [];
