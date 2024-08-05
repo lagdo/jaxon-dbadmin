@@ -6,6 +6,7 @@ use Jaxon\App\Component as JaxonComponent;
 use Jaxon\App\View\Store;
 use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
@@ -15,7 +16,7 @@ use function func_get_args;
 /**
  * @databag dbadmin
  */
-class Component extends JaxonComponent
+abstract class Component extends JaxonComponent
 {
     /**
      * The Jaxon DbAdmin package
@@ -78,7 +79,7 @@ class Component extends JaxonComponent
      *
      * @return null|Store   A store populated with the view data
      */
-    protected function render($sViewName, array $aViewData = [])
+    protected function renderView($sViewName, array $aViewData = [])
     {
         return $this->view()->render('adminer::templates::' . $sViewName, $aViewData);
     }
@@ -102,7 +103,7 @@ class Component extends JaxonComponent
      */
     protected function showBreadcrumbs()
     {
-        $this->cl(Breadcrumbs::class)->refresh();
+        $this->cl(Breadcrumbs::class)->render();
     }
 
     /**

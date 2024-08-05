@@ -2,10 +2,10 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
-use Lagdo\DbAdmin\App\Package;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Util;
+use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Util;
 
 /**
  * Common attributes for all facades

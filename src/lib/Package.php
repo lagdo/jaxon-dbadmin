@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\App;
+namespace Lagdo\DbAdmin;
 
-use Jaxon\Plugin\Package as JaxonPackage;
+use Jaxon\Plugin\AbstractPackage;
 use Lagdo\DbAdmin\App\Ajax\Admin;
 
 use function realpath;
@@ -11,7 +11,7 @@ use function Jaxon\cl;
 /**
  * Jaxon DbAdmin package
  */
-class Package extends JaxonPackage
+class Package extends AbstractPackage
 {
     /**
      * Get the path to the config file

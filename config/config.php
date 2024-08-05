@@ -5,6 +5,7 @@ use Lagdo\DbAdmin\Db\Exception\DbException;
 use function Jaxon\jaxon;
 
 return [
+    'metadata' => 'annotations',
     'directories' => [
         __DIR__ . '/../app/Ajax' => [
             'namespace' => 'Lagdo\\DbAdmin\\App\\Ajax',
@@ -36,7 +37,7 @@ return [
         'set' => [
             // The package config builder
             'dbadmin_config_builder' => function($di) {
-                $config = $di->getPackageConfig(Lagdo\DbAdmin\App\Package::class);
+                $config = $di->getPackageConfig(Lagdo\DbAdmin\Package::class);
                 return $config->getOption('template', 'bootstrap3');
             },
             // Selected database driver

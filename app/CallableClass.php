@@ -6,6 +6,7 @@ use Jaxon\App\CallableClass as JaxonCallableClass;
 use Jaxon\App\View\Store;
 use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
@@ -80,7 +81,7 @@ class CallableClass extends JaxonCallableClass
      *
      * @return null|Store   A store populated with the view data
      */
-    protected function render($sViewName, array $aViewData = [])
+    protected function renderView($sViewName, array $aViewData = [])
     {
         return $this->view()->render('adminer::templates::' . $sViewName, $aViewData);
     }

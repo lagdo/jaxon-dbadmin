@@ -3,10 +3,10 @@
 namespace Lagdo\DbAdmin\Db;
 
 use Jaxon\Di\Container;
-use Lagdo\DbAdmin\App\Package;
 use Lagdo\DbAdmin\Db\Facades\AbstractFacade;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\UtilInterface;
+use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
 
 use function array_merge;

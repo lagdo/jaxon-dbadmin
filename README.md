@@ -52,7 +52,7 @@ See the corresponding database driver package for specific database server optio
         // Other config options
         // ...
         'packages' => [
-            Lagdo\DbAdmin\App\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'servers' => [
                     // The database servers
                     'pgsql_server' => [ // A unique identifier for this server
@@ -79,11 +79,11 @@ See the corresponding database driver package for specific database server optio
 
 Insert the CSS and javascript codes in the HTML pages of your application using calls to `Jaxon\jaxon()->getCss()` and `Jaxon\jaxon()->getScript(true)`.
 
-In the page that displays the dashboard, insert the HTML code returned by the call to `Jaxon\jaxon()->package(\Lagdo\DbAdmin\App\Package::class)->getHtml()`. Two cases are then possible.
+In the page that displays the dashboard, insert the HTML code returned by the call to `Jaxon\jaxon()->package(\Lagdo\DbAdmin\Package::class)->getHtml()`. Two cases are then possible.
 
-- If the dashboard is displayed on a dedicated page, make a call to `Jaxon\jaxon()->package(\Lagdo\DbAdmin\App\Package::class)->ready()` in your PHP code when loading the page.
+- If the dashboard is displayed on a dedicated page, make a call to `Jaxon\jaxon()->package(\Lagdo\DbAdmin\Package::class)->ready()` in your PHP code when loading the page.
 
-- If the dashboard is loaded with an Ajax request in a page already displayed, execute the javascript code returned the call to `Jaxon\jaxon()->package(\Lagdo\DbAdmin\App\Package::class)->getReadyScript()` after the page is loaded.
+- If the dashboard is loaded with an Ajax request in a page already displayed, execute the javascript code returned the call to `Jaxon\jaxon()->package(\Lagdo\DbAdmin\Package::class)->getReadyScript()` after the page is loaded.
 
 ### The UI builder
 
@@ -97,7 +97,7 @@ In the above example, the UI will be built with Bootstrap3 components.
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\App\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'template' => 'bootstrap3',
             ],
         ],
@@ -114,7 +114,7 @@ The `default` option sets a database server `Jaxon DbAdmin` must connect to when
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\App\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'servers' => [
                     // The database servers
                 ],
@@ -134,7 +134,7 @@ The `access.server` option can also be set at a server level, and in this case i
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\App\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'servers' => [
                     // The database servers
                     'server_id' => [
@@ -161,7 +161,7 @@ The `access.schemas` option will apply only on servers which provide that featur
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\App\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'servers' => [
                     // The database servers
                     'server_id' => [
@@ -216,7 +216,7 @@ $dbAdminOptionsGetter = function($config) {
         // Other config options
         // ...
         'packages' => [
-            Lagdo\DbAdmin\App\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 // A callable that return the access options.
                 'provider' => $dbAdminOptionsGetter,
                 'template' => 'bootstrap3',
@@ -238,7 +238,7 @@ if the `debug.queries` option is set to true.
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\App\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'debug' => [
                     'queries' => true,
                 ],
@@ -276,7 +276,7 @@ A directory where the exported files are going to be saved must then be defined 
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\App\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'servers' => [
                     // The database servers
                 ],
