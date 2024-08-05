@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\App;
 
 use Jaxon\App\CallableClass as JaxonCallableClass;
 use Jaxon\App\View\Store;
+use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
@@ -103,8 +104,7 @@ class CallableClass extends JaxonCallableClass
      */
     protected function showBreadcrumbs()
     {
-        $content = $this->ui->breadcrumbs($this->db->getBreadcrumbs());
-        $this->response->html($this->package->getBreadcrumbsId(), $content);
+        $this->cl(Breadcrumbs::class)->refresh();
     }
 
     /**
