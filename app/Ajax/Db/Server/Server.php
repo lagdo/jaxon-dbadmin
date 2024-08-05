@@ -8,7 +8,7 @@ use Lagdo\DbAdmin\App\Ajax\Menu\Db;
 use Lagdo\DbAdmin\App\Ajax\Menu\DbActions;
 use Lagdo\DbAdmin\App\Ajax\Menu\DbList;
 use Lagdo\DbAdmin\App\Ajax\Menu\SchemaList;
-use Lagdo\DbAdmin\App\Ajax\Menu\Server as ServerInfo;
+use Lagdo\DbAdmin\App\Ajax\Menu\Server as ServerMenu;
 use Lagdo\DbAdmin\App\Ajax\Menu\ServerActions;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\CallableDbClass;
@@ -58,7 +58,7 @@ class Server extends CallableDbClass
         $this->view()->shareValues($databasesInfo);
 
         // Set the database dropdown list
-        $this->cl(DbList::class)->update($databasesInfo['databases']);
+        $this->cl(DbList::class)->showDatabases($databasesInfo['databases']);
 
         // Clear schema list
         $this->cl(SchemaList::class)->clear();
@@ -82,13 +82,13 @@ class Server extends CallableDbClass
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
 
-        $this->cl(ServerInfo::class)->update($serverInfo['server'], $serverInfo['user']);
+        $this->cl(ServerMenu::class)->showServer($serverInfo['server'], $serverInfo['user']);
 
         // Show the server
-        $this->cl(ServerActions::class)->update($serverInfo['sqlActions']);
+        $this->cl(ServerActions::class)->render();
         $this->cl(DbActions::class)->clear();
 
-        $this->cl(Db::class)->showServer($serverInfo['menuActions']);
+        $this->cl(Db::class)->showServer();
 
         if(!$hasServerAccess)
         {

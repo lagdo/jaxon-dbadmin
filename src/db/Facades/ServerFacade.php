@@ -79,34 +79,7 @@ class ServerFacade extends AbstractFacade
         );
         $user = $this->trans->lang('Logged as: %s.', "<b>" . $this->util->html($this->driver->user()) . "</b>");
 
-        $sqlActions = [
-            'server-command' => $this->trans->lang('Query'),
-            'server-import' => $this->trans->lang('Import'),
-            'server-export' => $this->trans->lang('Export'),
-        ];
-
-        // Content from the connect_error() function in connect.inc.php
-        $menuActions = [
-            'databases' => $this->trans->lang('Databases'),
-        ];
-        // if($this->driver->support('database'))
-        // {
-        //     $menuActions['databases'] = $this->trans->lang('Databases');
-        // }
-        if ($this->driver->support('privileges')) {
-            $menuActions['privileges'] = $this->trans->lang('Privileges');
-        }
-        if ($this->driver->support('processlist')) {
-            $menuActions['processes'] = $this->trans->lang('Process list');
-        }
-        if ($this->driver->support('variables')) {
-            $menuActions['variables'] = $this->trans->lang('Variables');
-        }
-        if ($this->driver->support('status')) {
-            $menuActions['status'] = $this->trans->lang('Status');
-        }
-
-        return compact('server', 'user', 'sqlActions', 'menuActions');
+        return compact('server', 'user');
     }
 
     /**

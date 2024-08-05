@@ -36,7 +36,7 @@ class Databases extends Component
         $this->view()->shareValues($databasesInfo);
 
         // Set the database dropdown list
-        $this->cl(DbList::class)->update($databasesInfo['databases']);
+        $this->cl(DbList::class)->showDatabases($databasesInfo['databases']);
 
         // Clear schema list
         $this->cl(SchemaList::class)->clear();
@@ -85,7 +85,7 @@ class Databases extends Component
         ];
         $this->cl(PageActions::class)->update($actions);
 
-        $this->refresh();
+        $this->render();
 
         // Set onclick handlers on table checkbox
         $checkbox = 'database';

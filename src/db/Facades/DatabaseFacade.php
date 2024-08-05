@@ -65,37 +65,6 @@ class DatabaseFacade extends AbstractFacade
      */
     public function getDatabaseInfo()
     {
-        $sqlActions = [
-            'database-command' => $this->trans->lang('Query'),
-            'database-import' => $this->trans->lang('Import'),
-            'database-export' => $this->trans->lang('Export'),
-        ];
-
-        $menuActions = [
-            'table' => $this->trans->lang('Tables'),
-            // 'view' => $this->trans->lang('Views'),
-            // 'routine' => $this->trans->lang('Routines'),
-            // 'sequence' => $this->trans->lang('Sequences'),
-            // 'type' => $this->trans->lang('User types'),
-            // 'event' => $this->trans->lang('Events'),
-        ];
-        if ($this->driver->support('view')) {
-            $menuActions['view'] = $this->trans->lang('Views');
-        }
-        // Todo: Implement features and enable menu items.
-        // if ($this->driver->support('routine')) {
-        //     $menuActions['routine'] = $this->trans->lang('Routines');
-        // }
-        // if ($this->driver->support('sequence')) {
-        //     $menuActions['sequence'] = $this->trans->lang('Sequences');
-        // }
-        // if ($this->driver->support('type')) {
-        //     $menuActions['type'] = $this->trans->lang('User types');
-        // }
-        // if ($this->driver->support('event')) {
-        //     $menuActions['event'] = $this->trans->lang('Events');
-        // }
-
         // From db.inc.php
         $schemas = null;
         if ($this->driver->support("scheme")) {
@@ -109,7 +78,7 @@ class DatabaseFacade extends AbstractFacade
         //     $tables[] = $this->util->html($table);
         // }
 
-        return \compact('sqlActions', 'menuActions', 'schemas'/*, 'tables'*/);
+        return \compact('schemas'/*, 'tables'*/);
     }
 
     /**

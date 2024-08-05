@@ -121,15 +121,15 @@ class Database extends CallableDbClass
         {
             $schema = $schemas[0]; // Select the first schema
 
-            $this->cl(SchemaList::class)->update($database, $schemas);
+            $this->cl(SchemaList::class)->showDbSchemas($database, $schemas);
         }
 
         // Save the selection in the databag
         $this->bag('dbadmin')->set('db', [$server, $database, $schema]);
 
-        $this->cl(DbActions::class)->update($databaseInfo['sqlActions']);
+        $this->cl(DbActions::class)->render();
 
-        $this->cl(Db::class)->showDatabase($databaseInfo['menuActions']);
+        $this->cl(Db::class)->showDatabase();
 
         // Show the database tables
         $this->showTables();

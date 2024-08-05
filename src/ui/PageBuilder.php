@@ -145,8 +145,8 @@ class PageBuilder
                     ->btnDanger();
             }
             $htmlBuilder
-                    ->addText($action[0])
-                    ->jxnClick($action[1])
+                    ->addText($action['title'])
+                    ->jxnClick($action['handler'])
                 ->end();
         }
         $htmlBuilder

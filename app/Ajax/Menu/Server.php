@@ -2,10 +2,9 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Menu;
 
-use Jaxon\App\Component;
-use Lagdo\DbAdmin\Ui\MenuBuilder;
+use Lagdo\DbAdmin\App\MenuComponent;
 
-class Server extends Component
+class Server extends MenuComponent
 {
     /**
      * @var string
@@ -16,12 +15,6 @@ class Server extends Component
      * @var string
      */
     private $user = '';
-
-    /**
-     * @param MenuBuilder $ui
-     */
-    public function __construct(private MenuBuilder $ui)
-    {}
 
     /**
      * @inheritDoc
@@ -39,10 +32,10 @@ class Server extends Component
      *
      * @return void
      */
-    public function update(string $server, string $user)
+    public function showServer(string $server, string $user)
     {
         $this->server = $server;
         $this->user = $user;
-        $this->refresh();
+        $this->render();
     }
 }

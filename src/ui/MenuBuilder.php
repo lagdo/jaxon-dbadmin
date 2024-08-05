@@ -48,9 +48,9 @@ class MenuBuilder
         foreach($actions as $action)
         {
             $htmlBuilder
-                ->menuItem($action[0])
+                ->menuItem($action['title'])
                     ->setClass("adminer-menu-item")
-                    ->jxnClick($action[1])
+                    ->jxnClick($action['handler'])
                 ->end();
         }
         $htmlBuilder
@@ -73,8 +73,8 @@ class MenuBuilder
             $htmlBuilder
                 ->button()->btnOutline()->btnFullWidth()
                     ->setClass('adminer-menu-item')
-                    ->addText($action[0])
-                    ->jxnClick($action[1])
+                    ->addText($action['title'])
+                    ->jxnClick($action['handler'])
                 ->end();
         }
         $htmlBuilder

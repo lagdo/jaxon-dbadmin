@@ -2,21 +2,14 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Menu;
 
-use Jaxon\App\Component;
-use Lagdo\DbAdmin\Ui\MenuBuilder;
+use Lagdo\DbAdmin\App\MenuComponent;
 
-class DbList extends Component
+class DbList extends MenuComponent
 {
     /**
      * @var array
      */
     private $databases = [];
-
-    /**
-     * @param MenuBuilder $ui
-     */
-    public function __construct(private MenuBuilder $ui)
-    {}
 
     /**
      * @inheritDoc
@@ -33,10 +26,10 @@ class DbList extends Component
      *
      * @return void
      */
-    public function update(array $databases)
+    public function showDatabases(array $databases)
     {
         $this->databases = $databases;
-        $this->refresh();
+        $this->render();
     }
 
     /**
@@ -48,6 +41,6 @@ class DbList extends Component
      */
     public function change(string $database)
     {
-        $this->jq()->val($database)->change();
+        $this->response->jq()->val($database)->change();
     }
 }

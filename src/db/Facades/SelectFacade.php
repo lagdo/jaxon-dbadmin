@@ -96,7 +96,7 @@ class SelectFacade extends AbstractFacade
         $tableName = $this->util->tableName($tableStatus);
 
         // $set = null;
-        // if(isset($rights["insert"]) || !support("table")) {
+        // if(isset($rights["insert"]) || !this->driver->support("table")) {
         //     $set = "";
         //     foreach((array) $queryOptions["where"] as $val) {
         //         if($foreignKeys[$val["col"]] && count($foreignKeys[$val["col"]]) == 1 && ($val["op"] == "="

@@ -2,10 +2,9 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Menu;
 
-use Jaxon\App\Component;
-use Lagdo\DbAdmin\Ui\MenuBuilder;
+use Lagdo\DbAdmin\App\MenuComponent;
 
-class SchemaList extends Component
+class SchemaList extends MenuComponent
 {
     /**
      * @var string
@@ -16,12 +15,6 @@ class SchemaList extends Component
      * @var array
      */
     private $schemas = [];
-
-    /**
-     * @param MenuBuilder $ui
-     */
-    public function __construct(private MenuBuilder $ui)
-    {}
 
     /**
      * @inheritDoc
@@ -39,10 +32,10 @@ class SchemaList extends Component
      *
      * @return void
      */
-    public function update(string $database, array $schemas)
+    public function showDbSchemas(string $database, array $schemas)
     {
         $this->database = $database;
         $this->schemas = $schemas;
-        $this->refresh();
+        $this->render();
     }
 }
