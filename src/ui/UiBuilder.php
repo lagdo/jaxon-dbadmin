@@ -2,10 +2,22 @@
 
 namespace Lagdo\DbAdmin\Ui;
 
+use Lagdo\DbAdmin\App\Ajax\Admin;
+use Lagdo\DbAdmin\App\Ajax\Menu\Db;
+use Lagdo\DbAdmin\App\Ajax\Menu\DbActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\DbList;
+use Lagdo\DbAdmin\App\Ajax\Menu\SchemaList;
+use Lagdo\DbAdmin\App\Ajax\Menu\Server;
+use Lagdo\DbAdmin\App\Ajax\Menu\ServerActions;
+use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
+use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
+use function count;
 use function htmlentities;
+use function Jaxon\pm;
 use function Jaxon\rq;
 
 class UiBuilder
@@ -50,58 +62,60 @@ class UiBuilder
     }
 
     /**
-     * @param array $values
+     * @param array $servers
+     * @param string $default
      *
      * @return string
      */
-    public function home(array $values): string
+    public function home(array $servers, string $default): string
     {
         $htmlBuilder = Builder::new();
         $htmlBuilder
-            ->row()->setId($values['containerId'])
+            ->row()->setId('jaxon-dbadmin')
                 ->col(3)
                     ->row()
                         ->col(12)
                             ->inputGroup()
-                                ->formSelect()->setId('adminer-dbhost-select');
-        foreach($values['servers'] as $serverId => $server)
+                                ->formSelect()->setId('jaxon-dbadmin-dbhost-select');
+        foreach($servers as $serverId => $server)
         {
             $htmlBuilder
-                                    ->option($serverId == $values['default'], $server['name'])->setValue($serverId)
+                                    ->option($serverId === $default, $server['name'])->setValue($serverId)
                                     ->end();
         }
         $htmlBuilder
                                 ->end()
                                 ->button()->btnPrimary()->setClass('btn-select')
-                                    ->setOnclick($values['connect'] . ';return false;')->addText('Show')
+                                    ->jxnClick(rq(Admin::class)->server(pm()->select('jaxon-dbadmin-dbhost-select')))
+                                    ->addText('Show')
                                 ->end()
                             ->end()
                         ->end()
-                        ->col(12)->setId($values['serverActionsId'])
+                        ->col(12)->jxnShow(rq(ServerActions::class))
                         ->end()
-                        ->col(12)->setId($values['dbListId'])
+                        ->col(12)->jxnShow(rq(DbList::class))
                         ->end()
-                        ->col(12)->setId($values['schemaListId'])
+                        ->col(12)->jxnShow(rq(SchemaList::class))
                         ->end()
-                        ->col(12)->setId($values['dbActionsId'])
+                        ->col(12)->jxnShow(rq(DbActions::class))
                         ->end()
-                        ->col(12)->setId($values['dbMenuId'])
+                        ->col(12)->jxnShow(rq(Db::class))
                         ->end()
                     ->end()
                 ->end()
                 ->col(9)
-                    ->row()->setId($values['serverInfoId'])
+                    ->row()->jxnShow(rq(Server::class))
                     ->end()
                     ->row()
                         ->col(12)
-                            ->span()->setId($values['breadcrumbsId'])
+                            ->span()->jxnShow(rq(Breadcrumbs::class))
                             ->end()
-                            ->span()->setId($values['mainActionsId'])
+                            ->span()->jxnShow(rq(PageActions::class))
                             ->end()
                         ->end()
                     ->end()
                     ->row()
-                        ->col(12)->setId($values['dbContentId'])
+                        ->col(12)->jxnShow(rq(Content::class))
                         ->end()
                     ->end()
                 ->end()

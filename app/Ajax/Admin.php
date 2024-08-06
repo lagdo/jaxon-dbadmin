@@ -2,25 +2,12 @@
 
 namespace Lagdo\DbAdmin\App\Ajax;
 
-use Jaxon\App\Component;
+use Lagdo\DbAdmin\App\Component;
 use Jaxon\Response\AjaxResponse;
 use Lagdo\DbAdmin\App\Ajax\Db\Server\Server;
-use Lagdo\DbAdmin\App\Package;
-use Lagdo\DbAdmin\Db\DbFacade;
-use Lagdo\DbAdmin\Ui\PageBuilder;
 
 class Admin extends Component
 {
-    /**
-     * The constructor
-     *
-     * @param Package $package The DbAdmin package
-     * @param DbFacade $db The facade to database functions
-     * @param PageBuilder $ui The HTML UI builder
-     */
-    public function __construct(private Package $package, private DbFacade $db, private PageBuilder $ui)
-    {}
-
     /**
      * @inheritDoc
      */

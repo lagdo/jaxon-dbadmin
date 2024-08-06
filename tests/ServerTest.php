@@ -23,11 +23,11 @@ final class ServerTest extends TestCase
      *
      * @var DbAdmin
      */
-    protected $dbAdmin;
+    // protected $dbAdmin;
 
-    public static function setUpBeforeClass()
-    {
-    }
+    // public static function setUpBeforeClass()
+    // {
+    // }
 
     /**
      * @expectedException Exception
