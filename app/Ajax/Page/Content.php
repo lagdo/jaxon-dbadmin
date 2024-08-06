@@ -29,6 +29,6 @@ class Content extends Component
     public function showHtml(string $html)
     {
         $this->html = $html;
-        $this->refresh();
+        $this->render();
     }
 }

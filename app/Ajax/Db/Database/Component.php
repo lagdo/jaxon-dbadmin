@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Lagdo\DbAdmin\App\Component as BaseComponent;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
-use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 /**
  * @exclude
@@ -19,7 +18,7 @@ abstract class Component extends BaseComponent
     /**
      * @var array
      */
-    private $content;
+    private $pageContent;
 
     /**
      * @var string
@@ -31,29 +30,23 @@ abstract class Component extends BaseComponent
      */
     public function html(): string
     {
-        return $this->ui->mainContent($this->renderMainContent($this->content), $this->counterId);
+        return $this->ui->mainContent($this->pageContent, $this->counterId);
     }
 
     /**
      * Display the content of a section
      *
-     * @param array  $viewData  The data to be displayed in the view
-     * @param array  $contentData  The data to be displayed in the view
-     * @param array  $actions  The menu actions
+     * @param array $viewData  The data to be displayed in the view
+     * @param string $checkbox
      *
      * @return void
      */
-    protected function showSection(array $viewData, array $contentData, array $actions)
+    protected function showSection(array $viewData, string $checkbox = '')
     {
-        // Make data available to views
-        $this->view()->shareValues($viewData);
+        $this->pageContent = $viewData;
+        $this->pageContent['checkbox'] = $checkbox;
+        $this->counterId = $checkbox;
 
-        // Set main menu buttons
-        $this->cl(PageActions::class)->update($actions);
-
-        $this->content = $contentData;
-        $this->counterId = $contentData['checkbox'] ?? '';
-
-        $this->refresh();
+        $this->render();
     }
 }

@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Jaxon\Response\Response;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\jq;
 
@@ -18,6 +19,9 @@ class Views extends Component
      */
     public function update(): Response
     {
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbViews();
+
         $viewsInfo = $this->db->getViews();
 
         $viewNameClass = 'adminer-view-name';
@@ -33,11 +37,8 @@ class Views extends Component
             return $detail;
         }, $viewsInfo['details']);
 
-        $actions = [
-            [$this->trans->lang('Create view'), $this->rq(View::class)->add()],
-        ];
         $checkbox = 'view';
-        $this->showSection($viewsInfo, ['checkbox' => $checkbox], $actions);
+        $this->showSection($viewsInfo, $checkbox);
 
         // Set onclick handlers on view checkbox
         $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);

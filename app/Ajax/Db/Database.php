@@ -140,18 +140,16 @@ class Database extends CallableDbClass
     /**
      * Display the content of a section
      *
-     * @param array  $viewData  The data to be displayed in the view
-     * @param array  $contentData  The data to be displayed in the view
+     * @param array $viewData  The data to be displayed in the view
+     * @param string $checkbox
      *
      * @return void
      */
-    protected function showSection(array $viewData, array $contentData = [])
+    protected function showSection(array $viewData, string $checkbox = '')
     {
-        // Make data available to views
-        $this->view()->shareValues($viewData);
-
-        $counterId = $contentData['checkbox'] ?? '';
-        $content = $this->ui->mainContent($this->renderMainContent($contentData), $counterId);
+        $counterId = $checkbox;
+        $viewData['checkbox'] = $checkbox;
+        $content = $this->ui->mainContent($viewData, $counterId);
         $this->cl(Content::class)->showHtml($content);
     }
 
@@ -165,6 +163,9 @@ class Database extends CallableDbClass
      */
     public function showTables(): Response
     {
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbTables();
+
         $tablesInfo = $this->db->getTables();
 
         $tableNameClass = 'adminer-table-name';
@@ -182,11 +183,8 @@ class Database extends CallableDbClass
             return $detail;
         }, $tablesInfo['details']);
 
-        // Set main menu buttons
-        $this->cl(PageActions::class)->dbTables();
-
         $checkbox = 'table';
-        $this->showSection($tablesInfo, ['checkbox' => $checkbox]);
+        $this->showSection($tablesInfo, $checkbox);
 
         // Set onclick handlers on table checkbox
         $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);
@@ -210,6 +208,9 @@ class Database extends CallableDbClass
      */
     public function showViews(): Response
     {
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbTables();
+
         $viewsInfo = $this->db->getViews();
 
         $viewNameClass = 'adminer-view-name';
@@ -225,11 +226,8 @@ class Database extends CallableDbClass
             return $detail;
         }, $viewsInfo['details']);
 
-        // Set main menu buttons
-        $this->cl(PageActions::class)->dbTables();
-
         $checkbox = 'view';
-        $this->showSection($viewsInfo, ['checkbox' => $checkbox]);
+        $this->showSection($viewsInfo, $checkbox);
 
         // Set onclick handlers on view checkbox
         $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);
@@ -254,8 +252,7 @@ class Database extends CallableDbClass
         // Set main menu buttons
         $this->cl(PageActions::class)->dbRoutines();
 
-        $routinesInfo = $this->db->getRoutines();
-        $this->showSection($routinesInfo);
+        $this->showSection($this->db->getRoutines());
 
         return $this->response;
     }
@@ -273,8 +270,7 @@ class Database extends CallableDbClass
         // Set main menu buttons
         $this->cl(PageActions::class)->dbSequences();
 
-        $sequencesInfo = $this->db->getSequences();
-        $this->showSection($sequencesInfo);
+        $this->showSection($this->db->getSequences());
 
         return $this->response;
     }
@@ -292,8 +288,7 @@ class Database extends CallableDbClass
         // Set main menu buttons
         $this->cl(PageActions::class)->dbUserTypes();
 
-        $userTypesInfo = $this->db->getUserTypes();
-        $this->showSection($userTypesInfo);
+        $this->showSection($this->db->getUserTypes());
 
         return $this->response;
     }
@@ -311,8 +306,7 @@ class Database extends CallableDbClass
         // Set main menu buttons
         $this->cl(PageActions::class)->dbEvents();
 
-        $eventsInfo = $this->db->getEvents();
-        $this->showSection($eventsInfo);
+        $this->showSection($this->db->getEvents());
 
         return $this->response;
     }

@@ -9,11 +9,16 @@ use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 class Processes extends Component
 {
     /**
+     * @var array
+     */
+    private $pageContent;
+
+    /**
      * @inheritDoc
      */
     public function html(): string
     {
-        return $this->ui->mainContent($this->renderMainContent());
+        return $this->ui->mainContent($this->pageContent);
     }
 
     /**
@@ -26,9 +31,7 @@ class Processes extends Component
      */
     public function update(): AjaxResponse
     {
-        $processesInfo = $this->db->getProcesses();
-        // Make processes info available to views
-        $this->view()->shareValues($processesInfo);
+        $this->pageContent = $this->db->getProcesses();
 
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();

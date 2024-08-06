@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Jaxon\Response\Response;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 class Sequences extends Component
 {
@@ -16,12 +17,10 @@ class Sequences extends Component
      */
     public function update(): Response
     {
-        $sequencesInfo = $this->db->getSequences();
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbSequences();
 
-        $actions = [
-            // [$this->trans->lang('Create sequence'), ],
-        ];
-        $this->showSection($sequencesInfo, [], $actions);
+        $this->showSection($this->db->getSequences());
 
         return $this->response;
     }

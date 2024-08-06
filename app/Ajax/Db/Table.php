@@ -5,7 +5,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Db;
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Column;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Select;
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Query;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
@@ -37,17 +36,15 @@ class Table extends CallableDbClass
     /**
      * Display the content of a tab
      *
+     * @param array  $tableInfo The data to be displayed in the view
      * @param array  $tableData The data to be displayed in the view
      * @param string $tabId     The tab container id
      *
      * @return void
      */
-    protected function showTab(array $tableData, string $tabId)
+    protected function showTab(array $tableInfo, array $tableData, string $tabId)
     {
-        // Make data available to views
-        $this->view()->shareValues($tableData);
-
-        $content = $this->ui->mainContent($this->renderMainContent());
+        $content = $this->ui->mainContent(array_merge($tableInfo, $tableData));
         $this->response->html($tabId, $content);
     }
 
@@ -82,41 +79,37 @@ class Table extends CallableDbClass
         // Save the table name in tha databag.
         $this->bag('dbadmin')->set('db.table', $table);
 
-        $tableInfo = $this->db->getTableInfo($table);
-        // Make table info available to views
-        $this->view()->shareValues($tableInfo);
-
-        // Test the data bag
-
         // Set main menu buttons
         $this->cl(PageActions::class)->showTable($table);
+
+        $tableInfo = $this->db->getTableInfo($table);
 
         $content = $this->ui->mainDbTable($tableInfo['tabs']);
         $this->cl(Content::class)->showHtml($content);
 
         // Show fields
         $fieldsInfo = $this->db->getTableFields($table);
-        $this->showTab($fieldsInfo, 'tab-content-fields');
+        $this->showTab($tableInfo, $fieldsInfo, 'tab-content-fields');
 
         // Show indexes
         $indexesInfo = $this->db->getTableIndexes($table);
         if(is_array($indexesInfo))
         {
-            $this->showTab($indexesInfo, 'tab-content-indexes');
+            $this->showTab($tableInfo, $indexesInfo, 'tab-content-indexes');
         }
 
         // Show foreign keys
         $foreignKeysInfo = $this->db->getTableForeignKeys($table);
         if(is_array($foreignKeysInfo))
         {
-            $this->showTab($foreignKeysInfo, 'tab-content-foreign-keys');
+            $this->showTab($tableInfo, $foreignKeysInfo, 'tab-content-foreign-keys');
         }
 
         // Show triggers
         $triggersInfo = $this->db->getTableTriggers($table);
         if(is_array($triggersInfo))
         {
-            $this->showTab($triggersInfo, 'tab-content-triggers');
+            $this->showTab($tableInfo, $triggersInfo, 'tab-content-triggers');
         }
 
         return $this->response;

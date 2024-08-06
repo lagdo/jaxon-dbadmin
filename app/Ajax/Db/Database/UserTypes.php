@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Jaxon\Response\Response;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 class UserTypes extends Component
 {
@@ -16,11 +17,10 @@ class UserTypes extends Component
      */
     public function showUserTypes(): Response
     {
-        $userTypesInfo = $this->db->getUserTypes();
-        $actions = [
-            // [$this->trans->lang('Create type'), ],
-        ];
-        $this->showSection($userTypesInfo, [], $actions);
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbUserTypes();
+
+        $this->showSection($this->db->getUserTypes());
 
         return $this->response;
     }

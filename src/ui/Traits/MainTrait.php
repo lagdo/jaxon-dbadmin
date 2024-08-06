@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
+use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
 trait MainTrait
@@ -113,18 +114,104 @@ trait MainTrait
     }
 
     /**
-     * @param string $content
+     * @param BuilderInterface $htmlBuilder
+     * @param array $content
+     *
+     * @return void
+     */
+    private function makeTable(BuilderInterface $htmlBuilder, array $content): void
+    {
+        $headers = $content['headers'] ?? [];
+        $details = $content['details'] ?? [];
+        $checkbox = $content['checkbox'] ?? '';
+
+        $htmlBuilder
+            ->table(true, 'bordered');
+        if(count($headers) > 0)
+        {
+            $htmlBuilder
+                ->thead()
+                    ->tr();
+            if($checkbox !== '')
+            {
+                $htmlBuilder
+                        ->th()
+                            ->input([
+                                'type' => 'checkbox',
+                                'class' => 'adminer-table-checkbox',
+                                'id' => "adminer-table-$checkbox-all",
+                            ])
+                            ->end()
+                        ->end();
+            }
+            foreach($headers as $header)
+            {
+                $htmlBuilder
+                        ->th()
+                            ->addText($header)
+                        ->end();
+            }
+            $htmlBuilder
+                    ->end()
+                ->end();
+        }
+
+        $htmlBuilder
+                ->tbody();
+        foreach($details as $_details)
+        {
+            $htmlBuilder
+                    ->tr();
+            if($checkbox !== '')
+            {
+                $htmlBuilder
+                        ->td()
+                            ->input([
+                                'type' => 'checkbox',
+                                'class' => "adminer-table-$checkbox",
+                                'name' => "{$checkbox}[]",
+                            ])
+                            ->end()
+                        ->end();
+            }
+            foreach($_details as $detail)
+            {
+                $htmlBuilder
+                        ->td();
+                if(is_array($detail))
+                {
+                    $htmlBuilder
+                            ->setAttributes($detail['props'])
+                            ->addText($detail['label']);
+                }
+                else
+                {
+                    $htmlBuilder
+                            ->addText($detail);
+                }
+                $htmlBuilder
+                        ->end();
+            }
+            $htmlBuilder
+                    ->end();
+        }
+        $htmlBuilder
+                ->end()
+            ->end();
+    }
+
+    /**
+     * @param array $pageContent
      * @param string $counterId
      *
      * @return string
      */
-    public function mainContent(string $content, string $counterId = ''): string
+    public function mainContent(array $pageContent, string $counterId = ''): string
     {
         $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->table(true, 'bordered')->addHtml($content)
-            ->end();
-        if (($counterId)) {
+        $this->makeTable($htmlBuilder, $pageContent);
+
+        if ($counterId !== '') {
             $htmlBuilder
                 ->panel()
                     ->panelBody()

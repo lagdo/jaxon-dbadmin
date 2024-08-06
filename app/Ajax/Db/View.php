@@ -21,10 +21,7 @@ class View extends CallableDbClass
      */
     protected function showTab(array $viewData, string $tabId)
     {
-        // Make data available to views
-        $this->view()->shareValues($viewData);
-
-        $content = $this->ui->mainContent($this->renderMainContent());
+        $content = $this->ui->mainContent($viewData);
         $this->response->html($tabId, $content);
     }
 

@@ -13,35 +13,18 @@ use function Jaxon\jq;
 class Databases extends Component
 {
     /**
+     * @var array
+     */
+    private $pageContent;
+
+    /**
      * @inheritDoc
      */
     public function html(): string
     {
         // Add checkboxes to database table
-        $checkbox = 'database';
-        return $this->ui->mainContent($this->renderMainContent(['checkbox' => $checkbox]), $checkbox);
-    }
-
-    /**
-     * Show the database dropdown list.
-     *
-     * @return array
-     */
-    protected function showDatabaseMenu(): array
-    {
-        // Access to servers is forbidden. Show the first database.
-        $databasesInfo = $this->db->getDatabases();
-
-        // Make databases info available to views
-        $this->view()->shareValues($databasesInfo);
-
-        // Set the database dropdown list
-        $this->cl(DbList::class)->showDatabases($databasesInfo['databases']);
-
-        // Clear schema list
-        $this->cl(SchemaList::class)->clear();
-
-        return $databasesInfo;
+        $this->pageContent['checkbox'] = 'database';
+        return $this->ui->mainContent($this->pageContent, $this->pageContent['checkbox']);
     }
 
     /**
@@ -54,12 +37,22 @@ class Databases extends Component
      */
     public function update(): AjaxResponse
     {
-        $databasesInfo = $this->showDatabaseMenu();
+        // Set main menu buttons
+        $this->cl(PageActions::class)->databases();
+
+        // Access to servers is forbidden. Show the first database.
+        $this->pageContent = $this->db->getDatabases();
+
+        // Set the database dropdown list
+        $this->cl(DbList::class)->showDatabases($this->pageContent['databases']);
+
+        // Clear schema list
+        $this->cl(SchemaList::class)->clear();
 
         $dbNameClass = 'adminer-database-name';
         $dbDropClass = 'adminer-database-drop';
         // Add links, classes and data values to database names.
-        $details = \array_map(function($detail) use($dbNameClass, $dbDropClass) {
+        $this->pageContent['details'] = \array_map(function($detail) use($dbNameClass, $dbDropClass) {
             $name = $detail['name'];
             $detail['name'] = [
                 'label' => '<a href="javascript:void(0)">' . $name . '</a>',
@@ -76,11 +69,7 @@ class Databases extends Component
                 ],
             ];
             return $detail;
-        }, $databasesInfo['details']);
-        $this->view()->share('details', $details);
-
-        // Set main menu buttons
-        $this->cl(PageActions::class)->databases();
+        }, $this->pageContent['details']);
 
         $this->render();
 

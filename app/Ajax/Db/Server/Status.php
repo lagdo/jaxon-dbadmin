@@ -9,11 +9,16 @@ use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 class Status extends Component
 {
     /**
+     * @var array
+     */
+    private $pageContent;
+
+    /**
      * @inheritDoc
      */
     public function html(): string
     {
-        return $this->ui->mainContent($this->renderMainContent());
+        return $this->ui->mainContent($this->pageContent);
     }
 
     /**
@@ -26,9 +31,7 @@ class Status extends Component
      */
     public function update(): AjaxResponse
     {
-        $statusInfo = $this->db->getStatus();
-        // Make status info available to views
-        $this->view()->shareValues($statusInfo);
+        $this->pageContent = $this->db->getStatus();
 
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();

@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Jaxon\Response\Response;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 class Events extends Component
 {
@@ -16,12 +17,10 @@ class Events extends Component
      */
     public function update(): Response
     {
-        $eventsInfo = $this->db->getEvents();
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbEvents();
 
-        $actions = [
-            // [$this->trans->lang('Create event'), ],
-        ];
-        $this->showSection($eventsInfo, [], $actions);
+        $this->showSection($this->db->getEvents());
 
         return $this->response;
     }

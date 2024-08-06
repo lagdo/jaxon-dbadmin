@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Jaxon\Response\Response;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\jq;
 
@@ -18,6 +19,9 @@ class Tables extends Component
      */
     public function update(): Response
     {
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbTables();
+
         $tablesInfo = $this->db->getTables();
 
         $tableNameClass = 'adminer-table-name';
@@ -35,11 +39,8 @@ class Tables extends Component
             return $detail;
         }, $tablesInfo['details']);
 
-        $actions = [
-            [$this->trans->lang('Create table'), $this->rq(Table::class)->add()],
-        ];
         $checkbox = 'table';
-        $this->showSection($tablesInfo, ['checkbox' => $checkbox], $actions);
+        $this->showSection($tablesInfo, $checkbox);
 
         // Set onclick handlers on table checkbox
         $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);

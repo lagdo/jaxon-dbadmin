@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Jaxon\Response\Response;
+use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 class Routines extends Component
 {
@@ -16,13 +17,10 @@ class Routines extends Component
      */
     public function update(): Response
     {
-        $routinesInfo = $this->db->getRoutines();
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbRoutines();
 
-        $actions = [
-            // [$this->trans->lang('Create procedure'), ],
-            // [$this->trans->lang('Create function'), ],
-        ];
-        $this->showSection($routinesInfo, [], $actions);
+        $this->showSection($this->db->getRoutines());
 
         return $this->response;
     }

@@ -12,11 +12,16 @@ use function Jaxon\jq;
 class Privileges extends Component
 {
     /**
+     * @var array
+     */
+    private $pageContent;
+
+    /**
      * @inheritDoc
      */
     public function html(): string
     {
-        return $this->ui->mainContent($this->renderMainContent());
+        return $this->ui->mainContent($this->pageContent);
     }
 
     /**
@@ -29,12 +34,15 @@ class Privileges extends Component
      */
     public function update(): AjaxResponse
     {
-        $privilegesInfo = $this->db->getPrivileges();
+        // Set main menu buttons
+        $this->cl(PageActions::class)->userPrivileges();
+
+        $this->pageContent = $this->db->getPrivileges();
 
         $editClass = 'adminer-privilege-name';
         $optionClass = 'jaxon-adminer-grant';
         // Add links, classes and data values to privileges.
-        $privilegesInfo['details'] = \array_map(function($detail) use($editClass, $optionClass) {
+        $this->pageContent['details'] = \array_map(function($detail) use($editClass, $optionClass) {
             // Set the grant select options.
             $detail['grants'] = $this->ui->htmlSelect($detail['grants'], $optionClass);
                 // Set the Edit button.
@@ -47,13 +55,7 @@ class Privileges extends Component
                 ],
             ];
             return $detail;
-        }, $privilegesInfo['details']);
-
-        // Make privileges info available to views
-        $this->view()->shareValues($privilegesInfo);
-
-        // Set main menu buttons
-        $this->cl(PageActions::class)->userPrivileges();
+        }, $this->pageContent['details']);
 
         $this->render();
 

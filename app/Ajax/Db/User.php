@@ -18,12 +18,9 @@ class User extends CallableDbClass
     {
         $userInfo = $this->db->newUserPrivileges();
 
-        // Make user info available to views
-        $this->view()->shareValues($userInfo);
-
         $formId = 'user-form';
         $title = 'Add user privileges';
-        $privileges = $this->ui->mainContent($this->renderMainContent());
+        $privileges = $this->ui->mainContent($userInfo);
         $content = $this->ui->userForm($formId, $userInfo['user'], $privileges);
 
         $buttons = [[
@@ -69,12 +66,9 @@ class User extends CallableDbClass
     {
         $userInfo = $this->db->getUserPrivileges($username, $hostname, $database);
 
-        // Make user info available to views
-        $this->view()->shareValues($userInfo);
-
         $formId = 'user-form';
         $title = 'Edit user privileges';
-        $privileges = $this->ui->mainContent($this->renderMainContent());
+        $privileges = $this->ui->mainContent($userInfo);
         $content = $this->ui->userForm($formId, $userInfo['user'], $privileges);
 
         $buttons = [[

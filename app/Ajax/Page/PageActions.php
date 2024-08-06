@@ -41,19 +41,6 @@ class PageActions extends Component
     /**
      * @exclude
      *
-     * @param array $actions
-     *
-     * @return void
-     */
-    public function update(array $actions)
-    {
-        $this->actions = $actions;
-        $this->render();
-    }
-
-    /**
-     * @exclude
-     *
      * @return void
      */
     public function databases()
