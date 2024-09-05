@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
-use Jaxon\Response\AjaxResponse;
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Component;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
@@ -27,9 +27,9 @@ class Processes extends Component
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-processes', 'adminer-database-menu'])
      *
-     * @return AjaxResponse
+     * @return Response
      */
-    public function update(): AjaxResponse
+    public function update(): Response
     {
         $this->pageContent = $this->db->getProcesses();
 

@@ -2,35 +2,182 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Column;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function strcasecmp;
 use function is_string;
+use function Jaxon\rq;
 use function sprintf;
 
 trait TableTrait
 {
     /**
-     * @param string $formId
-     * @param array $support
-     * @param array $engines
-     * @param array $collations
-     * @param array $unsigned
-     * @param array $foreignKeys
-     * @param array $options
+     * @var array
+     */
+    private $table = [];
+
+    /**
+     * @var array
+     */
+    private $support = [];
+
+    /**
+     * @var array
+     */
+    private $engines = [];
+
+    /**
+     * @var array
+     */
+    private $collations = [];
+
+    /**
+     * @var array
+     */
+    private $unsigned = [];
+
+    /**
+     * @var array
+     */
+    private $foreignKeys = [];
+
+    /**
+     * @var array
+     */
+    private $options = [];
+
+    /**
+     * @var array
+     */
+    private $fields = [];
+
+    /**
+     * @var array
+     */
+    private $handlers = [];
+
+    /**
      * @param array $table
+     *
+     * @return self
+     */
+    public function table(array $table): self
+    {
+        $this->table = $table;
+        return $this;
+    }
+
+    /**
+     * @param array $support
+     *
+     * @return self
+     */
+    public function support(array $support): self
+    {
+        $this->support = $support;
+        return $this;
+    }
+
+    /**
+     * @param array $engines
+     *
+     * @return self
+     */
+    public function engines(array $engines): self
+    {
+        $this->engines = $engines;
+        return $this;
+    }
+
+    /**
+     * @param array $collations
+     *
+     * @return self
+     */
+    public function collations(array $collations): self
+    {
+        $this->collations = $collations;
+        return $this;
+    }
+
+    /**
+     * @param array $unsigned
+     *
+     * @return self
+     */
+    public function unsigned(array $unsigned): self
+    {
+        $this->unsigned = $unsigned;
+        return $this;
+    }
+
+    /**
+     * @param array $foreignKeys
+     *
+     * @return self
+     */
+    public function foreignKeys(array $foreignKeys): self
+    {
+        $this->foreignKeys = $foreignKeys;
+        return $this;
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return self
+     */
+    public function options(array $options): self
+    {
+        $this->options = $options;
+        return $this;
+    }
+
+    /**
      * @param array $fields
+     *
+     * @return self
+     */
+    public function fields(array $fields): self
+    {
+        $this->fields = $fields;
+        return $this;
+    }
+
+    /**
+     * @param array $handlers
+     *
+     * @return self
+     */
+    public function handlers(array $handlers): self
+    {
+        $this->handlers = $handlers;
+        return $this;
+    }
+
+    /**
+     * @param string $formId
      *
      * @return string
      */
-    public function tableForm(string $formId, array $support, array $engines, array $collations, array $unsigned = [],
-                              array $foreignKeys = [], array $options = [], array $table = [], array $fields = []): string
+    public function tableForm(string $formId): string
     {
         $htmlBuilder = Builder::new();
         $htmlBuilder
-            ->form(true, false)->setId($formId)
+            ->form(true, false)->setId($formId)->jxnTarget();
+        foreach($this->handlers as $handler) {
+            $htmlBuilder
+                ->div()->jxnOn([
+                    $handler['selector'],
+                    $handler['event'] ?? 'click',
+                    '', // The parent node is the target
+                ], $handler['call'])
+                ->end();
+        }
+        $htmlBuilder
                 ->formRow()->setClass('adminer-edit-table-header')
                     ->formCol(2)
                         ->label()->addText('Table')
@@ -43,14 +190,14 @@ trait TableTrait
                             ->setValue($table['name'] ?? '')->setPlaceholder('Name')
                         ->end()
                     ->end();
-        if (($engines)) {
+        if (($this->engines)) {
             $currentEngine = $table['engine'] ?? '';
             $htmlBuilder
                     ->formCol(2)->setClass('adminer-edit-table-engine')
                         ->formSelect()->setName('engine')
                             ->option(false, '(engine)')->setValue('')
                             ->end();
-            foreach ($engines as $engine) {
+            foreach ($this->engines as $engine) {
                 $htmlBuilder
                             ->option(!strcasecmp($currentEngine, $engine), $engine)
                             ->end();
@@ -59,14 +206,14 @@ trait TableTrait
                         ->end()
                     ->end();
         }
-        if (($collations)) {
+        if (($this->collations)) {
             $currentCollation = $table['collation'] ?? '';
             $htmlBuilder
                     ->formCol(3)->setClass('adminer-edit-table-collation')
                         ->formSelect()->setName('collation')
                             ->option(false, '(' . $this->trans->lang('collation') . ')')->setValue('')
                             ->end();
-            foreach ($collations as $group => $_collations) {
+            foreach ($this->collations as $group => $_collations) {
                 if (is_string($_collations)) {
                     $htmlBuilder
                             ->option($currentCollation === $_collations, $_collations)
@@ -87,7 +234,7 @@ trait TableTrait
                         ->end()
                     ->end();
         }
-        if ($support['comment']) {
+        if ($this->support['comment']) {
             $htmlBuilder
                     ->formCol(4)->setClass('adminer-table-column-middle')
                         ->formInput()->setType('text')->setName('comment')
@@ -113,19 +260,19 @@ trait TableTrait
                         ->end()
                     ->end()
                     ->formCol(1)->setClass('adminer-table-column-buttons-header');
-        if ($support['columns']) {
+        if ($this->support['columns']) {
             $htmlBuilder
                         ->button()->btnPrimary()
-                            ->setId('adminer-table-column-add')->addIcon('plus')
+                            ->jxnClick(rq(Column::class)->add())
+                            ->addIcon('plus')
                         ->end();
         }
         $htmlBuilder
                     ->end()
                 ->end();
         $index = 0;
-        foreach ($fields as $field) {
-            $this->_tableColumn($formId . '-column', $index, $field, sprintf("fields[%d]", ++$index),
-                $support, $collations, $unsigned, $options);
+        foreach ($this->fields as $field) {
+            $this->_tableColumn($htmlBuilder, $formId . '-column', $index, $field, sprintf("fields[%d]", ++$index));
             $index++;
         }
         $htmlBuilder
@@ -139,17 +286,12 @@ trait TableTrait
      * @param int $index
      * @param TableFieldEntity $field
      * @param string $prefixFields
-     * @param array $support
-     * @param array $collations
-     * @param array $unsigned
-     * @param array $options
      * @param bool $wrap
      *
      * @return void
      */
     private function _tableColumn(BuilderInterface $htmlBuilder, string $class, int $index,
-        TableFieldEntity $field, string $prefixFields, array $support, array $collations,
-        array $unsigned, array $options, bool $wrap = true)
+        TableFieldEntity $field, string $prefixFields, bool $wrap = true)
     {
         if ($wrap) {
             $htmlBuilder->formRow()->setClass($class)
@@ -183,7 +325,7 @@ trait TableTrait
         $htmlBuilder
                             ->option(false, '(' . $this->trans->lang('collation') . ')')->setValue('')
                             ->end();
-        foreach ($collations as $group => $_collations) {
+        foreach ($this->collations as $group => $_collations) {
             if (is_string($_collations)) {
                 $htmlBuilder
                             ->option($field->collation === $_collations, $_collations)
@@ -212,7 +354,7 @@ trait TableTrait
         $htmlBuilder
                             ->option(false, '(' . $this->trans->lang('ON UPDATE') . ')')->setValue('')
                             ->end();
-        foreach ($options['onUpdate'] as $option) {
+        foreach ($this->options['onUpdate'] as $option) {
             $htmlBuilder
                             ->option($field->onUpdate === $option, $option)
                             ->end();
@@ -269,7 +411,7 @@ trait TableTrait
         $htmlBuilder
                             ->option(false, '')
                             ->end();
-        foreach ($unsigned as $option) {
+        foreach ($this->unsigned as $option) {
             $htmlBuilder
                             ->option($field->unsigned === $option, $option)
                             ->end();
@@ -286,7 +428,7 @@ trait TableTrait
         $htmlBuilder
                             ->option(false, '(' . $this->trans->lang('ON DELETE') . ')')->setValue('')
                             ->end();
-        foreach ($options['onDelete'] as $option) {
+        foreach ($this->options['onDelete'] as $option) {
             $htmlBuilder
                             ->option($field->onDelete === $option, $option)
                             ->end();
@@ -305,13 +447,13 @@ trait TableTrait
                     ->end()
                     ->col(1)->setClass('adminer-table-column-buttons second-line')
                         /*->buttonGroup(false);
-        if ($support['move_col']) {
+        if ($this->support['move_col']) {
             $htmlBuilder
                             ->button()->btnPrimary()
                                 ->setClass('adminer-table-column-add')->setDataIndex($index)->addIcon('plus')
                             ->end();
         }
-        if ($support['drop_col']) {
+        if ($this->support['drop_col']) {
             $htmlBuilder
                             ->button()->btnPrimary()
                                 ->setClass('adminer-table-column-del')->setDataIndex($index)->addIcon('remove')
@@ -320,19 +462,21 @@ trait TableTrait
         $htmlBuilder
                         ->end()*/
                         ->dropdown()->setClass('adminer-table-column-buttons')
-                            ->dropdownItem('primary')->setDiv("adminer-table-column-button-group-drop-$index")->addCaret()
+                            ->dropdownItem('primary')->addCaret()
                             ->end()
                             ->dropdownMenu();
-        if ($support['move_col']) {
+        if ($this->support['move_col']) {
             $htmlBuilder
                                 ->dropdownMenuItem()
-                                    ->setClass('adminer-table-column-add')->setDataIndex($index)->addIcon('plus')
+                                    ->jxnClick(rq(Column::class)->add($index))
+                                    ->addIcon('plus')
                                 ->end();
         }
-        if ($support['drop_col']) {
+        if ($this->support['drop_col']) {
             $htmlBuilder
                                 ->dropdownMenuItem()
-                                    ->setClass('adminer-table-column-del')->setDataIndex($index)->addIcon('remove')
+                                    ->jxnClick(rq(Column::class)->setForDelete($index))
+                                    ->addIcon('remove')
                                 ->end();
         }
         $htmlBuilder
@@ -351,22 +495,16 @@ trait TableTrait
      * @param int $index
      * @param TableFieldEntity $field
      * @param string $prefixFields
-     * @param array $support
-     * @param array $collations
-     * @param array $unsigned
-     * @param array $options
      * @param bool $wrap
      *
      * @return string
      */
     public function tableColumn(string $class, int $index, TableFieldEntity $field,
-        string $prefixFields, array $support, array $collations, array $unsigned,
-        array $options, bool $wrap): string
+        string $prefixFields, bool $wrap): string
     {
         $htmlBuilder = Builder::new();
         $htmlBuilder;
-        $this->_tableColumn($htmlBuilder, $class, $index, $field, $prefixFields,
-            $support, $collations, $unsigned, $options, $wrap);
+        $this->_tableColumn($htmlBuilder, $class, $index, $field, $prefixFields, $wrap);
         return $htmlBuilder->build();
     }
 

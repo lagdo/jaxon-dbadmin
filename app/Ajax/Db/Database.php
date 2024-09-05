@@ -147,9 +147,7 @@ class Database extends CallableDbClass
      */
     protected function showSection(array $viewData, string $checkbox = '')
     {
-        $counterId = $checkbox;
-        $viewData['checkbox'] = $checkbox;
-        $content = $this->ui->mainContent($viewData, $counterId);
+        $content = $this->ui->mainContent($viewData, $checkbox);
         $this->cl(Content::class)->showHtml($content);
     }
 
@@ -168,32 +166,31 @@ class Database extends CallableDbClass
 
         $tablesInfo = $this->db->getTables();
 
-        $tableNameClass = 'adminer-table-name';
+        $table = jq()->parent()->attr('data-table-name');
         $select = $tablesInfo['select'];
         // Add links, classes and data values to table names.
-        $tablesInfo['details'] = \array_map(function($detail) use($tableNameClass, $select) {
-            $detail['name'] = [
-                'label' => '<a class="name" href="javascript:void(0)">' . $detail['name'] . '</a>' .
-                    '&nbsp;&nbsp;(<a class="select" href="javascript:void(0)">' . $select . '</a>)',
+        $tablesInfo['details'] = \array_map(function($detail) use($table, $select) {
+            $tableName = $detail['name'];
+            $detail['show'] = [
+                'label' => $tableName,
                 'props' => [
-                    'class' => $tableNameClass,
-                    'data-name' => $detail['name'],
+                    'data-table-name' => $tableName,
                 ],
+                'handler' => $this->rq(Table::class)->show($table),
+            ];
+            $detail['select'] = [
+                'label' => $select,
+                'props' => [
+                    'data-table-name' => $tableName,
+                ],
+                'handler' => $this->rq(Table::class)->select($table),
             ];
             return $detail;
         }, $tablesInfo['details']);
 
-        $checkbox = 'table';
-        $this->showSection($tablesInfo, $checkbox);
-
+        $this->showSection($tablesInfo, 'table');
         // Set onclick handlers on table checkbox
-        $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);
-        // Set onclick handlers on table names
-        $table = jq()->parent()->attr('data-name');
-        $this->jq('.' . $tableNameClass . '>a.name', '#' . $this->package->getDbContentId())
-            ->click($this->rq(Table::class)->show($table));
-        $this->jq('.' . $tableNameClass . '>a.select', '#' . $this->package->getDbContentId())
-            ->click($this->rq(Table::class)->select($table));
+        $this->response->js('jaxon.dbadmin')->selectTableCheckboxes('table');
 
         return $this->response;
     }
@@ -213,28 +210,23 @@ class Database extends CallableDbClass
 
         $viewsInfo = $this->db->getViews();
 
-        $viewNameClass = 'adminer-view-name';
+        $view = jq()->parent()->attr('data-view-name');
         // Add links, classes and data values to view names.
-        $viewsInfo['details'] = \array_map(function($detail) use($viewNameClass) {
-            $detail['name'] = [
-                'label' => '<a href="javascript:void(0)">' . $detail['name'] . '</a>',
+        $viewsInfo['details'] = \array_map(function($detail) use($view) {
+            $detail['show'] = [
+                'label' => $detail['name'],
                 'props' => [
-                    'class' => $viewNameClass,
-                    'data-name' => $detail['name'],
+                    'data-view-name' => $detail['name'],
                 ],
+                'handler' => $this->rq(View::class)->show($view),
             ];
             return $detail;
         }, $viewsInfo['details']);
 
-        $checkbox = 'view';
-        $this->showSection($viewsInfo, $checkbox);
+        $this->showSection($viewsInfo, 'view');
 
         // Set onclick handlers on view checkbox
-        $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);
-        // Set onclick handlers on view names
-        $view = jq()->parent()->attr('data-name');
-        $this->jq('.' . $viewNameClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->rq(View::class)->show($view));
+        $this->response->js('jaxon.dbadmin')->selectTableCheckboxes('view');
 
         return $this->response;
     }

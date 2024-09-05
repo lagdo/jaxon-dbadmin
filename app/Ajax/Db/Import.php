@@ -42,10 +42,10 @@ class Import extends CallableDbClass
         $content = $this->ui->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
         $this->cl(Content::class)->showHtml($content);
 
-        $this->response->call("jaxon.dbadmin.setFileUpload", "#$sqlFilesDivId", "#$sqlChooseBtnId", "#$sqlFilesInputId");
+        $this->response->js('jaxon.dbadmin')->setFileUpload("#$sqlFilesDivId", "#$sqlChooseBtnId", "#$sqlFilesInputId");
 
-        $this->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($database));
-        $this->jq("#$sqlFilesBtnId")->click($this->rq()->executeSqlFiles($database, pm()->form($formId)));
+        $this->response->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($database));
+        $this->response->jq("#$sqlFilesBtnId")->click($this->rq()->executeSqlFiles($database, pm()->form($formId)));
 
         return $this->response;
     }

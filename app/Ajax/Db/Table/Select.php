@@ -72,12 +72,11 @@ class Select extends CallableDbClass
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
         $this->response->html($this->txtQueryId, '');
-        // $this->response->call("jaxon.dbadmin.highlightSqlQuery", $this->txtQueryId, $server, $query);
-        $this->response->addCommand([
-            'cmd' => 'dbadmin.hsqlquery',
+        $this->response->addCommand('dbadmin.hsqlquery', [
             'id' => $this->txtQueryId,
-            'server' => $server,
-        ], html_entity_decode($query, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            'driver' => $server,
+            'query' => html_entity_decode($query, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+        ]);
     }
 
     /**
@@ -132,16 +131,16 @@ class Select extends CallableDbClass
         }
 
         // Set onclick handlers on buttons
-        $this->jq("#$btnColumnsId")->click($this->rq()->editColumns());
-        $this->jq("#$btnFiltersId")->click($this->rq()->editFilters());
-        $this->jq("#$btnSortingId")->click($this->rq()->editSorting());
-        $this->jq("#$btnExecId")->click($this->rq()->execSelect());
+        $this->response->jq("#$btnColumnsId")->click($this->rq()->editColumns());
+        $this->response->jq("#$btnFiltersId")->click($this->rq()->editFilters());
+        $this->response->jq("#$btnSortingId")->click($this->rq()->editSorting());
+        $this->response->jq("#$btnExecId")->click($this->rq()->execSelect());
         $query = pm()->js('jaxon.dbadmin.editor.query');
-        $this->jq("#$btnEditId")->click($this->rq(Command::class)->showDatabaseForm($query));
+        $this->response->jq("#$btnEditId")->click($this->rq(Command::class)->showDatabaseForm($query));
         // Select options form
         $options = pm()->form($this->formOptionsId);
-        $this->jq("#$btnLimitId")->click($this->rq()->setQueryOptions($options));
-        $this->jq("#$btnLengthId")->click($this->rq()->setQueryOptions($options));
+        $this->response->jq("#$btnLimitId")->click($this->rq()->setQueryOptions($options));
+        $this->response->jq("#$btnLengthId")->click($this->rq()->setQueryOptions($options));
 
         return $this->response;
     }
@@ -188,7 +187,7 @@ class Select extends CallableDbClass
         // Note: don't use the var keyword when setting a variable,
         // because it will not make the variable globally accessible.
         // $this->response->script("jaxon.dbadmin.rowIds = JSON.parse('" . json_encode($rowIds) . "')");
-        $this->response->addCommand(['cmd' => 'dbadmin.row.ids.set'], $rowIds);
+        $this->response->addCommand('dbadmin.row.ids.set', ['ids' => $rowIds]);
 
         $btnEditRowClass = 'adminer-table-select-row-edit';
         $btnDeleteRowClass = 'adminer-table-select-row-delete';
@@ -206,8 +205,8 @@ class Select extends CallableDbClass
         $this->response->setFunction('deleteRowItem', 'rowId', $deleteCall);
 
         // Set the functions as button event handlers
-        $this->jq(".$btnEditRowClass", "#$resultsId")->click(rq('.')->updateRowItem(jq()->attr('data-row-id')));
-        $this->jq(".$btnDeleteRowClass", "#$resultsId")->click(rq('.')->deleteRowItem(jq()->attr('data-row-id')));
+        $this->response->jq(".$btnEditRowClass", "#$resultsId")->click(rq('.')->updateRowItem(jq()->attr('data-row-id')));
+        $this->response->jq(".$btnDeleteRowClass", "#$resultsId")->click(rq('.')->deleteRowItem(jq()->attr('data-row-id')));
 
         // Show the query
         $this->showQuery($results['query']);
@@ -278,9 +277,9 @@ class Select extends CallableDbClass
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
-        $count = count($selectData['options']['columns']['values']);
-        // $this->response->script("jaxon.dbadmin.newItemIndex=$count");
-        $this->response->addCommand(['cmd' => 'dbadmin.new.index.set'], $count);
+        $this->response->addCommand('dbadmin.new.index.set', [
+            'count' => count($selectData['options']['columns']['values']),
+        ]);
 
         return $this->response;
     }
@@ -344,9 +343,9 @@ class Select extends CallableDbClass
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
-        $count = count($selectData['options']['filters']['values']);
-        // $this->response->script("jaxon.dbadmin.newItemIndex=$count");
-        $this->response->addCommand(['cmd' => 'dbadmin.new.index.set'], $count);
+        $this->response->addCommand('dbadmin.new.index.set', [
+            'count' => count($selectData['options']['filters']['values']),
+        ]);
 
         return $this->response;
     }
@@ -410,9 +409,9 @@ class Select extends CallableDbClass
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
-        $count = count($selectData['options']['sorting']['values']);
-        // $this->response->script("jaxon.dbadmin.newItemIndex=$count");
-        $this->response->addCommand(['cmd' => 'dbadmin.new.index.set'], $count);
+        $this->response->addCommand('dbadmin.new.index.set', [
+            'count' => count($selectData['options']['sorting']['values']),
+        ]);
 
         return $this->response;
     }

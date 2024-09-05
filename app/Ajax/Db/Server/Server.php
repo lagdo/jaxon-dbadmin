@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
-use Jaxon\Response\AjaxResponse;
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Database;
 use Lagdo\DbAdmin\App\Ajax\Menu\Db;
 use Lagdo\DbAdmin\App\Ajax\Menu\DbActions;
@@ -74,9 +74,9 @@ class Server extends CallableDbClass
      *
      * @param bool $hasServerAccess
      *
-     * @return AjaxResponse
+     * @return Response
      */
-    public function connect(bool $hasServerAccess): AjaxResponse
+    public function connect(bool $hasServerAccess): Response
     {
         $serverInfo = $this->db->getServerInfo();
         // Make server info available to views

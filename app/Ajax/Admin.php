@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax;
 
 use Lagdo\DbAdmin\App\Component;
-use Jaxon\Response\AjaxResponse;
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Server\Server;
 
 class Admin extends Component
@@ -26,9 +26,9 @@ class Admin extends Component
      *
      * @param string $server      The database server id in the package config
      *
-     * @return AjaxResponse
+     * @return Response
      */
-    public function server(string $server): AjaxResponse
+    public function server(string $server): Response
     {
         // Set the selected server
         $this->db->selectDatabase($server);

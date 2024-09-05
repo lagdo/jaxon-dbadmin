@@ -3,8 +3,10 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Jaxon\Response\Response;
+use Lagdo\DbAdmin\App\Ajax\Db\Table;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
+use function array_map;
 use function Jaxon\jq;
 
 class Tables extends Component
@@ -24,32 +26,31 @@ class Tables extends Component
 
         $tablesInfo = $this->db->getTables();
 
-        $tableNameClass = 'adminer-table-name';
+        $table = jq()->parent()->attr('data-table-name');
         $select = $tablesInfo['select'];
         // Add links, classes and data values to table names.
-        $tablesInfo['details'] = \array_map(function($detail) use($tableNameClass, $select) {
-            $detail['name'] = [
-                'label' => '<a class="name" href="javascript:void(0)">' . $detail['name'] . '</a>' .
-                    '&nbsp;&nbsp;(<a class="select" href="javascript:void(0)">' . $select . '</a>)',
+        $tablesInfo['details'] = array_map(function($detail) use($table, $select) {
+            $tableName = $detail['name'];
+            $detail['show'] = [
+                'label' => $tableName,
                 'props' => [
-                    'class' => $tableNameClass,
-                    'data-name' => $detail['name'],
+                    'data-table-name' => $tableName,
                 ],
+                'handler' => $this->rq(Table::class)->show($table),
+            ];
+            $detail['select'] = [
+                'label' => $select,
+                'props' => [
+                    'data-table-name' => $tableName,
+                ],
+                'handler' => $this->rq(Table::class)->select($table),
             ];
             return $detail;
         }, $tablesInfo['details']);
 
-        $checkbox = 'table';
-        $this->showSection($tablesInfo, $checkbox);
-
+        $this->showSection($tablesInfo, 'table');
         // Set onclick handlers on table checkbox
-        $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);
-        // Set onclick handlers on table names
-        $table = jq()->parent()->attr('data-name');
-        $this->jq('.' . $tableNameClass . '>a.name', '#' . $this->package->getDbContentId())
-            ->click($this->rq(Table::class)->show($table));
-        $this->jq('.' . $tableNameClass . '>a.select', '#' . $this->package->getDbContentId())
-            ->click($this->rq(Table::class)->select($table));
+        $this->response->js('jaxon.dbadmin')->selectTableCheckboxes('table');
 
         return $this->response;
     }

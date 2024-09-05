@@ -5,6 +5,9 @@ namespace Lagdo\DbAdmin\Ui\Traits;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
+use function count;
+use function Jaxon\jq;
+
 trait MainTrait
 {
     /**
@@ -115,15 +118,47 @@ trait MainTrait
 
     /**
      * @param BuilderInterface $htmlBuilder
-     * @param array $content
+     * @param mixed $content
      *
      * @return void
      */
-    private function makeTable(BuilderInterface $htmlBuilder, array $content): void
+    private function showTableCell(BuilderInterface $htmlBuilder, $content): void
+    {
+        if(!is_array($content))
+        {
+            $htmlBuilder->addText($content);
+            return;
+        }
+
+        if(isset($content['props']))
+        {
+            $htmlBuilder->setAttributes($content['props']);
+        }
+        if(!isset($content['handler']))
+        {
+            $htmlBuilder->addText($content['label']);
+            return;
+        }
+
+        $htmlBuilder
+            ->a()
+                ->setAttributes(['href' => '#0'])
+                ->jxnClick($content['handler'])
+                ->addText($content['label'])
+            ->end();
+    }
+
+    /**
+     * @param BuilderInterface $htmlBuilder
+     * @param array $content
+     * @param string $counterId
+     *
+     * @return void
+     */
+    private function makeTable(BuilderInterface $htmlBuilder, array $content, string $counterId): void
     {
         $headers = $content['headers'] ?? [];
         $details = $content['details'] ?? [];
-        $checkbox = $content['checkbox'] ?? '';
 
         $htmlBuilder
             ->table(true, 'bordered');
@@ -132,14 +167,14 @@ trait MainTrait
             $htmlBuilder
                 ->thead()
                     ->tr();
-            if($checkbox !== '')
+            if($counterId !== '')
             {
                 $htmlBuilder
                         ->th()
                             ->input([
                                 'type' => 'checkbox',
                                 'class' => 'adminer-table-checkbox',
-                                'id' => "adminer-table-$checkbox-all",
+                                'id' => "adminer-table-$counterId-all",
                             ])
                             ->end()
                         ->end();
@@ -162,14 +197,14 @@ trait MainTrait
         {
             $htmlBuilder
                     ->tr();
-            if($checkbox !== '')
+            if($counterId !== '')
             {
                 $htmlBuilder
                         ->td()
                             ->input([
                                 'type' => 'checkbox',
-                                'class' => "adminer-table-$checkbox",
-                                'name' => "{$checkbox}[]",
+                                'class' => "adminer-table-$counterId",
+                                'name' => "{$counterId}[]",
                             ])
                             ->end()
                         ->end();
@@ -178,17 +213,7 @@ trait MainTrait
             {
                 $htmlBuilder
                         ->td();
-                if(is_array($detail))
-                {
-                    $htmlBuilder
-                            ->setAttributes($detail['props'])
-                            ->addText($detail['label']);
-                }
-                else
-                {
-                    $htmlBuilder
-                            ->addText($detail);
-                }
+                $this->showTableCell($htmlBuilder, $detail);
                 $htmlBuilder
                         ->end();
             }
@@ -209,7 +234,7 @@ trait MainTrait
     public function mainContent(array $pageContent, string $counterId = ''): string
     {
         $htmlBuilder = Builder::new();
-        $this->makeTable($htmlBuilder, $pageContent);
+        $this->makeTable($htmlBuilder, $pageContent, $counterId);
 
         if ($counterId !== '') {
             $htmlBuilder

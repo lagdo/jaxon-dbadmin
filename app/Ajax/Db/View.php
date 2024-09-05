@@ -21,8 +21,7 @@ class View extends CallableDbClass
      */
     protected function showTab(array $viewData, string $tabId)
     {
-        $content = $this->ui->mainContent($viewData);
-        $this->response->html($tabId, $content);
+        $this->response->html($tabId, $this->ui->mainContent($viewData));
     }
 
     /**
@@ -86,6 +85,30 @@ class View extends CallableDbClass
     }
 
     /**
+     * Create a new view
+     *
+     * @param array $values      The view values
+     *
+     * @return Response
+     */
+    public function create(array $values): Response
+    {
+        $values['materialized'] = \array_key_exists('materialized', $values);
+
+        $result = $this->db->createView($values);
+        if(!$result['success'])
+        {
+            $this->response->dialog->error($result['error']);
+            return $this->response;
+        }
+
+        $this->response->dialog->hide();
+        $this->cl(Database::class)->showViews();
+        $this->response->dialog->success($result['message']);
+        return $this->response;
+    }
+
+    /**
      * Show edit form for a given view
      *
      * @param string $view        The view name
@@ -113,30 +136,6 @@ class View extends CallableDbClass
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
-        return $this->response;
-    }
-
-    /**
-     * Create a new view
-     *
-     * @param array $values      The view values
-     *
-     * @return Response
-     */
-    public function create(array $values): Response
-    {
-        $values['materialized'] = \array_key_exists('materialized', $values);
-
-        $result = $this->db->createView($values);
-        if(!$result['success'])
-        {
-            $this->response->dialog->error($result['error']);
-            return $this->response;
-        }
-
-        $this->response->dialog->hide();
-        $this->cl(Database::class)->showViews();
-        $this->response->dialog->success($result['message']);
         return $this->response;
     }
 

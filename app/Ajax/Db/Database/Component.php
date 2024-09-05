@@ -44,7 +44,6 @@ abstract class Component extends BaseComponent
     protected function showSection(array $viewData, string $checkbox = '')
     {
         $this->pageContent = $viewData;
-        $this->pageContent['checkbox'] = $checkbox;
         $this->counterId = $checkbox;
 
         $this->render();

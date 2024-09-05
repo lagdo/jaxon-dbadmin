@@ -131,53 +131,12 @@ class Table extends CallableDbClass
         // Set main menu buttons
         $this->cl(PageActions::class)->addTable($this->formId);
 
-        $content = $this->ui->tableForm($this->formId, $tableData['support'],
-            $tableData['engines'], $tableData['collations']);
+        $content = $this->ui
+            ->support($tableData['support'])
+            ->engines($tableData['engines'])
+            ->collations($tableData['collations'])
+            ->tableForm($this->formId);
         $this->cl(Content::class)->showHtml($content);
-
-        // Set onclick handlers on toolbar buttons
-        $length = jq(".{$this->formId}-column", "#adminer-database-content")->length;
-        $this->jq('#adminer-table-column-add')->click($this->rq(Column::class)->add($length));
-
-        return $this->response;
-    }
-
-    /**
-     * Update a given table
-     *
-     * @after('call' => 'showBreadcrumbs')
-     *
-     * @param string $table       The table name
-     *
-     * @return Response
-     */
-    public function edit(string $table): Response
-    {
-        $tableData = $this->db->getTableData($table);
-        // Make data available to views
-        $this->view()->shareValues($tableData);
-
-        // Set main menu buttons
-        $this->cl(PageActions::class)->editTable($table, $this->formId);
-
-        $contentId = 'adminer-database-content';
-        $editedTable = [
-            'name' => $tableData['table']->name,
-            'engine' => $tableData['table']->engine,
-            'collation' => $tableData['table']->collation,
-            'comment' => $tableData['table']->comment,
-        ];
-        $content = $this->ui->tableForm($this->formId, $tableData['support'], $tableData['engines'],
-            $tableData['collations'], $tableData['unsigned'] ?? [], $tableData['foreignKeys'],
-            $tableData['options'], $editedTable, $tableData['fields']);
-        $this->cl(Content::class)->showHtml($content);
-
-        // Set onclick handlers on toolbar buttons
-        $length = jq(".{$this->formId}-column", "#$contentId")->length;
-        $this->jq('#adminer-table-column-add')->click($this->rq(Column::class)->add($length));
-        $index = jq()->attr('data-index');
-        $this->jq('.adminer-table-column-add')->click($this->rq(Column::class)->add($length, $index));
-        $this->jq('.adminer-table-column-del')->click($this->rq(Column::class)->setForDelete($index));
 
         return $this->response;
     }
@@ -202,6 +161,45 @@ class Table extends CallableDbClass
 
         $this->show($values['name']);
         $this->response->dialog->success($result['message']);
+        return $this->response;
+    }
+
+    /**
+     * Update a given table
+     *
+     * @after('call' => 'showBreadcrumbs')
+     *
+     * @param string $table       The table name
+     *
+     * @return Response
+     */
+    public function edit(string $table): Response
+    {
+        $tableData = $this->db->getTableData($table);
+        // Make data available to views
+        $this->view()->shareValues($tableData);
+
+        // Set main menu buttons
+        $this->cl(PageActions::class)->editTable($table, $this->formId);
+
+        $editedTable = [
+            'name' => $tableData['table']->name,
+            'engine' => $tableData['table']->engine,
+            'collation' => $tableData['table']->collation,
+            'comment' => $tableData['table']->comment,
+        ];
+        $content = $this->ui
+            ->table($editedTable)
+            ->support($tableData['support'])
+            ->engines($tableData['engines'])
+            ->collations($tableData['collations'])
+            ->unsigned($tableData['unsigned'] ?? [])
+            ->foreignKeys($tableData['foreignKeys'])
+            ->options($tableData['options'])
+            ->fields($tableData['fields'])
+            ->tableForm($this->formId);
+        $this->cl(Content::class)->showHtml($content);
+
         return $this->response;
     }
 

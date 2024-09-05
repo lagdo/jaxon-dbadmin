@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
-use Jaxon\Response\AjaxResponse;
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Component;
 use Lagdo\DbAdmin\App\Ajax\Db\User;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
@@ -30,41 +30,35 @@ class Privileges extends Component
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-privileges', 'adminer-database-menu'])
      *
-     * @return AjaxResponse
+     * @return Response
      */
-    public function update(): AjaxResponse
+    public function update(): Response
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->userPrivileges();
 
         $this->pageContent = $this->db->getPrivileges();
 
-        $editClass = 'adminer-privilege-name';
-        $optionClass = 'jaxon-adminer-grant';
+        $user = jq()->parent()->attr('data-user');
+        $host = jq()->parent()->attr('data-host');
+        $database = jq()->parent()->parent()->find("option.database-item:selected")->val();
         // Add links, classes and data values to privileges.
-        $this->pageContent['details'] = \array_map(function($detail) use($editClass, $optionClass) {
+        $this->pageContent['details'] = \array_map(function($detail) use($user, $host, $database) {
             // Set the grant select options.
-            $detail['grants'] = $this->ui->htmlSelect($detail['grants'], $optionClass);
+            $detail['grants'] = $this->ui->htmlSelect($detail['grants'], 'database-item');
                 // Set the Edit button.
             $detail['edit'] = [
-                'label' => '<a href="javascript:void(0)">Edit</a>',
+                'label' => 'Edit',
                 'props' => [
-                    'class' => $editClass,
                     'data-user' => $detail['user'],
                     'data-host' => $detail['host'],
                 ],
+                'handler' => $this->rq(User::class)->edit($user, $host, $database),
             ];
             return $detail;
         }, $this->pageContent['details']);
 
         $this->render();
-
-        // Set onclick handlers on database names
-        $user = jq()->parent()->attr('data-user');
-        $host = jq()->parent()->attr('data-host');
-        $database = jq()->parent()->parent()->find("option.$optionClass:selected")->val();
-        $this->jq('.' . $editClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->rq(User::class)->edit($user, $host, $database));
 
         return $this->response;
     }

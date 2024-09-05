@@ -37,11 +37,11 @@ class Column extends CallableDbClass
         // Insert a div with the id before the target
         $this->response->insertBefore($target, $this->ui->formRowTag(), $id);
         // Set the new element class
-        $this->jq("#$id")->attr('class', $this->ui->formRowClass($class));
+        $this->response->jq("#$id")->attr('class', $this->ui->formRowClass($class));
         // Set the new element attributes
         foreach($attrs as $name => $value)
         {
-            $this->jq("#$id")->attr($name, $value);
+            $this->response->jq("#$id")->attr($name, $value);
         }
         // Set the new element content
         $this->response->html($id, $content);
@@ -63,11 +63,11 @@ class Column extends CallableDbClass
         // Insert a div with the id after the target
         $this->response->insertAfter($target, $this->ui->formRowTag(), $id);
         // Set the new element class
-        $this->jq("#$id")->attr('class', $this->ui->formRowClass($class));
+        $this->response->jq("#$id")->attr('class', $this->ui->formRowClass($class));
         // Set the new element attributes
         foreach($attrs as $name => $value)
         {
-            $this->jq("#$id")->attr($name, $value);
+            $this->response->jq("#$id")->attr($name, $value);
         }
         // Set the new element content
         $this->response->html($id, $content);
@@ -76,13 +76,15 @@ class Column extends CallableDbClass
     /**
      * Insert a new column at a given position
      *
-     * @param int    $length      The number of columns in the table
      * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
      *
      * @return Response
      */
-    public function add(int $length, int $target = -1): Response
+    public function add(int $target = -1): Response
     {
+        // Todo: Save columns data in a databag, and get the 'length' value from there.
+        $length = jq(".{$this->formId}-column", "#adminer-database-content")->length;
+
         $tableData = $this->db->getTableData();
         // Make data available to views
         $this->view()->shareValues($tableData);
@@ -91,8 +93,12 @@ class Column extends CallableDbClass
         $columnId = sprintf('%s-%02d', $columnClass, $length);
         $field = $this->db->getTableField();
         $prefixFields = sprintf("fields[%d]", $length + 1);
-        $content = $this->ui->tableColumn($columnClass, $length, $field, $prefixFields, $tableData['support'],
-            $tableData['collations'], $tableData['unsigned'], $tableData['options'], $target < 0);
+        $content = $this->ui
+            ->support($tableData['support'])
+            ->collations($tableData['collations'])
+            ->unsigned($tableData['unsigned'])
+            ->options($tableData['options'])
+            ->tableColumn($columnClass, $length, $field, $prefixFields, $target < 0);
 
         if($target < 0)
         {
@@ -111,15 +117,15 @@ class Column extends CallableDbClass
             // $this->response->prepend($targetId, 'outerHTML', $content);
         }
 
-        $contentId = $this->package->getDbContentId();
-        $length = jq(".$columnClass", "#$contentId")->length;
-        $index = jq()->attr('data-index');
-        // Set the button event handlers on the new column
-        $this->jq('[data-field]', "#$columnId")
-            ->on('jaxon.dbadmin.renamed', pm()->js('jaxon.dbadmin.onColumnRenamed'));
-        $this->jq('.adminer-table-column-add', "#$columnId")->click($this->rq()->add($length, $index));
-        $this->jq('.adminer-table-column-del', "#$columnId")->click($this->rq()->del($length, $index)
-            ->confirm('Delete this column?'));
+        // $contentId = $this->package->getDbContentId();
+        // $length = jq(".$columnClass", "#$contentId")->length;
+        // $index = jq()->attr('data-index');
+        // // Set the button event handlers on the new column
+        // $this->response->jq('[data-field]', "#$columnId")
+        //     ->on('jaxon.dbadmin.renamed', pm()->js('jaxon.dbadmin.onColumnRenamed'));
+        // $this->response->jq('.adminer-table-column-add', "#$columnId")->click($this->rq()->add($length, $index));
+        // $this->response->jq('.adminer-table-column-del', "#$columnId")->click($this->rq()->del($length, $index)
+        //     ->confirm('Delete this column?'));
 
         return $this->response;
     }
@@ -140,15 +146,15 @@ class Column extends CallableDbClass
         $this->response->remove($columnId);
 
         // Reset the added columns ids and input names, so they remain contiguous.
-        $length--;
-        for($id = $index; $id < $length; $id++)
-        {
-            $currId = sprintf('%s-column-%02d', $this->formId, $id + 1);
-            $nextId = sprintf('%s-column-%02d', $this->formId, $id);
-            $this->jq("#$currId")->attr('data-index', $id)->attr('id', $nextId);
-            $this->jq('.adminer-table-column-buttons', "#$nextId")->attr('data-index', $id);
-            $this->jq('[data-field]', "#$nextId")->trigger('jaxon.dbadmin.renamed');
-        }
+        // $length--;
+        // for($id = $index; $id < $length; $id++)
+        // {
+        //     $currId = sprintf('%s-column-%02d', $this->formId, $id + 1);
+        //     $nextId = sprintf('%s-column-%02d', $this->formId, $id);
+        //     $this->response->jq("#$currId")->attr('data-index', $id)->attr('id', $nextId);
+        //     $this->response->jq('.adminer-table-column-buttons', "#$nextId")->attr('data-index', $id);
+        //     $this->response->jq('[data-field]', "#$nextId")->trigger('jaxon.dbadmin.renamed');
+        // }
 
         return $this->response;
     }
@@ -162,20 +168,20 @@ class Column extends CallableDbClass
      */
     public function setForDelete(int $index): Response
     {
-        $columnId = sprintf('%s-column-%02d', $this->formId, $index);
+        // $columnId = sprintf('%s-column-%02d', $this->formId, $index);
 
-        // To mark a column as to be dropped, set its name to an empty string.
-        $this->jq('input.column-name', "#$columnId")->attr('name', '');
-        // Replace the icon and the onClick event handler.
-        $this->jq("#adminer-table-column-button-group-drop-$index")
-            ->removeClass('btn-primary')
-            ->addClass('btn-danger');
-        $this->jq('.adminer-table-column-del', "#$columnId")
-            // Remove the current onClick handler before setting a new one.
-            ->unbind('click')->click($this->rq()->cancelDelete($index));
-        // $this->jq('.adminer-table-column-del>span', "#$columnId")
-        //     ->removeClass('glyphicon-remove')
-        //     ->addClass('glyphicon-trash');
+        // // To mark a column as to be dropped, set its name to an empty string.
+        // $this->response->jq('input.column-name', "#$columnId")->attr('name', '');
+        // // Replace the icon and the onClick event handler.
+        // $this->response->jq("#adminer-table-column-button-group-drop-$index")
+        //     ->removeClass('btn-primary')
+        //     ->addClass('btn-danger');
+        // $this->response->jq('.adminer-table-column-del', "#$columnId")
+        //     // Remove the current onClick handler before setting a new one.
+        //     ->unbind('click')->click($this->rq()->cancelDelete($index));
+        // // $this->response->jq('.adminer-table-column-del>span', "#$columnId")
+        // //     ->removeClass('glyphicon-remove')
+        // //     ->addClass('glyphicon-trash');
 
         return $this->response;
     }
@@ -189,21 +195,21 @@ class Column extends CallableDbClass
      */
     public function cancelDelete(int $index): Response
     {
-        $columnId = sprintf('%s-column-%02d', $this->formId, $index);
-        $columnName = sprintf('fields[%d][field]', $index + 1);
+        // $columnId = sprintf('%s-column-%02d', $this->formId, $index);
+        // $columnName = sprintf('fields[%d][field]', $index + 1);
 
-        // To cancel the drop, reset the column name to its initial value.
-        $this->jq('input.column-name', "#$columnId")->attr('name', $columnName);
-        // Replace the icon and the onClick event handler.
-        $this->jq("#adminer-table-column-button-group-drop-$index")
-            ->removeClass('btn-danger')
-            ->addClass('btn-primary');
-        $this->jq('.adminer-table-column-del', "#$columnId")
-            // Remove the current onClick handler before setting a new one.
-            ->unbind('click')->click($this->rq()->setForDelete($index));
-        // $this->jq('.adminer-table-column-del>span', "#$columnId")
-        //     ->removeClass('glyphicon-trash')
-        //     ->addClass('glyphicon-remove');
+        // // To cancel the drop, reset the column name to its initial value.
+        // $this->response->jq('input.column-name', "#$columnId")->attr('name', $columnName);
+        // // Replace the icon and the onClick event handler.
+        // $this->response->jq("#adminer-table-column-button-group-drop-$index")
+        //     ->removeClass('btn-danger')
+        //     ->addClass('btn-primary');
+        // $this->response->jq('.adminer-table-column-del', "#$columnId")
+        //     // Remove the current onClick handler before setting a new one.
+        //     ->unbind('click')->click($this->rq()->setForDelete($index));
+        // // $this->response->jq('.adminer-table-column-del>span', "#$columnId")
+        // //     ->removeClass('glyphicon-trash')
+        // //     ->addClass('glyphicon-remove');
 
         return $this->response;
     }

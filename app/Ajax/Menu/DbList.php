@@ -41,6 +41,6 @@ class DbList extends MenuComponent
      */
     public function change(string $database)
     {
-        $this->response->jq()->val($database)->change();
+        $this->response->jq('.')->val($database)->change();
     }
 }

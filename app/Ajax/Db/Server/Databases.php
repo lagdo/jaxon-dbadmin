@@ -2,12 +2,13 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
-use Jaxon\Response\AjaxResponse;
+use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Database\Database;
 use Lagdo\DbAdmin\App\Ajax\Menu\DbList;
 use Lagdo\DbAdmin\App\Ajax\Menu\SchemaList;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
+use function array_map;
 use function Jaxon\jq;
 
 class Databases extends Component
@@ -23,8 +24,7 @@ class Databases extends Component
     public function html(): string
     {
         // Add checkboxes to database table
-        $this->pageContent['checkbox'] = 'database';
-        return $this->ui->mainContent($this->pageContent, $this->pageContent['checkbox']);
+        return $this->ui->mainContent($this->pageContent, 'database');
     }
 
     /**
@@ -33,9 +33,9 @@ class Databases extends Component
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-databases', 'adminer-database-menu'])
      *
-     * @return AjaxResponse
+     * @return Response
      */
-    public function update(): AjaxResponse
+    public function update(): Response
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->databases();
@@ -49,24 +49,24 @@ class Databases extends Component
         // Clear schema list
         $this->cl(SchemaList::class)->clear();
 
-        $dbNameClass = 'adminer-database-name';
-        $dbDropClass = 'adminer-database-drop';
+        $database = jq()->parent()->attr('data-database-name');
         // Add links, classes and data values to database names.
-        $this->pageContent['details'] = \array_map(function($detail) use($dbNameClass, $dbDropClass) {
-            $name = $detail['name'];
-            $detail['name'] = [
-                'label' => '<a href="javascript:void(0)">' . $name . '</a>',
+        $this->pageContent['details'] = array_map(function($detail) use($database) {
+            $databaseName = $detail['name'];
+            $detail['select'] = [
+                'label' => $databaseName,
                 'props' => [
-                    'class' => $dbNameClass,
-                    'data-name' => $name,
+                    'data-database-name' => $databaseName,
                 ],
+                'handler' => $this->rq(Database::class)->select($database),
             ];
             $detail['drop'] = [
-                'label' => '<a href="javascript:void(0)">Drop</a>',
+                'label' => 'Drop',
                 'props' => [
-                    'class' => $dbDropClass,
-                    'data-name' => $name,
+                    'data-database-name' => $databaseName,
                 ],
+                'handler' => $this->rq(Database::class)->drop($database)
+                    ->confirm("Delete database {1}?", $database),
             ];
             return $detail;
         }, $this->pageContent['details']);
@@ -75,18 +75,7 @@ class Databases extends Component
 
         // Set onclick handlers on table checkbox
         $checkbox = 'database';
-        $this->response->call("jaxon.dbadmin.selectTableCheckboxes", $checkbox);
-
-        // Set onclick handlers on database names
-        $database = jq()->parent()->attr('data-name');
-        $this->jq('.' . $dbNameClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->rq(Database::class)->select($database));
-
-        // Set onclick handlers on database drop
-        $database = jq()->parent()->attr('data-name');
-        $this->jq('.' . $dbDropClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->rq(Database::class)->drop($database)
-            ->confirm("Delete database {1}?", $database));
+        $this->response->js('jaxon.dbadmin')->selectTableCheckboxes($checkbox);
 
         return $this->response;
     }

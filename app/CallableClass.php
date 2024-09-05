@@ -118,10 +118,10 @@ class CallableClass extends JaxonCallableClass
      */
     protected function selectMenuItem(string $menuId, string $wrapperId)
     {
-        $this->jq('.adminer-menu-item', '#' . $this->package->getServerActionsId())->removeClass('active');
-        $this->jq('.adminer-menu-item', '#' . $this->package->getDbActionsId())->removeClass('active');
-        $this->jq('.adminer-menu-item', '#' . $this->package->getDbMenuId())->removeClass('active');
-        $this->jq($menuId, '#' . $wrapperId)->addClass('active');
+        $this->response->jq('.adminer-menu-item', '#' . $this->package->getServerActionsId())->removeClass('active');
+        $this->response->jq('.adminer-menu-item', '#' . $this->package->getDbActionsId())->removeClass('active');
+        $this->response->jq('.adminer-menu-item', '#' . $this->package->getDbMenuId())->removeClass('active');
+        $this->response->jq($menuId, '#' . $wrapperId)->addClass('active');
     }
 
     /**
