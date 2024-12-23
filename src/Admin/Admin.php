@@ -1,26 +1,26 @@
 <?php
 
-namespace Lagdo\DbAdmin;
+namespace Lagdo\DbAdmin\Admin;
 
 use Lagdo\DbAdmin\Driver\Entity\TableEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\DbAdmin\Driver\Input;
 use Lagdo\DbAdmin\Driver\TranslatorInterface;
-use Lagdo\DbAdmin\Driver\UtilInterface;
-use Lagdo\DbAdmin\Driver\UtilTrait;
+use Lagdo\DbAdmin\Driver\AdminInterface;
+use Lagdo\DbAdmin\Driver\AdminTrait;
 
 use function preg_match;
 use function strlen;
 
-class Util implements UtilInterface
+class Admin implements AdminInterface
 {
-    use UtilTrait;
-    use Traits\UtilTrait;
-    use Traits\SelectUtilTrait;
+    use AdminTrait;
+    use Traits\AdminTrait;
+    use Traits\SelectTrait;
     use Traits\QueryInputTrait;
     use Traits\SelectInputTrait;
-    use Traits\QueryUtilTrait;
-    use Traits\DumpUtilTrait;
+    use Traits\QueryTrait;
+    use Traits\DumpTrait;
 
     /**
      * The constructor

@@ -34,8 +34,8 @@ class UserFacade extends AbstractFacade
             // Fetch user grants
             $userEntity = $this->driver->getUserGrants($user["User"], $user["Host"]);
             $details[] = [
-                'user' => $this->util->html($userEntity->name),
-                'host' => $this->util->html($userEntity->host),
+                'user' => $this->admin->html($userEntity->name),
+                'host' => $this->admin->html($userEntity->host),
                 'grants' => \array_keys($userEntity->grants),
             ];
         }
@@ -91,12 +91,12 @@ class UserFacade extends AbstractFacade
      */
     private function getPrivilegeInput(string $privilege, string $desc, string $context, array $grants): array
     {
-        $detail = [$desc, $this->util->html($privilege)];
+        $detail = [$desc, $this->admin->html($privilege)];
         // echo '<tr><td' . ($desc ? ">$desc<td" : " colspan='2'") .
-        //     ' lang="en" title="' . $this->util->html($comment) . '">' . $this->util->html($privilege);
+        //     ' lang="en" title="' . $this->admin->html($comment) . '">' . $this->admin->html($privilege);
         $i = 0;
         foreach ($grants as $object => $grant) {
-            $name = "'grants[$i][" . $this->util->html(strtoupper($privilege)) . "]'";
+            $name = "'grants[$i][" . $this->admin->html(strtoupper($privilege)) . "]'";
             $value = $grant[strtoupper($privilege)] ?? false;
             if ($context == 'Server Admin' && $object != (isset($grants['*.*']) ? '*.*' : '.*')) {
                 $detail[] = '';
@@ -177,7 +177,7 @@ class UserFacade extends AbstractFacade
             //! separate db, table, columns, PROCEDURE|FUNCTION, routine
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
-                '<input name="objects[' . $i . ']" value="' . $this->util->html($object) . '" autocapitalize="off" />';
+                '<input name="objects[' . $i . ']" value="' . $this->admin->html($object) . '" autocapitalize="off" />';
             $i++;
         }
 
@@ -232,7 +232,7 @@ class UserFacade extends AbstractFacade
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
                 '<input name="objects[' . $i . ']" value="' .
-                    $this->util->html($object) . '" autocapitalize="off" />';
+                    $this->admin->html($object) . '" autocapitalize="off" />';
             $i++;
         }
 

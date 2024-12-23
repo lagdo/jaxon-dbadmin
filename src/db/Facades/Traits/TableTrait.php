@@ -91,7 +91,7 @@ trait TableTrait
      */
     private function getFieldType(TableFieldEntity $field): string
     {
-        $type = $this->util->html($field->fullType);
+        $type = $this->admin->html($field->fullType);
         if ($field->null) {
             $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
         }
@@ -99,7 +99,7 @@ trait TableTrait
             $type .= ' <i>' . $this->trans->lang('Auto Increment') . '</i>';
         }
         if ($field->default !== '') {
-            $type .= /*' ' . $this->trans->lang('Default value') .*/ ' [<b>' . $this->util->html($field->default) . '</b>]';
+            $type .= /*' ' . $this->trans->lang('Default value') .*/ ' [<b>' . $this->admin->html($field->default) . '</b>]';
         }
         return $type;
     }
@@ -122,7 +122,7 @@ trait TableTrait
         //! Can collide with user defined type
         $typeField = ($foreignKey === null ? $field :
             TableFieldEntity::make($this->referencableTables[$foreignKey]));
-        $processedField = $this->util->processField($field, $typeField);
+        $processedField = $this->admin->processField($field, $typeField);
         $origField = $this->fields[$field->name] ?? null;
         $this->after = '';
         if ($orig === '') {
@@ -191,6 +191,6 @@ trait TableTrait
                 }
             }
         }
-        $this->attrs->autoIncrement = intval($this->util->number($this->util->input()->getAutoIncrementStep()));
+        $this->attrs->autoIncrement = intval($this->admin->number($this->admin->input()->getAutoIncrementStep()));
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ui;
+namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\Jaxon\Builder;

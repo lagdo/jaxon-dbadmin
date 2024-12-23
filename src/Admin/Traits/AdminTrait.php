@@ -1,21 +1,21 @@
 <?php
 
-namespace Lagdo\DbAdmin\Traits;
+namespace Lagdo\DbAdmin\Admin\Traits;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
-use function is_string;
-use function preg_match;
+use function array_flip;
 use function ini_get;
-use function strtolower;
-use function substr;
 use function intval;
-use function str_replace;
+use function is_string;
 use function preg_quote;
-use function str_repeat;
+use function preg_match;
+use function str_replace;
+use function strtolower;
 use function strtr;
+use function substr;
 
-trait UtilTrait
+trait AdminTrait
 {
     /**
      * Escape for HTML

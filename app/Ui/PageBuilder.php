@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ui;
+namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ajax\Admin;
 use Lagdo\DbAdmin\App\Ajax\Menu\Db;

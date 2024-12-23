@@ -47,8 +47,8 @@ class TableFacade extends AbstractFacade
     {
         // From table.inc.php
         $status = $this->status($table);
-        $name = $this->util->tableName($status);
-        $title = $this->trans->lang('Table') . ': ' . ($name != '' ? $name : $this->util->html($table));
+        $name = $this->admin->tableName($status);
+        $title = $this->trans->lang('Table') . ': ' . ($name != '' ? $name : $this->admin->html($table));
 
         $comment = $status->comment;
 
@@ -106,12 +106,12 @@ class TableFacade extends AbstractFacade
         $details = [];
         foreach ($fields as $field) {
             $detail = [
-                'name' => $this->util->html($field->name),
+                'name' => $this->admin->html($field->name),
                 'type' => $this->getFieldType($field),
-                'collation' => $this->util->html($field->collation),
+                'collation' => $this->admin->html($field->collation),
             ];
             if ($hasComment) {
-                $detail['comment'] = $this->util->html($field->comment);
+                $detail['comment'] = $this->admin->html($field->comment);
             }
             $details[] = $detail;
         }
@@ -147,7 +147,7 @@ class TableFacade extends AbstractFacade
             ksort($index->columns); // enforce correct columns order
             $print = [];
             foreach ($index->columns as $key => $val) {
-                $value = '<i>' . $this->util->html($val) . '</i>';
+                $value = '<i>' . $this->admin->html($val) . '</i>';
                 if (array_key_exists($key, $index->lengths)) {
                     $value .= '(' . $index->lengths[$key] . ')';
                 }
@@ -157,7 +157,7 @@ class TableFacade extends AbstractFacade
                 $print[] = $value;
             }
             $details[] = [
-                'name' => $this->util->html($name),
+                'name' => $this->admin->html($name),
                 'type' => $index->type,
                 'desc' => implode(', ', $print),
             ];
@@ -194,26 +194,26 @@ class TableFacade extends AbstractFacade
         foreach ($foreignKeys as $name => $foreignKey) {
             $target = '';
             if ($foreignKey->database != '') {
-                $target .= '<b>' . $this->util->html($foreignKey->database) . '</b>.';
+                $target .= '<b>' . $this->admin->html($foreignKey->database) . '</b>.';
             }
             if ($foreignKey->schema != '') {
-                $target .= '<b>' . $this->util->html($foreignKey->schema) . '</b>.';
+                $target .= '<b>' . $this->admin->html($foreignKey->schema) . '</b>.';
             }
-            $target = $this->util->html($foreignKey->table) .
+            $target = $this->admin->html($foreignKey->table) .
                 '(' . implode(', ', array_map(function ($key) {
-                    return $this->util->html($key);
+                    return $this->admin->html($key);
                 }, $foreignKey->target)) . ')';
             $details[] = [
-                'name' => $this->util->html($name),
+                'name' => $this->admin->html($name),
                 'source' => '<i>' . implode(
                     '</i>, <i>',
                     array_map(function ($key) {
-                        return $this->util->html($key);
+                        return $this->admin->html($key);
                     }, $foreignKey->source)
                 ) . '</i>',
                 'target' => $target,
-                'onDelete' => $this->util->html($foreignKey->onDelete),
-                'onUpdate' => $this->util->html($foreignKey->onUpdate),
+                'onDelete' => $this->admin->html($foreignKey->onDelete),
+                'onUpdate' => $this->admin->html($foreignKey->onUpdate),
             ];
         }
 
@@ -245,9 +245,9 @@ class TableFacade extends AbstractFacade
         $triggers = $this->driver->triggers($table);
         foreach ($triggers as $name => $trigger) {
             $details[] = [
-                $this->util->html($trigger->timing),
-                $this->util->html($trigger->event),
-                $this->util->html($name),
+                $this->admin->html($trigger->timing),
+                $this->admin->html($trigger->event),
+                $this->admin->html($name),
                 $this->trans->lang('Alter'),
             ];
         }

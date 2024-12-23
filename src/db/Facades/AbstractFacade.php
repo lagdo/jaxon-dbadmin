@@ -2,10 +2,10 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
+use Lagdo\DbAdmin\Admin\Admin;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
-use Lagdo\DbAdmin\Util;
 
 /**
  * Common attributes for all facades
@@ -18,9 +18,9 @@ class AbstractFacade
     public $driver = null;
 
     /**
-     * @var Util
+     * @var Admin
      */
-    public $util = null;
+    public $admin = null;
 
     /**
      * @var Translator
@@ -44,7 +44,7 @@ class AbstractFacade
     public function __construct(AbstractFacade $dbFacade)
     {
         $this->driver = $dbFacade->driver;
-        $this->util = $dbFacade->util;
+        $this->admin = $dbFacade->admin;
         $this->trans = $dbFacade->trans;
         $this->package = $dbFacade->package;
     }

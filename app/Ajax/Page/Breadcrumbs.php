@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Page;
 
 use Jaxon\App\Component;
 use Lagdo\DbAdmin\Db\DbFacade;
-use Lagdo\DbAdmin\Ui\PageBuilder;
+use Lagdo\DbAdmin\App\Ui\PageBuilder;
 
 class Breadcrumbs extends Component
 {

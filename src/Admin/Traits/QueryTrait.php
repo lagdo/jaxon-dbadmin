@@ -1,10 +1,10 @@
 <?php
 
-namespace Lagdo\DbAdmin\Traits;
+namespace Lagdo\DbAdmin\Admin\Traits;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
-trait QueryUtilTrait
+trait QueryTrait
 {
     /**
      * Filter length value including enums

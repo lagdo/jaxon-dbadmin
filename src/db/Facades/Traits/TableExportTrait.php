@@ -46,12 +46,12 @@ trait TableExportTrait
         $options = [
             'output' => [
                 'label' => $this->trans->lang('Output'),
-                'options' => $this->util->dumpOutput(),
+                'options' => $this->admin->dumpOutput(),
                 'value' => $row['output'],
             ],
             'format' => [
                 'label' => $this->trans->lang('Format'),
-                'options' => $this->util->dumpFormat(),
+                'options' => $this->admin->dumpFormat(),
                 'value' => $row['format'],
             ],
             'table_style' => [

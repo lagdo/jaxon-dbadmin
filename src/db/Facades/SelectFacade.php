@@ -75,7 +75,7 @@ class SelectFacade extends AbstractFacade
     private function prepareSelect(string $table, array &$queryOptions = []): array
     {
         $page = $this->setDefaultOptions($queryOptions);
-        $this->util->input()->setValues($queryOptions);
+        $this->admin->input()->setValues($queryOptions);
 
         // From select.inc.php
         $fields = $this->driver->fields($table);
@@ -87,13 +87,13 @@ class SelectFacade extends AbstractFacade
 
         $indexes = $this->driver->indexes($table);
         $foreignKeys = $this->foreignKeys($table);
-        list($select, $group) = $this->util->processSelectColumns();
-        $where = $this->util->processSelectWhere($fields, $indexes);
-        $order = $this->util->processSelectOrder();
-        $limit = $this->util->processSelectLimit();
+        list($select, $group) = $this->admin->processSelectColumns();
+        $where = $this->admin->processSelectWhere($fields, $indexes);
+        $order = $this->admin->processSelectOrder();
+        $limit = $this->admin->processSelectLimit();
         $tableStatus = $this->driver->tableStatusOrName($table);
         $unselected = $this->setPrimaryKey($indexes, $select, $tableStatus);
-        $tableName = $this->util->tableName($tableStatus);
+        $tableName = $this->admin->tableName($tableStatus);
 
         // $set = null;
         // if(isset($rights["insert"]) || !this->driver->support("table")) {
@@ -102,11 +102,11 @@ class SelectFacade extends AbstractFacade
         //         if($foreignKeys[$val["col"]] && count($foreignKeys[$val["col"]]) == 1 && ($val["op"] == "="
         //             || (!$val["op"] && !preg_match('~[_%]~', $val["val"])) // LIKE in Editor
         //         )) {
-        //             $set .= "&set" . urlencode("[" . $this->util->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
+        //             $set .= "&set" . urlencode("[" . $this->admin->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
         //         }
         //     }
         // }
-        // $this->util->selectLinks($tableStatus, $set);
+        // $this->admin->selectLinks($tableStatus, $set);
 
         // if($page == "last")
         // {
@@ -137,7 +137,7 @@ class SelectFacade extends AbstractFacade
     public function getSelectData(string $table, array $queryOptions = []): array
     {
         [$options, $query] = $this->prepareSelect($table, $queryOptions);
-        $query = $this->util->html($query);
+        $query = $this->admin->html($query);
 
         return compact('options', 'query');
     }
@@ -194,7 +194,7 @@ class SelectFacade extends AbstractFacade
                 $value = $queryOptions["columns"][key($select)] ?? [];
                 $fun = $value["fun"] ?? '';
                 $field = $fields[$select ? ($value ? $value["col"] : current($select)) : $key];
-                $name = ($field ? $this->util->fieldName($field, $rank) : ($fun ? "*" : $key));
+                $name = ($field ? $this->admin->fieldName($field, $rank) : ($fun ? "*" : $key));
                 $header = compact('value', 'field', 'name');
                 if ($name != "") {
                     $rank++;
@@ -203,8 +203,8 @@ class SelectFacade extends AbstractFacade
                     // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
                     // $desc = "&desc%5B0%5D=1";
                     $header['column'] = $column;
-                    $header['key'] = $this->util->html($this->util->bracketEscape($key));
-                    $header['sql'] = $this->util->applySqlFunction($fun, $name); //! columns looking like functions
+                    $header['key'] = $this->admin->html($this->admin->bracketEscape($key));
+                    $header['sql'] = $this->admin->applySqlFunction($fun, $name); //! columns looking like functions
                 }
                 // $functions[$key] = $fun;
                 next($select);
@@ -244,7 +244,7 @@ class SelectFacade extends AbstractFacade
      */
     private function getUniqueIds(array $row, array $indexes): array
     {
-        $uniqueIds = $this->util->uniqueIds($row, $indexes);
+        $uniqueIds = $this->admin->uniqueIds($row, $indexes);
         if (empty($uniqueIds)) {
             $pattern = '~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~';
             foreach ($row as $key => $value) {
@@ -286,11 +286,11 @@ class SelectFacade extends AbstractFacade
                 $value = md5($value);
             }
             if ($value !== null) {
-                $rowIds['where'][$this->util->bracketEscape($key)] = $value;
+                $rowIds['where'][$this->admin->bracketEscape($key)] = $value;
             } else {
-                $rowIds['null'][] = $this->util->bracketEscape($key);
+                $rowIds['null'][] = $this->admin->bracketEscape($key);
             }
-            // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" . $this->util->bracketEscape($key) . "]") .
+            // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" . $this->admin->bracketEscape($key) . "]") .
             //     "=" . \urlencode($value) : \urlencode("null[]") . "=" . \urlencode($key));
         }
         return $rowIds;
@@ -313,12 +313,12 @@ class SelectFacade extends AbstractFacade
                 $value = $this->driver->value($value, $field);
                 /*if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
                     //! filled e-mails can be contained on other pages
-                    $email_fields[$key] = ($this->util->isMail($value) ? $names[$key] : "");
+                    $email_fields[$key] = ($this->admin->isMail($value) ? $names[$key] : "");
                 }*/
                 $cols[] = [
                     // 'id',
                     'text' => preg_match('~text|lob~', $field->type),
-                    'value' => $this->util->selectValue($field, $value, $textLength),
+                    'value' => $this->admin->selectValue($field, $value, $textLength),
                     // 'editable' => false,
                 ];
             }

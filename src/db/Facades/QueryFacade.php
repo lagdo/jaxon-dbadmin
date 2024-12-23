@@ -31,7 +31,7 @@ class QueryFacade extends AbstractFacade
     protected function getFieldInput(TableFieldEntity $field, $value, $function, array $options): array
     {
         // From functions.inc.php (function input($field, $value, $function))
-        $name = $this->util->html($this->util->bracketEscape($field->name));
+        $name = $this->admin->html($this->admin->bracketEscape($field->name));
         $save = $options['save'];
         $reset = ($this->driver->jush() == 'mssql' && $field->autoIncrement);
         if (is_array($value) && !$function) {
@@ -45,9 +45,9 @@ class QueryFacade extends AbstractFacade
         if ($reset) {
             $functions['orig'] = $this->trans->lang('original');
         }
-        $functions += $this->util->editFunctions($field);
+        $functions += $this->admin->editFunctions($field);
         return [
-            'type' => $this->util->html($field->fullType),
+            'type' => $this->admin->html($field->fullType),
             'name' => $name,
             'field' => [
                 'type' => $field->type,
@@ -125,7 +125,7 @@ class QueryFacade extends AbstractFacade
 
         // From functions.inc.php (function edit_form($table, $fields, $row, $update))
         $entries = [];
-        $tableName = $this->util->tableName($this->driver->tableStatusOrName($table, true));
+        $tableName = $this->admin->tableName($this->driver->tableStatusOrName($table, true));
         $error = null;
         if (($where) && $row === null) { // No row found to edit.
             $error = $this->trans->lang('No rows.');
@@ -154,7 +154,7 @@ class QueryFacade extends AbstractFacade
         // From edit.inc.php
         $values = [];
         foreach ($fields as $name => $field) {
-            $val = $this->util->processInput($field, $queryOptions);
+            $val = $this->admin->processInput($field, $queryOptions);
             if ($val !== false && $val !== null) {
                 $values[$this->driver->escapeId($name)] = $val;
             }
@@ -183,12 +183,12 @@ class QueryFacade extends AbstractFacade
 
         // From edit.inc.php
         $indexes = $this->driver->indexes($table);
-        $uniqueIds = $this->util->uniqueIds($queryOptions['where'], $indexes);
+        $uniqueIds = $this->admin->uniqueIds($queryOptions['where'], $indexes);
         $queryWhere = "\nWHERE $where";
 
         $values = [];
         foreach ($fields as $name => $field) {
-            $val = $this->util->processInput($field, $queryOptions);
+            $val = $this->admin->processInput($field, $queryOptions);
             if ($val !== false && $val !== null) {
                 $values[$this->driver->escapeId($name)] = $val;
             }
@@ -216,7 +216,7 @@ class QueryFacade extends AbstractFacade
 
         // From edit.inc.php
         $indexes = $this->driver->indexes($table);
-        $uniqueIds = $this->util->uniqueIds($queryOptions['where'], $indexes);
+        $uniqueIds = $this->admin->uniqueIds($queryOptions['where'], $indexes);
         $queryWhere = "\nWHERE $where";
 
         $result = $this->driver->delete($table, $queryWhere, count($uniqueIds));

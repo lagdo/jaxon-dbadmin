@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ui\Traits;
+namespace Lagdo\DbAdmin\App\Ui\Traits;
 
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Column;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;

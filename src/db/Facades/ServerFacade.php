@@ -74,10 +74,10 @@ class ServerFacade extends AbstractFacade
         $server = $this->trans->lang(
             '%s version: %s. PHP extension %s.',
             $this->driver->name(),
-            "<b>" . $this->util->html($this->driver->serverInfo()) . "</b>",
+            "<b>" . $this->admin->html($this->driver->serverInfo()) . "</b>",
             "<b>{$this->driver->extension()}</b>"
         );
-        $user = $this->trans->lang('Logged as: %s.', "<b>" . $this->util->html($this->driver->user()) . "</b>");
+        $user = $this->trans->lang('Logged as: %s.', "<b>" . $this->admin->html($this->driver->user()) . "</b>");
 
         return compact('server', 'user');
     }
@@ -139,8 +139,8 @@ class ServerFacade extends AbstractFacade
         $details = [];
         foreach ($databases as $database) {
             $details[] = [
-                'name' => $this->util->html($database),
-                'collation' => $this->util->html($this->driver->databaseCollation($database, $collations)),
+                'name' => $this->admin->html($database),
+                'collation' => $this->admin->html($this->driver->databaseCollation($database, $collations)),
                 'tables' => array_key_exists($database, $tables) ? $tables[$database] : 0,
                 'size' => $this->trans->formatNumber($this->driver->databaseSize($database)),
             ];
@@ -192,7 +192,7 @@ class ServerFacade extends AbstractFacade
         $details = [];
         // From variables.inc.php
         foreach ($variables as $key => $val) {
-            $details[] = [$this->util->html($key), is_string($val) ? $this->util->shortenUtf8($val, 50) : '(null)'];
+            $details[] = [$this->admin->html($key), is_string($val) ? $this->admin->shortenUtf8($val, 50) : '(null)'];
         }
 
         return compact('headers', 'details');
@@ -212,7 +212,7 @@ class ServerFacade extends AbstractFacade
         $details = [];
         // From variables.inc.php
         foreach ($status as $key => $val) {
-            $details[] = [$this->util->html($key), is_string($val) ? $this->util->html($val) : '(null)'];
+            $details[] = [$this->admin->html($key), is_string($val) ? $this->admin->html($val) : '(null)'];
         }
 
         return compact('headers', 'details');

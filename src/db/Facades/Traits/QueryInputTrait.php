@@ -34,7 +34,7 @@ trait QueryInputTrait
         if ($field->type === 'enum') {
             return [
                 'type' => 'name',
-                'name' => $this->util->html($functions[''] ?? ''),
+                'name' => $this->admin->html($functions[''] ?? ''),
             ];
         }
         if (count($functions) > 1) {
@@ -48,7 +48,7 @@ trait QueryInputTrait
         }
         return [
             'type' => 'name',
-            'name' => $this->util->html(reset($functions)),
+            'name' => $this->admin->html(reset($functions)),
         ];
     }
 
@@ -64,7 +64,7 @@ trait QueryInputTrait
         $val = stripcslashes(str_replace("''", "'", $val));
         $checked = (is_int($value) ? $value == $i + 1 :
             (is_array($value) ? in_array($i+1, $value) : $value === $val));
-        return ['value' => $i + 1, 'checked' => $checked, 'text' => $this->util->html($val)];
+        return ['value' => $i + 1, 'checked' => $checked, 'text' => $this->admin->html($val)];
     }
 
     /**
@@ -112,7 +112,7 @@ trait QueryInputTrait
         foreach ($matches[1] as $i => $val) {
             $val = stripcslashes(str_replace("''", "'", $val));
             $checked = (is_int($value) ? ($value >> $i) & 1 : in_array($val, explode(',', $value), true));
-            $values[] = ['value=' => (1 << $i), 'checked' => $checked, 'text' => $this->util->html($val)];
+            $values[] = ['value=' => (1 << $i), 'checked' => $checked, 'text' => $this->admin->html($val)];
         }
         return ['type' => 'checkbox', 'attrs' => $attrs, 'values' => $values];
     }
@@ -137,7 +137,7 @@ trait QueryInputTrait
                 $attrs['style'] = 'height: 1.2em;';
             }
         }
-        return ['type' => 'textarea', 'attrs' => $attrs, 'value' => $this->util->html($value)];
+        return ['type' => 'textarea', 'attrs' => $attrs, 'value' => $this->admin->html($value)];
     }
 
     /**
@@ -225,7 +225,7 @@ trait QueryInputTrait
         if (!$hasFunction || $function === '') {
             $this->setDataType($field, $attrs);
         }
-        $attrs['value'] = $this->util->html($value);
+        $attrs['value'] = $this->admin->html($value);
         return ['type' => 'input', 'attrs' => $attrs];
     }
 
@@ -254,7 +254,7 @@ trait QueryInputTrait
         if ($field->type === 'set') {
             return $this->getSetInput($field, $attrs, $value);
         }
-        if (preg_match('~blob|bytea|raw|file~', $field->type) && $this->util->iniBool('file_uploads')) {
+        if (preg_match('~blob|bytea|raw|file~', $field->type) && $this->admin->iniBool('file_uploads')) {
             $attrs['name'] = "fields-$name";
             return ['type' => 'file', 'attrs' => $attrs];
         }
@@ -264,7 +264,7 @@ trait QueryInputTrait
         if ($function === 'json' || preg_match('~^jsonb?$~', $field->type)) {
             $attrs['cols'] = 50;
             $attrs['rows'] = 12;
-            return ['type' => 'textarea', 'attrs' => $attrs, 'value' => $this->util->html($value)];
+            return ['type' => 'textarea', 'attrs' => $attrs, 'value' => $this->admin->html($value)];
         }
         return $this->getDefaultInput($field, $attrs, $value, $function, $functions);
     }

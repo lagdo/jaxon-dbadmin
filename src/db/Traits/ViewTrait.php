@@ -33,7 +33,7 @@ trait ViewTrait
     {
         $this->connectToSchema();
         $this->bcdb()->breadcrumb($this->trans->lang('Views'))->breadcrumb($view);
-        $this->util->input()->table = $view;
+        $this->admin->input()->table = $view;
         return $this->viewFacade()->getViewInfo($view);
     }
 
@@ -48,7 +48,7 @@ trait ViewTrait
     public function getViewFields(string $view): array
     {
         $this->connectToSchema();
-        $this->util->input()->table = $view;
+        $this->admin->input()->table = $view;
         return $this->viewFacade()->getViewFields($view);
     }
 
@@ -62,7 +62,7 @@ trait ViewTrait
     public function getViewTriggers(string $view): ?array
     {
         $this->connectToSchema();
-        $this->util->input()->table = $view;
+        $this->admin->input()->table = $view;
         return $this->viewFacade()->getViewTriggers($view);
     }
 
@@ -77,7 +77,7 @@ trait ViewTrait
     public function getView(string $view): array
     {
         $this->connectToSchema();
-        $this->util->input()->table = $view;
+        $this->admin->input()->table = $view;
         return $this->viewFacade()->getView($view);
     }
 
@@ -92,7 +92,7 @@ trait ViewTrait
     public function createView(array $values): array
     {
         $this->connectToSchema();
-        $this->util->input()->table = $values['name'];
+        $this->admin->input()->table = $values['name'];
         return $this->viewFacade()->createView($values);
     }
 
@@ -108,7 +108,7 @@ trait ViewTrait
     public function updateView(string $view, array $values): array
     {
         $this->connectToSchema();
-        $this->util->input()->table = $view;
+        $this->admin->input()->table = $view;
         return $this->viewFacade()->updateView($view, $values);
     }
 
@@ -123,7 +123,7 @@ trait ViewTrait
     public function dropView(string $view): array
     {
         $this->connectToSchema();
-        $this->util->input()->table = $view;
+        $this->admin->input()->table = $view;
         return $this->viewFacade()->dropView($view);
     }
 }

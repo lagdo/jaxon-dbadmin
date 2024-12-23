@@ -10,7 +10,7 @@ use Lagdo\DbAdmin\App\Ajax\Db\Table\Query;
 use Lagdo\DbAdmin\App\Ajax\Db\User;
 use Lagdo\DbAdmin\App\Ajax\Db\View;
 use Lagdo\DbAdmin\Translator;
-use Lagdo\DbAdmin\Ui\PageBuilder;
+use Lagdo\DbAdmin\App\Ui\PageBuilder;
 
 use function Jaxon\jq;
 use function Jaxon\rq;

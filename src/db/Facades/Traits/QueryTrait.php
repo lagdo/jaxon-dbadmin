@@ -31,7 +31,7 @@ trait QueryTrait
         foreach ($fields as $name => $field) {
             $generated = $field->generated ?? false;
             if (!isset($field->privileges[$update ? "update" : "insert"]) ||
-                $this->util->fieldName($field) == "" || $generated) {
+                $this->admin->fieldName($field) == "" || $generated) {
                 unset($fields[$name]);
             }
         }
@@ -110,7 +110,7 @@ trait QueryTrait
      */
     private function getRowFieldValue(TableFieldEntity $field, string $name, ?array $row, string $update, array $queryOptions)
     {
-        // $default = $queryOptions["set"][$this->util->bracketEscape($name)] ?? null;
+        // $default = $queryOptions["set"][$this->admin->bracketEscape($name)] ?? null;
         // if($default === null)
         // {
         $default = $field->default;

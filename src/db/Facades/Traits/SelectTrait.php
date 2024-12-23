@@ -45,7 +45,7 @@ trait SelectTrait
     {
         $fulltexts = [];
         foreach ($indexes as $i => $index) {
-            $fulltexts[$i] = $index->type == "FULLTEXT" ? $this->util->html($options["fulltext"][$i]) : '';
+            $fulltexts[$i] = $index->type == "FULLTEXT" ? $this->admin->html($options["fulltext"][$i]) : '';
         }
         return [
             // 'where' => $where,
@@ -91,7 +91,7 @@ trait SelectTrait
      */
     private function getLimitOptions(string $limit): array
     {
-        return ['value' => $this->util->html($limit)];
+        return ['value' => $this->admin->html($limit)];
     }
 
     /**
@@ -103,7 +103,7 @@ trait SelectTrait
      */
     private function getLengthOptions(int $textLength): array
     {
-        return ['value' => $textLength === 0 ? 0 : $this->util->html($textLength)];
+        return ['value' => $textLength === 0 ? 0 : $this->admin->html($textLength)];
     }
 
     /**
@@ -199,11 +199,11 @@ trait SelectTrait
         $columns = []; // selectable columns
         $textLength = 0;
         foreach ($fields as $key => $field) {
-            $name = $this->util->fieldName($field);
+            $name = $this->admin->fieldName($field);
             if (isset($field->privileges["select"]) && $name != "") {
                 $columns[$key] = html_entity_decode(strip_tags($name), ENT_QUOTES);
-                if ($this->util->isShortable($field)) {
-                    $textLength = $this->util->processSelectLength();
+                if ($this->admin->isShortable($field)) {
+                    $textLength = $this->admin->processSelectLength();
                 }
             }
             $rights[] = $field->privileges;

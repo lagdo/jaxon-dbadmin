@@ -8,7 +8,7 @@ use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
-use Lagdo\DbAdmin\Ui\UiBuilder;
+use Lagdo\DbAdmin\App\Ui\UiBuilder;
 
 use function call_user_func_array;
 use function func_get_args;

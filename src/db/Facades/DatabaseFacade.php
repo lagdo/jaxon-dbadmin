@@ -75,7 +75,7 @@ class DatabaseFacade extends AbstractFacade
         // $tables = [];
         // foreach($tableStatus as $table)
         // {
-        //     $tables[] = $this->util->html($table);
+        //     $tables[] = $this->admin->html($table);
         // }
 
         return \compact('schemas'/*, 'tables'*/);
@@ -108,7 +108,7 @@ class DatabaseFacade extends AbstractFacade
         foreach ($tableStatus as $table => $status) {
             if (!$this->driver->isView($status)) {
                 $details[] = [
-                    'name' => $this->util->tableName($status),
+                    'name' => $this->admin->tableName($status),
                     'engine' => $status->engine,
                     'collation' => '',
                     'comment' => $status->comment,
@@ -147,7 +147,7 @@ class DatabaseFacade extends AbstractFacade
         foreach ($tableStatus as $table => $status) {
             if ($this->driver->isView($status)) {
                 $details[] = [
-                    'name' => $this->util->tableName($status),
+                    'name' => $this->admin->tableName($status),
                     'engine' => $status->engine,
                     'comment' => $status->comment,
                 ];
@@ -179,9 +179,9 @@ class DatabaseFacade extends AbstractFacade
             //     "" : "&name=" . urlencode($routine["ROUTINE_NAME"]));
 
             $details[] = [
-                'name' => $this->util->html($routine->name),
-                'type' => $this->util->html($routine->type),
-                'returnType' => $this->util->html($routine->dtd),
+                'name' => $this->admin->html($routine->name),
+                'type' => $this->admin->html($routine->type),
+                'returnType' => $this->admin->html($routine->dtd),
                 // 'alter' => $this->trans->lang('Alter'),
             ];
         }
@@ -203,7 +203,7 @@ class DatabaseFacade extends AbstractFacade
         $details = [];
         foreach ($this->driver->sequences() as $sequence) {
             $details[] = [
-                'name' => $this->util->html($sequence),
+                'name' => $this->admin->html($sequence),
             ];
         }
 
@@ -225,7 +225,7 @@ class DatabaseFacade extends AbstractFacade
         $details = [];
         foreach ($this->driver->userTypes() as $userType) {
             $details[] = [
-                'name' => $this->util->html($userType),
+                'name' => $this->admin->html($userType),
             ];
         }
 
@@ -250,7 +250,7 @@ class DatabaseFacade extends AbstractFacade
         $details = [];
         foreach ($this->driver->events() as $event) {
             $detail = [
-                'name' => $this->util->html($event["Name"]),
+                'name' => $this->admin->html($event["Name"]),
             ];
             if (($event["Execute at"])) {
                 $detail['schedule'] = $this->trans->lang('At given time');

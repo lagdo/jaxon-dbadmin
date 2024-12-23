@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Db;
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Db\Facades\AbstractFacade;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\UtilInterface;
+use Lagdo\DbAdmin\Driver\AdminInterface;
 use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
 
@@ -178,7 +178,7 @@ class DbFacade extends AbstractFacade
             $this->di->val('dbadmin_config_driver', $this->package->getServerDriver($server));
             $this->di->val('dbadmin_config_options', $this->package->getServerOptions($server));
             $this->driver = $this->di->get(DriverInterface::class);
-            $this->util = $this->di->get(UtilInterface::class);
+            $this->admin = $this->di->get(AdminInterface::class);
         }
         // Open the selected database
         $this->driver->open($database, $schema);

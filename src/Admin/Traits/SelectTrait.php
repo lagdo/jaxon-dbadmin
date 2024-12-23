@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Traits;
+namespace Lagdo\DbAdmin\Admin\Traits;
 
 use function intval;
 use function implode;
@@ -10,7 +10,7 @@ use function preg_match;
 use function preg_replace;
 use function preg_match_all;
 
-trait SelectUtilTrait
+trait SelectTrait
 {
     /**
      * Filter length value including enums

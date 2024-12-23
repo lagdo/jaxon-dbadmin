@@ -1,10 +1,10 @@
 <?php
 
-namespace Lagdo\DbAdmin\Traits;
+namespace Lagdo\DbAdmin\Admin\Traits;
 
 use function function_exists;
 
-trait DumpUtilTrait
+trait DumpTrait
 {
     /**
      * Returns export format options

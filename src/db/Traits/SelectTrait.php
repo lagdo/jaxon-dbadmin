@@ -36,8 +36,8 @@ trait SelectTrait
         $this->connectToSchema();
         $this->bcdb()->breadcrumb($this->trans->lang('Tables'))
             ->breadcrumb($table)->breadcrumb($this->trans->lang('Select'));
-        $this->util->input()->table = $table;
-        $this->util->input()->values = $queryOptions;
+        $this->admin->input()->table = $table;
+        $this->admin->input()->values = $queryOptions;
         return $this->selectFacade()->getSelectData($table, $queryOptions);
     }
 
@@ -53,8 +53,8 @@ trait SelectTrait
     public function execSelect(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
-        $this->util->input()->table = $table;
-        $this->util->input()->values = $queryOptions;
+        $this->admin->input()->table = $table;
+        $this->admin->input()->values = $queryOptions;
         return $this->selectFacade()->execSelect($table, $queryOptions);
     }
 }

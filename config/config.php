@@ -100,17 +100,17 @@ return [
             // The translator
             Lagdo\DbAdmin\Translator::class,
             // The db classes
-            Lagdo\DbAdmin\Util::class,
+            Lagdo\DbAdmin\Admin\Admin::class,
             // The template builders
-            Lagdo\DbAdmin\Ui\UiBuilder::class,
-            Lagdo\DbAdmin\Ui\MenuBuilder::class,
-            Lagdo\DbAdmin\Ui\PageBuilder::class,
+            Lagdo\DbAdmin\App\Ui\UiBuilder::class,
+            Lagdo\DbAdmin\App\Ui\MenuBuilder::class,
+            Lagdo\DbAdmin\App\Ui\PageBuilder::class,
         ],
         'alias' => [
             // The translator
             Lagdo\DbAdmin\Driver\TranslatorInterface::class => Lagdo\DbAdmin\Translator::class,
             // The db util
-            Lagdo\DbAdmin\Driver\UtilInterface::class => Lagdo\DbAdmin\Util::class,
+            Lagdo\DbAdmin\Driver\AdminInterface::class => Lagdo\DbAdmin\Admin\Admin::class,
         ],
     ],
     'exceptions' => [

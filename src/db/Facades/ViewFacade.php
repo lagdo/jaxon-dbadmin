@@ -44,9 +44,9 @@ class ViewFacade extends AbstractFacade
     {
         // From table.inc.php
         $status = $this->status($view);
-        $name = $this->util->tableName($status);
+        $name = $this->admin->tableName($status);
         $title = ($status->engine == 'materialized view' ? $this->trans->lang('Materialized view') :
-            $this->trans->lang('View')) . ': ' . ($name != '' ? $name : $this->util->html($view));
+            $this->trans->lang('View')) . ': ' . ($name != '' ? $name : $this->admin->html($view));
 
         $comment = $status->comment;
 
@@ -99,7 +99,7 @@ class ViewFacade extends AbstractFacade
 
         $details = [];
         foreach ($fields as $field) {
-            $type = $this->util->html($field->fullType);
+            $type = $this->admin->html($field->fullType);
             if ($field->null) {
                 $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
             }
@@ -107,15 +107,15 @@ class ViewFacade extends AbstractFacade
                 $type .= ' <i>' . $this->trans->lang('Auto Increment') . '</i>';
             }
             if ($field->hasDefault) {
-                $type .= /*' ' . $this->trans->lang('Default value') .*/ ' [<b>' . $this->util->html($field->default) . '</b>]';
+                $type .= /*' ' . $this->trans->lang('Default value') .*/ ' [<b>' . $this->admin->html($field->default) . '</b>]';
             }
             $detail = [
-                'name' => $this->util->html($field->name),
+                'name' => $this->admin->html($field->name),
                 'type' => $type,
-                'collation' => $this->util->html($field->collation),
+                'collation' => $this->admin->html($field->collation),
             ];
             if ($hasComment) {
-                $detail['comment'] = $this->util->html($field->comment);
+                $detail['comment'] = $this->admin->html($field->comment);
             }
 
             $details[] = $detail;
@@ -149,9 +149,9 @@ class ViewFacade extends AbstractFacade
         $triggers = $this->driver->triggers($view);
         foreach ($triggers as $name => $trigger) {
             $details[] = [
-                $this->util->html($trigger->timing),
-                $this->util->html($trigger->event),
-                $this->util->html($name),
+                $this->admin->html($trigger->timing),
+                $this->admin->html($trigger->event),
+                $this->admin->html($name),
                 $this->trans->lang('Alter'),
             ];
         }

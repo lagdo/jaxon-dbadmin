@@ -4,8 +4,6 @@ namespace Lagdo\DbAdmin;
 
 use Lagdo\DbAdmin\Driver\TranslatorInterface;
 
-use function is_array;
-use function array_key_exists;
 use function func_get_args;
 use function array_shift;
 use function str_replace;

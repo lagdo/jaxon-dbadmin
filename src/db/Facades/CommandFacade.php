@@ -53,11 +53,11 @@ class CommandFacade extends AbstractFacade
             // $link = $this->editLink($val);
             if ($value === null) {
                 $value = '<i>NULL</i>';
-            } elseif (isset($blobs[$key]) && $blobs[$key] && !$this->util->isUtf8($value)) {
+            } elseif (isset($blobs[$key]) && $blobs[$key] && !$this->admin->isUtf8($value)) {
                 //! link to download
                 $value = '<i>' . $this->trans->lang('%d byte(s)', \strlen($value)) . '</i>';
             } else {
-                $value = $this->util->html($value);
+                $value = $this->admin->html($value);
                 if (isset($types[$key]) && $types[$key] == 254) { // 254 - char
                     $value = "<code>$value</code>";
                 }
@@ -126,7 +126,7 @@ class CommandFacade extends AbstractFacade
                 $blobs[$j] = true;
             }
             $types[$j] = $field->type(); // Some drivers don't set the type field.
-            $headers[] = $this->util->html($field->name());
+            $headers[] = $this->admin->html($field->name());
         }
 
         // Table rows (the first was already fetched).
@@ -192,7 +192,7 @@ class CommandFacade extends AbstractFacade
         if (\function_exists('memory_get_usage')) {
             // @ - may be disabled, 2 - substr and trim, 8e6 - other variables
             try {
-                \ini_set('memory_limit', \max($this->util->iniBytes('memory_limit'),
+                \ini_set('memory_limit', \max($this->admin->iniBytes('memory_limit'),
                     2 * \strlen($queries) + \memory_get_usage() + 8e6));
             }
             catch(\Exception $e) {
@@ -213,7 +213,7 @@ class CommandFacade extends AbstractFacade
         // $timestamps = [];
         // $total_start = \microtime(true);
         // \parse_str($_COOKIE['adminer_export'], $adminer_export);
-        // $dump_format = $this->util->dumpFormat();
+        // $dump_format = $this->admin->dumpFormat();
         // unset($dump_format['sql']);
 
         $this->results = [];
