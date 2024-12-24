@@ -60,11 +60,11 @@ trait TableTrait
         // From includes/editing.inc.php
         $extraTypes = [];
         if ($type && !$this->driver->typeExists($type) && !isset($this->foreignKeys[$type]) &&
-            !array_key_exists($this->trans->lang('Current'), $extraTypes)) {
-            $extraTypes[$this->trans->lang('Current')] = [$type];
+            !array_key_exists($this->utils->trans->lang('Current'), $extraTypes)) {
+            $extraTypes[$this->utils->trans->lang('Current')] = [$type];
         }
         if (!empty($this->foreignKeys)) {
-            $this->driver->setStructuredType($this->trans->lang('Foreign keys'), $this->foreignKeys);
+            $this->driver->setStructuredType($this->utils->trans->lang('Foreign keys'), $this->foreignKeys);
         }
         return array_merge($extraTypes, $this->driver->structuredTypes());
     }
@@ -91,15 +91,15 @@ trait TableTrait
      */
     private function getFieldType(TableFieldEntity $field): string
     {
-        $type = $this->admin->html($field->fullType);
+        $type = $this->utils->str->html($field->fullType);
         if ($field->null) {
             $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
         }
         if ($field->autoIncrement) {
-            $type .= ' <i>' . $this->trans->lang('Auto Increment') . '</i>';
+            $type .= ' <i>' . $this->utils->trans->lang('Auto Increment') . '</i>';
         }
         if ($field->default !== '') {
-            $type .= /*' ' . $this->trans->lang('Default value') .*/ ' [<b>' . $this->admin->html($field->default) . '</b>]';
+            $type .= /*' ' . $this->utils->trans->lang('Default value') .*/ ' [<b>' . $this->utils->str->html($field->default) . '</b>]';
         }
         return $type;
     }
@@ -122,7 +122,7 @@ trait TableTrait
         //! Can collide with user defined type
         $typeField = ($foreignKey === null ? $field :
             TableFieldEntity::make($this->referencableTables[$foreignKey]));
-        $processedField = $this->admin->processField($field, $typeField);
+        $processedField = $this->driver->processField($field, $typeField);
         $origField = $this->fields[$field->name] ?? null;
         $this->after = '';
         if ($orig === '') {
@@ -149,8 +149,7 @@ trait TableTrait
     // private function setPartitionAttr()
     // {
     //     $this->attrs->partitioning = '';
-    //     if($partition_by[$values['partition_by']])
-    //     {
+    //     if($partition_by[$values['partition_by']]) {
     //         $partitions = [];
     //         if($values['partition_by'] == 'RANGE' || $values['partition_by'] == 'LIST')
     //         {
@@ -167,10 +166,8 @@ trait TableTrait
     //             ? ' (' . \implode(',', $partitions) . "\n)"
     //             : ($values['partitions'] ? ' PARTITIONS ' . (+$values['partitions']) : '')
     //         );
-    //     }
-    //     elseif($this->driver->support('partitioning') &&
-    //         \preg_match('~partitioned~', $this->tableStatus->Create_options))
-    //     {
+    //     } elseif($this->driver->support('partitioning') &&
+    //         \preg_match('~partitioned~', $this->tableStatus->Create_options)) {
     //         $this->attrs->partitioning .= "\nREMOVE PARTITIONING";
     //     }
     // }
@@ -191,6 +188,6 @@ trait TableTrait
                 }
             }
         }
-        $this->attrs->autoIncrement = intval($this->admin->number($this->admin->input()->getAutoIncrementStep()));
+        $this->attrs->autoIncrement = intval($this->utils->str->number($this->utils->input->getAutoIncrementStep()));
     }
 }

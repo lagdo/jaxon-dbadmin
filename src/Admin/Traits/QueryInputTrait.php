@@ -26,16 +26,6 @@ trait QueryInputTrait
     abstract public function iniBool(string $ini): bool;
 
     /**
-     * Escape or unescape string to use inside form []
-     *
-     * @param string $idf
-     * @param bool $back
-     *
-     * @return string
-     */
-    abstract public function bracketEscape(string $idf, bool $back = false): string;
-
-    /**
      * @param array $file
      * @param string $key
      * @param bool $decompress
@@ -190,7 +180,7 @@ trait QueryInputTrait
         if (!$this->iniBool('file_uploads')) {
             return false;
         }
-        $idf = $this->bracketEscape($field->name);
+        $idf = $this->driver->bracketEscape($field->name);
         $file = $this->getFileContents("fields-$idf");
         if (!is_string($file)) {
             return false; //! report errors
@@ -208,7 +198,7 @@ trait QueryInputTrait
      */
     public function processInput(TableFieldEntity $field, array $inputs)
     {
-        $idf = $this->bracketEscape($field->name);
+        $idf = $this->driver->bracketEscape($field->name);
         $function = $inputs['function'][$idf] ?? '';
         $value = $inputs['fields'][$idf];
         if ($field->autoIncrement && $value === '') {

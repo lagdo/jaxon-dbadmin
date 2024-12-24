@@ -32,8 +32,8 @@ trait ViewTrait
     public function getViewInfo(string $view): array
     {
         $this->connectToSchema();
-        $this->bcdb()->breadcrumb($this->trans->lang('Views'))->breadcrumb($view);
-        $this->admin->input()->table = $view;
+        $this->bcdb()->breadcrumb($this->utils->trans->lang('Views'))->breadcrumb($view);
+        $this->utils->input->table = $view;
         return $this->viewFacade()->getViewInfo($view);
     }
 
@@ -48,7 +48,7 @@ trait ViewTrait
     public function getViewFields(string $view): array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $view;
+        $this->utils->input->table = $view;
         return $this->viewFacade()->getViewFields($view);
     }
 
@@ -62,7 +62,7 @@ trait ViewTrait
     public function getViewTriggers(string $view): ?array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $view;
+        $this->utils->input->table = $view;
         return $this->viewFacade()->getViewTriggers($view);
     }
 
@@ -77,7 +77,7 @@ trait ViewTrait
     public function getView(string $view): array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $view;
+        $this->utils->input->table = $view;
         return $this->viewFacade()->getView($view);
     }
 
@@ -92,7 +92,7 @@ trait ViewTrait
     public function createView(array $values): array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $values['name'];
+        $this->utils->input->table = $values['name'];
         return $this->viewFacade()->createView($values);
     }
 
@@ -108,7 +108,7 @@ trait ViewTrait
     public function updateView(string $view, array $values): array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $view;
+        $this->utils->input->table = $view;
         return $this->viewFacade()->updateView($view, $values);
     }
 
@@ -123,7 +123,7 @@ trait ViewTrait
     public function dropView(string $view): array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $view;
+        $this->utils->input->table = $view;
         return $this->viewFacade()->dropView($view);
     }
 }

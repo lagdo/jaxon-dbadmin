@@ -45,47 +45,47 @@ trait TableExportTrait
         $row = $this->getDataRowOptions($database, $table);
         $options = [
             'output' => [
-                'label' => $this->trans->lang('Output'),
+                'label' => $this->utils->trans->lang('Output'),
                 'options' => $this->admin->dumpOutput(),
                 'value' => $row['output'],
             ],
             'format' => [
-                'label' => $this->trans->lang('Format'),
+                'label' => $this->utils->trans->lang('Format'),
                 'options' => $this->admin->dumpFormat(),
                 'value' => $row['format'],
             ],
             'table_style' => [
-                'label' => $this->trans->lang('Tables'),
+                'label' => $this->utils->trans->lang('Tables'),
                 'options' => $table_style,
                 'value' => $row['table_style'],
             ],
             'auto_increment' => [
-                'label' => $this->trans->lang('Auto Increment'),
+                'label' => $this->utils->trans->lang('Auto Increment'),
                 'value' => 1,
                 'checked' => $row['autoIncrement'] ?? false,
             ],
             'data_style' => [
-                'label' => $this->trans->lang('Data'),
+                'label' => $this->utils->trans->lang('Data'),
                 'options' => $data_style,
                 'value' => $row['data_style'],
             ],
         ];
         if ($this->driver->jush() !== 'sqlite') {
             $options['db_style'] = [
-                'label' => $this->trans->lang('Database'),
+                'label' => $this->utils->trans->lang('Database'),
                 'options' => $db_style,
                 'value' => $row['db_style'],
             ];
             if ($this->driver->support('routine')) {
                 $options['routines'] = [
-                    'label' => $this->trans->lang('Routines'),
+                    'label' => $this->utils->trans->lang('Routines'),
                     'value' => 1,
                     'checked' => $row['routines'],
                 ];
             }
             if ($this->driver->support('event')) {
                 $options['events'] = [
-                    'label' => $this->trans->lang('Events'),
+                    'label' => $this->utils->trans->lang('Events'),
                     'value' => 1,
                     'checked' => $row['events'],
                 ];
@@ -93,7 +93,7 @@ trait TableExportTrait
         }
         if ($this->driver->support('trigger')) {
             $options['triggers'] = [
-                'label' => $this->trans->lang('Triggers'),
+                'label' => $this->utils->trans->lang('Triggers'),
                 'value' => 1,
                 'checked' => $row['triggers'],
             ];
@@ -107,7 +107,7 @@ trait TableExportTrait
     private function getDbTables(): array
     {
         $tables = [
-            'headers' => [$this->trans->lang('Tables'), $this->trans->lang('Data')],
+            'headers' => [$this->utils->trans->lang('Tables'), $this->utils->trans->lang('Data')],
             'details' => [],
         ];
         $tables_list = $this->driver->tables();
@@ -128,7 +128,7 @@ trait TableExportTrait
     private function getDatabases(): array
     {
         $databases = [
-            'headers' => [$this->trans->lang('Database'), $this->trans->lang('Data')],
+            'headers' => [$this->utils->trans->lang('Database'), $this->utils->trans->lang('Data')],
             'details' => [],
         ];
         $databases_list = $this->driver->databases(false) ?? [];

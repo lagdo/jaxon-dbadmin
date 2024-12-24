@@ -31,7 +31,7 @@ class QueryFacade extends AbstractFacade
     protected function getFieldInput(TableFieldEntity $field, $value, $function, array $options): array
     {
         // From functions.inc.php (function input($field, $value, $function))
-        $name = $this->admin->html($this->admin->bracketEscape($field->name));
+        $name = $this->utils->str->html($this->driver->bracketEscape($field->name));
         $save = $options['save'];
         $reset = ($this->driver->jush() == 'mssql' && $field->autoIncrement);
         if (is_array($value) && !$function) {
@@ -43,11 +43,11 @@ class QueryFacade extends AbstractFacade
         }
         $functions = [];
         if ($reset) {
-            $functions['orig'] = $this->trans->lang('original');
+            $functions['orig'] = $this->utils->trans->lang('original');
         }
         $functions += $this->admin->editFunctions($field);
         return [
-            'type' => $this->admin->html($field->fullType),
+            'type' => $this->utils->str->html($field->fullType),
             'name' => $name,
             'field' => [
                 'type' => $field->type,
@@ -128,9 +128,9 @@ class QueryFacade extends AbstractFacade
         $tableName = $this->admin->tableName($this->driver->tableStatusOrName($table, true));
         $error = null;
         if (($where) && $row === null) { // No row found to edit.
-            $error = $this->trans->lang('No rows.');
+            $error = $this->utils->trans->lang('No rows.');
         } elseif (empty($fields)) {
-            $error = $this->trans->lang('You have no privileges to update this table.');
+            $error = $this->utils->trans->lang('You have no privileges to update this table.');
         } else {
             $entries = $this->getQueryEntries($fields, $row, $update, $queryOptions);
         }
@@ -162,7 +162,7 @@ class QueryFacade extends AbstractFacade
 
         $result = $this->driver->insert($table, $values);
         $lastId = ($result ? $this->driver->lastAutoIncrementId() : 0);
-        $message = $this->trans->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ''));
+        $message = $this->utils->trans->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ''));
 
         $error = $this->driver->error();
 
@@ -195,7 +195,7 @@ class QueryFacade extends AbstractFacade
         }
 
         $result = $this->driver->update($table, $values, $queryWhere, count($uniqueIds));
-        $message = $this->trans->lang('Item has been updated.');
+        $message = $this->utils->trans->lang('Item has been updated.');
 
         $error = $this->driver->error();
 
@@ -220,7 +220,7 @@ class QueryFacade extends AbstractFacade
         $queryWhere = "\nWHERE $where";
 
         $result = $this->driver->delete($table, $queryWhere, count($uniqueIds));
-        $message = $this->trans->lang('Item has been deleted.');
+        $message = $this->utils->trans->lang('Item has been deleted.');
 
         $error = $this->driver->error();
 

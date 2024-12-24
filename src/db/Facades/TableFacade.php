@@ -48,29 +48,29 @@ class TableFacade extends AbstractFacade
         // From table.inc.php
         $status = $this->status($table);
         $name = $this->admin->tableName($status);
-        $title = $this->trans->lang('Table') . ': ' . ($name != '' ? $name : $this->admin->html($table));
+        $title = $this->utils->trans->lang('Table') . ': ' . ($name != '' ? $name : $this->utils->str->html($table));
 
         $comment = $status->comment;
 
         $tabs = [
-            'fields' => $this->trans->lang('Columns'),
-            // 'indexes' => $this->trans->lang('Indexes'),
-            // 'foreign-keys' => $this->trans->lang('Foreign keys'),
-            // 'triggers' => $this->trans->lang('Triggers'),
+            'fields' => $this->utils->trans->lang('Columns'),
+            // 'indexes' => $this->utils->trans->lang('Indexes'),
+            // 'foreign-keys' => $this->utils->trans->lang('Foreign keys'),
+            // 'triggers' => $this->utils->trans->lang('Triggers'),
         ];
         if ($this->driver->isView($status)) {
             if ($this->driver->support('view_trigger')) {
-                $tabs['triggers'] = $this->trans->lang('Triggers');
+                $tabs['triggers'] = $this->utils->trans->lang('Triggers');
             }
         } else {
             if ($this->driver->support('indexes')) {
-                $tabs['indexes'] = $this->trans->lang('Indexes');
+                $tabs['indexes'] = $this->utils->trans->lang('Indexes');
             }
             if ($this->driver->supportForeignKeys($status)) {
-                $tabs['foreign-keys'] = $this->trans->lang('Foreign keys');
+                $tabs['foreign-keys'] = $this->utils->trans->lang('Foreign keys');
             }
             if ($this->driver->support('trigger')) {
-                $tabs['triggers'] = $this->trans->lang('Triggers');
+                $tabs['triggers'] = $this->utils->trans->lang('Triggers');
             }
         }
 
@@ -94,24 +94,24 @@ class TableFacade extends AbstractFacade
         }
 
         $headers = [
-            $this->trans->lang('Name'),
-            $this->trans->lang('Type'),
-            $this->trans->lang('Collation'),
+            $this->utils->trans->lang('Name'),
+            $this->utils->trans->lang('Type'),
+            $this->utils->trans->lang('Collation'),
         ];
         $hasComment = $this->driver->support('comment');
         if ($hasComment) {
-            $headers[] = $this->trans->lang('Comment');
+            $headers[] = $this->utils->trans->lang('Comment');
         }
 
         $details = [];
         foreach ($fields as $field) {
             $detail = [
-                'name' => $this->admin->html($field->name),
+                'name' => $this->utils->str->html($field->name),
                 'type' => $this->getFieldType($field),
-                'collation' => $this->admin->html($field->collation),
+                'collation' => $this->utils->str->html($field->collation),
             ];
             if ($hasComment) {
-                $detail['comment'] = $this->admin->html($field->comment);
+                $detail['comment'] = $this->utils->str->html($field->comment);
             }
             $details[] = $detail;
         }
@@ -136,9 +136,9 @@ class TableFacade extends AbstractFacade
         $indexes = $this->driver->indexes($table);
 
         $headers = [
-            $this->trans->lang('Name'),
-            $this->trans->lang('Type'),
-            $this->trans->lang('Column'),
+            $this->utils->trans->lang('Name'),
+            $this->utils->trans->lang('Type'),
+            $this->utils->trans->lang('Column'),
         ];
 
         $details = [];
@@ -147,7 +147,7 @@ class TableFacade extends AbstractFacade
             ksort($index->columns); // enforce correct columns order
             $print = [];
             foreach ($index->columns as $key => $val) {
-                $value = '<i>' . $this->admin->html($val) . '</i>';
+                $value = '<i>' . $this->utils->str->html($val) . '</i>';
                 if (array_key_exists($key, $index->lengths)) {
                     $value .= '(' . $index->lengths[$key] . ')';
                 }
@@ -157,7 +157,7 @@ class TableFacade extends AbstractFacade
                 $print[] = $value;
             }
             $details[] = [
-                'name' => $this->admin->html($name),
+                'name' => $this->utils->str->html($name),
                 'type' => $index->type,
                 'desc' => implode(', ', $print),
             ];
@@ -181,11 +181,11 @@ class TableFacade extends AbstractFacade
         }
 
         $headers = [
-            $this->trans->lang('Name'),
-            $this->trans->lang('Source'),
-            $this->trans->lang('Target'),
-            $this->trans->lang('ON DELETE'),
-            $this->trans->lang('ON UPDATE'),
+            $this->utils->trans->lang('Name'),
+            $this->utils->trans->lang('Source'),
+            $this->utils->trans->lang('Target'),
+            $this->utils->trans->lang('ON DELETE'),
+            $this->utils->trans->lang('ON UPDATE'),
         ];
 
         $foreignKeys = $this->driver->foreignKeys($table);
@@ -194,26 +194,26 @@ class TableFacade extends AbstractFacade
         foreach ($foreignKeys as $name => $foreignKey) {
             $target = '';
             if ($foreignKey->database != '') {
-                $target .= '<b>' . $this->admin->html($foreignKey->database) . '</b>.';
+                $target .= '<b>' . $this->utils->str->html($foreignKey->database) . '</b>.';
             }
             if ($foreignKey->schema != '') {
-                $target .= '<b>' . $this->admin->html($foreignKey->schema) . '</b>.';
+                $target .= '<b>' . $this->utils->str->html($foreignKey->schema) . '</b>.';
             }
-            $target = $this->admin->html($foreignKey->table) .
+            $target = $this->utils->str->html($foreignKey->table) .
                 '(' . implode(', ', array_map(function ($key) {
-                    return $this->admin->html($key);
+                    return $this->utils->str->html($key);
                 }, $foreignKey->target)) . ')';
             $details[] = [
-                'name' => $this->admin->html($name),
+                'name' => $this->utils->str->html($name),
                 'source' => '<i>' . implode(
                     '</i>, <i>',
                     array_map(function ($key) {
-                        return $this->admin->html($key);
+                        return $this->utils->str->html($key);
                     }, $foreignKey->source)
                 ) . '</i>',
                 'target' => $target,
-                'onDelete' => $this->admin->html($foreignKey->onDelete),
-                'onUpdate' => $this->admin->html($foreignKey->onUpdate),
+                'onDelete' => $this->utils->str->html($foreignKey->onDelete),
+                'onUpdate' => $this->utils->str->html($foreignKey->onUpdate),
             ];
         }
 
@@ -234,7 +234,7 @@ class TableFacade extends AbstractFacade
         }
 
         $headers = [
-            $this->trans->lang('Name'),
+            $this->utils->trans->lang('Name'),
             '&nbsp;',
             '&nbsp;',
             '&nbsp;',
@@ -245,10 +245,10 @@ class TableFacade extends AbstractFacade
         $triggers = $this->driver->triggers($table);
         foreach ($triggers as $name => $trigger) {
             $details[] = [
-                $this->admin->html($trigger->timing),
-                $this->admin->html($trigger->event),
-                $this->admin->html($name),
-                $this->trans->lang('Alter'),
+                $this->utils->str->html($trigger->timing),
+                $this->utils->str->html($trigger->event),
+                $this->utils->str->html($name),
+                $this->utils->trans->lang('Alter'),
             ];
         }
 
@@ -271,7 +271,7 @@ class TableFacade extends AbstractFacade
         if ($table !== '') {
             $status = $this->driver->tableStatus($table);
             if (!$status) {
-                throw new Exception($this->trans->lang('No tables.'));
+                throw new Exception($this->utils->trans->lang('No tables.'));
             }
             $fields = $this->driver->fields($table);
         }
@@ -379,7 +379,7 @@ class TableFacade extends AbstractFacade
         $this->makeTableAttrs($values);
         $success = $this->driver->createTable($this->attrs);
         $error = $this->driver->error();
-        $message = $this->trans->lang('Table has been created.');
+        $message = $this->utils->trans->lang('Table has been created.');
 
         return compact('success', 'error', 'message');
     }
@@ -397,13 +397,13 @@ class TableFacade extends AbstractFacade
     {
         $this->tableStatus = $this->driver->tableStatus($table);
         if (!$this->tableStatus) {
-            throw new Exception($this->trans->lang('No tables.'));
+            throw new Exception($this->utils->trans->lang('No tables.'));
         }
 
         $this->makeTableAttrs($values, $table);
         $success = $this->driver->alterTable($table, $this->attrs);
         $error = $this->driver->error();
-        $message = $this->trans->lang('Table has been altered.');
+        $message = $this->utils->trans->lang('Table has been altered.');
 
         return compact('success', 'error', 'message');
     }
@@ -419,7 +419,7 @@ class TableFacade extends AbstractFacade
     {
         $success = $this->driver->dropTables([$table]);
         $error = $this->driver->error();
-        $message = $this->trans->lang('Table has been dropped.');
+        $message = $this->utils->trans->lang('Table has been dropped.');
 
         return compact('success', 'message', 'error');
     }

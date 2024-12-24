@@ -22,23 +22,23 @@ class ImportFacade extends CommandFacade
         if ($this->admin->iniBool('file_uploads')) {
             $contents['upload'] = "SQL$gz (&lt; " . \ini_get('upload_max_filesize') . 'B)';
         } else {
-            $contents['upload_disabled'] = $this->trans->lang('File uploads are disabled.');
+            $contents['upload_disabled'] = $this->utils->trans->lang('File uploads are disabled.');
         }
 
         $importServerPath = $this->admin->importServerPath();
         if (($importServerPath)) {
-            $contents['path'] = $this->admin->html($importServerPath) . $gz;
+            $contents['path'] = $this->utils->str->html($importServerPath) . $gz;
         }
 
         $labels = [
-            'path' => $this->trans->lang('Webserver file %s', ''),
-            'file_upload' => $this->trans->lang('File upload'),
-            'from_server' => $this->trans->lang('From server'),
-            'execute' => $this->trans->lang('Execute'),
-            'run_file' => $this->trans->lang('Run file'),
-            'select' => $this->trans->lang('Select'),
-            'error_stops' => $this->trans->lang('Stop on error'),
-            'only_errors' => $this->trans->lang('Show only errors'),
+            'path' => $this->utils->trans->lang('Webserver file %s', ''),
+            'file_upload' => $this->utils->trans->lang('File upload'),
+            'from_server' => $this->utils->trans->lang('From server'),
+            'execute' => $this->utils->trans->lang('Execute'),
+            'run_file' => $this->utils->trans->lang('Run file'),
+            'select' => $this->utils->trans->lang('Select'),
+            'error_stops' => $this->utils->trans->lang('Stop on error'),
+            'only_errors' => $this->utils->trans->lang('Show only errors'),
         ];
 
         return \compact('contents', 'labels');

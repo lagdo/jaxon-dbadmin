@@ -45,7 +45,7 @@ trait SelectTrait
     {
         $fulltexts = [];
         foreach ($indexes as $i => $index) {
-            $fulltexts[$i] = $index->type == "FULLTEXT" ? $this->admin->html($options["fulltext"][$i]) : '';
+            $fulltexts[$i] = $index->type == "FULLTEXT" ? $this->utils->str->html($options["fulltext"][$i]) : '';
         }
         return [
             // 'where' => $where,
@@ -91,7 +91,7 @@ trait SelectTrait
      */
     private function getLimitOptions(string $limit): array
     {
-        return ['value' => $this->admin->html($limit)];
+        return ['value' => $this->utils->str->html($limit)];
     }
 
     /**
@@ -103,7 +103,7 @@ trait SelectTrait
      */
     private function getLengthOptions(int $textLength): array
     {
-        return ['value' => $textLength === 0 ? 0 : $this->admin->html($textLength)];
+        return ['value' => $textLength === 0 ? 0 : $this->utils->str->html($textLength)];
     }
 
     /**

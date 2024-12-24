@@ -75,7 +75,7 @@ class DatabaseFacade extends AbstractFacade
         // $tables = [];
         // foreach($tableStatus as $table)
         // {
-        //     $tables[] = $this->admin->html($table);
+        //     $tables[] = $this->utils->str->html($table);
         // }
 
         return \compact('schemas'/*, 'tables'*/);
@@ -89,15 +89,15 @@ class DatabaseFacade extends AbstractFacade
     public function getTables()
     {
         $headers = [
-            $this->trans->lang('Table'),
-            $this->trans->lang('Engine'),
-            $this->trans->lang('Collation'),
-            // $this->trans->lang('Data Length'),
-            // $this->trans->lang('Index Length'),
-            // $this->trans->lang('Data Free'),
-            // $this->trans->lang('Auto Increment'),
-            // $this->trans->lang('Rows'),
-            $this->trans->lang('Comment'),
+            $this->utils->trans->lang('Table'),
+            $this->utils->trans->lang('Engine'),
+            $this->utils->trans->lang('Collation'),
+            // $this->utils->trans->lang('Data Length'),
+            // $this->utils->trans->lang('Index Length'),
+            // $this->utils->trans->lang('Data Free'),
+            // $this->utils->trans->lang('Auto Increment'),
+            // $this->utils->trans->lang('Rows'),
+            $this->utils->trans->lang('Comment'),
         ];
 
         // From db.inc.php
@@ -116,7 +116,7 @@ class DatabaseFacade extends AbstractFacade
             }
         }
 
-        $select = $this->trans->lang('Select');
+        $select = $this->utils->trans->lang('Select');
         return \compact('headers', 'details', 'select');
     }
 
@@ -129,14 +129,14 @@ class DatabaseFacade extends AbstractFacade
     public function getViews()
     {
         $headers = [
-            $this->trans->lang('View'),
-            $this->trans->lang('Engine'),
-            // $this->trans->lang('Data Length'),
-            // $this->trans->lang('Index Length'),
-            // $this->trans->lang('Data Free'),
-            // $this->trans->lang('Auto Increment'),
-            // $this->trans->lang('Rows'),
-            $this->trans->lang('Comment'),
+            $this->utils->trans->lang('View'),
+            $this->utils->trans->lang('Engine'),
+            // $this->utils->trans->lang('Data Length'),
+            // $this->utils->trans->lang('Index Length'),
+            // $this->utils->trans->lang('Data Free'),
+            // $this->utils->trans->lang('Auto Increment'),
+            // $this->utils->trans->lang('Rows'),
+            $this->utils->trans->lang('Comment'),
         ];
 
         // From db.inc.php
@@ -165,9 +165,9 @@ class DatabaseFacade extends AbstractFacade
     public function getRoutines()
     {
         $headers = [
-            $this->trans->lang('Name'),
-            $this->trans->lang('Type'),
-            $this->trans->lang('Return type'),
+            $this->utils->trans->lang('Name'),
+            $this->utils->trans->lang('Type'),
+            $this->utils->trans->lang('Return type'),
         ];
 
         // From db.inc.php
@@ -179,10 +179,10 @@ class DatabaseFacade extends AbstractFacade
             //     "" : "&name=" . urlencode($routine["ROUTINE_NAME"]));
 
             $details[] = [
-                'name' => $this->admin->html($routine->name),
-                'type' => $this->admin->html($routine->type),
-                'returnType' => $this->admin->html($routine->dtd),
-                // 'alter' => $this->trans->lang('Alter'),
+                'name' => $this->utils->str->html($routine->name),
+                'type' => $this->utils->str->html($routine->type),
+                'returnType' => $this->utils->str->html($routine->dtd),
+                // 'alter' => $this->utils->trans->lang('Alter'),
             ];
         }
 
@@ -197,13 +197,13 @@ class DatabaseFacade extends AbstractFacade
     public function getSequences()
     {
         $headers = [
-            $this->trans->lang('Name'),
+            $this->utils->trans->lang('Name'),
         ];
 
         $details = [];
         foreach ($this->driver->sequences() as $sequence) {
             $details[] = [
-                'name' => $this->admin->html($sequence),
+                'name' => $this->utils->str->html($sequence),
             ];
         }
 
@@ -218,14 +218,14 @@ class DatabaseFacade extends AbstractFacade
     public function getUserTypes()
     {
         $headers = [
-            $this->trans->lang('Name'),
+            $this->utils->trans->lang('Name'),
         ];
 
         // From db.inc.php
         $details = [];
         foreach ($this->driver->userTypes() as $userType) {
             $details[] = [
-                'name' => $this->admin->html($userType),
+                'name' => $this->utils->str->html($userType),
             ];
         }
 
@@ -240,24 +240,24 @@ class DatabaseFacade extends AbstractFacade
     public function getEvents()
     {
         $headers = [
-            $this->trans->lang('Name'),
-            $this->trans->lang('Schedule'),
-            $this->trans->lang('Start'),
-            // $this->trans->lang('End'),
+            $this->utils->trans->lang('Name'),
+            $this->utils->trans->lang('Schedule'),
+            $this->utils->trans->lang('Start'),
+            // $this->utils->trans->lang('End'),
         ];
 
         // From db.inc.php
         $details = [];
         foreach ($this->driver->events() as $event) {
             $detail = [
-                'name' => $this->admin->html($event["Name"]),
+                'name' => $this->utils->str->html($event["Name"]),
             ];
             if (($event["Execute at"])) {
-                $detail['schedule'] = $this->trans->lang('At given time');
+                $detail['schedule'] = $this->utils->trans->lang('At given time');
                 $detail['start'] = $event["Execute at"];
             // $detail['end'] = '';
             } else {
-                $detail['schedule'] = $this->trans->lang('Every') . " " .
+                $detail['schedule'] = $this->utils->trans->lang('Every') . " " .
                     $event["Interval value"] . " " . $event["Interval field"];
                 $detail['start'] = $event["Starts"];
                 // $detail['end'] = '';

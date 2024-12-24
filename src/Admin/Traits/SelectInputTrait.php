@@ -12,15 +12,6 @@ use function in_array;
 trait SelectInputTrait
 {
     /**
-     * Filter length value including enums
-     *
-     * @param string $length
-     *
-     * @return string
-     */
-    abstract public function processLength(string $length): string;
-
-    /**
      * @param TableFieldEntity $field Single field from fields()
      * @param string $value
      * @param string $function
@@ -41,7 +32,7 @@ trait SelectInputTrait
         $val = $value['val'];
         $col = $value['col'];
         if (preg_match('~IN$~', $op)) {
-            $in = $this->processLength($val);
+            $in = $this->driver->processLength($val);
             return " $op " . ($in !== '' ? $in : '(NULL)');
         }
         if ($op === 'SQL') {

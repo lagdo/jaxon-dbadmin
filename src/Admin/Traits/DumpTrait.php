@@ -23,7 +23,7 @@ trait DumpTrait
      */
     public function dumpOutput(): array
     {
-        $output = ['text' => $this->trans->lang('open'), 'file' => $this->trans->lang('save')];
+        $output = ['text' => $this->utils->trans->lang('open'), 'file' => $this->utils->trans->lang('save')];
         if (function_exists('gzencode')) {
             $output['gz'] = 'gzip';
         }

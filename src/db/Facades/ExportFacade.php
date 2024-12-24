@@ -47,7 +47,7 @@ class ExportFacade extends AbstractFacade
             'options' => $this->getBaseOptions($database, $table),
             'prefixes' => [],
             'labels' => [
-                'export' => $this->trans->lang('Export'),
+                'export' => $this->utils->trans->lang('Export'),
             ],
         ];
         if (($database)) {

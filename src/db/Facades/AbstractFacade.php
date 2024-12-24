@@ -4,8 +4,8 @@ namespace Lagdo\DbAdmin\Db\Facades;
 
 use Lagdo\DbAdmin\Admin\Admin;
 use Lagdo\DbAdmin\Driver\DriverInterface;
+use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Package;
-use Lagdo\DbAdmin\Translator;
 
 /**
  * Common attributes for all facades
@@ -15,24 +15,24 @@ class AbstractFacade
     /**
      * @var DriverInterface
      */
-    public $driver = null;
+    protected $driver = null;
 
     /**
      * @var Admin
      */
-    public $admin = null;
+    protected $admin = null;
 
     /**
-     * @var Translator
+     * @var Utils
      */
-    public $trans = null;
+    protected $utils = null;
 
     /**
      * The Jaxon DbAdmin package
      *
      * @var Package
      */
-    public $package;
+    protected $package;
 
     /**
      * Initialize the facade
@@ -45,7 +45,7 @@ class AbstractFacade
     {
         $this->driver = $dbFacade->driver;
         $this->admin = $dbFacade->admin;
-        $this->trans = $dbFacade->trans;
+        $this->utils = $dbFacade->utils;
         $this->package = $dbFacade->package;
     }
 }

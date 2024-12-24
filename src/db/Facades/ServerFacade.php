@@ -71,13 +71,13 @@ class ServerFacade extends AbstractFacade
      */
     public function getServerInfo(): array
     {
-        $server = $this->trans->lang(
+        $server = $this->utils->trans->lang(
             '%s version: %s. PHP extension %s.',
             $this->driver->name(),
-            "<b>" . $this->admin->html($this->driver->serverInfo()) . "</b>",
+            "<b>" . $this->utils->str->html($this->driver->serverInfo()) . "</b>",
             "<b>{$this->driver->extension()}</b>"
         );
-        $user = $this->trans->lang('Logged as: %s.', "<b>" . $this->admin->html($this->driver->user()) . "</b>");
+        $user = $this->utils->trans->lang('Logged as: %s.', "<b>" . $this->utils->str->html($this->driver->user()) . "</b>");
 
         return compact('server', 'user');
     }
@@ -125,10 +125,10 @@ class ServerFacade extends AbstractFacade
     public function getDatabases(): array
     {
         $headers = [
-            $this->trans->lang('Database'),
-            $this->trans->lang('Collation'),
-            $this->trans->lang('Tables'),
-            $this->trans->lang('Size'),
+            $this->utils->trans->lang('Database'),
+            $this->utils->trans->lang('Collation'),
+            $this->utils->trans->lang('Tables'),
+            $this->utils->trans->lang('Size'),
             '',
         ];
 
@@ -139,8 +139,8 @@ class ServerFacade extends AbstractFacade
         $details = [];
         foreach ($databases as $database) {
             $details[] = [
-                'name' => $this->admin->html($database),
-                'collation' => $this->admin->html($this->driver->databaseCollation($database, $collations)),
+                'name' => $this->utils->str->html($database),
+                'collation' => $this->utils->str->html($this->driver->databaseCollation($database, $collations)),
                 'tables' => array_key_exists($database, $tables) ? $tables[$database] : 0,
                 'size' => $this->trans->formatNumber($this->driver->databaseSize($database)),
             ];
@@ -192,7 +192,7 @@ class ServerFacade extends AbstractFacade
         $details = [];
         // From variables.inc.php
         foreach ($variables as $key => $val) {
-            $details[] = [$this->admin->html($key), is_string($val) ? $this->admin->shortenUtf8($val, 50) : '(null)'];
+            $details[] = [$this->utils->str->html($key), is_string($val) ? $this->utils->str->shortenUtf8($val, 50) : '(null)'];
         }
 
         return compact('headers', 'details');
@@ -212,7 +212,7 @@ class ServerFacade extends AbstractFacade
         $details = [];
         // From variables.inc.php
         foreach ($status as $key => $val) {
-            $details[] = [$this->admin->html($key), is_string($val) ? $this->admin->html($val) : '(null)'];
+            $details[] = [$this->utils->str->html($key), is_string($val) ? $this->utils->str->html($val) : '(null)'];
         }
 
         return compact('headers', 'details');

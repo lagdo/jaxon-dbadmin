@@ -34,10 +34,10 @@ trait SelectTrait
     public function getSelectData(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
-        $this->bcdb()->breadcrumb($this->trans->lang('Tables'))
-            ->breadcrumb($table)->breadcrumb($this->trans->lang('Select'));
-        $this->admin->input()->table = $table;
-        $this->admin->input()->values = $queryOptions;
+        $this->bcdb()->breadcrumb($this->utils->trans->lang('Tables'))
+            ->breadcrumb($table)->breadcrumb($this->utils->trans->lang('Select'));
+        $this->utils->input->table = $table;
+        $this->utils->input->values = $queryOptions;
         return $this->selectFacade()->getSelectData($table, $queryOptions);
     }
 
@@ -53,8 +53,8 @@ trait SelectTrait
     public function execSelect(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $table;
-        $this->admin->input()->values = $queryOptions;
+        $this->utils->input->table = $table;
+        $this->utils->input->values = $queryOptions;
         return $this->selectFacade()->execSelect($table, $queryOptions);
     }
 }

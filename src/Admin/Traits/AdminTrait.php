@@ -4,38 +4,15 @@ namespace Lagdo\DbAdmin\Admin\Traits;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
-use function array_flip;
 use function ini_get;
 use function intval;
 use function is_string;
-use function preg_quote;
 use function preg_match;
-use function str_replace;
 use function strtolower;
-use function strtr;
 use function substr;
 
 trait AdminTrait
 {
-    /**
-     * Escape for HTML
-     *
-     * @param string|null $string
-     *
-     * @return string
-     */
-    abstract public function html($string): string;
-
-    /**
-     * Get escaped error message
-     *
-     * @return string
-     */
-    public function error(): string
-    {
-        return $this->html($this->driver->error());
-    }
-
     /**
      * Check if the string is e-mail address
      *
@@ -112,37 +89,5 @@ trait AdminTrait
             case 'k': $value = $ival * 1024; break;
         }
         return intval($value);
-    }
-
-    /**
-     * Escape column key used in where()
-     *
-     * @param string
-     *
-     * @return string
-     */
-    public function escapeKey(string $key): string
-    {
-        if (preg_match('(^([\w(]+)(' . str_replace('_', '.*',
-                preg_quote($this->driver->escapeId('_'))) . ')([ \w)]+)$)', $key, $match)) {
-            //! columns looking like functions
-            return $match[1] . $this->driver->escapeId($this->driver->unescapeId($match[2])) . $match[3]; //! SQL injection
-        }
-        return $this->driver->escapeId($key);
-    }
-
-    /**
-     * Escape or unescape string to use inside form []
-     *
-     * @param string $idf
-     * @param bool $back
-     *
-     * @return string
-     */
-    public function bracketEscape(string $idf, bool $back = false): string
-    {
-        // escape brackets inside name='x[]'
-        static $trans = [':' => ':1', ']' => ':2', '[' => ':3', '"' => ':4'];
-        return strtr($idf, ($back ? array_flip($trans) : $trans));
     }
 }

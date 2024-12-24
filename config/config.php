@@ -93,12 +93,18 @@ return [
             },
         ],
         'auto' => [
-            // The user input
-            Lagdo\DbAdmin\Driver\Input::class,
-            // The facade to the database features
-            Lagdo\DbAdmin\Db\DbFacade::class,
             // The translator
             Lagdo\DbAdmin\Translator::class,
+            // The string manipulation class
+            Lagdo\DbAdmin\Driver\Utils\Str::class,
+            // The user input
+            Lagdo\DbAdmin\Driver\Utils\Input::class,
+            // The query history
+            Lagdo\DbAdmin\Driver\Utils\History::class,
+            // The utils class
+            Lagdo\DbAdmin\Driver\Utils\Utils::class,
+            // The facade to the database features
+            Lagdo\DbAdmin\Db\DbFacade::class,
             // The db classes
             Lagdo\DbAdmin\Admin\Admin::class,
             // The template builders
@@ -108,9 +114,7 @@ return [
         ],
         'alias' => [
             // The translator
-            Lagdo\DbAdmin\Driver\TranslatorInterface::class => Lagdo\DbAdmin\Translator::class,
-            // The db util
-            Lagdo\DbAdmin\Driver\AdminInterface::class => Lagdo\DbAdmin\Admin\Admin::class,
+            Lagdo\DbAdmin\Driver\Utils\TranslatorInterface::class => Lagdo\DbAdmin\Translator::class,
         ],
     ],
     'exceptions' => [

@@ -2,19 +2,17 @@
 
 namespace Lagdo\DbAdmin\Admin;
 
+use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Entity\TableEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
-use Lagdo\DbAdmin\Driver\Input;
-use Lagdo\DbAdmin\Driver\TranslatorInterface;
-use Lagdo\DbAdmin\Driver\AdminInterface;
-use Lagdo\DbAdmin\Driver\AdminTrait;
 
+use function max;
 use function preg_match;
 use function strlen;
 
-class Admin implements AdminInterface
+class Admin
 {
-    use AdminTrait;
     use Traits\AdminTrait;
     use Traits\SelectTrait;
     use Traits\QueryInputTrait;
@@ -23,19 +21,31 @@ class Admin implements AdminInterface
     use Traits\DumpTrait;
 
     /**
+     * @var DriverInterface
+     */
+    public $driver;
+
+    /**
+     * @var Utils
+     */
+    protected $utils;
+
+    /**
      * The constructor
      *
-     * @param TranslatorInterface $trans
-     * @param Input $input
+     * @param DriverInterface $driver
+     * @param Utils $utils
      */
-    public function __construct(TranslatorInterface $trans, Input $input)
+    public function __construct(DriverInterface $driver, Utils $utils)
     {
-        $this->trans = $trans;
-        $this->input = $input;
+        $this->driver = $driver;
+        $this->utils = $utils;
     }
 
     /**
-     * @inheritDoc
+     * Name in title and navigation
+     *
+     * @return string
      */
     public function name(): string
     {
@@ -50,6 +60,16 @@ class Admin implements AdminInterface
     public function blankTarget(): string
     {
         return ' target="_blank" rel="noreferrer noopener"';
+    }
+
+    /**
+     * Get escaped error message
+     *
+     * @return string
+     */
+    public function error(): string
+    {
+        return $this->utils->str->html($this->driver->error());
     }
 
     /**
@@ -86,7 +106,7 @@ class Admin implements AdminInterface
      */
     public function tableName(TableEntity $table): string
     {
-        return $this->html($table->name);
+        return $this->utils->str->html($table->name);
     }
 
     /**
@@ -99,7 +119,7 @@ class Admin implements AdminInterface
      */
     public function fieldName(TableFieldEntity $field, /** @scrutinizer ignore-unused */ int $order = 0): string
     {
-        return '<span title="' . $this->html($field->fullType) . '">' . $this->html($field->name) . '</span>';
+        return '<span title="' . $this->utils->str->html($field->fullType) . '">' . $this->utils->str->html($field->name) . '</span>';
     }
 
     /**
@@ -119,18 +139,18 @@ class Admin implements AdminInterface
         if (preg_match('~char|binary|boolean~', $type) && !preg_match('~var~', $type)) {
             return "<code>$value</code>";
         }
-        if (preg_match('~blob|bytea|raw|file~', $type) && !$this->isUtf8($value)) {
-            return '<i>' . $this->trans->lang('%d byte(s)', strlen($original)) . '</i>';
+        if (preg_match('~blob|bytea|raw|file~', $type) && !$this->utils->str->isUtf8($value)) {
+            return '<i>' . $this->utils->trans->lang('%d byte(s)', strlen($original)) . '</i>';
         }
         if (preg_match('~json~', $type)) {
             return "<code>$value</code>";
         }
         if ($this->isMail($value)) {
-            return '<a href="' . $this->html("mailto:$value") . '">' . $value . '</a>';
+            return '<a href="' . $this->utils->str->html("mailto:$value") . '">' . $value . '</a>';
         }
         elseif ($this->isUrl($value)) {
             // IE 11 and all modern browsers hide referrer
-            return '<a href="' . $this->html($value) . '"' . $this->blankTarget() . '>' . $value . '</a>';
+            return '<a href="' . $this->utils->str->html($value) . '"' . $this->blankTarget() . '>' . $value . '</a>';
         }
         return $value;
     }
@@ -150,7 +170,7 @@ class Admin implements AdminInterface
         //     $expression = '';
         //     foreach ($value as $k => $v) {
         //         $expression .= '<tr>' . ($value != \array_values($value) ?
-        //             '<th>' . $this->html($k) :
+        //             '<th>' . $this->utils->str->html($k) :
         //             '') . '<td>' . $this->selectValue($field, $v, $textLength);
         //     }
         //     return "<table cellspacing='0'>$expression</table>";
@@ -160,14 +180,14 @@ class Admin implements AdminInterface
         // }
         $expression = $value;
         if (!empty($expression)) {
-            if (!$this->isUtf8($expression)) {
+            if (!$this->utils->str->isUtf8($expression)) {
                 $expression = "\0"; // htmlspecialchars of binary data returns an empty string
             } elseif ($textLength != '' && $this->isShortable($field)) {
                 // usage of LEFT() would reduce traffic but complicate query -
                 // expected average speedup: .001 s VS .01 s on local network
-                $expression = $this->shortenUtf8($expression, \max(0, +$textLength));
+                $expression = $this->utils->str->shortenUtf8($expression, max(0, +$textLength));
             } else {
-                $expression = $this->html($expression);
+                $expression = $this->utils->str->html($expression);
             }
         }
         return $this->getSelectFieldValue($expression, $field->type, $value);

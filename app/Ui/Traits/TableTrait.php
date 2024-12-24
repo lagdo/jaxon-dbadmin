@@ -211,7 +211,7 @@ trait TableTrait
             $htmlBuilder
                     ->formCol(3)->setClass('adminer-edit-table-collation')
                         ->formSelect()->setName('collation')
-                            ->option(false, '(' . $this->trans->lang('collation') . ')')->setValue('')
+                            ->option(false, '(' . $this->utils->trans->lang('collation') . ')')->setValue('')
                             ->end();
             foreach ($this->collations as $group => $_collations) {
                 if (is_string($_collations)) {
@@ -238,7 +238,7 @@ trait TableTrait
             $htmlBuilder
                     ->formCol(4)->setClass('adminer-table-column-middle')
                         ->formInput()->setType('text')->setName('comment')
-                            ->setValue($table['comment'] ?? '')->setPlaceholder($this->trans->lang('Comment'))
+                            ->setValue($table['comment'] ?? '')->setPlaceholder($this->utils->trans->lang('Comment'))
                         ->end()
                     ->end();
         }
@@ -246,7 +246,7 @@ trait TableTrait
                 ->end()
                 ->formRow()->setClass('adminer-table-column-header')
                     ->formCol(3)->setClass('adminer-table-column-left')
-                        ->label()->addText($this->trans->lang('Column'))
+                        ->label()->addText($this->utils->trans->lang('Column'))
                         ->end()
                     ->end()
                     ->formCol(1)->setClass('adminer-table-column-null-header')
@@ -256,7 +256,7 @@ trait TableTrait
                         ->end()
                     ->end()
                     ->formCol(7)->setClass('adminer-table-column-middle')
-                        ->label()->addText($this->trans->lang('Options'))
+                        ->label()->addText($this->utils->trans->lang('Options'))
                         ->end()
                     ->end()
                     ->formCol(1)->setClass('adminer-table-column-buttons-header');
@@ -302,7 +302,7 @@ trait TableTrait
                 ->row()
                     ->col(3)->setClass('adminer-table-column-left')
                         ->formInput(['class' => 'column-name'])->setName($prefixFields . '[name]')
-                            ->setPlaceholder($this->trans->lang('Name'))->setValue($field->name)
+                            ->setPlaceholder($this->utils->trans->lang('Name'))->setValue($field->name)
                             ->setDataField('name')->setDataMaxlength('64')->setAutocapitalize('off')
                         ->endShorted()
                         ->input()->setType('hidden')->setName($prefixFields . '[orig]')
@@ -323,7 +323,7 @@ trait TableTrait
                             ->setReadonly('readonly');
         }
         $htmlBuilder
-                            ->option(false, '(' . $this->trans->lang('collation') . ')')->setValue('')
+                            ->option(false, '(' . $this->utils->trans->lang('collation') . ')')->setValue('')
                             ->end();
         foreach ($this->collations as $group => $_collations) {
             if (is_string($_collations)) {
@@ -352,7 +352,7 @@ trait TableTrait
                                 ->setReadonly('readonly');
         }
         $htmlBuilder
-                            ->option(false, '(' . $this->trans->lang('ON UPDATE') . ')')->setValue('')
+                            ->option(false, '(' . $this->utils->trans->lang('ON UPDATE') . ')')->setValue('')
                             ->end();
         foreach ($this->options['onUpdate'] as $option) {
             $htmlBuilder
@@ -366,7 +366,7 @@ trait TableTrait
         if (/*$support['comment']*/true) {
             $htmlBuilder
                         ->formInput()->setType('text')->setName($prefixFields . '[comment]')->setValue($field->comment)
-                            ->setDataField('comment')->setPlaceholder($this->trans->lang('Comment'))
+                            ->setDataField('comment')->setPlaceholder($this->utils->trans->lang('Comment'))
                         ->end();
         }
         $htmlBuilder
@@ -389,7 +389,7 @@ trait TableTrait
                     ->end()
                     ->col(1)->setClass('adminer-table-column-middle second-line')
                         ->formInput()->setName($prefixFields . '[length]')->setDataField('length')->setSize('3')
-                            ->setPlaceholder($this->trans->lang('Length'))->setValue($field->length);
+                            ->setPlaceholder($this->utils->trans->lang('Length'))->setValue($field->length);
         if ($field->lengthRequired) {
             $htmlBuilder
                             ->setRequired('required');
@@ -426,7 +426,7 @@ trait TableTrait
                                 ->setReadonly('readonly');
         }
         $htmlBuilder
-                            ->option(false, '(' . $this->trans->lang('ON DELETE') . ')')->setValue('')
+                            ->option(false, '(' . $this->utils->trans->lang('ON DELETE') . ')')->setValue('')
                             ->end();
         foreach ($this->options['onDelete'] as $option) {
             $htmlBuilder
@@ -441,7 +441,7 @@ trait TableTrait
                             ->checkbox($field->hasDefault)->setName($prefixFields . '[hasDefault]')->setDataField('hasDefault')
                             ->end()
                             ->formInput()->setName($prefixFields . '[default]')->setDataField('default')
-                                ->setPlaceholder($this->trans->lang('Default value'))->setValue($field->default ?? '')
+                                ->setPlaceholder($this->utils->trans->lang('Default value'))->setValue($field->default ?? '')
                             ->end()
                         ->end()
                     ->end()

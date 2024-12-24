@@ -110,7 +110,7 @@ trait QueryTrait
      */
     private function getRowFieldValue(TableFieldEntity $field, string $name, ?array $row, string $update, array $queryOptions)
     {
-        // $default = $queryOptions["set"][$this->admin->bracketEscape($name)] ?? null;
+        // $default = $queryOptions["set"][$this->driver->bracketEscape($name)] ?? null;
         // if($default === null)
         // {
         $default = $field->default;

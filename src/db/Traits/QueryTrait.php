@@ -33,10 +33,10 @@ trait QueryTrait
     public function getQueryData(string $table, array $queryOptions = [], string $action = 'New item'): array
     {
         $this->connectToSchema();
-        $this->bcdb()->breadcrumb($this->trans->lang('Tables'))
-            ->breadcrumb($table)->breadcrumb($this->trans->lang($action));
-        $this->admin->input()->table = $table;
-        $this->admin->input()->values = $queryOptions;
+        $this->bcdb()->breadcrumb($this->utils->trans->lang('Tables'))
+            ->breadcrumb($table)->breadcrumb($this->utils->trans->lang($action));
+        $this->utils->input->table = $table;
+        $this->utils->input->values = $queryOptions;
         return $this->queryFacade()->getQueryData($table, $queryOptions);
     }
 
@@ -51,8 +51,8 @@ trait QueryTrait
     public function insertItem(string $table, array $queryOptions): array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $table;
-        $this->admin->input()->values = $queryOptions;
+        $this->utils->input->table = $table;
+        $this->utils->input->values = $queryOptions;
         return $this->queryFacade()->insertItem($table, $queryOptions);
     }
 
@@ -67,8 +67,8 @@ trait QueryTrait
     public function updateItem(string $table, array $queryOptions): array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $table;
-        $this->admin->input()->values = $queryOptions;
+        $this->utils->input->table = $table;
+        $this->utils->input->values = $queryOptions;
         return $this->queryFacade()->updateItem($table, $queryOptions);
     }
 
@@ -83,8 +83,8 @@ trait QueryTrait
     public function deleteItem(string $table, array $queryOptions): array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $table;
-        $this->admin->input()->values = $queryOptions;
+        $this->utils->input->table = $table;
+        $this->utils->input->values = $queryOptions;
         return $this->queryFacade()->deleteItem($table, $queryOptions);
     }
 }

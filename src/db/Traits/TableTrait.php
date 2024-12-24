@@ -33,8 +33,8 @@ trait TableTrait
     public function getTableInfo(string $table): array
     {
         $this->connectToSchema();
-        $this->bcdb()->breadcrumb($this->trans->lang('Tables'))->breadcrumb($table);
-        $this->admin->input()->table = $table;
+        $this->bcdb()->breadcrumb($this->utils->trans->lang('Tables'))->breadcrumb($table);
+        $this->utils->input->table = $table;
         return $this->tableFacade()->getTableInfo($table);
     }
 
@@ -49,7 +49,7 @@ trait TableTrait
     public function getTableFields(string $table): array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $table;
+        $this->utils->input->table = $table;
         return $this->tableFacade()->getTableFields($table);
     }
 
@@ -63,7 +63,7 @@ trait TableTrait
     public function getTableIndexes(string $table): ?array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $table;
+        $this->utils->input->table = $table;
         return $this->tableFacade()->getTableIndexes($table);
     }
 
@@ -77,7 +77,7 @@ trait TableTrait
     public function getTableForeignKeys(string $table): ?array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $table;
+        $this->utils->input->table = $table;
         return $this->tableFacade()->getTableForeignKeys($table);
     }
 
@@ -91,7 +91,7 @@ trait TableTrait
     public function getTableTriggers(string $table): ?array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $table;
+        $this->utils->input->table = $table;
         return $this->tableFacade()->getTableTriggers($table);
     }
 
@@ -106,13 +106,13 @@ trait TableTrait
     public function getTableData(string $table = ''): array
     {
         $this->connectToSchema();
-        $this->bcdb()->breadcrumb($this->trans->lang('Tables'));
+        $this->bcdb()->breadcrumb($this->utils->trans->lang('Tables'));
         if (!$table) {
-            $this->breadcrumb($this->trans->lang('Create table'));
+            $this->breadcrumb($this->utils->trans->lang('Create table'));
         } else {
-            $this->breadcrumb($table)->breadcrumb($this->trans->lang('Alter table'));
+            $this->breadcrumb($table)->breadcrumb($this->utils->trans->lang('Alter table'));
         }
-        $this->admin->input()->table = $table;
+        $this->utils->input->table = $table;
         return $this->tableFacade()->getTableData($table);
     }
 
@@ -137,8 +137,8 @@ trait TableTrait
     public function createTable(array $values): ?array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $values['name'];
-        $this->admin->input()->values = $values;
+        $this->utils->input->table = $values['name'];
+        $this->utils->input->values = $values;
         return $this->tableFacade()->createTable($values);
     }
 
@@ -154,8 +154,8 @@ trait TableTrait
     public function alterTable(string $table, array $values): ?array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $table;
-        $this->admin->input()->values = $values;
+        $this->utils->input->table = $table;
+        $this->utils->input->values = $values;
         return $this->tableFacade()->alterTable($table, $values);
     }
 
@@ -169,7 +169,7 @@ trait TableTrait
     public function dropTable(string $table): ?array
     {
         $this->connectToSchema();
-        $this->admin->input()->table = $table;
+        $this->utils->input->table = $table;
         return $this->tableFacade()->dropTable($table);
     }
 }

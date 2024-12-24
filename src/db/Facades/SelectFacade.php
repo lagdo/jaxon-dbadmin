@@ -75,13 +75,13 @@ class SelectFacade extends AbstractFacade
     private function prepareSelect(string $table, array &$queryOptions = []): array
     {
         $page = $this->setDefaultOptions($queryOptions);
-        $this->admin->input()->setValues($queryOptions);
+        $this->utils->input->setValues($queryOptions);
 
         // From select.inc.php
         $fields = $this->driver->fields($table);
         list(, $columns, $textLength) = $this->getFieldsOptions($fields);
         if (!$columns && $this->driver->support("table")) {
-            throw new Exception($this->trans->lang('Unable to select the table') .
+            throw new Exception($this->utils->trans->lang('Unable to select the table') .
                 ($fields ? "." : ": " . $this->driver->error()));
         }
 
@@ -102,7 +102,7 @@ class SelectFacade extends AbstractFacade
         //         if($foreignKeys[$val["col"]] && count($foreignKeys[$val["col"]]) == 1 && ($val["op"] == "="
         //             || (!$val["op"] && !preg_match('~[_%]~', $val["val"])) // LIKE in Editor
         //         )) {
-        //             $set .= "&set" . urlencode("[" . $this->admin->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
+        //             $set .= "&set" . urlencode("[" . $this->driver->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
         //         }
         //     }
         // }
@@ -137,7 +137,7 @@ class SelectFacade extends AbstractFacade
     public function getSelectData(string $table, array $queryOptions = []): array
     {
         [$options, $query] = $this->prepareSelect($table, $queryOptions);
-        $query = $this->admin->html($query);
+        $query = $this->utils->str->html($query);
 
         return compact('options', 'query');
     }
@@ -203,7 +203,7 @@ class SelectFacade extends AbstractFacade
                     // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
                     // $desc = "&desc%5B0%5D=1";
                     $header['column'] = $column;
-                    $header['key'] = $this->admin->html($this->admin->bracketEscape($key));
+                    $header['key'] = $this->utils->str->html($this->driver->bracketEscape($key));
                     $header['sql'] = $this->admin->applySqlFunction($fun, $name); //! columns looking like functions
                 }
                 // $functions[$key] = $fun;
@@ -286,11 +286,11 @@ class SelectFacade extends AbstractFacade
                 $value = md5($value);
             }
             if ($value !== null) {
-                $rowIds['where'][$this->admin->bracketEscape($key)] = $value;
+                $rowIds['where'][$this->driver->bracketEscape($key)] = $value;
             } else {
-                $rowIds['null'][] = $this->admin->bracketEscape($key);
+                $rowIds['null'][] = $this->driver->bracketEscape($key);
             }
-            // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" . $this->admin->bracketEscape($key) . "]") .
+            // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" . $this->driver->bracketEscape($key) . "]") .
             //     "=" . \urlencode($value) : \urlencode("null[]") . "=" . \urlencode($key));
         }
         return $rowIds;
@@ -342,7 +342,7 @@ class SelectFacade extends AbstractFacade
 
         list($rows, $duration) = $this->executeSelect($query, $page);
         if (!$rows) {
-            return ['message' => $this->trans->lang('No rows.')];
+            return ['message' => $this->utils->trans->lang('No rows.')];
         }
         // $backward_keys = $this->driver->backwardKeys($table, $tableName);
         // lengths = $this->getValuesLengths($rows, $queryOptions);

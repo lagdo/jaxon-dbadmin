@@ -53,11 +53,11 @@ class CommandFacade extends AbstractFacade
             // $link = $this->editLink($val);
             if ($value === null) {
                 $value = '<i>NULL</i>';
-            } elseif (isset($blobs[$key]) && $blobs[$key] && !$this->admin->isUtf8($value)) {
+            } elseif (isset($blobs[$key]) && $blobs[$key] && !$this->utils->str->isUtf8($value)) {
                 //! link to download
-                $value = '<i>' . $this->trans->lang('%d byte(s)', \strlen($value)) . '</i>';
+                $value = '<i>' . $this->utils->trans->lang('%d byte(s)', \strlen($value)) . '</i>';
             } else {
-                $value = $this->admin->html($value);
+                $value = $this->utils->str->html($value);
                 if (isset($types[$key]) && $types[$key] == 254) { // 254 - char
                     $value = "<code>$value</code>";
                 }
@@ -79,9 +79,9 @@ class CommandFacade extends AbstractFacade
         $message = '';
         if ($numRows > 0) {
             if ($limit > 0 && $numRows > $limit) {
-                $message = $this->trans->lang('%d / ', $limit);
+                $message = $this->utils->trans->lang('%d / ', $limit);
             }
-            $message .= $this->trans->lang('%d row(s)', $numRows);
+            $message .= $this->utils->trans->lang('%d row(s)', $numRows);
         }
         return $message;
     }
@@ -100,13 +100,13 @@ class CommandFacade extends AbstractFacade
         // No resultset
         if ($statement === true) {
             $affected = $this->driver->affectedRows();
-            $message = $this->trans->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
+            $message = $this->utils->trans->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
             return [null, [$message]];
         }
         // Fetch the first row.
         if (!($row = $statement->fetchRow())) {
             // Empty resultset.
-            $message = $this->trans->lang('No rows.');
+            $message = $this->utils->trans->lang('No rows.');
             return [null, [$message]];
         }
 
@@ -126,7 +126,7 @@ class CommandFacade extends AbstractFacade
                 $blobs[$j] = true;
             }
             $types[$j] = $field->type(); // Some drivers don't set the type field.
-            $headers[] = $this->admin->html($field->name());
+            $headers[] = $this->utils->str->html($field->name());
         }
 
         // Table rows (the first was already fetched).
@@ -232,9 +232,9 @@ class CommandFacade extends AbstractFacade
 
         $messages = [];
         if ($commands === 0) {
-            $messages[] = $this->trans->lang('No commands to execute.');
+            $messages[] = $this->utils->trans->lang('No commands to execute.');
         } elseif ($onlyErrors) {
-            $messages[] =  $this->trans->lang('%d query(s) executed OK.', $commands - $errors);
+            $messages[] =  $this->utils->trans->lang('%d query(s) executed OK.', $commands - $errors);
         }
 
         return ['results' => $this->results, 'messages' => $messages];

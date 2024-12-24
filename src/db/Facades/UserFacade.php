@@ -23,8 +23,8 @@ class UserFacade extends AbstractFacade
     public function getPrivileges(string $database = ''): array
     {
         $headers = [
-            $this->trans->lang('Username'),
-            $this->trans->lang('Server'),
+            $this->utils->trans->lang('Username'),
+            $this->utils->trans->lang('Server'),
             '',
             '',
         ];
@@ -34,8 +34,8 @@ class UserFacade extends AbstractFacade
             // Fetch user grants
             $userEntity = $this->driver->getUserGrants($user["User"], $user["Host"]);
             $details[] = [
-                'user' => $this->admin->html($userEntity->name),
-                'host' => $this->admin->html($userEntity->host),
+                'user' => $this->utils->str->html($userEntity->name),
+                'host' => $this->utils->str->html($userEntity->host),
                 'grants' => \array_keys($userEntity->grants),
             ];
         }
@@ -91,12 +91,12 @@ class UserFacade extends AbstractFacade
      */
     private function getPrivilegeInput(string $privilege, string $desc, string $context, array $grants): array
     {
-        $detail = [$desc, $this->admin->html($privilege)];
+        $detail = [$desc, $this->utils->str->html($privilege)];
         // echo '<tr><td' . ($desc ? ">$desc<td" : " colspan='2'") .
-        //     ' lang="en" title="' . $this->admin->html($comment) . '">' . $this->admin->html($privilege);
+        //     ' lang="en" title="' . $this->utils->str->html($comment) . '">' . $this->utils->str->html($privilege);
         $i = 0;
         foreach ($grants as $object => $grant) {
-            $name = "'grants[$i][" . $this->admin->html(strtoupper($privilege)) . "]'";
+            $name = "'grants[$i][" . $this->utils->str->html(strtoupper($privilege)) . "]'";
             $value = $grant[strtoupper($privilege)] ?? false;
             if ($context == 'Server Admin' && $object != (isset($grants['*.*']) ? '*.*' : '.*')) {
                 $detail[] = '';
@@ -104,9 +104,9 @@ class UserFacade extends AbstractFacade
             // elseif(isset($values['grant']))
             // {
             //     $detail[] = "<select name=$name><option><option value='1'" .
-            //         ($value ? ' selected' : '') . '>' . $this->trans->lang('Grant') .
+            //         ($value ? ' selected' : '') . '>' . $this->utils->trans->lang('Grant') .
             //         "<option value='0'" . ($value == '0' ? ' selected' : '') . '>' .
-            //         $this->trans->lang('Revoke') . '</select>';
+            //         $this->utils->trans->lang('Revoke') . '</select>';
             // }
             else {
                 $detail[] = "<input type='checkbox' name=$name" . ($value ? ' checked />' : ' />');
@@ -144,11 +144,11 @@ class UserFacade extends AbstractFacade
         $privileges = [];
         $contexts = [
             '' => '',
-            'Server Admin' => $this->trans->lang('Server'),
-            'Databases' => $this->trans->lang('Database'),
-            'Tables' => $this->trans->lang('Table'),
-            'Columns' => $this->trans->lang('Column'),
-            'Procedures' => $this->trans->lang('Routine'),
+            'Server Admin' => $this->utils->trans->lang('Server'),
+            'Databases' => $this->utils->trans->lang('Database'),
+            'Tables' => $this->utils->trans->lang('Table'),
+            'Columns' => $this->utils->trans->lang('Column'),
+            'Procedures' => $this->utils->trans->lang('Routine'),
         ];
         foreach ($contexts as $context => $desc) {
             foreach ($features[$context] as $privilege => $comment) {
@@ -169,33 +169,33 @@ class UserFacade extends AbstractFacade
         $grants = [".*" => []];
 
         $headers = [
-            $this->trans->lang('Contexts'),
-            $this->trans->lang('Privileges'),
+            $this->utils->trans->lang('Contexts'),
+            $this->utils->trans->lang('Privileges'),
         ];
         $i = 0;
         foreach ($grants as $object => $grant) {
             //! separate db, table, columns, PROCEDURE|FUNCTION, routine
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
-                '<input name="objects[' . $i . ']" value="' . $this->admin->html($object) . '" autocapitalize="off" />';
+                '<input name="objects[' . $i . ']" value="' . $this->utils->str->html($object) . '" autocapitalize="off" />';
             $i++;
         }
 
         $user = [
             'host' => [
-                'label' => $this->trans->lang('Server'),
+                'label' => $this->utils->trans->lang('Server'),
                 'value' => '',
             ],
             'name' => [
-                'label' => $this->trans->lang('Username'),
+                'label' => $this->utils->trans->lang('Username'),
                 'value' => '',
             ],
             'pass' => [
-                'label' => $this->trans->lang('Password'),
+                'label' => $this->utils->trans->lang('Password'),
                 'value' => '',
             ],
             'hashed' => [
-                'label' => $this->trans->lang('Hashed'),
+                'label' => $this->utils->trans->lang('Hashed'),
                 'value' => false,
             ],
         ];
@@ -223,8 +223,8 @@ class UserFacade extends AbstractFacade
         }
 
         $headers = [
-            $this->trans->lang('Contexts'),
-            $this->trans->lang('Privileges'),
+            $this->utils->trans->lang('Contexts'),
+            $this->utils->trans->lang('Privileges'),
         ];
         $i = 0;
         foreach ($userEntity->grants as $object => $grant) {
@@ -232,25 +232,25 @@ class UserFacade extends AbstractFacade
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
                 '<input name="objects[' . $i . ']" value="' .
-                    $this->admin->html($object) . '" autocapitalize="off" />';
+                    $this->utils->str->html($object) . '" autocapitalize="off" />';
             $i++;
         }
 
         $user = [
             'host' => [
-                'label' => $this->trans->lang('Server'),
+                'label' => $this->utils->trans->lang('Server'),
                 'value' => $host,
             ],
             'name' => [
-                'label' => $this->trans->lang('Username'),
+                'label' => $this->utils->trans->lang('Username'),
                 'value' => $user,
             ],
             'pass' => [
-                'label' => $this->trans->lang('Password'),
+                'label' => $this->utils->trans->lang('Password'),
                 'value' => $userEntity->password ,
             ],
             'hashed' => [
-                'label' => $this->trans->lang('Hashed'),
+                'label' => $this->utils->trans->lang('Hashed'),
                 'value' => ($userEntity->password  !== ''),
             ],
         ];

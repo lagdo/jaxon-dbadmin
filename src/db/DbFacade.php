@@ -3,11 +3,11 @@
 namespace Lagdo\DbAdmin\Db;
 
 use Jaxon\Di\Container;
+use Lagdo\DbAdmin\Admin\Admin;
 use Lagdo\DbAdmin\Db\Facades\AbstractFacade;
+use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\AdminInterface;
 use Lagdo\DbAdmin\Package;
-use Lagdo\DbAdmin\Translator;
 
 use function array_merge;
 
@@ -58,16 +58,16 @@ class DbFacade extends AbstractFacade
      * The constructor
      *
      * @param Container $di
+     * @param Utils $utils
      * @param Package $package
-     * @param Translator $trans
      */
-    public function __construct(Container $di, Package $package, Translator $trans)
+    public function __construct(Container $di, Utils $utils, Package $package)
     {
         $this->di = $di;
+        $this->utils = $utils;
         $this->package = $package;
-        $this->trans = $trans;
         // Make the translator available into views
-        $this->package->view()->share('trans', $this->trans);
+        $this->package->view()->share('trans', $this->utils->trans);
     }
 
     /**
@@ -178,7 +178,7 @@ class DbFacade extends AbstractFacade
             $this->di->val('dbadmin_config_driver', $this->package->getServerDriver($server));
             $this->di->val('dbadmin_config_options', $this->package->getServerOptions($server));
             $this->driver = $this->di->get(DriverInterface::class);
-            $this->admin = $this->di->get(AdminInterface::class);
+            $this->admin = $this->di->get(Admin::class);
         }
         // Open the selected database
         $this->driver->open($database, $schema);

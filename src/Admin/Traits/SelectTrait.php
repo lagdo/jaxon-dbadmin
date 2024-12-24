@@ -13,26 +13,6 @@ use function preg_match_all;
 trait SelectTrait
 {
     /**
-     * Filter length value including enums
-     *
-     * @param string $length
-     *
-     * @return string
-     */
-    public function processLength(string $length): string
-    {
-        if (!$length) {
-            return '';
-        }
-        $enumLength = $this->driver->enumLength();
-        if (preg_match("~^\\s*\\(?\\s*$enumLength(?:\\s*,\\s*$enumLength)*+\\s*\\)?\\s*\$~", $length) &&
-            preg_match_all("~$enumLength~", $length, $matches)) {
-            return '(' . implode(',', $matches[0]) . ')';
-        }
-        return preg_replace('~^[0-9].*~', '(\0)', preg_replace('~[^-0-9,+()[\]]~', '', $length));
-    }
-
-    /**
      * Process limit box in select
      *
      * @return int

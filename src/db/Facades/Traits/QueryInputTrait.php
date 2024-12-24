@@ -34,7 +34,7 @@ trait QueryInputTrait
         if ($field->type === 'enum') {
             return [
                 'type' => 'name',
-                'name' => $this->admin->html($functions[''] ?? ''),
+                'name' => $this->utils->str->html($functions[''] ?? ''),
             ];
         }
         if (count($functions) > 1) {
@@ -48,7 +48,7 @@ trait QueryInputTrait
         }
         return [
             'type' => 'name',
-            'name' => $this->admin->html(reset($functions)),
+            'name' => $this->utils->str->html(reset($functions)),
         ];
     }
 
@@ -64,7 +64,7 @@ trait QueryInputTrait
         $val = stripcslashes(str_replace("''", "'", $val));
         $checked = (is_int($value) ? $value == $i + 1 :
             (is_array($value) ? in_array($i+1, $value) : $value === $val));
-        return ['value' => $i + 1, 'checked' => $checked, 'text' => $this->admin->html($val)];
+        return ['value' => $i + 1, 'checked' => $checked, 'text' => $this->utils->str->html($val)];
     }
 
     /**
@@ -79,7 +79,7 @@ trait QueryInputTrait
         $values = [];
         if (($select)) {
             $values[] = ['value' => '-1', 'checked' => true,
-                'text' => '<i>' . $this->trans->lang('original') . '</i>'];
+                'text' => '<i>' . $this->utils->trans->lang('original') . '</i>'];
         }
         if ($field->null) {
             $values[] =  ['value' => '', 'checked' => $value === null && !$select, 'text' => '<i>NULL</i>'];
@@ -88,7 +88,7 @@ trait QueryInputTrait
         // From functions.inc.php (function enum_input())
         $empty = 0; // 0 - empty
         $values[] = ['value' => $empty, 'checked' => is_array($value) ? in_array($empty, $value) : $value === 0,
-            'text' => '<i>' . $this->trans->lang('empty') . '</i>'];
+            'text' => '<i>' . $this->utils->trans->lang('empty') . '</i>'];
 
         preg_match_all("~'((?:[^']|'')*)'~", $field->fullType, $matches);
         foreach ($matches[1] as $i => $val) {
@@ -112,7 +112,7 @@ trait QueryInputTrait
         foreach ($matches[1] as $i => $val) {
             $val = stripcslashes(str_replace("''", "'", $val));
             $checked = (is_int($value) ? ($value >> $i) & 1 : in_array($val, explode(',', $value), true));
-            $values[] = ['value=' => (1 << $i), 'checked' => $checked, 'text' => $this->admin->html($val)];
+            $values[] = ['value=' => (1 << $i), 'checked' => $checked, 'text' => $this->utils->str->html($val)];
         }
         return ['type' => 'checkbox', 'attrs' => $attrs, 'values' => $values];
     }
@@ -137,7 +137,7 @@ trait QueryInputTrait
                 $attrs['style'] = 'height: 1.2em;';
             }
         }
-        return ['type' => 'textarea', 'attrs' => $attrs, 'value' => $this->admin->html($value)];
+        return ['type' => 'textarea', 'attrs' => $attrs, 'value' => $this->utils->str->html($value)];
     }
 
     /**
@@ -225,7 +225,7 @@ trait QueryInputTrait
         if (!$hasFunction || $function === '') {
             $this->setDataType($field, $attrs);
         }
-        $attrs['value'] = $this->admin->html($value);
+        $attrs['value'] = $this->utils->str->html($value);
         return ['type' => 'input', 'attrs' => $attrs];
     }
 
@@ -264,7 +264,7 @@ trait QueryInputTrait
         if ($function === 'json' || preg_match('~^jsonb?$~', $field->type)) {
             $attrs['cols'] = 50;
             $attrs['rows'] = 12;
-            return ['type' => 'textarea', 'attrs' => $attrs, 'value' => $this->admin->html($value)];
+            return ['type' => 'textarea', 'attrs' => $attrs, 'value' => $this->utils->str->html($value)];
         }
         return $this->getDefaultInput($field, $attrs, $value, $function, $functions);
     }

@@ -45,19 +45,19 @@ class ViewFacade extends AbstractFacade
         // From table.inc.php
         $status = $this->status($view);
         $name = $this->admin->tableName($status);
-        $title = ($status->engine == 'materialized view' ? $this->trans->lang('Materialized view') :
-            $this->trans->lang('View')) . ': ' . ($name != '' ? $name : $this->admin->html($view));
+        $title = ($status->engine == 'materialized view' ? $this->utils->trans->lang('Materialized view') :
+            $this->utils->trans->lang('View')) . ': ' . ($name != '' ? $name : $this->utils->str->html($view));
 
         $comment = $status->comment;
 
         $tabs = [
-            'fields' => $this->trans->lang('Columns'),
-            // 'indexes' => $this->trans->lang('Indexes'),
-            // 'foreign-keys' => $this->trans->lang('Foreign keys'),
-            // 'triggers' => $this->trans->lang('Triggers'),
+            'fields' => $this->utils->trans->lang('Columns'),
+            // 'indexes' => $this->utils->trans->lang('Indexes'),
+            // 'foreign-keys' => $this->utils->trans->lang('Foreign keys'),
+            // 'triggers' => $this->utils->trans->lang('Triggers'),
         ];
         if ($this->driver->support('view_trigger')) {
-            $tabs['triggers'] = $this->trans->lang('Triggers');
+            $tabs['triggers'] = $this->utils->trans->lang('Triggers');
         }
 
         return compact('title', 'comment', 'tabs');
@@ -80,42 +80,42 @@ class ViewFacade extends AbstractFacade
         }
 
         $tabs = [
-            'fields' => $this->trans->lang('Columns'),
-            // 'triggers' => $this->trans->lang('Triggers'),
+            'fields' => $this->utils->trans->lang('Columns'),
+            // 'triggers' => $this->utils->trans->lang('Triggers'),
         ];
         if ($this->driver->support('view_trigger')) {
-            $tabs['triggers'] = $this->trans->lang('Triggers');
+            $tabs['triggers'] = $this->utils->trans->lang('Triggers');
         }
 
         $headers = [
-            $this->trans->lang('Name'),
-            $this->trans->lang('Type'),
-            $this->trans->lang('Collation'),
+            $this->utils->trans->lang('Name'),
+            $this->utils->trans->lang('Type'),
+            $this->utils->trans->lang('Collation'),
         ];
         $hasComment = $this->driver->support('comment');
         if ($hasComment) {
-            $headers[] = $this->trans->lang('Comment');
+            $headers[] = $this->utils->trans->lang('Comment');
         }
 
         $details = [];
         foreach ($fields as $field) {
-            $type = $this->admin->html($field->fullType);
+            $type = $this->utils->str->html($field->fullType);
             if ($field->null) {
                 $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
             }
             if ($field->autoIncrement) {
-                $type .= ' <i>' . $this->trans->lang('Auto Increment') . '</i>';
+                $type .= ' <i>' . $this->utils->trans->lang('Auto Increment') . '</i>';
             }
             if ($field->hasDefault) {
-                $type .= /*' ' . $this->trans->lang('Default value') .*/ ' [<b>' . $this->admin->html($field->default) . '</b>]';
+                $type .= /*' ' . $this->utils->trans->lang('Default value') .*/ ' [<b>' . $this->utils->str->html($field->default) . '</b>]';
             }
             $detail = [
-                'name' => $this->admin->html($field->name),
+                'name' => $this->utils->str->html($field->name),
                 'type' => $type,
-                'collation' => $this->admin->html($field->collation),
+                'collation' => $this->utils->str->html($field->collation),
             ];
             if ($hasComment) {
-                $detail['comment'] = $this->admin->html($field->comment);
+                $detail['comment'] = $this->utils->str->html($field->comment);
             }
 
             $details[] = $detail;
@@ -138,7 +138,7 @@ class ViewFacade extends AbstractFacade
         }
 
         $headers = [
-            $this->trans->lang('Name'),
+            $this->utils->trans->lang('Name'),
             '&nbsp;',
             '&nbsp;',
             '&nbsp;',
@@ -149,10 +149,10 @@ class ViewFacade extends AbstractFacade
         $triggers = $this->driver->triggers($view);
         foreach ($triggers as $name => $trigger) {
             $details[] = [
-                $this->admin->html($trigger->timing),
-                $this->admin->html($trigger->event),
-                $this->admin->html($name),
-                $this->trans->lang('Alter'),
+                $this->utils->str->html($trigger->timing),
+                $this->utils->str->html($trigger->event),
+                $this->utils->str->html($name),
+                $this->utils->trans->lang('Alter'),
             ];
         }
 
@@ -189,7 +189,7 @@ class ViewFacade extends AbstractFacade
     public function createView(array $values): array
     {
         $success = $this->driver->createView($values);
-        $message = $this->trans->lang('View has been created.');
+        $message = $this->utils->trans->lang('View has been created.');
         $error = $this->driver->error();
 
         return compact('success', 'message', 'error');
@@ -207,7 +207,7 @@ class ViewFacade extends AbstractFacade
     public function updateView(string $view, array $values): array
     {
         $result = $this->driver->updateView($view, $values);
-        $message = $this->trans->lang("View has been $result.");
+        $message = $this->utils->trans->lang("View has been $result.");
         $error = $this->driver->error();
         $success = !$error;
 
@@ -225,7 +225,7 @@ class ViewFacade extends AbstractFacade
     public function dropView(string $view): array
     {
         $success = $this->driver->dropView($view);
-        $message = $this->trans->lang('View has been dropped.');
+        $message = $this->utils->trans->lang('View has been dropped.');
         $error = $this->driver->error();
 
         return compact('success', 'message', 'error');

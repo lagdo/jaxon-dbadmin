@@ -28,12 +28,12 @@ trait CommandTrait
      */
     public function prepareCommand(): array
     {
-        $this->bcdb()->breadcrumb($this->trans->lang('Query'));
+        $this->bcdb()->breadcrumb($this->utils->trans->lang('Query'));
         $labels = [
-            'execute' => $this->trans->lang('Execute'),
-            'limit_rows' => $this->trans->lang('Limit rows'),
-            'error_stops' => $this->trans->lang('Stop on error'),
-            'only_errors' => $this->trans->lang('Show only errors'),
+            'execute' => $this->utils->trans->lang('Execute'),
+            'limit_rows' => $this->utils->trans->lang('Limit rows'),
+            'error_stops' => $this->utils->trans->lang('Stop on error'),
+            'only_errors' => $this->utils->trans->lang('Show only errors'),
         ];
         return ['labels' => $labels];
     }
