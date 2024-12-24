@@ -26,13 +26,13 @@ trait TableDumpTrait
     private function getCreateQuery(string $table, string $style, int $tableType): string
     {
         if ($tableType !== 2) {
-            return $this->driver->sqlForCreateTable($table, $this->options['autoIncrement'], $style);
+            return $this->driver->getCreateTableQuery($table, $this->options['autoIncrement'], $style);
         }
         $fields = [];
         foreach ($this->driver->fields($table) as $name => $field) {
             $fields[] = $this->driver->escapeId($name) . ' ' . $field->fullType;
         }
-        return 'CREATE TABLE ' . $this->driver->table($table) . ' (' . implode(', ', $fields) . ')';
+        return 'CREATE TABLE ' . $this->driver->escapeTableName($table) . ' (' . implode(', ', $fields) . ')';
     }
 
     /**
@@ -53,7 +53,7 @@ trait TableDumpTrait
         }
         if ($style === 'DROP+CREATE' || $tableType === 1) {
             $this->queries[] = 'DROP ' . ($tableType === 2 ? 'VIEW' : 'TABLE') .
-                ' IF EXISTS ' . $this->driver->table($table) . ';';
+                ' IF EXISTS ' . $this->driver->escapeTableName($table) . ';';
         }
         if ($tableType === 1) {
             $create = $this->driver->removeDefiner($create);
@@ -94,7 +94,7 @@ trait TableDumpTrait
      */
     private function dumpTableTriggers(string $table)
     {
-        if (($triggers = $this->driver->sqlForCreateTrigger($table))) {
+        if (($triggers = $this->driver->getCreateTriggerQuery($table))) {
             $this->queries[] = 'DELIMITER ;';
             $this->queries[] = $triggers;
             $this->queries[] = 'DELIMITER ;';

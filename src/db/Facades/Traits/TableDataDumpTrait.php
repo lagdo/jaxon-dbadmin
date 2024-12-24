@@ -142,7 +142,7 @@ trait TableDataDumpTrait
             return;
         }
         if (!$this->insert) {
-            $this->insert = 'INSERT INTO ' . $this->driver->table($table) . ' (' .
+            $this->insert = 'INSERT INTO ' . $this->driver->escapeTableName($table) . ' (' .
                 implode(', ', array_map(function ($key) {
                     return $this->driver->escapeId($key);
                 }, $keys)) . ') VALUES';
@@ -163,7 +163,7 @@ trait TableDataDumpTrait
     {
         if ($this->options['format'] === 'sql' &&
             $this->options['data_style'] === 'TRUNCATE+INSERT') {
-            $this->queries[] = $this->driver->sqlForTruncateTable($table) . ";\n";
+            $this->queries[] = $this->driver->getTruncateTableQuery($table) . ";\n";
         }
     }
 
@@ -198,7 +198,7 @@ trait TableDataDumpTrait
             return;
         }
         $fields = $this->driver->fields($table);
-        $query = 'SELECT *' . $this->driver->convertFields($fields, $fields) . ' FROM ' . $this->driver->table($table);
+        $query = 'SELECT *' . $this->driver->convertFields($fields, $fields) . ' FROM ' . $this->driver->escapeTableName($table);
         $statement = $this->driver->query($query); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
         if (!$statement) {
             if ($this->options['format'] === 'sql') {

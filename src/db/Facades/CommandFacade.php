@@ -5,6 +5,11 @@ namespace Lagdo\DbAdmin\Db\Facades;
 use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 use Lagdo\DbAdmin\Driver\Entity\QueryEntity;
 
+use function compact;
+use function count;
+use function max;
+use function strlen;
+
 /**
  * Facade to command functions
  */
@@ -55,7 +60,7 @@ class CommandFacade extends AbstractFacade
                 $value = '<i>NULL</i>';
             } elseif (isset($blobs[$key]) && $blobs[$key] && !$this->utils->str->isUtf8($value)) {
                 //! link to download
-                $value = '<i>' . $this->utils->trans->lang('%d byte(s)', \strlen($value)) . '</i>';
+                $value = '<i>' . $this->utils->trans->lang('%d byte(s)', strlen($value)) . '</i>';
             } else {
                 $value = $this->utils->str->html($value);
                 if (isset($types[$key]) && $types[$key] == 254) { // 254 - char
@@ -116,7 +121,7 @@ class CommandFacade extends AbstractFacade
         $headers = [];
         $details = [];
         // Table headers.
-        $colCount = \count($row);
+        $colCount = count($row);
         for ($j = 0; $j < $colCount; $j++) {
             $field = $statement->fetchField();
             // PostgreSQL fix: the table field can be missing.
@@ -137,7 +142,7 @@ class CommandFacade extends AbstractFacade
         } while (($limit === 0 || $rowCount < $limit) && ($row = $statement->fetchRow()));
 
         $message = $this->message($statement, $limit);
-        return [\compact('tables', 'headers', 'details'), [$message]];
+        return [compact('tables', 'headers', 'details'), [$message]];
     }
 
     /**
@@ -167,7 +172,7 @@ class CommandFacade extends AbstractFacade
                 [$select, $messages] = $this->select($statement, $limit);
             }
 
-            $this->results[] = \compact('query', 'errors', 'messages', 'select');
+            $this->results[] = compact('query', 'errors', 'messages', 'select');
             if ($this->driver->hasError() && $errorStops) {
                 return false;
             }
@@ -192,15 +197,15 @@ class CommandFacade extends AbstractFacade
         if (\function_exists('memory_get_usage')) {
             // @ - may be disabled, 2 - substr and trim, 8e6 - other variables
             try {
-                \ini_set('memory_limit', \max($this->admin->iniBytes('memory_limit'),
-                    2 * \strlen($queries) + \memory_get_usage() + 8e6));
+                \ini_set('memory_limit', max($this->admin->iniBytes('memory_limit'),
+                    2 * strlen($queries) + \memory_get_usage() + 8e6));
             }
             catch(\Exception $e) {
                 // Do nothing if the option is not modified.
             }
         }
 
-        // if($queries != '' && \strlen($queries) < 1e6) { // don't add big queries
+        // if($queries != '' && strlen($queries) < 1e6) { // don't add big queries
         // 	$q = $queries . (\preg_match("~;[ \t\r\n]*\$~", $queries) ? '' : ';'); //! doesn't work with DELIMITER |
         // 	if(!$history || \reset(\end($history)) != $q) { // no repeated queries
         // 		\restart_session();

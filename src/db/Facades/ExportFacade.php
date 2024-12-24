@@ -125,7 +125,7 @@ class ExportFacade extends AbstractFacade
         // Add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
         if ($this->driver->support('fkeys_sql')) {
             foreach ($this->fkeys as $table) {
-                $this->queries[] = $this->driver->sqlForForeignKeys($table);
+                $this->queries[] = $this->driver->getForeignKeysQuery($table);
             }
         }
         // Dump the views after all the tables
@@ -158,7 +158,7 @@ class ExportFacade extends AbstractFacade
         if (!$this->options['is_sql'] || !$this->options['db_style'] || $this->driver->jush() !== 'sql') {
             return;
         }
-        if (($query = $this->driver->sqlForUseDatabase($database))) {
+        if (($query = $this->driver->getUseDatabaseQuery($database))) {
             $this->queries[] = $query . ';';
             $this->queries[] = ''; // Empty line
         }

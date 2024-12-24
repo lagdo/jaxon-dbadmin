@@ -111,7 +111,7 @@ class SelectFacade extends AbstractFacade
         // if($page == "last")
         // {
         //     $isGroup = count($group) < count($select);
-        //     $found_rows = $this->driver->result($this->driver->sqlForRowCount($table, $where, $isGroup, $group));
+        //     $found_rows = $this->driver->result($this->driver->getRowCountQuery($table, $where, $isGroup, $group));
         //     $page = \floor(\max(0, $found_rows - 1) / $limit);
         // }
 
@@ -358,7 +358,7 @@ class SelectFacade extends AbstractFacade
         }
 
         $isGroup = count($group) < count($select);
-        $total = $this->driver->result($this->driver->sqlForRowCount($table, $where, $isGroup, $group));
+        $total = $this->driver->result($this->driver->getRowCountQuery($table, $where, $isGroup, $group));
 
         $rows = $results;
         $message = null;
