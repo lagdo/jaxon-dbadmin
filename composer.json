@@ -10,8 +10,7 @@
     ],
     "homepage": "https://github.com/lagdo/jaxon-dbadmin",
     "license": "Apache-2.0",
-    "keywords": ["Database", "Admin", "Sql", "Dashboard", "Jaxon", "Ajax",
-        "PostgreSQL", "MySQL", "Sqlite", "Oracle", "MsSQL", "MongoDb"],
+    "keywords": ["Database", "Admin", "Sql", "Dashboard", "Jaxon", "Ajax", "PostgreSQL", "MySQL", "Sqlite"],
     "support": {
         "issues": "https://github.com/lagdo/jaxon-dbadmin/issues",
         "source": "https://github.com/lagdo/jaxon-dbadmin"
@@ -22,6 +21,7 @@
         "ext-iconv": "*",
         "lagdo/dbadmin-driver": "dev-main",
         "lagdo/ui-builder": "dev-main",
+        "lagdo/jaxon-ui-builder": "dev-main",
         "jaxon-php/jaxon-core": "dev-main",
         "jaxon-php/jaxon-dialogs": "dev-main",
         "jaxon-php/jaxon-annotations": "dev-main"
