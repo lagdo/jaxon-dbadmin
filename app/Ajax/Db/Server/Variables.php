@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\Component;
+use Lagdo\DbAdmin\App\Ajax\Menu\Actions as MenuActions;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 class Variables extends Component
@@ -24,15 +24,14 @@ class Variables extends Component
     /**
      * Show the variables of a server
      *
-     * @after('call' => 'showBreadcrumbs')
-     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-variables', 'adminer-database-menu'])
-     *
      * @return Response
      */
-    public function update(): Response
+    public function refresh(): Response
     {
         $this->pageContent = $this->db->getVariables();
 
+        // Side menu actions
+        $this->cl(MenuActions::class)->server('variables');
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 

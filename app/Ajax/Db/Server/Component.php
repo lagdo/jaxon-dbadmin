@@ -7,8 +7,8 @@ use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\Db\Exception\DbException;
 
 /**
- * @exclude
- * @before('call' => 'checkServerAccess')
+ * @before checkServerAccess
+ * @after showBreadcrumbs
  */
 abstract class Component extends BaseComponent
 {
@@ -24,10 +24,8 @@ abstract class Component extends BaseComponent
      */
     protected function checkServerAccess()
     {
-        if($this->target()->method() === 'connect')
-        {
-            return; // No check for the connect() method.
-        }
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
+        $this->db->selectDatabase($server, $database, $schema);
         if(!$this->package->getServerAccess($this->db->getCurrentServer()))
         {
             throw new DbException('Access to server data is forbidden');

@@ -213,7 +213,7 @@ trait MainTrait
             {
                 $htmlBuilder
                         ->td();
-                $this->showTableCell($htmlBuilder, $detail);
+                $this->showTableCell($htmlBuilder, $detail ?? '');
                 $htmlBuilder
                         ->end();
             }

@@ -3,47 +3,19 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\Ajax\Db\Database;
-use Lagdo\DbAdmin\App\Ajax\Menu\Db;
-use Lagdo\DbAdmin\App\Ajax\Menu\DbActions;
-use Lagdo\DbAdmin\App\Ajax\Menu\DbList;
-use Lagdo\DbAdmin\App\Ajax\Menu\SchemaList;
-use Lagdo\DbAdmin\App\Ajax\Menu\Server as ServerMenu;
-use Lagdo\DbAdmin\App\Ajax\Menu\ServerActions;
-use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Db\Database\Database;
+use Lagdo\DbAdmin\App\Ajax\Menu\Database\Actions as DatabaseActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Database\Schemas as MenuSchemas;
+use Lagdo\DbAdmin\App\Ajax\Menu\Server\Actions as ServerActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Server\Databases as MenuDatabases;
+use Lagdo\DbAdmin\App\Ajax\Page\ServerInfo;
 use Lagdo\DbAdmin\App\CallableDbClass;
-use Lagdo\DbAdmin\Db\Exception\DbException;
 
 use function array_values;
 use function count;
 
-/**
- * @before('call' => 'checkServerAccess')
- */
 class Server extends CallableDbClass
 {
-    /**
-     * @var string
-     */
-    protected $overrides = Content::class;
-
-    /**
-     * Check if the user has access to a server
-     *
-     * @return void
-     */
-    protected function checkServerAccess()
-    {
-        if($this->target()->method() === 'connect')
-        {
-            return; // No check for the connect() method.
-        }
-        if(!$this->package->getServerAccess($this->db->getCurrentServer()))
-        {
-            throw new DbException('Access to server data is forbidden');
-        }
-    }
-
     /**
      * Show the database dropdown list.
      *
@@ -58,10 +30,10 @@ class Server extends CallableDbClass
         $this->view()->shareValues($databasesInfo);
 
         // Set the database dropdown list
-        $this->cl(DbList::class)->showDatabases($databasesInfo['databases']);
+        $this->cl(MenuDatabases::class)->showDatabases($databasesInfo['databases']);
 
         // Clear schema list
-        $this->cl(SchemaList::class)->clear();
+        $this->cl(MenuSchemas::class)->clear();
 
         return $databasesInfo;
     }
@@ -82,13 +54,11 @@ class Server extends CallableDbClass
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
 
-        $this->cl(ServerMenu::class)->showServer($serverInfo['server'], $serverInfo['user']);
+        $this->cl(ServerInfo::class)->showServer($serverInfo['server'], $serverInfo['user']);
 
         // Show the server
         $this->cl(ServerActions::class)->render();
-        $this->cl(DbActions::class)->clear();
-
-        $this->cl(Db::class)->showServer();
+        $this->cl(DatabaseActions::class)->clear();
 
         if(!$hasServerAccess)
         {
@@ -97,15 +67,11 @@ class Server extends CallableDbClass
             {
                 $database = array_values($databasesInfo['databases'])[0];
                 $this->cl(Database::class)->select($database);
-                $this->selectMenuItem('.menu-action-table', 'adminer-database-menu');
             }
 
             return $this->response;
         }
 
-        // Show the database list
-        $this->selectMenuItem('.menu-action-databases', 'adminer-database-menu');
-
-        return $this->cl(Databases::class)->update();
+        return $this->cl(Databases::class)->refresh();
     }
 }
