@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Page;
 
 use Jaxon\App\Component;
 use Lagdo\DbAdmin\App\Ajax\Db\Database\Database;
+use Lagdo\DbAdmin\App\Ajax\Db\Database\Tables;
 use Lagdo\DbAdmin\App\Ajax\Db\Table;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Select;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Query;
@@ -177,16 +178,16 @@ class PageActions extends Component
     //     $links = [
     //         'select' => $this->trans->lang('Select data'),
     //     ];
-    //     if ($this->driver->support('table') || $this->driver->support('indexes')) {
+    //     if ($this->db->support('table') || $this->db->support('indexes')) {
     //         $links['table'] = $this->trans->lang('Show structure');
     //     }
-    //     if ($this->driver->support('table')) {
+    //     if ($this->db->support('table')) {
     //         $links['alter'] = $this->trans->lang('Alter table');
     //     }
     //     if ($new) {
     //         $links['edit'] = $this->trans->lang('New item');
     //     }
-    //     // $links['docs'] = \doc_link([$this->driver->jush() => $this->driver->tableHelp($name)], '?');
+    //     // $links['docs'] = \doc_link([$this->db->jush() => $this->db->tableHelp($name)], '?');
 
     //     return $links;
     // }
@@ -256,7 +257,7 @@ class PageActions extends Component
             ],
             'table-cancel' => [
                 'title' => $this->trans->lang('Cancel'),
-                'handler' => rq(Database::class)->showTables(),
+                'handler' => rq(Tables::class)->refresh(),
             ],
         ];
         $this->render();
@@ -359,17 +360,17 @@ class PageActions extends Component
     //     $links = [
     //         'select' => $this->trans->lang('Select data'),
     //     ];
-    //     if ($this->driver->support('indexes')) {
+    //     if ($this->db->support('indexes')) {
     //         $links['table'] = $this->trans->lang('Show structure');
     //     }
-    //     if ($this->driver->support('table')) {
+    //     if ($this->db->support('table')) {
     //         $links['table'] = $this->trans->lang('Show structure');
     //         $links['alter'] = $this->trans->lang('Alter view');
     //     }
     //     if ($new) {
     //         $links['edit'] = $this->trans->lang('New item');
     //     }
-    //     // $links['docs'] = \doc_link([$this->driver->jush() => $this->driver->tableHelp($name)], '?');
+    //     // $links['docs'] = \doc_link([$this->db->jush() => $this->db->tableHelp($name)], '?');
 
     //     return $links;
     // }

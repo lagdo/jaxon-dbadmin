@@ -1,10 +1,10 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Menu;
+namespace Lagdo\DbAdmin\App\Ajax\Menu\Server;
 
 use Lagdo\DbAdmin\App\MenuComponent;
 
-class DbList extends MenuComponent
+class Databases extends MenuComponent
 {
     /**
      * @var array
@@ -41,6 +41,7 @@ class DbList extends MenuComponent
      */
     public function change(string $database)
     {
-        $this->response->jq('.')->val($database)->change();
+        // Change the value of the select field in the component content.
+        $this->node()->jq('select#jaxon-dbadmin-database-select')->val($database)->change();
     }
 }

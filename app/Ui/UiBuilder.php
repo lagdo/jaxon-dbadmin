@@ -3,15 +3,15 @@
 namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ajax\Admin;
-use Lagdo\DbAdmin\App\Ajax\Menu\Db;
-use Lagdo\DbAdmin\App\Ajax\Menu\DbActions;
-use Lagdo\DbAdmin\App\Ajax\Menu\DbList;
-use Lagdo\DbAdmin\App\Ajax\Menu\SchemaList;
-use Lagdo\DbAdmin\App\Ajax\Menu\Server;
-use Lagdo\DbAdmin\App\Ajax\Menu\ServerActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Actions as MenuActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Database\Actions as DatabaseActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Database\Schemas as MenuSchemas;
+use Lagdo\DbAdmin\App\Ajax\Menu\Server\Actions as ServerActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
+use Lagdo\DbAdmin\App\Ajax\Page\ServerInfo;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
@@ -91,31 +91,31 @@ class UiBuilder
                                 ->end()
                             ->end()
                         ->end()
-                        ->col(12)->jxnShow(rq(ServerActions::class))
+                        ->col(12)->jxnBind(rq(ServerActions::class))
                         ->end()
-                        ->col(12)->jxnShow(rq(DbList::class))
+                        ->col(12)->jxnBind(rq(MenuDatabases::class))
                         ->end()
-                        ->col(12)->jxnShow(rq(SchemaList::class))
+                        ->col(12)->jxnBind(rq(MenuSchemas::class))
                         ->end()
-                        ->col(12)->jxnShow(rq(DbActions::class))
+                        ->col(12)->jxnBind(rq(DatabaseActions::class))
                         ->end()
-                        ->col(12)->jxnShow(rq(Db::class))
+                        ->col(12)->jxnBind(rq(MenuActions::class))
                         ->end()
                     ->end()
                 ->end()
                 ->col(9)
-                    ->row()->jxnShow(rq(Server::class))
+                    ->row()->jxnBind(rq(ServerInfo::class))
                     ->end()
                     ->row()
                         ->col(12)
-                            ->span()->jxnShow(rq(Breadcrumbs::class))
+                            ->span()->jxnBind(rq(Breadcrumbs::class))
                             ->end()
-                            ->span()->jxnShow(rq(PageActions::class))
+                            ->span()->jxnBind(rq(PageActions::class))
                             ->end()
                         ->end()
                     ->end()
                     ->row()
-                        ->col(12)->jxnShow(rq(Content::class))
+                        ->col(12)->jxnBind(rq(Content::class))
                         ->end()
                     ->end()
                 ->end()

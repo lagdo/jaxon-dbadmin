@@ -1,10 +1,10 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Menu;
+namespace Lagdo\DbAdmin\App\Ajax\Menu\Database;
 
 use Lagdo\DbAdmin\App\MenuComponent;
 
-class SchemaList extends MenuComponent
+class Schemas extends MenuComponent
 {
     /**
      * @var string

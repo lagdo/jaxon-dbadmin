@@ -21,7 +21,6 @@ class Admin extends Component
     /**
      * Connect to a database server.
      *
-     * @callback jaxon.dbadmin.callback.server
      * @after showBreadcrumbs
      *
      * @param string $server      The database server id in the package config

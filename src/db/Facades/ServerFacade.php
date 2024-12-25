@@ -45,6 +45,18 @@ class ServerFacade extends AbstractFacade
     }
 
     /**
+     * Check if a feature is supported
+     *
+     * @param string $feature
+     *
+     * @return bool
+     */
+    public function support(string $feature)
+    {
+        return $this->driver->support($feature);
+    }
+
+    /**
      * Get the databases from the connected server
      *
      * @return array
@@ -142,7 +154,7 @@ class ServerFacade extends AbstractFacade
                 'name' => $this->utils->str->html($database),
                 'collation' => $this->utils->str->html($this->driver->databaseCollation($database, $collations)),
                 'tables' => array_key_exists($database, $tables) ? $tables[$database] : 0,
-                'size' => $this->trans->formatNumber($this->driver->databaseSize($database)),
+                'size' => $this->utils->trans->formatNumber($this->driver->databaseSize($database)),
             ];
         }
 

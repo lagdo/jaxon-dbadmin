@@ -27,28 +27,14 @@ return [
             'directory' => __DIR__ . '/../templates/views',
             'extension' => '.php',
             'renderer' => 'jaxon',
-            'template' => [
-                'option' => 'template',
-                'default' => 'bootstrap3',
-            ],
         ],
     ],
     'container' => [
         'set' => [
-            // The package config builder
-            'dbadmin_config_builder' => function($di) {
-                $config = $di->getPackageConfig(Lagdo\DbAdmin\Package::class);
-                return $config->getOption('template', 'bootstrap3');
-            },
             // Selected database driver
             Lagdo\DbAdmin\Driver\DriverInterface::class => function($di) {
                 // The key below is defined by the corresponding plugin package.
                 return $di->g('dbadmin_driver_' . $di->g('dbadmin_config_driver'));
-            },
-            // Selected HTML template builder
-            Lagdo\UiBuilder\BuilderInterface::class => function($di) {
-                // The key below is defined by the corresponding plugin package.
-                return $di->g('dbadmin_builder_' . $di->g('dbadmin_config_builder'));
             },
             // Facades to the DB driver features
             Lagdo\DbAdmin\Db\Facades\CommandFacade::class => function($di) {

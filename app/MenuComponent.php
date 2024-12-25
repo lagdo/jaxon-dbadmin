@@ -3,9 +3,9 @@
 namespace Lagdo\DbAdmin\App;
 
 use Jaxon\App\Component;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\App\Ui\MenuBuilder;
+use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Translator;
 
 abstract class MenuComponent extends Component
 {
@@ -20,19 +20,19 @@ abstract class MenuComponent extends Component
     protected $trans;
 
     /**
-     * @var DriverInterface
+     * @var DbFacade
      */
-    protected $driver;
+    protected $db;
 
     /**
      * @param MenuBuilder $ui
      * @param Translator $trans
-     * @param DriverInterface $driver
+     * @param DbFacade $db
      */
-    public function __construct(MenuBuilder $ui, Translator $trans, DriverInterface $driver)
+    public function __construct(MenuBuilder $ui, Translator $trans, DbFacade $db)
     {
         $this->ui = $ui;
         $this->trans = $trans;
-        $this->driver = $driver;
+        $this->db = $db;
     }
 }

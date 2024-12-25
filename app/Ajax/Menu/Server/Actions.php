@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Menu;
+namespace Lagdo\DbAdmin\App\Ajax\Menu\Server;
 
 use Lagdo\DbAdmin\App\Ajax\Db\Command;
 use Lagdo\DbAdmin\App\Ajax\Db\Export;
@@ -9,7 +9,7 @@ use Lagdo\DbAdmin\App\MenuComponent;
 
 use function Jaxon\rq;
 
-class DbActions extends MenuComponent
+class Actions extends MenuComponent
 {
     /**
      * @inheritDoc
@@ -17,17 +17,17 @@ class DbActions extends MenuComponent
     public function html(): string
     {
         $actions = [
-            'database-command' => [
+            'server-command' => [
                 'title' => $this->trans->lang('Query'),
-                'handler' => rq(Command::class)->showDatabaseForm(),
+                'handler' => rq(Command::class)->showServerForm(),
             ],
-            'database-import' => [
+            'server-import' => [
                 'title' => $this->trans->lang('Import'),
-                'handler' => rq(Import::class)->showDatabaseForm(),
+                'handler' => rq(Import::class)->showServerForm(),
             ],
-            'database-export' => [
+            'server-export' => [
                 'title' => $this->trans->lang('Export'),
-                'handler' => rq(Export::class)->showDatabaseForm(),
+                'handler' => rq(Export::class)->showServerForm(),
             ],
         ];
 

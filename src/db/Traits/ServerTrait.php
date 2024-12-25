@@ -31,6 +31,19 @@ trait ServerTrait
     }
 
     /**
+     * Check if a feature is supported
+     *
+     * @param string $feature
+     *
+     * @return bool
+     */
+    public function support(string $feature)
+    {
+        $this->connectToServer();
+        return $this->serverFacade()->support($feature);
+    }
+
+    /**
      * Get the collation list
      *
      * @return array
