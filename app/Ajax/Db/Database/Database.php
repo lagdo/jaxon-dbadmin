@@ -5,10 +5,10 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Db\Server\Databases;
-use Lagdo\DbAdmin\App\Ajax\Menu\Db;
-use Lagdo\DbAdmin\App\Ajax\Menu\DbActions;
-use Lagdo\DbAdmin\App\Ajax\Menu\DbList;
-use Lagdo\DbAdmin\App\Ajax\Menu\SchemaList;
+use Lagdo\DbAdmin\App\Ajax\Menu\Actions as MenuActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Database\Actions as DatabaseActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Database\Schemas as MenuSchemas;
+use Lagdo\DbAdmin\App\Ajax\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function count;
@@ -17,6 +17,51 @@ use function Jaxon\pm;
 
 class Database extends CallableDbClass
 {
+    /**
+     * Select a database
+     *
+     * @after showBreadcrumbs
+     *
+     * @param string $database    The database name
+     * @param string $schema      The database schema
+     *
+     * @return Response
+     */
+    public function select(string $database, string $schema = ''): Response
+    {
+        [$server,] = $this->bag('dbadmin')->get('db');
+        // Set the selected server
+        $this->db->selectDatabase($server, $database);
+
+        $databaseInfo = $this->db->getDatabaseInfo();
+        // Make database info available to views
+        $this->view()->shareValues($databaseInfo);
+
+        // Set main menu buttons
+        $this->cl(PageActions::class)->clear();
+
+        // Set the selected entry on database dropdown select
+        $this->cl(MenuDatabases::class)->change($database);
+
+        $schemas = $databaseInfo['schemas'];
+        if(is_array($schemas) && count($schemas) > 0 && !$schema)
+        {
+            $schema = $schemas[0]; // Select the first schema
+
+            $this->cl(MenuSchemas::class)->showDbSchemas($database, $schemas);
+        }
+
+        // Save the selection in the databag
+        $this->bag('dbadmin')->set('db', [$server, $database, $schema]);
+
+        $this->cl(DatabaseActions::class)->render();
+
+        // Show the database tables
+        $this->cl(Tables::class)->refresh();
+
+        return $this->response;
+    }
+
     /**
      * Show the  create database dialog
      *
@@ -59,7 +104,7 @@ class Database extends CallableDbClass
             $this->response->dialog->error("Cannot create database $database.");
             return $this->response;
         }
-        $this->cl(Databases::class)->update();
+        $this->cl(Databases::class)->refresh();
 
         $this->response->dialog->hide();
         $this->response->dialog->info("Database $database created.");
@@ -82,57 +127,9 @@ class Database extends CallableDbClass
             return $this->response;
         }
 
-        $this->cl(Databases::class)->update();
+        $this->cl(Databases::class)->refresh();
 
         $this->response->dialog->info("Database $database deleted.");
-        return $this->response;
-    }
-
-    /**
-     * Select a database
-     *
-     * @after('call' => 'showBreadcrumbs')
-     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-table', 'adminer-database-menu'])
-     *
-     * @param string $database    The database name
-     * @param string $schema      The database schema
-     *
-     * @return Response
-     */
-    public function select(string $database, string $schema = ''): Response
-    {
-        [$server,] = $this->bag('dbadmin')->get('db');
-        // Set the selected server
-        $this->db->selectDatabase($server, $database);
-
-        $databaseInfo = $this->db->getDatabaseInfo();
-        // Make database info available to views
-        $this->view()->shareValues($databaseInfo);
-
-        // Set main menu buttons
-        $this->cl(PageActions::class)->clear();
-
-        // Set the selected entry on database dropdown select
-        $this->cl(DbList::class)->change($database);
-
-        $schemas = $databaseInfo['schemas'];
-        if(is_array($schemas) && count($schemas) > 0 && !$schema)
-        {
-            $schema = $schemas[0]; // Select the first schema
-
-            $this->cl(SchemaList::class)->showDbSchemas($database, $schemas);
-        }
-
-        // Save the selection in the databag
-        $this->bag('dbadmin')->set('db', [$server, $database, $schema]);
-
-        $this->cl(DbActions::class)->render();
-
-        $this->cl(Db::class)->showDatabase();
-
-        // Show the database tables
-        $this->cl(Tables::class)->update();
-
         return $this->response;
     }
 }

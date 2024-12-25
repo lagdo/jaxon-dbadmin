@@ -4,6 +4,8 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Table;
+use Lagdo\DbAdmin\App\Ajax\Menu\Actions as MenuActions;
+use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function array_map;
@@ -12,15 +14,19 @@ use function Jaxon\jq;
 class Tables extends Component
 {
     /**
+     * @var string
+     */
+    protected $overrides = Content::class;
+
+    /**
      * Show the tables of a given database
-     *
-     * @after('call' => 'showBreadcrumbs')
-     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-table', 'adminer-database-menu'])
      *
      * @return Response
      */
-    public function update(): Response
+    public function refresh(): Response
     {
+        // Side menu actions
+        $this->cl(MenuActions::class)->database('tables');
         // Set main menu buttons
         $this->cl(PageActions::class)->dbTables();
 

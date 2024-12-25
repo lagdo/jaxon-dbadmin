@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Jaxon\Response\Response;
+use Lagdo\DbAdmin\App\Ajax\Menu\Actions as MenuActions;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 class Routines extends Component
@@ -10,13 +11,12 @@ class Routines extends Component
     /**
      * Show the routines of a given database
      *
-     * @after('call' => 'showBreadcrumbs')
-     * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-routine', 'adminer-database-menu'])
-     *
      * @return Response
      */
-    public function update(): Response
+    public function refresh(): Response
     {
+        // Side menu actions
+        $this->cl(MenuActions::class)->database('routines');
         // Set main menu buttons
         $this->cl(PageActions::class)->dbRoutines();
 

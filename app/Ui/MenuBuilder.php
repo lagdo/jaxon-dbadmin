@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ui;
 
-use Lagdo\DbAdmin\App\Ajax\Db\Database;
+use Lagdo\DbAdmin\App\Ajax\Db\Database\Database;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function Jaxon\pm;
@@ -37,19 +37,20 @@ class MenuBuilder
 
     /**
      * @param array $actions
+     * @param string $activeItem
      *
      * @return string
      */
-    public function menuActions(array $actions): string
+    public function menuActions(array $actions, string $activeItem): string
     {
         $htmlBuilder = Builder::new();
         $htmlBuilder
             ->menu();
-        foreach($actions as $action)
+        foreach($actions as $item => $action)
         {
             $htmlBuilder
                 ->menuItem($action['title'])
-                    ->setClass("adminer-menu-item")
+                    ->setClass($item === $activeItem ? 'adminer-menu-item active' : 'adminer-menu-item')
                     ->jxnClick($action['handler'])
                 ->end();
         }
@@ -89,6 +90,9 @@ class MenuBuilder
      */
     public function menuDatabases(array $databases): string
     {
+        $database = pm()->select('jaxon-dbadmin-database-select');
+        $call = rq(Database::class)->select($database)->ifne($database, '');
+
         $htmlBuilder = Builder::new();
         $htmlBuilder
             ->inputGroup()
@@ -101,8 +105,6 @@ class MenuBuilder
                     ->option(false, $database)
                     ->end();
         }
-        $database = pm()->select('jaxon-dbadmin-database-select');
-        $call = rq(Database::class)->select($database)->when($database);
         $htmlBuilder
                 ->end()
                 ->button()->btnPrimary()
@@ -122,6 +124,9 @@ class MenuBuilder
      */
     public function menuSchemas(string $database, array $schemas): string
     {
+        $schema =  pm()->select('jaxon-dbadmin-schema-select');
+        $call = rq(Database::class)->select($database, $schema);
+
         $htmlBuilder = Builder::new();
         $htmlBuilder
             ->inputGroup()
@@ -132,8 +137,6 @@ class MenuBuilder
                     ->option(false, $schema)
                     ->end();
         }
-        $schema =  pm()->select('jaxon-dbadmin-schema-select');
-        $call = rq(Database::class)->select($database, $schema);
         $htmlBuilder
                 ->end()
                 ->button()->btnPrimary()

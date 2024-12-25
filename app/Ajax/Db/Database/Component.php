@@ -4,9 +4,11 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Lagdo\DbAdmin\App\Component as BaseComponent;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\Db\Exception\DbException;
 
 /**
- * @exclude
+ * @before checkDatabaseAccess
+ * @after showBreadcrumbs
  */
 abstract class Component extends BaseComponent
 {
@@ -24,6 +26,21 @@ abstract class Component extends BaseComponent
      * @var string
      */
     private $counterId;
+
+    /**
+     * Check if the user has access to a server
+     *
+     * @return void
+     */
+    protected function checkDatabaseAccess()
+    {
+        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
+        $this->db->selectDatabase($server, $database, $schema);
+        if(!$this->package->getServerAccess($this->db->getCurrentServer()))
+        {
+            throw new DbException('Access to database data is forbidden');
+        }
+    }
 
     /**
      * @inheritDoc
