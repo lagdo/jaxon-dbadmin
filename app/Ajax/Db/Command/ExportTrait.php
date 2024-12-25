@@ -1,29 +1,28 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Db;
+namespace Lagdo\DbAdmin\App\Ajax\Db\Command;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\CallableDbClass;
-use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\pm;
 
-class Export extends CallableDbClass
+trait ExportTrait
 {
     /**
-     * Show the export form
-     *
-     * @param string $database    The database name
-     *
-     * @return Response
+     * @var string
      */
-    protected function showForm(string $database = ''): Response
+    private $database = '';
+
+    /**
+     * @return string
+     */
+    public function html(): string
     {
         // Set the current database, but do not update the databag.
-        $this->db->setCurrentDbName($database);
+        $this->db->setCurrentDbName($this->database);
 
-        $exportOptions = $this->db->getExportOptions($database);
+        $exportOptions = $this->db->getExportOptions($this->database);
 
         // Make data available to views
         $this->view()->shareValues($exportOptions);
@@ -46,49 +45,34 @@ class Export extends CallableDbClass
             'tableNameId' => $tableNameId,
             'tableDataId' => $tableDataId,
         ];
-        $content = $this->ui->exportPage($htmlIds, $exportOptions['databases'] ?? [],
+        return $this->ui->exportPage($htmlIds, $exportOptions['databases'] ?? [],
             $exportOptions['tables'] ?? [], $exportOptions['options'], $exportOptions['labels']);
-        $this->cl(Content::class)->showHtml($content);
+    }
 
-        if(($database))
+    /**
+     * Called after rendering the component.
+     *
+     * @return void
+     */
+    protected function after()
+    {
+        $btnId = 'adminer-main-export-submit';
+        $formId = 'adminer-main-export-form';
+        $databaseNameId = 'adminer-export-database-name';
+        $databaseDataId = 'adminer-export-database-data';
+        $tableNameId = 'adminer-export-table-name';
+        $tableDataId = 'adminer-export-table-data';
+        if(($this->database))
         {
             $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($tableNameId);
             $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($tableDataId);
-            $this->response->jq("#$btnId")->click($this->rq()->exportOne($database, pm()->form($formId)));
-            return $this->response;
+            $this->response->jq("#$btnId")->click($this->rq()->exportOne($this->database, pm()->form($formId)));
+            return;
         }
 
         $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($databaseNameId);
         $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($databaseDataId);
         $this->response->jq("#$btnId")->click($this->rq()->exportSet(pm()->form($formId)));
-        return $this->response;
-    }
-
-    /**
-     * Show the export form for a server
-     *
-     * @after('call' => 'showBreadcrumbs')
-     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-export', 'adminer-server-actions'])
-     *
-     * @return Response
-     */
-    public function showServerForm(): Response
-    {
-        return $this->showForm();
-    }
-
-    /**
-     * Show the export form for a database
-     *
-     * @after('call' => 'showBreadcrumbs')
-     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-export', 'adminer-database-actions'])
-     *
-     * @return Response
-     */
-    public function showDatabaseForm(): Response
-    {
-        [, $database] = $this->bag('dbadmin')->get('db');
-        return $this->showForm($database);
     }
 
     /**

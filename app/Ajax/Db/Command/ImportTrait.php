@@ -1,28 +1,27 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Db;
+namespace Lagdo\DbAdmin\App\Ajax\Db\Command;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\CallableDbClass;
-use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function compact;
 use function Jaxon\pm;
 
-class Import extends CallableDbClass
+trait ImportTrait
 {
     /**
-     * Show the import form
-     *
-     * @param string $database    The database name
-     *
-     * @return Response
+     * @var string
      */
-    protected function showForm(string $database = ''): Response
+    private $database = '';
+
+    /**
+     * @return string
+     */
+    public function html(): string
     {
         // Set the current database, but do not update the databag.
-        $this->db->setCurrentDbName($database);
+        $this->db->setCurrentDbName($this->database);
 
         $importOptions = $this->db->getImportOptions();
 
@@ -39,42 +38,26 @@ class Import extends CallableDbClass
         $sqlFilesDivId = 'adminer-import-sql-files-wrapper';
         $sqlFilesInputId = 'adminer-import-sql-files-input';
         $htmlIds = compact('formId', 'sqlFilesBtnId', 'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId');
-        $content = $this->ui->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
-        $this->cl(Content::class)->showHtml($content);
+        return $this->ui->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
+    }
 
+    /**
+     * Called after rendering the component.
+     *
+     * @return void
+     */
+    protected function after()
+    {
+        $formId = 'adminer-import-form';
+        $webFileBtnId = 'adminer-import-web-file-btn';
+        $sqlFilesBtnId = 'adminer-import-sql-files-btn';
+        $sqlChooseBtnId = 'adminer-import-choose-files-btn';
+        $sqlFilesDivId = 'adminer-import-sql-files-wrapper';
+        $sqlFilesInputId = 'adminer-import-sql-files-input';
         $this->response->js('jaxon.dbadmin')->setFileUpload("#$sqlFilesDivId", "#$sqlChooseBtnId", "#$sqlFilesInputId");
 
-        $this->response->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($database));
-        $this->response->jq("#$sqlFilesBtnId")->click($this->rq()->executeSqlFiles($database, pm()->form($formId)));
-
-        return $this->response;
-    }
-
-    /**
-     * Show the import form for a server
-     *
-     * @after('call' => 'showBreadcrumbs')
-     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-import', 'adminer-server-actions'])
-     *
-     * @return Response
-     */
-    public function showServerForm(): Response
-    {
-        return $this->showForm();
-    }
-
-    /**
-     * Show the import form for a database
-     *
-     * @after('call' => 'showBreadcrumbs')
-     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-import', 'adminer-database-actions'])
-     *
-     * @return Response
-     */
-    public function showDatabaseForm(): Response
-    {
-        [, $database] = $this->bag('dbadmin')->get('db');
-        return $this->showForm($database);
+        $this->response->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($this->database));
+        $this->response->jq("#$sqlFilesBtnId")->click($this->rq()->executeSqlFiles($this->database, pm()->form($formId)));
     }
 
     /**
@@ -92,7 +75,7 @@ class Import extends CallableDbClass
     /**
      * Run a webfile
      *
-     * @upload('field' => 'adminer-import-sql-files-input')
+     * upload('field' => 'adminer-import-sql-files-input')
      *
      * @param string $database    The database name
      * @param array $formValues

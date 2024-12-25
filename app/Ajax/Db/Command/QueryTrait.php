@@ -1,29 +1,32 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Db;
+namespace Lagdo\DbAdmin\App\Ajax\Db\Command;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\CallableDbClass;
-use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\js;
 use function Jaxon\pm;
 
-class Command extends CallableDbClass
+trait QueryTrait
 {
     /**
-     * Show the SQL command form
-     *
-     * @param string $query       The SQL query to display
-     * @param string $database    The database name
-     *
-     * @return Response
+     * @var string
      */
-    protected function showForm(string $query, string $database = ''): Response
+    private $database = '';
+
+    /**
+     * @var string
+     */
+    private $query = '';
+
+    /**
+     * @return string
+     */
+    public function html(): string
     {
         // Set the current database, but do not update the databag.
-        $this->db->setCurrentDbName($database);
+        $this->db->setCurrentDbName($this->database);
 
         $commandOptions = $this->db->prepareCommand();
 
@@ -38,11 +41,21 @@ class Command extends CallableDbClass
         $queryId = 'adminer-main-command-query';
 
         $defaultLimit = 20;
-        [$server,] = $this->bag('dbadmin')->get('db');
-        $content = $this->ui->queryCommand($formId, $queryId, $btnId,
-            $query, $defaultLimit, $commandOptions['labels']);
-        $this->cl(Content::class)->showHtml($content);
+        return $this->ui->queryCommand($formId, $queryId, $btnId,
+            $this->query, $defaultLimit, $commandOptions['labels']);
+    }
 
+    /**
+     * Called after rendering the component.
+     *
+     * @return void
+     */
+    protected function after()
+    {
+        $btnId = 'adminer-main-command-execute';
+        $formId = 'adminer-main-command-form';
+        $queryId = 'adminer-main-command-query';
+        [$server,] = $this->bag('dbadmin')->get('db');
         $this->response->addCommand('dbadmin.hsqleditor', [
             'id' => $queryId,
             'server' => $server,
@@ -51,39 +64,6 @@ class Command extends CallableDbClass
         $this->response->jq("#$btnId")->click(js("jaxon.dbadmin")->saveSqlEditorContent());
         $this->response->jq("#$btnId")->click($this->rq()->execute(pm()->form($formId))
             ->when(pm()->input($queryId)));
-
-        return $this->response;
-    }
-
-    /**
-     * Show the SQL command form for a server
-     *
-     * @after('call' => 'showBreadcrumbs')
-     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-command', 'adminer-server-actions'])
-     *
-     * @param string $query       The SQL query to display
-     *
-     * @return Response
-     */
-    public function showServerForm(string $query = ''): Response
-    {
-        return $this->showForm($query);
-    }
-
-    /**
-     * Show the SQL command form for a database
-     *
-     * @after('call' => 'showBreadcrumbs')
-     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-command', 'adminer-database-actions'])
-     *
-     * @param string $query       The SQL query to display
-     *
-     * @return Response
-     */
-    public function showDatabaseForm(string $query = ''): Response
-    {
-        [, $database] = $this->bag('dbadmin')->get('db');
-        return $this->showForm($query, $database);
     }
 
     /**
