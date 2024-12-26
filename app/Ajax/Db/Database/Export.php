@@ -10,6 +10,14 @@ class Export extends Component
     use ExportTrait;
 
     /**
+     * @inheritDoc
+     */
+    protected function before()
+    {
+        $this->activateDatabaseCommandMenu('database-export');
+    }
+
+    /**
      * Show the export form for a database
      *
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-export', 'adminer-database-actions'])

@@ -10,6 +10,14 @@ class Query extends Component
     use QueryTrait;
 
     /**
+     * @inheritDoc
+     */
+    protected function before()
+    {
+        $this->activateDatabaseCommandMenu('database-query');
+    }
+
+    /**
      * Show the SQL command form for a database
      *
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-command', 'adminer-database-actions'])

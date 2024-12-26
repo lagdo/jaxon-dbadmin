@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Table;
-use Lagdo\DbAdmin\App\Ajax\Menu\Actions as MenuActions;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
@@ -19,17 +18,22 @@ class Tables extends Component
     protected $overrides = Content::class;
 
     /**
+     * @inheritDoc
+     */
+    protected function before()
+    {
+        $this->activateDatabaseSectionMenu('tables');
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbTables();
+    }
+
+    /**
      * Show the tables of a given database
      *
      * @return Response
      */
     public function refresh(): Response
     {
-        // Side menu actions
-        $this->cl(MenuActions::class)->database('tables');
-        // Set main menu buttons
-        $this->cl(PageActions::class)->dbTables();
-
         $tablesInfo = $this->db->getTables();
 
         $table = jq()->parent()->attr('data-table-name');

@@ -4,6 +4,9 @@ namespace Lagdo\DbAdmin\App;
 
 use Jaxon\App\Component as JaxonComponent;
 use Jaxon\App\View\Store;
+use Lagdo\DbAdmin\App\Ajax\Menu\Sections;
+use Lagdo\DbAdmin\App\Ajax\Menu\Database\Command as DatabaseCommand;
+use Lagdo\DbAdmin\App\Ajax\Menu\Server\Command as ServerCommand;
 use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Package;
@@ -137,5 +140,63 @@ abstract class Component extends JaxonComponent
         {
             $this->response->debug($query['start'] . ' => ' . $query['query']);
         }
+    }
+
+    /**
+     * @param string $activeItem
+     *
+     * @return void
+     */
+    protected function activateServerSectionMenu(string $activeItem)
+    {
+        $this->cl(Sections::class)->server($activeItem);
+        $this->cl(ServerCommand::class)->server();
+        // Reset the database command menu only if there is an active database
+        [, $database] = $this->bag('dbadmin')->get('db');
+        if($database !== '')
+        {
+            $this->cl(DatabaseCommand::class)->database();
+        }
+    }
+
+    /**
+     * @param string $activeItem
+     *
+     * @return void
+     */
+    protected function activateServerCommandMenu(string $activeItem)
+    {
+        $this->cl(Sections::class)->server();
+        $this->cl(ServerCommand::class)->server($activeItem);
+        // Reset the database command menu only if there is an active database
+        [, $database] = $this->bag('dbadmin')->get('db');
+        if($database !== '')
+        {
+            $this->cl(DatabaseCommand::class)->database();
+        }
+    }
+
+    /**
+     * @param string $activeItem
+     *
+     * @return void
+     */
+    protected function activateDatabaseSectionMenu(string $activeItem)
+    {
+        $this->cl(Sections::class)->database($activeItem);
+        $this->cl(ServerCommand::class)->server();
+        $this->cl(DatabaseCommand::class)->database();
+    }
+
+    /**
+     * @param string $activeItem
+     *
+     * @return void
+     */
+    protected function activateDatabaseCommandMenu(string $activeItem)
+    {
+        $this->cl(Sections::class)->database();
+        $this->cl(ServerCommand::class)->server();
+        $this->cl(DatabaseCommand::class)->database($activeItem);
     }
 }

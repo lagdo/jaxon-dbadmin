@@ -10,6 +10,14 @@ class Import extends Component
     use ImportTrait;
 
     /**
+     * @inheritDoc
+     */
+    protected function before()
+    {
+        $this->activateDatabaseCommandMenu('database-import');
+    }
+
+    /**
      * Show the import form for a database
      *
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-import', 'adminer-database-actions'])

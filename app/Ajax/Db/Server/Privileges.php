@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\User;
-use Lagdo\DbAdmin\App\Ajax\Menu\Actions as MenuActions;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\jq;
@@ -15,6 +14,16 @@ class Privileges extends Component
      * @var array
      */
     private $pageContent;
+
+    /**
+     * @inheritDoc
+     */
+    protected function before()
+    {
+        $this->activateServerSectionMenu('privileges');
+        // Set main menu buttons
+        $this->cl(PageActions::class)->userPrivileges();
+    }
 
     /**
      * @inheritDoc
@@ -31,11 +40,6 @@ class Privileges extends Component
      */
     public function refresh(): Response
     {
-        // Side menu actions
-        $this->cl(MenuActions::class)->server('privileges');
-        // Set main menu buttons
-        $this->cl(PageActions::class)->userPrivileges();
-
         $this->pageContent = $this->db->getPrivileges();
 
         $user = jq()->parent()->attr('data-user');

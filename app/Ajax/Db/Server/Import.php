@@ -10,6 +10,14 @@ class Import extends Component
     use ImportTrait;
 
     /**
+     * @inheritDoc
+     */
+    protected function before()
+    {
+        $this->activateServerCommandMenu('server-import');
+    }
+
+    /**
      * Show the import form for a server
      *
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-import', 'adminer-server-actions'])

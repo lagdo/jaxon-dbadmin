@@ -61,19 +61,20 @@ class MenuBuilder
 
     /**
      * @param array $actions
+     * @param string $activeItem
      *
      * @return string
      */
-    public function menuCommands(array $actions): string
+    public function menuCommands(array $actions, string $activeItem): string
     {
         $htmlBuilder = Builder::new();
         $htmlBuilder
             ->buttonGroup(true);
-        foreach($actions as $action)
+        foreach($actions as $item => $action)
         {
             $htmlBuilder
-                ->button()->btnOutline()->btnFullWidth()
-                    ->setClass('adminer-menu-item')
+                ->button()->btnOutline()->btnPrimary()->btnFullWidth()
+                    ->setClass($item === $activeItem ? 'adminer-menu-item active' : 'adminer-menu-item')
                     ->addText($action['title'])
                     ->jxnClick($action['handler'])
                 ->end();

@@ -10,6 +10,14 @@ class Export extends Component
     use ExportTrait;
 
     /**
+     * @inheritDoc
+     */
+    protected function before()
+    {
+        $this->activateServerCommandMenu('server-export');
+    }
+
+    /**
      * Show the export form for a server
      *
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-export', 'adminer-server-actions'])

@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\View;
-use Lagdo\DbAdmin\App\Ajax\Menu\Actions as MenuActions;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\jq;
@@ -12,17 +11,22 @@ use function Jaxon\jq;
 class Views extends Component
 {
     /**
+     * @inheritDoc
+     */
+    protected function before()
+    {
+        $this->activateDatabaseSectionMenu('views');
+        // Set main menu buttons
+        $this->cl(PageActions::class)->dbViews();
+    }
+
+    /**
      * Show the views of a given database
      *
      * @return Response
      */
     public function refresh(): Response
     {
-        // Side menu actions
-        $this->cl(MenuActions::class)->database('views');
-        // Set main menu buttons
-        $this->cl(PageActions::class)->dbViews();
-
         $viewsInfo = $this->db->getViews();
 
         $view = jq()->parent()->attr('data-view-name');

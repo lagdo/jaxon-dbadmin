@@ -10,6 +10,14 @@ class Query extends Component
     use QueryTrait;
 
     /**
+     * @inheritDoc
+     */
+    protected function before()
+    {
+        $this->activateServerCommandMenu('server-query');
+    }
+
+    /**
      * Show the SQL query form for a server
      *
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-command', 'adminer-server-actions'])

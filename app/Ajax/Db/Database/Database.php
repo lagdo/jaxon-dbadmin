@@ -5,8 +5,8 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Db\Server\Databases;
-use Lagdo\DbAdmin\App\Ajax\Menu\Actions as MenuActions;
-use Lagdo\DbAdmin\App\Ajax\Menu\Database\Actions as DatabaseActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Sections as MenuSections;
+use Lagdo\DbAdmin\App\Ajax\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\App\Ajax\Menu\Database\Schemas as MenuSchemas;
 use Lagdo\DbAdmin\App\Ajax\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
@@ -54,7 +54,7 @@ class Database extends CallableDbClass
         // Save the selection in the databag
         $this->bag('dbadmin')->set('db', [$server, $database, $schema]);
 
-        $this->cl(DatabaseActions::class)->render();
+        $this->cl(DatabaseCommand::class)->render();
 
         // Show the database tables
         $this->cl(Tables::class)->refresh();

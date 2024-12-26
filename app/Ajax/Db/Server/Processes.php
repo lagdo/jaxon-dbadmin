@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\Ajax\Menu\Actions as MenuActions;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 class Processes extends Component
@@ -12,6 +11,16 @@ class Processes extends Component
      * @var array
      */
     private $pageContent;
+
+    /**
+     * @inheritDoc
+     */
+    protected function before()
+    {
+        $this->activateServerSectionMenu('processes');
+        // Set main menu buttons
+        $this->cl(PageActions::class)->clear();
+    }
 
     /**
      * @inheritDoc
@@ -29,11 +38,6 @@ class Processes extends Component
     public function refresh(): Response
     {
         $this->pageContent = $this->db->getProcesses();
-
-        // Side menu actions
-        $this->cl(MenuActions::class)->server('processes');
-        // Set main menu buttons
-        $this->cl(PageActions::class)->clear();
 
         return $this->render();
     }

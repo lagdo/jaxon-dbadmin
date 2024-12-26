@@ -4,9 +4,9 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Database\Database;
-use Lagdo\DbAdmin\App\Ajax\Menu\Database\Actions as DatabaseActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\App\Ajax\Menu\Database\Schemas as MenuSchemas;
-use Lagdo\DbAdmin\App\Ajax\Menu\Server\Actions as ServerActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Server\Command as ServerCommand;
 use Lagdo\DbAdmin\App\Ajax\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Page\ServerInfo;
 use Lagdo\DbAdmin\App\CallableDbClass;
@@ -57,8 +57,8 @@ class Server extends CallableDbClass
         $this->cl(ServerInfo::class)->showServer($serverInfo['server'], $serverInfo['user']);
 
         // Show the server
-        $this->cl(ServerActions::class)->render();
-        $this->cl(DatabaseActions::class)->clear();
+        $this->cl(ServerCommand::class)->render();
+        $this->cl(DatabaseCommand::class)->clear();
 
         if(!$hasServerAccess)
         {

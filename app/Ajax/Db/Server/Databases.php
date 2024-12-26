@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Database\Database;
-use Lagdo\DbAdmin\App\Ajax\Menu\Actions as MenuActions;
 use Lagdo\DbAdmin\App\Ajax\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Menu\Database\Schemas as MenuSchemas;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
@@ -18,6 +17,18 @@ class Databases extends Component
      * @var array
      */
     private $pageContent;
+
+    /**
+     * @inheritDoc
+     */
+    protected function before()
+    {
+        $this->activateServerSectionMenu('databases');
+        // Set main menu buttons
+        $this->cl(PageActions::class)->databases();
+        // Clear schema list
+        $this->cl(MenuSchemas::class)->clear();
+    }
 
     /**
      * @inheritDoc
@@ -37,15 +48,8 @@ class Databases extends Component
     {
         // Access to servers is forbidden. Show the first database.
         $this->pageContent = $this->db->getDatabases();
-
-        // Side menu actions
-        $this->cl(MenuActions::class)->server('databases');
-        // Set main menu buttons
-        $this->cl(PageActions::class)->databases();
         // Set the database dropdown list
         $this->cl(MenuDatabases::class)->showDatabases($this->pageContent['databases']);
-        // Clear schema list
-        $this->cl(MenuSchemas::class)->clear();
 
         $database = jq()->parent()->attr('data-database-name');
         // Add links, classes and data values to database names.

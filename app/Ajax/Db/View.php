@@ -27,7 +27,7 @@ class View extends CallableDbClass
     /**
      * Show detailed info of a given view
      *
-     * @after('call' => 'showBreadcrumbs')
+     * @after showBreadcrumbs
      *
      * @param string $view        The view name
      *
@@ -68,7 +68,7 @@ class View extends CallableDbClass
     {
         $formId = 'view-form';
         $title = 'Create a view';
-        $materializedView = $this->db->driver->support('materializedview');
+        $materializedView = $this->db->support('materializedview');
         $content = $this->ui->viewForm($formId, $materializedView);
         $buttons = [[
             'title' => 'Cancel',
@@ -123,7 +123,7 @@ class View extends CallableDbClass
 
         $formId = 'view-form';
         $title = 'Edit a view';
-        $materializedView = $this->db->driver->support('materializedview');
+        $materializedView = $this->db->support('materializedview');
         $content = $this->ui->viewForm($formId, $materializedView, $viewData['view']);
         $buttons = [[
             'title' => 'Cancel',
@@ -132,7 +132,7 @@ class View extends CallableDbClass
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->update($view, pm()->form($formId)),
+            'click' => $this->rq()->refresh($view, pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
@@ -147,7 +147,7 @@ class View extends CallableDbClass
      *
      * @return Response
      */
-    public function update(string $view, array $values): Response
+    public function refresh(string $view, array $values): Response
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 

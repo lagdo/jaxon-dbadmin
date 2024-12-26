@@ -17,7 +17,7 @@ use Lagdo\DbAdmin\App\MenuComponent;
 
 use function Jaxon\rq;
 
-class Actions extends MenuComponent
+class Sections extends MenuComponent
 {
     /**
      * @var array
@@ -44,7 +44,7 @@ class Actions extends MenuComponent
      *
      * @return void
      */
-    public function server(string $activeItem)
+    public function server(string $activeItem = '')
     {
         $this->activeItem = $activeItem;
         // Content from the connect_error() function in connect.inc.php
@@ -96,7 +96,7 @@ class Actions extends MenuComponent
      *
      * @return void
      */
-    public function database(string $activeItem)
+    public function database(string $activeItem = '')
     {
         $this->activeItem = $activeItem;
         $this->actions = [

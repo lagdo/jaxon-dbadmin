@@ -3,10 +3,10 @@
 namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ajax\Admin;
-use Lagdo\DbAdmin\App\Ajax\Menu\Actions as MenuActions;
-use Lagdo\DbAdmin\App\Ajax\Menu\Database\Actions as DatabaseActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Sections as MenuSections;
+use Lagdo\DbAdmin\App\Ajax\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\App\Ajax\Menu\Database\Schemas as MenuSchemas;
-use Lagdo\DbAdmin\App\Ajax\Menu\Server\Actions as ServerActions;
+use Lagdo\DbAdmin\App\Ajax\Menu\Server\Command as ServerCommand;
 use Lagdo\DbAdmin\App\Ajax\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
@@ -55,7 +55,7 @@ class PageBuilder
                             ->end()
                         ->end()
                         ->col(12)
-                            ->jxnBind(rq(ServerActions::class))
+                            ->jxnBind(rq(ServerCommand::class))
                         ->end()
                         ->col(12)
                             ->jxnBind(rq(MenuDatabases::class))
@@ -64,10 +64,10 @@ class PageBuilder
                             ->jxnBind(rq(MenuSchemas::class))
                         ->end()
                         ->col(12)
-                            ->jxnBind(rq(DatabaseActions::class))
+                            ->jxnBind(rq(DatabaseCommand::class))
                         ->end()
                         ->col(12)
-                            ->jxnBind(rq(MenuActions::class))
+                            ->jxnBind(rq(MenuSections::class))
                         ->end()
                     ->end()
                 ->end()

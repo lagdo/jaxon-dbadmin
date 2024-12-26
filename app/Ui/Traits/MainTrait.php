@@ -142,7 +142,7 @@ trait MainTrait
 
         $htmlBuilder
             ->a()
-                ->setAttributes(['href' => '#0'])
+                ->setAttributes(['href' => 'javascript:void(0)'])
                 ->jxnClick($content['handler'])
                 ->addText($content['label'])
             ->end();
