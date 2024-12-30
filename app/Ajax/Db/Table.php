@@ -51,7 +51,7 @@ class Table extends CallableDbClass
     /**
      * Show the select page for a given table
      *
-     * @after('call' => 'showBreadcrumbs')
+     * @after showBreadcrumbs
      *
      * @param string $table       The table name
      *
@@ -68,7 +68,7 @@ class Table extends CallableDbClass
     /**
      * Show detailed info of a given table
      *
-     * @after('call' => 'showBreadcrumbs')
+     * @after showBreadcrumbs
      *
      * @param string $table       The table name
      *
@@ -118,7 +118,7 @@ class Table extends CallableDbClass
     /**
      * Create a new table
      *
-     * @after('call' => 'showBreadcrumbs')
+     * @after showBreadcrumbs
      *
      * @return Response
      */
@@ -167,7 +167,7 @@ class Table extends CallableDbClass
     /**
      * Update a given table
      *
-     * @after('call' => 'showBreadcrumbs')
+     * @after showBreadcrumbs
      *
      * @param string $table       The table name
      *

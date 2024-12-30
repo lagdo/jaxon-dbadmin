@@ -55,7 +55,7 @@ trait SelectTrait
                     ->formSelect()->setName("columns[$rowId][fun]")
                         ->option(false, '')
                         ->end()
-                        ->optgroup()->setLabel($this->utils->trans->lang('Functions'));
+                        ->optgroup()->setLabel($this->trans->lang('Functions'));
         foreach ($options['functions'] as $function) {
             $htmlBuilder
                             ->option($value['fun'] == $function, $function)
@@ -63,7 +63,7 @@ trait SelectTrait
         }
         $htmlBuilder
                         ->end()
-                        ->optgroup()->setLabel($this->utils->trans->lang('Aggregation'));
+                        ->optgroup()->setLabel($this->trans->lang('Aggregation'));
         foreach ($options['grouping'] as $grouping) {
             $htmlBuilder
                             ->option($value['fun'] == $grouping, $grouping)
@@ -135,7 +135,7 @@ trait SelectTrait
             ->formRow()->setId("$formId-item-$rowId")
                 ->formCol(4)
                     ->formSelect()->setName("where[$rowId][col]")
-                        ->option(false, '(' . $this->utils->trans->lang('anywhere') . ')')
+                        ->option(false, '(' . $this->trans->lang('anywhere') . ')')
                         ->end();
         foreach ($options['columns'] as $column) {
             $htmlBuilder
@@ -221,7 +221,7 @@ trait SelectTrait
                 ->end()
                 ->formCol(5)
                     ->inputGroup()
-                        ->text()->addText($this->utils->trans->lang('descending'))
+                        ->text()->addText($this->trans->lang('descending'))
                         ->end()
                         ->checkbox($value['desc'])->setName("desc[$rowId]")->setValue('1')
                         ->end()
@@ -340,19 +340,19 @@ trait SelectTrait
                             ->formCol(6)
                                 ->buttonGroup(true)
                                     ->button()->btnOutline()->btnFullWidth()
-                                        ->setId($ids['btnColumnsId'])->addText($this->utils->trans->lang('Columns'))
+                                        ->setId($ids['btnColumnsId'])->addText($this->trans->lang('Columns'))
                                     ->end()
                                     ->button()->btnOutline()->btnFullWidth()
-                                        ->setId($ids['btnFiltersId'])->addText($this->utils->trans->lang('Filters'))
+                                        ->setId($ids['btnFiltersId'])->addText($this->trans->lang('Filters'))
                                     ->end()
                                     ->button()->btnOutline()->btnFullWidth()
-                                        ->setId($ids['btnSortingId'])->addText($this->utils->trans->lang('Order'))
+                                        ->setId($ids['btnSortingId'])->addText($this->trans->lang('Order'))
                                     ->end()
                                 ->end()
                             ->end()
                             ->formCol(3)
                                 ->inputGroup()
-                                    ->text()->addText($this->utils->trans->lang('Limit'))
+                                    ->text()->addText($this->trans->lang('Limit'))
                                     ->end()
                                     ->formInput()->setType('number')->setName('limit')->setValue($options['limit']['value'])
                                     ->end()
@@ -362,7 +362,7 @@ trait SelectTrait
                             ->end()
                             ->formCol(3)
                                 ->inputGroup()
-                                    ->text()->addText($this->utils->trans->lang('Text length'))
+                                    ->text()->addText($this->trans->lang('Text length'))
                                     ->end()
                                     ->formInput()->setType('number')->setName('text_length')->setValue($options['length']['value'])
                                     ->end()
@@ -379,10 +379,10 @@ trait SelectTrait
                             ->formCol(3)
                                 ->buttonGroup(true)
                                     ->button()->btnOutline()->btnFullWidth()
-                                        ->setId($ids['btnEditId'])->addText($this->utils->trans->lang('Edit'))
+                                        ->setId($ids['btnEditId'])->addText($this->trans->lang('Edit'))
                                     ->end()
                                     ->button()->btnFullWidth()->btnPrimary()
-                                        ->setId($ids['btnExecId'])->addText($this->utils->trans->lang('Execute'))
+                                        ->setId($ids['btnExecId'])->addText($this->trans->lang('Execute'))
                                     ->end()
                                 ->end()
                             ->end()

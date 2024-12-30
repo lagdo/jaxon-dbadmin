@@ -3,7 +3,8 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\Ajax\Db\Table;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl\Table as DdlTable;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Table as DqlTable;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
@@ -46,14 +47,14 @@ class Tables extends Component
                 'props' => [
                     'data-table-name' => $tableName,
                 ],
-                'handler' => $this->rq(Table::class)->show($table),
+                'handler' => $this->rq(DdlTable::class)->table($table),
             ];
             $detail['select'] = [
                 'label' => $select,
                 'props' => [
                     'data-table-name' => $tableName,
                 ],
-                'handler' => $this->rq(Table::class)->select($table),
+                'handler' => $this->rq(DqlTable::class)->table($table),
             ];
             return $detail;
         }, $tablesInfo['details']);

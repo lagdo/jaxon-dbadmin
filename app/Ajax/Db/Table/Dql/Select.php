@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Db\Table;
+namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dql;
 
 use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Command;
@@ -82,16 +82,16 @@ class Select extends CallableDbClass
     /**
      * Show the select query form
      *
-     * @after('call' => 'showBreadcrumbs')
+     * @after showBreadcrumbs
      *
      * @param bool   $init
      *
      * @return Response
      * @throws Exception
      */
-    public function show(bool $init = true): Response
+    public function table(bool $init = true): Response
     {
-        $table = $this->bag('dbadmin')->get('db.table');
+        $table = $this->bag('dbadmin')->get('db.table.name');
         $selectData = $this->db->getSelectData($table);
         // Make data available to views
         $this->view()->shareValues($selectData);
@@ -166,7 +166,7 @@ class Select extends CallableDbClass
         $this->bag('dbadmin')->set('exec.page', $page);
 
         $options['page'] = $page;
-        $table = $this->bag('dbadmin')->get('db.table');
+        $table = $this->bag('dbadmin')->get('db.table.name');
         $results = $this->db->execSelect($table, $options);
         // Show the message
         $resultsId = 'adminer-table-select-results';
@@ -234,7 +234,7 @@ class Select extends CallableDbClass
         $options['text_length'] = $formValues['text_length'] ?? 100;
         $this->bag('dbadmin')->set('options', $options);
 
-        $table = $this->bag('dbadmin')->get('db.table');
+        $table = $this->bag('dbadmin')->get('db.table.name');
         $selectData = $this->db->getSelectData($table, $options);
         // Display the new query
         $this->showQuery($selectData['query']);
@@ -250,7 +250,7 @@ class Select extends CallableDbClass
     public function editColumns(): Response
     {
         // Select options
-        $table = $this->bag('dbadmin')->get('db.table');
+        $table = $this->bag('dbadmin')->get('db.table.name');
         $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
         $selectData = $this->db->getSelectData($table, $options);
         // Make data available to views
@@ -298,7 +298,7 @@ class Select extends CallableDbClass
         $options['columns'] = $formValues['columns'] ?? [];
         $this->bag('dbadmin')->set('options', $options);
 
-        $table = $this->bag('dbadmin')->get('db.table');
+        $table = $this->bag('dbadmin')->get('db.table.name');
         $selectData = $this->db->getSelectData($table, $options);
         // Hide the dialog
         $this->response->dialog->hide();
@@ -316,7 +316,7 @@ class Select extends CallableDbClass
     public function editFilters(): Response
     {
         // Select options
-        $table = $this->bag('dbadmin')->get('db.table');
+        $table = $this->bag('dbadmin')->get('db.table.name');
         $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
         $selectData = $this->db->getSelectData($table, $options);
         // Make data available to views
@@ -364,7 +364,7 @@ class Select extends CallableDbClass
         $options['where'] = $formValues['where'] ?? [];
         $this->bag('dbadmin')->set('options', $options);
 
-        $table = $this->bag('dbadmin')->get('db.table');
+        $table = $this->bag('dbadmin')->get('db.table.name');
         $selectData = $this->db->getSelectData($table, $options);
         // Hide the dialog
         $this->response->dialog->hide();
@@ -382,7 +382,7 @@ class Select extends CallableDbClass
     public function editSorting(): Response
     {
         // Select options
-        $table = $this->bag('dbadmin')->get('db.table');
+        $table = $this->bag('dbadmin')->get('db.table.name');
         $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
         $selectData = $this->db->getSelectData($table, $options);
         // Make data available to views
@@ -431,7 +431,7 @@ class Select extends CallableDbClass
         $options['desc'] = $formValues['desc'] ?? [];
         $this->bag('dbadmin')->set('options', $options);
 
-        $table = $this->bag('dbadmin')->get('db.table');
+        $table = $this->bag('dbadmin')->get('db.table.name');
         $selectData = $this->db->getSelectData($table, $options);
         // Hide the dialog
         $this->response->dialog->hide();

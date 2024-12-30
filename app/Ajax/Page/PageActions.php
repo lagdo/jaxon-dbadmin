@@ -6,8 +6,11 @@ use Jaxon\App\Component;
 use Lagdo\DbAdmin\App\Ajax\Db\Database\Database;
 use Lagdo\DbAdmin\App\Ajax\Db\Database\Tables;
 use Lagdo\DbAdmin\App\Ajax\Db\Table;
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Select;
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Query;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl\Alter as AlterTable;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl\Create as CreateTable;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl\Table as DdlTable;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dml\Table as DmlTable;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Table as DqlTable;
 use Lagdo\DbAdmin\App\Ajax\Db\User;
 use Lagdo\DbAdmin\App\Ajax\Db\View;
 use Lagdo\DbAdmin\Translator;
@@ -62,7 +65,7 @@ class PageActions extends Component
     public function userPrivileges()
     {
         $this->actions = [
-            'user' => [
+            'add-user' => [
                 'title' => $this->trans->lang('Create user'),
                 'handler' => rq(User::class)->add(),
             ],
@@ -80,7 +83,7 @@ class PageActions extends Component
         $this->actions = [
             'add-table' => [
                 'title' => $this->trans->lang('Create table'),
-                'handler' => rq(Table::class)->add(),
+                'handler' => rq(CreateTable::class)->render(),
             ],
         ];
         $this->render();
@@ -219,19 +222,19 @@ class PageActions extends Component
         $this->actions = [
             'edit-table' => [
                 'title' => $this->trans->lang('Alter table'),
-                'handler' => rq(Table::class)->edit($table),
+                'handler' => rq(AlterTable::class)->render(),
             ],
             'drop-table' => [
                 'title' => $this->trans->lang('Drop table'),
-                'handler' => rq(Table::class)->drop($table)->confirm("Drop table $table?"),
+                'handler' => rq(DdlTable::class)->drop()->confirm("Drop table $table?"),
             ],
             'select-table' => [
                 'title' => $this->trans->lang('Select'),
-                'handler' => rq(Select::class)->render(),
+                'handler' => rq(DqlTable::class)->render(),
             ],
             'insert-table' => [
                 'title' => $this->trans->lang('New item'),
-                'handler' => rq(Query::class)->showInsert(),
+                'handler' => rq(DmlTable::class)->render(),
             ],
         ];
         $this->render();

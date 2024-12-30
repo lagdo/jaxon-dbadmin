@@ -1,9 +1,10 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Db\Table;
+namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
+use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
 use function Jaxon\jq;
 use function Jaxon\pm;
@@ -13,13 +14,117 @@ use function sprintf;
  * When creating or modifying a table, this class
  * provides CRUD features on table columns.
  * It does not persist data. It only updates the UI.
+ *
+ * @databag dbadmin.table
  */
-class Column extends CallableDbClass
+class Columns extends Component
 {
+    /**
+     * @var string
+     */
+    protected $overrides = '';
+
     /**
      * The form id
      */
     protected $formId = 'adminer-table-form';
+
+    /**
+     * @inheritDoc
+     */
+    protected function before()
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function html(): string
+    {
+        return $this->ui
+            ->fields($this->cache()->get('table.fields'))
+            ->tableColumns($this->formId);
+    }
+
+    /**
+     * Insert a new column at a given position
+     *
+     * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
+     *
+     * @return Response
+     */
+    public function add(int $target = -1): Response
+    {
+        $table = $this->bag('dbadmin')->get('db.table.name');
+        $tableData = $this->db->getTableData($table);
+        // Make data available to views
+        $this->view()->shareValues($tableData);
+        $this->ui
+            ->support($tableData['support'])
+            ->collations($tableData['collations'])
+            ->unsigned($tableData['unsigned'])
+            ->options($tableData['options']);
+
+        $fields = $this->bag('dbadmin.table')->get('fields');
+        $fields = array_map(function($field) {
+            return TableFieldEntity::fromArray($field);
+        }, $fields);
+        // Append a new empty field entry
+        $fields[] = $this->db->getTableField();
+        $this->cache()->set('table.fields', $fields);
+        $this->bag('dbadmin.table')->set('fields', $fields);
+
+        return $this->render();
+    }
+    // public function add(int $target = -1): Response
+    // {
+    //     // Todo: Save columns data in a databag, and get the 'length' value from there.
+    //     $length = jq(".{$this->formId}-column", "#adminer-database-content")->length;
+
+    //     $tableData = $this->db->getTableData();
+    //     // Make data available to views
+    //     $this->view()->shareValues($tableData);
+
+    //     $columnClass = "{$this->formId}-column";
+    //     $columnId = sprintf('%s-%02d', $columnClass, $length);
+    //     $field = $this->db->getTableField();
+    //     $prefixFields = sprintf("fields[%d]", $length + 1);
+    //     $content = $this->ui
+    //         ->support($tableData['support'])
+    //         ->collations($tableData['collations'])
+    //         ->unsigned($tableData['unsigned'])
+    //         ->options($tableData['options'])
+    //         ->tableColumn($columnClass, $length, $field, $prefixFields, $target < 0);
+
+    //     if($target < 0)
+    //     {
+    //         // Add the new column at the end of the list
+    //         $this->response->append($this->formId, 'innerHTML', $content);
+    //     }
+    //     else
+    //     {
+    //         // Insert the new column before the given index
+    //         /*
+    //         * The prepend() function is not suitable here because it rewrites the
+    //         * $targetId element, resetting all its event handlers and inputs.
+    //         */
+    //         $targetId = sprintf('%s-%02d', $columnClass, $target);
+    //         $this->insertAfter($targetId, $columnId, $columnClass, $content, ['data-index' => $length]);
+    //         // $this->response->prepend($targetId, 'outerHTML', $content);
+    //     }
+
+    //     // $contentId = $this->package->getDbContentId();
+    //     // $length = jq(".$columnClass", "#$contentId")->length;
+    //     // $index = jq()->attr('data-index');
+    //     // // Set the button event handlers on the new column
+    //     // $this->response->jq('[data-field]', "#$columnId")
+    //     //     ->on('jaxon.dbadmin.renamed', pm()->js('jaxon.dbadmin.onColumnRenamed'));
+    //     // $this->response->jq('.adminer-table-column-add', "#$columnId")->click($this->rq()->add($length, $index));
+    //     // $this->response->jq('.adminer-table-column-del', "#$columnId")->click($this->rq()->del($length, $index)
+    //     //     ->confirm('Delete this column?'));
+
+    //     return $this->response;
+    // }
 
     /**
      * Insert a new HTML element before a given target
@@ -71,63 +176,6 @@ class Column extends CallableDbClass
         }
         // Set the new element content
         $this->response->html($id, $content);
-    }
-
-    /**
-     * Insert a new column at a given position
-     *
-     * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
-     *
-     * @return Response
-     */
-    public function add(int $target = -1): Response
-    {
-        // Todo: Save columns data in a databag, and get the 'length' value from there.
-        $length = jq(".{$this->formId}-column", "#adminer-database-content")->length;
-
-        $tableData = $this->db->getTableData();
-        // Make data available to views
-        $this->view()->shareValues($tableData);
-
-        $columnClass = "{$this->formId}-column";
-        $columnId = sprintf('%s-%02d', $columnClass, $length);
-        $field = $this->db->getTableField();
-        $prefixFields = sprintf("fields[%d]", $length + 1);
-        $content = $this->ui
-            ->support($tableData['support'])
-            ->collations($tableData['collations'])
-            ->unsigned($tableData['unsigned'])
-            ->options($tableData['options'])
-            ->tableColumn($columnClass, $length, $field, $prefixFields, $target < 0);
-
-        if($target < 0)
-        {
-            // Add the new column at the end of the list
-            $this->response->append($this->formId, 'innerHTML', $content);
-        }
-        else
-        {
-            // Insert the new column before the given index
-            /*
-            * The prepend() function is not suitable here because it rewrites the
-            * $targetId element, resetting all its event handlers and inputs.
-            */
-            $targetId = sprintf('%s-%02d', $columnClass, $target);
-            $this->insertAfter($targetId, $columnId, $columnClass, $content, ['data-index' => $length]);
-            // $this->response->prepend($targetId, 'outerHTML', $content);
-        }
-
-        // $contentId = $this->package->getDbContentId();
-        // $length = jq(".$columnClass", "#$contentId")->length;
-        // $index = jq()->attr('data-index');
-        // // Set the button event handlers on the new column
-        // $this->response->jq('[data-field]', "#$columnId")
-        //     ->on('jaxon.dbadmin.renamed', pm()->js('jaxon.dbadmin.onColumnRenamed'));
-        // $this->response->jq('.adminer-table-column-add', "#$columnId")->click($this->rq()->add($length, $index));
-        // $this->response->jq('.adminer-table-column-del', "#$columnId")->click($this->rq()->del($length, $index)
-        //     ->confirm('Delete this column?'));
-
-        return $this->response;
     }
 
     /**
