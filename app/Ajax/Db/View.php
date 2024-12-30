@@ -132,7 +132,7 @@ class View extends CallableDbClass
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->refresh($view, pm()->form($formId)),
+            'click' => $this->rq()->update($view, pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
@@ -147,7 +147,7 @@ class View extends CallableDbClass
      *
      * @return Response
      */
-    public function refresh(string $view, array $values): Response
+    public function update(string $view, array $values): Response
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 

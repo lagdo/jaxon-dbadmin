@@ -42,6 +42,6 @@ class Databases extends MenuComponent
     public function change(string $database)
     {
         // Change the value of the select field in the component content.
-        $this->node()->jq('select#jaxon-dbadmin-database-select')->val($database)->change();
+        $this->node()->jq('select')->val($database)->change();
     }
 }

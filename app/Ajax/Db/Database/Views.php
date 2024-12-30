@@ -6,6 +6,7 @@ use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\View;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
+use function array_map;
 use function Jaxon\jq;
 
 class Views extends Component
@@ -31,7 +32,7 @@ class Views extends Component
 
         $view = jq()->parent()->attr('data-view-name');
         // Add links, classes and data values to view names.
-        $viewsInfo['details'] = \array_map(function($detail) use($view) {
+        $viewsInfo['details'] = array_map(function($detail) use($view) {
             $detail['show'] = [
                 'label' => $detail['name'],
                 'props' => [

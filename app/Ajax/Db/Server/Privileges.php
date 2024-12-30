@@ -3,9 +3,9 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
 use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\Ajax\Db\User;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
+use function array_map;
 use function Jaxon\jq;
 
 class Privileges extends Component
@@ -46,17 +46,17 @@ class Privileges extends Component
         $host = jq()->parent()->attr('data-host');
         $database = jq()->parent()->parent()->find("option.database-item:selected")->val();
         // Add links, classes and data values to privileges.
-        $this->pageContent['details'] = \array_map(function($detail) use($user, $host, $database) {
+        $this->pageContent['details'] = array_map(function($detail) use($user, $host, $database) {
             // Set the grant select options.
             $detail['grants'] = $this->ui->htmlSelect($detail['grants'], 'database-item');
-                // Set the Edit button.
+            // Set the Edit button.
             $detail['edit'] = [
                 'label' => 'Edit',
                 'props' => [
                     'data-user' => $detail['user'],
                     'data-host' => $detail['host'],
                 ],
-                'handler' => $this->rq(User::class)->edit($user, $host, $database),
+                'handler' => $this->rq(Privilege::class)->edit($user, $host, $database),
             ];
             return $detail;
         }, $this->pageContent['details']);
