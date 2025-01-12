@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Database\Database;
 use Lagdo\DbAdmin\App\Ajax\Menu\DbList;
 use Lagdo\DbAdmin\App\Ajax\Menu\SchemaList;
@@ -33,9 +32,9 @@ class Databases extends Component
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-databases', 'adminer-database-menu'])
      *
-     * @return Response
+     * @return void
      */
-    public function update(): Response
+    public function update()
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->databases();
@@ -76,7 +75,5 @@ class Databases extends Component
         // Set onclick handlers on table checkbox
         $checkbox = 'database';
         $this->response->js('jaxon.dbadmin')->selectTableCheckboxes($checkbox);
-
-        return $this->response;
     }
 }

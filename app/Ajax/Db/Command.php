@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
@@ -18,9 +17,9 @@ class Command extends CallableDbClass
      * @param string $query       The SQL query to display
      * @param string $database    The database name
      *
-     * @return Response
+     * @return void
      */
-    protected function showForm(string $query, string $database = ''): Response
+    protected function showForm(string $query, string $database = '')
     {
         // Set the current database, but do not update the databag.
         $this->db->setCurrentDbName($database);
@@ -51,8 +50,6 @@ class Command extends CallableDbClass
         $this->response->jq("#$btnId")->click(js("jaxon.dbadmin")->saveSqlEditorContent());
         $this->response->jq("#$btnId")->click($this->rq()->execute(pm()->form($formId))
             ->when(pm()->input($queryId)));
-
-        return $this->response;
     }
 
     /**
@@ -63,11 +60,11 @@ class Command extends CallableDbClass
      *
      * @param string $query       The SQL query to display
      *
-     * @return Response
+     * @return void
      */
-    public function showServerForm(string $query = ''): Response
+    public function showServerForm(string $query = '')
     {
-        return $this->showForm($query);
+        $this->showForm($query);
     }
 
     /**
@@ -78,12 +75,12 @@ class Command extends CallableDbClass
      *
      * @param string $query       The SQL query to display
      *
-     * @return Response
+     * @return void
      */
-    public function showDatabaseForm(string $query = ''): Response
+    public function showDatabaseForm(string $query = '')
     {
         [, $database] = $this->bag('dbadmin')->get('db');
-        return $this->showForm($query, $database);
+        $this->showForm($query, $database);
     }
 
     /**
@@ -93,9 +90,9 @@ class Command extends CallableDbClass
      *
      * @param array $formValues
      *
-     * @return Response
+     * @return void
      */
-    public function execute(array $formValues): Response
+    public function execute(array $formValues)
     {
         $query = \trim($formValues['query'] ?? '');
         $limit = \intval($formValues['limit'] ?? 0);
@@ -105,14 +102,12 @@ class Command extends CallableDbClass
         if(!$query)
         {
             $this->response->dialog->error('The query string is empty!', 'Error');
-            return $this->response;
+            return;
         }
 
         $queryResults = $this->db->executeCommands($query, $limit, $errorStops, $onlyErrors);
 
         $content = $this->ui->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
-
-        return $this->response;
     }
 }

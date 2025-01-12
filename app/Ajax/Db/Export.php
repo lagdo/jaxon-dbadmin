@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
@@ -16,9 +15,9 @@ class Export extends CallableDbClass
      *
      * @param string $database    The database name
      *
-     * @return Response
+     * @return void
      */
-    protected function showForm(string $database = ''): Response
+    protected function showForm(string $database = '')
     {
         // Set the current database, but do not update the databag.
         $this->db->setCurrentDbName($database);
@@ -55,13 +54,12 @@ class Export extends CallableDbClass
             $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($tableNameId);
             $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($tableDataId);
             $this->response->jq("#$btnId")->click($this->rq()->exportOne($database, pm()->form($formId)));
-            return $this->response;
+            return;
         }
 
         $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($databaseNameId);
         $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($databaseDataId);
         $this->response->jq("#$btnId")->click($this->rq()->exportSet(pm()->form($formId)));
-        return $this->response;
     }
 
     /**
@@ -70,11 +68,11 @@ class Export extends CallableDbClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-export', 'adminer-server-actions'])
      *
-     * @return Response
+     * @return void
      */
-    public function showServerForm(): Response
+    public function showServerForm()
     {
-        return $this->showForm();
+        $this->showForm();
     }
 
     /**
@@ -83,12 +81,12 @@ class Export extends CallableDbClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-export', 'adminer-database-actions'])
      *
-     * @return Response
+     * @return void
      */
-    public function showDatabaseForm(): Response
+    public function showDatabaseForm()
     {
         [, $database] = $this->bag('dbadmin')->get('db');
-        return $this->showForm($database);
+        $this->showForm($database);
     }
 
     /**
@@ -98,9 +96,9 @@ class Export extends CallableDbClass
      * @param array  $tables        The tables to dump
      * @param array  $formValues
      *
-     * @return Response
+     * @return void
      */
-    protected function export(array $databases, array $tables, array $formValues): Response
+    protected function export(array $databases, array $tables, array $formValues)
     {
         // Convert checkbox values to boolean
         $formValues['routines'] = isset($formValues['routines']);
@@ -113,7 +111,7 @@ class Export extends CallableDbClass
         {
             // Error
             $this->response->dialog->error($results, 'Error');
-            return $this->response;
+            return;
         }
 
         $content = $this->view()->render('adminer::views::sql/dump', $results);
@@ -127,7 +125,7 @@ class Export extends CallableDbClass
             if(!$content)
             {
                 $this->response->dialog->error('Unable to gzip dump.', 'Error');
-                return $this->response;
+                return;
             }
         }
         $name = '/' . \uniqid() . $extension;
@@ -135,13 +133,12 @@ class Export extends CallableDbClass
         if(!@\file_put_contents($path, $content))
         {
             $this->response->dialog->error('Unable to write dump to file.', 'Error');
-            return $this->response;
+            return;
         }
 
         $link = \rtrim($this->package->getOption('export.url'), '/') . $name;
         // $this->response->script("window.open('$link', '_blank').focus()");
         $this->response->addCommand('dbadmin.window.open', ['link' => $link]);
-        return $this->response;
     }
 
     /**
@@ -149,9 +146,9 @@ class Export extends CallableDbClass
      *
      * @param array $formValues
      *
-     * @return Response
+     * @return void
      */
-    public function exportSet(array $formValues): Response
+    public function exportSet(array $formValues)
     {
         $databases = [
             'list' => $formValues['database_list'] ?? [],
@@ -162,7 +159,7 @@ class Export extends CallableDbClass
             'data' => [],
         ];
 
-        return $this->export($databases, $tables, $formValues);
+        $this->export($databases, $tables, $formValues);
     }
 
     /**
@@ -171,9 +168,9 @@ class Export extends CallableDbClass
      * @param string $database    The database name
      * @param array $formValues
      *
-     * @return Response
+     * @return void
      */
-    public function exportOne(string $database, array $formValues): Response
+    public function exportOne(string $database, array $formValues)
     {
         $databases = [
             'list' => [$database],
@@ -184,6 +181,6 @@ class Export extends CallableDbClass
             'data' => $formValues['table_data'] ?? [],
         ];
 
-        return $this->export($databases, $tables, $formValues);
+        $this->export($databases, $tables, $formValues);
     }
 }

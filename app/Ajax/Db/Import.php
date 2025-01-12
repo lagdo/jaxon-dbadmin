@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
@@ -17,9 +16,9 @@ class Import extends CallableDbClass
      *
      * @param string $database    The database name
      *
-     * @return Response
+     * @return void
      */
-    protected function showForm(string $database = ''): Response
+    protected function showForm(string $database = '')
     {
         // Set the current database, but do not update the databag.
         $this->db->setCurrentDbName($database);
@@ -46,8 +45,6 @@ class Import extends CallableDbClass
 
         $this->response->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($database));
         $this->response->jq("#$sqlFilesBtnId")->click($this->rq()->executeSqlFiles($database, pm()->form($formId)));
-
-        return $this->response;
     }
 
     /**
@@ -56,11 +53,11 @@ class Import extends CallableDbClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-import', 'adminer-server-actions'])
      *
-     * @return Response
+     * @return void
      */
-    public function showServerForm(): Response
+    public function showServerForm()
     {
-        return $this->showForm();
+        $this->showForm();
     }
 
     /**
@@ -69,12 +66,12 @@ class Import extends CallableDbClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-import', 'adminer-database-actions'])
      *
-     * @return Response
+     * @return void
      */
-    public function showDatabaseForm(): Response
+    public function showDatabaseForm()
     {
         [, $database] = $this->bag('dbadmin')->get('db');
-        return $this->showForm($database);
+        $this->showForm($database);
     }
 
     /**
@@ -82,12 +79,10 @@ class Import extends CallableDbClass
      *
      * @param string $database    The database name
      *
-     * @return Response
+     * @return void
      */
-    public function executeWebFile(string $database): Response
-    {
-        return $this->response;
-    }
+    public function executeWebFile(string $database)
+    {}
 
     /**
      * Run a webfile
@@ -97,9 +92,9 @@ class Import extends CallableDbClass
      * @param string $database    The database name
      * @param array $formValues
      *
-     * @return Response
+     * @return void
      */
-    public function executeSqlFiles(string $database, array $formValues): Response
+    public function executeSqlFiles(string $database, array $formValues)
     {
         // Set the current database, but do not update the databag.
         $this->db->setCurrentDbName($database);
@@ -113,14 +108,12 @@ class Import extends CallableDbClass
         if(!$files)
         {
             $this->response->dialog->error('No file uploaded!', 'Error');
-            return $this->response;
+            return;
         }
 
         $queryResults = $this->db->executeSqlFiles($files, $errorStops, $onlyErrors);
 
         $content = $this->ui->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
-
-        return $this->response;
     }
 }

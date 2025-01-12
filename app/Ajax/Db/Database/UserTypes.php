@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 class UserTypes extends Component
@@ -13,15 +12,13 @@ class UserTypes extends Component
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-type', 'adminer-database-menu'])
      *
-     * @return Response
+     * @return void
      */
-    public function showUserTypes(): Response
+    public function showUserTypes()
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->dbUserTypes();
 
         $this->showSection($this->db->getUserTypes());
-
-        return $this->response;
     }
 }

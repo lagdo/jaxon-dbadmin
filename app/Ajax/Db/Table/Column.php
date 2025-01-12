@@ -2,11 +2,9 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
 
 use function Jaxon\jq;
-use function Jaxon\pm;
 use function sprintf;
 
 /**
@@ -78,9 +76,9 @@ class Column extends CallableDbClass
      *
      * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
      *
-     * @return Response
+     * @return void
      */
-    public function add(int $target = -1): Response
+    public function add(int $target = -1)
     {
         // Todo: Save columns data in a databag, and get the 'length' value from there.
         $length = jq(".{$this->formId}-column", "#adminer-database-content")->length;
@@ -126,8 +124,6 @@ class Column extends CallableDbClass
         // $this->response->jq('.adminer-table-column-add', "#$columnId")->click($this->rq()->add($length, $index));
         // $this->response->jq('.adminer-table-column-del', "#$columnId")->click($this->rq()->del($length, $index)
         //     ->confirm('Delete this column?'));
-
-        return $this->response;
     }
 
     /**
@@ -136,9 +132,9 @@ class Column extends CallableDbClass
      * @param int    $length      The number of columns in the table
      * @param int    $index       The column index
      *
-     * @return Response
+     * @return void
      */
-    public function del(int $length, int $index): Response
+    public function del(int $length, int $index)
     {
         $columnId = sprintf('%s-column-%02d', $this->formId, $index);
 
@@ -155,8 +151,6 @@ class Column extends CallableDbClass
         //     $this->response->jq('.adminer-table-column-buttons', "#$nextId")->attr('data-index', $id);
         //     $this->response->jq('[data-field]', "#$nextId")->trigger('jaxon.dbadmin.renamed');
         // }
-
-        return $this->response;
     }
 
     /**
@@ -164,9 +158,9 @@ class Column extends CallableDbClass
      *
      * @param int    $index       The column index
      *
-     * @return Response
+     * @return void
      */
-    public function setForDelete(int $index): Response
+    public function setForDelete(int $index)
     {
         // $columnId = sprintf('%s-column-%02d', $this->formId, $index);
 
@@ -182,8 +176,6 @@ class Column extends CallableDbClass
         // // $this->response->jq('.adminer-table-column-del>span', "#$columnId")
         // //     ->removeClass('glyphicon-remove')
         // //     ->addClass('glyphicon-trash');
-
-        return $this->response;
     }
 
     /**
@@ -191,9 +183,9 @@ class Column extends CallableDbClass
      *
      * @param int    $index       The column index
      *
-     * @return Response
+     * @return void
      */
-    public function cancelDelete(int $index): Response
+    public function cancelDelete(int $index)
     {
         // $columnId = sprintf('%s-column-%02d', $this->formId, $index);
         // $columnName = sprintf('fields[%d][field]', $index + 1);
@@ -210,7 +202,5 @@ class Column extends CallableDbClass
         // // $this->response->jq('.adminer-table-column-del>span', "#$columnId")
         // //     ->removeClass('glyphicon-trash')
         // //     ->addClass('glyphicon-remove');
-
-        return $this->response;
     }
 }

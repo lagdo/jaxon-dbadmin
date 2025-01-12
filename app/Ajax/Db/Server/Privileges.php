@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Component;
 use Lagdo\DbAdmin\App\Ajax\Db\User;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
@@ -30,9 +29,9 @@ class Privileges extends Component
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-privileges', 'adminer-database-menu'])
      *
-     * @return Response
+     * @return void
      */
-    public function update(): Response
+    public function update()
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->userPrivileges();
@@ -59,7 +58,5 @@ class Privileges extends Component
         }, $this->pageContent['details']);
 
         $this->render();
-
-        return $this->response;
     }
 }

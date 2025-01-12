@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Db\Server\Databases;
 use Lagdo\DbAdmin\App\Ajax\Menu\Db;
@@ -21,9 +20,9 @@ class Database extends CallableDbClass
     /**
      * Show the  create database dialog
      *
-     * @return Response
+     * @return void
      */
-    public function add(): Response
+    public function add()
     {
         $collations = $this->db->getCollations();
 
@@ -40,7 +39,6 @@ class Database extends CallableDbClass
             'click' => $this->rq()->create(pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
-        return $this->response;
     }
 
     /**
@@ -48,9 +46,9 @@ class Database extends CallableDbClass
      *
      * @param array $formValues  The form values
      *
-     * @return Response
+     * @return void
      */
-    public function create(array $formValues): Response
+    public function create(array $formValues)
     {
         $database = $formValues['name'];
         $collation = $formValues['collation'];
@@ -58,14 +56,12 @@ class Database extends CallableDbClass
         if(!$this->db->createDatabase($database, $collation))
         {
             $this->response->dialog->error("Cannot create database $database.");
-            return $this->response;
+            return;
         }
         $this->cl(Databases::class)->update();
 
         $this->response->dialog->hide();
         $this->response->dialog->info("Database $database created.");
-
-        return $this->response;
     }
 
     /**
@@ -73,20 +69,19 @@ class Database extends CallableDbClass
      *
      * @param string $database    The database name
      *
-     * @return Response
+     * @return void
      */
-    public function drop(string $database): Response
+    public function drop(string $database)
     {
         [$server,] = $this->bag('dbadmin')->get('db');
         if(!$this->db->dropDatabase($database))
         {
             $this->response->dialog->error("Cannot delete database $database.");
-            return $this->response;
+            return;
         }
 
         $this->cl(Server::class)->showDatabases($server);
         $this->response->dialog->info("Database $database deleted.");
-        return $this->response;
     }
 
     /**
@@ -98,9 +93,9 @@ class Database extends CallableDbClass
      * @param string $database    The database name
      * @param string $schema      The database schema
      *
-     * @return Response
+     * @return void
      */
-    public function select(string $database, string $schema = ''): Response
+    public function select(string $database, string $schema = '')
     {
         [$server,] = $this->bag('dbadmin')->get('db');
         // Set the selected server
@@ -128,13 +123,9 @@ class Database extends CallableDbClass
         $this->bag('dbadmin')->set('db', [$server, $database, $schema]);
 
         $this->cl(DbActions::class)->render();
-
         $this->cl(Db::class)->showDatabase();
-
         // Show the database tables
         $this->showTables();
-
-        return $this->response;
     }
 
     /**
@@ -157,9 +148,9 @@ class Database extends CallableDbClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-table', 'adminer-database-menu'])
      *
-     * @return Response
+     * @return void
      */
-    public function showTables(): Response
+    public function showTables()
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->dbTables();
@@ -191,8 +182,6 @@ class Database extends CallableDbClass
         $this->showSection($tablesInfo, 'table');
         // Set onclick handlers on table checkbox
         $this->response->js('jaxon.dbadmin')->selectTableCheckboxes('table');
-
-        return $this->response;
     }
 
     /**
@@ -201,9 +190,9 @@ class Database extends CallableDbClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-view', 'adminer-database-menu'])
      *
-     * @return Response
+     * @return void
      */
-    public function showViews(): Response
+    public function showViews()
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->dbTables();
@@ -227,8 +216,6 @@ class Database extends CallableDbClass
 
         // Set onclick handlers on view checkbox
         $this->response->js('jaxon.dbadmin')->selectTableCheckboxes('view');
-
-        return $this->response;
     }
 
     /**
@@ -237,16 +224,14 @@ class Database extends CallableDbClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-routine', 'adminer-database-menu'])
      *
-     * @return Response
+     * @return void
      */
-    public function showRoutines(): Response
+    public function showRoutines()
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->dbRoutines();
 
         $this->showSection($this->db->getRoutines());
-
-        return $this->response;
     }
 
     /**
@@ -255,16 +240,14 @@ class Database extends CallableDbClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-sequence', 'adminer-database-menu'])
      *
-     * @return Response
+     * @return void
      */
-    public function showSequences(): Response
+    public function showSequences()
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->dbSequences();
 
         $this->showSection($this->db->getSequences());
-
-        return $this->response;
     }
 
     /**
@@ -273,16 +256,14 @@ class Database extends CallableDbClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-type', 'adminer-database-menu'])
      *
-     * @return Response
+     * @return void
      */
-    public function showUserTypes(): Response
+    public function showUserTypes()
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->dbUserTypes();
 
         $this->showSection($this->db->getUserTypes());
-
-        return $this->response;
     }
 
     /**
@@ -291,15 +272,13 @@ class Database extends CallableDbClass
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-event', 'adminer-database-menu'])
      *
-     * @return Response
+     * @return void
      */
-    public function showEvents(): Response
+    public function showEvents()
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->dbEvents();
 
         $this->showSection($this->db->getEvents());
-
-        return $this->response;
     }
 }

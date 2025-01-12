@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
 
 use function Jaxon\pm;
@@ -12,9 +11,9 @@ class User extends CallableDbClass
     /**
      * Show the new user form
      *
-     * @return Response
+     * @return void
      */
-    public function add(): Response
+    public function add()
     {
         $userInfo = $this->db->newUserPrivileges();
 
@@ -33,8 +32,6 @@ class User extends CallableDbClass
             'click' => $this->rq()->create(pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
-
-        return $this->response;
     }
 
     /**
@@ -42,15 +39,13 @@ class User extends CallableDbClass
      *
      * @param array  $formValues  The form values
      *
-     * @return Response
+     * @return void
      */
-    public function create(array $formValues): Response
+    public function create(array $formValues)
     {
         $this->response->dialog->hide();
         $this->response->dialog->warning("This feature is not yet implemented.");
         // $this->response->dialog->info("User privileges created.");
-
-        return $this->response;
     }
 
     /**
@@ -60,9 +55,9 @@ class User extends CallableDbClass
      * @param string $hostname  The host name
      * @param string $database  The database name
      *
-     * @return Response
+     * @return void
      */
-    public function edit(string $username, string $hostname, string $database): Response
+    public function edit(string $username, string $hostname, string $database)
     {
         $userInfo = $this->db->getUserPrivileges($username, $hostname, $database);
 
@@ -81,8 +76,6 @@ class User extends CallableDbClass
             'click' => $this->rq()->update(pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
-
-        return $this->response;
     }
 
     /**
@@ -90,14 +83,12 @@ class User extends CallableDbClass
      *
      * @param array  $formValues  The form values
      *
-     * @return Response
+     * @return void
      */
-    public function update(array $formValues): Response
+    public function update(array $formValues)
     {
         $this->response->dialog->hide();
         $this->response->dialog->warning("This feature is not yet implemented.");
         // $this->response->dialog->info("User privileges updated.");
-
-        return $this->response;
     }
 }

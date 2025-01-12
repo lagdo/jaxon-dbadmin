@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table;
 
-use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\Ajax\Db\Table;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
@@ -27,9 +25,9 @@ class Query extends CallableDbClass
      *
      * @after('call' => 'showBreadcrumbs')
      *
-     * @return Response
+     * @return void
      */
-    public function showInsert(): Response
+    public function showInsert()
     {
         $table = $this->bag('dbadmin')->get('db.table');
         $queryData = $this->db->getQueryData($table);
@@ -37,7 +35,7 @@ class Query extends CallableDbClass
         if(($queryData['error']))
         {
             $this->response->dialog->error($queryData['error'], $this->lang('Error'));
-            return $this->response;
+            return;
         }
         // Make data available to views
         $this->view()->shareValues($queryData);
@@ -47,8 +45,6 @@ class Query extends CallableDbClass
 
         $content = $this->ui->tableQueryForm($this->queryFormId, $queryData['fields']);
         $this->cl(Content::class)->showHtml($content);
-
-        return $this->response;
     }
 
     /**
@@ -59,9 +55,9 @@ class Query extends CallableDbClass
      * @param array  $options     The query options
      * @param bool $addNew        Add a new entry after saving the current one.
      *
-     * @return Response
+     * @return void
      */
-    public function execInsert(array $options, bool $addNew): Response
+    public function execInsert(array $options, bool $addNew)
     {
         $table = $this->bag('dbadmin')->get('db.table');
         $results = $this->db->insertItem($table, $options);
@@ -70,13 +66,11 @@ class Query extends CallableDbClass
         if(($results['error']))
         {
             $this->response->dialog->error($results['error'], $this->lang('Error'));
-            return $this->response;
+            return;
         }
         $this->response->dialog->success($results['message'], $this->lang('Success'));
 
         $addNew ? $this->showInsert() : $this->cl(Select::class)->show();
-
-        return $this->response;
     }
 
     /**
@@ -84,15 +78,13 @@ class Query extends CallableDbClass
      *
      * @databag('name' => 'dbadmin.select')
      *
-     * @return Response
+     * @return void
      */
-    public function backToSelect(): Response
+    public function backToSelect()
     {
         $select = $this->cl(Select::class);
         $select->show(false);
         $select->execSelect();
-
-        return $this->response;
     }
 
     /**
@@ -102,9 +94,9 @@ class Query extends CallableDbClass
      *
      * @param array  $rowIds        The row identifiers
      *
-     * @return Response
+     * @return void
      */
-    public function showUpdate(array $rowIds): Response
+    public function showUpdate(array $rowIds)
     {
         $table = $this->bag('dbadmin')->get('db.table');
         $queryData = $this->db->getQueryData($table, $rowIds, 'Edit item');
@@ -112,7 +104,7 @@ class Query extends CallableDbClass
         if(($queryData['error']))
         {
             $this->response->dialog->error($queryData['error'], $this->lang('Error'));
-            return $this->response;
+            return;
         }
         // Make data available to views
         $this->view()->shareValues($queryData);
@@ -128,8 +120,6 @@ class Query extends CallableDbClass
 
         $content = $this->ui->tableQueryForm($this->queryFormId, $queryData['fields']);
         $this->cl(Content::class)->showHtml($content);
-
-        return $this->response;
     }
 
     /**
@@ -141,9 +131,9 @@ class Query extends CallableDbClass
      * @param array  $rowIds        The row selector
      * @param array  $options       The query options
      *
-     * @return Response
+     * @return void
      */
-    public function execUpdate(array $rowIds, array $options): Response
+    public function execUpdate(array $rowIds, array $options)
     {
         $options['where'] = $rowIds['where'];
         $options['null'] = $rowIds['null'];
@@ -155,12 +145,10 @@ class Query extends CallableDbClass
         if(($results['error']))
         {
             $this->response->dialog->error($results['error'], $this->lang('Error'));
-            return $this->response;
+            return;
         }
         $this->response->dialog->success($results['message'], $this->lang('Success'));
         $this->backToSelect();
-
-        return $this->response;
     }
 
     /**
@@ -171,9 +159,9 @@ class Query extends CallableDbClass
      *
      * @param array  $rowIds        The row identifiers
      *
-     * @return Response
+     * @return void
      */
-    public function execDelete(array $rowIds): Response
+    public function execDelete(array $rowIds)
     {
         $table = $this->bag('dbadmin')->get('db.table');
         $results = $this->db->deleteItem($table, $rowIds);
@@ -182,11 +170,9 @@ class Query extends CallableDbClass
         if(($results['error']))
         {
             $this->response->dialog->error($results['error'], $this->lang('Error'));
-            return $this->response;
+            return;
         }
         $this->response->dialog->success($results['message'], $this->lang('Success'));
         $this->rq(Select::class)->execSelect();
-
-        return $this->response;
     }
 }

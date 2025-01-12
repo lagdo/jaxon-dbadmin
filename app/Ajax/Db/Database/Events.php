@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 class Events extends Component
@@ -13,15 +12,13 @@ class Events extends Component
      * @after('call' => 'showBreadcrumbs')
      * @after('call' => 'selectMenuItem', 'with' => ['.menu-action-event', 'adminer-database-menu'])
      *
-     * @return Response
+     * @return void
      */
-    public function update(): Response
+    public function update()
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->dbEvents();
 
         $this->showSection($this->db->getEvents());
-
-        return $this->response;
     }
 }
