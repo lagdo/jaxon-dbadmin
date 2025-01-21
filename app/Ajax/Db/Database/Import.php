@@ -20,8 +20,6 @@ class Import extends Component
     /**
      * Show the import form for a database
      *
-     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-import', 'adminer-database-actions'])
-     *
      * @return Response
      */
     public function database(): Response

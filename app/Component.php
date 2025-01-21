@@ -110,22 +110,6 @@ abstract class Component extends JaxonComponent
     }
 
     /**
-     * Select a menu item
-     *
-     * @param string $menuId      The selected menu id
-     * @param string $wrapperId   The menu item wrapper id
-     *
-     * return void
-     */
-    protected function selectMenuItem(string $menuId, string $wrapperId)
-    {
-        $this->response->jq('.adminer-menu-item', '#' . $this->package->getServerActionsId())->removeClass('active');
-        $this->response->jq('.adminer-menu-item', '#' . $this->package->getDbActionsId())->removeClass('active');
-        $this->response->jq('.adminer-menu-item', '#' . $this->package->getDbMenuId())->removeClass('active');
-        $this->response->jq($menuId, '#' . $wrapperId)->addClass('active');
-    }
-
-    /**
      * Print the executed queries in the debug console
      *
      * @return void

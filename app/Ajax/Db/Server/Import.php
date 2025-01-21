@@ -20,8 +20,6 @@ class Import extends Component
     /**
      * Show the import form for a server
      *
-     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-import', 'adminer-server-actions'])
-     *
      * @return Response
      */
     public function server(): Response

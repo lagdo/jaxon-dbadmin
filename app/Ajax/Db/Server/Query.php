@@ -20,8 +20,6 @@ class Query extends Component
     /**
      * Show the SQL query form for a server
      *
-     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-command', 'adminer-server-actions'])
-     *
      * @param string $query       The SQL query to display
      *
      * @return Response

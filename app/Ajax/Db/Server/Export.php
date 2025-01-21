@@ -20,8 +20,6 @@ class Export extends Component
     /**
      * Show the export form for a server
      *
-     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-server-export', 'adminer-server-actions'])
-     *
      * @return Response
      */
     public function server(): Response

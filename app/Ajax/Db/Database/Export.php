@@ -20,8 +20,6 @@ class Export extends Component
     /**
      * Show the export form for a database
      *
-     * @after('call' => 'selectMenuItem', 'with' => ['#adminer-menu-action-database-export', 'adminer-database-actions'])
-     *
      * @return Response
      */
     public function database(): Response
