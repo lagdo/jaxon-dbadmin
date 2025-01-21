@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
@@ -23,14 +22,14 @@ class Table extends Component
      *
      * @param string $table       The table name
      *
-     * @return Response
+     * @return void
      */
-    public function table(string $table): Response
+    public function table(string $table)
     {
         // Save the table name in the databag.
         $this->bag('dbadmin')->set('db.table.name', $table);
 
-        return $this->render();
+        $this->render();
     }
 
     /**

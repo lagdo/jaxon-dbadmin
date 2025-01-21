@@ -7,7 +7,8 @@ use function Jaxon\jaxon;
 return [
     'metadata' => 'annotations',
     'directories' => [
-        __DIR__ . '/../app/Ajax' => [
+        [
+            'path' => __DIR__ . '/../app/Ajax',
             'namespace' => 'Lagdo\\DbAdmin\\App\\Ajax',
             'autoload' => false,
         ],

@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
@@ -26,7 +25,7 @@ class Create extends Component
     {
         $this->bag('dbadmin')->set('db.table.name', '');
         $this->bag('dbadmin.table')->set('fields', []);
-        $this->cache()->set('table.fields', []);
+        $this->stash()->set('table.fields', []);
     }
 
     /**
@@ -61,7 +60,7 @@ class Create extends Component
      *
      * @param array  $values      The table values
      *
-     * @return Response
+     * @return void
      */
     public function save(array $values)
     {
@@ -72,11 +71,10 @@ class Create extends Component
         // if(!$result['success'])
         // {
         //     $this->response->dialog->error($result['error']);
-        //     return $this->response;
+        //     return;
         // }
 
         // $this->show($values['name']);
         // $this->response->dialog->success($result['message']);
-        return $this->response;
     }
 }

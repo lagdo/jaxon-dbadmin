@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\View;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
@@ -24,9 +23,9 @@ class Views extends Component
     /**
      * Show the views of a given database
      *
-     * @return Response
+     * @return void
      */
-    public function refresh(): Response
+    public function refresh()
     {
         $viewsInfo = $this->db->getViews();
 
@@ -48,7 +47,5 @@ class Views extends Component
 
         // Set onclick handlers on view checkbox
         $this->response->js('jaxon.dbadmin')->selectTableCheckboxes($checkbox);
-
-        return $this->response;
     }
 }

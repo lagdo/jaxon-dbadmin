@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Command\QueryTrait;
 
 class Query extends Component
@@ -22,12 +21,12 @@ class Query extends Component
      *
      * @param string $query       The SQL query to display
      *
-     * @return Response
+     * @return void
      */
-    public function database(string $query = ''): Response
+    public function database(string $query = '')
     {
         [, $this->database] = $this->bag('dbadmin')->get('db');
         $this->query = $query;
-        return $this->render();
+        $this->render();
     }
 }

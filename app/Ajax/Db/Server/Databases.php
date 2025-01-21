@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Database\Database;
 use Lagdo\DbAdmin\App\Ajax\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Menu\Database\Schemas as MenuSchemas;
@@ -42,9 +41,9 @@ class Databases extends Component
     /**
      * Show the databases of a server
      *
-     * @return Response
+     * @return void
      */
-    public function refresh(): Response
+    public function refresh()
     {
         // Access to servers is forbidden. Show the first database.
         $this->pageContent = $this->db->getDatabases();
@@ -78,7 +77,5 @@ class Databases extends Component
         // Set onclick handlers on table checkbox
         $checkbox = 'database';
         $this->response->js('jaxon.dbadmin')->selectTableCheckboxes($checkbox);
-
-        return $this->response;
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Command;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function compact;
@@ -65,11 +64,10 @@ trait ImportTrait
      *
      * @param string $database    The database name
      *
-     * @return Response
+     * @return void
      */
-    public function executeWebFile(string $database): Response
+    public function executeWebFile(string $database)
     {
-        return $this->response;
     }
 
     /**
@@ -80,9 +78,9 @@ trait ImportTrait
      * @param string $database    The database name
      * @param array $formValues
      *
-     * @return Response
+     * @return void
      */
-    public function executeSqlFiles(string $database, array $formValues): Response
+    public function executeSqlFiles(string $database, array $formValues)
     {
         // Set the current database, but do not update the databag.
         $this->db->setCurrentDbName($database);
@@ -95,15 +93,13 @@ trait ImportTrait
 
         if(!$files)
         {
-            $this->response->dialog->error('No file uploaded!', 'Error');
-            return $this->response;
+            $this->alert()->title('Error')->error('No file uploaded!');
+            return;
         }
 
         $queryResults = $this->db->executeSqlFiles($files, $errorStops, $onlyErrors);
 
         $content = $this->ui->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
-
-        return $this->response;
     }
 }

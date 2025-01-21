@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dml;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
@@ -33,7 +32,7 @@ class ItemInsert extends Component
         if(($queryData['error']))
         {
             $this->response->dialog->error($queryData['error'], $this->lang('Error'));
-            return $this->response;
+            return;
         }
         // Make data available to views
         $this->view()->shareValues($queryData);
@@ -43,8 +42,6 @@ class ItemInsert extends Component
 
         $content = $this->ui->tableQueryForm($this->queryFormId, $queryData['fields']);
         $this->cl(Content::class)->showHtml($content);
-
-        return $this->response;
     }
 
     /**
@@ -55,9 +52,9 @@ class ItemInsert extends Component
      * @param array  $options     The query options
      * @param bool $addNew        Add a new entry after saving the current one.
      *
-     * @return Response
+     * @return void
      */
-    public function execInsert(array $options, bool $addNew): Response
+    public function execInsert(array $options, bool $addNew)
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
         $results = $this->db->insertItem($table, $options);
@@ -66,12 +63,10 @@ class ItemInsert extends Component
         if(($results['error']))
         {
             $this->response->dialog->error($results['error'], $this->lang('Error'));
-            return $this->response;
+            return;
         }
         $this->response->dialog->success($results['message'], $this->lang('Success'));
 
         // $addNew ? $this->render() : $this->cl(Select::class)->show();
-
-        return $this->response;
     }
 }

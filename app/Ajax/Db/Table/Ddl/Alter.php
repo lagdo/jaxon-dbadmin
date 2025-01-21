@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
@@ -39,7 +38,7 @@ class Alter extends Component
         $this->view()->shareValues($tableData);
         // Save the fields in the databag
         $fields = array_values($tableData['fields']);
-        $this->cache()->set('table.fields', $fields);
+        $this->stash()->set('table.fields', $fields);
         $this->bag('dbadmin.table')->set('fields', $fields);
 
         // Set main menu buttons
@@ -74,7 +73,7 @@ class Alter extends Component
     /**
      * @param array  $values      The table values
      *
-     * @return Response
+     * @return void
      */
     public function save(string $table, array $values)
     {
@@ -86,11 +85,10 @@ class Alter extends Component
         // if(!$result['success'])
         // {
         //     $this->response->dialog->error($result['error']);
-        //     return $this->response;
+        //     return;
         // }
 
         // $this->cl(Table::class)->render();
         // $this->response->dialog->success($result['message']);
-        return $this->response;
     }
 }

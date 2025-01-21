@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Command\ImportTrait;
 
 class Import extends Component
@@ -20,11 +19,11 @@ class Import extends Component
     /**
      * Show the import form for a database
      *
-     * @return Response
+     * @return void
      */
-    public function database(): Response
+    public function database()
     {
         [, $this->database] = $this->bag('dbadmin')->get('db');
-        return $this->render();
+        $this->render();
     }
 }

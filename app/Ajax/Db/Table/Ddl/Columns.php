@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
@@ -42,7 +41,7 @@ class Columns extends Component
     public function html(): string
     {
         return $this->ui
-            ->fields($this->cache()->get('table.fields'))
+            ->fields($this->stash()->get('table.fields'))
             ->tableColumns($this->formId);
     }
 
@@ -51,9 +50,9 @@ class Columns extends Component
      *
      * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
      *
-     * @return Response
+     * @return void
      */
-    public function add(int $target = -1): Response
+    public function add(int $target = -1)
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
         $tableData = $this->db->getTableData($table);
@@ -71,12 +70,12 @@ class Columns extends Component
         }, $fields);
         // Append a new empty field entry
         $fields[] = $this->db->getTableField();
-        $this->cache()->set('table.fields', $fields);
+        $this->stash()->set('table.fields', $fields);
         $this->bag('dbadmin.table')->set('fields', $fields);
 
-        return $this->render();
+        $this->render();
     }
-    // public function add(int $target = -1): Response
+    // public function add(int $target = -1)
     // {
     //     // Todo: Save columns data in a databag, and get the 'length' value from there.
     //     $length = jq(".{$this->formId}-column", "#adminer-database-content")->length;
@@ -122,8 +121,6 @@ class Columns extends Component
     //     // $this->response->jq('.adminer-table-column-add', "#$columnId")->click($this->rq()->add($length, $index));
     //     // $this->response->jq('.adminer-table-column-del', "#$columnId")->click($this->rq()->del($length, $index)
     //     //     ->confirm('Delete this column?'));
-
-    //     return $this->response;
     // }
 
     /**
@@ -184,9 +181,9 @@ class Columns extends Component
      * @param int    $length      The number of columns in the table
      * @param int    $index       The column index
      *
-     * @return Response
+     * @return void
      */
-    public function del(int $length, int $index): Response
+    public function del(int $length, int $index)
     {
         $columnId = sprintf('%s-column-%02d', $this->formId, $index);
 
@@ -203,8 +200,6 @@ class Columns extends Component
         //     $this->response->jq('.adminer-table-column-buttons', "#$nextId")->attr('data-index', $id);
         //     $this->response->jq('[data-field]', "#$nextId")->trigger('jaxon.dbadmin.renamed');
         // }
-
-        return $this->response;
     }
 
     /**
@@ -212,9 +207,9 @@ class Columns extends Component
      *
      * @param int    $index       The column index
      *
-     * @return Response
+     * @return void
      */
-    public function setForDelete(int $index): Response
+    public function setForDelete(int $index)
     {
         // $columnId = sprintf('%s-column-%02d', $this->formId, $index);
 
@@ -230,8 +225,6 @@ class Columns extends Component
         // // $this->response->jq('.adminer-table-column-del>span', "#$columnId")
         // //     ->removeClass('glyphicon-remove')
         // //     ->addClass('glyphicon-trash');
-
-        return $this->response;
     }
 
     /**
@@ -239,9 +232,9 @@ class Columns extends Component
      *
      * @param int    $index       The column index
      *
-     * @return Response
+     * @return void
      */
-    public function cancelDelete(int $index): Response
+    public function cancelDelete(int $index)
     {
         // $columnId = sprintf('%s-column-%02d', $this->formId, $index);
         // $columnName = sprintf('fields[%d][field]', $index + 1);
@@ -258,7 +251,5 @@ class Columns extends Component
         // // $this->response->jq('.adminer-table-column-del>span', "#$columnId")
         // //     ->removeClass('glyphicon-trash')
         // //     ->addClass('glyphicon-remove');
-
-        return $this->response;
     }
 }

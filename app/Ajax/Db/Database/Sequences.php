@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 class Sequences extends Component
@@ -20,12 +19,10 @@ class Sequences extends Component
     /**
      * Show the sequences of a given database
      *
-     * @return Response
+     * @return void
      */
-    public function refresh(): Response
+    public function refresh()
     {
         $this->showSection($this->db->getSequences());
-
-        return $this->response;
     }
 }

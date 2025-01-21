@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Db\Server\Databases;
 use Lagdo\DbAdmin\App\Ajax\Menu\Sections as MenuSections;
@@ -25,9 +24,9 @@ class Database extends CallableDbClass
      * @param string $database    The database name
      * @param string $schema      The database schema
      *
-     * @return Response
+     * @return void
      */
-    public function select(string $database, string $schema = ''): Response
+    public function select(string $database, string $schema = '')
     {
         [$server,] = $this->bag('dbadmin')->get('db');
         // Set the selected server
@@ -58,16 +57,14 @@ class Database extends CallableDbClass
 
         // Show the database tables
         $this->cl(Tables::class)->refresh();
-
-        return $this->response;
     }
 
     /**
      * Show the  create database dialog
      *
-     * @return Response
+     * @return void
      */
-    public function add(): Response
+    public function add()
     {
         $collations = $this->db->getCollations();
 
@@ -83,8 +80,7 @@ class Database extends CallableDbClass
             'class' => 'btn btn-primary',
             'click' => $this->rq()->create(pm()->form($formId)),
         ]];
-        $this->response->dialog->show($title, $content, $buttons);
-        return $this->response;
+        $this->modal()->show($title, $content, $buttons);
     }
 
     /**
@@ -92,24 +88,22 @@ class Database extends CallableDbClass
      *
      * @param array $formValues  The form values
      *
-     * @return Response
+     * @return void
      */
-    public function create(array $formValues): Response
+    public function create(array $formValues)
     {
         $database = $formValues['name'];
         $collation = $formValues['collation'];
 
         if(!$this->db->createDatabase($database, $collation))
         {
-            $this->response->dialog->error("Cannot create database $database.");
-            return $this->response;
+            $this->alert()->error("Cannot create database $database.");
+            return;
         }
         $this->cl(Databases::class)->refresh();
 
-        $this->response->dialog->hide();
-        $this->response->dialog->info("Database $database created.");
-
-        return $this->response;
+        $this->modal()->hide();
+        $this->alert()->info("Database $database created.");
     }
 
     /**
@@ -117,19 +111,18 @@ class Database extends CallableDbClass
      *
      * @param string $database    The database name
      *
-     * @return Response
+     * @return void
      */
-    public function drop(string $database): Response
+    public function drop(string $database)
     {
         if(!$this->db->dropDatabase($database))
         {
-            $this->response->dialog->error("Cannot delete database $database.");
-            return $this->response;
+            $this->alert()->error("Cannot delete database $database.");
+            return;
         }
 
         $this->cl(Databases::class)->refresh();
 
-        $this->response->dialog->info("Database $database deleted.");
-        return $this->response;
+        $this->alert()->info("Database $database deleted.");
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 class UserTypes extends Component
@@ -20,12 +19,10 @@ class UserTypes extends Component
     /**
      * Show the user types of a given database
      *
-     * @return Response
+     * @return void
      */
-    public function showUserTypes(): Response
+    public function showUserTypes()
     {
         $this->showSection($this->db->getUserTypes());
-
-        return $this->response;
     }
 }

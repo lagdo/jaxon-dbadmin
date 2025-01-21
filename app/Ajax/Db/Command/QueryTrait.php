@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Command;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\js;
@@ -73,9 +72,9 @@ trait QueryTrait
      *
      * @param array $formValues
      *
-     * @return Response
+     * @return void
      */
-    public function execute(array $formValues): Response
+    public function execute(array $formValues)
     {
         $query = \trim($formValues['query'] ?? '');
         $limit = \intval($formValues['limit'] ?? 0);
@@ -84,15 +83,13 @@ trait QueryTrait
 
         if(!$query)
         {
-            $this->response->dialog->error('The query string is empty!', 'Error');
-            return $this->response;
+            $this->alert()->title('Error')->error('The query string is empty!');
+            return;
         }
 
         $queryResults = $this->db->executeCommands($query, $limit, $errorStops, $onlyErrors);
 
         $content = $this->ui->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
-
-        return $this->response;
     }
 }

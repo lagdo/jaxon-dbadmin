@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dml;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
@@ -37,9 +36,9 @@ class ItemUpdate extends Component
      *
      * @param array  $rowIds        The row identifiers
      *
-     * @return Response
+     * @return void
      */
-    public function showUpdate(array $rowIds): Response
+    public function showUpdate(array $rowIds)
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
         $queryData = $this->db->getQueryData($table, $rowIds, 'Edit item');
@@ -47,7 +46,7 @@ class ItemUpdate extends Component
         if(($queryData['error']))
         {
             $this->response->dialog->error($queryData['error'], $this->lang('Error'));
-            return $this->response;
+            return;
         }
         // Make data available to views
         $this->view()->shareValues($queryData);
@@ -63,8 +62,6 @@ class ItemUpdate extends Component
 
         $content = $this->ui->tableQueryForm($this->queryFormId, $queryData['fields']);
         $this->cl(Content::class)->showHtml($content);
-
-        return $this->response;
     }
 
     /**
@@ -72,15 +69,13 @@ class ItemUpdate extends Component
      *
      * @databag('name' => 'dbadmin.select')
      *
-     * @return Response
+     * @return void
      */
-    public function backToSelect(): Response
+    public function backToSelect()
     {
         // $select = $this->cl(Select::class);
         // $select->show(false);
         // $select->execSelect();
-
-        return $this->response;
     }
 
     /**
@@ -92,9 +87,9 @@ class ItemUpdate extends Component
      * @param array  $rowIds        The row selector
      * @param array  $options       The query options
      *
-     * @return Response
+     * @return void
      */
-    public function execUpdate(array $rowIds, array $options): Response
+    public function execUpdate(array $rowIds, array $options)
     {
         $options['where'] = $rowIds['where'];
         $options['null'] = $rowIds['null'];
@@ -106,11 +101,9 @@ class ItemUpdate extends Component
         if(($results['error']))
         {
             $this->response->dialog->error($results['error'], $this->lang('Error'));
-            return $this->response;
+            return;
         }
         $this->response->dialog->success($results['message'], $this->lang('Success'));
         $this->backToSelect();
-
-        return $this->response;
     }
 }

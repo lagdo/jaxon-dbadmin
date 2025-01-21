@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dql;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Command;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
@@ -86,10 +85,10 @@ class Table extends CallableDbClass
      *
      * @param bool   $init
      *
-     * @return Response
+     * @return void
      * @throws Exception
      */
-    public function table(bool $init = true): Response
+    public function table(bool $init = true)
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
         $selectData = $this->db->getSelectData($table);
@@ -141,8 +140,6 @@ class Table extends CallableDbClass
         $options = pm()->form($this->formOptionsId);
         $this->response->jq("#$btnLimitId")->click($this->rq()->setQueryOptions($options));
         $this->response->jq("#$btnLengthId")->click($this->rq()->setQueryOptions($options));
-
-        return $this->response;
     }
 
     /**
@@ -152,10 +149,10 @@ class Table extends CallableDbClass
      *
      * @param integer $page The page number
      *
-     * @return Response
+     * @return void
      * @throws Exception
      */
-    public function execSelect(int $page = 0): Response
+    public function execSelect(int $page = 0)
     {
         // Select options
         $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
@@ -173,7 +170,7 @@ class Table extends CallableDbClass
         if(($results['message']))
         {
             $this->response->html($resultsId, $results['message']);
-            return $this->response;
+            return;
         }
         // Make data available to views
         $this->view()->shareValues($results);
@@ -215,8 +212,6 @@ class Table extends CallableDbClass
         $pages = $this->rq()->execSelect(pm()->page())->pages($page, $results['limit'], $results['total']);
         $pagination = $this->ui->pagination($pages);
         $this->response->html("adminer-table-select-pagination", $pagination);
-
-        return $this->response;
     }
 
     /**
@@ -224,9 +219,9 @@ class Table extends CallableDbClass
      *
      * @param array  $formValues  The form values
      *
-     * @return Response
+     * @return void
      */
-    public function setQueryOptions(array $formValues): Response
+    public function setQueryOptions(array $formValues)
     {
         // Select options
         $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
@@ -238,16 +233,14 @@ class Table extends CallableDbClass
         $selectData = $this->db->getSelectData($table, $options);
         // Display the new query
         $this->showQuery($selectData['query']);
-
-        return $this->response;
     }
 
     /**
      * Change the query columns
      *
-     * @return Response
+     * @return void
      */
-    public function editColumns(): Response
+    public function editColumns()
     {
         // Select options
         $table = $this->bag('dbadmin')->get('db.table.name');
@@ -275,13 +268,11 @@ class Table extends CallableDbClass
             'class' => 'btn btn-primary',
             'click' => $this->rq()->saveColumns(pm()->form($this->columnsFormId)),
         ]];
-        $this->response->dialog->show($title, $content, $buttons);
+        $this->modal()->show($title, $content, $buttons);
 
         $this->response->addCommand('dbadmin.new.index.set', [
             'count' => count($selectData['options']['columns']['values']),
         ]);
-
-        return $this->response;
     }
 
     /**
@@ -289,9 +280,9 @@ class Table extends CallableDbClass
      *
      * @param array  $formValues  The form values
      *
-     * @return Response
+     * @return void
      */
-    public function saveColumns(array $formValues): Response
+    public function saveColumns(array $formValues)
     {
         // Select options
         $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
@@ -301,19 +292,17 @@ class Table extends CallableDbClass
         $table = $this->bag('dbadmin')->get('db.table.name');
         $selectData = $this->db->getSelectData($table, $options);
         // Hide the dialog
-        $this->response->dialog->hide();
+        $this->modal()->hide();
         // Display the new query
         $this->showQuery($selectData['query']);
-
-        return $this->response;
     }
 
     /**
      * Change the query filters
      *
-     * @return Response
+     * @return void
      */
-    public function editFilters(): Response
+    public function editFilters()
     {
         // Select options
         $table = $this->bag('dbadmin')->get('db.table.name');
@@ -341,13 +330,11 @@ class Table extends CallableDbClass
             'class' => 'btn btn-primary',
             'click' => $this->rq()->saveFilters(pm()->form($this->filtersFormId)),
         ]];
-        $this->response->dialog->show($title, $content, $buttons);
+        $this->modal()->show($title, $content, $buttons);
 
         $this->response->addCommand('dbadmin.new.index.set', [
             'count' => count($selectData['options']['filters']['values']),
         ]);
-
-        return $this->response;
     }
 
     /**
@@ -355,9 +342,9 @@ class Table extends CallableDbClass
      *
      * @param array  $formValues  The form values
      *
-     * @return Response
+     * @return void
      */
-    public function saveFilters(array $formValues): Response
+    public function saveFilters(array $formValues)
     {
         // Select options
         $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
@@ -367,19 +354,17 @@ class Table extends CallableDbClass
         $table = $this->bag('dbadmin')->get('db.table.name');
         $selectData = $this->db->getSelectData($table, $options);
         // Hide the dialog
-        $this->response->dialog->hide();
+        $this->modal()->hide();
         // Display the new query
         $this->showQuery($selectData['query']);
-
-        return $this->response;
     }
 
     /**
      * Change the query sorting
      *
-     * @return Response
+     * @return void
      */
-    public function editSorting(): Response
+    public function editSorting()
     {
         // Select options
         $table = $this->bag('dbadmin')->get('db.table.name');
@@ -407,13 +392,11 @@ class Table extends CallableDbClass
             'class' => 'btn btn-primary',
             'click' => $this->rq()->saveSorting(pm()->form($this->sortingFormId)),
         ]];
-        $this->response->dialog->show($title, $content, $buttons);
+        $this->modal()->show($title, $content, $buttons);
 
         $this->response->addCommand('dbadmin.new.index.set', [
             'count' => count($selectData['options']['sorting']['values']),
         ]);
-
-        return $this->response;
     }
 
     /**
@@ -421,9 +404,9 @@ class Table extends CallableDbClass
      *
      * @param array  $formValues  The form values
      *
-     * @return Response
+     * @return void
      */
-    public function saveSorting(array $formValues): Response
+    public function saveSorting(array $formValues)
     {
         // Select options
         $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
@@ -434,10 +417,8 @@ class Table extends CallableDbClass
         $table = $this->bag('dbadmin')->get('db.table.name');
         $selectData = $this->db->getSelectData($table, $options);
         // Hide the dialog
-        $this->response->dialog->hide();
+        $this->modal()->hide();
         // Display the new query
         $this->showQuery($selectData['query']);
-
-        return $this->response;
     }
 }

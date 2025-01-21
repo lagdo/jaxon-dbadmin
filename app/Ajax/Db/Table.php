@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db;
 
-use Jaxon\Response\Response;
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Column;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Select;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
@@ -11,7 +9,6 @@ use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function array_merge;
 use function is_array;
-use function Jaxon\jq;
 
 class Table extends CallableDbClass
 {
@@ -55,14 +52,14 @@ class Table extends CallableDbClass
      *
      * @param string $table       The table name
      *
-     * @return Response
+     * @return void
      */
-    public function select(string $table): Response
+    public function select(string $table)
     {
         // Save the table name in tha databag and show the select page.
         $this->bag('dbadmin')->set('db.table', $table);
 
-        return $this->cl(Select::class)->render();
+        $this->cl(Select::class)->render();
     }
 
     /**
@@ -72,9 +69,9 @@ class Table extends CallableDbClass
      *
      * @param string $table       The table name
      *
-     * @return Response
+     * @return void
      */
-    public function show(string $table): Response
+    public function show(string $table)
     {
         // Save the table name in tha databag.
         $this->bag('dbadmin')->set('db.table', $table);
@@ -111,8 +108,6 @@ class Table extends CallableDbClass
         {
             $this->showTab($tableInfo, $triggersInfo, 'tab-content-triggers');
         }
-
-        return $this->response;
     }
 
     /**
@@ -120,9 +115,9 @@ class Table extends CallableDbClass
      *
      * @after showBreadcrumbs
      *
-     * @return Response
+     * @return void
      */
-    public function add(): Response
+    public function add()
     {
         $tableData = $this->db->getTableData();
         // Make data available to views
@@ -137,8 +132,6 @@ class Table extends CallableDbClass
             ->collations($tableData['collations'])
             ->tableForm($this->formId);
         $this->cl(Content::class)->showHtml($content);
-
-        return $this->response;
     }
 
     /**
@@ -146,7 +139,7 @@ class Table extends CallableDbClass
      *
      * @param array  $values      The table values
      *
-     * @return Response
+     * @return void
      */
     public function create(array $values)
     {
@@ -155,13 +148,12 @@ class Table extends CallableDbClass
         $result = $this->db->createTable($values);
         if(!$result['success'])
         {
-            $this->response->dialog->error($result['error']);
-            return $this->response;
+            $this->alert()->error($result['error']);
+            return;
         }
 
         $this->show($values['name']);
-        $this->response->dialog->success($result['message']);
-        return $this->response;
+        $this->alert()->success($result['message']);
     }
 
     /**
@@ -171,9 +163,9 @@ class Table extends CallableDbClass
      *
      * @param string $table       The table name
      *
-     * @return Response
+     * @return void
      */
-    public function edit(string $table): Response
+    public function edit(string $table)
     {
         $tableData = $this->db->getTableData($table);
         // Make data available to views
@@ -199,8 +191,6 @@ class Table extends CallableDbClass
             ->fields($tableData['fields'])
             ->tableForm($this->formId);
         $this->cl(Content::class)->showHtml($content);
-
-        return $this->response;
     }
 
     /**
@@ -209,7 +199,7 @@ class Table extends CallableDbClass
      * @param string $table       The table name
      * @param array  $values      The table values
      *
-     * @return Response
+     * @return void
      */
     public function alter(string $table, array $values)
     {
@@ -218,13 +208,12 @@ class Table extends CallableDbClass
         $result = $this->db->alterTable($table, $values);
         if(!$result['success'])
         {
-            $this->response->dialog->error($result['error']);
-            return $this->response;
+            $this->alert()->error($result['error']);
+            return;
         }
 
         $this->show($values['name']);
-        $this->response->dialog->success($result['message']);
-        return $this->response;
+        $this->alert()->success($result['message']);
     }
 
     /**
@@ -232,19 +221,18 @@ class Table extends CallableDbClass
      *
      * @param string $table       The table name
      *
-     * @return Response
+     * @return void
      */
-    public function drop(string $table): Response
+    public function drop(string $table)
     {
         $result = $this->db->dropTable($table);
         if(!$result['success'])
         {
-            $this->response->dialog->error($result['error']);
-            return $this->response;
+            $this->alert()->error($result['error']);
+            return;
         }
 
         $this->cl(Database::class)->showTables();
-        $this->response->dialog->success($result['message']);
-        return $this->response;
+        $this->alert()->success($result['message']);
     }
 }

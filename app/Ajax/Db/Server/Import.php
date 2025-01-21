@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Command\ImportTrait;
 
 class Import extends Component
@@ -20,10 +19,10 @@ class Import extends Component
     /**
      * Show the import form for a server
      *
-     * @return Response
+     * @return void
      */
-    public function server(): Response
+    public function server()
     {
-        return $this->render();
+        $this->render();
     }
 }

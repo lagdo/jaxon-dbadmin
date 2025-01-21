@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl\Table as DdlTable;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Table as DqlTable;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
@@ -31,9 +30,9 @@ class Tables extends Component
     /**
      * Show the tables of a given database
      *
-     * @return Response
+     * @return void
      */
-    public function refresh(): Response
+    public function refresh()
     {
         $tablesInfo = $this->db->getTables();
 
@@ -62,7 +61,5 @@ class Tables extends Component
         $this->showSection($tablesInfo, 'table');
         // Set onclick handlers on table checkbox
         $this->response->js('jaxon.dbadmin')->selectTableCheckboxes('table');
-
-        return $this->response;
     }
 }

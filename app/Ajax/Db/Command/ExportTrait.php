@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Command;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\pm;
@@ -82,9 +81,9 @@ trait ExportTrait
      * @param array  $tables        The tables to dump
      * @param array  $formValues
      *
-     * @return Response
+     * @return void
      */
-    protected function export(array $databases, array $tables, array $formValues): Response
+    protected function export(array $databases, array $tables, array $formValues)
     {
         // Convert checkbox values to boolean
         $formValues['routines'] = isset($formValues['routines']);
@@ -96,8 +95,8 @@ trait ExportTrait
         if(\is_string($results))
         {
             // Error
-            $this->response->dialog->error($results, 'Error');
-            return $this->response;
+            $this->alert()->title('Error')->error($results);
+            return;
         }
 
         $content = $this->view()->render('adminer::views::sql/dump', $results);
@@ -110,22 +109,21 @@ trait ExportTrait
             $content = \gzencode($content);
             if(!$content)
             {
-                $this->response->dialog->error('Unable to gzip dump.', 'Error');
-                return $this->response;
+                $this->alert()->title('Error')->error('Unable to gzip dump.');
+                return;
             }
         }
         $name = '/' . \uniqid() . $extension;
         $path = \rtrim($this->package->getOption('export.dir'), '/') . $name;
         if(!@\file_put_contents($path, $content))
         {
-            $this->response->dialog->error('Unable to write dump to file.', 'Error');
-            return $this->response;
+            $this->alert()->title('Error')->error('Unable to write dump to file.');
+            return;
         }
 
         $link = \rtrim($this->package->getOption('export.url'), '/') . $name;
         // $this->response->script("window.open('$link', '_blank').focus()");
         $this->response->addCommand('dbadmin.window.open', ['link' => $link]);
-        return $this->response;
     }
 
     /**
@@ -133,9 +131,9 @@ trait ExportTrait
      *
      * @param array $formValues
      *
-     * @return Response
+     * @return void
      */
-    public function exportSet(array $formValues): Response
+    public function exportSet(array $formValues)
     {
         $databases = [
             'list' => $formValues['database_list'] ?? [],
@@ -146,7 +144,7 @@ trait ExportTrait
             'data' => [],
         ];
 
-        return $this->export($databases, $tables, $formValues);
+        $this->export($databases, $tables, $formValues);
     }
 
     /**
@@ -155,9 +153,9 @@ trait ExportTrait
      * @param string $database    The database name
      * @param array $formValues
      *
-     * @return Response
+     * @return void
      */
-    public function exportOne(string $database, array $formValues): Response
+    public function exportOne(string $database, array $formValues)
     {
         $databases = [
             'list' => [$database],
@@ -168,6 +166,6 @@ trait ExportTrait
             'data' => $formValues['table_data'] ?? [],
         ];
 
-        return $this->export($databases, $tables, $formValues);
+        $this->export($databases, $tables, $formValues);
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 class Variables extends Component
@@ -33,12 +32,12 @@ class Variables extends Component
     /**
      * Show the variables of a server
      *
-     * @return Response
+     * @return void
      */
-    public function refresh(): Response
+    public function refresh()
     {
         $this->pageContent = $this->db->getVariables();
 
-        return $this->render();
+        $this->render();
     }
 }

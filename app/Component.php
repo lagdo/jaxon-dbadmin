@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App;
 
 use Jaxon\App\Component as JaxonComponent;
+use Jaxon\App\Dialog\DialogTrait;
 use Jaxon\App\View\Store;
 use Lagdo\DbAdmin\App\Ajax\Menu\Sections;
 use Lagdo\DbAdmin\App\Ajax\Menu\Database\Command as DatabaseCommand;
@@ -21,6 +22,8 @@ use function func_get_args;
  */
 abstract class Component extends JaxonComponent
 {
+    use DialogTrait;
+
     /**
      * The Jaxon DbAdmin package
      *

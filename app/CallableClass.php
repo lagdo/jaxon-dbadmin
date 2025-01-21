@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App;
 
 use Jaxon\App\CallableClass as JaxonCallableClass;
+use Jaxon\App\Dialog\DialogTrait;
 use Jaxon\App\View\Store;
 use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Db\DbFacade;
@@ -20,6 +21,8 @@ use function func_get_args;
  */
 class CallableClass extends JaxonCallableClass
 {
+    use DialogTrait;
+
     /**
      * The Jaxon DbAdmin package
      *

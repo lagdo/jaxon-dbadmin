@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
-use Jaxon\Response\Response;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function array_map;
@@ -36,9 +35,9 @@ class Privileges extends Component
     /**
      * Show the privileges of a server
      *
-     * @return Response
+     * @return void
      */
-    public function refresh(): Response
+    public function refresh()
     {
         $this->pageContent = $this->db->getPrivileges();
 
@@ -62,7 +61,5 @@ class Privileges extends Component
         }, $this->pageContent['details']);
 
         $this->render();
-
-        return $this->response;
     }
 }
