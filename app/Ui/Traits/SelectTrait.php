@@ -2,10 +2,12 @@
 
 namespace Lagdo\DbAdmin\App\Ui\Traits;
 
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Options;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function array_shift;
+use function Jaxon\rq;
 
 trait SelectTrait
 {
@@ -324,52 +326,65 @@ trait SelectTrait
     }
 
     /**
-     * @param array $ids
      * @param array $options
+     * @param array $handlers
      *
      * @return string
      */
-    public function tableSelect(array $ids, array $options): string
+    public function selectOptions(array $options, array $handlers): string
+    {
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
+            ->formCol(6)
+                ->buttonGroup(true)
+                    ->button()->btnOutline()->btnFullWidth()
+                        ->jxnClick($handlers['btnColumns'])->addText($this->trans->lang('Columns'))
+                    ->end()
+                    ->button()->btnOutline()->btnFullWidth()
+                        ->jxnClick($handlers['btnFilters'])->addText($this->trans->lang('Filters'))
+                    ->end()
+                    ->button()->btnOutline()->btnFullWidth()
+                        ->jxnClick($handlers['btnSorting'])->addText($this->trans->lang('Order'))
+                    ->end()
+                ->end()
+            ->end()
+            ->formCol(3)
+                ->inputGroup()
+                    ->text()->addText($this->trans->lang('Limit'))
+                    ->end()
+                    ->formInput()->setType('number')->setName('limit')->setValue($options['limit']['value'])
+                    ->end()
+                    ->button()->btnOutline()->jxnClick($handlers['btnLimit'])->addIcon('ok')
+                    ->end()
+                ->end()
+            ->end()
+            ->formCol(3)
+                ->inputGroup()
+                    ->text()->addText($this->trans->lang('Text length'))
+                    ->end()
+                    ->formInput()->setType('number')->setName('text_length')->setValue($options['length']['value'])
+                    ->end()
+                    ->button()->btnOutline()->jxnClick($handlers['btnLength'])->addIcon('ok')
+                    ->end()
+                ->end()
+            ->end();
+        return $htmlBuilder->build();
+    }
+
+    /**
+     * @param array $ids
+     * @param array $handlers
+     *
+     * @return string
+     */
+    public function tableSelect(array $ids, array $handlers): string
     {
         $htmlBuilder = Builder::new();
         $htmlBuilder
             ->row()
                 ->col(12)
                     ->form(true, true)->setId($ids['formId'])
-                        ->formRow()
-                            ->formCol(6)
-                                ->buttonGroup(true)
-                                    ->button()->btnOutline()->btnFullWidth()
-                                        ->setId($ids['btnColumnsId'])->addText($this->trans->lang('Columns'))
-                                    ->end()
-                                    ->button()->btnOutline()->btnFullWidth()
-                                        ->setId($ids['btnFiltersId'])->addText($this->trans->lang('Filters'))
-                                    ->end()
-                                    ->button()->btnOutline()->btnFullWidth()
-                                        ->setId($ids['btnSortingId'])->addText($this->trans->lang('Order'))
-                                    ->end()
-                                ->end()
-                            ->end()
-                            ->formCol(3)
-                                ->inputGroup()
-                                    ->text()->addText($this->trans->lang('Limit'))
-                                    ->end()
-                                    ->formInput()->setType('number')->setName('limit')->setValue($options['limit']['value'])
-                                    ->end()
-                                    ->button()->btnOutline()->setId($ids['btnLimitId'])->addIcon('ok')
-                                    ->end()
-                                ->end()
-                            ->end()
-                            ->formCol(3)
-                                ->inputGroup()
-                                    ->text()->addText($this->trans->lang('Text length'))
-                                    ->end()
-                                    ->formInput()->setType('number')->setName('text_length')->setValue($options['length']['value'])
-                                    ->end()
-                                    ->button()->btnOutline()->setId($ids['btnLengthId'])->addIcon('ok')
-                                    ->end()
-                                ->end()
-                            ->end()
+                        ->formRow()->jxnBind(rq(Options::class))
                         ->end()
                         ->formRow()
                             ->formCol(9)
@@ -379,10 +394,10 @@ trait SelectTrait
                             ->formCol(3)
                                 ->buttonGroup(true)
                                     ->button()->btnOutline()->btnFullWidth()
-                                        ->setId($ids['btnEditId'])->addText($this->trans->lang('Edit'))
+                                        ->jxnClick($handlers['btnEdit'])->addText($this->trans->lang('Edit'))
                                     ->end()
                                     ->button()->btnFullWidth()->btnPrimary()
-                                        ->setId($ids['btnExecId'])->addText($this->trans->lang('Execute'))
+                                        ->jxnClick($handlers['btnExec'])->addText($this->trans->lang('Execute'))
                                     ->end()
                                 ->end()
                             ->end()
