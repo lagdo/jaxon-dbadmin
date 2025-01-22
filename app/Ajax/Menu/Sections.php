@@ -53,32 +53,32 @@ class Sections extends MenuComponent
         {
             $this->actions['databases'] = [
                 'title' => $this->trans->lang('Databases'),
-                'handler' => rq(Databases::class)->refresh(),
+                'handler' => rq(Databases::class)->show(),
             ];
         }
         // Todo: Implement features and enable menu items.
         if ($this->db->support('privileges')) {
             $this->actions['privileges'] = [
                 'title' => $this->trans->lang('Privileges'),
-                'handler' => jw()->void(), // rq(Privileges::class)->refresh(),
+                'handler' => jw()->void(), // rq(Privileges::class)->show(),
             ];
         }
         if ($this->db->support('processlist')) {
             $this->actions['processes'] = [
                 'title' => $this->trans->lang('Process list'),
-                'handler' => jw()->void(), // rq(Processes::class)->refresh(),
+                'handler' => jw()->void(), // rq(Processes::class)->show(),
             ];
         }
         if ($this->db->support('variables')) {
             $this->actions['variables'] = [
                 'title' => $this->trans->lang('Variables'),
-                'handler' => jw()->void(), // rq(Variables::class)->refresh(),
+                'handler' => jw()->void(), // rq(Variables::class)->show(),
             ];
         }
         if ($this->db->support('status')) {
             $this->actions['status'] = [
                 'title' => $this->trans->lang('Status'),
-                'handler' => jw()->void(), // rq(Status::class)->refresh(),
+                'handler' => jw()->void(), // rq(Status::class)->show(),
             ];
         }
 
@@ -98,38 +98,38 @@ class Sections extends MenuComponent
         $this->actions = [
             'tables' => [
                 'title' => $this->trans->lang('Tables'),
-                'handler' => rq(Tables::class)->refresh(),
+                'handler' => rq(Tables::class)->show(),
             ],
         ];
         if ($this->db->support('view')) {
             $this->actions['views'] = [
                 'title' => $this->trans->lang('Views'),
-                'handler' => rq(Views::class)->refresh(),
+                'handler' => rq(Views::class)->show(),
             ];
         }
         // Todo: Implement features and enable menu items.
         if ($this->db->support('routine')) {
             $this->actions['routines'] = [
                 'title' => $this->trans->lang('Routines'),
-                'handler' => jw()->void(), // rq(Routines::class)->refresh(),
+                'handler' => jw()->void(), // rq(Routines::class)->show(),
             ];
         }
         if ($this->db->support('sequence')) {
             $this->actions['sequences'] = [
                 'title' => $this->trans->lang('Sequences'),
-                'handler' => jw()->void(), // rq(Sequences::class)->refresh(),
+                'handler' => jw()->void(), // rq(Sequences::class)->show(),
             ];
         }
         if ($this->db->support('type')) {
             $this->actions['types'] = [
                 'title' => $this->trans->lang('User types'),
-                'handler' => jw()->void(), // rq(UserTypes::class)->refresh(),
+                'handler' => jw()->void(), // rq(UserTypes::class)->show(),
             ];
         }
         if ($this->db->support('event')) {
             $this->actions['events'] = [
                 'title' => $this->trans->lang('Events'),
-                'handler' => jw()->void(), // rq(Events::class)->refresh(),
+                'handler' => jw()->void(), // rq(Events::class)->show(),
             ];
         }
 

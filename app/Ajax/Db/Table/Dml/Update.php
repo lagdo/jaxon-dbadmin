@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dml;
 
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\ContentComponent;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\pm;
@@ -11,7 +11,7 @@ use function Jaxon\pm;
  * This class provides insert and update query features on tables.
  * @after showBreadcrumbs
  */
-class Update extends Component
+class Update extends ContentComponent
 {
     /**
      * @var array
@@ -45,7 +45,7 @@ class Update extends Component
             [$this->trans->lang('Save'), $this->rq()->exec($this->rowIds, $options)
                 ->confirm($this->lang('Save this item?'))],
         ];
-        $this->cl(PageActions::class)->refresh($actions);
+        $this->cl(PageActions::class)->show($actions);
     }
 
     /**

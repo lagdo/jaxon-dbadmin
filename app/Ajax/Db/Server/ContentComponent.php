@@ -10,7 +10,7 @@ use Lagdo\DbAdmin\Db\Exception\DbException;
  * @before checkServerAccess
  * @after showBreadcrumbs
  */
-abstract class Component extends BaseComponent
+abstract class ContentComponent extends BaseComponent
 {
     /**
      * @var string

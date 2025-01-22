@@ -70,6 +70,6 @@ class Server extends CallableDbClass
             return;
         }
 
-        $this->cl(Databases::class)->refresh();
+        $this->cl(Databases::class)->show();
     }
 }

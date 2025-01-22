@@ -24,6 +24,34 @@ class View extends CallableDbClass
     }
 
     /**
+     * Print links after select heading
+     * Copied from selectLinks() in adminer.inc.php
+     *
+     * @param bool $new New item options, NULL for no new item
+     *
+     * @return array
+     */
+    // protected function getViewLinks(bool $new = false): array
+    // {
+    //     $links = [
+    //         'select' => $this->trans->lang('Select data'),
+    //     ];
+    //     if ($this->db->support('indexes')) {
+    //         $links['table'] = $this->trans->lang('Show structure');
+    //     }
+    //     if ($this->db->support('table')) {
+    //         $links['table'] = $this->trans->lang('Show structure');
+    //         $links['alter'] = $this->trans->lang('Alter view');
+    //     }
+    //     if ($new) {
+    //         $links['edit'] = $this->trans->lang('New item');
+    //     }
+    //     // $links['docs'] = \doc_link([$this->db->jush() => $this->db->tableHelp($name)], '?');
+
+    //     return $links;
+    // }
+
+    /**
      * Show detailed info of a given view
      *
      * @after showBreadcrumbs
@@ -39,7 +67,23 @@ class View extends CallableDbClass
         $this->view()->shareValues($viewInfo);
 
         // Set main menu buttons
-        $this->cl(PageActions::class)->showView($view);
+        // $actions = [
+        //     $this->trans->lang('Add trigger'),
+        // ];
+
+        // $actions = $this->getViewLinks();
+
+        $actions = [
+            'edit-view' => [
+                'title' => $this->trans->lang('Edit view'),
+                'handler' => $this->rq()->edit($view),
+            ],
+            'drop-view' => [
+                'title' => $this->trans->lang('Drop view'),
+                'handler' => $this->rq()->drop($view)->confirm("Drop view $view?"),
+            ],
+        ];
+        $this->cl(PageActions::class)->show($actions);
 
         $content = $this->ui->mainDbTable($viewInfo['tabs']);
         $this->cl(Content::class)->showHtml($content);

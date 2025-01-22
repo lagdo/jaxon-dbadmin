@@ -61,7 +61,7 @@ trait MainTrait
         foreach($mainActions as $id => $title)
         {
             $htmlBuilder
-                ->button()->btnOutline()->setId("adminer-main-action-$id")->addText($title)
+                ->button()->btnOutline()->btnPrimary()->setId("adminer-main-action-$id")->addText($title)
                 ->end();
         }
         $htmlBuilder

@@ -2,10 +2,11 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl;
 
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\ContentComponent;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function array_values;
+use function Jaxon\pm;
 
 /**
  * Alter a table
@@ -13,7 +14,7 @@ use function array_values;
  * @databag dbadmin.table
  * @after showBreadcrumbs
  */
-class Alter extends Component
+class Alter extends ContentComponent
 {
     /**
      * @var array
@@ -48,7 +49,19 @@ class Alter extends Component
         $this->bag('dbadmin.table')->set('fields', $fields);
 
         // Set main menu buttons
-        $this->cl(PageActions::class)->editTable($table, $this->formId);
+        $values = pm()->form($this->formId);
+        $actions = [
+            'table-save' => [
+                'title' => $this->trans->lang('Save'),
+                'handler' => $this->rq()->save($table, $values)
+                    ->confirm("Save changes on table $table?"),
+            ],
+            'table-cancel' => [
+                'title' => $this->trans->lang('Cancel'),
+                'handler' => $this->rq(Table::class)->show($table),
+            ],
+        ];
+        $this->cl(PageActions::class)->show($actions);
     }
 
     /**

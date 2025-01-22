@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
-class Routines extends Component
+class Routines extends ContentComponent
 {
     /**
      * @inheritDoc
@@ -13,7 +13,14 @@ class Routines extends Component
     {
         $this->activateDatabaseSectionMenu('routines');
         // Set main menu buttons
-        $this->cl(PageActions::class)->dbRoutines();
+        $this->cl(PageActions::class)->show([
+            // 'add-procedure' => [
+            //     'title' => $this->trans->lang('Create procedure'),
+            // ],
+            // 'add-function' => [
+            //     'title' => $this->trans->lang('Create function'),
+            // ],
+        ]);
     }
 
     /**
@@ -21,7 +28,7 @@ class Routines extends Component
      *
      * @return void
      */
-    public function refresh()
+    public function show()
     {
         $this->showSection($this->db->getRoutines());
     }

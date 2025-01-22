@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dql;
 
-use Lagdo\DbAdmin\App\Component;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
 
 use function Jaxon\pm;
 
@@ -31,9 +31,7 @@ class Options extends Component
     protected function before()
     {
         // Initialize select options
-        if ($this->stash()->get('select.init', true)) {
-            $this->bag('dbadmin')->set('options', $this->selectOptions);
-        }
+        $this->bag('dbadmin')->set('options', $this->selectOptions);
     }
 
     /**

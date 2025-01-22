@@ -3,8 +3,11 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dql;
 
 use Lagdo\DbAdmin\App\Ajax\Db\Database\Query as Command;
+use Lagdo\DbAdmin\App\Ajax\Db\Database\Tables;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\ContentComponent;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl\Table;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dml\Insert;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
-use Lagdo\DbAdmin\App\Component;
 
 use Exception;
 
@@ -13,7 +16,7 @@ use function Jaxon\pm;
 /**
  * This class provides select query features on tables.
  */
-class Select extends Component
+class Select extends ContentComponent
 {
     /**
      * @var array
@@ -47,7 +50,23 @@ class Select extends Component
         $this->stash()->set('select.options', $this->selectData['options']);
 
         // Set main menu buttons
-        $this->cl(PageActions::class)->showSelect($table);
+        $backToTables = $this->stash()->get('back.tables', false);
+        $actions = [
+            'select-exec' => [
+                'title' => $this->trans->lang('Execute'),
+                'handler' => $this->rq()->exec(),
+            ],
+            'insert-table' => [
+                'title' => $this->trans->lang('New item'),
+                'handler' => $this->rq(Insert::class)->show(),
+            ],
+            'select-back' => [
+                'title' => $this->trans->lang('Back'),
+                'handler' => $backToTables ? $this->rq(Tables::class)->show() :
+                    $this->rq(Table::class)->show($table),
+            ],
+        ];
+        $this->cl(PageActions::class)->show($actions);
     }
 
     /**
@@ -79,9 +98,7 @@ class Select extends Component
         $this->cl(Options::class)->render();
 
         // Show the query
-        if ($this->stash()->get('select.init', true)) {
-            $this->cl(Query::class)->show($this->selectData['query']);
-        }
+        $this->cl(Query::class)->show($this->selectData['query']);
     }
 
     /**
@@ -89,14 +106,17 @@ class Select extends Component
      *
      * @after showBreadcrumbs
      *
-     * @param bool   $init
+     * @param string $table       The table name
+     * @param bool $backToTables
      *
      * @return void
-     * @throws Exception
      */
-    public function table(bool $init = true)
+    public function show(string $table, bool $backToTables = false)
     {
-        $this->stash()->set('select.init', $init);
+        $this->stash()->set('back.tables', $backToTables);
+        // Save the table name in the databag.
+        $this->bag('dbadmin')->set('db.table.name', $table);
+
         $this->render();
     }
 

@@ -2,8 +2,12 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl;
 
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
+use Lagdo\DbAdmin\App\Ajax\Db\Database\Tables;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\ContentComponent;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
+
+use function Jaxon\jq;
+use function Jaxon\pm;
 
 /**
  * Create a new table
@@ -11,7 +15,7 @@ use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
  * @databag dbadmin.table
  * @after showBreadcrumbs
  */
-class Create extends Component
+class Create extends ContentComponent
 {
     /**
      * @var array
@@ -44,7 +48,20 @@ class Create extends Component
         $this->view()->shareValues($this->tableData);
 
         // Set main menu buttons
-        $this->cl(PageActions::class)->addTable($this->formId);
+        $contentId = 'adminer-database-content';
+        $length = jq(".{$this->formId}-column", "#$contentId")->length;
+        $values = pm()->form($this->formId);
+        $actions = [
+            'table-save' => [
+                'title' => $this->trans->lang('Save'),
+                'handler' => $this->rq()->save($values)->when($length),
+            ],
+            'table-cancel' => [
+                'title' => $this->trans->lang('Cancel'),
+                'handler' => $this->rq(Tables::class)->show(),
+            ],
+        ];
+        $this->cl(PageActions::class)->show($actions);
     }
 
     /**

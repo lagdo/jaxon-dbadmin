@@ -2,13 +2,15 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl;
 
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\ContentComponent;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dml\Insert;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function array_merge;
 use function is_array;
 
-class Table extends Component
+class Table extends ContentComponent
 {
     /**
      * @var array
@@ -24,13 +26,40 @@ class Table extends Component
      *
      * @return void
      */
-    public function table(string $table)
+    public function show(string $table)
     {
         // Save the table name in the databag.
         $this->bag('dbadmin')->set('db.table.name', $table);
 
         $this->render();
     }
+
+    /**
+     * Print links after select heading
+     * Copied from selectLinks() in adminer.inc.php
+     *
+     * @param bool $new New item options, false for no new item
+     *
+     * @return array
+     */
+    // protected function getTableLinks(bool $new = true): array
+    // {
+    //     $links = [
+    //         'select' => $this->trans->lang('Select data'),
+    //     ];
+    //     if ($this->db->support('table') || $this->db->support('indexes')) {
+    //         $links['table'] = $this->trans->lang('Show structure');
+    //     }
+    //     if ($this->db->support('table')) {
+    //         $links['alter'] = $this->trans->lang('Alter table');
+    //     }
+    //     if ($new) {
+    //         $links['edit'] = $this->trans->lang('New item');
+    //     }
+    //     // $links['docs'] = \doc_link([$this->db->jush() => $this->db->tableHelp($name)], '?');
+
+    //     return $links;
+    // }
 
     /**
      * @inheritDoc
@@ -40,7 +69,40 @@ class Table extends Component
         $table = $this->bag('dbadmin')->get('db.table.name');
 
         // Set main menu buttons
-        $this->cl(PageActions::class)->showTable($table);
+        // $actions = $this->getTableLinks();
+
+        // $actions = [
+        //     'create' => $this->trans->lang('Alter indexes'),
+        // ];
+
+        // // From table.inc.php
+        // $actions = [
+        //     $this->trans->lang('Add foreign key'),
+        // ];
+
+        // $actions = [
+        //     $this->trans->lang('Add trigger'),
+        // ];
+
+        $actions = [
+            'edit-table' => [
+                'title' => $this->trans->lang('Alter table'),
+                'handler' => $this->rq(Alter::class)->render(),
+            ],
+            'drop-table' => [
+                'title' => $this->trans->lang('Drop table'),
+                'handler' => $this->rq()->drop()->confirm("Drop table $table?"),
+            ],
+            'select-table' => [
+                'title' => $this->trans->lang('Select'),
+                'handler' => $this->rq(Select::class)->show($table),
+            ],
+            'insert-table' => [
+                'title' => $this->trans->lang('New item'),
+                'handler' => $this->rq(Insert::class)->show(),
+            ],
+        ];
+        $this->cl(PageActions::class)->show($actions);
 
         $this->tableInfo = $this->db->getTableInfo($table);
     }

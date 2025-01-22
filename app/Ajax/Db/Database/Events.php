@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
-class Events extends Component
+class Events extends ContentComponent
 {
     /**
      * @inheritDoc
@@ -13,7 +13,11 @@ class Events extends Component
     {
         $this->activateDatabaseSectionMenu('events');
         // Set main menu buttons
-        $this->cl(PageActions::class)->dbEvents();
+        $this->cl(PageActions::class)->show([
+            // 'add-event' => [
+            //     'title' => $this->trans->lang('Create event'),
+            // ],
+        ]);
     }
 
     /**
@@ -21,7 +25,7 @@ class Events extends Component
      *
      * @return void
      */
-    public function refresh()
+    public function show()
     {
         $this->showSection($this->db->getEvents());
     }

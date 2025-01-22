@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
-class Processes extends Component
+class Processes extends ContentComponent
 {
     /**
      * @var array
@@ -34,7 +34,7 @@ class Processes extends Component
      *
      * @return void
      */
-    public function refresh()
+    public function show()
     {
         $this->pageContent = $this->db->getProcesses();
 

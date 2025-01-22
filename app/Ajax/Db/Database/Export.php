@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Lagdo\DbAdmin\App\Ajax\Db\Command\ExportTrait;
 
-class Export extends Component
+class Export extends ContentComponent
 {
     use ExportTrait;
 

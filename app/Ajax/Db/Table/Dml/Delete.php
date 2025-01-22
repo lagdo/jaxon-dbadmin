@@ -2,13 +2,13 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dml;
 
+use Lagdo\DbAdmin\App\Ajax\Db\Table\CallableClass;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Select;
-use Lagdo\DbAdmin\App\CallableDbClass;
 
 /**
  * This class provides insert and update query features on tables.
  */
-class Delete extends CallableDbClass
+class Delete extends CallableClass
 {
     /**
      * Execute the delete query

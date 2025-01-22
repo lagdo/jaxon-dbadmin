@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
 use Lagdo\DbAdmin\App\Ajax\Db\Command\ImportTrait;
 
-class Import extends Component
+class Import extends ContentComponent
 {
     use ImportTrait;
 

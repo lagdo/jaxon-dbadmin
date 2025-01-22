@@ -56,7 +56,7 @@ class Database extends CallableDbClass
         $this->cl(DatabaseCommand::class)->render();
 
         // Show the database tables
-        $this->cl(Tables::class)->refresh();
+        $this->cl(Tables::class)->show();
     }
 
     /**
@@ -100,7 +100,7 @@ class Database extends CallableDbClass
             $this->alert()->error("Cannot create database $database.");
             return;
         }
-        $this->cl(Databases::class)->refresh();
+        $this->cl(Databases::class)->show();
 
         $this->modal()->hide();
         $this->alert()->info("Database $database created.");
@@ -121,7 +121,7 @@ class Database extends CallableDbClass
             return;
         }
 
-        $this->cl(Databases::class)->refresh();
+        $this->cl(Databases::class)->show();
 
         $this->alert()->info("Database $database deleted.");
     }

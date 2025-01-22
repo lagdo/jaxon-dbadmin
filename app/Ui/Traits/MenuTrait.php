@@ -40,7 +40,7 @@ trait MenuTrait
         foreach($sqlActions as $id => $title)
         {
             $htmlBuilder
-                ->button()->btnOutline()->btnFullWidth()
+                ->button()->btnOutline()->btnPrimary()->btnFullWidth()
                     ->setClass('adminer-menu-item')->setId("adminer-menu-action-$id")->addText($title)
                 ->end();
         }

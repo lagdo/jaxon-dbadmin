@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
-class Sequences extends Component
+class Sequences extends ContentComponent
 {
     /**
      * @inheritDoc
@@ -13,7 +13,11 @@ class Sequences extends Component
     {
         $this->activateDatabaseSectionMenu('sequences');
         // Set main menu buttons
-        $this->cl(PageActions::class)->dbSequences();
+        $this->cl(PageActions::class)->show([
+            // 'add-sequence' => [
+            //     'title' => $this->trans->lang('Create sequence'),
+            // ],
+        ]);
     }
 
     /**
@@ -21,7 +25,7 @@ class Sequences extends Component
      *
      * @return void
      */
-    public function refresh()
+    public function show()
     {
         $this->showSection($this->db->getSequences());
     }

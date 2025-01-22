@@ -129,22 +129,10 @@ class PageBuilder
         $htmlBuilder = Builder::new();
         $htmlBuilder
             ->buttonGroup(false, ['class' => 'adminer-main-action-group']);
-        foreach($actions as $action)
+        foreach($actions as $class => $action)
         {
-            $isSecondary = $action[2] ?? false;
             $htmlBuilder
-                ->button()->btnSecondary();
-            if($isSecondary)
-            {
-                $htmlBuilder
-                    ->btnSecondary();
-            }
-            else
-            {
-                $htmlBuilder
-                    ->btnDanger();
-            }
-            $htmlBuilder
+                ->button(['class' => $class])->btnOutline()->btnSecondary()
                     ->addText($action['title'])
                     ->jxnClick($action['handler'])
                 ->end();

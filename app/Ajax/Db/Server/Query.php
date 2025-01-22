@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Server;
 
 use Lagdo\DbAdmin\App\Ajax\Db\Command\QueryTrait;
 
-class Query extends Component
+class Query extends ContentComponent
 {
     use QueryTrait;
 

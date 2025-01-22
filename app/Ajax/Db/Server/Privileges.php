@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 use function array_map;
 use function Jaxon\jq;
 
-class Privileges extends Component
+class Privileges extends ContentComponent
 {
     /**
      * @var array
@@ -21,7 +21,12 @@ class Privileges extends Component
     {
         $this->activateServerSectionMenu('privileges');
         // Set main menu buttons
-        $this->cl(PageActions::class)->userPrivileges();
+        $this->cl(PageActions::class)->show([
+            'add-user' => [
+                'title' => $this->trans->lang('Create user'),
+                'handler' => $this->rq(Privilege::class)->add(),
+            ],
+        ]);
     }
 
     /**
@@ -37,7 +42,7 @@ class Privileges extends Component
      *
      * @return void
      */
-    public function refresh()
+    public function show()
     {
         $this->pageContent = $this->db->getPrivileges();
 

@@ -2,14 +2,17 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dml;
 
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\ContentComponent;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl\Table;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
+
+use function Jaxon\pm;
 
 /**
  * This class provides insert and update query features on tables.
- * @after showBreadcrumbs
  */
-class Insert extends Component
+class Insert extends ContentComponent
 {
     /**
      * @var array
@@ -33,7 +36,24 @@ class Insert extends Component
 
         // Set main menu buttons
         $table = $this->bag('dbadmin')->get('db.table.name');
-        $this->cl(PageActions::class)->showQuery($table, $this->queryFormId, true);
+        $options = pm()->form($this->queryFormId);
+        $actions = [
+            'query-save' => [
+                'title' => $this->trans->lang('Save'),
+                'handler' => $this->rq()->exec($options, true)
+                    ->confirm($this->trans->lang('Save this item?')),
+            ],
+            'query-save-select' => [
+                'title' => $this->trans->lang('Save and select'),
+                'handler' => $this->rq()->exec($options, false)
+                    ->confirm($this->trans->lang('Save this item?')),
+            ],
+            'query-back' => [
+                'title' => $this->trans->lang('Back'),
+                'handler' => $this->rq(Table::class)->show($table),
+            ],
+        ];
+        $this->cl(PageActions::class)->show($actions);
     }
 
     /**
@@ -87,6 +107,6 @@ class Insert extends Component
         }
         $this->alert()->title($this->lang('Success'))->success($results['message']);
 
-        // $addNew ? $this->render() : $this->cl(Select::class)->show();
+        $addNew ? $this->render() : $this->cl(Select::class)->show($table);
     }
 }

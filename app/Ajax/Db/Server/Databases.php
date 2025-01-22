@@ -10,7 +10,7 @@ use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 use function array_map;
 use function Jaxon\jq;
 
-class Databases extends Component
+class Databases extends ContentComponent
 {
     /**
      * @var array
@@ -24,7 +24,12 @@ class Databases extends Component
     {
         $this->activateServerSectionMenu('databases');
         // Set main menu buttons
-        $this->cl(PageActions::class)->databases();
+        $this->cl(PageActions::class)->show([
+            'add-database' => [
+                'title' => $this->trans->lang('Create database'),
+                'handler' => $this->rq(Database::class)->add(),
+            ],
+        ]);
         // Clear schema list
         $this->cl(MenuSchemas::class)->clear();
     }
@@ -43,7 +48,7 @@ class Databases extends Component
      *
      * @return void
      */
-    public function refresh()
+    public function show()
     {
         // Access to servers is forbidden. Show the first database.
         $this->pageContent = $this->db->getDatabases();

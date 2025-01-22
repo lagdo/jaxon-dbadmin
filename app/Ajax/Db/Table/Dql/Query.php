@@ -2,14 +2,14 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dql;
 
-use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\CallableClass;
 
 use function html_entity_decode;
 
 /**
  * This class provides select query features on tables.
  */
-class Query extends CallableDbClass
+class Query extends CallableClass
 {
     /**
      * The select query div id

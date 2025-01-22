@@ -8,7 +8,7 @@ use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 use function array_map;
 use function Jaxon\jq;
 
-class Views extends Component
+class Views extends ContentComponent
 {
     /**
      * @inheritDoc
@@ -17,7 +17,12 @@ class Views extends Component
     {
         $this->activateDatabaseSectionMenu('views');
         // Set main menu buttons
-        $this->cl(PageActions::class)->dbViews();
+        $this->cl(PageActions::class)->show([
+            'add-view' => [
+                'title' => $this->trans->lang('Create view'),
+                'handler' => $this->rq(View::class)->add(),
+            ],
+        ]);
     }
 
     /**
@@ -25,7 +30,7 @@ class Views extends Component
      *
      * @return void
      */
-    public function refresh()
+    public function show()
     {
         $viewsInfo = $this->db->getViews();
 

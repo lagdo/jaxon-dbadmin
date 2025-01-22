@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dql;
 
-use Lagdo\DbAdmin\App\CallableDbClass;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\CallableClass;
 
 use function count;
 use function Jaxon\pm;
@@ -10,7 +10,7 @@ use function Jaxon\pm;
 /**
  * This class provides select query features on tables.
  */
-class Filters extends CallableDbClass
+class Filters extends CallableClass
 {
     /**
      * The filters form div id

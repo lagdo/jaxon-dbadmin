@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db;
 
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Select;
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
@@ -43,23 +42,6 @@ class Table extends CallableDbClass
     {
         $content = $this->ui->mainContent(array_merge($tableInfo, $tableData));
         $this->response->html($tabId, $content);
-    }
-
-    /**
-     * Show the select page for a given table
-     *
-     * @after showBreadcrumbs
-     *
-     * @param string $table       The table name
-     *
-     * @return void
-     */
-    public function select(string $table)
-    {
-        // Save the table name in tha databag and show the select page.
-        $this->bag('dbadmin')->set('db.table', $table);
-
-        $this->cl(Select::class)->render();
     }
 
     /**

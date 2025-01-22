@@ -2,21 +2,16 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl\Table as DdlTable;
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Table as DqlTable;
-use Lagdo\DbAdmin\App\Ajax\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl\Create;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl\Table;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function array_map;
 use function Jaxon\jq;
 
-class Tables extends Component
+class Tables extends ContentComponent
 {
-    /**
-     * @var string
-     */
-    protected $overrides = Content::class;
-
     /**
      * @inheritDoc
      */
@@ -24,7 +19,12 @@ class Tables extends Component
     {
         $this->activateDatabaseSectionMenu('tables');
         // Set main menu buttons
-        $this->cl(PageActions::class)->dbTables();
+        $this->cl(PageActions::class)->show([
+            'add-table' => [
+                'title' => $this->trans->lang('Create table'),
+                'handler' => $this->rq(Create::class)->render(),
+            ],
+        ]);
     }
 
     /**
@@ -32,7 +32,7 @@ class Tables extends Component
      *
      * @return void
      */
-    public function refresh()
+    public function show()
     {
         $tablesInfo = $this->db->getTables();
 
@@ -46,20 +46,20 @@ class Tables extends Component
                 'props' => [
                     'data-table-name' => $tableName,
                 ],
-                'handler' => $this->rq(DdlTable::class)->table($table),
+                'handler' => $this->rq(Table::class)->show($table),
             ];
             $detail['select'] = [
                 'label' => $select,
                 'props' => [
                     'data-table-name' => $tableName,
                 ],
-                'handler' => $this->rq(DqlTable::class)->table($table),
+                'handler' => $this->rq(Select::class)->show($table, true),
             ];
             return $detail;
         }, $tablesInfo['details']);
 
         $this->showSection($tablesInfo, 'table');
         // Set onclick handlers on table checkbox
-        $this->response->js('jaxon.dbadmin')->selectTableCheckboxes('table');
+        // $this->response->js('jaxon.dbadmin')->selectTableCheckboxes('table');
     }
 }
