@@ -14,9 +14,21 @@ use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 class Create extends Component
 {
     /**
+     * @var array
+     */
+    private $tableData;
+
+    /**
      * @var string
      */
     protected $formId = 'adminer-table-form';
+
+    /**
+     * Default values for tables
+     *
+     * @var string[]
+     */
+    protected $defaults = ['autoIncrementCol' => '', 'engine' => '', 'collation' => ''];
 
     /**
      * @inheritDoc
@@ -26,6 +38,13 @@ class Create extends Component
         $this->bag('dbadmin')->set('db.table.name', '');
         $this->bag('dbadmin.table')->set('fields', []);
         $this->stash()->set('table.fields', []);
+
+        $this->tableData = $this->db->getTableData();
+        // Make data available to views
+        $this->view()->shareValues($this->tableData);
+
+        // Set main menu buttons
+        $this->cl(PageActions::class)->addTable($this->formId);
     }
 
     /**
@@ -33,17 +52,10 @@ class Create extends Component
      */
     public function html(): string
     {
-        $tableData = $this->db->getTableData();
-        // Make data available to views
-        $this->view()->shareValues($tableData);
-
-        // Set main menu buttons
-        $this->cl(PageActions::class)->addTable($this->formId);
-
         return $this->ui
-            ->support($tableData['support'])
-            ->engines($tableData['engines'])
-            ->collations($tableData['collations'])
+            ->support($this->tableData['support'])
+            ->engines($this->tableData['engines'])
+            ->collations($this->tableData['collations'])
             ->tableWrapper($this->formId, $this->rq(Columns::class));
     }
 
@@ -64,17 +76,17 @@ class Create extends Component
      */
     public function save(array $values)
     {
-        $fields = $this->bag('dbadmin.table')->get('fields');
+        // $fields = $this->bag('dbadmin.table')->get('fields');
         // $values = array_merge($this->defaults, $values);
 
         // $result = $this->db->createTable($values);
         // if(!$result['success'])
         // {
-        //     $this->response->dialog->error($result['error']);
+        //     $this->alert()->error($result['error']);
         //     return;
         // }
 
         // $this->show($values['name']);
-        // $this->response->dialog->success($result['message']);
+        // $this->alert()->success($result['message']);
     }
 }

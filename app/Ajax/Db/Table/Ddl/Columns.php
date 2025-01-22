@@ -19,6 +19,11 @@ use function sprintf;
 class Columns extends Component
 {
     /**
+     * @var array
+     */
+    private $tableData;
+
+    /**
      * @var string
      */
     protected $overrides = '';
@@ -55,14 +60,14 @@ class Columns extends Component
     public function add(int $target = -1)
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
-        $tableData = $this->db->getTableData($table);
+        $this->tableData = $this->db->getTableData($table);
         // Make data available to views
-        $this->view()->shareValues($tableData);
+        $this->view()->shareValues($this->tableData);
         $this->ui
-            ->support($tableData['support'])
-            ->collations($tableData['collations'])
-            ->unsigned($tableData['unsigned'])
-            ->options($tableData['options']);
+            ->support($this->tableData['support'])
+            ->collations($this->tableData['collations'])
+            ->unsigned($this->tableData['unsigned'])
+            ->options($this->tableData['options']);
 
         $fields = $this->bag('dbadmin.table')->get('fields');
         $fields = array_map(function($field) {
@@ -75,24 +80,25 @@ class Columns extends Component
 
         $this->render();
     }
+
     // public function add(int $target = -1)
     // {
     //     // Todo: Save columns data in a databag, and get the 'length' value from there.
     //     $length = jq(".{$this->formId}-column", "#adminer-database-content")->length;
 
-    //     $tableData = $this->db->getTableData();
+    //     $this->tableData = $this->db->getTableData();
     //     // Make data available to views
-    //     $this->view()->shareValues($tableData);
+    //     $this->view()->shareValues($this->tableData);
 
     //     $columnClass = "{$this->formId}-column";
     //     $columnId = sprintf('%s-%02d', $columnClass, $length);
     //     $field = $this->db->getTableField();
     //     $prefixFields = sprintf("fields[%d]", $length + 1);
     //     $content = $this->ui
-    //         ->support($tableData['support'])
-    //         ->collations($tableData['collations'])
-    //         ->unsigned($tableData['unsigned'])
-    //         ->options($tableData['options'])
+    //         ->support($this->tableData['support'])
+    //         ->collations($this->tableData['collations'])
+    //         ->unsigned($this->tableData['unsigned'])
+    //         ->options($this->tableData['options'])
     //         ->tableColumn($columnClass, $length, $field, $prefixFields, $target < 0);
 
     //     if($target < 0)

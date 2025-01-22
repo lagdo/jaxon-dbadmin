@@ -16,12 +16,18 @@ use function array_values;
 class Alter extends Component
 {
     /**
+     * @var array
+     */
+    private $tableData;
+
+    /**
      * @var string
      */
     protected $formId = 'adminer-table-form';
 
     /**
      * Default values for tables
+     *
      * @var string[]
      */
     protected $defaults = ['autoIncrementCol' => '', 'engine' => '', 'collation' => ''];
@@ -29,36 +35,42 @@ class Alter extends Component
     /**
      * @inheritDoc
      */
-    public function html(): string
+    protected function before()
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
-
-        $tableData = $this->db->getTableData($table);
+        $this->tableData = $this->db->getTableData($table);
         // Make data available to views
-        $this->view()->shareValues($tableData);
+        $this->view()->shareValues($this->tableData);
+
         // Save the fields in the databag
-        $fields = array_values($tableData['fields']);
+        $fields = array_values($this->tableData['fields']);
         $this->stash()->set('table.fields', $fields);
         $this->bag('dbadmin.table')->set('fields', $fields);
 
         // Set main menu buttons
         $this->cl(PageActions::class)->editTable($table, $this->formId);
+    }
 
+    /**
+     * @inheritDoc
+     */
+    public function html(): string
+    {
         $editedTable = [
-            'name' => $tableData['table']->name,
-            'engine' => $tableData['table']->engine,
-            'collation' => $tableData['table']->collation,
-            'comment' => $tableData['table']->comment,
+            'name' => $this->tableData['table']->name,
+            'engine' => $this->tableData['table']->engine,
+            'collation' => $this->tableData['table']->collation,
+            'comment' => $this->tableData['table']->comment,
         ];
         return $this->ui
             ->table($editedTable)
-            ->support($tableData['support'])
-            ->engines($tableData['engines'])
-            ->collations($tableData['collations'])
-            ->unsigned($tableData['unsigned'] ?? [])
-            ->foreignKeys($tableData['foreignKeys'])
-            ->options($tableData['options'])
-            // ->fields($tableData['fields'])
+            ->support($this->tableData['support'])
+            ->engines($this->tableData['engines'])
+            ->collations($this->tableData['collations'])
+            ->unsigned($this->tableData['unsigned'] ?? [])
+            ->foreignKeys($this->tableData['foreignKeys'])
+            ->options($this->tableData['options'])
+            // ->fields($this->tableData['fields'])
             ->tableWrapper($this->formId, $this->rq(Columns::class));
     }
 
@@ -84,11 +96,11 @@ class Alter extends Component
         // $result = $this->db->alterTable($table, $values);
         // if(!$result['success'])
         // {
-        //     $this->response->dialog->error($result['error']);
+        //     $this->alert()->error($result['error']);
         //     return;
         // }
 
         // $this->cl(Table::class)->render();
-        // $this->response->dialog->success($result['message']);
+        // $this->alert()->success($result['message']);
     }
 }
