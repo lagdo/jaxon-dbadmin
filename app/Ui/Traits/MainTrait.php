@@ -126,7 +126,7 @@ trait MainTrait
     {
         if(!is_array($content))
         {
-            $htmlBuilder->addText($content);
+            $htmlBuilder->addHtml($content);
             return;
         }
 
@@ -136,7 +136,7 @@ trait MainTrait
         }
         if(!isset($content['handler']))
         {
-            $htmlBuilder->addText($content['label']);
+            $htmlBuilder->addHtml($content['label']);
             return;
         }
 
@@ -183,7 +183,7 @@ trait MainTrait
             {
                 $htmlBuilder
                         ->th()
-                            ->addText($header)
+                            ->addHtml($header)
                         ->end();
             }
             $htmlBuilder
