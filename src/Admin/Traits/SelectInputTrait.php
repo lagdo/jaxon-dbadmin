@@ -116,8 +116,8 @@ trait SelectInputTrait
         $columns = array_map(function ($column) {
             return $this->driver->escapeId($column);
         }, $index->columns);
-        $match = $this->driver->quote($this->input->values['fulltext'][$i]);
-        if (isset($this->input->values['boolean'][$i])) {
+        $match = $this->driver->quote($this->utils->input->values['fulltext'][$i]);
+        if (isset($this->utils->input->values['boolean'][$i])) {
             $match .= ' IN BOOLEAN MODE';
         }
         return 'MATCH (' . implode(', ', $columns) . ') AGAINST (' . $match . ')';
@@ -135,11 +135,11 @@ trait SelectInputTrait
     {
         $expressions = [];
         foreach ($indexes as $i => $index) {
-            if ($index->type === 'FULLTEXT' && $this->input->values['fulltext'][$i] !== '') {
+            if ($index->type === 'FULLTEXT' && $this->utils->input->values['fulltext'][$i] !== '') {
                 $expressions[] = $this->getMatchExpression($index, $i);
             }
         }
-        foreach ((array) $this->input->values['where'] as $value) {
+        foreach ((array) $this->utils->input->values['where'] as $value) {
             if (($value['col'] !== '' ||  $value['val'] !== '') &&
                 in_array($value['op'], $this->driver->operators())) {
                 $expressions[] = $this->getSelectExpression($value, $fields);

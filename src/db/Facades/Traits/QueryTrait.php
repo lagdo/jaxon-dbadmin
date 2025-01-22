@@ -138,7 +138,7 @@ trait QueryTrait
      */
     private function getRowFieldFunction(TableFieldEntity $field, string $name, $value, string $update, array $queryOptions): ?string
     {
-        if (!$update && $value == $field->default && preg_match('~^[\w.]+\(~', $value)) {
+        if (!$update && $value == $field->default && preg_match('~^[\w.]+\(~', $value ?? '')) {
             return "SQL";
         }
         if ($queryOptions["save"]) {

@@ -258,7 +258,7 @@ trait QueryInputTrait
             $attrs['name'] = "fields-$name";
             return ['type' => 'file', 'attrs' => $attrs];
         }
-        if (preg_match('~text|lob|memo~i', $field->type) || preg_match("~\n~", $value)) {
+        if (preg_match('~text|lob|memo~i', $field->type) || preg_match("~\n~", $value ?? '')) {
             return $this->getBlobInput($field, $attrs, $value);
         }
         if ($function === 'json' || preg_match('~^jsonb?$~', $field->type)) {

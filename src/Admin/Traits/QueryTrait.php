@@ -17,7 +17,7 @@ trait QueryTrait
     {
         $names = $values;
         foreach ($this->driver->editFunctions() as $key => $functions) {
-            if (!$key || (!isset($this->input->values['call']) && $update)) { // relative functions
+            if (!$key || (!isset($this->utils->input->values['call']) && $update)) { // relative functions
                 foreach ($functions as $pattern => $value) {
                     if (!$pattern || preg_match("~$pattern~", $field->type)) {
                         $names[] = $value;
@@ -40,7 +40,7 @@ trait QueryTrait
      */
     public function editFunctions(TableFieldEntity $field): array
     {
-        $update = isset($this->input->values['select']); // || $this->where([]);
+        $update = isset($this->utils->input->values['select']); // || $this->where([]);
         if ($field->autoIncrement && !$update) {
             return [$this->utils->trans->lang('Auto Increment')];
         }

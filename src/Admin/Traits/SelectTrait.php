@@ -3,12 +3,9 @@
 namespace Lagdo\DbAdmin\Admin\Traits;
 
 use function intval;
-use function implode;
 use function strtoupper;
 use function in_array;
 use function preg_match;
-use function preg_replace;
-use function preg_match_all;
 
 trait SelectTrait
 {
@@ -19,7 +16,7 @@ trait SelectTrait
      */
     public function processSelectLimit(): int
     {
-        return isset($this->input->values['limit']) ? intval($this->input->values['limit']) : 50;
+        return isset($this->utils->input->values['limit']) ? intval($this->utils->input->values['limit']) : 50;
     }
 
     /**
@@ -29,7 +26,7 @@ trait SelectTrait
      */
     public function processSelectLength(): int
     {
-        return isset($this->input->values['text_length']) ? intval($this->input->values['text_length']) : 100;
+        return isset($this->utils->input->values['text_length']) ? intval($this->utils->input->values['text_length']) : 100;
     }
 
     /**
@@ -39,7 +36,7 @@ trait SelectTrait
      */
     public function processSelectOrder(): array
     {
-        $values = $this->input->values;
+        $values = $this->utils->input->values;
         $expressions = [];
         foreach ($values['order'] as $key => $value) {
             if ($value !== '') {
@@ -113,7 +110,7 @@ trait SelectTrait
     {
         $select = []; // select expressions, empty for *
         $group = []; // expressions without aggregation - will be used for GROUP BY if an aggregation function is used
-        $values = $this->input->values;
+        $values = $this->utils->input->values;
         foreach ($values['columns'] as $key => $value) {
             if ($this->colHasValidValue($value)) {
                 $fields = '*';
