@@ -3,17 +3,19 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dml;
 
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
-use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
-
-use function Jaxon\pm;
 
 /**
  * This class provides insert and update query features on tables.
  * @after showBreadcrumbs
  */
-class ItemInsert extends Component
+class Insert extends Component
 {
+    /**
+     * @var array
+     */
+    private $queryData;
+
     /**
      * The query form div id
      *
@@ -24,24 +26,42 @@ class ItemInsert extends Component
     /**
      * @inheritDoc
      */
-    public function html(): string
+    protected function before()
     {
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        $queryData = $this->db->getQueryData($table);
-        // Show the error
-        if(($queryData['error']))
-        {
-            $this->response->dialog->error($queryData['error'], $this->lang('Error'));
-            return;
-        }
         // Make data available to views
-        $this->view()->shareValues($queryData);
+        $this->view()->shareValues($this->queryData);
 
         // Set main menu buttons
+        $table = $this->bag('dbadmin')->get('db.table.name');
         $this->cl(PageActions::class)->showQuery($table, $this->queryFormId, true);
+    }
 
-        $content = $this->ui->tableQueryForm($this->queryFormId, $queryData['fields']);
-        $this->cl(Content::class)->showHtml($content);
+    /**
+     * @inheritDoc
+     */
+    public function html(): string
+    {
+        return $this->ui->tableQueryForm($this->queryFormId, $this->queryData['fields']);
+    }
+
+    /**
+     * Show the update query form
+     *
+     * @after showBreadcrumbs
+     *
+     * @return void
+     */
+    public function show()
+    {
+        $table = $this->bag('dbadmin')->get('db.table.name');
+        $this->queryData = $this->db->getQueryData($table);
+        // Show the error
+        if(($this->queryData['error']))
+        {
+            $this->alert()->title($this->lang('Error'))->error($this->queryData['error']);
+            return;
+        }
+        $this->render();
     }
 
     /**
@@ -54,7 +74,7 @@ class ItemInsert extends Component
      *
      * @return void
      */
-    public function execInsert(array $options, bool $addNew)
+    public function exec(array $options, bool $addNew)
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
         $results = $this->db->insertItem($table, $options);
@@ -62,10 +82,10 @@ class ItemInsert extends Component
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], $this->lang('Error'));
+            $this->alert()->title($this->lang('Error'))->error($results['error']);
             return;
         }
-        $this->response->dialog->success($results['message'], $this->lang('Success'));
+        $this->alert()->title($this->lang('Success'))->success($results['message']);
 
         // $addNew ? $this->render() : $this->cl(Select::class)->show();
     }

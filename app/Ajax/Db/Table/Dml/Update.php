@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dml;
 
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
-use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
 use function Jaxon\pm;
@@ -12,8 +11,18 @@ use function Jaxon\pm;
  * This class provides insert and update query features on tables.
  * @after showBreadcrumbs
  */
-class ItemUpdate extends Component
+class Update extends Component
 {
+    /**
+     * @var array
+     */
+    private $rowIds;
+
+    /**
+     * @var array
+     */
+    private $queryData;
+
     /**
      * The query form div id
      *
@@ -24,9 +33,34 @@ class ItemUpdate extends Component
     /**
      * @inheritDoc
      */
+    protected function before()
+    {
+        // Make data available to views
+        $this->view()->shareValues($this->queryData);
+
+        // Set main menu buttons
+        $options = pm()->form($this->queryFormId);
+        $actions = [
+            [$this->trans->lang('Back'), $this->rq()->back(), true],
+            [$this->trans->lang('Save'), $this->rq()->exec($this->rowIds, $options)
+                ->confirm($this->lang('Save this item?'))],
+        ];
+        $this->cl(PageActions::class)->refresh($actions);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function html(): string
     {
-        //
+        return $this->ui->tableQueryForm($this->queryFormId, $this->queryData['fields']);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function after()
+    {
     }
 
     /**
@@ -38,30 +72,18 @@ class ItemUpdate extends Component
      *
      * @return void
      */
-    public function showUpdate(array $rowIds)
+    public function show(array $rowIds)
     {
+        $this->rowIds = $rowIds;
         $table = $this->bag('dbadmin')->get('db.table.name');
-        $queryData = $this->db->getQueryData($table, $rowIds, 'Edit item');
+        $this->queryData = $this->db->getQueryData($table, $rowIds, 'Edit item');
         // Show the error
-        if(($queryData['error']))
+        if(($this->queryData['error']))
         {
-            $this->response->dialog->error($queryData['error'], $this->lang('Error'));
+            $this->alert()->title($this->lang('Error'))->error($this->queryData['error']);
             return;
         }
-        // Make data available to views
-        $this->view()->shareValues($queryData);
-
-        // Set main menu buttons
-        $options = pm()->form($this->queryFormId);
-        $actions = [
-            [$this->trans->lang('Back'), $this->rq()->backToSelect(), true],
-            [$this->trans->lang('Save'), $this->rq()->execUpdate($rowIds, $options)
-                ->confirm($this->lang('Save this item?'))],
-        ];
-        $this->cl(PageActions::class)->refresh($actions);
-
-        $content = $this->ui->tableQueryForm($this->queryFormId, $queryData['fields']);
-        $this->cl(Content::class)->showHtml($content);
+        $this->render();
     }
 
     /**
@@ -71,7 +93,7 @@ class ItemUpdate extends Component
      *
      * @return void
      */
-    public function backToSelect()
+    public function back()
     {
         // $select = $this->cl(Select::class);
         // $select->show(false);
@@ -89,7 +111,7 @@ class ItemUpdate extends Component
      *
      * @return void
      */
-    public function execUpdate(array $rowIds, array $options)
+    public function exec(array $rowIds, array $options)
     {
         $options['where'] = $rowIds['where'];
         $options['null'] = $rowIds['null'];
@@ -100,10 +122,10 @@ class ItemUpdate extends Component
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], $this->lang('Error'));
+            $this->alert()->title($this->lang('Error'))->error($results['error']);
             return;
         }
-        $this->response->dialog->success($results['message'], $this->lang('Success'));
-        $this->backToSelect();
+        $this->alert()->title($this->lang('Success'))->success($results['message']);
+        $this->back();
     }
 }
