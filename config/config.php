@@ -14,17 +14,17 @@ return [
         ],
     ],
     'views' => [
-        'adminer::codes' => [
+        'dbadmin::codes' => [
             'directory' => __DIR__ . '/../templates/codes',
-            'extension' => '.php',
+            'extension' => '',
             'renderer' => 'jaxon',
         ],
-        'adminer::views' => [
+        'dbadmin::views' => [
             'directory' => __DIR__ . '/../templates/views',
             'extension' => '.php',
             'renderer' => 'jaxon',
         ],
-        'adminer::templates' => [
+        'dbadmin::templates' => [
             'directory' => __DIR__ . '/../templates/views',
             'extension' => '.php',
             'renderer' => 'jaxon',

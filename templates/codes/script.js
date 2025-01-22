@@ -1,21 +1,19 @@
 jaxon.dbadmin = {
     countTableCheckboxes: function(checkboxId) {
-        $('#adminer-table-' + checkboxId + '-count').html($('.adminer-table-' + checkboxId + ':checked').length);
+        $('#dbadmin-table-' + checkboxId + '-count').html($('.dbadmin-table-' + checkboxId + ':checked').length);
     },
     selectTableCheckboxes: function(checkboxId) {
-        $('#adminer-table-' + checkboxId + '-all').change(function() {
-            $('.adminer-table-' + checkboxId, '#<?php
-                echo $this->containerId ?>').prop('checked', this.checked);
+        $('#dbadmin-table-' + checkboxId + '-all').change(function() {
+            $('.dbadmin-table-' + checkboxId, '#jaxon-dbadmin').prop('checked', this.checked);
             jaxon.dbadmin.countTableCheckboxes(checkboxId);
         });
-        $('.adminer-table-' + checkboxId).change(function() {
+        $('.dbadmin-table-' + checkboxId).change(function() {
             jaxon.dbadmin.countTableCheckboxes(checkboxId);
         });
     },
     selectAllCheckboxes: function(checkboxId) {
         $('#' + checkboxId + '-all').change(function() {
-            $('.' + checkboxId, '#<?php
-                echo $this->containerId ?>').prop('checked', this.checked);
+            $('.' + checkboxId, '#jaxon-dbadmin').prop('checked', this.checked);
         });
     },
     setFileUpload: function(container, buttonId, fileInputId) {
@@ -98,40 +96,22 @@ jaxon.dbadmin = {
     saveSqlEditorContent: function() {
         jaxon.dbadmin.editor.element.save();
     },
-    callback: {
-        server: {
-            onPrepare: function(oRequest) {
-                // Clear the dbadmin.db databag content
-                jaxon.ajax.parameters.bags.dbadmin = {
-                    db: [],
-                };
-                // The onPrepare callback is called after the request parameters are read.
-                // We then need to reread them after we have modified the databag content.
-                // Todo: move this to the oncoming 'beforeInitialize' callback.
-                jaxon.ajax.parameters.process(oRequest);
-            },
-        },
-    },
 };
 
 jaxon.dom.ready(function() {
-    jaxon.ajax.handler.register('dbadmin.hsqlquery', function({ id, driver, query }) {
-        jaxon.dbadmin.highlightSqlQuery(id, driver, query);
-        return true;
-    });
-    jaxon.ajax.handler.register('dbadmin.hsqleditor', function({ id, server }) {
+    jaxon.register('dbadmin.hsqleditor', function({ id, server }) {
         jaxon.dbadmin.highlightSqlEditor(id, server);
         return true;
     });
-    jaxon.ajax.handler.register('dbadmin.window.open', function({ link }) {
+    jaxon.register('dbadmin.window.open', function({ link }) {
         window.open(link, '_blank').focus();
         return true;
     });
-    jaxon.ajax.handler.register('dbadmin.row.ids.set', function({ ids }) {
+    jaxon.register('dbadmin.row.ids.set', function({ ids }) {
         jaxon.dbadmin.rowIds = ids;
         return true;
     });
-    jaxon.ajax.handler.register('dbadmin.new.index.set', function({ count }) {
+    jaxon.register('dbadmin.new.index.set', function({ count }) {
         jaxon.dbadmin.newItemIndex = count;
         return true;
     });
