@@ -2,25 +2,30 @@
 
 namespace Lagdo\DbAdmin\App\Ui\Traits;
 
+use Jaxon\Script\JxnCall;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Input\Columns;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Input\Filters;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Input\Sorting;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Options;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Query;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function array_shift;
+use function count;
 use function Jaxon\rq;
+use function Jaxon\pm;
 
 trait SelectTrait
 {
     /**
      * @param BuilderInterface $htmlBuilder
+     * @param JxnCall $rqInput
      * @param string $formId
-     * @param string $btnAddOnClick
-     * @param string $btnDelOnClick
      *
      * @return void
      */
-    private function editFormButtons(BuilderInterface $htmlBuilder, string $formId,
-        string $btnAddOnClick, string $btnDelOnClick)
+    private function editFormButtons(BuilderInterface $htmlBuilder, JxnCall $rqInput, string $formId)
     {
         $htmlBuilder
             ->formRow()
@@ -28,11 +33,13 @@ trait SelectTrait
                 ->end()
                 ->formCol(3)
                     ->buttonGroup(false)
-                        ->button()->btnPrimary()->setId($formId . '-add')
-                            ->setOnclick($btnAddOnClick)->addIcon('plus')
+                        ->button()->btnPrimary()
+                            ->addIcon('plus')
+                            ->jxnClick($rqInput->add(pm()->form($formId)))
                         ->end()
-                        ->button()->btnDanger()->setId($formId . '-del')
-                            ->setOnclick($btnDelOnClick)->addIcon('remove')
+                        ->button()->btnDanger()
+                            ->addIcon('remove')
+                            ->jxnClick($rqInput->del(pm()->form($formId)))
                         ->end()
                     ->end()
                 ->end()
@@ -40,227 +47,232 @@ trait SelectTrait
     }
 
     /**
-     * @param BuilderInterface $htmlBuilder
-     * @param string $rowId
-     * @param string $formId
-     * @param array $value
+     * @param array $values
      * @param array $options
-     *
-     * @return void
-     */
-    private function editColumnValue(BuilderInterface $htmlBuilder, string $rowId,
-        string $formId, array $value, array $options)
-    {
-        $htmlBuilder
-            ->formRow()->setId("$formId-item-$rowId")
-                ->formCol(6)
-                    ->formSelect()->setName("columns[$rowId][fun]")
-                        ->option(false, '')
-                        ->end()
-                        ->optgroup()->setLabel($this->trans->lang('Functions'));
-        foreach ($options['functions'] as $function) {
-            $htmlBuilder
-                            ->option($value['fun'] == $function, $function)
-                            ->end();
-        }
-        $htmlBuilder
-                        ->end()
-                        ->optgroup()->setLabel($this->trans->lang('Aggregation'));
-        foreach ($options['grouping'] as $grouping) {
-            $htmlBuilder
-                            ->option($value['fun'] == $grouping, $grouping)
-                            ->end();
-        }
-        $htmlBuilder
-                        ->end()
-                    ->end()
-                ->end()
-                ->formCol(5)
-                    ->formSelect()->setName("columns[$rowId][col]");
-        foreach ($options['columns'] as $column) {
-            $htmlBuilder
-                        ->option($value['col'] == $column, $column)
-                        ->end();
-        }
-        $htmlBuilder
-                    ->end()
-                ->end()
-                ->formCol(1)->setDataIndex($rowId)
-                    ->checkbox(false)->setClass("$formId-item-checkbox")->setDataIndex($rowId)
-                    ->end()
-                ->end()
-            ->end();
-    }
-
-    /**
-     * @param string $formId
-     * @param array $options
-     * @param string $btnAddOnClick
-     * @param string $btnDelOnClick
      *
      * @return string
      */
-    public function editQueryColumns(string $formId, array $options, string $btnAddOnClick, string $btnDelOnClick): string
+    public function formQueryColumns(array $values, array $options): string
     {
         $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->form(true, false)->setId($formId);
-        $this->editFormButtons($htmlBuilder, $formId, $btnAddOnClick, $btnDelOnClick);
-        $i = 0;
-        foreach ($options['values'] as $value) {
-            $this->editColumnValue($htmlBuilder, $i, $formId, $value, $options);
-            $i++;
+        $columns = $values['column'] ?? [];
+        $count = count($columns);
+        for ($curId = 0, $newId = 0; $curId < $count; $curId++) {
+            // Do not render deleted items
+            if (isset($values['del'][$curId])) {
+                continue;
+            }
+            $htmlBuilder
+                ->formRow()
+                    ->formCol(6)
+                        ->formSelect()->setName("column[$newId][fun]")
+                            ->option(false, '')
+                            ->end()
+                            ->optgroup()->setLabel($this->trans->lang('Functions'));
+            foreach ($options['functions'] as $function) {
+                $htmlBuilder
+                                ->option($columns[$curId]['fun'] == $function, $function)
+                                ->end();
+            }
+            $htmlBuilder
+                            ->end()
+                            ->optgroup()->setLabel($this->trans->lang('Aggregation'));
+            foreach ($options['grouping'] as $grouping) {
+                $htmlBuilder
+                                ->option($columns[$curId]['fun'] == $grouping, $grouping)
+                                ->end();
+            }
+            $htmlBuilder
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->formCol(5)
+                        ->formSelect()->setName("column[$newId][col]");
+            foreach ($options['columns'] as $column) {
+                $htmlBuilder
+                            ->option($columns[$curId]['col'] == $column, $column)
+                            ->end();
+            }
+            $htmlBuilder
+                        ->end()
+                    ->end()
+                    ->formCol(1)
+                        ->checkbox(false)
+                            ->setName("del[$newId]")
+                            ->setClass("columns-item-checkbox")
+                        ->end()
+                    ->end()
+                ->end();
+            $newId++;
         }
+        return $htmlBuilder->build();
+    }
+
+    /**
+     * @param string $formId
+     *
+     * @return string
+     */
+    public function editQueryColumns(string $formId): string
+    {
+        $rqColumns = rq(Columns::class);
+        $htmlBuilder = Builder::new();
         $htmlBuilder
-            ->end()
-            // Empty line for new entry (must be outside the form)
-            ->div()->setId("$formId-item-template")->setStyle('display:none');
-        $this->editColumnValue($htmlBuilder, '__index__', $formId, ['fun' => '', 'col' => ''], $options);
+            ->form(true, false)
+                ->setId($formId);
+        $this->editFormButtons($htmlBuilder, $rqColumns, $formId);
         $htmlBuilder
+                ->div()->jxnBind($rqColumns)
+                ->end()
             ->end();
         return $htmlBuilder->build();
     }
 
     /**
-     * @param BuilderInterface $htmlBuilder
-     * @param string $rowId
-     * @param string $formId
-     * @param array $value
+     * @param array $values
      * @param array $options
      *
-     * @return void
+     * @return string
      */
-    private function editFilterValue(BuilderInterface $htmlBuilder, string $rowId,
-        string $formId, array $value, array $options)
+    public function formQueryFilters(array $values, array $options): string
     {
-        $htmlBuilder
-            ->formRow()->setId("$formId-item-$rowId")
-                ->formCol(4)
-                    ->formSelect()->setName("where[$rowId][col]")
-                        ->option(false, '(' . $this->trans->lang('anywhere') . ')')
-                        ->end();
-        foreach ($options['columns'] as $column) {
+        $htmlBuilder = Builder::new();
+        $wheres = $values['where'] ?? [];
+        $count = count($wheres);
+        for ($curId = 0, $newId = 0; $curId < $count; $curId++) {
+            // Do not render deleted items
+            if (isset($values['del'][$curId])) {
+                continue;
+            }
             $htmlBuilder
-                        ->option($value['col'] == $column, $column)
-                        ->end();
-        }
-        $htmlBuilder
-                    ->end()
-                ->end()
-                ->formCol(2)
-                    ->formSelect()->setName("where[$rowId][op]");
-        foreach ($options['operators'] as $operator) {
+                ->formRow()
+                    ->formCol(4)
+                        ->formSelect()->setName("where[$newId][col]")
+                            ->option(false, '(' . $this->trans->lang('anywhere') . ')')
+                            ->end();
+            foreach ($options['columns'] as $column) {
+                $htmlBuilder
+                            ->option($wheres[$curId]['col'] == $column, $column)
+                            ->end();
+            }
             $htmlBuilder
-                        ->option($value['op'] == $operator, $operator)
-                        ->end();
+                        ->end()
+                    ->end()
+                    ->formCol(3)
+                        ->formSelect()->setName("where[$newId][op]");
+            foreach ($options['operators'] as $operator) {
+                $htmlBuilder
+                            ->option($wheres[$curId]['op'] == $operator, $operator)
+                            ->end();
+            }
+            $htmlBuilder
+                        ->end()
+                    ->end()
+                    ->formCol(4)
+                        ->formInput()
+                            ->setName("where[$newId][val]")
+                            ->setValue($wheres[$curId]['val'])
+                        ->end()
+                    ->end()
+                    ->formCol(1)
+                        ->checkbox(false)
+                            ->setName("del[$newId]")
+                            ->setClass("filters-item-checkbox")
+                        ->end()
+                    ->end()
+                ->end();
+            $newId++;
         }
-        $htmlBuilder
-                    ->end()
-                ->end()
-                ->formCol(5)
-                    ->formInput()->setName("where[$rowId][val]")->setValue($value['val'])
-                    ->end()
-                ->end()
-                ->formCol(1)->setDataIndex($rowId)
-                    ->checkbox(false)->setClass("$formId-item-checkbox")->setDataIndex($rowId)
-                    ->end()
-                ->end()
-            ->end();
+        return $htmlBuilder->build();
     }
 
     /**
      * @param string $formId
-     * @param array $options
-     * @param string $btnAddOnClick
-     * @param string $btnDelOnClick
      *
      * @return string
      */
-    public function editQueryFilters(string $formId, array $options, string $btnAddOnClick, string $btnDelOnClick): string
+    public function editQueryFilters(string $formId): string
     {
+        $rqFilters = rq(Filters::class);
         $htmlBuilder = Builder::new();
         $htmlBuilder
-            ->form(true, false)->setId($formId);
-        $this->editFormButtons($htmlBuilder, $formId, $btnAddOnClick, $btnDelOnClick);
-        $i = 0;
-        foreach ($options['values'] as $value) {
-            $this->editFilterValue($htmlBuilder, $i, $formId, $value, $options);
-            $i++;
-        }
+            ->form(true, false)
+                ->setId($formId);
+        $this->editFormButtons($htmlBuilder, $rqFilters, $formId);
         $htmlBuilder
-            ->end()
-            // Empty line for new entry (must be outside the form)
-            ->div()->setId("$formId-item-template")->setStyle('display:none');
-        $this->editFilterValue($htmlBuilder, '__index__', $formId, ['col' => '', 'op' => '', 'val' => ''], $options);
-        $htmlBuilder
+                ->div()->jxnBind($rqFilters)
+                ->end()
             ->end();
         return $htmlBuilder->build();
     }
 
     /**
-     * @param BuilderInterface $htmlBuilder
-     * @param string $rowId
-     * @param string $formId
-     * @param array $value
+     * @param array $values
      * @param array $options
      *
-     * @return void
+     * @return string
      */
-    private function editSortingValue(BuilderInterface $htmlBuilder, string $rowId,
-        string $formId, array $value, array $options)
+    public function formQuerySorting(array $values, array $options): string
     {
-        $htmlBuilder
-            ->formRow()->setId("$formId-item-$rowId")
-                ->formCol(6)
-                    ->formSelect()->setName("order[$rowId]");
-        foreach ($options['columns'] as $column) {
+        $htmlBuilder = Builder::new();
+        $orders = $values['order'] ?? [];
+        $count = count($orders);
+        for ($curId = 0, $newId = 0; $curId < $count; $curId++) {
+            // Do not render deleted items
+            if (isset($values['del'][$curId])) {
+                continue;
+            }
             $htmlBuilder
-                        ->option($value['col'] == $column, $column)
-                        ->end();
+                ->formRow()
+                    ->formCol(6)
+                        ->formSelect()->setName("order[]");
+            foreach ($options['columns'] as $column) {
+                $htmlBuilder
+                            ->option($orders[$curId] == $column, $column)
+                            ->end();
+            }
+            $htmlBuilder
+                        ->end()
+                    ->end()
+                    ->formCol(5)
+                        ->inputGroup()
+                            ->text()
+                                ->addText($this->trans->lang('descending'))
+                            ->end()
+                            ->checkbox(isset($values['desc'][$curId]))
+                                ->setName("desc[$newId]")
+                                ->setValue('1')
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->formCol(1)
+                        ->checkbox(false)
+                            ->setName("del[$newId]")
+                            ->setClass("sorting-item-checkbox")
+                        ->end()
+                    ->end()
+                ->end();
+            $newId++;
         }
-        $htmlBuilder
-                    ->end()
-                ->end()
-                ->formCol(5)
-                    ->inputGroup()
-                        ->text()->addText($this->trans->lang('descending'))
-                        ->end()
-                        ->checkbox($value['desc'])->setName("desc[$rowId]")->setValue('1')
-                        ->end()
-                    ->end()
-                ->end()
-                ->formCol(1)->setDataIndex($rowId)
-                    ->checkbox(false)->setClass("$formId-item-checkbox")->setDataIndex($rowId)
-                    ->end()
-                ->end()
-            ->end();
+        return $htmlBuilder->build();
     }
 
     /**
      * @param string $formId
-     * @param array $options
-     * @param string $btnAddOnClick
-     * @param string $btnDelOnClick
      *
      * @return string
      */
-    public function editQuerySorting(string $formId, array $options, string $btnAddOnClick, string $btnDelOnClick): string
+    public function editQuerySorting(string $formId): string
     {
+        $rqSorting = rq(Sorting::class);
         $htmlBuilder = Builder::new();
         $htmlBuilder
-            ->form(true, false)->setId($formId);
-        $this->editFormButtons($htmlBuilder, $formId, $btnAddOnClick, $btnDelOnClick);
-        $i = 0;
-        foreach ($options['values'] as $value) {
-            $this->editSortingValue($htmlBuilder, $i, $formId, $value, $options);
-            $i++;
-        }
+            ->form(true, false)
+                ->setId($formId);
+        $this->editFormButtons($htmlBuilder, $rqSorting, $formId);
         $htmlBuilder
-            ->end()
-            // Empty line for new entry (must be outside the form)
-            ->div()->setId("$formId-item-template")->setStyle('display:none');
-        $this->editSortingValue($htmlBuilder, '__index__', $formId, ['col' => '', 'desc' => false], $options);
-        $htmlBuilder
+                ->div()->jxnBind($rqSorting)
+                ->end()
             ->end();
         return $htmlBuilder->build();
     }
@@ -351,11 +363,17 @@ trait SelectTrait
                 ->end()
                 ->formCol(3)
                     ->inputGroup()
-                        ->text()->addText($this->trans->lang('Limit'))
+                        ->text()
+                            ->addText($this->trans->lang('Limit'))
                         ->end()
-                        ->formInput()->setType('number')->setName('limit')->setValue($options['limit']['value'])
+                        ->formInput()
+                            ->setId($handlers['id']['limit'])
+                            ->setType('number')
+                            ->setName('limit')
+                            ->setValue($options['limit']['value'])
                         ->end()
-                        ->button()->btnOutline()->btnSecondary()->jxnClick($handlers['btnLimit'])->addIcon('ok')
+                        ->button()->btnOutline()->btnSecondary()
+                            ->jxnClick($handlers['btnLimit'])->addIcon('ok')
                         ->end()
                     ->end()
                 ->end()
@@ -363,9 +381,14 @@ trait SelectTrait
                     ->inputGroup()
                         ->text()->addText($this->trans->lang('Text length'))
                         ->end()
-                        ->formInput()->setType('number')->setName('text_length')->setValue($options['length']['value'])
+                        ->formInput()
+                            ->setId($handlers['id']['length'])
+                            ->setType('number')
+                            ->setName('text_length')
+                            ->setValue($options['length']['value'])
                         ->end()
-                        ->button()->btnOutline()->btnSecondary()->jxnClick($handlers['btnLength'])->addIcon('ok')
+                        ->button()->btnOutline()->btnSecondary()
+                            ->jxnClick($handlers['btnLength'])->addIcon('ok')
                         ->end()
                     ->end()
                 ->end()
@@ -390,7 +413,7 @@ trait SelectTrait
                         ->end()
                         ->formRow()
                             ->formCol(9)
-                                ->pre()->setId($ids['txtQueryId'])
+                                ->pre()->setId($ids['txtQueryId'])->jxnBind(rq(Query::class))
                                 ->end()
                             ->end()
                             ->formCol(3)

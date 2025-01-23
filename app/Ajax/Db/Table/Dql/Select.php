@@ -19,11 +19,6 @@ use function Jaxon\pm;
 class Select extends ContentComponent
 {
     /**
-     * @var array
-     */
-    private $selectData;
-
-    /**
      * The select form div id
      *
      * @var string
@@ -48,11 +43,11 @@ class Select extends ContentComponent
         $this->bag('dbadmin.select')->set('sorting', []);
 
         $table = $this->bag('dbadmin')->get('db.table.name');
-        $this->selectData = $this->db->getSelectData($table);
 
-        // Make data available to views
-        $this->view()->shareValues($this->selectData);
-        $this->stash()->set('select.options', $this->selectData['options']);
+        // Save select queries options
+        $selectData = $this->db->getSelectData($table);
+        $this->stash()->set('select.options', $selectData['options']);
+        $this->stash()->set('select.query', $selectData['query']);
 
         // Set main menu buttons
         $backToTables = $this->stash()->get('back.tables', false);
@@ -101,9 +96,8 @@ class Select extends ContentComponent
     {
         // Show the select options
         $this->cl(Options::class)->render();
-
         // Show the query
-        $this->cl(Query::class)->show($this->selectData['query']);
+        $this->cl(Query::class)->render();
     }
 
     /**

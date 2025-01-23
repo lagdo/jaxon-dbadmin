@@ -45,18 +45,6 @@ jaxon.dbadmin = {
         const index = parseInt(column.attr('data-index'), 10) + 1;
         $(this).attr('name', 'fields[' + index + '][' + $(this).attr('data-field') + ']');
     },
-    insertSelectQueryItem: function(targetId, templateId) {
-        const index = jaxon.dbadmin.newItemIndex++;
-        const itemHtml = $('#' + templateId).html().replace(/__index__/g, index);
-        const targetElt = jaxon.$(targetId);
-        targetElt.insertAdjacentHTML('beforeend', itemHtml);
-    },
-    removeSelectQueryItems: function(containerId, checkboxClass) {
-        $('.' + checkboxClass + ':checked', '#' + containerId).each(function() {
-            const targetId = '#' + containerId + '-item-' + $(this).attr('data-index');
-            $(targetId).remove();
-        });
-    },
     editor: {
         query: '',
         element: null,
@@ -67,9 +55,12 @@ jaxon.dbadmin = {
             pgsql: 'text/x-pgsql',
         },
     },
-    highlightSqlQuery: function(containerId, driver, query) {
+    highlightSqlQuery: function(txtQueryId, driver) {
+        // The query is replaced by the string formatted with CodeMirror.
         const mode = jaxon.dbadmin.editor.modes[driver] || jaxon.dbadmin.editor.modes.sql;
-        const element = document.getElementById(containerId);
+        const element = document.getElementById(txtQueryId);
+        const query = element.innerText || element.textContent;
+        element.innerHTML = '';
         jaxon.dbadmin.editor.query = query;
         CodeMirror(element, { value: query, mode, lineNumbers: false, readOnly: true });
     },

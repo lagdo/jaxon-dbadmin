@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dql;
 
 use Lagdo\DbAdmin\App\Ajax\Db\Table\CallableClass;
 
-use function count;
 use function Jaxon\pm;
 
 /**
@@ -17,7 +16,7 @@ class Columns extends CallableClass
      *
      * @var string
      */
-    private $columnsFormId = 'adminer-table-select-columns-form';
+    private $formId = 'adminer-table-select-columns-form';
 
     /**
      * Change the query columns
@@ -26,23 +25,8 @@ class Columns extends CallableClass
      */
     public function edit()
     {
-        // Select options
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        $options = $this->bag('dbadmin.select')->get('options');
-        $selectData = $this->db->getSelectData($table, $options);
-        // Make data available to views
-        // $this->view()->shareValues($selectData);
-
-        // For handlers on buttons
-        $targetId = $this->columnsFormId;
-        $sourceId = "$targetId-item-template";
-        $checkboxClass = "$targetId-item-checkbox";
-
         $title = 'Edit columns';
-        $content = $this->ui->editQueryColumns($this->columnsFormId,
-            $selectData['options']['columns'],
-            "jaxon.dbadmin.insertSelectQueryItem('$targetId', '$sourceId')",
-            "jaxon.dbadmin.removeSelectQueryItems('$targetId', '$checkboxClass')");
+        $content = $this->ui->editQueryColumns($this->formId);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -50,36 +34,29 @@ class Columns extends CallableClass
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(pm()->form($this->columnsFormId)),
+            'click' => $this->rq()->save(pm()->form($this->formId)),
         ]];
         $this->modal()->show($title, $content, $buttons);
 
-        $this->response->addCommand('dbadmin.new.index.set', [
-            'count' => count($selectData['options']['columns']['values']),
-        ]);
+        $this->cl(Input\Columns::class)->show();
     }
 
     /**
      * Change the query columns
      *
-     * @param array  $formValues  The form values
+     * @param array  $values  The form values
      *
      * @return void
      */
-    public function save(array $formValues)
+    public function save(array $values)
     {
-        // Select options
-        $options = $this->bag('dbadmin.select')->get('options');
-        $options['columns'] = $formValues['columns'] ?? [];
-        $this->bag('dbadmin')->set('options', $options);
-
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        $selectData = $this->db->getSelectData($table, $options);
+        // Save the new values in the databag.
+        $this->bag('dbadmin.select')->set('columns', $values);
 
         // Hide the dialog
         $this->modal()->hide();
 
         // Display the new query
-        $this->cl(Query::class)->show($selectData['query']);
+        $this->cl(Query::class)->refresh();
     }
 }

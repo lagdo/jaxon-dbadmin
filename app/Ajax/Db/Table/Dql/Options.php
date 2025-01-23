@@ -25,13 +25,18 @@ class Options extends Component
     {
         $options = $this->stash()->get('select.options');
         // Click handlers on buttons
-        $formOptions = pm()->form($this->formOptionsId);
         $handlers = [
             'btnColumns' => $this->rq(Columns::class)->edit(),
             'btnFilters' => $this->rq(Filters::class)->edit(),
             'btnSorting' => $this->rq(Sorting::class)->edit(),
-            'btnLimit' => $this->rq()->save($formOptions),
-            'btnLength' => $this->rq()->save($formOptions),
+            'btnLimit' => $this->rq()
+                ->saveSelectLimit(pm()->input("{$this->formOptionsId}-limit")->toInt()),
+            'btnLength' => $this->rq()
+                ->saveTextLength(pm()->input("{$this->formOptionsId}-length")->toInt()),
+            'id' => [
+                'limit' => "{$this->formOptionsId}-limit",
+                'length' => "{$this->formOptionsId}-length",
+            ],
         ];
 
         return $this->ui->selectOptions($options, $handlers);
@@ -40,22 +45,36 @@ class Options extends Component
     /**
      * Change the query options
      *
-     * @param array  $formValues  The form values
+     * @param int $limit
      *
      * @return void
      */
-    public function save(array $formValues)
+    public function saveSelectLimit(int $limit)
     {
         // Select options
         $options = $this->bag('dbadmin.select')->get('options');
-        $options['limit'] = $formValues['limit'] ?? 50;
-        $options['text_length'] = $formValues['text_length'] ?? 100;
-        $this->bag('dbadmin')->set('options', $options);
-
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        $selectData = $this->db->getSelectData($table, $options);
+        $options['limit'] = $limit;
+        $this->bag('dbadmin.select')->set('options', $options);
 
         // Display the new query
-        $this->cl(Query::class)->show($selectData['query']);
+        $this->cl(Query::class)->refresh();
+    }
+
+    /**
+     * Change the query options
+     *
+     * @param int $length
+     *
+     * @return void
+     */
+    public function saveTextLength(int $length)
+    {
+        // Select options
+        $options = $this->bag('dbadmin.select')->get('options');
+        $options['text_length'] = $length;
+        $this->bag('dbadmin.select')->set('options', $options);
+
+        // Display the new query
+        $this->cl(Query::class)->refresh();
     }
 }
