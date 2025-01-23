@@ -19,22 +19,6 @@ class Options extends Component
     private $formOptionsId = 'adminer-table-select-options-form';
 
     /**
-     * Default select options
-     *
-     * @var array
-     */
-    private $selectOptions = ['limit' => 50, 'text_length' => 100];
-
-    /**
-     * @inheritDoc
-     */
-    protected function before()
-    {
-        // Initialize select options
-        $this->bag('dbadmin')->set('options', $this->selectOptions);
-    }
-
-    /**
      * @inheritDoc
      */
     public function html(): string
@@ -63,7 +47,7 @@ class Options extends Component
     public function save(array $formValues)
     {
         // Select options
-        $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
+        $options = $this->bag('dbadmin.select')->get('options');
         $options['limit'] = $formValues['limit'] ?? 50;
         $options['text_length'] = $formValues['text_length'] ?? 100;
         $this->bag('dbadmin')->set('options', $options);

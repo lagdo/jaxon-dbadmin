@@ -20,13 +20,6 @@ class Sorting extends CallableClass
     private $sortingFormId = 'adminer-table-select-sorting-form';
 
     /**
-     * Default select options
-     *
-     * @var array
-     */
-    private $selectOptions = ['limit' => 50, 'text_length' => 100];
-
-    /**
      * Change the query sorting
      *
      * @return void
@@ -35,7 +28,7 @@ class Sorting extends CallableClass
     {
         // Select options
         $table = $this->bag('dbadmin')->get('db.table.name');
-        $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
+        $options = $this->bag('dbadmin.select')->get('options');
         $selectData = $this->db->getSelectData($table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
@@ -76,7 +69,7 @@ class Sorting extends CallableClass
     public function save(array $formValues)
     {
         // Select options
-        $options = $this->bag('dbadmin')->get('options', $this->selectOptions);
+        $options = $this->bag('dbadmin.select')->get('options');
         $options['order'] = $formValues['order'] ?? [];
         $options['desc'] = $formValues['desc'] ?? [];
         $this->bag('dbadmin')->set('options', $options);

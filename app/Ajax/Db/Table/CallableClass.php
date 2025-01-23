@@ -3,11 +3,12 @@
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table;
 
 use Lagdo\DbAdmin\App\CallableClass as BaseCallableClass;
-use Lagdo\DbAdmin\App\Ajax\Page\Content;
 use Lagdo\DbAdmin\Db\Exception\DbException;
 
 /**
+ * @databag dbadmin.select
  * @before checkDatabaseAccess
+ * @before setDefaultSelectOptions
  * @after showBreadcrumbs
  */
 abstract class CallableClass extends BaseCallableClass
@@ -25,5 +26,19 @@ abstract class CallableClass extends BaseCallableClass
         {
             throw new DbException('Access to database data is forbidden');
         }
+    }
+
+    /**
+     * Set the default options for the select queries
+     *
+     * @return void
+     */
+    protected function setDefaultSelectOptions()
+    {
+        // Do not change the values if they are already set.
+        $this->bag('dbadmin.select')->new('options', ['limit' => 50, 'text_length' => 100]);
+        $this->bag('dbadmin.columns')->new('', []);
+        $this->bag('dbadmin.filters')->new('', []);
+        $this->bag('dbadmin.sorting')->new('', []);
     }
 }

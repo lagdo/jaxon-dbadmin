@@ -42,6 +42,11 @@ class Select extends ContentComponent
      */
     protected function before()
     {
+        $this->bag('dbadmin.select')->set('options', ['limit' => 50, 'text_length' => 100]);
+        $this->bag('dbadmin.select')->set('columns', []);
+        $this->bag('dbadmin.select')->set('filters', []);
+        $this->bag('dbadmin.select')->set('sorting', []);
+
         $table = $this->bag('dbadmin')->get('db.table.name');
         $this->selectData = $this->db->getSelectData($table);
 
