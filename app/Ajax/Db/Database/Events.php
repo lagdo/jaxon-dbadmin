@@ -15,7 +15,7 @@ class Events extends ContentComponent
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             // 'add-event' => [
-            //     'title' => $this->trans->lang('Create event'),
+            //     'title' => $this->trans()->lang('Create event'),
             // ],
         ]);
     }
@@ -27,6 +27,6 @@ class Events extends ContentComponent
      */
     public function show()
     {
-        $this->showSection($this->db->getEvents());
+        $this->showSection($this->db()->getEvents());
     }
 }

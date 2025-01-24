@@ -39,7 +39,7 @@ class Options extends Component
             ],
         ];
 
-        return $this->ui->selectOptions($options, $handlers);
+        return $this->ui()->selectOptions($options, $handlers);
     }
 
     /**

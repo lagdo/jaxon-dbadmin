@@ -35,8 +35,8 @@ abstract class ContentComponent extends BaseComponent
     protected function checkDatabaseAccess()
     {
         [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $this->db->selectDatabase($server, $database, $schema);
-        if(!$this->package->getServerAccess($this->db->getCurrentServer()))
+        $this->db()->selectDatabase($server, $database, $schema);
+        if(!$this->package()->getServerAccess($this->db()->getCurrentServer()))
         {
             throw new DbException('Access to database data is forbidden');
         }
@@ -47,7 +47,7 @@ abstract class ContentComponent extends BaseComponent
      */
     public function html(): string
     {
-        return $this->ui->mainContent($this->pageContent, $this->counterId);
+        return $this->ui()->mainContent($this->pageContent, $this->counterId);
     }
 
     /**

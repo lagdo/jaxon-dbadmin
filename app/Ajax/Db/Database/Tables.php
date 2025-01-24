@@ -21,7 +21,7 @@ class Tables extends ContentComponent
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             'add-table' => [
-                'title' => $this->trans->lang('Create table'),
+                'title' => $this->trans()->lang('Create table'),
                 'handler' => $this->rq(Create::class)->render(),
             ],
         ]);
@@ -34,7 +34,7 @@ class Tables extends ContentComponent
      */
     public function show()
     {
-        $tablesInfo = $this->db->getTables();
+        $tablesInfo = $this->db()->getTables();
 
         $table = jq()->parent()->attr('data-table-name');
         $select = $tablesInfo['select'];

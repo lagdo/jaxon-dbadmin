@@ -25,9 +25,9 @@ trait QueryTrait
     public function html(): string
     {
         // Set the current database, but do not update the databag.
-        $this->db->setCurrentDbName($this->database);
+        $this->db()->setCurrentDbName($this->database);
 
-        $commandOptions = $this->db->prepareCommand();
+        $commandOptions = $this->db()->prepareCommand();
 
         // Make data available to views
         $this->view()->shareValues($commandOptions);
@@ -40,7 +40,7 @@ trait QueryTrait
         $queryId = 'adminer-main-command-query';
 
         $defaultLimit = 20;
-        return $this->ui->queryCommand($formId, $queryId, $btnId,
+        return $this->ui()->queryCommand($formId, $queryId, $btnId,
             $this->query, $defaultLimit, $commandOptions['labels']);
     }
 
@@ -87,9 +87,9 @@ trait QueryTrait
             return;
         }
 
-        $queryResults = $this->db->executeCommands($query, $limit, $errorStops, $onlyErrors);
+        $queryResults = $this->db()->executeCommands($query, $limit, $errorStops, $onlyErrors);
 
-        $content = $this->ui->queryResults($queryResults['results']);
+        $content = $this->ui()->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
     }
 }

@@ -39,17 +39,17 @@ class Insert extends ContentComponent
         $options = pm()->form($this->queryFormId);
         $actions = [
             'query-save' => [
-                'title' => $this->trans->lang('Save'),
+                'title' => $this->trans()->lang('Save'),
                 'handler' => $this->rq()->exec($options, true)
-                    ->confirm($this->trans->lang('Save this item?')),
+                    ->confirm($this->trans()->lang('Save this item?')),
             ],
             'query-save-select' => [
-                'title' => $this->trans->lang('Save and select'),
+                'title' => $this->trans()->lang('Save and select'),
                 'handler' => $this->rq()->exec($options, false)
-                    ->confirm($this->trans->lang('Save this item?')),
+                    ->confirm($this->trans()->lang('Save this item?')),
             ],
             'query-back' => [
-                'title' => $this->trans->lang('Back'),
+                'title' => $this->trans()->lang('Back'),
                 'handler' => $this->rq(Table::class)->show($table),
             ],
         ];
@@ -61,7 +61,7 @@ class Insert extends ContentComponent
      */
     public function html(): string
     {
-        return $this->ui->tableQueryForm($this->queryFormId, $this->queryData['fields']);
+        return $this->ui()->tableQueryForm($this->queryFormId, $this->queryData['fields']);
     }
 
     /**
@@ -74,11 +74,11 @@ class Insert extends ContentComponent
     public function show()
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
-        $this->queryData = $this->db->getQueryData($table);
+        $this->queryData = $this->db()->getQueryData($table);
         // Show the error
         if(($this->queryData['error']))
         {
-            $this->alert()->title($this->lang('Error'))->error($this->queryData['error']);
+            $this->alert()->title($this->trans()->lang('Error'))->error($this->queryData['error']);
             return;
         }
         $this->render();
@@ -97,15 +97,15 @@ class Insert extends ContentComponent
     public function exec(array $options, bool $addNew)
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
-        $results = $this->db->insertItem($table, $options);
+        $results = $this->db()->insertItem($table, $options);
 
         // Show the error
         if(($results['error']))
         {
-            $this->alert()->title($this->lang('Error'))->error($results['error']);
+            $this->alert()->title($this->trans()->lang('Error'))->error($results['error']);
             return;
         }
-        $this->alert()->title($this->lang('Success'))->success($results['message']);
+        $this->alert()->title($this->trans()->lang('Success'))->success($results['message']);
 
         $addNew ? $this->render() : $this->cl(Select::class)->show($table);
     }

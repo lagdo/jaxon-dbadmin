@@ -26,7 +26,7 @@ class Filters extends CallableClass
     public function edit()
     {
         $title = 'Edit filters';
-        $content = $this->ui->editQueryFilters($this->formId);
+        $content = $this->ui()->editQueryFilters($this->formId);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

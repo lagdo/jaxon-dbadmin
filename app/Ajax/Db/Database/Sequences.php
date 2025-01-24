@@ -15,7 +15,7 @@ class Sequences extends ContentComponent
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             // 'add-sequence' => [
-            //     'title' => $this->trans->lang('Create sequence'),
+            //     'title' => $this->trans()->lang('Create sequence'),
             // ],
         ]);
     }
@@ -27,6 +27,6 @@ class Sequences extends ContentComponent
      */
     public function show()
     {
-        $this->showSection($this->db->getSequences());
+        $this->showSection($this->db()->getSequences());
     }
 }

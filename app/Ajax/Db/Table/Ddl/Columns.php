@@ -45,7 +45,7 @@ class Columns extends Component
      */
     public function html(): string
     {
-        return $this->ui
+        return $this->ui()
             ->fields($this->stash()->get('table.fields'))
             ->tableColumns($this->formId);
     }
@@ -60,10 +60,10 @@ class Columns extends Component
     public function add(int $target = -1)
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
-        $this->tableData = $this->db->getTableData($table);
+        $this->tableData = $this->db()->getTableData($table);
         // Make data available to views
         $this->view()->shareValues($this->tableData);
-        $this->ui
+        $this->ui()
             ->support($this->tableData['support'])
             ->collations($this->tableData['collations'])
             ->unsigned($this->tableData['unsigned'])
@@ -74,7 +74,7 @@ class Columns extends Component
             return TableFieldEntity::fromArray($field);
         }, $fields);
         // Append a new empty field entry
-        $fields[] = $this->db->getTableField();
+        $fields[] = $this->db()->getTableField();
         $this->stash()->set('table.fields', $fields);
         $this->bag('dbadmin.table')->set('fields', $fields);
 
@@ -86,15 +86,15 @@ class Columns extends Component
     //     // Todo: Save columns data in a databag, and get the 'length' value from there.
     //     $length = jq(".{$this->formId}-column", "#adminer-database-content")->length;
 
-    //     $this->tableData = $this->db->getTableData();
+    //     $this->tableData = $this->db()->getTableData();
     //     // Make data available to views
     //     $this->view()->shareValues($this->tableData);
 
     //     $columnClass = "{$this->formId}-column";
     //     $columnId = sprintf('%s-%02d', $columnClass, $length);
-    //     $field = $this->db->getTableField();
+    //     $field = $this->db()->getTableField();
     //     $prefixFields = sprintf("fields[%d]", $length + 1);
-    //     $content = $this->ui
+    //     $content = $this->ui()
     //         ->support($this->tableData['support'])
     //         ->collations($this->tableData['collations'])
     //         ->unsigned($this->tableData['unsigned'])
@@ -118,7 +118,7 @@ class Columns extends Component
     //         // $this->response->prepend($targetId, 'outerHTML', $content);
     //     }
 
-    //     // $contentId = $this->package->getDbContentId();
+    //     // $contentId = $this->package()->getDbContentId();
     //     // $length = jq(".$columnClass", "#$contentId")->length;
     //     // $index = jq()->attr('data-index');
     //     // // Set the button event handlers on the new column
@@ -143,9 +143,9 @@ class Columns extends Component
     private function insertBefore(string $target, string $id, string $class, string $content, array $attrs = [])
     {
         // Insert a div with the id before the target
-        $this->response->insertBefore($target, $this->ui->formRowTag(), $id);
+        $this->response->insertBefore($target, $this->ui()->formRowTag(), $id);
         // Set the new element class
-        $this->response->jq("#$id")->attr('class', $this->ui->formRowClass($class));
+        $this->response->jq("#$id")->attr('class', $this->ui()->formRowClass($class));
         // Set the new element attributes
         foreach($attrs as $name => $value)
         {
@@ -169,9 +169,9 @@ class Columns extends Component
     private function insertAfter(string $target, string $id, string $class, string $content, array $attrs = [])
     {
         // Insert a div with the id after the target
-        $this->response->insertAfter($target, $this->ui->formRowTag(), $id);
+        $this->response->insertAfter($target, $this->ui()->formRowTag(), $id);
         // Set the new element class
-        $this->response->jq("#$id")->attr('class', $this->ui->formRowClass($class));
+        $this->response->jq("#$id")->attr('class', $this->ui()->formRowClass($class));
         // Set the new element attributes
         foreach($attrs as $name => $value)
         {

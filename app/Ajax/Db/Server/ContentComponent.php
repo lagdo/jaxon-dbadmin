@@ -25,8 +25,8 @@ abstract class ContentComponent extends BaseComponent
     protected function checkServerAccess()
     {
         [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
-        $this->db->selectDatabase($server, $database, $schema);
-        if(!$this->package->getServerAccess($this->db->getCurrentServer()))
+        $this->db()->selectDatabase($server, $database, $schema);
+        if(!$this->package()->getServerAccess($this->db()->getCurrentServer()))
         {
             throw new DbException('Access to server data is forbidden');
         }

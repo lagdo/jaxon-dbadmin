@@ -21,7 +21,7 @@ class ServerInfo extends MenuComponent
      */
     public function html(): string
     {
-        return $this->ui->serverInfo($this->server, $this->user);
+        return $this->ui()->serverInfo($this->server, $this->user);
     }
 
     /**

@@ -34,6 +34,6 @@ trait QueryTrait
     protected function getSelectQuery(): string
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
-        return $this->db->getSelectData($table, $this->getOptions())['query'];
+        return $this->db()->getSelectData($table, $this->getOptions())['query'];
     }
 }

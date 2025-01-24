@@ -45,18 +45,18 @@ class Table extends ContentComponent
     // protected function getTableLinks(bool $new = true): array
     // {
     //     $links = [
-    //         'select' => $this->trans->lang('Select data'),
+    //         'select' => $this->trans()->lang('Select data'),
     //     ];
-    //     if ($this->db->support('table') || $this->db->support('indexes')) {
-    //         $links['table'] = $this->trans->lang('Show structure');
+    //     if ($this->db()->support('table') || $this->db()->support('indexes')) {
+    //         $links['table'] = $this->trans()->lang('Show structure');
     //     }
-    //     if ($this->db->support('table')) {
-    //         $links['alter'] = $this->trans->lang('Alter table');
+    //     if ($this->db()->support('table')) {
+    //         $links['alter'] = $this->trans()->lang('Alter table');
     //     }
     //     if ($new) {
-    //         $links['edit'] = $this->trans->lang('New item');
+    //         $links['edit'] = $this->trans()->lang('New item');
     //     }
-    //     // $links['docs'] = \doc_link([$this->db->jush() => $this->db->tableHelp($name)], '?');
+    //     // $links['docs'] = \doc_link([$this->db()->jush() => $this->db()->tableHelp($name)], '?');
 
     //     return $links;
     // }
@@ -72,39 +72,39 @@ class Table extends ContentComponent
         // $actions = $this->getTableLinks();
 
         // $actions = [
-        //     'create' => $this->trans->lang('Alter indexes'),
+        //     'create' => $this->trans()->lang('Alter indexes'),
         // ];
 
         // // From table.inc.php
         // $actions = [
-        //     $this->trans->lang('Add foreign key'),
+        //     $this->trans()->lang('Add foreign key'),
         // ];
 
         // $actions = [
-        //     $this->trans->lang('Add trigger'),
+        //     $this->trans()->lang('Add trigger'),
         // ];
 
         $actions = [
             'edit-table' => [
-                'title' => $this->trans->lang('Alter table'),
+                'title' => $this->trans()->lang('Alter table'),
                 'handler' => $this->rq(Alter::class)->render(),
             ],
             'drop-table' => [
-                'title' => $this->trans->lang('Drop table'),
+                'title' => $this->trans()->lang('Drop table'),
                 'handler' => $this->rq()->drop()->confirm("Drop table $table?"),
             ],
             'select-table' => [
-                'title' => $this->trans->lang('Select'),
+                'title' => $this->trans()->lang('Select'),
                 'handler' => $this->rq(Select::class)->show($table),
             ],
             'insert-table' => [
-                'title' => $this->trans->lang('New item'),
+                'title' => $this->trans()->lang('New item'),
                 'handler' => $this->rq(Insert::class)->show(),
             ],
         ];
         $this->cl(PageActions::class)->show($actions);
 
-        $this->tableInfo = $this->db->getTableInfo($table);
+        $this->tableInfo = $this->db()->getTableInfo($table);
     }
 
     /**
@@ -112,7 +112,7 @@ class Table extends ContentComponent
      */
     public function html(): string
     {
-        return $this->ui->mainDbTable($this->tableInfo['tabs']);
+        return $this->ui()->mainDbTable($this->tableInfo['tabs']);
     }
 
     /**
@@ -123,25 +123,25 @@ class Table extends ContentComponent
         $table = $this->bag('dbadmin')->get('db.table.name');
 
         // Show fields
-        $fieldsInfo = $this->db->getTableFields($table);
+        $fieldsInfo = $this->db()->getTableFields($table);
         $this->showTab($fieldsInfo, 'tab-content-fields');
 
         // Show indexes
-        $indexesInfo = $this->db->getTableIndexes($table);
+        $indexesInfo = $this->db()->getTableIndexes($table);
         if(is_array($indexesInfo))
         {
             $this->showTab($indexesInfo, 'tab-content-indexes');
         }
 
         // Show foreign keys
-        $foreignKeysInfo = $this->db->getTableForeignKeys($table);
+        $foreignKeysInfo = $this->db()->getTableForeignKeys($table);
         if(is_array($foreignKeysInfo))
         {
             $this->showTab($foreignKeysInfo, 'tab-content-foreign-keys');
         }
 
         // Show triggers
-        $triggersInfo = $this->db->getTableTriggers($table);
+        $triggersInfo = $this->db()->getTableTriggers($table);
         if(is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
@@ -158,7 +158,7 @@ class Table extends ContentComponent
      */
     private function showTab(array $tableData, string $tabId)
     {
-        $content = $this->ui->mainContent(array_merge($this->tableInfo, $tableData));
+        $content = $this->ui()->mainContent(array_merge($this->tableInfo, $tableData));
         $this->response->html($tabId, $content);
     }
 }

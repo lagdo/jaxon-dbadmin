@@ -43,7 +43,7 @@ class Create extends ContentComponent
         $this->bag('dbadmin.table')->set('fields', []);
         $this->stash()->set('table.fields', []);
 
-        $this->tableData = $this->db->getTableData();
+        $this->tableData = $this->db()->getTableData();
         // Make data available to views
         $this->view()->shareValues($this->tableData);
 
@@ -53,11 +53,11 @@ class Create extends ContentComponent
         $values = pm()->form($this->formId);
         $actions = [
             'table-save' => [
-                'title' => $this->trans->lang('Save'),
+                'title' => $this->trans()->lang('Save'),
                 'handler' => $this->rq()->save($values)->when($length),
             ],
             'table-cancel' => [
-                'title' => $this->trans->lang('Cancel'),
+                'title' => $this->trans()->lang('Cancel'),
                 'handler' => $this->rq(Tables::class)->show(),
             ],
         ];
@@ -69,7 +69,7 @@ class Create extends ContentComponent
      */
     public function html(): string
     {
-        return $this->ui
+        return $this->ui()
             ->support($this->tableData['support'])
             ->engines($this->tableData['engines'])
             ->collations($this->tableData['collations'])
@@ -96,7 +96,7 @@ class Create extends ContentComponent
         // $fields = $this->bag('dbadmin.table')->get('fields');
         // $values = array_merge($this->defaults, $values);
 
-        // $result = $this->db->createTable($values);
+        // $result = $this->db()->createTable($values);
         // if(!$result['success'])
         // {
         //     $this->alert()->error($result['error']);

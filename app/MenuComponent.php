@@ -12,17 +12,17 @@ abstract class MenuComponent extends Component
     /**
      * @var MenuBuilder
      */
-    protected $ui;
+    private $ui;
 
     /**
      * @var Translator
      */
-    protected $trans;
+    private $trans;
 
     /**
      * @var DbFacade
      */
-    protected $db;
+    private $db;
 
     /**
      * @param MenuBuilder $ui
@@ -34,5 +34,29 @@ abstract class MenuComponent extends Component
         $this->ui = $ui;
         $this->trans = $trans;
         $this->db = $db;
+    }
+
+    /**
+     * @return DbFacade
+     */
+    protected function db(): DbFacade
+    {
+        return $this->db;
+    }
+
+    /**
+     * @return MenuBuilder
+     */
+    protected function ui(): MenuBuilder
+    {
+        return $this->ui;
+    }
+
+    /**
+     * @return Translator
+     */
+    protected function trans(): Translator
+    {
+        return $this->trans;
     }
 }

@@ -23,20 +23,20 @@ class Command extends MenuComponent
     {
         $actions = [
             'database-query' => [
-                'title' => $this->trans->lang('Query'),
+                'title' => $this->trans()->lang('Query'),
                 'handler' => rq(Query::class)->database(),
             ],
             'database-import' => [
-                'title' => $this->trans->lang('Import'),
+                'title' => $this->trans()->lang('Import'),
                 'handler' => rq(Import::class)->database(),
             ],
             'database-export' => [
-                'title' => $this->trans->lang('Export'),
+                'title' => $this->trans()->lang('Export'),
                 'handler' => rq(Export::class)->database(),
             ],
         ];
 
-        return $this->ui->menuCommands($actions, $this->activeItem);
+        return $this->ui()->menuCommands($actions, $this->activeItem);
     }
 
     /**

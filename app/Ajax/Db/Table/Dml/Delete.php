@@ -23,15 +23,15 @@ class Delete extends CallableClass
     public function exec(array $rowIds)
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
-        $results = $this->db->deleteItem($table, $rowIds);
+        $results = $this->db()->deleteItem($table, $rowIds);
 
         // Show the error
         if(($results['error']))
         {
-            $this->alert()->title($this->lang('Error'))->error($results['error']);
+            $this->alert()->title($this->trans()->lang('Error'))->error($results['error']);
             return;
         }
-        $this->alert()->title($this->lang('Success'))->success($results['message']);
+        $this->alert()->title($this->trans()->lang('Success'))->success($results['message']);
         $this->rq(Select::class)->exec();
     }
 }

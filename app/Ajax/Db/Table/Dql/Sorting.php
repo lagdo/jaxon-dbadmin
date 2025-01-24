@@ -26,7 +26,7 @@ class Sorting extends CallableClass
     public function edit()
     {
         $title = 'Edit order';
-        $content = $this->ui->editQuerySorting($this->formId);
+        $content = $this->ui()->editQuerySorting($this->formId);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

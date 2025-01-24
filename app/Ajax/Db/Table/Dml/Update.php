@@ -41,9 +41,9 @@ class Update extends ContentComponent
         // Set main menu buttons
         $options = pm()->form($this->queryFormId);
         $actions = [
-            [$this->trans->lang('Back'), $this->rq()->back(), true],
-            [$this->trans->lang('Save'), $this->rq()->exec($this->rowIds, $options)
-                ->confirm($this->lang('Save this item?'))],
+            [$this->trans()->lang('Back'), $this->rq()->back(), true],
+            [$this->trans()->lang('Save'), $this->rq()->exec($this->rowIds, $options)
+                ->confirm($this->trans()->lang('Save this item?'))],
         ];
         $this->cl(PageActions::class)->show($actions);
     }
@@ -53,7 +53,7 @@ class Update extends ContentComponent
      */
     public function html(): string
     {
-        return $this->ui->tableQueryForm($this->queryFormId, $this->queryData['fields']);
+        return $this->ui()->tableQueryForm($this->queryFormId, $this->queryData['fields']);
     }
 
     /**
@@ -76,11 +76,11 @@ class Update extends ContentComponent
     {
         $this->rowIds = $rowIds;
         $table = $this->bag('dbadmin')->get('db.table.name');
-        $this->queryData = $this->db->getQueryData($table, $rowIds, 'Edit item');
+        $this->queryData = $this->db()->getQueryData($table, $rowIds, 'Edit item');
         // Show the error
         if(($this->queryData['error']))
         {
-            $this->alert()->title($this->lang('Error'))->error($this->queryData['error']);
+            $this->alert()->title($this->trans()->lang('Error'))->error($this->queryData['error']);
             return;
         }
         $this->render();
@@ -117,15 +117,15 @@ class Update extends ContentComponent
         $options['null'] = $rowIds['null'];
 
         $table = $this->bag('dbadmin')->get('db.table.name');
-        $results = $this->db->updateItem($table, $options);
+        $results = $this->db()->updateItem($table, $options);
 
         // Show the error
         if(($results['error']))
         {
-            $this->alert()->title($this->lang('Error'))->error($results['error']);
+            $this->alert()->title($this->trans()->lang('Error'))->error($results['error']);
             return;
         }
-        $this->alert()->title($this->lang('Success'))->success($results['message']);
+        $this->alert()->title($this->trans()->lang('Success'))->success($results['message']);
         $this->back();
     }
 }

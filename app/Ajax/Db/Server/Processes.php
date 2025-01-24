@@ -26,7 +26,7 @@ class Processes extends ContentComponent
      */
     public function html(): string
     {
-        return $this->ui->mainContent($this->pageContent);
+        return $this->ui()->mainContent($this->pageContent);
     }
 
     /**
@@ -36,7 +36,7 @@ class Processes extends ContentComponent
      */
     public function show()
     {
-        $this->pageContent = $this->db->getProcesses();
+        $this->pageContent = $this->db()->getProcesses();
 
         $this->render();
     }

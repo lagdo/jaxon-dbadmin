@@ -25,17 +25,17 @@ abstract class PageComponent extends BaseComponent
     /**
      * @var UiBuilder
      */
-    protected $ui;
+    private $ui;
 
     /**
      * @var Translator
      */
-    protected $trans;
+    private $trans;
 
     /**
      * @var DbFacade
      */
-    protected $db;
+    private $db;
 
     /**
      * The constructor
@@ -51,6 +51,38 @@ abstract class PageComponent extends BaseComponent
         $this->db = $db;
         $this->ui = $ui;
         $this->trans = $trans;
+    }
+
+    /**
+     * @return Package
+     */
+    protected function package(): Package
+    {
+        return $this->package;
+    }
+
+    /**
+     * @return DbFacade
+     */
+    protected function db(): DbFacade
+    {
+        return $this->db;
+    }
+
+    /**
+     * @return UiBuilder
+     */
+    protected function ui(): UiBuilder
+    {
+        return $this->ui;
+    }
+
+    /**
+     * @return Translator
+     */
+    protected function trans(): Translator
+    {
+        return $this->trans;
     }
 
     /**

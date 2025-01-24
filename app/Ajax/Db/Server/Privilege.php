@@ -15,12 +15,12 @@ class Privilege extends CallableDbClass
      */
     public function add()
     {
-        $userInfo = $this->db->newUserPrivileges();
+        $userInfo = $this->db()->newUserPrivileges();
 
         $formId = 'user-form';
         $title = 'Add user privileges';
-        $privileges = $this->ui->mainContent($userInfo);
-        $content = $this->ui->userForm($formId, $userInfo['user'], $privileges);
+        $privileges = $this->ui()->mainContent($userInfo);
+        $content = $this->ui()->userForm($formId, $userInfo['user'], $privileges);
 
         $buttons = [[
             'title' => 'Cancel',
@@ -59,12 +59,12 @@ class Privilege extends CallableDbClass
      */
     public function edit(string $username, string $hostname, string $database)
     {
-        $userInfo = $this->db->getUserPrivileges($username, $hostname, $database);
+        $userInfo = $this->db()->getUserPrivileges($username, $hostname, $database);
 
         $formId = 'user-form';
         $title = 'Edit user privileges';
-        $privileges = $this->ui->mainContent($userInfo);
-        $content = $this->ui->userForm($formId, $userInfo['user'], $privileges);
+        $privileges = $this->ui()->mainContent($userInfo);
+        $content = $this->ui()->userForm($formId, $userInfo['user'], $privileges);
 
         $buttons = [[
             'title' => 'Cancel',

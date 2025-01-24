@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Database;
 
 use Lagdo\DbAdmin\App\CallableDbClass;
 use Lagdo\DbAdmin\App\Ajax\Db\Server\Databases;
-use Lagdo\DbAdmin\App\Ajax\Menu\Sections as MenuSections;
 use Lagdo\DbAdmin\App\Ajax\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\App\Ajax\Menu\Database\Schemas as MenuSchemas;
 use Lagdo\DbAdmin\App\Ajax\Menu\Server\Databases as MenuDatabases;
@@ -30,9 +29,9 @@ class Database extends CallableDbClass
     {
         [$server,] = $this->bag('dbadmin')->get('db');
         // Set the selected server
-        $this->db->selectDatabase($server, $database);
+        $this->db()->selectDatabase($server, $database);
 
-        $databaseInfo = $this->db->getDatabaseInfo();
+        $databaseInfo = $this->db()->getDatabaseInfo();
         // Make database info available to views
         $this->view()->shareValues($databaseInfo);
 
@@ -66,11 +65,11 @@ class Database extends CallableDbClass
      */
     public function add()
     {
-        $collations = $this->db->getCollations();
+        $collations = $this->db()->getCollations();
 
         $formId = 'database-form';
         $title = 'Create a database';
-        $content = $this->ui->addDbForm($formId, $collations);
+        $content = $this->ui()->addDbForm($formId, $collations);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -95,7 +94,7 @@ class Database extends CallableDbClass
         $database = $formValues['name'];
         $collation = $formValues['collation'];
 
-        if(!$this->db->createDatabase($database, $collation))
+        if(!$this->db()->createDatabase($database, $collation))
         {
             $this->alert()->error("Cannot create database $database.");
             return;
@@ -115,7 +114,7 @@ class Database extends CallableDbClass
      */
     public function drop(string $database)
     {
-        if(!$this->db->dropDatabase($database))
+        if(!$this->db()->dropDatabase($database))
         {
             $this->alert()->error("Cannot delete database $database.");
             return;

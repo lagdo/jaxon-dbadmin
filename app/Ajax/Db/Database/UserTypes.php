@@ -15,7 +15,7 @@ class UserTypes extends ContentComponent
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             // 'add-type' => [
-            //     'title' => $this->trans->lang('Create type'),
+            //     'title' => $this->trans()->lang('Create type'),
             // ],
         ]);
     }
@@ -27,6 +27,6 @@ class UserTypes extends ContentComponent
      */
     public function showUserTypes()
     {
-        $this->showSection($this->db->getUserTypes());
+        $this->showSection($this->db()->getUserTypes());
     }
 }

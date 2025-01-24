@@ -23,7 +23,7 @@ class Privileges extends ContentComponent
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             'add-user' => [
-                'title' => $this->trans->lang('Create user'),
+                'title' => $this->trans()->lang('Create user'),
                 'handler' => $this->rq(Privilege::class)->add(),
             ],
         ]);
@@ -34,7 +34,7 @@ class Privileges extends ContentComponent
      */
     public function html(): string
     {
-        return $this->ui->mainContent($this->pageContent);
+        return $this->ui()->mainContent($this->pageContent);
     }
 
     /**
@@ -44,7 +44,7 @@ class Privileges extends ContentComponent
      */
     public function show()
     {
-        $this->pageContent = $this->db->getPrivileges();
+        $this->pageContent = $this->db()->getPrivileges();
 
         $user = jq()->parent()->attr('data-user');
         $host = jq()->parent()->attr('data-host');
@@ -52,7 +52,7 @@ class Privileges extends ContentComponent
         // Add links, classes and data values to privileges.
         $this->pageContent['details'] = array_map(function($detail) use($user, $host, $database) {
             // Set the grant select options.
-            $detail['grants'] = $this->ui->htmlSelect($detail['grants'], 'database-item');
+            $detail['grants'] = $this->ui()->htmlSelect($detail['grants'], 'database-item');
             // Set the Edit button.
             $detail['edit'] = [
                 'label' => 'Edit',

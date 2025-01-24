@@ -15,10 +15,10 @@ class Routines extends ContentComponent
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             // 'add-procedure' => [
-            //     'title' => $this->trans->lang('Create procedure'),
+            //     'title' => $this->trans()->lang('Create procedure'),
             // ],
             // 'add-function' => [
-            //     'title' => $this->trans->lang('Create function'),
+            //     'title' => $this->trans()->lang('Create function'),
             // ],
         ]);
     }
@@ -30,6 +30,6 @@ class Routines extends ContentComponent
      */
     public function show()
     {
-        $this->showSection($this->db->getRoutines());
+        $this->showSection($this->db()->getRoutines());
     }
 }

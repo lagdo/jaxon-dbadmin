@@ -26,7 +26,7 @@ class Columns extends CallableClass
     public function edit()
     {
         $title = 'Edit columns';
-        $content = $this->ui->editQueryColumns($this->formId);
+        $content = $this->ui()->editQueryColumns($this->formId);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

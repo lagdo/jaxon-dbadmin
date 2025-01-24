@@ -19,9 +19,9 @@ trait ExportTrait
     public function html(): string
     {
         // Set the current database, but do not update the databag.
-        $this->db->setCurrentDbName($this->database);
+        $this->db()->setCurrentDbName($this->database);
 
-        $exportOptions = $this->db->getExportOptions($this->database);
+        $exportOptions = $this->db()->getExportOptions($this->database);
 
         // Make data available to views
         $this->view()->shareValues($exportOptions);
@@ -44,7 +44,7 @@ trait ExportTrait
             'tableNameId' => $tableNameId,
             'tableDataId' => $tableDataId,
         ];
-        return $this->ui->exportPage($htmlIds, $exportOptions['databases'] ?? [],
+        return $this->ui()->exportPage($htmlIds, $exportOptions['databases'] ?? [],
             $exportOptions['tables'] ?? [], $exportOptions['options'], $exportOptions['labels']);
     }
 
@@ -91,7 +91,7 @@ trait ExportTrait
         $formValues['autoIncrement'] = isset($formValues['auto_increment']);
         $formValues['triggers'] = isset($formValues['triggers']);
 
-        $results = $this->db->exportDatabases($databases, $tables, $formValues);
+        $results = $this->db()->exportDatabases($databases, $tables, $formValues);
         if(\is_string($results))
         {
             // Error
@@ -114,14 +114,14 @@ trait ExportTrait
             }
         }
         $name = '/' . \uniqid() . $extension;
-        $path = \rtrim($this->package->getOption('export.dir'), '/') . $name;
+        $path = \rtrim($this->package()->getOption('export.dir'), '/') . $name;
         if(!@\file_put_contents($path, $content))
         {
             $this->alert()->title('Error')->error('Unable to write dump to file.');
             return;
         }
 
-        $link = \rtrim($this->package->getOption('export.url'), '/') . $name;
+        $link = \rtrim($this->package()->getOption('export.url'), '/') . $name;
         // $this->response->script("window.open('$link', '_blank').focus()");
         $this->response->addCommand('dbadmin.window.open', ['link' => $link]);
     }

@@ -19,7 +19,7 @@ class Views extends ContentComponent
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             'add-view' => [
-                'title' => $this->trans->lang('Create view'),
+                'title' => $this->trans()->lang('Create view'),
                 'handler' => $this->rq(View::class)->add(),
             ],
         ]);
@@ -32,7 +32,7 @@ class Views extends ContentComponent
      */
     public function show()
     {
-        $viewsInfo = $this->db->getViews();
+        $viewsInfo = $this->db()->getViews();
 
         $view = jq()->parent()->attr('data-view-name');
         // Add links, classes and data values to view names.

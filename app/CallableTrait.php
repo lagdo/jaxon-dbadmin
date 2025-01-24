@@ -4,9 +4,7 @@ namespace Lagdo\DbAdmin\App;
 
 use Jaxon\App\View\Store;
 use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
-
-use function call_user_func_array;
-use function func_get_args;
+use Lagdo\DbAdmin\Db\DbFacade;
 
 /**
  * Callable base class
@@ -16,17 +14,9 @@ use function func_get_args;
 trait CallableTrait
 {
     /**
-     * Get a translated string
-     * The first parameter is mandatory. Optional parameters can follow.
-     *
-     * @param string $phrase
-     *
-     * @return string
+     * @return DbFacade
      */
-    protected function lang($phrase): string
-    {
-        return call_user_func_array([$this->trans, "lang"], func_get_args());
-    }
+    abstract protected function db(): DbFacade;
 
     /**
      * Render a view
@@ -70,11 +60,11 @@ trait CallableTrait
      */
     protected function debugQueries()
     {
-        if(!$this->package->getOption('debug.queries', false))
+        if(!$this->package()->getOption('debug.queries', false))
         {
             return;
         }
-        foreach($this->db->queries() as $query)
+        foreach($this->db()->queries() as $query)
         {
             $this->response->debug($query['start'] . ' => ' . $query['query']);
         }

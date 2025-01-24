@@ -4,10 +4,10 @@ namespace Lagdo\DbAdmin\App;
 
 use Jaxon\App\CallableClass as JaxonCallableClass;
 use Jaxon\App\Dialog\DialogTrait;
+use Lagdo\DbAdmin\App\Ui\UiBuilder;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
-use Lagdo\DbAdmin\App\Ui\UiBuilder;
 
 /**
  * Callable base class
@@ -31,17 +31,17 @@ class CallableClass extends JaxonCallableClass
      *
      * @var DbFacade
      */
-    protected $db;
+    private $db;
 
     /**
      * @var UiBuilder
      */
-    protected $ui;
+    private $ui;
 
     /**
      * @var Translator
      */
-    public $trans;
+    private $trans;
 
     /**
      * The constructor
@@ -57,5 +57,37 @@ class CallableClass extends JaxonCallableClass
         $this->db = $db;
         $this->ui = $ui;
         $this->trans = $trans;
+    }
+
+    /**
+     * @return Package
+     */
+    protected function package(): Package
+    {
+        return $this->package;
+    }
+
+    /**
+     * @return DbFacade
+     */
+    protected function db(): DbFacade
+    {
+        return $this->db;
+    }
+
+    /**
+     * @return UiBuilder
+     */
+    protected function ui(): UiBuilder
+    {
+        return $this->ui;
+    }
+
+    /**
+     * @return Translator
+     */
+    protected function trans(): Translator
+    {
+        return $this->trans;
     }
 }

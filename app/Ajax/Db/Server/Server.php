@@ -23,7 +23,7 @@ class Server extends CallableDbClass
     protected function showDatabaseMenu(): array
     {
         // Access to servers is forbidden. Show the first database.
-        $databasesInfo = $this->db->getDatabases();
+        $databasesInfo = $this->db()->getDatabases();
 
         // Make databases info available to views
         $this->view()->shareValues($databasesInfo);
@@ -49,7 +49,7 @@ class Server extends CallableDbClass
      */
     public function connect(bool $hasServerAccess)
     {
-        $serverInfo = $this->db->getServerInfo();
+        $serverInfo = $this->db()->getServerInfo();
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
 

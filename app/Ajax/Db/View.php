@@ -20,7 +20,7 @@ class View extends CallableDbClass
      */
     protected function showTab(array $viewData, string $tabId)
     {
-        $this->response->html($tabId, $this->ui->mainContent($viewData));
+        $this->response->html($tabId, $this->ui()->mainContent($viewData));
     }
 
     /**
@@ -34,19 +34,19 @@ class View extends CallableDbClass
     // protected function getViewLinks(bool $new = false): array
     // {
     //     $links = [
-    //         'select' => $this->trans->lang('Select data'),
+    //         'select' => $this->trans()->lang('Select data'),
     //     ];
-    //     if ($this->db->support('indexes')) {
-    //         $links['table'] = $this->trans->lang('Show structure');
+    //     if ($this->db()->support('indexes')) {
+    //         $links['table'] = $this->trans()->lang('Show structure');
     //     }
-    //     if ($this->db->support('table')) {
-    //         $links['table'] = $this->trans->lang('Show structure');
-    //         $links['alter'] = $this->trans->lang('Alter view');
+    //     if ($this->db()->support('table')) {
+    //         $links['table'] = $this->trans()->lang('Show structure');
+    //         $links['alter'] = $this->trans()->lang('Alter view');
     //     }
     //     if ($new) {
-    //         $links['edit'] = $this->trans->lang('New item');
+    //         $links['edit'] = $this->trans()->lang('New item');
     //     }
-    //     // $links['docs'] = \doc_link([$this->db->jush() => $this->db->tableHelp($name)], '?');
+    //     // $links['docs'] = \doc_link([$this->db()->jush() => $this->db()->tableHelp($name)], '?');
 
     //     return $links;
     // }
@@ -62,38 +62,38 @@ class View extends CallableDbClass
      */
     public function show(string $view)
     {
-        $viewInfo = $this->db->getViewInfo($view);
+        $viewInfo = $this->db()->getViewInfo($view);
         // Make view info available to views
         $this->view()->shareValues($viewInfo);
 
         // Set main menu buttons
         // $actions = [
-        //     $this->trans->lang('Add trigger'),
+        //     $this->trans()->lang('Add trigger'),
         // ];
 
         // $actions = $this->getViewLinks();
 
         $actions = [
             'edit-view' => [
-                'title' => $this->trans->lang('Edit view'),
+                'title' => $this->trans()->lang('Edit view'),
                 'handler' => $this->rq()->edit($view),
             ],
             'drop-view' => [
-                'title' => $this->trans->lang('Drop view'),
+                'title' => $this->trans()->lang('Drop view'),
                 'handler' => $this->rq()->drop($view)->confirm("Drop view $view?"),
             ],
         ];
         $this->cl(PageActions::class)->show($actions);
 
-        $content = $this->ui->mainDbTable($viewInfo['tabs']);
+        $content = $this->ui()->mainDbTable($viewInfo['tabs']);
         $this->cl(Content::class)->showHtml($content);
 
         // Show fields
-        $fieldsInfo = $this->db->getViewFields($view);
+        $fieldsInfo = $this->db()->getViewFields($view);
         $this->showTab($fieldsInfo, 'tab-content-fields');
 
         // Show triggers
-        $triggersInfo = $this->db->getViewTriggers($view);
+        $triggersInfo = $this->db()->getViewTriggers($view);
         if(\is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
@@ -109,8 +109,8 @@ class View extends CallableDbClass
     {
         $formId = 'view-form';
         $title = 'Create a view';
-        $materializedView = $this->db->support('materializedview');
-        $content = $this->ui->viewForm($formId, $materializedView);
+        $materializedView = $this->db()->support('materializedview');
+        $content = $this->ui()->viewForm($formId, $materializedView);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -134,7 +134,7 @@ class View extends CallableDbClass
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
-        $result = $this->db->createView($values);
+        $result = $this->db()->createView($values);
         if(!$result['success'])
         {
             $this->alert()->error($result['error']);
@@ -155,14 +155,14 @@ class View extends CallableDbClass
      */
     public function edit(string $view)
     {
-        $viewData = $this->db->getView($view);
+        $viewData = $this->db()->getView($view);
         // Make view info available to views
         $this->view()->shareValues($viewData);
 
         $formId = 'view-form';
         $title = 'Edit a view';
-        $materializedView = $this->db->support('materializedview');
-        $content = $this->ui->viewForm($formId, $materializedView, $viewData['view']);
+        $materializedView = $this->db()->support('materializedview');
+        $content = $this->ui()->viewForm($formId, $materializedView, $viewData['view']);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -187,7 +187,7 @@ class View extends CallableDbClass
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
-        $result = $this->db->updateView($view, $values);
+        $result = $this->db()->updateView($view, $values);
         if(!$result['success'])
         {
             $this->alert()->error($result['error']);
@@ -208,7 +208,7 @@ class View extends CallableDbClass
      */
     public function drop(string $view)
     {
-        $result = $this->db->dropView($view);
+        $result = $this->db()->dropView($view);
         if(!$result['success'])
         {
             $this->alert()->error($result['error']);

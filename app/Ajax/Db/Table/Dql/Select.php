@@ -47,7 +47,7 @@ class Select extends ContentComponent
         $table = $this->bag('dbadmin')->get('db.table.name');
 
         // Save select queries options
-        $selectData = $this->db->getSelectData($table);
+        $selectData = $this->db()->getSelectData($table);
         $this->stash()->set('select.options', $selectData['options']);
         $this->stash()->set('select.query', $selectData['query']);
 
@@ -55,15 +55,15 @@ class Select extends ContentComponent
         $backToTables = $this->stash()->get('back.tables', false);
         $actions = [
             'select-exec' => [
-                'title' => $this->trans->lang('Execute'),
+                'title' => $this->trans()->lang('Execute'),
                 'handler' => $this->rq()->exec(),
             ],
             'insert-table' => [
-                'title' => $this->trans->lang('New item'),
+                'title' => $this->trans()->lang('New item'),
                 'handler' => $this->rq(Insert::class)->show(),
             ],
             'select-back' => [
-                'title' => $this->trans->lang('Back'),
+                'title' => $this->trans()->lang('Back'),
                 'handler' => $backToTables ? $this->rq(Tables::class)->show() :
                     $this->rq(Table::class)->show($table),
             ],
@@ -87,7 +87,7 @@ class Select extends ContentComponent
             'btnEdit' => $this->rq()->edit(),
         ];
 
-        return $this->ui->tableSelect($ids, $handlers);
+        return $this->ui()->tableSelect($ids, $handlers);
     }
 
     /**
@@ -136,7 +136,7 @@ class Select extends ContentComponent
         // Select options
         $options = $this->getOptions();
         $options['page'] = $page;
-        $results = $this->db->execSelect($table, $options);
+        $results = $this->db()->execSelect($table, $options);
 
         // Show the message
         $resultsId = 'adminer-table-select-results';
@@ -159,13 +159,13 @@ class Select extends ContentComponent
         // $this->response->script("jaxon.dbadmin.rowIds = JSON.parse('" . json_encode($rowIds) . "')");
         $this->response->addCommand('dbadmin.row.ids.set', ['ids' => $rowIds]);
 
-        $content = $this->ui->selectResults($results['headers'], $results['rows']);
+        $content = $this->ui()->selectResults($results['headers'], $results['rows']);
         $this->response->html($resultsId, $content);
 
         // The Jaxon ajax calls
         // $updateCall = $this->rq(Query::class)->showUpdate(pm()->js("jaxon.dbadmin.rowIds[rowId]"));
         // $deleteCall = $this->rq(Query::class)->execDelete(pm()->js("jaxon.dbadmin.rowIds[rowId]"))
-        //     ->confirm($this->lang('Delete this item?'));
+        //     ->confirm($this->trans()->lang('Delete this item?'));
 
         // Wrap the ajax calls into functions
         // $this->response->setFunction('updateRowItem', 'rowId', $updateCall);
@@ -177,7 +177,7 @@ class Select extends ContentComponent
 
         // Pagination
         // $pages = $this->rq()->execSelect(pm()->page())->pages($page, $results['limit'], $results['total']);
-        // $pagination = $this->ui->pagination($pages);
+        // $pagination = $this->ui()->pagination($pages);
         // $this->response->html("adminer-table-select-pagination", $pagination);
     }
 

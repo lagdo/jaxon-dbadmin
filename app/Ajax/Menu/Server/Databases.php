@@ -16,7 +16,7 @@ class Databases extends MenuComponent
      */
     public function html(): string
     {
-        return $this->ui->menuDatabases($this->databases);
+        return $this->ui()->menuDatabases($this->databases);
     }
 
     /**

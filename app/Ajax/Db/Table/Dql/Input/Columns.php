@@ -23,7 +23,7 @@ class Columns extends Component
         {
             $table = $this->bag('dbadmin')->get('db.table.name');
             $options = $this->bag('dbadmin.select')->get('options');
-            $selectData = $this->db->getSelectData($table, $options);
+            $selectData = $this->db()->getSelectData($table, $options);
             $options = [
                 'functions' => $selectData['options']['columns']['functions'] ?? [],
                 'grouping' => $selectData['options']['columns']['grouping'] ?? [],
@@ -31,7 +31,7 @@ class Columns extends Component
             ];
         }
 
-        return  $this->ui->formQueryColumns($values, $options);
+        return  $this->ui()->formQueryColumns($values, $options);
     }
 
     public function show()

@@ -26,7 +26,7 @@ class Databases extends ContentComponent
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             'add-database' => [
-                'title' => $this->trans->lang('Create database'),
+                'title' => $this->trans()->lang('Create database'),
                 'handler' => $this->rq(Database::class)->add(),
             ],
         ]);
@@ -40,7 +40,7 @@ class Databases extends ContentComponent
     public function html(): string
     {
         // Add checkboxes to database table
-        return $this->ui->mainContent($this->pageContent, 'database');
+        return $this->ui()->mainContent($this->pageContent, 'database');
     }
 
     /**
@@ -51,7 +51,7 @@ class Databases extends ContentComponent
     public function show()
     {
         // Access to servers is forbidden. Show the first database.
-        $this->pageContent = $this->db->getDatabases();
+        $this->pageContent = $this->db()->getDatabases();
         // Set the database dropdown list
         $this->cl(MenuDatabases::class)->showDatabases($this->pageContent['databases']);
 

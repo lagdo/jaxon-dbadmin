@@ -23,14 +23,14 @@ class Filters extends Component
         {
             $table = $this->bag('dbadmin')->get('db.table.name');
             $options = $this->bag('dbadmin.select')->get('options');
-            $selectData = $this->db->getSelectData($table, $options);
+            $selectData = $this->db()->getSelectData($table, $options);
             $options = [
                 'columns' => $selectData['options']['filters']['columns'] ?? [],
                 'operators' => $selectData['options']['filters']['operators'] ?? [],
             ];
         }
 
-        return  $this->ui->formQueryFilters($values, $options);
+        return  $this->ui()->formQueryFilters($values, $options);
     }
 
     public function show()

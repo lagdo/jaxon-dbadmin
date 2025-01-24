@@ -32,6 +32,6 @@ class CallableDbClass extends CallableClass
         {
             $schema = $db[2];
         }
-        $this->db->selectDatabase($server, $database, $schema);
+        $this->db()->selectDatabase($server, $database, $schema);
     }
 }

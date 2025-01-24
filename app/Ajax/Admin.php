@@ -12,9 +12,9 @@ class Admin extends Component
      */
     public function html(): string
     {
-        $servers = $this->package->getOption('servers', []);
-        $default = $this->package->getOption('default', '');
-        return $this->ui->home($servers, $default);
+        $servers = $this->package()->getOption('servers', []);
+        $default = $this->package()->getOption('default', '');
+        return $this->ui()->home($servers, $default);
     }
 
     /**
@@ -29,10 +29,10 @@ class Admin extends Component
     public function server(string $server)
     {
         // Set the selected server
-        $this->db->selectDatabase($server);
+        $this->db()->selectDatabase($server);
         // Save the selected server in the databag
         $this->bag('dbadmin')->set('db', [$server, '', '']);
 
-        return $this->cl(Server::class)->connect($this->package->getServerAccess($server));
+        return $this->cl(Server::class)->connect($this->package()->getServerAccess($server));
     }
 }

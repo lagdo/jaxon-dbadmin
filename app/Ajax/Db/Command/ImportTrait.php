@@ -20,9 +20,9 @@ trait ImportTrait
     public function html(): string
     {
         // Set the current database, but do not update the databag.
-        $this->db->setCurrentDbName($this->database);
+        $this->db()->setCurrentDbName($this->database);
 
-        $importOptions = $this->db->getImportOptions();
+        $importOptions = $this->db()->getImportOptions();
 
         // Make data available to views
         $this->view()->shareValues($importOptions);
@@ -37,7 +37,7 @@ trait ImportTrait
         $sqlFilesDivId = 'adminer-import-sql-files-wrapper';
         $sqlFilesInputId = 'adminer-import-sql-files-input';
         $htmlIds = compact('formId', 'sqlFilesBtnId', 'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId');
-        return $this->ui->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
+        return $this->ui()->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
     }
 
     /**
@@ -83,7 +83,7 @@ trait ImportTrait
     public function executeSqlFiles(string $database, array $formValues)
     {
         // Set the current database, but do not update the databag.
-        $this->db->setCurrentDbName($database);
+        $this->db()->setCurrentDbName($database);
 
         $files = \array_map(function($file) {
             return $file->path();
@@ -97,9 +97,9 @@ trait ImportTrait
             return;
         }
 
-        $queryResults = $this->db->executeSqlFiles($files, $errorStops, $onlyErrors);
+        $queryResults = $this->db()->executeSqlFiles($files, $errorStops, $onlyErrors);
 
-        $content = $this->ui->queryResults($queryResults['results']);
+        $content = $this->ui()->queryResults($queryResults['results']);
         $this->response->html('adminer-command-results', $content);
     }
 }

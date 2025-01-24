@@ -39,7 +39,7 @@ class Alter extends ContentComponent
     protected function before()
     {
         $table = $this->bag('dbadmin')->get('db.table.name');
-        $this->tableData = $this->db->getTableData($table);
+        $this->tableData = $this->db()->getTableData($table);
         // Make data available to views
         $this->view()->shareValues($this->tableData);
 
@@ -52,12 +52,12 @@ class Alter extends ContentComponent
         $values = pm()->form($this->formId);
         $actions = [
             'table-save' => [
-                'title' => $this->trans->lang('Save'),
+                'title' => $this->trans()->lang('Save'),
                 'handler' => $this->rq()->save($table, $values)
                     ->confirm("Save changes on table $table?"),
             ],
             'table-cancel' => [
-                'title' => $this->trans->lang('Cancel'),
+                'title' => $this->trans()->lang('Cancel'),
                 'handler' => $this->rq(Table::class)->show($table),
             ],
         ];
@@ -75,7 +75,7 @@ class Alter extends ContentComponent
             'collation' => $this->tableData['table']->collation,
             'comment' => $this->tableData['table']->comment,
         ];
-        return $this->ui
+        return $this->ui()
             ->table($editedTable)
             ->support($this->tableData['support'])
             ->engines($this->tableData['engines'])
@@ -106,7 +106,7 @@ class Alter extends ContentComponent
 
         // $values = array_merge($this->defaults, $values);
 
-        // $result = $this->db->alterTable($table, $values);
+        // $result = $this->db()->alterTable($table, $values);
         // if(!$result['success'])
         // {
         //     $this->alert()->error($result['error']);
