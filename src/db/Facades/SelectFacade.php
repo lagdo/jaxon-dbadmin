@@ -79,7 +79,7 @@ class SelectFacade extends AbstractFacade
 
         // From select.inc.php
         $fields = $this->driver->fields($table);
-        list(, $columns, $textLength) = $this->getFieldsOptions($fields);
+        [, $columns, $textLength] = $this->getFieldsOptions($fields);
         if (!$columns && $this->driver->support("table")) {
             throw new Exception($this->utils->trans->lang('Unable to select the table') .
                 ($fields ? "." : ": " . $this->driver->error()));
@@ -87,7 +87,7 @@ class SelectFacade extends AbstractFacade
 
         $indexes = $this->driver->indexes($table);
         $foreignKeys = $this->foreignKeys($table);
-        list($select, $group) = $this->admin->processSelectColumns();
+        [$select, $group] = $this->admin->processSelectColumns();
         $where = $this->admin->processSelectWhere($fields, $indexes);
         $order = $this->admin->processSelectOrder();
         $limit = $this->admin->processSelectLimit();
@@ -115,8 +115,10 @@ class SelectFacade extends AbstractFacade
         //     $page = \floor(\max(0, $found_rows - 1) / $limit);
         // }
 
-        $options = $this->getAllOptions($select, $columns, $indexes, $limit, $textLength, $queryOptions);
-        $entity = $this->getSelectEntity($table, $columns, $fields, $select, $group, $where, $order, $unselected, $limit, $page);
+        $options = $this->getAllOptions($select, $columns,
+            $indexes, $limit, $textLength, $queryOptions);
+        $entity = $this->getSelectEntity($table, $columns, $fields,
+            $select, $group, $where, $order, $unselected, $limit, $page);
         $query = $this->driver->buildSelectQuery($entity);
         // From adminer.inc.php
         $query = str_replace("\n", " ", $query);
@@ -136,10 +138,10 @@ class SelectFacade extends AbstractFacade
      */
     public function getSelectData(string $table, array $queryOptions = []): array
     {
-        [$options, $query] = $this->prepareSelect($table, $queryOptions);
+        [$options, $query, , , , , , , , , $limit, $page] = $this->prepareSelect($table, $queryOptions);
         $query = $this->utils->str->html($query);
 
-        return compact('options', 'query');
+        return compact('options', 'query', 'limit', 'page');
     }
 
     /**
@@ -222,18 +224,18 @@ class SelectFacade extends AbstractFacade
      */
     /*private function getValuesLengths(array $rows, array $queryOptions): array
     {
-         $lengths = [];
-         if($queryOptions["modify"])
-         {
-             foreach($rows as $row)
-             {
-                 foreach($row as $key => $value)
-                 {
-                     $lengths[$key] = \max($lengths[$key], \min(40, strlen(\utf8_decode($value))));
-                 }
-             }
-         }
-         return $lengths;
+        $lengths = [];
+        if($queryOptions["modify"])
+        {
+            foreach($rows as $row)
+            {
+                foreach($row as $key => $value)
+                {
+                    $lengths[$key] = \max($lengths[$key], \min(40, strlen(\utf8_decode($value))));
+                }
+            }
+        }
+        return $lengths;
     }*/
 
     /**
@@ -332,22 +334,43 @@ class SelectFacade extends AbstractFacade
      * @param string $table The table name
      * @param array $queryOptions The query options
      *
+     * @return int
+     */
+    public function countSelect(string $table, array $queryOptions): int
+    {
+        [, , $select, , , , , $where, $group] = $this->prepareSelect($table, $queryOptions);
+
+        try {
+            $isGroup = count($group) < count($select);
+            $query = $this->driver->getRowCountQuery($table, $where, $isGroup, $group);
+            return (int)$this->driver->result($query);
+        } catch(Exception $_) {
+            return -1;
+        }
+    }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string $table The table name
+     * @param array $queryOptions The query options
+     *
      * @return array
      * @throws Exception
      */
     public function execSelect(string $table, array $queryOptions): array
     {
-        list(, $query, $select, $fields, , , $indexes, $where, $group, , $limit, $page,
-            $textLength, , $unselected) = $this->prepareSelect($table, $queryOptions);
+        [, $query, $select, $fields, , , $indexes, $where, $group, , $limit, $page,
+            $textLength, , $unselected] = $this->prepareSelect($table, $queryOptions);
 
-        list($rows, $duration) = $this->executeSelect($query, $page);
+        [$rows, $duration] = $this->executeSelect($query, $page);
         if (!$rows) {
             return ['message' => $this->utils->trans->lang('No rows.')];
         }
         // $backward_keys = $this->driver->backwardKeys($table, $tableName);
         // lengths = $this->getValuesLengths($rows, $queryOptions);
 
-        list($headers, $names) = $this->getResultHeaders($rows, $select, $fields, $unselected, $queryOptions);
+        [$headers, $names] = $this->getResultHeaders($rows, $select, $fields, $unselected, $queryOptions);
 
         $results = [];
         foreach ($rows as $row) {
@@ -357,11 +380,8 @@ class SelectFacade extends AbstractFacade
             $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
 
-        $isGroup = count($group) < count($select);
-        $total = $this->driver->result($this->driver->getRowCountQuery($table, $where, $isGroup, $group));
-
         $rows = $results;
         $message = null;
-        return compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'message');
+        return compact('duration', 'headers', 'query', 'rows', 'limit', 'message');
     }
 }

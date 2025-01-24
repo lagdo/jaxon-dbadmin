@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Db\Table\Dql;
 
-use Lagdo\DbAdmin\App\Ajax\Db\Database\Query as Command;
+use Lagdo\DbAdmin\App\Ajax\Db\Database\Query as QueryEdit;
 use Lagdo\DbAdmin\App\Ajax\Db\Database\Tables;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\ContentComponent;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl\Table;
@@ -18,6 +18,8 @@ use function Jaxon\pm;
  */
 class Select extends ContentComponent
 {
+    use QueryTrait;
+
     /**
      * The select form div id
      *
@@ -80,10 +82,9 @@ class Select extends ContentComponent
         ];
 
         // Click handlers on buttons
-        $query = pm()->js('jaxon.dbadmin.editor.query');
         $handlers = [
-            'btnExec' => $this->rq()->exec(),
-            'btnEdit' => $this->rq(Command::class)->database($query),
+            'btnExec' => $this->rq(Results::class)->page(),
+            'btnEdit' => $this->rq()->edit(),
         ];
 
         return $this->ui->tableSelect($ids, $handlers);
@@ -131,17 +132,12 @@ class Select extends ContentComponent
      */
     public function exec(int $page = 0)
     {
-        // Select options
-        $options = $this->bag('dbadmin')->get('options');
-        if($page < 1)
-        {
-            $page = $this->bag('dbadmin')->get('exec.page', 1);
-        }
-        $this->bag('dbadmin')->set('exec.page', $page);
-
-        $options['page'] = $page;
         $table = $this->bag('dbadmin')->get('db.table.name');
+        // Select options
+        $options = $this->getOptions();
+        $options['page'] = $page;
         $results = $this->db->execSelect($table, $options);
+
         // Show the message
         $resultsId = 'adminer-table-select-results';
         if(($results['message']))
@@ -163,10 +159,7 @@ class Select extends ContentComponent
         // $this->response->script("jaxon.dbadmin.rowIds = JSON.parse('" . json_encode($rowIds) . "')");
         $this->response->addCommand('dbadmin.row.ids.set', ['ids' => $rowIds]);
 
-        $btnEditRowClass = 'adminer-table-select-row-edit';
-        $btnDeleteRowClass = 'adminer-table-select-row-delete';
-        $content = $this->ui->selectResults($results['headers'], $results['rows'],
-            $btnEditRowClass, $btnDeleteRowClass);
+        $content = $this->ui->selectResults($results['headers'], $results['rows']);
         $this->response->html($resultsId, $content);
 
         // The Jaxon ajax calls
@@ -182,12 +175,19 @@ class Select extends ContentComponent
         // $this->response->jq(".$btnEditRowClass", "#$resultsId")->click(rq('.')->updateRowItem(jq()->attr('data-row-id')));
         // $this->response->jq(".$btnDeleteRowClass", "#$resultsId")->click(rq('.')->deleteRowItem(jq()->attr('data-row-id')));
 
-        // Show the query
-        $this->cl(Query::class)->show($results['query']);
-
         // Pagination
-        $pages = $this->rq()->execSelect(pm()->page())->pages($page, $results['limit'], $results['total']);
-        $pagination = $this->ui->pagination($pages);
-        $this->response->html("adminer-table-select-pagination", $pagination);
+        // $pages = $this->rq()->execSelect(pm()->page())->pages($page, $results['limit'], $results['total']);
+        // $pagination = $this->ui->pagination($pages);
+        // $this->response->html("adminer-table-select-pagination", $pagination);
+    }
+
+    /**
+     * Edit the current select query
+     *
+     * @return void
+     */
+    public function edit()
+    {
+        $this->cl(QueryEdit::class)->database($this->getSelectQuery());
     }
 }

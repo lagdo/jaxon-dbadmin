@@ -29,6 +29,11 @@ return [
             'extension' => '.php',
             'renderer' => 'jaxon',
         ],
+        'pagination' => [
+            'directory' => __DIR__ . '/../templates/pagination',
+            'extension' => '.php',
+            'renderer' => 'jaxon',
+        ],
     ],
     'container' => [
         'set' => [

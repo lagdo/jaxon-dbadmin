@@ -2,21 +2,17 @@
 
 namespace Lagdo\DbAdmin\App;
 
-use Jaxon\App\CallableClass as JaxonCallableClass;
-use Jaxon\App\Dialog\DialogTrait;
+use Jaxon\App\PageComponent as BaseComponent;
+use Lagdo\DbAdmin\App\Ui\UiBuilder;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
-use Lagdo\DbAdmin\App\Ui\UiBuilder;
 
 /**
- * Callable base class
- *
  * @databag dbadmin
  */
-class CallableClass extends JaxonCallableClass
+abstract class PageComponent extends BaseComponent
 {
-    use DialogTrait;
     use CallableTrait;
 
     /**
@@ -27,13 +23,6 @@ class CallableClass extends JaxonCallableClass
     protected $package;
 
     /**
-     * The facade to database functions
-     *
-     * @var DbFacade
-     */
-    protected $db;
-
-    /**
      * @var UiBuilder
      */
     protected $ui;
@@ -41,7 +30,12 @@ class CallableClass extends JaxonCallableClass
     /**
      * @var Translator
      */
-    public $trans;
+    protected $trans;
+
+    /**
+     * @var DbFacade
+     */
+    protected $db;
 
     /**
      * The constructor
@@ -57,5 +51,22 @@ class CallableClass extends JaxonCallableClass
         $this->db = $db;
         $this->ui = $ui;
         $this->trans = $trans;
+    }
+
+    /**
+     * Render the page and pagination components
+     *
+     * @param int $pageNumber
+     *
+     * @return void
+     */
+    public function page(int $pageNumber = 0)
+    {
+        // Get the paginator. This will also set the current page number value.
+        $paginator = $this->paginator($pageNumber);
+        // Render the page content.
+        $this->render();
+        // Render the pagination component.
+        $paginator->render($this->rq()->page());
     }
 }

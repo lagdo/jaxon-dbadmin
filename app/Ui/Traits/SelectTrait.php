@@ -8,6 +8,7 @@ use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Input\Filters;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Input\Sorting;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Options;
 use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Query;
+use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Results;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
@@ -280,20 +281,16 @@ trait SelectTrait
     /**
      * @param array $headers
      * @param array $rows
-     * @param string $btnEditRowClass
-     * @param string $btnDeleteRowClass
      *
      * @return string
      */
-    public function selectResults(array $headers, array $rows, string $btnEditRowClass, string $btnDeleteRowClass): string
+    public function selectResults(array $headers, array $rows): string
     {
         $htmlBuilder = Builder::new();
         $htmlBuilder
             ->table(true, 'bordered')
                 ->thead()
-                    ->tr()
-                        ->th(['style' => 'width:30px'])
-                        ->end();
+                    ->tr();
         array_shift($headers);
         foreach ($headers as $header) {
             $htmlBuilder
@@ -301,33 +298,23 @@ trait SelectTrait
                         ->end();
         }
         $htmlBuilder
+                        ->th(['style' => 'width:30px'])
+                        ->end()
                     ->end()
                 ->end()
                 ->tbody();
         $rowId = 0;
         foreach($rows as $row) {
             $htmlBuilder
-                    ->tr()
-                        ->td()
-                            ->dropdown()
-                                ->dropdownItem('primary')->addCaret()
-                                ->end()
-                                ->dropdownMenu()
-                                    ->dropdownMenuItem()
-                                        ->setClass($btnEditRowClass)->setDataRowId($rowId)->addIcon('edit')
-                                    ->end()
-                                    ->dropdownMenuItem()
-                                        ->setClass($btnDeleteRowClass)->setDataRowId($rowId)->addIcon('remove')
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end();
+                    ->tr();
             foreach ($row['cols'] as $col) {
                 $htmlBuilder
                         ->td($col['value'])
                         ->end();
             }
             $htmlBuilder
+                        ->td(['style' => 'width:30px'])
+                        ->end()
                     ->end();
             $rowId++;
         }
@@ -412,26 +399,36 @@ trait SelectTrait
                         ->div()->jxnBind(rq(Options::class))
                         ->end()
                         ->formRow()
-                            ->formCol(9)
+                            ->formCol()
                                 ->pre()->setId($ids['txtQueryId'])->jxnBind(rq(Query::class))
-                                ->end()
-                            ->end()
-                            ->formCol(3)
-                                ->buttonGroup(true)
-                                    ->button()->btnOutline()->btnSecondary()->btnFullWidth()
-                                        ->jxnClick($handlers['btnEdit'])->addText($this->trans->lang('Edit'))
-                                    ->end()
-                                    ->button()->btnFullWidth()->btnSecondary()
-                                        ->jxnClick($handlers['btnExec'])->addText($this->trans->lang('Execute'))
-                                    ->end()
                                 ->end()
                             ->end()
                         ->end()
                     ->end()
                 ->end()
-                ->col(12)->setId('adminer-table-select-pagination')
+            ->end()
+            ->row()
+                ->col(3)
+                    ->buttonGroup(true)
+                        ->button()->btnOutline()->btnSecondary()->btnFullWidth()
+                            ->jxnClick($handlers['btnEdit'])
+                            ->addText($this->trans->lang('Edit'))
+                        ->end()
+                        ->button()->btnFullWidth()->btnSecondary()
+                            ->jxnClick($handlers['btnExec'])
+                            ->addText($this->trans->lang('Execute'))
+                        ->end()
+                    ->end()
                 ->end()
-                ->col(12)->setId('adminer-table-select-results')
+                ->col(9)
+                    ->nav()
+                        ->jxnPagination(rq(Results::class))
+                    ->end()
+                ->end()
+            ->end()
+            ->row()
+                ->col(12)
+                    ->jxnBind(rq(Results::class))
                 ->end()
             ->end();
         return $htmlBuilder->build();

@@ -12,6 +12,8 @@ use function html_entity_decode;
  */
 class Query extends Component
 {
+    use QueryTrait;
+
     /**
      * The select query div id
      *
@@ -43,27 +45,7 @@ class Query extends Component
      */
     public function refresh()
     {
-        // Default select options
-        $options = $this->bag('dbadmin.select')->get('options');
-
-        // Columns options
-        $columns = $this->bag('dbadmin.select')->get('columns', []);
-        $options['columns'] = $columns['column'] ?? [];
-
-        // Filter options
-        $filters = $this->bag('dbadmin.select')->get('filters', []);
-        $options['where'] = $filters['where'] ?? [];
-
-        // Sorting options
-        $sorting = $this->bag('dbadmin.select')->get('sorting', []);
-        $options['order'] = $sorting['order'] ?? [];
-        $options['desc'] = $sorting['desc'] ?? [];
-
-        // Make the new query
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        $selectData = $this->db->getSelectData($table, $options);
-
-        $this->stash()->set('select.query', $selectData['query']);
+        $this->stash()->set('select.query', $this->getSelectQuery());
         $this->render();
     }
 }

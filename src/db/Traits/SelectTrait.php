@@ -47,6 +47,23 @@ trait SelectTrait
      * @param string $table The table name
      * @param array $queryOptions The query options
      *
+     * @return int
+     * @throws Exception
+     */
+    public function countSelect(string $table, array $queryOptions = []): int
+    {
+        $this->connectToSchema();
+        $this->utils->input->table = $table;
+        $this->utils->input->values = $queryOptions;
+        return $this->selectFacade()->countSelect($table, $queryOptions);
+    }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string $table The table name
+     * @param array $queryOptions The query options
+     *
      * @return array
      * @throws Exception
      */
