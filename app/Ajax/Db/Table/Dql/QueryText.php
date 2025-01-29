@@ -7,10 +7,9 @@ use Lagdo\DbAdmin\App\Ajax\Db\Table\Component;
 use function html_entity_decode;
 
 /**
- * This class provides select query features on tables.
- * @exclude
+ * This component displays the SQL query.
  */
-class Query extends Component
+class QueryText extends Component
 {
     use QueryTrait;
 

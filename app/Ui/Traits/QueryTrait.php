@@ -2,37 +2,44 @@
 
 namespace Lagdo\DbAdmin\App\Ui\Traits;
 
+use Jaxon\Script\JxnCall;
+use Lagdo\DbAdmin\App\Ajax\Db\Command\QueryResults;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function count;
+use function Jaxon\rq;
+use function Jaxon\pm;
 
 trait QueryTrait
 {
     /**
-     * @param string $formId
-     * @param string $queryId
-     * @param string $btnId
      * @param string $query
      * @param int $defaultLimit
-     * @param array $labels
      *
      * @return string
      */
-    public function queryCommand(string $formId, string $queryId, string $btnId,
-                                 string $query, int $defaultLimit, array $labels): string
+    public function queryCommand(string $query, int $defaultLimit, JxnCall $rqQuery): string
     {
+        $formId = 'dbadmin-main-command-form';
+        $queryId = 'dbadmin-main-command-query';
+
         $htmlBuilder = Builder::new();
         $htmlBuilder
-            ->col(12)->setId('adminer-command-details')
+            ->col(12)->setId('dbadmin-command-details')
             ->end()
             ->col(12)
                 ->form(true, true)->setId($formId)
                     ->formRow()
                         ->panel('default')->setId('sql-command-editor')
                             ->panelBody()->setClass('sql-command-editor-panel')
-                                ->formTextarea()->setName('query')
-                                    ->setId($queryId)->setDataLanguage('sql')->setRows('10')
-                                    ->setSpellcheck('false')->setWrap('on')->addHtml($query)
+                                ->formTextarea()
+                                    ->setName('query')
+                                    ->setId($queryId)
+                                    ->setDataLanguage('sql')
+                                    ->setRows('10')
+                                    ->setSpellcheck('false')
+                                    ->setWrap('on')
+                                    ->addHtml($query)
                                 ->end()
                             ->end()
                         ->end()
@@ -40,15 +47,18 @@ trait QueryTrait
                     ->formRow()
                         ->formCol(3)
                             ->inputGroup()
-                                ->text()->addText($labels['limit_rows'])
+                                ->text()->addText($this->trans->lang('Limit rows'))
                                 ->end()
-                                ->formInput()->setName('limit')->setType('number')->setValue($defaultLimit)
+                                ->formInput()
+                                    ->setName('limit')
+                                    ->setType('number')
+                                    ->setValue($defaultLimit)
                                 ->end()
                             ->end()
                         ->end()
                         ->formCol(3)
                             ->inputGroup()
-                                ->text()->addText($labels['error_stops'])
+                                ->text()->addText($this->trans->lang('Stop on error'))
                                 ->end()
                                 ->checkbox()->setName('error_stops')
                                 ->end()
@@ -56,7 +66,7 @@ trait QueryTrait
                         ->end()
                         ->formCol(3)
                             ->inputGroup()
-                                ->text()->addText($labels['only_errors'])
+                                ->text()->addText($this->trans->lang('Show only errors'))
                                 ->end()
                                 ->checkbox()->setName('only_errors')
                                 ->end()
@@ -64,15 +74,16 @@ trait QueryTrait
                         ->end()
                         ->formCol(2)
                             ->button()->btnFullWidth()->btnPrimary()
-                                ->setId($btnId)->addText($labels['execute'])
+                                ->jxnClick($rqQuery->exec(pm()->form($formId))/*->when(pm()->input($queryId))*/)
+                                ->addText($this->trans->lang('Execute'))
                             ->end()
                         ->end()
                     ->end()
                 ->end()
             ->end()
-            ->col(12)->setId('adminer-command-history')
+            ->col(12)->setId('dbadmin-command-history')
             ->end()
-            ->col(12)->setId('adminer-command-results')
+            ->col(12)->jxnBind(rq(QueryResults::class))
             ->end();
         return $htmlBuilder->build();
     }

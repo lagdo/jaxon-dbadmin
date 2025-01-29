@@ -57,6 +57,6 @@ class Filters extends CallableClass
         $this->modal()->hide();
 
         // Display the new query
-        $this->cl(Query::class)->refresh();
+        $this->cl(QueryText::class)->refresh();
     }
 }

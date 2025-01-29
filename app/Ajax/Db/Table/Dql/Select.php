@@ -54,10 +54,10 @@ class Select extends ContentComponent
         // Set main menu buttons
         $backToTables = $this->stash()->get('back.tables', false);
         $actions = [
-            'select-exec' => [
-                'title' => $this->trans()->lang('Execute'),
-                'handler' => $this->rq()->exec(),
-            ],
+            // 'select-exec' => [
+            //     'title' => $this->trans()->lang('Execute'),
+            //     'handler' => $this->rq(Results::class)->page(),
+            // ],
             'insert-table' => [
                 'title' => $this->trans()->lang('New item'),
                 'handler' => $this->rq(Insert::class)->show(),
@@ -98,7 +98,7 @@ class Select extends ContentComponent
         // Show the select options
         $this->cl(Options::class)->render();
         // Show the query
-        $this->cl(Query::class)->render();
+        $this->cl(QueryText::class)->render();
     }
 
     /**
@@ -120,8 +120,8 @@ class Select extends ContentComponent
         $this->render();
     }
 
-    /**
-     * Execute the query
+    /* *
+     * Execute the query (No more used, to be deleted)
      *
      * @after('call' => 'debugQueries')
      *
@@ -130,56 +130,56 @@ class Select extends ContentComponent
      * @return void
      * @throws Exception
      */
-    public function exec(int $page = 0)
-    {
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        // Select options
-        $options = $this->getOptions();
-        $options['page'] = $page;
-        $results = $this->db()->execSelect($table, $options);
+    // public function exec(int $page = 0)
+    // {
+    //     $table = $this->bag('dbadmin')->get('db.table.name');
+    //     // Select options
+    //     $options = $this->getOptions();
+    //     $options['page'] = $page;
+    //     $results = $this->db()->execSelect($table, $options);
 
-        // Show the message
-        $resultsId = 'adminer-table-select-results';
-        if(($results['message']))
-        {
-            $this->response->html($resultsId, $results['message']);
-            return;
-        }
-        // Make data available to views
-        $this->view()->shareValues($results);
+    //     // Show the message
+    //     $resultsId = 'adminer-table-select-results';
+    //     if(($results['message']))
+    //     {
+    //         $this->response->html($resultsId, $results['message']);
+    //         return;
+    //     }
+    //     // Make data available to views
+    //     $this->view()->shareValues($results);
 
-        // Set ids for row update/delete
-        $rowIds = [];
-        foreach($results['rows'] as $row)
-        {
-            $rowIds[] = $row["ids"];
-        }
-        // Note: don't use the var keyword when setting a variable,
-        // because it will not make the variable globally accessible.
-        // $this->response->script("jaxon.dbadmin.rowIds = JSON.parse('" . json_encode($rowIds) . "')");
-        $this->response->addCommand('dbadmin.row.ids.set', ['ids' => $rowIds]);
+    //     // Set ids for row update/delete
+    //     $rowIds = [];
+    //     foreach($results['rows'] as $row)
+    //     {
+    //         $rowIds[] = $row["ids"];
+    //     }
+    //     // Note: don't use the var keyword when setting a variable,
+    //     // because it will not make the variable globally accessible.
+    //     $this->response->script("jaxon.dbadmin.rowIds = JSON.parse('" . json_encode($rowIds) . "')");
+    //     $this->response->addCommand('dbadmin.row.ids.set', ['ids' => $rowIds]);
 
-        $content = $this->ui()->selectResults($results['headers'], $results['rows']);
-        $this->response->html($resultsId, $content);
+    //     $content = $this->ui()->selectResults($results['headers'], $results['rows']);
+    //     $this->response->html($resultsId, $content);
 
-        // The Jaxon ajax calls
-        // $updateCall = $this->rq(Query::class)->showUpdate(pm()->js("jaxon.dbadmin.rowIds[rowId]"));
-        // $deleteCall = $this->rq(Query::class)->execDelete(pm()->js("jaxon.dbadmin.rowIds[rowId]"))
-        //     ->confirm($this->trans()->lang('Delete this item?'));
+    //     // The Jaxon ajax calls
+    //     $updateCall = $this->rq(Query::class)->showUpdate(pm()->js("jaxon.dbadmin.rowIds[rowId]"));
+    //     $deleteCall = $this->rq(Query::class)->execDelete(pm()->js("jaxon.dbadmin.rowIds[rowId]"))
+    //         ->confirm($this->trans()->lang('Delete this item?'));
 
-        // Wrap the ajax calls into functions
-        // $this->response->setFunction('updateRowItem', 'rowId', $updateCall);
-        // $this->response->setFunction('deleteRowItem', 'rowId', $deleteCall);
+    //     // Wrap the ajax calls into functions
+    //     $this->response->setFunction('updateRowItem', 'rowId', $updateCall);
+    //     $this->response->setFunction('deleteRowItem', 'rowId', $deleteCall);
 
-        // Set the functions as button event handlers
-        // $this->response->jq(".$btnEditRowClass", "#$resultsId")->click(rq('.')->updateRowItem(jq()->attr('data-row-id')));
-        // $this->response->jq(".$btnDeleteRowClass", "#$resultsId")->click(rq('.')->deleteRowItem(jq()->attr('data-row-id')));
+    //     // Set the functions as button event handlers
+    //     $this->response->jq(".$btnEditRowClass", "#$resultsId")->click(rq('.')->updateRowItem(jq()->attr('data-row-id')));
+    //     $this->response->jq(".$btnDeleteRowClass", "#$resultsId")->click(rq('.')->deleteRowItem(jq()->attr('data-row-id')));
 
-        // Pagination
-        // $pages = $this->rq()->execSelect(pm()->page())->pages($page, $results['limit'], $results['total']);
-        // $pagination = $this->ui()->pagination($pages);
-        // $this->response->html("adminer-table-select-pagination", $pagination);
-    }
+    //     // Pagination
+    //     $pages = $this->rq()->execSelect(pm()->page())->pages($page, $results['limit'], $results['total']);
+    //     $pagination = $this->ui()->pagination($pages);
+    //     $this->response->html("adminer-table-select-pagination", $pagination);
+    // }
 
     /**
      * Edit the current select query

@@ -57,7 +57,7 @@ class Options extends Component
         $this->bag('dbadmin.select')->set('options', $options);
 
         // Display the new query
-        $this->cl(Query::class)->refresh();
+        $this->cl(QueryText::class)->refresh();
     }
 
     /**
@@ -75,6 +75,6 @@ class Options extends Component
         $this->bag('dbadmin.select')->set('options', $options);
 
         // Display the new query
-        $this->cl(Query::class)->refresh();
+        $this->cl(QueryText::class)->refresh();
     }
 }

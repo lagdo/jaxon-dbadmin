@@ -24,18 +24,11 @@ trait CommandTrait
     /**
      * Prepare a query
      *
-     * @return array
+     * @return void
      */
-    public function prepareCommand(): array
+    public function prepareCommand()
     {
         $this->bcdb()->breadcrumb($this->utils->trans->lang('Query'));
-        $labels = [
-            'execute' => $this->utils->trans->lang('Execute'),
-            'limit_rows' => $this->utils->trans->lang('Limit rows'),
-            'error_stops' => $this->utils->trans->lang('Stop on error'),
-            'only_errors' => $this->utils->trans->lang('Show only errors'),
-        ];
-        return ['labels' => $labels];
     }
 
     /**

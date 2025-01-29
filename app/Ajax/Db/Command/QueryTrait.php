@@ -4,9 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Db\Command;
 
 use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
 
-use function Jaxon\js;
-use function Jaxon\pm;
-
 trait QueryTrait
 {
     /**
@@ -27,21 +24,13 @@ trait QueryTrait
         // Set the current database, but do not update the databag.
         $this->db()->setCurrentDbName($this->database);
 
-        $commandOptions = $this->db()->prepareCommand();
-
-        // Make data available to views
-        $this->view()->shareValues($commandOptions);
+        $this->db()->prepareCommand();
 
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 
-        $btnId = 'adminer-main-command-execute';
-        $formId = 'adminer-main-command-form';
-        $queryId = 'adminer-main-command-query';
-
         $defaultLimit = 20;
-        return $this->ui()->queryCommand($formId, $queryId, $btnId,
-            $this->query, $defaultLimit, $commandOptions['labels']);
+        return $this->ui()->queryCommand($this->query, $defaultLimit, $this->rq());
     }
 
     /**
@@ -51,18 +40,14 @@ trait QueryTrait
      */
     protected function after()
     {
-        $btnId = 'adminer-main-command-execute';
-        $formId = 'adminer-main-command-form';
-        $queryId = 'adminer-main-command-query';
+        $queryId = 'dbadmin-main-command-query';
         [$server,] = $this->bag('dbadmin')->get('db');
         $this->response->addCommand('dbadmin.hsqleditor', [
             'id' => $queryId,
             'server' => $server,
         ]);
 
-        $this->response->jq("#$btnId")->click(js("jaxon.dbadmin")->saveSqlEditorContent());
-        $this->response->jq("#$btnId")->click($this->rq()->execute(pm()->form($formId))
-            ->when(pm()->input($queryId)));
+        // $this->response->jq("#$btnId")->click(js("jaxon.dbadmin")->saveSqlEditorContent());
     }
 
     /**
@@ -70,26 +55,12 @@ trait QueryTrait
      *
      * @after('call' => 'debugQueries')
      *
-     * @param array $formValues
+     * @param array $values
      *
      * @return void
      */
-    public function execute(array $formValues)
+    public function exec(array $values)
     {
-        $query = \trim($formValues['query'] ?? '');
-        $limit = \intval($formValues['limit'] ?? 0);
-        $errorStops = $formValues['error_stops'] ?? false;
-        $onlyErrors = $formValues['only_errors'] ?? false;
-
-        if(!$query)
-        {
-            $this->alert()->title('Error')->error('The query string is empty!');
-            return;
-        }
-
-        $queryResults = $this->db()->executeCommands($query, $limit, $errorStops, $onlyErrors);
-
-        $content = $this->ui()->queryResults($queryResults['results']);
-        $this->response->html('adminer-command-results', $content);
+        $this->cl(QueryResults::class)->exec($values);
     }
 }
