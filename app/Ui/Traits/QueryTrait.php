@@ -79,7 +79,7 @@ trait QueryTrait
                         ->end()
                         ->formCol(2)
                             ->button()->btnFullWidth()->btnPrimary()
-                                ->jxnClick($rqQuery->exec(js('jaxon.dbadmin.editor.element')->getValue(), pm()->form($formId))/*->when(pm()->input($queryId))*/)
+                                ->jxnClick($rqQuery->exec(js('jaxon.dbadmin')->getSqlQuery(), pm()->form($formId))/*->when(pm()->input($queryId))*/)
                                 ->addText($this->trans->lang('Execute'))
                             ->end()
                         ->end()

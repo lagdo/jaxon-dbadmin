@@ -1,67 +1,55 @@
-jaxon.dbadmin = {
-    countTableCheckboxes: function(checkboxId) {
-        $('#dbadmin-table-' + checkboxId + '-count').html($('.dbadmin-table-' + checkboxId + ':checked').length);
-    },
-    selectTableCheckboxes: function(checkboxId) {
+jaxon.dbadmin = (function() {
+    const countTableCheckboxes = (checkboxId) => $('#dbadmin-table-' + checkboxId + '-count')
+        .html($('.dbadmin-table-' + checkboxId + ':checked').length);
+
+    const selectTableCheckboxes = (checkboxId) => {
         $('#dbadmin-table-' + checkboxId + '-all').change(function() {
             $('.dbadmin-table-' + checkboxId, '#jaxon-dbadmin').prop('checked', this.checked);
-            jaxon.dbadmin.countTableCheckboxes(checkboxId);
+            countTableCheckboxes(checkboxId);
         });
         $('.dbadmin-table-' + checkboxId).change(function() {
-            jaxon.dbadmin.countTableCheckboxes(checkboxId);
+            countTableCheckboxes(checkboxId);
         });
-    },
-    selectAllCheckboxes: function(checkboxId) {
-        $('#' + checkboxId + '-all').change(function() {
-            $('.' + checkboxId, '#jaxon-dbadmin').prop('checked', this.checked);
-        });
-    },
-    setFileUpload: function(container, buttonId, fileInputId) {
-        // Trigger a click on the hidden file select component when the user clicks on the button.
-        $(buttonId).click(function() {
-            $(fileInputId).trigger("click");
-        });
-        $(container).on('change', ':file', function() {
-            let fileInput = $(this),
-                numFiles = fileInput.get(0).files ? fileInput.get(0).files.length : 1,
-                label = fileInput.val().replace(/\\/g, '/').replace(/.*\//, ''),
-                textInput = $(container).find(':text'),
-                text = numFiles > 1 ? numFiles + ' files selected' : label;
+    };
 
-            if (textInput.length > 0) {
-                textInput.val(text);
-            }
+    const selectAllCheckboxes = (checkboxId) => $('#' + checkboxId + '-all').change(function() {
+        $('.' + checkboxId, '#jaxon-dbadmin').prop('checked', this.checked);
+    });
+
+    const setFileUpload = (container, buttonId, fileInputId) => {
+        // Trigger a click on the hidden file select component when the user clicks on the button.
+        $(buttonId).click(() => $(fileInputId).trigger("click"));
+        $(container).on('change', ':file', function() {
+            const fileInput = $(this);
+            const numFiles = fileInput.get(0).files ? fileInput.get(0).files.length : 1;
+            const label = fileInput.val().replace(/\\/g, '/').replace(/.*\//, '');
+            const textInput = $(container).find(':text');
+            const text = numFiles > 1 ? numFiles + ' files selected' : label;
+            textInput.length > 0 && textInput.val(text);
         });
-    },
-    editor: {
-        element: null,
+    };
+
+    const editor = {
+        container: null,
         hintOptions: {},
         modes: {
             sql: 'text/x-sql',
             mysql: 'text/x-mysql',
             pgsql: 'text/x-pgsql',
         },
-    },
-    highlightSqlQuery: function(txtQueryId, driver) {
-        // The query is replaced by the string formatted with CodeMirror.
-        const mode = jaxon.dbadmin.editor.modes[driver] || jaxon.dbadmin.editor.modes.sql;
-        const element = document.getElementById(txtQueryId);
-        const query = element.innerText || element.textContent;
-        element.innerHTML = '';
-        CodeMirror(element, { value: query, mode, lineNumbers: false, readOnly: true });
-    },
-    createSqlEditor: function(containerId, driver) {
-        const mode = jaxon.dbadmin.editor.modes[driver] || jaxon.dbadmin.editor.modes.sql;
-        const element = document.getElementById(containerId);
-        jaxon.dbadmin.editor.element = CodeMirror.fromTextArea(element, {
-            mode,
+    };
+
+    const createSqlEditor = function(containerId, driver) {
+        const container = document.getElementById(containerId);
+        editor.container = CodeMirror.fromTextArea(container, {
+            mode: editor.modes[driver] || editor.modes.sql,
             indentWithTabs: true,
             smartIndent: true,
             lineNumbers: true,
             matchBrackets : true,
             autofocus: true,
             extraKeys: {'Ctrl-Space': 'autocomplete'},
-            hintOptions: jaxon.dbadmin.editor.hintOptions,
+            hintOptions: editor.hintOptions,
             /*hintOptions: {
                 tables: {
                     users: ["name", "score", "birthDate"],
@@ -69,8 +57,38 @@ jaxon.dbadmin = {
                 }
             }*/
         });
-    },
-    saveSqlEditorContent: function() {
-        jaxon.dbadmin.editor.element.save();
-    },
-};
+    };
+
+    const refreshSqlQuery = (txtQueryId, driver) => {
+        // The query is replaced by the string formatted with CodeMirror.
+        const container = document.getElementById(txtQueryId);
+        const query = container.innerText || container.textContent;
+        // Erase the initial SQL text.
+        container.innerHTML = '';
+        CodeMirror(container, {
+            value: query,
+            mode: editor.modes[driver] || editor.modes.sql,
+            lineNumbers: false,
+            readOnly: true,
+        });
+    };
+
+    const getSqlQuery = () => {
+        // Try to get the selected text first.
+        const selectedText = editor.container.getSelection();
+        return selectedText ? selectedText : editor.container.getValue();
+    };
+
+    const saveSqlEditorContent = () => editor.container.save();
+
+    return {
+        countTableCheckboxes,
+        selectTableCheckboxes,
+        selectAllCheckboxes,
+        setFileUpload,
+        createSqlEditor,
+        refreshSqlQuery,
+        getSqlQuery,
+        saveSqlEditorContent,
+    };
+})();
