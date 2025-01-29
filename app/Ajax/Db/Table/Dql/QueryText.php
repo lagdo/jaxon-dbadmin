@@ -35,8 +35,8 @@ class QueryText extends Component
     protected function after()
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
-        // jaxon.dbadmin.highlightSqlQuery
-        $this->response->js('jaxon.dbadmin')->highlightSqlQuery($this->txtQueryId, $server);
+        // jaxon.dbadmin.refreshSqlQuery
+        $this->response->js('jaxon.dbadmin')->refreshSqlQuery($this->txtQueryId, $server);
     }
 
     /**

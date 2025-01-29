@@ -42,10 +42,7 @@ trait QueryTrait
     {
         $queryId = 'dbadmin-main-command-query';
         [$server,] = $this->bag('dbadmin')->get('db');
-        $this->response->addCommand('dbadmin.hsqleditor', [
-            'id' => $queryId,
-            'server' => $server,
-        ]);
+        $this->response->js('jaxon.dbadmin')->createSqlEditor($queryId, $server);
 
         // $this->response->jq("#$btnId")->click(js("jaxon.dbadmin")->saveSqlEditorContent());
     }

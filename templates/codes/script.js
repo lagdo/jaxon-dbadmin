@@ -33,20 +33,7 @@ jaxon.dbadmin = {
             }
         });
     },
-    onColumnRenamed: function() {
-        let column = $(this).parent();
-        // The get() method returns the wrapped js object.
-        while ((column) && !column.get().hasAttribute('data-index')) {
-            column = column.parent();
-        }
-        if (!column) {
-            return;
-        }
-        const index = parseInt(column.attr('data-index'), 10) + 1;
-        $(this).attr('name', 'fields[' + index + '][' + $(this).attr('data-field') + ']');
-    },
     editor: {
-        query: '',
         element: null,
         hintOptions: {},
         modes: {
@@ -61,10 +48,9 @@ jaxon.dbadmin = {
         const element = document.getElementById(txtQueryId);
         const query = element.innerText || element.textContent;
         element.innerHTML = '';
-        jaxon.dbadmin.editor.query = query;
         CodeMirror(element, { value: query, mode, lineNumbers: false, readOnly: true });
     },
-    highlightSqlEditor: function(containerId, driver) {
+    createSqlEditor: function(containerId, driver) {
         const mode = jaxon.dbadmin.editor.modes[driver] || jaxon.dbadmin.editor.modes.sql;
         const element = document.getElementById(containerId);
         jaxon.dbadmin.editor.element = CodeMirror.fromTextArea(element, {
@@ -88,22 +74,3 @@ jaxon.dbadmin = {
         jaxon.dbadmin.editor.element.save();
     },
 };
-
-jaxon.dom.ready(function() {
-    jaxon.register('dbadmin.hsqleditor', function({ id, server }) {
-        jaxon.dbadmin.highlightSqlEditor(id, server);
-        return true;
-    });
-    jaxon.register('dbadmin.window.open', function({ link }) {
-        window.open(link, '_blank').focus();
-        return true;
-    });
-    jaxon.register('dbadmin.row.ids.set', function({ ids }) {
-        jaxon.dbadmin.rowIds = ids;
-        return true;
-    });
-    jaxon.register('dbadmin.new.index.set', function({ count }) {
-        jaxon.dbadmin.newItemIndex = count;
-        return true;
-    });
-});

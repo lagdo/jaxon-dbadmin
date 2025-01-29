@@ -123,7 +123,7 @@ trait ExportTrait
 
         $link = \rtrim($this->package()->getOption('export.url'), '/') . $name;
         // $this->response->script("window.open('$link', '_blank').focus()");
-        $this->response->addCommand('dbadmin.window.open', ['link' => $link]);
+        $this->response->jw()->open($link, '_blank')->focus();
     }
 
     /**
