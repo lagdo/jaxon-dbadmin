@@ -16,28 +16,6 @@ abstract class PageComponent extends BaseComponent
     use CallableTrait;
 
     /**
-     * The Jaxon DbAdmin package
-     *
-     * @var Package
-     */
-    protected $package;
-
-    /**
-     * @var UiBuilder
-     */
-    private $ui;
-
-    /**
-     * @var Translator
-     */
-    private $trans;
-
-    /**
-     * @var DbFacade
-     */
-    private $db;
-
-    /**
      * The constructor
      *
      * @param Package       $package    The DbAdmin package
@@ -45,45 +23,9 @@ abstract class PageComponent extends BaseComponent
      * @param UiBuilder     $ui         The HTML UI builder
      * @param Translator    $trans
      */
-    public function __construct(Package $package, DbFacade $db, UiBuilder $ui, Translator $trans)
-    {
-        $this->package = $package;
-        $this->db = $db;
-        $this->ui = $ui;
-        $this->trans = $trans;
-    }
-
-    /**
-     * @return Package
-     */
-    protected function package(): Package
-    {
-        return $this->package;
-    }
-
-    /**
-     * @return DbFacade
-     */
-    protected function db(): DbFacade
-    {
-        return $this->db;
-    }
-
-    /**
-     * @return UiBuilder
-     */
-    protected function ui(): UiBuilder
-    {
-        return $this->ui;
-    }
-
-    /**
-     * @return Translator
-     */
-    protected function trans(): Translator
-    {
-        return $this->trans;
-    }
+    public function __construct(private Package $package, private DbFacade $db,
+        private UiBuilder $ui, private Translator $trans)
+    {}
 
     /**
      * Render the page and pagination components

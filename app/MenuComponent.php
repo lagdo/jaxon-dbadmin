@@ -10,31 +10,12 @@ use Lagdo\DbAdmin\Translator;
 abstract class MenuComponent extends Component
 {
     /**
-     * @var MenuBuilder
-     */
-    private $ui;
-
-    /**
-     * @var Translator
-     */
-    private $trans;
-
-    /**
-     * @var DbFacade
-     */
-    private $db;
-
-    /**
      * @param MenuBuilder $ui
      * @param Translator $trans
      * @param DbFacade $db
      */
-    public function __construct(MenuBuilder $ui, Translator $trans, DbFacade $db)
-    {
-        $this->ui = $ui;
-        $this->trans = $trans;
-        $this->db = $db;
-    }
+    public function __construct(private MenuBuilder $ui, private Translator $trans, private DbFacade $db)
+    {}
 
     /**
      * @return DbFacade

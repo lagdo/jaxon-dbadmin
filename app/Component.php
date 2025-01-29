@@ -7,10 +7,10 @@ use Jaxon\App\Dialog\DialogTrait;
 use Lagdo\DbAdmin\App\Ajax\Menu\Sections;
 use Lagdo\DbAdmin\App\Ajax\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\App\Ajax\Menu\Server\Command as ServerCommand;
+use Lagdo\DbAdmin\App\Ui\UiBuilder;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
-use Lagdo\DbAdmin\App\Ui\UiBuilder;
 
 /**
  * @databag dbadmin
@@ -21,30 +21,6 @@ abstract class Component extends JaxonComponent
     use CallableTrait;
 
     /**
-     * The Jaxon DbAdmin package
-     *
-     * @var Package
-     */
-    protected $package;
-
-    /**
-     * The facade to database functions
-     *
-     * @var DbFacade
-     */
-    private $db;
-
-    /**
-     * @var UiBuilder
-     */
-    private $ui;
-
-    /**
-     * @var Translator
-     */
-    private $trans;
-
-    /**
      * The constructor
      *
      * @param Package       $package    The DbAdmin package
@@ -52,45 +28,9 @@ abstract class Component extends JaxonComponent
      * @param UiBuilder     $ui         The HTML UI builder
      * @param Translator    $trans
      */
-    public function __construct(Package $package, DbFacade $db, UiBuilder $ui, Translator $trans)
-    {
-        $this->package = $package;
-        $this->db = $db;
-        $this->ui = $ui;
-        $this->trans = $trans;
-    }
-
-    /**
-     * @return Package
-     */
-    protected function package(): Package
-    {
-        return $this->package;
-    }
-
-    /**
-     * @return DbFacade
-     */
-    protected function db(): DbFacade
-    {
-        return $this->db;
-    }
-
-    /**
-     * @return UiBuilder
-     */
-    protected function ui(): UiBuilder
-    {
-        return $this->ui;
-    }
-
-    /**
-     * @return Translator
-     */
-    protected function trans(): Translator
-    {
-        return $this->trans;
-    }
+    public function __construct(private Package $package, private DbFacade $db,
+        private UiBuilder $ui, private Translator $trans)
+    {}
 
     /**
      * @param string $activeItem
