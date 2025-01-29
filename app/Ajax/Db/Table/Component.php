@@ -37,8 +37,8 @@ abstract class Component extends BaseComponent
     {
         // Do not change the values if they are already set.
         $this->bag('dbadmin.select')->new('options', ['limit' => 50, 'text_length' => 100]);
-        $this->bag('dbadmin.columns')->new('', []);
-        $this->bag('dbadmin.filters')->new('', []);
-        $this->bag('dbadmin.sorting')->new('', []);
+        $this->bag('dbadmin.select')->new('columns', []);
+        $this->bag('dbadmin.select')->new('filters', []);
+        $this->bag('dbadmin.select')->new('sorting', []);
     }
 }

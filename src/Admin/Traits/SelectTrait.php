@@ -16,7 +16,7 @@ trait SelectTrait
      */
     public function processSelectLimit(): int
     {
-        return isset($this->utils->input->values['limit']) ? intval($this->utils->input->values['limit']) : 50;
+        return intval($this->utils->input->values['limit'] ?? 50);
     }
 
     /**
@@ -26,7 +26,7 @@ trait SelectTrait
      */
     public function processSelectLength(): int
     {
-        return isset($this->utils->input->values['text_length']) ? intval($this->utils->input->values['text_length']) : 100;
+        return intval($this->utils->input->values['text_length'] ?? 100);
     }
 
     /**

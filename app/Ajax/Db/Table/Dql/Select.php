@@ -39,15 +39,17 @@ class Select extends ContentComponent
      */
     protected function before()
     {
-        $this->bag('dbadmin.select')->set('options', ['limit' => 50, 'text_length' => 100]);
+        // The columns, filters and sorting values are reset.
         $this->bag('dbadmin.select')->set('columns', []);
         $this->bag('dbadmin.select')->set('filters', []);
         $this->bag('dbadmin.select')->set('sorting', []);
+        // While the options values are kept.
+        $options = $this->bag('dbadmin.select')->get('options');
 
         $table = $this->bag('dbadmin')->get('db.table.name');
 
         // Save select queries options
-        $selectData = $this->db()->getSelectData($table);
+        $selectData = $this->db()->getSelectData($table, $options);
         $this->stash()->set('select.options', $selectData['options']);
         $this->stash()->set('select.query', $selectData['query']);
 
