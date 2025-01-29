@@ -22,8 +22,7 @@ class Delete extends CallableClass
      */
     public function exec(array $rowIds)
     {
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        $results = $this->db()->deleteItem($table, $rowIds);
+        $results = $this->db()->deleteItem($this->getTableName(), $rowIds);
 
         // Show the error
         if(($results['error']))

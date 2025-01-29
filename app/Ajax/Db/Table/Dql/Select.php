@@ -46,7 +46,7 @@ class Select extends ContentComponent
         // While the options values are kept.
         $options = $this->bag('dbadmin.select')->get('options');
 
-        $table = $this->bag('dbadmin')->get('db.table.name');
+        $table = $this->getTableName();
 
         // Save select queries options
         $selectData = $this->db()->getSelectData($table, $options);
@@ -134,7 +134,7 @@ class Select extends ContentComponent
      */
     // public function exec(int $page = 0)
     // {
-    //     $table = $this->bag('dbadmin')->get('db.table.name');
+    //     $table = $this->getTableName();
     //     // Select options
     //     $options = $this->getOptions();
     //     $options['page'] = $page;

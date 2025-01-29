@@ -35,7 +35,7 @@ class Insert extends ContentComponent
         $this->view()->shareValues($this->queryData);
 
         // Set main menu buttons
-        $table = $this->bag('dbadmin')->get('db.table.name');
+        $table = $this->getTableName();
         $options = pm()->form($this->queryFormId);
         $actions = [
             'query-save' => [
@@ -73,8 +73,7 @@ class Insert extends ContentComponent
      */
     public function show()
     {
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        $this->queryData = $this->db()->getQueryData($table);
+        $this->queryData = $this->db()->getQueryData($this->getTableName());
         // Show the error
         if(($this->queryData['error']))
         {
@@ -96,7 +95,7 @@ class Insert extends ContentComponent
      */
     public function exec(array $options, bool $addNew)
     {
-        $table = $this->bag('dbadmin')->get('db.table.name');
+        $table = $this->getTableName();
         $results = $this->db()->insertItem($table, $options);
 
         // Show the error

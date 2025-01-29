@@ -75,8 +75,8 @@ class Update extends ContentComponent
     public function show(array $rowIds)
     {
         $this->rowIds = $rowIds;
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        $this->queryData = $this->db()->getQueryData($table, $rowIds, 'Edit item');
+        $this->queryData = $this->db()
+            ->getQueryData($this->getTableName(), $rowIds, 'Edit item');
         // Show the error
         if(($this->queryData['error']))
         {
@@ -116,8 +116,7 @@ class Update extends ContentComponent
         $options['where'] = $rowIds['where'];
         $options['null'] = $rowIds['null'];
 
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        $results = $this->db()->updateItem($table, $options);
+        $results = $this->db()->updateItem($this->getTableName(), $options);
 
         // Show the error
         if(($results['error']))

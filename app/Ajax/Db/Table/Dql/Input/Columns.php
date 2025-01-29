@@ -21,9 +21,8 @@ class Columns extends Component
         $options = ['functions' => [], 'grouping' => [], 'columns' => []];
         if(count($values) > 0)
         {
-            $table = $this->bag('dbadmin')->get('db.table.name');
             $options = $this->bag('dbadmin.select')->get('options');
-            $selectData = $this->db()->getSelectData($table, $options);
+            $selectData = $this->db()->getSelectData($this->getTableName(), $options);
             $options = [
                 'functions' => $selectData['options']['columns']['functions'] ?? [],
                 'grouping' => $selectData['options']['columns']['grouping'] ?? [],

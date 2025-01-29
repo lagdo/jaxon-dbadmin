@@ -38,7 +38,7 @@ class Alter extends ContentComponent
      */
     protected function before()
     {
-        $table = $this->bag('dbadmin')->get('db.table.name');
+        $table = $this->getTableName();
         $this->tableData = $this->db()->getTableData($table);
         // Make data available to views
         $this->view()->shareValues($this->tableData);
@@ -102,7 +102,7 @@ class Alter extends ContentComponent
      */
     public function save(string $table, array $values)
     {
-        // $table = $this->bag('dbadmin')->get('db.table.name');
+        // $table = $this->getTableName();
 
         // $values = array_merge($this->defaults, $values);
 

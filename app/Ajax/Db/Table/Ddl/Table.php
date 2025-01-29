@@ -66,7 +66,7 @@ class Table extends ContentComponent
      */
     protected function before()
     {
-        $table = $this->bag('dbadmin')->get('db.table.name');
+        $table = $this->getTableName();
 
         // Set main menu buttons
         // $actions = $this->getTableLinks();
@@ -120,7 +120,7 @@ class Table extends ContentComponent
      */
     protected function after()
     {
-        $table = $this->bag('dbadmin')->get('db.table.name');
+        $table = $this->getTableName();
 
         // Show fields
         $fieldsInfo = $this->db()->getTableFields($table);

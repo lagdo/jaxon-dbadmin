@@ -16,8 +16,7 @@ class Results extends PageComponent
      */
     protected function count(): int
     {
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        return $this->db()->countSelect($table, $this->getOptions());
+        return $this->db()->countSelect($this->getTableName(), $this->getOptions());
     }
 
     /**
@@ -29,8 +28,7 @@ class Results extends PageComponent
         $options = $this->getOptions();
         $options['page'] = $this->currentPage();
 
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        $results = $this->db()->execSelect($table, $options);
+        $results = $this->db()->execSelect($this->getTableName(), $options);
         return $results['message'] ??
             $this->ui()->selectResults($results['headers'], $results['rows']);
     }

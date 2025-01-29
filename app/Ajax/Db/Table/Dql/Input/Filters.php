@@ -21,9 +21,8 @@ class Filters extends Component
         $options = ['columns' => [], 'operators' => []];
         if(count($values) > 0)
         {
-            $table = $this->bag('dbadmin')->get('db.table.name');
             $options = $this->bag('dbadmin.select')->get('options');
-            $selectData = $this->db()->getSelectData($table, $options);
+            $selectData = $this->db()->getSelectData($this->getTableName(), $options);
             $options = [
                 'columns' => $selectData['options']['filters']['columns'] ?? [],
                 'operators' => $selectData['options']['filters']['operators'] ?? [],

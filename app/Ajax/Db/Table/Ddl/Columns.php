@@ -59,8 +59,7 @@ class Columns extends Component
      */
     public function add(int $target = -1)
     {
-        $table = $this->bag('dbadmin')->get('db.table.name');
-        $this->tableData = $this->db()->getTableData($table);
+        $this->tableData = $this->db()->getTableData($this->getTableName());
         // Make data available to views
         $this->view()->shareValues($this->tableData);
         $this->ui()
