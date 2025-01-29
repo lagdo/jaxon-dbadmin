@@ -31,17 +31,16 @@ class CommandFacade extends AbstractFacade
     /**
      * Open a second connection to the server
      *
-     * @return ConnectionInterface|null
+     * @return void
      */
-    private function connection(): ?ConnectionInterface
+    private function createConnection()
     {
+        // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
+        //! PDO - silent error
         if ($this->connection === null && $this->driver->database() !== '') {
-            // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
-            //! PDO - silent error
-            $connection = $this->driver->connect($this->driver->database(), $this->driver->schema());
-            $this->connection = $connection;
+            $this->connection = $this->driver
+                ->connect($this->driver->database(), $this->driver->schema());
         }
-        return $this->connection;
     }
 
     /**
@@ -105,7 +104,8 @@ class CommandFacade extends AbstractFacade
         // No resultset
         if ($statement === true) {
             $affected = $this->driver->affectedRows();
-            $message = $this->utils->trans->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
+            $message = $this->utils->trans
+                ->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
             return [null, [$message]];
         }
         // Fetch the first row.
@@ -146,18 +146,15 @@ class CommandFacade extends AbstractFacade
     }
 
     /**
-     * @param string $query       The query to execute
-     * @param int    $limit         The max number of rows to return
-     * @param bool   $errorStops    Stop executing the requests in case of error
-     * @param bool   $onlyErrors    Return only errors
+     * @param QueryEntity $queryEntity
      *
      * @return bool
      */
-    private function executeCommand(string $query, int $limit, bool $errorStops, bool $onlyErrors): bool
+    private function executeCommand(QueryEntity $queryEntity): bool
     {
         //! Don't allow changing of character_set_results, convert encoding of displayed query
-        if ($this->driver->multiQuery($query) && ($connection = $this->connection()) !== null) {
-            $connection->execUseQuery($query);
+        if ($this->driver->multiQuery($queryEntity->query) && $this->connection !== null) {
+            $this->connection->execUseQuery($queryEntity->query);
         }
 
         do {
@@ -168,12 +165,14 @@ class CommandFacade extends AbstractFacade
 
             if ($this->driver->hasError()) {
                 $errors[] = $this->driver->errorMessage();
-            } elseif (!$onlyErrors) {
-                [$select, $messages] = $this->select($statement, $limit);
+            } elseif (!$queryEntity->onlyErrors) {
+                [$select, $messages] = $this->select($statement, $queryEntity->limit);
             }
 
-            $this->results[] = compact('query', 'errors', 'messages', 'select');
-            if ($this->driver->hasError() && $errorStops) {
+            $result = compact('errors', 'messages', 'select');
+            $result['query'] = $queryEntity->query;
+            $this->results[] = $result;
+            if ($this->driver->hasError() && $queryEntity->errorStops) {
                 return false;
             }
             // $start = \microtime(true);
@@ -221,13 +220,16 @@ class CommandFacade extends AbstractFacade
         // $dump_format = $this->admin->dumpFormat();
         // unset($dump_format['sql']);
 
+        // The second connection must be created before executing the queries.
+        $this->createConnection();
+
         $this->results = [];
         $commands = 0;
         $errors = 0;
-        $queryEntity = new QueryEntity($queries);
+        $queryEntity = new QueryEntity($queries, $limit, $errorStops, $onlyErrors);
         while ($this->driver->parseQueries($queryEntity)) {
             $commands++;
-            if (!$this->executeCommand($queryEntity->query, $limit, $errorStops, $onlyErrors)) {
+            if (!$this->executeCommand($queryEntity)) {
                 $errors++;
                 if ($errorStops) {
                     break;

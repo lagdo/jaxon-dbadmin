@@ -55,12 +55,17 @@ trait QueryTrait
      *
      * @after('call' => 'debugQueries')
      *
+     * @param string $query
      * @param array $values
      *
      * @return void
      */
-    public function exec(array $values)
+    public function exec(string $query, array $values)
     {
+        // This will set the breadcrumbs.
+        $this->db()->prepareCommand();
+
+        $values['query'] = $query;
         $this->cl(QueryResults::class)->exec($values);
     }
 }

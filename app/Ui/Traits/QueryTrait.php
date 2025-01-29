@@ -7,6 +7,7 @@ use Lagdo\DbAdmin\App\Ajax\Db\Command\QueryResults;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function count;
+use function Jaxon\js;
 use function Jaxon\rq;
 use function Jaxon\pm;
 
@@ -28,8 +29,8 @@ trait QueryTrait
             ->col(12)->setId('dbadmin-command-details')
             ->end()
             ->col(12)
-                ->form(true, true)->setId($formId)
-                    ->formRow()
+                ->row()
+                    ->col(12)
                         ->panel('default')->setId('sql-command-editor')
                             ->panelBody()->setClass('sql-command-editor-panel')
                                 ->formTextarea()
@@ -44,6 +45,10 @@ trait QueryTrait
                             ->end()
                         ->end()
                     ->end()
+                ->end()
+            ->end()
+            ->col(12)
+                ->form(true, true)->setId($formId)
                     ->formRow()
                         ->formCol(3)
                             ->inputGroup()
@@ -74,7 +79,7 @@ trait QueryTrait
                         ->end()
                         ->formCol(2)
                             ->button()->btnFullWidth()->btnPrimary()
-                                ->jxnClick($rqQuery->exec(pm()->form($formId))/*->when(pm()->input($queryId))*/)
+                                ->jxnClick($rqQuery->exec(js('jaxon.dbadmin.editor.element')->getValue(), pm()->form($formId))/*->when(pm()->input($queryId))*/)
                                 ->addText($this->trans->lang('Execute'))
                             ->end()
                         ->end()
@@ -99,65 +104,67 @@ trait QueryTrait
         $htmlBuilder;
         foreach ($results as $result) {
             $htmlBuilder
-                ->row();
+                ->row()
+                    ->col(12);
             if (count($result['errors']) > 0) {
                 $htmlBuilder
-                    ->panel('danger')
-                        ->panelHeader()->addText($result['query'])
-                        ->end()
-                        ->panelBody()->setStyle('padding:5px 15px');
+                        ->panel('danger')
+                            ->panelHeader()->addText($result['query'])
+                            ->end()
+                            ->panelBody()->setStyle('padding:5px 15px');
                 foreach($result['errors'] as $error) {
                     $htmlBuilder
-                            ->addHtml('<p style="margin:0">' . $error . '</p>');
+                                ->addHtml($error);
                 }
                 $htmlBuilder
-                        ->end()
-                    ->end();
+                            ->end()
+                        ->end();
             }
             if (count($result['messages']) > 0) {
                 $htmlBuilder
-                    ->panel('info')
-                        ->panelHeader()->addText($result['query'])
-                        ->end()
-                        ->panelBody()->setStyle('padding:5px 15px');
+                        ->panel('info')
+                            ->panelHeader()->addText($result['query'])
+                            ->end()
+                            ->panelBody()->setStyle('padding:5px 15px');
                 foreach($result['messages'] as $message) {
                     $htmlBuilder
-                            ->addHtml('<p style="margin:0">' . $message . '</p>');
+                                ->addHtml($message);
                 }
                 $htmlBuilder
-                        ->end()
-                    ->end();
+                            ->end()
+                        ->end();
             }
             if (isset($result['select'])) {
                 $htmlBuilder
-                    ->table(true, 'bordered')
-                        ->thead()
-                            ->tr();
+                        ->table(true, 'bordered')->setStyle('margin-top:2px')
+                            ->thead()
+                                ->tr();
                 foreach ($result['select']['headers'] as $header) {
                     $htmlBuilder
-                                ->th()->addHtml($header)
+                                    ->th()->addHtml($header)
+                                    ->end();
+                }
+                $htmlBuilder
+                                ->end()
+                            ->end()
+                            ->tbody();
+                foreach ($result['select']['details'] as $details) {
+                    $htmlBuilder
+                                ->tr();
+                    foreach ($details as $detail) {
+                        $htmlBuilder
+                                    ->td()->addHtml($detail)
+                                    ->end();
+                    }
+                   $htmlBuilder
                                 ->end();
                 }
                 $htmlBuilder
                             ->end()
-                        ->end()
-                        ->tbody();
-                foreach ($result['select']['details'] as $details) {
-                    $htmlBuilder
-                            ->tr();
-                    foreach ($details as $detail) {
-                        $htmlBuilder
-                                ->td()->addHtml($detail)
-                                ->end();
-                    }
-                   $htmlBuilder
-                            ->end();
-                }
-                $htmlBuilder
-                        ->end()
-                    ->end();
+                        ->end();
             }
             $htmlBuilder
+                    ->end()
                 ->end();
         }
         return $htmlBuilder->build();

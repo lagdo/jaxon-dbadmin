@@ -15,7 +15,6 @@ use Lagdo\DbAdmin\App\Ajax\Page\ServerInfo;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
-use function count;
 use function htmlentities;
 use function Jaxon\pm;
 use function Jaxon\rq;
@@ -139,45 +138,9 @@ class UiBuilder
         {
             $value = $useKeys ? $key : $label;
             $htmlBuilder
-                    ->option(false, $label)->setClass($optionClass)->setValue(htmlentities($value))
+                    ->option(false, $label)->setClass($optionClass)
+                        ->setValue(htmlentities($value))
                     ->end();
-        }
-        $htmlBuilder
-                ->end();
-        return $htmlBuilder->build();
-    }
-
-    /**
-     * @param array $pages
-     *
-     * @return string
-     */
-    public function pagination(array $pages): string
-    {
-        // There must be at least 2 pages to show in pagination.
-        if (count($pages) < 4) {
-            return '';
-        }
-
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-                ->pagination();
-        foreach($pages as $page)
-        {
-            if ($page->type === 'disabled') {
-                $htmlBuilder
-                    ->paginationDisabledItem()->addHtml($page->text)
-                    ->end();
-            } elseif ($page->type === 'current') {
-                $htmlBuilder
-                    ->paginationActiveItem()->addHtml($page->text)
-                    ->end();
-            } else {
-                $htmlBuilder
-                    ->paginationItem(['href' => 'javascript:void(0)', 'onclick' => $page->call])
-                        ->addHtml($page->text)
-                    ->end();
-            }
         }
         $htmlBuilder
                 ->end();
