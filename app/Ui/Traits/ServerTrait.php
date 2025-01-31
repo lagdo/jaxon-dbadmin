@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ui\Traits;
+namespace Lagdo\DbAdmin\Ui\Traits;
 
 use Lagdo\UiBuilder\Jaxon\Builder;
 

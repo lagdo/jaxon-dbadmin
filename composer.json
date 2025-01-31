@@ -35,7 +35,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Lagdo\\DbAdmin\\App\\": "app/",
+            "Lagdo\\DbAdmin\\Ajax\\": "app/ajax/",
+            "Lagdo\\DbAdmin\\Ui\\": "app/ui/",
             "Lagdo\\DbAdmin\\": "src/"
         }
     },

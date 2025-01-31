@@ -8,8 +8,8 @@ return [
     'metadata' => 'annotations',
     'directories' => [
         [
-            'path' => __DIR__ . '/../app/Ajax',
-            'namespace' => 'Lagdo\\DbAdmin\\App\\Ajax',
+            'path' => __DIR__ . '/../app/ajax/App',
+            'namespace' => 'Lagdo\\DbAdmin\\Ajax\\App',
             'autoload' => false,
         ],
     ],
@@ -100,9 +100,9 @@ return [
             // The db classes
             Lagdo\DbAdmin\Admin\Admin::class,
             // The template builders
-            Lagdo\DbAdmin\App\Ui\UiBuilder::class,
-            Lagdo\DbAdmin\App\Ui\MenuBuilder::class,
-            Lagdo\DbAdmin\App\Ui\PageBuilder::class,
+            Lagdo\DbAdmin\Ui\UiBuilder::class,
+            Lagdo\DbAdmin\Ui\MenuBuilder::class,
+            Lagdo\DbAdmin\Ui\PageBuilder::class,
         ],
         'alias' => [
             // The translator

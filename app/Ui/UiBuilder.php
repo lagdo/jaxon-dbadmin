@@ -1,17 +1,17 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ui;
+namespace Lagdo\DbAdmin\Ui;
 
-use Lagdo\DbAdmin\App\Ajax\Admin;
-use Lagdo\DbAdmin\App\Ajax\Menu\Sections as MenuSections;
-use Lagdo\DbAdmin\App\Ajax\Menu\Database\Command as DatabaseCommand;
-use Lagdo\DbAdmin\App\Ajax\Menu\Database\Schemas as MenuSchemas;
-use Lagdo\DbAdmin\App\Ajax\Menu\Server\Command as ServerCommand;
-use Lagdo\DbAdmin\App\Ajax\Menu\Server\Databases as MenuDatabases;
-use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
-use Lagdo\DbAdmin\App\Ajax\Page\Content;
-use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
-use Lagdo\DbAdmin\App\Ajax\Page\ServerInfo;
+use Lagdo\DbAdmin\Ajax\App\Admin;
+use Lagdo\DbAdmin\Ajax\App\Menu\Sections as MenuSections;
+use Lagdo\DbAdmin\Ajax\App\Menu\Database\Command as DatabaseCommand;
+use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
+use Lagdo\DbAdmin\Ajax\App\Menu\Server\Command as ServerCommand;
+use Lagdo\DbAdmin\Ajax\App\Menu\Server\Databases as MenuDatabases;
+use Lagdo\DbAdmin\Ajax\App\Page\Breadcrumbs;
+use Lagdo\DbAdmin\Ajax\App\Page\Content;
+use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
+use Lagdo\DbAdmin\Ajax\App\Page\ServerInfo;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
@@ -66,41 +66,79 @@ class UiBuilder
      *
      * @return string
      */
+    public function sidebar(array $servers, string $default): string
+    {
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
+            ->row()
+                ->col(12)
+                    ->inputGroup()
+                        ->formSelect()->setId('jaxon-dbadmin-dbhost-select');
+        foreach($servers as $serverId => $server)
+        {
+            $htmlBuilder
+                            ->option($serverId === $default, $server['name'])->setValue($serverId)
+                            ->end();
+        }
+        $htmlBuilder
+                        ->end()
+                        ->button()->btnPrimary()->setClass('btn-select')
+                            ->jxnClick(rq(Admin::class)->server(pm()->select('jaxon-dbadmin-dbhost-select')))
+                            ->addText('Show')
+                        ->end()
+                    ->end()
+                ->end()
+                ->col(12)->jxnBind(rq(ServerCommand::class))
+                ->end()
+                ->col(12)->jxnBind(rq(MenuDatabases::class))
+                ->end()
+                ->col(12)->jxnBind(rq(MenuSchemas::class))
+                ->end()
+                ->col(12)->jxnBind(rq(DatabaseCommand::class))
+                ->end()
+                ->col(12)->jxnBind(rq(MenuSections::class))
+                ->end()
+            ->end();
+        return $htmlBuilder->build();
+    }
+
+    /**
+     * @return string
+     */
+    public function content(): string
+    {
+        $htmlBuilder = Builder::new();
+        $htmlBuilder
+            ->row()->jxnBind(rq(ServerInfo::class))
+            ->end()
+            ->row()
+                ->col(12)
+                    ->span()->jxnBind(rq(Breadcrumbs::class))
+                    ->end()
+                    ->span()->jxnBind(rq(PageActions::class))
+                    ->end()
+                ->end()
+            ->end()
+            ->row()
+                ->col(12)->jxnBind(rq(Content::class))
+                ->end()
+            ->end();
+        return $htmlBuilder->build();
+    }
+
+    /**
+     * @param array $servers
+     * @param string $default
+     *
+     * @return string
+     */
     public function home(array $servers, string $default): string
     {
         $htmlBuilder = Builder::new();
         $htmlBuilder
             ->row()->setId('jaxon-dbadmin')
                 ->col(3)
-                    ->row()
-                        ->col(12)
-                            ->inputGroup()
-                                ->formSelect()->setId('jaxon-dbadmin-dbhost-select');
-        foreach($servers as $serverId => $server)
-        {
-            $htmlBuilder
-                                    ->option($serverId === $default, $server['name'])->setValue($serverId)
-                                    ->end();
-        }
-        $htmlBuilder
-                                ->end()
-                                ->button()->btnPrimary()->setClass('btn-select')
-                                    ->jxnClick(rq(Admin::class)->server(pm()->select('jaxon-dbadmin-dbhost-select')))
-                                    ->addText('Show')
-                                ->end()
-                            ->end()
-                        ->end()
-                        ->col(12)->jxnBind(rq(ServerCommand::class))
-                        ->end()
-                        ->col(12)->jxnBind(rq(MenuDatabases::class))
-                        ->end()
-                        ->col(12)->jxnBind(rq(MenuSchemas::class))
-                        ->end()
-                        ->col(12)->jxnBind(rq(DatabaseCommand::class))
-                        ->end()
-                        ->col(12)->jxnBind(rq(MenuSections::class))
-                        ->end()
-                    ->end()
+                    ->addHtml($this->sidebar($servers, $default))
                 ->end()
                 ->col(9)
                     ->row()->jxnBind(rq(ServerInfo::class))

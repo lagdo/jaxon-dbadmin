@@ -1,17 +1,17 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ui;
+namespace Lagdo\DbAdmin\Ui;
 
-use Lagdo\DbAdmin\App\Ajax\Admin;
-use Lagdo\DbAdmin\App\Ajax\Menu\Sections as MenuSections;
-use Lagdo\DbAdmin\App\Ajax\Menu\Database\Command as DatabaseCommand;
-use Lagdo\DbAdmin\App\Ajax\Menu\Database\Schemas as MenuSchemas;
-use Lagdo\DbAdmin\App\Ajax\Menu\Server\Command as ServerCommand;
-use Lagdo\DbAdmin\App\Ajax\Menu\Server\Databases as MenuDatabases;
-use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
-use Lagdo\DbAdmin\App\Ajax\Page\Content;
-use Lagdo\DbAdmin\App\Ajax\Page\PageActions;
-use Lagdo\DbAdmin\App\Ajax\Page\ServerInfo;
+use Lagdo\DbAdmin\Ajax\App\Admin;
+use Lagdo\DbAdmin\Ajax\App\Menu\Sections as MenuSections;
+use Lagdo\DbAdmin\Ajax\App\Menu\Database\Command as DatabaseCommand;
+use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
+use Lagdo\DbAdmin\Ajax\App\Menu\Server\Command as ServerCommand;
+use Lagdo\DbAdmin\Ajax\App\Menu\Server\Databases as MenuDatabases;
+use Lagdo\DbAdmin\Ajax\App\Page\Breadcrumbs;
+use Lagdo\DbAdmin\Ajax\App\Page\Content;
+use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
+use Lagdo\DbAdmin\Ajax\App\Page\ServerInfo;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function count;

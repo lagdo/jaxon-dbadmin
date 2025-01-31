@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ui\Traits;
+namespace Lagdo\DbAdmin\Ui\Traits;
 
 use Jaxon\Script\JxnClass;
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Ddl\Columns;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Columns;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Jaxon\Builder;

@@ -1,14 +1,14 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ui\Traits;
+namespace Lagdo\DbAdmin\Ui\Traits;
 
 use Jaxon\Script\JxnCall;
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Input\Columns;
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Input\Filters;
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Input\Sorting;
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Options;
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\QueryText;
-use Lagdo\DbAdmin\App\Ajax\Db\Table\Dql\Results;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Input\Columns;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Input\Filters;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Input\Sorting;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Results;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Jaxon\Builder;
 

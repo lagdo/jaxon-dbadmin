@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ui\Traits;
+namespace Lagdo\DbAdmin\Ui\Traits;
 
 use Jaxon\Script\JxnCall;
-use Lagdo\DbAdmin\App\Ajax\Db\Command\QueryResults;
+use Lagdo\DbAdmin\Ajax\App\Db\Command\QueryResults;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function count;

@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin;
 
 use Jaxon\Plugin\AbstractPackage;
-use Lagdo\DbAdmin\App\Ajax\Admin;
+use Lagdo\DbAdmin\Ajax\App\Admin;
 
 use function realpath;
 use function Jaxon\cl;

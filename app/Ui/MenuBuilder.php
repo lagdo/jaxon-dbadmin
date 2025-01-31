@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ui;
+namespace Lagdo\DbAdmin\Ui;
 
-use Lagdo\DbAdmin\App\Ajax\Db\Database\Database;
+use Lagdo\DbAdmin\Ajax\App\Db\Database\Database;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function Jaxon\pm;
