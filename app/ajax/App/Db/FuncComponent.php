@@ -1,15 +1,17 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax;
+namespace Lagdo\DbAdmin\Ajax\App\Db;
+
+use Lagdo\DbAdmin\Ajax\FuncComponent as BaseComponent;
 
 use function count;
 
 /**
- * Callable base for classes that need a db server selected.
+ * Base component for classes that need a db server selected.
  *
  * @before selectDatabase
  */
-class CallableDbClass extends CallableClass
+class FuncComponent extends BaseComponent
 {
     /**
      * Set the current database

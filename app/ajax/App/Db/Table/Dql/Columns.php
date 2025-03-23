@@ -2,14 +2,14 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
-use Lagdo\DbAdmin\Ajax\App\Db\Table\CallableClass;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\FuncComponent;
 
 use function Jaxon\pm;
 
 /**
  * This class provides select query features on tables.
  */
-class Columns extends CallableClass
+class Columns extends FuncComponent
 {
     /**
      * The columns form div id

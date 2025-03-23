@@ -13,7 +13,7 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
  */
 abstract class PageComponent extends BaseComponent
 {
-    use CallableTrait;
+    use ComponentTrait;
 
     /**
      * The constructor

@@ -10,11 +10,11 @@ use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
 /**
- * Callable base class
+ * Commont functions for component classes
  *
  * @databag dbadmin
  */
-trait CallableTrait
+trait ComponentTrait
 {
     /**
      * @return Package

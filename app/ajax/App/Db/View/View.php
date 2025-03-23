@@ -1,14 +1,15 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax\App\Db;
+namespace Lagdo\DbAdmin\Ajax\App\Db\View;
 
-use Lagdo\DbAdmin\Ajax\CallableDbClass;
+use Lagdo\DbAdmin\Ajax\App\Db\Database\Views;
+use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\Content;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
 use function Jaxon\pm;
 
-class View extends CallableDbClass
+class View extends FuncComponent
 {
     /**
      * Display the content of a tab
@@ -142,7 +143,7 @@ class View extends CallableDbClass
         }
 
         $this->modal()->hide();
-        $this->cl(Database::class)->showViews();
+        $this->cl(Views::class)->show();
         $this->alert()->success($result['message']);
     }
 
@@ -195,7 +196,7 @@ class View extends CallableDbClass
         }
 
         $this->modal()->hide();
-        $this->cl(Database::class)->showViews();
+        $this->show($view);
         $this->alert()->success($result['message']);
     }
 
@@ -215,7 +216,7 @@ class View extends CallableDbClass
             return;
         }
 
-        $this->cl(Database::class)->showViews();
+        $this->cl(Views::class)->show();
         $this->alert()->success($result['message']);
     }
 }

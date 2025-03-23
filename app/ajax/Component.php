@@ -18,7 +18,7 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
 abstract class Component extends JaxonComponent
 {
     use DialogTrait;
-    use CallableTrait;
+    use ComponentTrait;
 
     /**
      * The constructor

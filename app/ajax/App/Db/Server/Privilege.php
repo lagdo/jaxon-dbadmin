@@ -2,11 +2,11 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
-use Lagdo\DbAdmin\Ajax\CallableDbClass;
+use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 
 use function Jaxon\pm;
 
-class Privilege extends CallableDbClass
+class Privilege extends FuncComponent
 {
     /**
      * Show the new user form

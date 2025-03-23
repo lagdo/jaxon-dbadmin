@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax;
 
-use Jaxon\App\CallableClass as JaxonCallableClass;
+use Jaxon\App\FuncComponent as JaxonFuncComponent;
 use Jaxon\App\Dialog\DialogTrait;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Package;
@@ -10,14 +10,12 @@ use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
 /**
- * Callable base class
- *
  * @databag dbadmin
  */
-class CallableClass extends JaxonCallableClass
+class FuncComponent extends JaxonFuncComponent
 {
     use DialogTrait;
-    use CallableTrait;
+    use ComponentTrait;
 
     /**
      * The constructor

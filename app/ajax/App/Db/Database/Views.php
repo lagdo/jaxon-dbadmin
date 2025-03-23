@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
-use Lagdo\DbAdmin\Ajax\App\Db\View;
+use Lagdo\DbAdmin\Ajax\App\Db\View\View;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
 use function array_map;

@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Table;
 
 use Lagdo\DbAdmin\Db\Exception\DbException;
 
-trait CallableTrait
+trait ComponentTrait
 {
     /**
      * Check if the user has access to a server

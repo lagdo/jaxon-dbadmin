@@ -8,12 +8,12 @@ use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
 use Lagdo\DbAdmin\Ajax\App\Menu\Server\Command as ServerCommand;
 use Lagdo\DbAdmin\Ajax\App\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\Ajax\App\Page\ServerInfo;
-use Lagdo\DbAdmin\Ajax\CallableDbClass;
+use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 
 use function array_values;
 use function count;
 
-class Server extends CallableDbClass
+class Server extends FuncComponent
 {
     /**
      * Show the database dropdown list.

@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table;
 
-use Lagdo\DbAdmin\Ajax\CallableClass as BaseCallableClass;
+use Lagdo\DbAdmin\Ajax\FuncComponent as BaseFuncComponent;
 
 /**
  * @databag dbadmin.select
@@ -10,9 +10,9 @@ use Lagdo\DbAdmin\Ajax\CallableClass as BaseCallableClass;
  * @before setDefaultSelectOptions
  * @after showBreadcrumbs
  */
-abstract class CallableClass extends BaseCallableClass
+abstract class FuncComponent extends BaseFuncComponent
 {
-    use CallableTrait;
+    use ComponentTrait;
 
     /**
      * Set the default options for the select queries

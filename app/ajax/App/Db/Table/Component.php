@@ -12,7 +12,7 @@ use Lagdo\DbAdmin\Ajax\Component as BaseComponent;
  */
 abstract class Component extends BaseComponent
 {
-    use CallableTrait;
+    use ComponentTrait;
 
     /**
      * Set the default options for the select queries

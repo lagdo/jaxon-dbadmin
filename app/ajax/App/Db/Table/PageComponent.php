@@ -10,7 +10,7 @@ use Lagdo\DbAdmin\Ajax\PageComponent as BaseComponent;
  */
 abstract class PageComponent extends BaseComponent
 {
-    use CallableTrait;
+    use ComponentTrait;
 
     /**
      * @inheritDoc

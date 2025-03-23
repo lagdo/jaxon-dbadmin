@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
-use Lagdo\DbAdmin\Ajax\CallableDbClass;
+use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\Server\Databases;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
@@ -13,7 +13,7 @@ use function count;
 use function is_array;
 use function Jaxon\pm;
 
-class Database extends CallableDbClass
+class Database extends FuncComponent
 {
     /**
      * Select a database
