@@ -29,12 +29,12 @@ trait ExportTrait
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 
-        $btnId = 'adminer-main-export-submit';
-        $formId = 'adminer-main-export-form';
-        $databaseNameId = 'adminer-export-database-name';
-        $databaseDataId = 'adminer-export-database-data';
-        $tableNameId = 'adminer-export-table-name';
-        $tableDataId = 'adminer-export-table-data';
+        $btnId = 'dbadmin-main-export-submit';
+        $formId = 'dbadmin-main-export-form';
+        $databaseNameId = 'dbadmin-export-database-name';
+        $databaseDataId = 'dbadmin-export-database-data';
+        $tableNameId = 'dbadmin-export-table-name';
+        $tableDataId = 'dbadmin-export-table-data';
 
         $htmlIds = [
             'btnId' => $btnId,
@@ -55,12 +55,12 @@ trait ExportTrait
      */
     protected function after()
     {
-        $btnId = 'adminer-main-export-submit';
-        $formId = 'adminer-main-export-form';
-        $databaseNameId = 'adminer-export-database-name';
-        $databaseDataId = 'adminer-export-database-data';
-        $tableNameId = 'adminer-export-table-name';
-        $tableDataId = 'adminer-export-table-data';
+        $btnId = 'dbadmin-main-export-submit';
+        $formId = 'dbadmin-main-export-form';
+        $databaseNameId = 'dbadmin-export-database-name';
+        $databaseDataId = 'dbadmin-export-database-data';
+        $tableNameId = 'dbadmin-export-table-name';
+        $tableDataId = 'dbadmin-export-table-data';
         if(($this->database))
         {
             $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($tableNameId);

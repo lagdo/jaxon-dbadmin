@@ -24,7 +24,7 @@ class Insert extends ContentComponent
      *
      * @var string
      */
-    private $queryFormId = 'adminer-table-query-form';
+    private $queryFormId = 'dbadmin-table-query-form';
 
     /**
      * @inheritDoc

@@ -31,7 +31,7 @@ class Columns extends Component
     /**
      * The form id
      */
-    protected $formId = 'adminer-table-form';
+    protected $formId = 'dbadmin-table-form';
 
     /**
      * @inheritDoc
@@ -83,7 +83,7 @@ class Columns extends Component
     // public function add(int $target = -1)
     // {
     //     // Todo: Save columns data in a databag, and get the 'length' value from there.
-    //     $length = jq(".{$this->formId}-column", "#adminer-database-content")->length;
+    //     $length = jq(".{$this->formId}-column", "#dbadmin-database-content")->length;
 
     //     $this->tableData = $this->db()->getTableData();
     //     // Make data available to views
@@ -123,8 +123,8 @@ class Columns extends Component
     //     // // Set the button event handlers on the new column
     //     // $this->response->jq('[data-field]', "#$columnId")
     //     //     ->on('jaxon.dbadmin.renamed', pm()->js('jaxon.dbadmin.onColumnRenamed'));
-    //     // $this->response->jq('.adminer-table-column-add', "#$columnId")->click($this->rq()->add($length, $index));
-    //     // $this->response->jq('.adminer-table-column-del', "#$columnId")->click($this->rq()->del($length, $index)
+    //     // $this->response->jq('.dbadmin-table-column-add', "#$columnId")->click($this->rq()->add($length, $index));
+    //     // $this->response->jq('.dbadmin-table-column-del', "#$columnId")->click($this->rq()->del($length, $index)
     //     //     ->confirm('Delete this column?'));
     // }
 
@@ -202,7 +202,7 @@ class Columns extends Component
         //     $currId = sprintf('%s-column-%02d', $this->formId, $id + 1);
         //     $nextId = sprintf('%s-column-%02d', $this->formId, $id);
         //     $this->response->jq("#$currId")->attr('data-index', $id)->attr('id', $nextId);
-        //     $this->response->jq('.adminer-table-column-buttons', "#$nextId")->attr('data-index', $id);
+        //     $this->response->jq('.dbadmin-table-column-buttons', "#$nextId")->attr('data-index', $id);
         //     $this->response->jq('[data-field]', "#$nextId")->trigger('jaxon.dbadmin.renamed');
         // }
     }
@@ -221,13 +221,13 @@ class Columns extends Component
         // // To mark a column as to be dropped, set its name to an empty string.
         // $this->response->jq('input.column-name', "#$columnId")->attr('name', '');
         // // Replace the icon and the onClick event handler.
-        // $this->response->jq("#adminer-table-column-button-group-drop-$index")
+        // $this->response->jq("#dbadmin-table-column-button-group-drop-$index")
         //     ->removeClass('btn-primary')
         //     ->addClass('btn-danger');
-        // $this->response->jq('.adminer-table-column-del', "#$columnId")
+        // $this->response->jq('.dbadmin-table-column-del', "#$columnId")
         //     // Remove the current onClick handler before setting a new one.
         //     ->unbind('click')->click($this->rq()->cancelDelete($index));
-        // // $this->response->jq('.adminer-table-column-del>span', "#$columnId")
+        // // $this->response->jq('.dbadmin-table-column-del>span', "#$columnId")
         // //     ->removeClass('glyphicon-remove')
         // //     ->addClass('glyphicon-trash');
     }
@@ -247,13 +247,13 @@ class Columns extends Component
         // // To cancel the drop, reset the column name to its initial value.
         // $this->response->jq('input.column-name', "#$columnId")->attr('name', $columnName);
         // // Replace the icon and the onClick event handler.
-        // $this->response->jq("#adminer-table-column-button-group-drop-$index")
+        // $this->response->jq("#dbadmin-table-column-button-group-drop-$index")
         //     ->removeClass('btn-danger')
         //     ->addClass('btn-primary');
-        // $this->response->jq('.adminer-table-column-del', "#$columnId")
+        // $this->response->jq('.dbadmin-table-column-del', "#$columnId")
         //     // Remove the current onClick handler before setting a new one.
         //     ->unbind('click')->click($this->rq()->setForDelete($index));
-        // // $this->response->jq('.adminer-table-column-del>span', "#$columnId")
+        // // $this->response->jq('.dbadmin-table-column-del>span', "#$columnId")
         // //     ->removeClass('glyphicon-trash')
         // //     ->addClass('glyphicon-remove');
     }

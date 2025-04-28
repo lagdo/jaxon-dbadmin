@@ -25,14 +25,14 @@ class Select extends ContentComponent
      *
      * @var string
      */
-    private $formOptionsId = 'adminer-table-select-options-form';
+    private $formOptionsId = 'dbadmin-table-select-options-form';
 
     /**
      * The select query div id
      *
      * @var string
      */
-    private $txtQueryId = 'adminer-table-select-query';
+    private $txtQueryId = 'dbadmin-table-select-query';
 
     /**
      * @inheritDoc
@@ -141,7 +141,7 @@ class Select extends ContentComponent
     //     $results = $this->db()->execSelect($table, $options);
 
     //     // Show the message
-    //     $resultsId = 'adminer-table-select-results';
+    //     $resultsId = 'dbadmin-table-select-results';
     //     if(($results['message']))
     //     {
     //         $this->response->html($resultsId, $results['message']);
@@ -180,7 +180,7 @@ class Select extends ContentComponent
     //     // Pagination
     //     $pages = $this->rq()->execSelect(pm()->page())->pages($page, $results['limit'], $results['total']);
     //     $pagination = $this->ui()->pagination($pages);
-    //     $this->response->html("adminer-table-select-pagination", $pagination);
+    //     $this->response->html("dbadmin-table-select-pagination", $pagination);
     // }
 
     /**

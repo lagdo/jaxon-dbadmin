@@ -16,7 +16,7 @@ class Options extends Component
      *
      * @var string
      */
-    private $formOptionsId = 'adminer-table-select-options-form';
+    private $formOptionsId = 'dbadmin-table-select-options-form';
 
     /**
      * @inheritDoc

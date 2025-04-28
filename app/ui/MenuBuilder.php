@@ -50,7 +50,7 @@ class MenuBuilder
         {
             $htmlBuilder
                 ->menuItem($action['title'])
-                    ->setClass($item === $activeItem ? 'adminer-menu-item active' : 'adminer-menu-item')
+                    ->setClass($item === $activeItem ? 'dbadmin-menu-item active' : 'dbadmin-menu-item')
                     ->jxnClick($action['handler'])
                 ->end();
         }
@@ -74,7 +74,7 @@ class MenuBuilder
         {
             $htmlBuilder
                 ->button()->btnOutline()->btnPrimary()->btnFullWidth()
-                    ->setClass($item === $activeItem ? 'adminer-menu-item active' : 'adminer-menu-item')
+                    ->setClass($item === $activeItem ? 'dbadmin-menu-item active' : 'dbadmin-menu-item')
                     ->addText($action['title'])
                     ->jxnClick($action['handler'])
                 ->end();

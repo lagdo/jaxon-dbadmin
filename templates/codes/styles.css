@@ -4,7 +4,7 @@
 #jaxon-dbadmin {
     margin: 20px 0 0 0;
 }
-#jaxon-dbadmin #adminer-table-select-query {
+#jaxon-dbadmin #dbadmin-table-select-query {
     border: 1px solid #ccc;
     border-radius: 4px;
 }
@@ -36,7 +36,7 @@
 #dbadmin-database-actions, #dbadmin-server-actions {
     margin-bottom: 10px;
 }
-#jaxon-dbadmin .adminer-table-checkbox {
+#jaxon-dbadmin .dbadmin-table-checkbox {
     width: 20px;
 }
 #jaxon-dbadmin .breadcrumb {
@@ -51,42 +51,42 @@
     -webkit-appearance: none;
     margin: 0;
 }
-#jaxon-dbadmin .adminer-edit-table-name {
+#jaxon-dbadmin .dbadmin-edit-table-name {
     padding-right: 1px;
 }
-#jaxon-dbadmin .adminer-edit-table-engine {
+#jaxon-dbadmin .dbadmin-edit-table-engine {
     padding-left: 1px;
     padding-right: 1px;
 }
-#jaxon-dbadmin .adminer-edit-table-collation {
+#jaxon-dbadmin .dbadmin-edit-table-collation {
     padding-left: 1px;
     padding-right: 1px;
 }
-#jaxon-dbadmin .adminer-edit-table-header,
-#jaxon-dbadmin .adminer-table-column-header {
+#jaxon-dbadmin .dbadmin-edit-table-header,
+#jaxon-dbadmin .dbadmin-table-column-header {
     padding-top: 15px;
     padding-bottom: 0;
     margin-bottom: 10px;
 }
-#jaxon-dbadmin .adminer-table-column-left {
+#jaxon-dbadmin .dbadmin-table-column-left {
     padding-right: 1px;
 }
-#jaxon-dbadmin .adminer-table-column-default,
-#jaxon-dbadmin .adminer-table-column-middle,
-#jaxon-dbadmin .adminer-table-column-right {
+#jaxon-dbadmin .dbadmin-table-column-default,
+#jaxon-dbadmin .dbadmin-table-column-middle,
+#jaxon-dbadmin .dbadmin-table-column-right {
     padding-left: 1px;
     padding-right: 1px;
 }
-#jaxon-dbadmin .adminer-table-column-null,
-#jaxon-dbadmin .adminer-table-column-null-header {
+#jaxon-dbadmin .dbadmin-table-column-null,
+#jaxon-dbadmin .dbadmin-table-column-null-header {
     padding-left: 10px;
     padding-right: 1px;
 }
-#jaxon-dbadmin .adminer-table-column-null input {
+#jaxon-dbadmin .dbadmin-table-column-null input {
     margin-top: 10px;
 }
-#jaxon-dbadmin .adminer-table-column-buttons,
-#jaxon-dbadmin .adminer-table-column-buttons-header {
+#jaxon-dbadmin .dbadmin-table-column-buttons,
+#jaxon-dbadmin .dbadmin-table-column-buttons-header {
     padding-left: 1px;
     padding-right: 1px;
 }
@@ -110,6 +110,6 @@
 #jaxon-dbadmin #sql-command-editor .sql-command-editor-panel {
     padding: 0 1px;
 }
-#jaxon-dbadmin .adminer-main-action-group {
+#jaxon-dbadmin .dbadmin-main-action-group {
     padding: 10px;
 }

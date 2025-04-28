@@ -128,7 +128,7 @@ class PageBuilder
     {
         $htmlBuilder = Builder::new();
         $htmlBuilder
-            ->buttonGroup(false, ['class' => 'adminer-main-action-group']);
+            ->buttonGroup(false, ['class' => 'dbadmin-main-action-group']);
         foreach($actions as $class => $action)
         {
             $htmlBuilder
@@ -195,7 +195,7 @@ class PageBuilder
         if (($counterId)) {
             $htmlBuilder
                 ->panel()
-                    ->panelBody()->addHtml('Selected (<span id="adminer-table-' . $counterId . '-count">0</span>)')
+                    ->panelBody()->addHtml('Selected (<span id="dbadmin-table-' . $counterId . '-count">0</span>)')
                     ->end()
                 ->end();
         }

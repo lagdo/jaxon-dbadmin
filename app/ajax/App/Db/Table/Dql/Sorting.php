@@ -16,7 +16,7 @@ class Sorting extends FuncComponent
      *
      * @var string
      */
-    private $formId = 'adminer-table-select-sorting-form';
+    private $formId = 'dbadmin-table-select-sorting-form';
 
     /**
      * Change the query sorting

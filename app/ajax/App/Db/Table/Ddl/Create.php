@@ -25,7 +25,7 @@ class Create extends ContentComponent
     /**
      * @var string
      */
-    protected $formId = 'adminer-table-form';
+    protected $formId = 'dbadmin-table-form';
 
     /**
      * Default values for tables
@@ -48,7 +48,7 @@ class Create extends ContentComponent
         $this->view()->shareValues($this->tableData);
 
         // Set main menu buttons
-        $contentId = 'adminer-database-content';
+        $contentId = 'dbadmin-database-content';
         $length = jq(".{$this->formId}-column", "#$contentId")->length;
         $values = pm()->form($this->formId);
         $actions = [

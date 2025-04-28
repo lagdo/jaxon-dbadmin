@@ -24,7 +24,7 @@ class Alter extends ContentComponent
     /**
      * @var string
      */
-    protected $formId = 'adminer-table-form';
+    protected $formId = 'dbadmin-table-form';
 
     /**
      * Default values for tables

@@ -179,14 +179,14 @@ trait TableTrait
                 ->end();
         }
         $htmlBuilder
-                ->formRow()->setClass('adminer-edit-table-header')
+                ->formRow()->setClass('dbadmin-edit-table-header')
                     ->formCol(2)
                         ->label()->addText('Table')
                         ->end()
                     ->end()
                 ->end()
-                ->formRow()->setClass('adminer-edit-table-header')
-                    ->formCol(3)->setClass('adminer-edit-table-name')
+                ->formRow()->setClass('dbadmin-edit-table-header')
+                    ->formCol(3)->setClass('dbadmin-edit-table-name')
                         ->formInput()->setType('text')->setName('name')
                             ->setValue($table['name'] ?? '')->setPlaceholder('Name')
                         ->end()
@@ -194,7 +194,7 @@ trait TableTrait
         if (($this->engines)) {
             $currentEngine = $table['engine'] ?? '';
             $htmlBuilder
-                    ->formCol(2)->setClass('adminer-edit-table-engine')
+                    ->formCol(2)->setClass('dbadmin-edit-table-engine')
                         ->formSelect()->setName('engine')
                             ->option(false, '(engine)')->setValue('')
                             ->end();
@@ -210,7 +210,7 @@ trait TableTrait
         if (($this->collations)) {
             $currentCollation = $table['collation'] ?? '';
             $htmlBuilder
-                    ->formCol(3)->setClass('adminer-edit-table-collation')
+                    ->formCol(3)->setClass('dbadmin-edit-table-collation')
                         ->formSelect()->setName('collation')
                             ->option(false, '(' . $this->trans->lang('collation') . ')')->setValue('')
                             ->end();
@@ -237,7 +237,7 @@ trait TableTrait
         }
         if ($this->support['comment']) {
             $htmlBuilder
-                    ->formCol(4)->setClass('adminer-table-column-middle')
+                    ->formCol(4)->setClass('dbadmin-table-column-middle')
                         ->formInput()->setType('text')->setName('comment')
                             ->setValue($table['comment'] ?? '')->setPlaceholder($this->trans->lang('Comment'))
                         ->end()
@@ -245,22 +245,22 @@ trait TableTrait
         }
         $htmlBuilder
                 ->end()
-                ->formRow()->setClass('adminer-table-column-header')
-                    ->formCol(3)->setClass('adminer-table-column-left')
+                ->formRow()->setClass('dbadmin-table-column-header')
+                    ->formCol(3)->setClass('dbadmin-table-column-left')
                         ->label()->addText($this->trans->lang('Column'))
                         ->end()
                     ->end()
-                    ->formCol(1)->setClass('adminer-table-column-null-header')
+                    ->formCol(1)->setClass('dbadmin-table-column-null-header')
                         ->radio(true)->setName('autoIncrementCol')->setValue('0')
                         ->end()
                         ->label()->addHtml('&nbsp;AI-P')
                         ->end()
                     ->end()
-                    ->formCol(7)->setClass('adminer-table-column-middle')
+                    ->formCol(7)->setClass('dbadmin-table-column-middle')
                         ->label()->addText($this->trans->lang('Options'))
                         ->end()
                     ->end()
-                    ->formCol(1)->setClass('adminer-table-column-buttons-header');
+                    ->formCol(1)->setClass('dbadmin-table-column-buttons-header');
         if ($this->support['columns']) {
             $htmlBuilder
                         ->button()->btnPrimary()
@@ -302,14 +302,14 @@ trait TableTrait
                 ->end();
         }
         $htmlBuilder
-                ->formRow()->setClass('adminer-edit-table-header')
+                ->formRow()->setClass('dbadmin-edit-table-header')
                     ->formCol(2)
                         ->label()->addText('Table')
                         ->end()
                     ->end()
                 ->end()
-                ->formRow()->setClass('adminer-edit-table-header')
-                    ->formCol(3)->setClass('adminer-edit-table-name')
+                ->formRow()->setClass('dbadmin-edit-table-header')
+                    ->formCol(3)->setClass('dbadmin-edit-table-name')
                         ->formInput()->setType('text')->setName('name')
                             ->setValue($table['name'] ?? '')->setPlaceholder('Name')
                         ->end()
@@ -317,7 +317,7 @@ trait TableTrait
         if (($this->engines)) {
             $currentEngine = $table['engine'] ?? '';
             $htmlBuilder
-                    ->formCol(2)->setClass('adminer-edit-table-engine')
+                    ->formCol(2)->setClass('dbadmin-edit-table-engine')
                         ->formSelect()->setName('engine')
                             ->option(false, '(engine)')->setValue('')
                             ->end();
@@ -333,7 +333,7 @@ trait TableTrait
         if (($this->collations)) {
             $currentCollation = $table['collation'] ?? '';
             $htmlBuilder
-                    ->formCol(3)->setClass('adminer-edit-table-collation')
+                    ->formCol(3)->setClass('dbadmin-edit-table-collation')
                         ->formSelect()->setName('collation')
                             ->option(false, '(' . $this->trans->lang('collation') . ')')->setValue('')
                             ->end();
@@ -360,7 +360,7 @@ trait TableTrait
         }
         if ($this->support['comment']) {
             $htmlBuilder
-                    ->formCol(4)->setClass('adminer-table-column-middle')
+                    ->formCol(4)->setClass('dbadmin-table-column-middle')
                         ->formInput()->setType('text')->setName('comment')
                             ->setValue($table['comment'] ?? '')->setPlaceholder($this->trans->lang('Comment'))
                         ->end()
@@ -368,22 +368,22 @@ trait TableTrait
         }
         $htmlBuilder
                 ->end()
-                ->formRow()->setClass('adminer-table-column-header')
-                    ->formCol(3)->setClass('adminer-table-column-left')
+                ->formRow()->setClass('dbadmin-table-column-header')
+                    ->formCol(3)->setClass('dbadmin-table-column-left')
                         ->label()->addText($this->trans->lang('Column'))
                         ->end()
                     ->end()
-                    ->formCol(1)->setClass('adminer-table-column-null-header')
+                    ->formCol(1)->setClass('dbadmin-table-column-null-header')
                         ->radio(true)->setName('autoIncrementCol')->setValue('0')
                         ->end()
                         ->label()->addHtml('&nbsp;AI-P')
                         ->end()
                     ->end()
-                    ->formCol(7)->setClass('adminer-table-column-middle')
+                    ->formCol(7)->setClass('dbadmin-table-column-middle')
                         ->label()->addText($this->trans->lang('Options'))
                         ->end()
                     ->end()
-                    ->formCol(1)->setClass('adminer-table-column-buttons-header');
+                    ->formCol(1)->setClass('dbadmin-table-column-buttons-header');
         if ($this->support['columns']) {
             $htmlBuilder
                         ->button()->btnPrimary()
@@ -438,7 +438,7 @@ trait TableTrait
         $htmlBuilder
             ->col(12)
                 ->row()
-                    ->col(3)->setClass('adminer-table-column-left')
+                    ->col(3)->setClass('dbadmin-table-column-left')
                         ->formInput(['class' => 'column-name'])
                             ->setName($prefixFields . '[name]')
                             ->setPlaceholder($this->trans->lang('Name'))
@@ -454,7 +454,7 @@ trait TableTrait
                             ->setDataField('orig')
                         ->endShorted()
                     ->end()
-                    ->col(1)->setClass('adminer-table-column-null')
+                    ->col(1)->setClass('dbadmin-table-column-null')
                         ->radio($field->autoIncrement)
                             ->setName('autoIncrementCol')
                             ->setValue($index + 1)
@@ -464,7 +464,7 @@ trait TableTrait
                             ->setName($prefixFields . '[primary]')
                         ->endShorted()
                     ->end()
-                    ->col(2)->setClass('adminer-table-column-middle')
+                    ->col(2)->setClass('dbadmin-table-column-middle')
                         ->formSelect()->setName($prefixFields . '[collation]')->setDataField('collation');
         if ($field->collationHidden) {
             $htmlBuilder
@@ -494,7 +494,7 @@ trait TableTrait
         $htmlBuilder
                         ->end()
                     ->end()
-                    ->col(2)->setClass('adminer-table-column-middle')
+                    ->col(2)->setClass('dbadmin-table-column-middle')
                         ->formSelect()
                             ->setName($prefixFields . '[onUpdate]')
                             ->setDataField('onUpdate');
@@ -514,7 +514,7 @@ trait TableTrait
         $htmlBuilder
                         ->end()
                     ->end()
-                    ->col(4)->setClass('adminer-table-column-right');
+                    ->col(4)->setClass('dbadmin-table-column-right');
         if (/*$support['comment']*/true) {
             $htmlBuilder
                         ->formInput()
@@ -527,7 +527,7 @@ trait TableTrait
         }
         $htmlBuilder
                     ->end()
-                    ->col(2)->setClass('adminer-table-column-left second-line')
+                    ->col(2)->setClass('dbadmin-table-column-left second-line')
                         ->formSelect()
                             ->setName($prefixFields . '[type]')
                             ->setDataField('type');
@@ -545,7 +545,7 @@ trait TableTrait
         $htmlBuilder
                         ->end()
                     ->end()
-                    ->col(1)->setClass('adminer-table-column-middle second-line')
+                    ->col(1)->setClass('dbadmin-table-column-middle second-line')
                         ->formInput()
                             ->setName($prefixFields . '[length]')
                             ->setDataField('length')
@@ -559,7 +559,7 @@ trait TableTrait
         $htmlBuilder
                         ->endShorted()
                     ->end()
-                    ->col(1)->setClass('adminer-table-column-null second-line')
+                    ->col(1)->setClass('dbadmin-table-column-null second-line')
                         ->checkbox($field->null)
                             ->setName($prefixFields . '[null]')
                             ->setDataField('null')
@@ -567,7 +567,7 @@ trait TableTrait
                         ->endShorted()
                         ->addHtml('&nbsp;Null')
                     ->end()
-                    ->col(2)->setClass('adminer-table-column-middle second-line')
+                    ->col(2)->setClass('dbadmin-table-column-middle second-line')
                         ->formSelect()
                             ->setName($prefixFields . '[unsigned]')
                             ->setDataField('unsigned');
@@ -586,7 +586,7 @@ trait TableTrait
         $htmlBuilder
                         ->end()
                     ->end()
-                    ->col(2)->setClass('adminer-table-column-middle second-line')
+                    ->col(2)->setClass('dbadmin-table-column-middle second-line')
                         ->formSelect()
                             ->setName($prefixFields . '[onDelete]')
                             ->setDataField('onDelete');
@@ -605,7 +605,7 @@ trait TableTrait
         $htmlBuilder
                         ->end()
                     ->end()
-                    ->col(3)->setClass('adminer-table-column-middle second-line')
+                    ->col(3)->setClass('dbadmin-table-column-middle second-line')
                         ->inputGroup()
                             ->checkbox($field->hasDefault)
                                 ->setName($prefixFields . '[hasDefault]')
@@ -619,23 +619,23 @@ trait TableTrait
                             ->end()
                         ->end()
                     ->end()
-                    ->col(1)->setClass('adminer-table-column-buttons second-line')
+                    ->col(1)->setClass('dbadmin-table-column-buttons second-line')
                         /*->buttonGroup(false);
         if ($this->support['move_col']) {
             $htmlBuilder
                             ->button()->btnPrimary()
-                                ->setClass('adminer-table-column-add')->setDataIndex($index)->addIcon('plus')
+                                ->setClass('dbadmin-table-column-add')->setDataIndex($index)->addIcon('plus')
                             ->end();
         }
         if ($this->support['drop_col']) {
             $htmlBuilder
                             ->button()->btnPrimary()
-                                ->setClass('adminer-table-column-del')->setDataIndex($index)->addIcon('remove')
+                                ->setClass('dbadmin-table-column-del')->setDataIndex($index)->addIcon('remove')
                             ->end();
         }
         $htmlBuilder
                         ->end()*/
-                        ->dropdown()->setClass('adminer-table-column-buttons')
+                        ->dropdown()->setClass('dbadmin-table-column-buttons')
                             ->dropdownItem('primary')->addCaret()
                             ->end()
                             ->dropdownMenu();

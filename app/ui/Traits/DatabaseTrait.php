@@ -63,7 +63,7 @@ trait DatabaseTrait
     {
         $htmlBuilder = Builder::new();
         $htmlBuilder
-            ->col(12)->setId('adminer-command-details')
+            ->col(12)->setId('dbadmin-command-details')
             ->end()
             ->col(12)
                 ->form(true, false)->setId($htmlIds['formId'])
@@ -165,9 +165,9 @@ trait DatabaseTrait
                     ->end()
                 ->end()
             ->end()
-            ->col(12)->setId('adminer-command-history')
+            ->col(12)->setId('dbadmin-command-history')
             ->end()
-            ->col(12)->setId('adminer-command-results')
+            ->col(12)->setId('dbadmin-command-results')
             ->end();
         return $htmlBuilder->build();
     }
@@ -409,7 +409,7 @@ trait DatabaseTrait
                     ->end()
                 ->end()
             ->end()
-            ->col(12)->setId('adminer-export-results')
+            ->col(12)->setId('dbadmin-export-results')
             ->end();
         return $htmlBuilder->build();
     }

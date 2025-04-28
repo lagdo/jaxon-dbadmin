@@ -18,7 +18,7 @@ class QueryText extends Component
      *
      * @var string
      */
-    private $txtQueryId = 'adminer-table-select-query';
+    private $txtQueryId = 'dbadmin-table-select-query';
 
     /**
      * @inheritDoc

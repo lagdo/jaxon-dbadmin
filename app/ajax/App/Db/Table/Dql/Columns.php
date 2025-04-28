@@ -16,7 +16,7 @@ class Columns extends FuncComponent
      *
      * @var string
      */
-    private $formId = 'adminer-table-select-columns-form';
+    private $formId = 'dbadmin-table-select-columns-form';
 
     /**
      * Change the query columns

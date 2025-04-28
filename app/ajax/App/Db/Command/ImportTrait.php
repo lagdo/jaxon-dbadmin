@@ -30,12 +30,12 @@ trait ImportTrait
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 
-        $formId = 'adminer-import-form';
-        $webFileBtnId = 'adminer-import-web-file-btn';
-        $sqlFilesBtnId = 'adminer-import-sql-files-btn';
-        $sqlChooseBtnId = 'adminer-import-choose-files-btn';
-        $sqlFilesDivId = 'adminer-import-sql-files-wrapper';
-        $sqlFilesInputId = 'adminer-import-sql-files-input';
+        $formId = 'dbadmin-import-form';
+        $webFileBtnId = 'dbadmin-import-web-file-btn';
+        $sqlFilesBtnId = 'dbadmin-import-sql-files-btn';
+        $sqlChooseBtnId = 'dbadmin-import-choose-files-btn';
+        $sqlFilesDivId = 'dbadmin-import-sql-files-wrapper';
+        $sqlFilesInputId = 'dbadmin-import-sql-files-input';
         $htmlIds = compact('formId', 'sqlFilesBtnId', 'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId');
         return $this->ui()->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
     }
@@ -47,12 +47,12 @@ trait ImportTrait
      */
     protected function after()
     {
-        $formId = 'adminer-import-form';
-        $webFileBtnId = 'adminer-import-web-file-btn';
-        $sqlFilesBtnId = 'adminer-import-sql-files-btn';
-        $sqlChooseBtnId = 'adminer-import-choose-files-btn';
-        $sqlFilesDivId = 'adminer-import-sql-files-wrapper';
-        $sqlFilesInputId = 'adminer-import-sql-files-input';
+        $formId = 'dbadmin-import-form';
+        $webFileBtnId = 'dbadmin-import-web-file-btn';
+        $sqlFilesBtnId = 'dbadmin-import-sql-files-btn';
+        $sqlChooseBtnId = 'dbadmin-import-choose-files-btn';
+        $sqlFilesDivId = 'dbadmin-import-sql-files-wrapper';
+        $sqlFilesInputId = 'dbadmin-import-sql-files-input';
         $this->response->js('jaxon.dbadmin')->setFileUpload("#$sqlFilesDivId", "#$sqlChooseBtnId", "#$sqlFilesInputId");
 
         $this->response->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($this->database));
@@ -73,7 +73,7 @@ trait ImportTrait
     /**
      * Run a webfile
      *
-     * upload('field' => 'adminer-import-sql-files-input')
+     * upload('field' => 'dbadmin-import-sql-files-input')
      *
      * @param string $database    The database name
      * @param array $formValues
@@ -100,6 +100,6 @@ trait ImportTrait
         $queryResults = $this->db()->executeSqlFiles($files, $errorStops, $onlyErrors);
 
         $content = $this->ui()->queryResults($queryResults['results']);
-        $this->response->html('adminer-command-results', $content);
+        $this->response->html('dbadmin-command-results', $content);
     }
 }

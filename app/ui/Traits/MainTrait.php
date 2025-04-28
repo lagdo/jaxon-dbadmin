@@ -57,20 +57,20 @@ trait MainTrait
 
         $htmlBuilder = Builder::new();
         $htmlBuilder
-            ->buttonGroup(false, ['class' => 'adminer-main-action-group']);
+            ->buttonGroup(false, ['class' => 'dbadmin-main-action-group']);
         foreach($mainActions as $id => $title)
         {
             $htmlBuilder
-                ->button()->btnOutline()->btnPrimary()->setId("adminer-main-action-$id")->addText($title)
+                ->button()->btnOutline()->btnPrimary()->setId("dbadmin-main-action-$id")->addText($title)
                 ->end();
         }
         $htmlBuilder
             ->end()
-            ->buttonGroup(false, ['class' => 'adminer-main-action-group', 'style' => 'float:right']);
+            ->buttonGroup(false, ['class' => 'dbadmin-main-action-group', 'style' => 'float:right']);
         foreach($backActions as $id => $title)
         {
             $htmlBuilder
-                ->button()->btnSecondary()->setId("adminer-main-action-$id")->addText($title)
+                ->button()->btnSecondary()->setId("dbadmin-main-action-$id")->addText($title)
                 ->end();
         }
         $htmlBuilder
@@ -173,8 +173,8 @@ trait MainTrait
                         ->th()
                             ->input([
                                 'type' => 'checkbox',
-                                'class' => 'adminer-table-checkbox',
-                                'id' => "adminer-table-$counterId-all",
+                                'class' => 'dbadmin-table-checkbox',
+                                'id' => "dbadmin-table-$counterId-all",
                             ])
                             ->end()
                         ->end();
@@ -203,7 +203,7 @@ trait MainTrait
                         ->td()
                             ->input([
                                 'type' => 'checkbox',
-                                'class' => "adminer-table-$counterId",
+                                'class' => "dbadmin-table-$counterId",
                                 'name' => "{$counterId}[]",
                             ])
                             ->end()
@@ -240,7 +240,7 @@ trait MainTrait
             $htmlBuilder
                 ->panel()
                     ->panelBody()
-                        ->addHtml('Selected (<span id="adminer-table-' . $counterId . '-count">0</span>)')
+                        ->addHtml('Selected (<span id="dbadmin-table-' . $counterId . '-count">0</span>)')
                     ->end()
                 ->end();
         }

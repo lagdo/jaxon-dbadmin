@@ -16,7 +16,7 @@ class Filters extends FuncComponent
      *
      * @var string
      */
-    private $formId = 'adminer-table-select-filters-form';
+    private $formId = 'dbadmin-table-select-filters-form';
 
     /**
      * Change the query filters

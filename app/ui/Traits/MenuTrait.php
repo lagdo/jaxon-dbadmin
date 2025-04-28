@@ -19,7 +19,7 @@ trait MenuTrait
         foreach($menuActions as $id => $title)
         {
             $htmlBuilder
-                ->menuItem($title)->setClass("adminer-menu-item menu-action-$id")->setId("adminer-menu-action-$id")
+                ->menuItem($title)->setClass("dbadmin-menu-item menu-action-$id")->setId("dbadmin-menu-action-$id")
                 ->end();
         }
         $htmlBuilder
@@ -41,7 +41,7 @@ trait MenuTrait
         {
             $htmlBuilder
                 ->button()->btnOutline()->btnPrimary()->btnFullWidth()
-                    ->setClass('adminer-menu-item')->setId("adminer-menu-action-$id")->addText($title)
+                    ->setClass('dbadmin-menu-item')->setId("dbadmin-menu-action-$id")->addText($title)
                 ->end();
         }
         $htmlBuilder
@@ -59,7 +59,7 @@ trait MenuTrait
         $htmlBuilder = Builder::new();
         $htmlBuilder
             ->inputGroup()
-                ->formSelect()->setId('adminer-dbname-select')
+                ->formSelect()->setId('dbadmin-dbname-select')
                     ->option(false, '')
                     ->end();
         foreach($databases as $database)
@@ -71,7 +71,7 @@ trait MenuTrait
         $htmlBuilder
                 ->end()
                 ->button()->btnPrimary()->setClass('btn-select')
-                    ->setId('adminer-dbname-select-btn')->addText('Show')
+                    ->setId('dbadmin-dbname-select-btn')->addText('Show')
                 ->end()
             ->end();
         return $htmlBuilder->build();
@@ -87,7 +87,7 @@ trait MenuTrait
         $htmlBuilder = Builder::new();
         $htmlBuilder
             ->inputGroup()
-                ->formSelect()->setId('adminer-schema-select');
+                ->formSelect()->setId('dbadmin-schema-select');
         foreach ($schemas as $schema)
         {
             $htmlBuilder
@@ -97,7 +97,7 @@ trait MenuTrait
         $htmlBuilder
                 ->end()
                 ->button()->btnPrimary()->setClass('btn-select')
-                    ->setId('adminer-schema-select-btn')->addText('Show')
+                    ->setId('dbadmin-schema-select-btn')->addText('Show')
                 ->end()
             ->end();
         return $htmlBuilder->build();
