@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin;
 
 use Jaxon\Plugin\AbstractPackage;
-use Lagdo\DbAdmin\App\Ajax\Admin;
+use Lagdo\DbAdmin\Ajax\App\Admin;
 
 use function realpath;
 use function Jaxon\cl;
@@ -87,8 +87,8 @@ class Package extends AbstractPackage
      */
     public function getCss(): string
     {
-        return $this->view()->render('adminer::codes::css') .
-            "\n" . $this->view()->render('adminer::views::styles');
+        return $this->view()->render('dbadmin::codes::css.html') . "\n<style>\n" .
+            $this->view()->render('dbadmin::codes::styles.css') . "\n</style>\n";
     }
 
     /**
@@ -100,7 +100,7 @@ class Package extends AbstractPackage
      */
     public function getJs(): string
     {
-        return $this->view()->render('adminer::codes::js');
+        return $this->view()->render('dbadmin::codes::js.html');
     }
 
     /**
@@ -112,7 +112,7 @@ class Package extends AbstractPackage
      */
     public function getScript(): string
     {
-        return $this->view()->render('adminer::codes::script');
+        return $this->view()->render('dbadmin::codes::script.js');
     }
 
     /**

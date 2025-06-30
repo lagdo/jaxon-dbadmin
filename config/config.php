@@ -7,48 +7,40 @@ use function Jaxon\jaxon;
 return [
     'metadata' => 'annotations',
     'directories' => [
-        __DIR__ . '/../app/Ajax' => [
-            'namespace' => 'Lagdo\\DbAdmin\\App\\Ajax',
+        [
+            'path' => __DIR__ . '/../app/ajax/App',
+            'namespace' => 'Lagdo\\DbAdmin\\Ajax\\App',
             'autoload' => false,
         ],
     ],
     'views' => [
-        'adminer::codes' => [
+        'dbadmin::codes' => [
             'directory' => __DIR__ . '/../templates/codes',
-            'extension' => '.php',
+            'extension' => '',
             'renderer' => 'jaxon',
         ],
-        'adminer::views' => [
+        'dbadmin::views' => [
             'directory' => __DIR__ . '/../templates/views',
             'extension' => '.php',
             'renderer' => 'jaxon',
         ],
-        'adminer::templates' => [
+        'dbadmin::templates' => [
             'directory' => __DIR__ . '/../templates/views',
             'extension' => '.php',
             'renderer' => 'jaxon',
-            'template' => [
-                'option' => 'template',
-                'default' => 'bootstrap3',
-            ],
+        ],
+        'pagination' => [
+            'directory' => __DIR__ . '/../templates/pagination',
+            'extension' => '.php',
+            'renderer' => 'jaxon',
         ],
     ],
     'container' => [
         'set' => [
-            // The package config builder
-            'dbadmin_config_builder' => function($di) {
-                $config = $di->getPackageConfig(Lagdo\DbAdmin\Package::class);
-                return $config->getOption('template', 'bootstrap3');
-            },
             // Selected database driver
             Lagdo\DbAdmin\Driver\DriverInterface::class => function($di) {
                 // The key below is defined by the corresponding plugin package.
                 return $di->g('dbadmin_driver_' . $di->g('dbadmin_config_driver'));
-            },
-            // Selected HTML template builder
-            Lagdo\UiBuilder\BuilderInterface::class => function($di) {
-                // The key below is defined by the corresponding plugin package.
-                return $di->g('dbadmin_builder_' . $di->g('dbadmin_config_builder'));
             },
             // Facades to the DB driver features
             Lagdo\DbAdmin\Db\Facades\CommandFacade::class => function($di) {
@@ -108,9 +100,9 @@ return [
             // The db classes
             Lagdo\DbAdmin\Admin\Admin::class,
             // The template builders
-            Lagdo\DbAdmin\App\Ui\UiBuilder::class,
-            Lagdo\DbAdmin\App\Ui\MenuBuilder::class,
-            Lagdo\DbAdmin\App\Ui\PageBuilder::class,
+            Lagdo\DbAdmin\Ui\UiBuilder::class,
+            Lagdo\DbAdmin\Ui\MenuBuilder::class,
+            Lagdo\DbAdmin\Ui\PageBuilder::class,
         ],
         'alias' => [
             // The translator

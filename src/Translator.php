@@ -104,7 +104,7 @@ class Translator implements TranslatorInterface
     public function setLanguage(string $language)
     {
         $this->language = $language;
-        $this->translations = require __DIR__ . "/../../translations/$language.inc.php";
+        $this->translations = require __DIR__ . "/../translations/$language.inc.php";
     }
 
     /**
