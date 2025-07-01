@@ -36,7 +36,7 @@ class QueryText extends Component
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
         // jaxon.dbadmin.refreshSqlQuery
-        $this->response->js('jaxon.dbadmin')->refreshSqlQuery($this->txtQueryId, $server);
+        $this->response->jo('jaxon.dbadmin')->refreshSqlQuery($this->txtQueryId, $server);
     }
 
     /**

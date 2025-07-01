@@ -15,7 +15,7 @@ use Lagdo\DbAdmin\Ajax\App\Db\Server\Status;
 use Lagdo\DbAdmin\Ajax\App\Db\Server\Variables;
 use Lagdo\DbAdmin\Ajax\MenuComponent;
 
-use function Jaxon\jw;
+use function Jaxon\jo;
 use function Jaxon\rq;
 
 class Sections extends MenuComponent
@@ -60,25 +60,25 @@ class Sections extends MenuComponent
         if ($this->db()->support('privileges')) {
             $this->actions['privileges'] = [
                 'title' => $this->trans()->lang('Privileges'),
-                'handler' => jw()->void(), // rq(Privileges::class)->show(),
+                'handler' => jo()->void(), // rq(Privileges::class)->show(),
             ];
         }
         if ($this->db()->support('processlist')) {
             $this->actions['processes'] = [
                 'title' => $this->trans()->lang('Process list'),
-                'handler' => jw()->void(), // rq(Processes::class)->show(),
+                'handler' => jo()->void(), // rq(Processes::class)->show(),
             ];
         }
         if ($this->db()->support('variables')) {
             $this->actions['variables'] = [
                 'title' => $this->trans()->lang('Variables'),
-                'handler' => jw()->void(), // rq(Variables::class)->show(),
+                'handler' => jo()->void(), // rq(Variables::class)->show(),
             ];
         }
         if ($this->db()->support('status')) {
             $this->actions['status'] = [
                 'title' => $this->trans()->lang('Status'),
-                'handler' => jw()->void(), // rq(Status::class)->show(),
+                'handler' => jo()->void(), // rq(Status::class)->show(),
             ];
         }
 
@@ -111,25 +111,25 @@ class Sections extends MenuComponent
         if ($this->db()->support('routine')) {
             $this->actions['routines'] = [
                 'title' => $this->trans()->lang('Routines'),
-                'handler' => jw()->void(), // rq(Routines::class)->show(),
+                'handler' => jo()->void(), // rq(Routines::class)->show(),
             ];
         }
         if ($this->db()->support('sequence')) {
             $this->actions['sequences'] = [
                 'title' => $this->trans()->lang('Sequences'),
-                'handler' => jw()->void(), // rq(Sequences::class)->show(),
+                'handler' => jo()->void(), // rq(Sequences::class)->show(),
             ];
         }
         if ($this->db()->support('type')) {
             $this->actions['types'] = [
                 'title' => $this->trans()->lang('User types'),
-                'handler' => jw()->void(), // rq(UserTypes::class)->show(),
+                'handler' => jo()->void(), // rq(UserTypes::class)->show(),
             ];
         }
         if ($this->db()->support('event')) {
             $this->actions['events'] = [
                 'title' => $this->trans()->lang('Events'),
-                'handler' => jw()->void(), // rq(Events::class)->show(),
+                'handler' => jo()->void(), // rq(Events::class)->show(),
             ];
         }
 

@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
-use Jaxon\Script\JxnCall;
+use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Input\Columns;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Input\Filters;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Input\Sorting;

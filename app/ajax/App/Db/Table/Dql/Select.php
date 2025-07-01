@@ -165,8 +165,8 @@ class Select extends ContentComponent
     //     $this->response->html($resultsId, $content);
 
     //     // The Jaxon ajax calls
-    //     $updateCall = $this->rq(Query::class)->showUpdate(pm()->js("jaxon.dbadmin.rowIds[rowId]"));
-    //     $deleteCall = $this->rq(Query::class)->execDelete(pm()->js("jaxon.dbadmin.rowIds[rowId]"))
+    //     $updateCall = $this->rq(Query::class)->showUpdate(jo('jaxon.dbadmin')->rowIds[rowId]));
+    //     $deleteCall = $this->rq(Query::class)->execDelete(jo('jaxon.dbadmin')->rowIds[rowId]))
     //         ->confirm($this->trans()->lang('Delete this item?'));
 
     //     // Wrap the ajax calls into functions
@@ -174,8 +174,10 @@ class Select extends ContentComponent
     //     $this->response->setFunction('deleteRowItem', 'rowId', $deleteCall);
 
     //     // Set the functions as button event handlers
-    //     $this->response->jq(".$btnEditRowClass", "#$resultsId")->click(rq('.')->updateRowItem(jq()->attr('data-row-id')));
-    //     $this->response->jq(".$btnDeleteRowClass", "#$resultsId")->click(rq('.')->deleteRowItem(jq()->attr('data-row-id')));
+    //     $this->response->jq(".$btnEditRowClass", "#$resultsId")
+    //         ->click(rq('.')->updateRowItem(jq()->attr('data-row-id')));
+    //     $this->response->jq(".$btnDeleteRowClass", "#$resultsId")
+    //         ->click(rq('.')->deleteRowItem(jq()->attr('data-row-id')));
 
     //     // Pagination
     //     $pages = $this->rq()->execSelect(pm()->page())->pages($page, $results['limit'], $results['total']);

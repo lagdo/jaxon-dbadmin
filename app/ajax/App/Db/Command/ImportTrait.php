@@ -53,7 +53,7 @@ trait ImportTrait
         $sqlChooseBtnId = 'dbadmin-import-choose-files-btn';
         $sqlFilesDivId = 'dbadmin-import-sql-files-wrapper';
         $sqlFilesInputId = 'dbadmin-import-sql-files-input';
-        $this->response->js('jaxon.dbadmin')->setFileUpload("#$sqlFilesDivId", "#$sqlChooseBtnId", "#$sqlFilesInputId");
+        $this->response->jo('jaxon.dbadmin')->setFileUpload("#$sqlFilesDivId", "#$sqlChooseBtnId", "#$sqlFilesInputId");
 
         $this->response->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($this->database));
         $this->response->jq("#$sqlFilesBtnId")->click($this->rq()->executeSqlFiles($this->database, pm()->form($formId)));

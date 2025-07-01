@@ -63,14 +63,14 @@ trait ExportTrait
         $tableDataId = 'dbadmin-export-table-data';
         if(($this->database))
         {
-            $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($tableNameId);
-            $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($tableDataId);
+            $this->response->jo('jaxon.dbadmin')->selectAllCheckboxes($tableNameId);
+            $this->response->jo('jaxon.dbadmin')->selectAllCheckboxes($tableDataId);
             $this->response->jq("#$btnId")->click($this->rq()->exportOne($this->database, pm()->form($formId)));
             return;
         }
 
-        $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($databaseNameId);
-        $this->response->js('jaxon.dbadmin')->selectAllCheckboxes($databaseDataId);
+        $this->response->jo('jaxon.dbadmin')->selectAllCheckboxes($databaseNameId);
+        $this->response->jo('jaxon.dbadmin')->selectAllCheckboxes($databaseDataId);
         $this->response->jq("#$btnId")->click($this->rq()->exportSet(pm()->form($formId)));
     }
 
@@ -123,7 +123,7 @@ trait ExportTrait
 
         $link = \rtrim($this->package()->getOption('export.url'), '/') . $name;
         // $this->response->script("window.open('$link', '_blank').focus()");
-        $this->response->jw()->open($link, '_blank')->focus();
+        $this->response->jo()->open($link, '_blank')->focus();
     }
 
     /**

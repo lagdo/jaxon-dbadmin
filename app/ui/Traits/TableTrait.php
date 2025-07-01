@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
-use Jaxon\Script\JxnClass;
+use Jaxon\Script\Call\JxnClassCall;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Columns;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\UiBuilder\BuilderInterface;
@@ -283,11 +283,11 @@ trait TableTrait
 
     /**
      * @param string $formId
-     * @param JxnClass $xComponent
+     * @param JxnClassCall $xComponent
      *
      * @return string
      */
-    public function tableWrapper(string $formId, JxnClass $xComponent): string
+    public function tableWrapper(string $formId, JxnClassCall $xComponent): string
     {
         $htmlBuilder = Builder::new();
         $htmlBuilder

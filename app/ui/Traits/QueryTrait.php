@@ -2,12 +2,12 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
-use Jaxon\Script\JxnCall;
+use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Ajax\App\Db\Command\QueryResults;
 use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function count;
-use function Jaxon\js;
+use function Jaxon\jo;
 use function Jaxon\rq;
 use function Jaxon\pm;
 
@@ -79,7 +79,7 @@ trait QueryTrait
                         ->end()
                         ->formCol(2)
                             ->button()->btnFullWidth()->btnPrimary()
-                                ->jxnClick($rqQuery->exec(js('jaxon.dbadmin')->getSqlQuery(), pm()->form($formId))/*->when(pm()->input($queryId))*/)
+                                ->jxnClick($rqQuery->exec(jo('jaxon.dbadmin')->getSqlQuery(), pm()->form($formId))/*->when(pm()->input($queryId))*/)
                                 ->addText($this->trans->lang('Execute'))
                             ->end()
                         ->end()

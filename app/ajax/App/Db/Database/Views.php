@@ -51,6 +51,6 @@ class Views extends ContentComponent
         $this->showSection($viewsInfo, $checkbox);
 
         // Set onclick handlers on view checkbox
-        $this->response->js('jaxon.dbadmin')->selectTableCheckboxes($checkbox);
+        $this->response->jo('jaxon.dbadmin')->selectTableCheckboxes($checkbox);
     }
 }

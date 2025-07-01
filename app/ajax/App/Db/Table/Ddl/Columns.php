@@ -122,7 +122,7 @@ class Columns extends Component
     //     // $index = jq()->attr('data-index');
     //     // // Set the button event handlers on the new column
     //     // $this->response->jq('[data-field]', "#$columnId")
-    //     //     ->on('jaxon.dbadmin.renamed', pm()->js('jaxon.dbadmin.onColumnRenamed'));
+    //     //     ->on('jaxon.dbadmin.renamed', jo('jaxon.dbadmin')->onColumnRenamed()));
     //     // $this->response->jq('.dbadmin-table-column-add', "#$columnId")->click($this->rq()->add($length, $index));
     //     // $this->response->jq('.dbadmin-table-column-del', "#$columnId")->click($this->rq()->del($length, $index)
     //     //     ->confirm('Delete this column?'));

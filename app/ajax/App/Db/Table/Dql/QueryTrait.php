@@ -33,7 +33,7 @@ trait QueryTrait
      */
     protected function getSelectQuery(): string
     {
-        return $this->db()
-            ->getSelectData($this->getTableName(), $this->getOptions())['query'];
+        $select = $this->db()->getSelectData($this->getTableName(), $this->getOptions());
+        return $select['query'];
     }
 }
