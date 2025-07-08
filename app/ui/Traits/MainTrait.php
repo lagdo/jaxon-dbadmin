@@ -81,12 +81,12 @@ trait MainTrait
                     $this->html->tabNav(
                         $this->html->each($tabs, fn($tab, $id) =>
                             $this->html->tabNavItem()
-                                ->setId("tab-content-$id")
+                                ->target("tab-content-$id")
                                 ->active($firstTabId === $id)->addText($tab)
                         )
                     ),
                     $this->html->tabContent(
-                        $this->html->each($tabs, fn($tab, $id) =>
+                        $this->html->each($tabs, fn($_, $id) =>
                             $this->html->tabContentItem()
                                 ->setId("tab-content-$id")
                                 ->active($firstTabId === $id)
