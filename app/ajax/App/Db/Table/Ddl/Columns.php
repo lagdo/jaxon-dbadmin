@@ -142,9 +142,9 @@ class Columns extends Component
     private function insertBefore(string $target, string $id, string $class, string $content, array $attrs = [])
     {
         // Insert a div with the id before the target
-        $this->response->insertBefore($target, $this->ui()->formRowTag(), $id);
+        // $this->response->insertBefore($target, $this->ui()->formRowTag(), $id);
         // Set the new element class
-        $this->response->jq("#$id")->attr('class', $this->ui()->formRowClass($class));
+        // $this->response->jq("#$id")->attr('class', $this->ui()->formRowClass($class));
         // Set the new element attributes
         foreach($attrs as $name => $value)
         {
@@ -168,9 +168,9 @@ class Columns extends Component
     private function insertAfter(string $target, string $id, string $class, string $content, array $attrs = [])
     {
         // Insert a div with the id after the target
-        $this->response->insertAfter($target, $this->ui()->formRowTag(), $id);
+        // $this->response->insertAfter($target, $this->ui()->formRowTag(), $id);
         // Set the new element class
-        $this->response->jq("#$id")->attr('class', $this->ui()->formRowClass($class));
+        // $this->response->jq("#$id")->attr('class', $this->ui()->formRowClass($class));
         // Set the new element attributes
         foreach($attrs as $name => $value)
         {

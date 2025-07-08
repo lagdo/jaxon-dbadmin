@@ -3,131 +3,113 @@
 namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\DbAdmin\Translator;
-use Lagdo\UiBuilder\Jaxon\Builder;
+use Lagdo\UiBuilder\BuilderInterface;
 
 class InputBuilder
 {
     /**
      * @param Translator $trans
+     * @param BuilderInterface $html
      */
-    public function __construct(protected Translator $trans)
+    public function __construct(protected Translator $trans, protected BuilderInterface $html)
     {}
 
     /**
      * @param array $input
      *
-     * @return void
+     * @return mixed
      */
-    protected function bool(array $input)
+    protected function bool(array $input): mixed
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->div()->setClass('checkbox')
-                ->input()
-                    ->setName($input['attrs']['name'])
-                    ->setValue('0')
-                    ->setType('hidden')
-                ->end()
-                ->checkbox($input['attrs']['checked'])
-                    ->setName($input['attrs']['name'])
-                    ->setValue('1')
-                ->end()
-            ->end();
+        return $this->html->div(
+            $this->html->input()
+                ->setName($input['attrs']['name'])
+                ->setValue('0')
+                ->setType('hidden'),
+            $this->html->checkbox()
+                ->checked($input['attrs']['checked'])
+                ->setName($input['attrs']['name'])
+                ->setValue('1')
+        )->setClass('checkbox');
     }
 
     /**
      * @param array $input
      *
-     * @return void
+     * @return mixed
      */
-    protected function checkbox(array $input)
+    protected function checkbox(array $input): mixed
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->div()->setClass('checkbox');
-        foreach ($input['values'] as $value) {
-            $name = $input['attrs']['name'] . '[' . $value['value'] . ']';
-            $htmlBuilder
-                ->label()->setFor($name)
-                    ->checkbox($value['checked'])->setName($name)
-                    ->end()
-                    ->addText($value['text'])
-                ->end();
-        }
-        $htmlBuilder
-            ->end();
+        return $this->html->div(
+            $this->html->each($input['values'], function($value) use($input) {
+                $name = $input['attrs']['name'] . '[' . $value['value'] . ']';
+                return $this->html->label(
+                    $this->html->checkbox()
+                        ->checked($value['checked'])->setName($name)
+                    )
+                    ->addText($value['text'])->setFor($name);
+            })
+        )
+        ->setClass('checkbox');
     }
 
     /**
      * @param array $input
      *
-     * @return void
+     * @return mixed
      */
-    protected function file(array $input)
+    protected function file(array $input): mixed
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->formInput($input['attrs'])->setType('file')
-            ->end();
+        return $this->html->formInput($input['attrs'])->setType('file');
     }
 
     /**
      * @param array $input
      *
-     * @return void
+     * @return mixed
      */
-    protected function input(array $input)
+    protected function input(array $input): mixed
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->formInput($input['attrs'])
-            ->end();
+        return $this->html->formInput($input['attrs']);
     }
 
     /**
      * @param array $input
      *
-     * @return void
+     * @return mixed
      */
-    protected function radio(array $input)
+    protected function radio(array $input): mixed
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->div()->setClass('radio');
-        foreach ($input['values'] as $value) {
-            $htmlBuilder
-                ->label()
-                    ->checkbox($value['checked'], $input['attrs'])->setValue($value['value'])
-                    ->end()
-                    ->addText($value['text'])
-                ->end();
-        }
-        $htmlBuilder
-            ->end();
+        return $this->html->div(
+            $this->html->each($input['values'], fn($value) =>
+                $this->html->label(
+                    $this->html->checkbox($input['attrs'])
+                        ->checked($value['checked'])
+                        ->setValue($value['value'])
+                )
+                ->addText($value['text'])
+            )
+        )->setClass('radio');
     }
 
     /**
      * @param array $input
      *
-     * @return void
+     * @return mixed
      */
-    protected function textarea(array $input)
+    protected function textarea(array $input): mixed
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->formTextarea($input['attrs'])
-                ->addText($input['value'])
-            ->end();
+        return $this->html->formTextarea($input['attrs'])->addText($input['value']);
     }
 
     /**
      * @param string $type
      * @param array $input
      *
-     * @return void
+     * @return mixed
      */
-    public function build(string $type, array $input)
+    public function build(string $type, array $input): mixed
     {
-        $this->$type($input);
+        return $this->$type($input);
     }
 }

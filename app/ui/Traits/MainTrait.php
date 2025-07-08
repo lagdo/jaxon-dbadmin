@@ -2,11 +2,9 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
-use Lagdo\UiBuilder\BuilderInterface;
-use Lagdo\UiBuilder\Jaxon\Builder;
-
+use function array_key_first;
 use function count;
-use function Jaxon\jq;
+use function strpos;
 
 trait MainTrait
 {
@@ -17,21 +15,16 @@ trait MainTrait
      */
     public function breadcrumbs(array $breadcrumbs): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->breadcrumb();
         $last = count($breadcrumbs) - 1;
         $curr = 0;
-        foreach($breadcrumbs as $breadcrumb)
-        {
-            $htmlBuilder
-                ->breadcrumbItem($curr === $last)->addText($breadcrumb)
-                ->end();
-            $curr++;
-        }
-        $htmlBuilder
-            ->end();
-        return $htmlBuilder->build();
+        return $this->html->build(
+            $this->html->breadcrumb(
+                $this->html->each($breadcrumbs, fn($breadcrumb)  =>
+                    $this->html->breadcrumbItem()
+                        ->active($curr++ === $last)->addText($breadcrumb)
+                )
+            )
+        );
     }
 
     /**
@@ -45,7 +38,8 @@ trait MainTrait
         $mainActions = [];
         foreach($actions as $id => $title)
         {
-            if(strpos($id, 'back') !== false || strpos($id, 'cancel') !== false)
+            if(strpos($id, 'back') !== false ||
+                strpos($id, 'cancel') !== false)
             {
                 $backActions[$id] = $title;
             }
@@ -54,28 +48,23 @@ trait MainTrait
                 $mainActions[$id] = $title;
             }
         }
-
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->buttonGroup(false, ['class' => 'dbadmin-main-action-group']);
-        foreach($mainActions as $id => $title)
-        {
-            $htmlBuilder
-                ->button()->btnOutline()->btnPrimary()->setId("dbadmin-main-action-$id")->addText($title)
-                ->end();
-        }
-        $htmlBuilder
-            ->end()
-            ->buttonGroup(false, ['class' => 'dbadmin-main-action-group', 'style' => 'float:right']);
-        foreach($backActions as $id => $title)
-        {
-            $htmlBuilder
-                ->button()->btnSecondary()->setId("dbadmin-main-action-$id")->addText($title)
-                ->end();
-        }
-        $htmlBuilder
-            ->end();
-        return $htmlBuilder->build();
+        return $this->html->build(
+            $this->html->buttonGroup(
+                $this->html->each($mainActions, fn($title, $id) =>
+                    $this->html->button()->outline()->primary()
+                        ->setId("dbadmin-main-action-$id")->addText($title)
+                )
+            )
+            ->setClass('dbadmin-main-action-group'),
+            $this->html->buttonGroup(
+                $this->html->each($backActions, fn($title, $id) =>
+                    $this->html->button()->secondary()
+                        ->setId("dbadmin-main-action-$id")->addText($title)
+                ),
+            )
+            ->setClass('dbadmin-main-action-group')
+            ->setStyle('float:right')
+        );
     }
 
     /**
@@ -85,144 +74,108 @@ trait MainTrait
      */
     public function mainDbTable(array $tabs): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->row()
-                ->col(12)
-                    ->tabNav();
-        $active = true;
-        foreach($tabs as $id => $tab)
-        {
-            $htmlBuilder
-                        ->tabNavItem("tab-content-$id", $active, $tab)
-                        ->end();
-            $active = false;
-        }
-        $htmlBuilder
-                    ->end()
-                    ->tabContent();
-        $active = true;
-        foreach($tabs as $id => $tab)
-        {
-            $htmlBuilder
-                        ->tabContentItem("tab-content-$id", $active)
-                        ->end();
-            $active = false;
-        }
-        $htmlBuilder
-                    ->end()
-                ->end()
-            ->end();
-        return $htmlBuilder->build();
+        $firstTabId = array_key_first($tabs);
+        return $this->html->build(
+            $this->html->row(
+                $this->html->col(
+                    $this->html->tabNav(
+                        $this->html->each($tabs, fn($tab, $id) =>
+                            $this->html->tabNavItem()
+                                ->setId("tab-content-$id")
+                                ->active($firstTabId === $id)->addText($tab)
+                        )
+                    ),
+                    $this->html->tabContent(
+                        $this->html->each($tabs, fn($tab, $id) =>
+                            $this->html->tabContentItem()
+                                ->setId("tab-content-$id")
+                                ->active($firstTabId === $id)
+                        )
+                    ),
+                )
+                ->width(12)
+            )
+        );
     }
 
     /**
-     * @param BuilderInterface $htmlBuilder
      * @param mixed $content
      *
-     * @return void
+     * @return mixed
      */
-    private function showTableCell(BuilderInterface $htmlBuilder, $content): void
+    private function getTableCell($content): mixed
     {
-        if(!is_array($content))
-        {
-            $htmlBuilder->addHtml($content);
-            return;
+        $element = $this->html->td();
+        if (!is_array($content)) {
+            $element->addHtml($content);
+            return $element;
         }
 
         if(isset($content['props']))
         {
-            $htmlBuilder->setAttributes($content['props']);
+            $element->setAttributes($content['props']);
         }
         if(!isset($content['handler']))
         {
-            $htmlBuilder->addHtml($content['label']);
-            return;
+            $element->addText($content['label']);
+            return $element;
         }
 
-        $htmlBuilder
-            ->a()
+        $element->children(
+            $this->html->a()
                 ->setAttributes(['href' => 'javascript:void(0)'])
                 ->jxnClick($content['handler'])
                 ->addText($content['label'])
-            ->end();
+        );
+        return $element;
     }
 
     /**
-     * @param BuilderInterface $htmlBuilder
      * @param array $content
      * @param string $counterId
      *
-     * @return void
+     * @return mixed
      */
-    private function makeTable(BuilderInterface $htmlBuilder, array $content, string $counterId): void
+    private function makeTable(array $content, string $counterId): mixed
     {
         $headers = $content['headers'] ?? [];
         $details = $content['details'] ?? [];
-
-        $htmlBuilder
-            ->table(true, 'bordered');
-        if(count($headers) > 0)
-        {
-            $htmlBuilder
-                ->thead()
-                    ->tr();
-            if($counterId !== '')
-            {
-                $htmlBuilder
-                        ->th()
-                            ->input([
-                                'type' => 'checkbox',
-                                'class' => 'dbadmin-table-checkbox',
-                                'id' => "dbadmin-table-$counterId-all",
-                            ])
-                            ->end()
-                        ->end();
-            }
-            foreach($headers as $header)
-            {
-                $htmlBuilder
-                        ->th()
-                            ->addHtml($header)
-                        ->end();
-            }
-            $htmlBuilder
-                    ->end()
-                ->end();
-        }
-
-        $htmlBuilder
-                ->tbody();
-        foreach($details as $_details)
-        {
-            $htmlBuilder
-                    ->tr();
-            if($counterId !== '')
-            {
-                $htmlBuilder
-                        ->td()
-                            ->input([
-                                'type' => 'checkbox',
-                                'class' => "dbadmin-table-$counterId",
-                                'name' => "{$counterId}[]",
-                            ])
-                            ->end()
-                        ->end();
-            }
-            foreach($_details as $detail)
-            {
-                $htmlBuilder
-                        ->td();
-                $this->showTableCell($htmlBuilder, $detail ?? '');
-                $htmlBuilder
-                        ->end();
-            }
-            $htmlBuilder
-                    ->end();
-        }
-        $htmlBuilder
-                ->end()
-            ->end();
+        return $this->html->table(
+            $this->html->thead(
+                $this->html->when($counterId !== '', fn() =>
+                    $this->html->th(
+                        $this->html->input([
+                            'type' => 'checkbox',
+                            'class' => 'dbadmin-table-checkbox',
+                            'id' => "dbadmin-table-$counterId-all",
+                        ])
+                    )
+                ),
+                $this->html->each($headers, fn($header) =>
+                    $this->html->th()->addHtml($header)
+                ),
+            ),
+            $this->html->body(
+                $this->html->each($details, fn($detailGroup) =>
+                    $this->html->tr(
+                        $this->html->when($counterId !== '', fn() =>
+                            $this->html->td(
+                                $this->html->input([
+                                    'type' => 'checkbox',
+                                    'class' => "dbadmin-table-$counterId",
+                                    'name' => "{$counterId}[]",
+                                ])
+                            )
+                        ),
+                        $this->html->each($detailGroup, fn($detail) =>
+                            $this->getTableCell($detail ?? '')
+                        )
+                    )
+                ),
+            ),
+        )
+        ->responsive()
+        ->style('bordered');
     }
 
     /**
@@ -233,17 +186,14 @@ trait MainTrait
      */
     public function mainContent(array $pageContent, string $counterId = ''): string
     {
-        $htmlBuilder = Builder::new();
-        $this->makeTable($htmlBuilder, $pageContent, $counterId);
-
-        if ($counterId !== '') {
-            $htmlBuilder
-                ->panel()
-                    ->panelBody()
+        return $this->html->build(
+            $this->makeTable($pageContent, $counterId),
+            $this->html->when($counterId !== '', fn() =>
+                 $this->html->panel(
+                    $this->html->panelBody()
                         ->addHtml('Selected (<span id="dbadmin-table-' . $counterId . '-count">0</span>)')
-                    ->end()
-                ->end();
-        }
-        return $htmlBuilder->build();
+                )
+            )
+        );
     }
 }

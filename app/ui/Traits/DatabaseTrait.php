@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
-use Lagdo\UiBuilder\Jaxon\Builder;
-
 trait DatabaseTrait
 {
     /**
@@ -15,41 +13,177 @@ trait DatabaseTrait
      */
     public function viewForm(string $formId, bool $materializedView, array $view = []): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->form(false, true)->setId($formId)
-                ->formRow()
-                    ->formLabel()->setFor('name')->addText('Name')
-                    ->end()
-                ->end()
-                ->formRow()
-                    ->formInput()->setType('text')->setName('name')->setPlaceholder('Name')
-                        ->setValue($view['name'] ?? '')
-                    ->end()
-                ->end()
-                ->formRow()
-                    ->formLabel()->setFor('select')->addText('SQL query')
-                    ->end()
-                ->end()
-                ->formRow()
-                    ->formTextarea()->setRows('10')->setName('select')->setSpellcheck('false')->setWrap('on')
+        return $this->html->build(
+            $this->html->form(
+                $this->html->formRow(
+                    $this->html->formLabel()
+                        ->setFor('name')->addText('Name')
+                ),
+                $this->html->formRow(
+                    $this->html->formInput()
+                        ->setType('text')->setName('name')
+                        ->setPlaceholder('Name')->setValue($view['name'] ?? '')
+                ),
+                $this->html->formRow(
+                    $this->html->formLabel()
+                        ->setFor('select')->addText('SQL query')
+                ),
+                $this->html->formRow(
+                    $this->html->formTextarea()
+                        ->setRows('10')->setName('select')
+                        ->setSpellcheck('false')->setWrap('on')
                         ->addText($view['select'] ?? '')
-                    ->end()
-                ->end();
-        if ($materializedView) {
-            $htmlBuilder
-                ->formRow()
-                    ->formLabel()->setFor('materialized')->addText('Materialized')
-                    ->end()
-                ->end()
-                ->formRow()
-                    ->checkbox($view['materialized'] ?? false)->setName('materialized')
-                    ->end()
-                ->end();
-        }
-        $htmlBuilder
-            ->end();
-        return $htmlBuilder->build();
+                ),
+                $this->html->when($materializedView, fn() =>
+                    $this->html->list(
+                        $this->html->formRow(
+                            $this->html->formLabel()
+                                ->setFor('materialized')->addText('Materialized')
+                        ),
+                        $this->html->formRow(
+                            $this->html->checkbox()
+                                ->checked($view['materialized'] ?? false)
+                                ->setName('materialized')
+                        )
+                    )
+                )
+            )
+            ->wrapped()->setId($formId)
+        );
+    }
+
+    /**
+     * @param array $htmlIds
+     * @param array $contents
+     * @param array $labels
+     *
+     * @return mixed
+     */
+    public function importFileCol(array $htmlIds, array $contents, array $labels): mixed
+    {
+        return $this->html->col(
+            $this->html->formRow(
+                $this->html->formCol(
+                    $this->html->label($labels['file_upload'])
+                )
+                ->width(4),
+                $this->html->when(isset($contents['upload']), fn() =>
+                    $this->html->formCol()
+                        ->width(8)->addHtml($contents['upload'])
+                ),
+                $this->html->when(!isset($contents['upload']), fn() =>
+                    $this->html->formCol()
+                        ->width(8)->addHtml($contents['upload_disabled'])
+                ),
+            ),
+            $this->html->formRow(
+                $this->html->when(isset($contents['upload']), fn() =>
+                    $this->html->formCol(
+                        $this->html->inputGroup(
+                            $this->html->button()
+                                ->primary()
+                                ->setId($htmlIds['sqlChooseBtnId'])
+                                ->addHtml($labels['select'] . '&hellip;'),
+                            $this->html->input()
+                                ->setType('file')->setName('sql_files[]')
+                                ->setId($htmlIds['sqlFilesInputId'])
+                                ->setMultiple('multiple')
+                                ->setStyle('display:none;'),
+                            $this->html->formInput()
+                                ->setType('text')->setReadonly('readonly')
+                        )
+                        ->setId($htmlIds['sqlFilesDivId'])
+                    )
+                    ->width(12)
+                )
+            ),
+            $this->html->formRow(
+                $this->html->formCol(
+                    $this->html->button()
+                        ->fullWidth()->primary()
+                        ->setId($htmlIds['sqlFilesBtnId'])
+                        ->addText($labels['execute'])
+                )
+                ->width(4)
+            ),
+        );
+    }
+
+    /**
+     * @param array $htmlIds
+     * @param array $contents
+     * @param array $labels
+     *
+     * @return mixed
+     */
+    public function importPathCol(array $htmlIds, array $contents, array $labels): mixed
+    {
+        return $this->html->col(
+            $this->html->formRow(
+                $this->html->formCol(
+                    $this->html->label($labels['from_server'])
+                )
+                ->width(4),
+                $this->html->formCol(
+                    $this->html->span()->addText($labels['path'])
+                )
+                ->width(8)
+            ),
+            $this->html->formRow(
+                $this->html->formCol(
+                    $this->html->formInput()
+                        ->setType('text')
+                        ->setValue($contents['path'])
+                        ->setReadonly('readonly')
+                )
+                ->width(12)
+            ),
+            $this->html->formRow(
+                $this->html->formCol(
+                    $this->html->button()
+                        ->fullWidth()->primary()
+                        ->setId($htmlIds['webFileBtnId'])
+                        ->addText($labels['run_file'])
+                )
+                ->width(4)
+            ),
+        );
+    }
+
+    /**
+     * @param array $labels
+     *
+     * @return mixed
+     */
+    public function importOptionsCol(array $labels): mixed
+    {
+        return $this->html->col(
+            $this->html->formRow(
+                $this->html->formCol(
+                    // Actually an offset. TODO: a parameter for that.
+                    $this->html->text()
+                        ->addHtml('&nbsp;')
+                )->width(3),
+                $this->html->formCol(
+                    $this->html->inputGroup(
+                        $this->html->text()
+                            ->addText($labels['error_stops']),
+                        $this->html->checkbox()
+                            ->setName('error_stops')
+                    )
+                )
+                ->width(3),
+                $this->html->formCol(
+                    $this->html->inputGroup(
+                        $this->html->text()
+                            ->addText($labels['only_errors']),
+                        $this->html->checkbox()
+                            ->setName('only_errors')
+                    )
+                )
+                ->width(3),
+            )
+        );
     }
 
     /**
@@ -61,115 +195,304 @@ trait DatabaseTrait
      */
     public function importPage(array $htmlIds, array $contents, array $labels): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->col(12)->setId('dbadmin-command-details')
-            ->end()
-            ->col(12)
-                ->form(true, false)->setId($htmlIds['formId'])
-                    ->row()
-                        ->col(6)
-                            ->formRow()
-                                ->formCol(4)
-                                    ->label($labels['file_upload'])
-                                    ->end()
-                                ->end();
-        if (isset($contents['upload'])) {
-            $htmlBuilder
-                                ->formCol(8)->addHtml($contents['upload'])
-                                ->end();
-        } else {
-            $htmlBuilder
-                                ->formCol(8)->addHtml($contents['upload_disabled'])
-                                ->end();
-        }
-        $htmlBuilder
-                            ->end()
-                            ->formRow();
-        if (isset($contents['upload'])) {
-            $htmlBuilder
-                                ->formCol(12)
-                                    ->inputGroup()->setId($htmlIds['sqlFilesDivId'])
-                                        ->button()->btnPrimary()->setId($htmlIds['sqlChooseBtnId'])
-                                            ->addHtml($labels['select'] . '&hellip;')
-                                        ->end()
-                                        ->input()->setType('file')->setName('sql_files[]')->setId($htmlIds['sqlFilesInputId'])
-                                            ->setMultiple('multiple')->setStyle('display:none;')
-                                        ->end()
-                                        ->formInput()->setType('text')->setReadonly('readonly')
-                                        ->end()
-                                    ->end()
-                                ->end();
-        }
-        $htmlBuilder
-                            ->end()
-                            ->formRow()
-                                ->formCol(4)
-                                    ->button()->btnFullWidth()->btnPrimary()
-                                        ->setId($htmlIds['sqlFilesBtnId'])->addText($labels['execute'])
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end();
-        if (isset($contents['path'])) {
-            $htmlBuilder
-                        ->col(6)
-                            ->formRow()
-                                ->formCol(4)
-                                    ->label($labels['from_server'])
-                                    ->end()
-                                ->end()
-                                ->formCol(8)->addText($labels['path'])
-                                ->end()
-                            ->end()
-                            ->formRow()
-                                ->formCol(12)
-                                    ->formInput()->setType('text')->setValue($contents['path'])->setReadonly('readonly')
-                                    ->end()
-                                ->end()
-                            ->end()
-                            ->formRow()
-                                ->formCol(4)
-                                    ->button()->btnFullWidth()->btnPrimary()
-                                        ->setId($htmlIds['webFileBtnId'])->addText($labels['run_file'])
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end();
-        }
-        $htmlBuilder
-                    ->end()
-                    ->row()
-                        ->col(12)
-                            ->formRow()
-                                ->formCol(3)->addHtml('&nbsp;') // Actually an offset. TODO: a parameter for that.
-                                ->end()
-                                ->formCol(3)
-                                    ->inputGroup()
-                                        ->text()->addText($labels['error_stops'])
-                                        ->end()
-                                        ->checkbox()->setName('error_stops')
-                                        ->end()
-                                    ->end()
-                                ->end()
-                                ->formCol(3)
-                                    ->inputGroup()
-                                        ->text()->addText($labels['only_errors'])
-                                        ->end()
-                                        ->checkbox()->setName('only_errors')
-                                        ->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-            ->col(12)->setId('dbadmin-command-history')
-            ->end()
-            ->col(12)->setId('dbadmin-command-results')
-            ->end();
-        return $htmlBuilder->build();
+        return $this->html->build(
+            $this->html->col()->width(12)->setId('dbadmin-command-details'),
+            $this->html->col(
+                $this->html->form(
+                    $this->html->row(
+                        $this->importFileCol($htmlIds, $contents, $labels)->width(6),
+                        $this->html->when(isset($contents['path']), fn() =>
+                            $this->importPathCol($htmlIds, $contents, $labels)->width(6)
+                        ),
+                    ),
+                    $this->html->row(
+                        $this->importOptionsCol($labels)->width(12)
+                    )
+                )
+                ->responsive(true)->wrapped(false)->setId($htmlIds['formId'])
+            )->width(12),
+            $this->html->col()->width(12)->setId('dbadmin-command-history'),
+            $this->html->col()->width(12)->setId('dbadmin-command-results')
+        );
+    }
+
+    /**
+     * @param array $htmlIds
+     * @param array $options
+     * @param array $labels
+     *
+     * @return mixed
+     */
+    private function exportOutputCol(array $htmlIds, array $options, array $labels): mixed
+    {
+        return $this->html->col(
+            $this->html->formRow(
+                $this->html->formCol(
+                    $this->html->label($options['output']['label'])
+                        ->setFor('output')
+                )
+                ->width(3),
+                $this->html->formCol(
+                    $this->html->each($options['output']['options'], fn($label, $value) =>
+                        $this->html->list(
+                            $this->html->radio()
+                                ->checked($options['output']['value'] === $value)
+                                ->setName('output'),
+                            $this->html->text()
+                                ->addHtml('&nbsp;' . $label . '&nbsp;')
+                        )
+                    )
+                )
+                ->width(8)
+            ),
+            $this->html->formRow(
+                $this->html->formCol(
+                    $this->html->label($options['format']['label'])
+                        ->setFor('format')
+                )
+                ->width(3),
+                $this->html->formCol(
+                    $this->html->each($options['format']['options'], fn($label, $value) =>
+                        $this->html->list(
+                            $this->html->radio()
+                                ->checked($options['format']['value'] === $value)
+                                ->setName('format'),
+                            $this->html->text()
+                                ->addHtml('&nbsp;' . $label . '&nbsp;')
+                        )
+                    )
+                )
+                ->width(8)
+            ),
+            $this->html->when(isset($options['db_style']), fn() =>
+                $this->html->formRow(
+                    $this->html->formCol(
+                        $this->html->label($options['db_style']['label'])
+                            ->setFor('db_style')
+                    )
+                    ->width(3),
+                    $this->html->formCol(
+                        $this->html->formSelect(
+                            $this->html->each($options['db_style']['options'], fn($label) =>
+                                $this->html->option($label)
+                                    ->selected($options['db_style']['value'] == $label)
+                            )
+                        )
+                        ->setName('db_style')
+                    )
+                    ->width(8)
+                )
+            ),
+            $this->html->when(isset($options['routines']) || isset($options['events']), fn() =>
+                $this->html->formRow(
+                    $this->html->formCol(
+                        // Actually an offset. TODO: a parameter for that.
+                        $this->html->text()->addHtml('&nbsp;')
+                    )
+                    ->width(3),
+                    $this->html->when(isset($options['routines']), fn() =>
+                        $this->html->formCol(
+                            $this->html->checkbox()
+                                ->checked($options['routines']['checked'])
+                                ->setName('routines')
+                                ->setValue($options['routines']['value']),
+                            $this->html->text()
+                                ->addHtml('&nbsp;' . $options['routines']['label'])
+                        )
+                        ->width(4)
+                    ),
+                    $this->html->when(isset($options['events']), fn() =>
+                        $this->html->formCol(
+                            $this->html->checkbox()
+                                ->checked($options['events']['checked'])
+                                ->setName('events')
+                                ->setValue($options['events']['value']),
+                            $this->html->text()
+                                ->addHtml('&nbsp;' . $options['events']['label'])
+                        )
+                        ->width(4)
+                    )
+                ),
+            ),
+            $this->html->formRow(
+                $this->html->formCol(
+                    $this->html->label($options['table_style']['label'])
+                        ->setFor('table_style')
+                )
+                ->width(3),
+                $this->html->formCol(
+                    $this->html->formSelect(
+                        $this->html->each($options['table_style']['options'], fn($label) =>
+                            $this->html->option($label)
+                                ->selected($options['table_style']['value'] == $label)
+                        )
+                    )
+                    ->setName('table_style')
+                )
+                ->width(8)
+            ),
+            $this->html->formRow(
+                $this->html->formCol(
+                    // Actually an offset. TODO: a parameter for that.
+                    $this->html->text()->addHtml('&nbsp;')
+                )
+                ->width(3),
+                $this->html->formCol(
+                    $this->html->checkbox()
+                        ->checked($options['auto_increment']['checked'])
+                        ->setName('auto_increment')
+                        ->setValue($options['auto_increment']['value']),
+                    $this->html->text()
+                        ->addHtml('&nbsp;' . $options['auto_increment']['label'])
+                )
+                ->width(4),
+                $this->html->when(isset($options['triggers']), fn() =>
+                    $this->html->formCol(
+                        $this->html->checkbox()
+                            ->checked($options['triggers']['checked'])
+                            ->setName('triggers')
+                            ->setValue($options['triggers']['value']),
+                        $this->html->text()
+                            ->addHtml('&nbsp;' . $options['triggers']['label'])
+                    )
+                    ->width(4),
+                )
+            ),
+            $this->html->formRow(
+                $this->html->formCol(
+                    $this->html->label($options['data_style']['label'])
+                        ->setFor('data_style')
+                )
+                ->width(3),
+                $this->html->formCol(
+                    $this->html->formSelect(
+                        $this->html->each($options['data_style']['options'], fn($label) =>
+                            $this->html->option($label)
+                                ->selected($options['data_style']['value'] == $label)
+                        )
+                    )
+                    ->setName('data_style')
+                )
+                ->width(8)
+            ),
+            $this->html->formRow(
+                $this->html->formCol(
+                    // Actually an offset. TODO: a parameter for that.
+                    $this->html->text()->addHtml('&nbsp;')
+                )
+                ->width(3),
+                $this->html->formCol(
+                    $this->html->button()
+                        ->fullWidth()->primary()
+                        ->setId($htmlIds['btnId'])
+                        ->addText($labels['export'])
+                )
+                ->width(4)
+            )
+        );
+    }
+
+    /**
+     * @param array $htmlIds
+     * @param array $databases
+     * @param array $tables
+     *
+     * @return mixed
+     */
+    public function exportItemsCol(array $htmlIds, array $databases, array $tables): mixed
+    {
+        return $this->html->col(
+            $this->html->when(count($databases) > 0, fn() =>
+                $this->html->table(
+                    $this->html->thead(
+                        $this->html->tr(
+                            $this->html->th(
+                                $this->html->checkbox()
+                                    ->selected(true)
+                                    ->setId($htmlIds['databaseNameId'] . '-all'),
+                                $this->html->text()
+                                    ->addHtml('&nbsp;' . $databases['headers'][0])
+                            ),
+                            $this->html->th(
+                                $this->html->checkbox()
+                                    ->selected(true)
+                                    ->setId($htmlIds['tableDataId'] . '-all'),
+                                $this->html->text()
+                                    ->addHtml('&nbsp;' . $databases['headers'][1])
+                            )
+                        )
+                    ),
+                    $this->html->tbody(
+                        $this->html->each($databases['details'], fn($database) =>
+                            $this->html->tr(
+                                $this->html->td(
+                                    $this->html->checkbox()
+                                        ->selected(true)
+                                        ->setName('database_list[]')
+                                        ->setClass($htmlIds['databaseNameId'])
+                                        ->setValue($database['name']),
+                                    $this->html->text()
+                                        ->addHtml('&nbsp;' . $database['name'])
+                                ),
+                                $this->html->td(
+                                    $this->html->checkbox()
+                                        ->selected(true)
+                                        ->setName('database_data[]')
+                                        ->setClass($htmlIds['databaseDataId'])
+                                        ->setValue($database['name'])
+                                )
+                            )
+                        )
+                    )
+                )
+                ->responsive(true)->style('bordered')
+            ),
+            $this->html->when(count($tables) > 0, fn() =>
+                $this->html->table(
+                    $this->html->thead(
+                        $this->html->tr(
+                            $this->html->th(
+                                $this->html->checkbox()
+                                    ->selected(true)
+                                    ->setId($htmlIds['tableNameId'] . '-all'),
+                                $this->html->text()
+                                    ->addHtml('&nbsp;' . $tables['headers'][0])
+                            ),
+                            $this->html->th(
+                                $this->html->checkbox()
+                                    ->selected(true)
+                                    ->setId($htmlIds['tableDataId'] . '-all'),
+                                $this->html->text()
+                                    ->addHtml('&nbsp;' . $tables['headers'][1])
+                            )
+                        )
+                    ),
+                    $this->html->tbody(
+                        $this->html->each($tables['details'], fn($table) =>
+                            $this->html->tr(
+                                $this->html->td(
+                                    $this->html->checkbox()
+                                        ->selected(true)
+                                        ->setName('table_list[]')
+                                        ->setClass($htmlIds['tableNameId'])
+                                        ->setValue($table['name']),
+                                    $this->html->text()
+                                        ->addHtml('&nbsp;' . $table['name'])
+                                ),
+                                $this->html->td(
+                                    $this->html->checkbox()
+                                        ->selected(true)
+                                        ->setName('table_data[]')
+                                        ->setClass($htmlIds['tableDataId'])
+                                        ->setValue($table['name'])
+                                )
+                            )
+                        )
+                    )
+                )
+                ->responsive(true)->style('bordered')
+            ),
+        );
     }
 
     /**
@@ -181,236 +504,21 @@ trait DatabaseTrait
      *
      * @return string
      */
-    public function exportPage(array $htmlIds, array $databases, array $tables, array $options, array $labels): string
+    public function exportPage(array $htmlIds, array $databases, array $tables,
+        array $options, array $labels): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->col(12)
-                ->form(true, false)->setId($htmlIds['formId'])
-                    ->row()
-                        ->col(7)
-                            ->formRow()
-                                ->formCol(3)
-                                    ->label($options['output']['label'])->setFor('output')
-                                    ->end()
-                                ->end()
-                                ->formCol(8);
-        foreach ($options['output']['options'] as $value => $label) {
-            $htmlBuilder
-                                    ->radio($options['output']['value'] === $value)->setName('output')
-                                    ->end()
-                                    ->addHtml('&nbsp;' . $label . '&nbsp;');
-        }
-        $htmlBuilder
-                                ->end()
-                            ->end()
-                            ->formRow()
-                                ->formCol(3)
-                                    ->label($options['format']['label'])->setFor('format')
-                                    ->end()
-                                ->end()
-                                ->formCol(8);
-        foreach ($options['format']['options'] as $value => $label) {
-            $htmlBuilder
-                                    ->radio($options['format']['value'] === $value)->setName('format')
-                                    ->end()
-                                    ->addHtml('&nbsp;' . $label . '&nbsp;');
-        }
-        $htmlBuilder
-                                ->end()
-                            ->end();
-        if (isset($options['db_style'])) {
-            $htmlBuilder
-                            ->formRow()
-                                ->formCol(3)
-                                    ->label($options['db_style']['label'])->setFor('db_style')
-                                    ->end()
-                                ->end()
-                                ->formCol(8)
-                                    ->formSelect()->setName('db_style');
-            foreach ($options['db_style']['options'] as $label) {
-                $htmlBuilder
-                                        ->option($options['db_style']['value'] == $label, $label)
-                                        ->end();
-            }
-            $htmlBuilder
-                                    ->end()
-                                ->end()
-                            ->end();
-        }
-        if (isset($options['routines']) || isset($options['events'])) {
-            $htmlBuilder
-                            ->formRow()
-                                ->formCol(3)->addHtml('&nbsp;') // Actually an offset. TODO: a parameter for that.
-                                ->end();
-            if (isset($options['routines'])) {
-                $htmlBuilder
-                                ->formCol(4)
-                                    ->checkbox($options['routines']['checked'])->setName('routines')
-                                        ->setValue($options['routines']['value'])
-                                    ->end()
-                                    ->addHtml('&nbsp;' . $options['routines']['label'])
-                                ->end();
-            }
-            if (isset($options['events'])) {
-                $htmlBuilder
-                                ->formCol(4)
-                                    ->checkbox($options['events']['checked'])->setName('events')
-                                        ->setValue($options['events']['value'])
-                                    ->end()
-                                    ->addHtml('&nbsp;' . $options['events']['label'])
-                                ->end();
-            }
-            $htmlBuilder
-                            ->end();
-        }
-        $htmlBuilder
-                            ->formRow()
-                                ->formCol(3)
-                                    ->label($options['table_style']['label'])->setFor('table_style')
-                                    ->end()
-                                ->end()
-                                ->formCol(8)
-                                    ->formSelect()->setName('table_style');
-        foreach ($options['table_style']['options'] as $label) {
-            $htmlBuilder
-                                        ->option($options['table_style']['value'] == $label, $label)
-                                        ->end();
-        }
-        $htmlBuilder
-                                    ->end()
-                                ->end()
-                            ->end()
-                            ->formRow()
-                                ->formCol(3)->addHtml('&nbsp;') // Actually an offset. TODO: a parameter for that.
-                                ->end()
-                                ->formCol(4)
-                                    ->checkbox($options['auto_increment']['checked'])->setName('auto_increment')
-                                        ->setValue($options['auto_increment']['value'])
-                                    ->end()
-                                    ->addHtml('&nbsp;' . $options['auto_increment']['label'])
-                                ->end();
-        if (isset($options['triggers'])) {
-            $htmlBuilder
-                                ->formCol(4)
-                                    ->checkbox($options['triggers']['checked'])->setName('triggers')
-                                        ->setValue($options['triggers']['value'])
-                                    ->end()
-                                    ->addHtml('&nbsp;' . $options['triggers']['label'])
-                                ->end();
-        }
-        $htmlBuilder
-                            ->end()
-                            ->formRow()
-                                ->formCol(3)
-                                    ->label($options['data_style']['label'])->setFor('data_style')
-                                    ->end()
-                                ->end()
-                                ->formCol(8)
-                                    ->formSelect()->setName('data_style');
-        foreach ($options['data_style']['options'] as $label) {
-            $htmlBuilder
-                                        ->option($options['data_style']['value'] == $label, $label)
-                                        ->end();
-        }
-        $htmlBuilder
-                                    ->end()
-                                ->end()
-                            ->end()
-                            ->formRow()
-                                ->formCol(3)->addHtml('&nbsp;') // Actually an offset. TODO: a parameter for that.
-                                ->end()
-                                ->formCol(4)
-                                    ->button()->btnFullWidth()->btnPrimary()
-                                        ->setId($htmlIds['btnId'])->addText($labels['export'])
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                        ->col(5);
-        if (($databases)) {
-            $htmlBuilder
-                            ->table(true, 'bordered')
-                                ->thead()
-                                    ->tr()
-                                        ->th()
-                                            ->checkbox(true)->setId($htmlIds['databaseNameId'] . '-all')
-                                            ->end()
-                                            ->addHtml('&nbsp;' . $databases['headers'][0])
-                                        ->end()
-                                        ->th()
-                                            ->checkbox(true)->setId($htmlIds['databaseDataId'] . '-all')
-                                            ->end()
-                                            ->addHtml('&nbsp;' . $databases['headers'][1])
-                                        ->end()
-                                    ->end()
-                                ->end()
-                                ->tbody();
-            foreach ($databases['details'] as $database) {
-                $htmlBuilder
-                                    ->tr()
-                                        ->td()
-                                            ->checkbox(true)->setName('database_list[]')
-                                                ->setClass($htmlIds['databaseNameId'])->setValue($database['name'])
-                                            ->end()
-                                            ->addHtml('&nbsp;' . $database['name'])
-                                        ->end()
-                                        ->td()
-                                            ->checkbox(true)->setName('database_data[]')
-                                                ->setClass($htmlIds['databaseDataId'])->setValue($database['name'])
-                                            ->end()
-                                        ->end()
-                                    ->end();
-            }
-            $htmlBuilder
-                                ->end()
-                            ->end();
-        }
-        if (($tables)) {
-            $htmlBuilder
-                            ->table(true, 'bordered')
-                                ->thead()
-                                    ->tr()
-                                        ->th()
-                                            ->checkbox(true)->setId($htmlIds['tableNameId'] . '-all')
-                                            ->end()
-                                            ->addHtml('&nbsp;' . $tables['headers'][0])
-                                        ->end()
-                                        ->th()
-                                            ->checkbox(true)->setId($htmlIds['tableDataId'] . '-all')
-                                            ->end()
-                                            ->addHtml('&nbsp;' . $tables['headers'][1])
-                                        ->end()
-                                    ->end()
-                                ->end()
-                                ->tbody();
-            foreach ($tables['details'] as $table) {
-                $htmlBuilder
-                                    ->tr()
-                                        ->td()
-                                            ->checkbox(true)->setName('table_list[]')
-                                                ->setClass($htmlIds['tableNameId'])->setValue($table['name'])
-                                            ->end()
-                                            ->addHtml('&nbsp;' . $table['name'])
-                                        ->end()
-                                        ->td()
-                                            ->checkbox(true)->setName('table_data[]')
-                                                ->setClass($htmlIds['tableDataId'])->setValue($table['name'])
-                                            ->end()
-                                        ->end()
-                                    ->end();
-            }
-            $htmlBuilder
-                                ->end()
-                            ->end();
-        }
-        $htmlBuilder
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-            ->col(12)->setId('dbadmin-export-results')
-            ->end();
-        return $htmlBuilder->build();
+        return $this->html->build(
+            $this->html->col(
+                $this->html->form(
+                    $this->html->row(
+                        $this->exportOutputCol($htmlIds, $options, $labels)->width(7),
+                        $this->exportItemsCol($htmlIds, $databases, $tables)->width(5)
+                    )
+                )
+                ->responsive(true)->wrapped(false)->setId($htmlIds['formId'])
+            )
+            ->width(12),
+            $this->html->col()->width(12)->setId('dbadmin-export-results')
+        );
     }
 }

@@ -13,7 +13,7 @@ use Lagdo\DbAdmin\Ajax\App\Page\Content;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Ajax\App\Page\ServerInfo;
 use Lagdo\DbAdmin\Translator;
-use Lagdo\UiBuilder\Jaxon\Builder;
+use Lagdo\UiBuilder\BuilderInterface;
 
 use function htmlentities;
 use function Jaxon\pm;
@@ -36,28 +36,79 @@ class UiBuilder
 
     /**
      * @param Translator $trans
+     * @param BuilderInterface $html
      */
-    public function __construct(protected Translator $trans)
+    public function __construct(protected Translator $trans, protected BuilderInterface $html)
     {
-        $this->inputBuilder = new InputBuilder($this->trans);
+        $this->inputBuilder = new InputBuilder($trans, $html);
     }
 
     /**
-     * @return string
-     */
-    public function formRowTag(): string
-    {
-        return Builder::new()->formRowTag();
-    }
-
-    /**
-     * @param string $class
+     * @param array $servers
+     * @param string $default
      *
-     * @return string
+     * @return mixed
      */
-    public function formRowClass(string $class = ''): string
+    private function getHostSelectCol(array $servers, string $default): mixed
     {
-        return Builder::new()->formRowClass($class);
+        return $this->html->col(
+            $this->html->inputGroup(
+                $this->html->formSelect(
+                    $this->html->each($servers, fn($server, $serverId) =>
+                        $this->html->option($server['name'])
+                            ->selected($serverId === $default)
+                            ->setValue($serverId)
+                    )
+                )
+                ->setId('jaxon-dbadmin-dbhost-select'),
+                $this->html->button()
+                    ->primary()->setClass('btn-select')
+                    ->jxnClick(rq(Admin::class)
+                        ->server(pm()->select('jaxon-dbadmin-dbhost-select')))
+                    ->addText('Show')
+            )
+        );
+    }
+
+    /**
+     * @param array $servers
+     * @param string $default
+     *
+     * @return mixed
+     */
+    private function sidebarContent(array $servers, string $default): mixed
+    {
+        return $this->html->list(
+            $this->html->row(
+                $this->getHostSelectCol($servers, $default)
+                    ->width(12)
+            ),
+            $this->html->row(
+                $this->html->col()
+                    ->width(12)
+                    ->jxnBind(rq(ServerCommand::class))
+            ),
+            $this->html->row(
+                $this->html->col()
+                    ->width(12)
+                    ->jxnBind(rq(MenuDatabases::class))
+            ),
+            $this->html->row(
+                $this->html->col()
+                    ->width(12)
+                    ->jxnBind(rq(MenuSchemas::class))
+            ),
+            $this->html->row(
+                $this->html->col()
+                    ->width(12)
+                    ->jxnBind(rq(DatabaseCommand::class))
+            ),
+            $this->html->row(
+                $this->html->col()
+                    ->width(12)
+                    ->jxnBind(rq(MenuSections::class))
+            )
+        );
     }
 
     /**
@@ -68,48 +119,7 @@ class UiBuilder
      */
     public function sidebar(array $servers, string $default): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->row()
-                ->col(12)
-                    ->inputGroup()
-                        ->formSelect()->setId('jaxon-dbadmin-dbhost-select');
-        foreach($servers as $serverId => $server)
-        {
-            $htmlBuilder
-                            ->option($serverId === $default, $server['name'])->setValue($serverId)
-                            ->end();
-        }
-        $htmlBuilder
-                        ->end()
-                        ->button()->btnPrimary()->setClass('btn-select')
-                            ->jxnClick(rq(Admin::class)->server(pm()->select('jaxon-dbadmin-dbhost-select')))
-                            ->addText('Show')
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-            ->row()
-                ->col(12)->jxnBind(rq(ServerCommand::class))
-                ->end()
-            ->end()
-            ->row()
-                ->col(12)->jxnBind(rq(MenuDatabases::class))
-                ->end()
-            ->end()
-            ->row()
-                ->col(12)->jxnBind(rq(MenuSchemas::class))
-                ->end()
-            ->end()
-            ->row()
-                ->col(12)->jxnBind(rq(DatabaseCommand::class))
-                ->end()
-            ->end()
-            ->row()
-                ->col(12)->jxnBind(rq(MenuSections::class))
-                ->end()
-            ->end();
-        return $htmlBuilder->build();
+        return $this->html->build($this->sidebarContent($servers, $default));
     }
 
     /**
@@ -117,23 +127,23 @@ class UiBuilder
      */
     public function content(): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->row()->jxnBind(rq(ServerInfo::class))
-            ->end()
-            ->row()
-                ->col(12)
-                    ->span(['style' => 'float:left'])->jxnBind(rq(Breadcrumbs::class))
-                    ->end()
-                    ->span(['style' => 'float:right'])->jxnBind(rq(PageActions::class))
-                    ->end()
-                ->end()
-            ->end()
-            ->row()
-                ->col(12)->jxnBind(rq(Content::class))
-                ->end()
-            ->end();
-        return $htmlBuilder->build();
+        return $this->html->build(
+            $this->html->row()->jxnBind(rq(ServerInfo::class)),
+            $this->html->row(
+                $this->html->col(
+                    $this->html->span(['style' => 'float:left'])
+                        ->jxnBind(rq(Breadcrumbs::class)),
+                    $this->html->span(['style' => 'float:right'])
+                        ->jxnBind(rq(PageActions::class))
+                )
+                ->width(12)
+            ),
+            $this->html->row(
+                $this->html->col()
+                    ->width(12)
+                    ->jxnBind(rq(Content::class))
+            )
+        );
     }
 
     /**
@@ -144,30 +154,33 @@ class UiBuilder
      */
     public function home(array $servers, string $default): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->row()->setId('jaxon-dbadmin')
-                ->col(3)
-                    ->addHtml($this->sidebar($servers, $default))
-                ->end()
-                ->col(9)
-                    ->row()->jxnBind(rq(ServerInfo::class))
-                    ->end()
-                    ->row()
-                        ->col(12)
-                            ->span()->jxnBind(rq(Breadcrumbs::class))
-                            ->end()
-                            ->span()->jxnBind(rq(PageActions::class))
-                            ->end()
-                        ->end()
-                    ->end()
-                    ->row()
-                        ->col(12)->jxnBind(rq(Content::class))
-                        ->end()
-                    ->end()
-                ->end()
-            ->end();
-        return $htmlBuilder->build();
+        return $this->html->build(
+            $this->html->row(
+                $this->html->col(
+                    $this->sidebarContent($servers, $default)
+                )
+                ->width(3),
+                $this->html->col(
+                    $this->html->row()->jxnBind(rq(ServerInfo::class)),
+                    $this->html->row(
+                        $this->html->col(
+                            $this->html->span()
+                                ->jxnBind(rq(Breadcrumbs::class)),
+                            $this->html->span()
+                                ->jxnBind(rq(PageActions::class))
+                        )
+                        ->width(12)
+                    ),
+                    $this->html->row(
+                        $this->html->col()
+                            ->width(12)
+                            ->jxnBind(rq(Content::class))
+                    )
+                )
+                ->width(9)
+            )
+            ->setId('jaxon-dbadmin')
+        );
     }
 
     /**
@@ -179,19 +192,15 @@ class UiBuilder
      */
     public function htmlSelect(array $options, string $optionClass, bool $useKeys = false): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-                ->formSelect();
-        foreach($options as $key => $label)
-        {
-            $value = $useKeys ? $key : $label;
-            $htmlBuilder
-                    ->option(false, $label)->setClass($optionClass)
-                        ->setValue(htmlentities($value))
-                    ->end();
-        }
-        $htmlBuilder
-                ->end();
-        return $htmlBuilder->build();
+        return $this->html->build(
+            $this->html->formSelect(
+                $this->html->each($options, fn($label, $key) =>
+                    $this->html->option($label)
+                        ->selected(false)
+                        ->setClass($optionClass)
+                        ->setValue(htmlentities($useKeys ? $key : $label))
+                )
+            )
+        );
     }
 }

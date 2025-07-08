@@ -3,13 +3,19 @@
 namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Database;
-use Lagdo\UiBuilder\Jaxon\Builder;
+use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\pm;
 use function Jaxon\rq;
 
 class MenuBuilder
 {
+    /**
+     * @param BuilderInterface $html
+     */
+    public function __construct(protected BuilderInterface $html)
+    {}
+
     /**
      * @param string $server
      * @param string $user
@@ -18,21 +24,18 @@ class MenuBuilder
      */
     public function serverInfo(string $server, string $user): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->col(8)
-                ->panel()
-                    ->panelBody()->addHtml($server)
-                    ->end()
-                ->end()
-            ->end()
-            ->col(4)
-                ->panel()
-                    ->panelBody()->addHtml($user)
-                    ->end()
-                ->end()
-            ->end();
-        return $htmlBuilder->build();
+        return $this->html->build(
+            $this->html->col(
+                $this->html->panel(
+                    $this->html->panelBody()->addHtml($server)
+                )
+            )->width(8),
+            $this->html->col(
+                $this->html->panel(
+                    $this->html->panelBody()->addHtml($user)
+                ),
+            )->width(4),
+        );
     }
 
     /**
@@ -43,20 +46,15 @@ class MenuBuilder
      */
     public function menuActions(array $actions, string $activeItem): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->menu();
-        foreach($actions as $item => $action)
-        {
-            $htmlBuilder
-                ->menuItem($action['title'])
-                    ->setClass($item === $activeItem ? 'dbadmin-menu-item active' : 'dbadmin-menu-item')
-                    ->jxnClick($action['handler'])
-                ->end();
-        }
-        $htmlBuilder
-            ->end();
-        return $htmlBuilder->build();
+        return $this->html->build(
+            $this->html->menu(
+                $this->html->each($actions, fn($action, $item) =>
+                    $this->html->menuItem($action['title'])
+                        ->setClass($item === $activeItem ? 'dbadmin-menu-item active' : 'dbadmin-menu-item')
+                        ->jxnClick($action['handler'])
+                )
+            )
+        );
     }
 
     /**
@@ -67,21 +65,20 @@ class MenuBuilder
      */
     public function menuCommands(array $actions, string $activeItem): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->buttonGroup(true);
-        foreach($actions as $item => $action)
-        {
-            $htmlBuilder
-                ->button()->btnOutline()->btnPrimary()->btnFullWidth()
-                    ->setClass($item === $activeItem ? 'dbadmin-menu-item active' : 'dbadmin-menu-item')
-                    ->addText($action['title'])
-                    ->jxnClick($action['handler'])
-                ->end();
-        }
-        $htmlBuilder
-            ->end();
-        return $htmlBuilder->build();
+        return $this->html->build(
+            $this->html->buttonGroup(
+                $this->html->each($actions, fn($action, $item) =>
+                    $this->html->button()
+                        ->outline()
+                        ->primary()
+                        ->fullWidth()
+                        ->setClass($item === $activeItem ? 'dbadmin-menu-item active' : 'dbadmin-menu-item')
+                        ->addText($action['title'])
+                        ->jxnClick($action['handler'])
+                ),
+            )
+            ->fullWidth(),
+        );
     }
 
     /**
@@ -94,27 +91,24 @@ class MenuBuilder
         $database = pm()->select('jaxon-dbadmin-database-select');
         $call = rq(Database::class)->select($database)->ifne($database, '');
 
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->inputGroup()
-                ->formSelect()->setId('jaxon-dbadmin-database-select')
-                    ->option(false, '')
-                    ->end();
-        foreach($databases as $database)
-        {
-            $htmlBuilder
-                    ->option(false, $database)
-                    ->end();
-        }
-        $htmlBuilder
-                ->end()
-                ->button()->btnPrimary()
+        return $this->html->build(
+            $this->html->inputGroup(
+                $this->html->formSelect(
+                    $this->html->option()
+                        ->selected(false)->addText(''),
+                    $this->html->each($databases, fn($database) =>
+                        $this->html->option()
+                            ->selected(false)->addText($database)
+                    )
+                )
+                ->setId('jaxon-dbadmin-database-select'),
+                $this->html->button()
+                    ->primary()
                     ->setClass('btn-select')
                     ->addText('Show')
                     ->jxnClick($call)
-                ->end()
-            ->end();
-        return $htmlBuilder->build();
+            ),
+        );
     }
 
     /**
@@ -128,24 +122,23 @@ class MenuBuilder
         $schema =  pm()->select('jaxon-dbadmin-schema-select');
         $call = rq(Database::class)->select($database, $schema);
 
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->inputGroup()
-                ->formSelect()->setId('jaxon-dbadmin-schema-select');
-        foreach ($schemas as $schema)
-        {
-            $htmlBuilder
-                    ->option(false, $schema)
-                    ->end();
-        }
-        $htmlBuilder
-                ->end()
-                ->button()->btnPrimary()
+        return $this->html->build(
+            $this->html->inputGroup(
+                $this->html->formSelect(
+                    $this->html->option()
+                        ->selected(false)->addText(''),
+                    $this->html->each($schemas, fn($schema) =>
+                        $this->html->option()
+                            ->selected(false)->addText($schema)
+                    )
+                )
+                ->setId('jaxon-dbadmin-schema-select'),
+                $this->html->button()
+                    ->primary()
                     ->setClass('btn-select')
                     ->addText('Show')
                     ->jxnClick($call)
-                ->end()
-            ->end();
-        return $htmlBuilder->build();
+            )
+        );
     }
 }

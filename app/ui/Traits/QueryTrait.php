@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Ui\Traits;
 
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Ajax\App\Db\Command\QueryResults;
-use Lagdo\UiBuilder\Jaxon\Builder;
 
 use function count;
 use function Jaxon\jo;
@@ -24,16 +23,14 @@ trait QueryTrait
         $formId = 'dbadmin-main-command-form';
         $queryId = 'dbadmin-main-command-query';
 
-        $htmlBuilder = Builder::new();
-        $htmlBuilder
-            ->col(12)->setId('dbadmin-command-details')
-            ->end()
-            ->col(12)
-                ->row()
-                    ->col(12)
-                        ->panel('default')->setId('sql-command-editor')
-                            ->panelBody()->setClass('sql-command-editor-panel')
-                                ->formTextarea()
+        return $this->html->build(
+            $this->html->col()->width(12)->setId('dbadmin-command-details'),
+            $this->html->col(
+                $this->html->row(
+                    $this->html->col(
+                        $this->html->panel(
+                            $this->html->panelBody(
+                                $this->html->formTextarea()
                                     ->setName('query')
                                     ->setId($queryId)
                                     ->setDataLanguage('sql')
@@ -41,56 +38,65 @@ trait QueryTrait
                                     ->setSpellcheck('false')
                                     ->setWrap('on')
                                     ->addHtml($query)
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-            ->col(12)
-                ->form(true, true)->setId($formId)
-                    ->formRow()
-                        ->formCol(3)
-                            ->inputGroup()
-                                ->text()->addText($this->trans->lang('Limit rows'))
-                                ->end()
-                                ->formInput()
+                            )
+                            ->setClass('sql-command-editor-panel')
+                        )
+                        ->style('default')
+                        ->setId('sql-command-editor')
+                    )
+                    ->width(12)
+                )
+            )->width(12),
+            $this->html->col(
+                $this->html->form(
+                    $this->html->formRow(
+                        $this->html->formCol(
+                            $this->html->inputGroup(
+                                $this->html->text()
+                                    ->addText($this->trans->lang('Limit rows')),
+                                $this->html->formInput()
                                     ->setName('limit')
                                     ->setType('number')
                                     ->setValue($defaultLimit)
-                                ->end()
-                            ->end()
-                        ->end()
-                        ->formCol(3)
-                            ->inputGroup()
-                                ->text()->addText($this->trans->lang('Stop on error'))
-                                ->end()
-                                ->checkbox()->setName('error_stops')
-                                ->end()
-                            ->end()
-                        ->end()
-                        ->formCol(3)
-                            ->inputGroup()
-                                ->text()->addText($this->trans->lang('Show only errors'))
-                                ->end()
-                                ->checkbox()->setName('only_errors')
-                                ->end()
-                            ->end()
-                        ->end()
-                        ->formCol(2)
-                            ->button()->btnFullWidth()->btnPrimary()
+                            )
+                        )
+                        ->width(3),
+                        $this->html->formCol(
+                            $this->html->inputGroup(
+                                $this->html->text()
+                                    ->addText($this->trans->lang('Stop on error')),
+                                $this->html->checkbox()
+                                    ->setName('error_stops')
+                            )
+                        )
+                        ->width(3),
+                        $this->html->formCol(
+                            $this->html->inputGroup(
+                                $this->html->text()
+                                    ->addText($this->trans->lang('Show only errors')),
+                                $this->html->checkbox()
+                                    ->setName('only_errors')
+                            )
+                        )
+                        ->width(3),
+                        $this->html->formCol(
+                            $this->html->button()
+                                ->fullWidth()->primary()
                                 ->jxnClick($rqQuery->exec(jo('jaxon.dbadmin')->getSqlQuery(), pm()->form($formId))/*->when(pm()->input($queryId))*/)
                                 ->addText($this->trans->lang('Execute'))
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-            ->col(12)->setId('dbadmin-command-history')
-            ->end()
-            ->col(12)->jxnBind(rq(QueryResults::class))
-            ->end();
-        return $htmlBuilder->build();
+                        )
+                        ->width(2)
+                    )
+                )->horizontal(true)->wrapped(true)->setId($formId)
+            )
+                ->width(12),
+            $this->html->col()
+                ->width(12)
+                ->setId('dbadmin-command-history'),
+            $this->html->col()
+                ->width(12)
+                ->jxnBind(rq(QueryResults::class))
+        );
     }
 
     /**
@@ -100,73 +106,59 @@ trait QueryTrait
      */
     public function queryResults(array $results): string
     {
-        $htmlBuilder = Builder::new();
-        $htmlBuilder;
-        foreach ($results as $result) {
-            $htmlBuilder
-                ->row()
-                    ->col(12);
-            if (count($result['errors']) > 0) {
-                $htmlBuilder
-                        ->panel('danger')
-                            ->panelHeader()->addText($result['query'])
-                            ->end()
-                            ->panelBody()->setStyle('padding:5px 15px');
-                foreach($result['errors'] as $error) {
-                    $htmlBuilder
-                                ->addHtml($error);
-                }
-                $htmlBuilder
-                            ->end()
-                        ->end();
-            }
-            if (count($result['messages']) > 0) {
-                $htmlBuilder
-                        ->panel('info')
-                            ->panelHeader()->addText($result['query'])
-                            ->end()
-                            ->panelBody()->setStyle('padding:5px 15px');
-                foreach($result['messages'] as $message) {
-                    $htmlBuilder
-                                ->addHtml($message);
-                }
-                $htmlBuilder
-                            ->end()
-                        ->end();
-            }
-            if (isset($result['select'])) {
-                $htmlBuilder
-                        ->table(true, 'bordered')->setStyle('margin-top:2px')
-                            ->thead()
-                                ->tr();
-                foreach ($result['select']['headers'] as $header) {
-                    $htmlBuilder
-                                    ->th()->addHtml($header)
-                                    ->end();
-                }
-                $htmlBuilder
-                                ->end()
-                            ->end()
-                            ->tbody();
-                foreach ($result['select']['details'] as $details) {
-                    $htmlBuilder
-                                ->tr();
-                    foreach ($details as $detail) {
-                        $htmlBuilder
-                                    ->td()->addHtml($detail)
-                                    ->end();
-                    }
-                   $htmlBuilder
-                                ->end();
-                }
-                $htmlBuilder
-                            ->end()
-                        ->end();
-            }
-            $htmlBuilder
-                    ->end()
-                ->end();
-        }
-        return $htmlBuilder->build();
+        return $this->html->build(
+            $this->html->each($results, fn($result) =>
+                $this->html->row(
+                    $this->html->col(
+                        $this->html->when(count($result['errors']) > 0, fn() =>
+                            $this->html->panel(
+                                $this->html->panelHeader()->addText($result['query']),
+                                $this->html->panelBody(
+                                    $this->html->each($result['errors'], fn($error) =>
+                                        $this->html->span($error)
+                                    )
+                                )
+                                ->setStyle('padding:5px 15px')
+                            )
+                            ->style('danger')
+                        ),
+                        $this->html->when(count($result['messages']) > 0, fn() =>
+                            $this->html->panel(
+                                $this->html->panelHeader()->addText($result['query']),
+                                $this->html->panelBody(
+                                    $this->html->each($result['messages'], fn($message) =>
+                                        $this->html->span($message)
+                                    )
+                                )
+                                ->setStyle('padding:5px 15px')
+                            )
+                            ->style('danger')
+                        ),
+                        $this->html->when(isset($result['select']), fn() =>
+                            $this->html->table(
+                                $this->html->thead(
+                                    $this->html->tr(
+                                        $this->html->each($result['select']['headers'], fn($header) =>
+                                            $this->html->th()->addHtml($header)
+                                        )
+                                    )
+                                ),
+                                $this->html->tbody(
+                                    $this->html->each($result['select']['details'], fn($details) =>
+                                        $this->html->tr(
+                                            $this->html->each($details, fn($detail) =>
+                                                $this->html->td()->addHtml($detail)
+                                            )
+                                        )
+                                    )
+                                ),
+                            )
+                            ->responsive(true)->style('bordered')->setStyle('margin-top:2px')
+                        ),
+                    )
+                    ->width(12)
+                )
+            )
+        );
     }
 }
