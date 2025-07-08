@@ -144,11 +144,9 @@ trait MainTrait
             $this->html->thead(
                 $this->html->when($counterId !== '', fn() =>
                     $this->html->th(
-                        $this->html->input([
-                            'type' => 'checkbox',
-                            'class' => 'dbadmin-table-checkbox',
-                            'id' => "dbadmin-table-$counterId-all",
-                        ])
+                        $this->html->checkbox()
+                            ->addClass('dbadmin-table-checkbox')
+                            ->setId("dbadmin-table-$counterId-all")
                     )
                 ),
                 $this->html->each($headers, fn($header) =>
@@ -160,11 +158,9 @@ trait MainTrait
                     $this->html->tr(
                         $this->html->when($counterId !== '', fn() =>
                             $this->html->td(
-                                $this->html->input([
-                                    'type' => 'checkbox',
-                                    'class' => "dbadmin-table-$counterId",
-                                    'name' => "{$counterId}[]",
-                                ])
+                                $this->html->checkbox()
+                                    ->addClass("dbadmin-table-$counterId")
+                                    ->setName("{$counterId}[]")
                             )
                         ),
                         $this->html->each($detailGroup, fn($detail) =>
