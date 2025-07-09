@@ -44,6 +44,14 @@ class UiBuilder
     }
 
     /**
+     * @return BuilderInterface
+     */
+    protected function builder(): BuilderInterface
+    {
+        return $this->html;
+    }
+
+    /**
      * @param array $servers
      * @param string $default
      *

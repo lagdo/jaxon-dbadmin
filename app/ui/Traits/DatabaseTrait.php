@@ -2,8 +2,15 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
+use Lagdo\UiBuilder\BuilderInterface;
+
 trait DatabaseTrait
 {
+    /**
+     * @return BuilderInterface
+     */
+    abstract protected function builder(): BuilderInterface;
+
     /**
      * @param string $formId
      * @param bool $materializedView
@@ -13,35 +20,36 @@ trait DatabaseTrait
      */
     public function viewForm(string $formId, bool $materializedView, array $view = []): string
     {
-        return $this->html->build(
-            $this->html->form(
-                $this->html->formRow(
-                    $this->html->formLabel()
+        $html = $this->builder();
+        return $html->build(
+            $html->form(
+                $html->formRow(
+                    $html->formLabel()
                         ->setFor('name')->addText('Name')
                 ),
-                $this->html->formRow(
-                    $this->html->formInput()
+                $html->formRow(
+                    $html->formInput()
                         ->setType('text')->setName('name')
                         ->setPlaceholder('Name')->setValue($view['name'] ?? '')
                 ),
-                $this->html->formRow(
-                    $this->html->formLabel()
+                $html->formRow(
+                    $html->formLabel()
                         ->setFor('select')->addText('SQL query')
                 ),
-                $this->html->formRow(
-                    $this->html->formTextarea()
+                $html->formRow(
+                    $html->formTextarea()
                         ->setRows('10')->setName('select')
                         ->setSpellcheck('false')->setWrap('on')
                         ->addText($view['select'] ?? '')
                 ),
-                $this->html->when($materializedView, fn() =>
-                    $this->html->list(
-                        $this->html->formRow(
-                            $this->html->formLabel()
+                $html->when($materializedView, fn() =>
+                    $html->list(
+                        $html->formRow(
+                            $html->formLabel()
                                 ->setFor('materialized')->addText('Materialized')
                         ),
-                        $this->html->formRow(
-                            $this->html->checkbox()
+                        $html->formRow(
+                            $html->checkbox()
                                 ->checked($view['materialized'] ?? false)
                                 ->setName('materialized')
                         )
@@ -61,35 +69,36 @@ trait DatabaseTrait
      */
     public function importFileCol(array $htmlIds, array $contents, array $labels): mixed
     {
-        return $this->html->col(
-            $this->html->formRow(
-                $this->html->formCol(
-                    $this->html->label($labels['file_upload'])
+        $html = $this->builder();
+        return $html->col(
+            $html->formRow(
+                $html->formCol(
+                    $html->label($labels['file_upload'])
                 )
                 ->width(4),
-                $this->html->when(isset($contents['upload']), fn() =>
-                    $this->html->formCol()
+                $html->when(isset($contents['upload']), fn() =>
+                    $html->formCol()
                         ->width(8)->addHtml($contents['upload'])
                 ),
-                $this->html->when(!isset($contents['upload']), fn() =>
-                    $this->html->formCol()
+                $html->when(!isset($contents['upload']), fn() =>
+                    $html->formCol()
                         ->width(8)->addHtml($contents['upload_disabled'])
                 ),
             ),
-            $this->html->formRow(
-                $this->html->when(isset($contents['upload']), fn() =>
-                    $this->html->formCol(
-                        $this->html->inputGroup(
-                            $this->html->button()
+            $html->formRow(
+                $html->when(isset($contents['upload']), fn() =>
+                    $html->formCol(
+                        $html->inputGroup(
+                            $html->button()
                                 ->primary()
                                 ->setId($htmlIds['sqlChooseBtnId'])
                                 ->addHtml($labels['select'] . '&hellip;'),
-                            $this->html->input()
+                            $html->input()
                                 ->setType('file')->setName('sql_files[]')
                                 ->setId($htmlIds['sqlFilesInputId'])
                                 ->setMultiple('multiple')
                                 ->setStyle('display:none;'),
-                            $this->html->formInput()
+                            $html->formInput()
                                 ->setType('text')->setReadonly('readonly')
                         )
                         ->setId($htmlIds['sqlFilesDivId'])
@@ -97,9 +106,9 @@ trait DatabaseTrait
                     ->width(12)
                 )
             ),
-            $this->html->formRow(
-                $this->html->formCol(
-                    $this->html->button()
+            $html->formRow(
+                $html->formCol(
+                    $html->button()
                         ->fullWidth()->primary()
                         ->setId($htmlIds['sqlFilesBtnId'])
                         ->addText($labels['execute'])
@@ -118,29 +127,30 @@ trait DatabaseTrait
      */
     public function importPathCol(array $htmlIds, array $contents, array $labels): mixed
     {
-        return $this->html->col(
-            $this->html->formRow(
-                $this->html->formCol(
-                    $this->html->label($labels['from_server'])
+        $html = $this->builder();
+        return $html->col(
+            $html->formRow(
+                $html->formCol(
+                    $html->label($labels['from_server'])
                 )
                 ->width(4),
-                $this->html->formCol(
-                    $this->html->span()->addText($labels['path'])
+                $html->formCol(
+                    $html->span()->addText($labels['path'])
                 )
                 ->width(8)
             ),
-            $this->html->formRow(
-                $this->html->formCol(
-                    $this->html->formInput()
+            $html->formRow(
+                $html->formCol(
+                    $html->formInput()
                         ->setType('text')
                         ->setValue($contents['path'])
                         ->setReadonly('readonly')
                 )
                 ->width(12)
             ),
-            $this->html->formRow(
-                $this->html->formCol(
-                    $this->html->button()
+            $html->formRow(
+                $html->formCol(
+                    $html->button()
                         ->fullWidth()->primary()
                         ->setId($htmlIds['webFileBtnId'])
                         ->addText($labels['run_file'])
@@ -157,27 +167,28 @@ trait DatabaseTrait
      */
     public function importOptionsCol(array $labels): mixed
     {
-        return $this->html->col(
-            $this->html->formRow(
-                $this->html->formCol(
+        $html = $this->builder();
+        return $html->col(
+            $html->formRow(
+                $html->formCol(
                     // Actually an offset. TODO: a parameter for that.
-                    $this->html->text()
+                    $html->text()
                         ->addHtml('&nbsp;')
                 )->width(3),
-                $this->html->formCol(
-                    $this->html->inputGroup(
-                        $this->html->text()
+                $html->formCol(
+                    $html->inputGroup(
+                        $html->text()
                             ->addText($labels['error_stops']),
-                        $this->html->checkbox()
+                        $html->checkbox()
                             ->setName('error_stops')
                     )
                 )
                 ->width(3),
-                $this->html->formCol(
-                    $this->html->inputGroup(
-                        $this->html->text()
+                $html->formCol(
+                    $html->inputGroup(
+                        $html->text()
                             ->addText($labels['only_errors']),
-                        $this->html->checkbox()
+                        $html->checkbox()
                             ->setName('only_errors')
                     )
                 )
@@ -195,24 +206,25 @@ trait DatabaseTrait
      */
     public function importPage(array $htmlIds, array $contents, array $labels): string
     {
-        return $this->html->build(
-            $this->html->col()->width(12)->setId('dbadmin-command-details'),
-            $this->html->col(
-                $this->html->form(
-                    $this->html->row(
+        $html = $this->builder();
+        return $html->build(
+            $html->col()->width(12)->setId('dbadmin-command-details'),
+            $html->col(
+                $html->form(
+                    $html->row(
                         $this->importFileCol($htmlIds, $contents, $labels)->width(6),
-                        $this->html->when(isset($contents['path']), fn() =>
+                        $html->when(isset($contents['path']), fn() =>
                             $this->importPathCol($htmlIds, $contents, $labels)->width(6)
                         ),
                     ),
-                    $this->html->row(
+                    $html->row(
                         $this->importOptionsCol($labels)->width(12)
                     )
                 )
                 ->responsive(true)->wrapped(false)->setId($htmlIds['formId'])
             )->width(12),
-            $this->html->col()->width(12)->setId('dbadmin-command-history'),
-            $this->html->col()->width(12)->setId('dbadmin-command-results')
+            $html->col()->width(12)->setId('dbadmin-command-history'),
+            $html->col()->width(12)->setId('dbadmin-command-results')
         );
     }
 
@@ -225,56 +237,57 @@ trait DatabaseTrait
      */
     private function exportOutputCol(array $htmlIds, array $options, array $labels): mixed
     {
-        return $this->html->col(
-            $this->html->formRow(
-                $this->html->formCol(
-                    $this->html->label($options['output']['label'])
+        $html = $this->builder();
+        return $html->col(
+            $html->formRow(
+                $html->formCol(
+                    $html->label($options['output']['label'])
                         ->setFor('output')
                 )
                 ->width(3),
-                $this->html->formCol(
-                    $this->html->each($options['output']['options'], fn($label, $value) =>
-                        $this->html->list(
-                            $this->html->radio()
+                $html->formCol(
+                    $html->each($options['output']['options'], fn($label, $value) =>
+                        $html->list(
+                            $html->radio()
                                 ->checked($options['output']['value'] === $value)
                                 ->setName('output'),
-                            $this->html->text()
+                            $html->text()
                                 ->addHtml('&nbsp;' . $label . '&nbsp;')
                         )
                     )
                 )
                 ->width(8)
             ),
-            $this->html->formRow(
-                $this->html->formCol(
-                    $this->html->label($options['format']['label'])
+            $html->formRow(
+                $html->formCol(
+                    $html->label($options['format']['label'])
                         ->setFor('format')
                 )
                 ->width(3),
-                $this->html->formCol(
-                    $this->html->each($options['format']['options'], fn($label, $value) =>
-                        $this->html->list(
-                            $this->html->radio()
+                $html->formCol(
+                    $html->each($options['format']['options'], fn($label, $value) =>
+                        $html->list(
+                            $html->radio()
                                 ->checked($options['format']['value'] === $value)
                                 ->setName('format'),
-                            $this->html->text()
+                            $html->text()
                                 ->addHtml('&nbsp;' . $label . '&nbsp;')
                         )
                     )
                 )
                 ->width(8)
             ),
-            $this->html->when(isset($options['db_style']), fn() =>
-                $this->html->formRow(
-                    $this->html->formCol(
-                        $this->html->label($options['db_style']['label'])
+            $html->when(isset($options['db_style']), fn() =>
+                $html->formRow(
+                    $html->formCol(
+                        $html->label($options['db_style']['label'])
                             ->setFor('db_style')
                     )
                     ->width(3),
-                    $this->html->formCol(
-                        $this->html->formSelect(
-                            $this->html->each($options['db_style']['options'], fn($label) =>
-                                $this->html->option($label)
+                    $html->formCol(
+                        $html->formSelect(
+                            $html->each($options['db_style']['options'], fn($label) =>
+                                $html->option($label)
                                     ->selected($options['db_style']['value'] == $label)
                             )
                         )
@@ -283,47 +296,47 @@ trait DatabaseTrait
                     ->width(8)
                 )
             ),
-            $this->html->when(isset($options['routines']) || isset($options['events']), fn() =>
-                $this->html->formRow(
-                    $this->html->formCol(
+            $html->when(isset($options['routines']) || isset($options['events']), fn() =>
+                $html->formRow(
+                    $html->formCol(
                         // Actually an offset. TODO: a parameter for that.
-                        $this->html->text()->addHtml('&nbsp;')
+                        $html->text()->addHtml('&nbsp;')
                     )
                     ->width(3),
-                    $this->html->when(isset($options['routines']), fn() =>
-                        $this->html->formCol(
-                            $this->html->checkbox()
+                    $html->when(isset($options['routines']), fn() =>
+                        $html->formCol(
+                            $html->checkbox()
                                 ->checked($options['routines']['checked'])
                                 ->setName('routines')
                                 ->setValue($options['routines']['value']),
-                            $this->html->text()
+                            $html->text()
                                 ->addHtml('&nbsp;' . $options['routines']['label'])
                         )
                         ->width(4)
                     ),
-                    $this->html->when(isset($options['events']), fn() =>
-                        $this->html->formCol(
-                            $this->html->checkbox()
+                    $html->when(isset($options['events']), fn() =>
+                        $html->formCol(
+                            $html->checkbox()
                                 ->checked($options['events']['checked'])
                                 ->setName('events')
                                 ->setValue($options['events']['value']),
-                            $this->html->text()
+                            $html->text()
                                 ->addHtml('&nbsp;' . $options['events']['label'])
                         )
                         ->width(4)
                     )
                 ),
             ),
-            $this->html->formRow(
-                $this->html->formCol(
-                    $this->html->label($options['table_style']['label'])
+            $html->formRow(
+                $html->formCol(
+                    $html->label($options['table_style']['label'])
                         ->setFor('table_style')
                 )
                 ->width(3),
-                $this->html->formCol(
-                    $this->html->formSelect(
-                        $this->html->each($options['table_style']['options'], fn($label) =>
-                            $this->html->option($label)
+                $html->formCol(
+                    $html->formSelect(
+                        $html->each($options['table_style']['options'], fn($label) =>
+                            $html->option($label)
                                 ->selected($options['table_style']['value'] == $label)
                         )
                     )
@@ -331,43 +344,43 @@ trait DatabaseTrait
                 )
                 ->width(8)
             ),
-            $this->html->formRow(
-                $this->html->formCol(
+            $html->formRow(
+                $html->formCol(
                     // Actually an offset. TODO: a parameter for that.
-                    $this->html->text()->addHtml('&nbsp;')
+                    $html->text()->addHtml('&nbsp;')
                 )
                 ->width(3),
-                $this->html->formCol(
-                    $this->html->checkbox()
+                $html->formCol(
+                    $html->checkbox()
                         ->checked($options['auto_increment']['checked'])
                         ->setName('auto_increment')
                         ->setValue($options['auto_increment']['value']),
-                    $this->html->text()
+                    $html->text()
                         ->addHtml('&nbsp;' . $options['auto_increment']['label'])
                 )
                 ->width(4),
-                $this->html->when(isset($options['triggers']), fn() =>
-                    $this->html->formCol(
-                        $this->html->checkbox()
+                $html->when(isset($options['triggers']), fn() =>
+                    $html->formCol(
+                        $html->checkbox()
                             ->checked($options['triggers']['checked'])
                             ->setName('triggers')
                             ->setValue($options['triggers']['value']),
-                        $this->html->text()
+                        $html->text()
                             ->addHtml('&nbsp;' . $options['triggers']['label'])
                     )
                     ->width(4),
                 )
             ),
-            $this->html->formRow(
-                $this->html->formCol(
-                    $this->html->label($options['data_style']['label'])
+            $html->formRow(
+                $html->formCol(
+                    $html->label($options['data_style']['label'])
                         ->setFor('data_style')
                 )
                 ->width(3),
-                $this->html->formCol(
-                    $this->html->formSelect(
-                        $this->html->each($options['data_style']['options'], fn($label) =>
-                            $this->html->option($label)
+                $html->formCol(
+                    $html->formSelect(
+                        $html->each($options['data_style']['options'], fn($label) =>
+                            $html->option($label)
                                 ->selected($options['data_style']['value'] == $label)
                         )
                     )
@@ -375,14 +388,14 @@ trait DatabaseTrait
                 )
                 ->width(8)
             ),
-            $this->html->formRow(
-                $this->html->formCol(
+            $html->formRow(
+                $html->formCol(
                     // Actually an offset. TODO: a parameter for that.
-                    $this->html->text()->addHtml('&nbsp;')
+                    $html->text()->addHtml('&nbsp;')
                 )
                 ->width(3),
-                $this->html->formCol(
-                    $this->html->button()
+                $html->formCol(
+                    $html->button()
                         ->fullWidth()->primary()
                         ->setId($htmlIds['btnId'])
                         ->addText($labels['export'])
@@ -401,41 +414,42 @@ trait DatabaseTrait
      */
     public function exportItemsCol(array $htmlIds, array $databases, array $tables): mixed
     {
-        return $this->html->col(
-            $this->html->when(count($databases) > 0, fn() =>
-                $this->html->table(
-                    $this->html->thead(
-                        $this->html->tr(
-                            $this->html->th(
-                                $this->html->checkbox()
+        $html = $this->builder();
+        return $html->col(
+            $html->when(count($databases) > 0, fn() =>
+                $html->table(
+                    $html->thead(
+                        $html->tr(
+                            $html->th(
+                                $html->checkbox()
                                     ->selected(true)
                                     ->setId($htmlIds['databaseNameId'] . '-all'),
-                                $this->html->text()
+                                $html->text()
                                     ->addHtml('&nbsp;' . $databases['headers'][0])
                             ),
-                            $this->html->th(
-                                $this->html->checkbox()
+                            $html->th(
+                                $html->checkbox()
                                     ->selected(true)
                                     ->setId($htmlIds['tableDataId'] . '-all'),
-                                $this->html->text()
+                                $html->text()
                                     ->addHtml('&nbsp;' . $databases['headers'][1])
                             )
                         )
                     ),
-                    $this->html->tbody(
-                        $this->html->each($databases['details'], fn($database) =>
-                            $this->html->tr(
-                                $this->html->td(
-                                    $this->html->checkbox()
+                    $html->tbody(
+                        $html->each($databases['details'], fn($database) =>
+                            $html->tr(
+                                $html->td(
+                                    $html->checkbox()
                                         ->selected(true)
                                         ->setName('database_list[]')
                                         ->setClass($htmlIds['databaseNameId'])
                                         ->setValue($database['name']),
-                                    $this->html->text()
+                                    $html->text()
                                         ->addHtml('&nbsp;' . $database['name'])
                                 ),
-                                $this->html->td(
-                                    $this->html->checkbox()
+                                $html->td(
+                                    $html->checkbox()
                                         ->selected(true)
                                         ->setName('database_data[]')
                                         ->setClass($htmlIds['databaseDataId'])
@@ -447,40 +461,40 @@ trait DatabaseTrait
                 )
                 ->responsive(true)->style('bordered')
             ),
-            $this->html->when(count($tables) > 0, fn() =>
-                $this->html->table(
-                    $this->html->thead(
-                        $this->html->tr(
-                            $this->html->th(
-                                $this->html->checkbox()
+            $html->when(count($tables) > 0, fn() =>
+                $html->table(
+                    $html->thead(
+                        $html->tr(
+                            $html->th(
+                                $html->checkbox()
                                     ->selected(true)
                                     ->setId($htmlIds['tableNameId'] . '-all'),
-                                $this->html->text()
+                                $html->text()
                                     ->addHtml('&nbsp;' . $tables['headers'][0])
                             ),
-                            $this->html->th(
-                                $this->html->checkbox()
+                            $html->th(
+                                $html->checkbox()
                                     ->selected(true)
                                     ->setId($htmlIds['tableDataId'] . '-all'),
-                                $this->html->text()
+                                $html->text()
                                     ->addHtml('&nbsp;' . $tables['headers'][1])
                             )
                         )
                     ),
-                    $this->html->tbody(
-                        $this->html->each($tables['details'], fn($table) =>
-                            $this->html->tr(
-                                $this->html->td(
-                                    $this->html->checkbox()
+                    $html->tbody(
+                        $html->each($tables['details'], fn($table) =>
+                            $html->tr(
+                                $html->td(
+                                    $html->checkbox()
                                         ->selected(true)
                                         ->setName('table_list[]')
                                         ->setClass($htmlIds['tableNameId'])
                                         ->setValue($table['name']),
-                                    $this->html->text()
+                                    $html->text()
                                         ->addHtml('&nbsp;' . $table['name'])
                                 ),
-                                $this->html->td(
-                                    $this->html->checkbox()
+                                $html->td(
+                                    $html->checkbox()
                                         ->selected(true)
                                         ->setName('table_data[]')
                                         ->setClass($htmlIds['tableDataId'])
@@ -507,10 +521,11 @@ trait DatabaseTrait
     public function exportPage(array $htmlIds, array $databases, array $tables,
         array $options, array $labels): string
     {
-        return $this->html->build(
-            $this->html->col(
-                $this->html->form(
-                    $this->html->row(
+        $html = $this->builder();
+        return $html->build(
+            $html->col(
+                $html->form(
+                    $html->row(
                         $this->exportOutputCol($htmlIds, $options, $labels)->width(7),
                         $this->exportItemsCol($htmlIds, $databases, $tables)->width(5)
                     )
@@ -518,7 +533,7 @@ trait DatabaseTrait
                 ->responsive(true)->wrapped(false)->setId($htmlIds['formId'])
             )
             ->width(12),
-            $this->html->col()->width(12)->setId('dbadmin-export-results')
+            $html->col()->width(12)->setId('dbadmin-export-results')
         );
     }
 }

@@ -2,12 +2,19 @@
 
 namespace Lagdo\DbAdmin\Ui\Traits;
 
+use Lagdo\UiBuilder\BuilderInterface;
+
 use function array_key_first;
 use function count;
 use function strpos;
 
 trait MainTrait
 {
+    /**
+     * @return BuilderInterface
+     */
+    abstract protected function builder(): BuilderInterface;
+
     /**
      * @param array $breadcrumbs
      *
@@ -17,10 +24,11 @@ trait MainTrait
     {
         $last = count($breadcrumbs) - 1;
         $curr = 0;
-        return $this->html->build(
-            $this->html->breadcrumb(
-                $this->html->each($breadcrumbs, fn($breadcrumb)  =>
-                    $this->html->breadcrumbItem()
+        $html = $this->builder();
+        return $html->build(
+            $html->breadcrumb(
+                $html->each($breadcrumbs, fn($breadcrumb)  =>
+                    $html->breadcrumbItem()
                         ->active($curr++ === $last)->addText($breadcrumb)
                 )
             )
@@ -48,17 +56,18 @@ trait MainTrait
                 $mainActions[$id] = $title;
             }
         }
-        return $this->html->build(
-            $this->html->buttonGroup(
-                $this->html->each($mainActions, fn($title, $id) =>
-                    $this->html->button()->outline()->primary()
+        $html = $this->builder();
+        return $html->build(
+            $html->buttonGroup(
+                $html->each($mainActions, fn($title, $id) =>
+                    $html->button()->outline()->primary()
                         ->setId("dbadmin-main-action-$id")->addText($title)
                 )
             )
             ->setClass('dbadmin-main-action-group'),
-            $this->html->buttonGroup(
-                $this->html->each($backActions, fn($title, $id) =>
-                    $this->html->button()->secondary()
+            $html->buttonGroup(
+                $html->each($backActions, fn($title, $id) =>
+                    $html->button()->secondary()
                         ->setId("dbadmin-main-action-$id")->addText($title)
                 ),
             )
@@ -75,19 +84,20 @@ trait MainTrait
     public function mainDbTable(array $tabs): string
     {
         $firstTabId = array_key_first($tabs);
-        return $this->html->build(
-            $this->html->row(
-                $this->html->col(
-                    $this->html->tabNav(
-                        $this->html->each($tabs, fn($tab, $id) =>
-                            $this->html->tabNavItem()
+        $html = $this->builder();
+        return $html->build(
+            $html->row(
+                $html->col(
+                    $html->tabNav(
+                        $html->each($tabs, fn($tab, $id) =>
+                            $html->tabNavItem()
                                 ->target("tab-content-$id")
                                 ->active($firstTabId === $id)->addText($tab)
                         )
                     ),
-                    $this->html->tabContent(
-                        $this->html->each($tabs, fn($_, $id) =>
-                            $this->html->tabContentItem()
+                    $html->tabContent(
+                        $html->each($tabs, fn($_, $id) =>
+                            $html->tabContentItem()
                                 ->setId("tab-content-$id")
                                 ->active($firstTabId === $id)
                         )
@@ -105,7 +115,8 @@ trait MainTrait
      */
     private function getTableCell($content): mixed
     {
-        $element = $this->html->td();
+        $html = $this->builder();
+        $element = $html->td();
         if (!is_array($content)) {
             $element->addHtml($content);
             return $element;
@@ -122,7 +133,7 @@ trait MainTrait
         }
 
         $element->children(
-            $this->html->a()
+            $html->a()
                 ->setAttributes(['href' => 'javascript:void(0)'])
                 ->jxnClick($content['handler'])
                 ->addText($content['label'])
@@ -140,30 +151,31 @@ trait MainTrait
     {
         $headers = $content['headers'] ?? [];
         $details = $content['details'] ?? [];
-        return $this->html->table(
-            $this->html->thead(
-                $this->html->when($counterId !== '', fn() =>
-                    $this->html->th(
-                        $this->html->checkbox()
+        $html = $this->builder();
+        return $html->table(
+            $html->thead(
+                $html->when($counterId !== '', fn() =>
+                    $html->th(
+                        $html->checkbox()
                             ->addClass('dbadmin-table-checkbox')
                             ->setId("dbadmin-table-$counterId-all")
                     )
                 ),
-                $this->html->each($headers, fn($header) =>
-                    $this->html->th()->addHtml($header)
+                $html->each($headers, fn($header) =>
+                    $html->th()->addHtml($header)
                 ),
             ),
-            $this->html->body(
-                $this->html->each($details, fn($detailGroup) =>
-                    $this->html->tr(
-                        $this->html->when($counterId !== '', fn() =>
-                            $this->html->td(
-                                $this->html->checkbox()
+            $html->body(
+                $html->each($details, fn($detailGroup) =>
+                    $html->tr(
+                        $html->when($counterId !== '', fn() =>
+                            $html->td(
+                                $html->checkbox()
                                     ->addClass("dbadmin-table-$counterId")
                                     ->setName("{$counterId}[]")
                             )
                         ),
-                        $this->html->each($detailGroup, fn($detail) =>
+                        $html->each($detailGroup, fn($detail) =>
                             $this->getTableCell($detail ?? '')
                         )
                     )
@@ -182,11 +194,12 @@ trait MainTrait
      */
     public function mainContent(array $pageContent, string $counterId = ''): string
     {
-        return $this->html->build(
+        $html = $this->builder();
+        return $html->build(
             $this->makeTable($pageContent, $counterId),
-            $this->html->when($counterId !== '', fn() =>
-                 $this->html->panel(
-                    $this->html->panelBody()
+            $html->when($counterId !== '', fn() =>
+                 $html->panel(
+                    $html->panelBody()
                         ->addHtml('Selected (<span id="dbadmin-table-' . $counterId . '-count">0</span>)')
                 )
             )
