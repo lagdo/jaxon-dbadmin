@@ -18,7 +18,7 @@ class Package extends AbstractPackage
      *
      * @return string|array
      */
-    public static function config()
+    public static function config(): string
     {
         return realpath(__DIR__ . '/../config/config.php');
     }

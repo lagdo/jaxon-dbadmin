@@ -28,7 +28,7 @@ class Sorting extends Component
             ];
         }
 
-        return  $this->ui()->formQuerySorting($values, $options);
+        return $this->ui()->formQuerySorting($values, $options);
     }
 
     public function show()
