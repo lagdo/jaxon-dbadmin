@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Ajax\App;
 
 use Lagdo\DbAdmin\Ajax\Component;
 use Lagdo\DbAdmin\Ajax\App\Db\Server\Server;
-use Lagdo\Facades\Logger;
 
 class Admin extends Component
 {
@@ -29,7 +28,7 @@ class Admin extends Component
      */
     public function server(string $server): void
     {
-        Logger::info('Connecting to server', ['server' => $server]);
+        $this->logger()->info('Connecting to server', ['server' => $server]);
         // Set the selected server
         $this->db()->selectDatabase($server);
         // Save the selected server in the databag
