@@ -33,7 +33,7 @@ class Update extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         // Make data available to views
         $this->view()->shareValues($this->queryData);
@@ -59,7 +59,7 @@ class Update extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function after()
+    protected function after(): void
     {
     }
 
@@ -72,7 +72,7 @@ class Update extends ContentComponent
      *
      * @return void
      */
-    public function show(array $rowIds)
+    public function show(array $rowIds): void
     {
         $this->rowIds = $rowIds;
         $this->queryData = $this->db()
@@ -93,7 +93,7 @@ class Update extends ContentComponent
      *
      * @return void
      */
-    public function back()
+    public function back(): void
     {
         // $select = $this->cl(Select::class);
         // $select->show(false);
@@ -111,7 +111,7 @@ class Update extends ContentComponent
      *
      * @return void
      */
-    public function exec(array $rowIds, array $options)
+    public function exec(array $rowIds, array $options): void
     {
         $options['where'] = $rowIds['where'];
         $options['null'] = $rowIds['null'];

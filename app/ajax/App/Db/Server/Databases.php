@@ -20,7 +20,7 @@ class Databases extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateServerSectionMenu('databases');
         // Set main menu buttons
@@ -48,7 +48,7 @@ class Databases extends ContentComponent
      *
      * @return void
      */
-    public function show()
+    public function show(): void
     {
         // Access to servers is forbidden. Show the first database.
         $this->pageContent = $this->db()->getDatabases();

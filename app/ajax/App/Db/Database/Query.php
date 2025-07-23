@@ -11,7 +11,7 @@ class Query extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateDatabaseCommandMenu('database-query');
     }
@@ -23,7 +23,7 @@ class Query extends ContentComponent
      *
      * @return void
      */
-    public function database(string $query = '')
+    public function database(string $query = ''): void
     {
         [, $this->database] = $this->bag('dbadmin')->get('db');
         $this->query = $query;

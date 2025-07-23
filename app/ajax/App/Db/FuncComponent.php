@@ -18,7 +18,7 @@ class FuncComponent extends BaseComponent
      *
      * @return void
      */
-    protected function selectDatabase()
+    protected function selectDatabase(): void
     {
         $server = $database = $schema = '';
         $db = $this->bag('dbadmin')->get('db', []);

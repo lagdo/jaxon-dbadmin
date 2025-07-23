@@ -53,7 +53,7 @@ trait ExportTrait
      *
      * @return void
      */
-    protected function after()
+    protected function after(): void
     {
         $btnId = 'dbadmin-main-export-submit';
         $formId = 'dbadmin-main-export-form';
@@ -83,7 +83,7 @@ trait ExportTrait
      *
      * @return void
      */
-    protected function export(array $databases, array $tables, array $formValues)
+    protected function export(array $databases, array $tables, array $formValues): void
     {
         // Convert checkbox values to boolean
         $formValues['routines'] = isset($formValues['routines']);
@@ -133,7 +133,7 @@ trait ExportTrait
      *
      * @return void
      */
-    public function exportSet(array $formValues)
+    public function exportSet(array $formValues): void
     {
         $databases = [
             'list' => $formValues['database_list'] ?? [],
@@ -155,7 +155,7 @@ trait ExportTrait
      *
      * @return void
      */
-    public function exportOne(string $database, array $formValues)
+    public function exportOne(string $database, array $formValues): void
     {
         $databases = [
             'list' => [$database],

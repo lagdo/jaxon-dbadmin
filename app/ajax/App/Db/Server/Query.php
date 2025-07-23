@@ -11,7 +11,7 @@ class Query extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateServerCommandMenu('server-query');
     }
@@ -23,7 +23,7 @@ class Query extends ContentComponent
      *
      * @return void
      */
-    public function server(string $query = '')
+    public function server(string $query = ''): void
     {
         $this->query = $query;
         $this->render();

@@ -32,7 +32,7 @@ class ServerInfo extends MenuComponent
      *
      * @return void
      */
-    public function showServer(string $server, string $user)
+    public function showServer(string $server, string $user): void
     {
         $this->server = $server;
         $this->user = $user;

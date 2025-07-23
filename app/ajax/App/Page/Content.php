@@ -26,7 +26,7 @@ class Content extends Component
      *
      * @return void
      */
-    public function showHtml(string $html)
+    public function showHtml(string $html): void
     {
         $this->html = $html;
         $this->render();

@@ -26,7 +26,7 @@ class Table extends ContentComponent
      *
      * @return void
      */
-    public function show(string $table)
+    public function show(string $table): void
     {
         // Save the table name in the databag.
         $this->bag('dbadmin')->set('db.table.name', $table);
@@ -64,7 +64,7 @@ class Table extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $table = $this->getTableName();
 
@@ -118,7 +118,7 @@ class Table extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function after()
+    protected function after(): void
     {
         $table = $this->getTableName();
 
@@ -156,7 +156,7 @@ class Table extends ContentComponent
      *
      * @return void
      */
-    private function showTab(array $tableData, string $tabId)
+    private function showTab(array $tableData, string $tabId): void
     {
         $content = $this->ui()->mainContent(array_merge($this->tableInfo, $tableData));
         $this->response->html($tabId, $content);

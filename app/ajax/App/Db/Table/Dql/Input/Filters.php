@@ -32,7 +32,7 @@ class Filters extends Component
         return  $this->ui()->formQueryFilters($values, $options);
     }
 
-    public function show()
+    public function show(): void
     {
         // Render the component with the values from the databag.
         $values = $this->bag('dbadmin.select')->get('filters', []);
@@ -41,7 +41,7 @@ class Filters extends Component
         $this->render();
     }
 
-    public function add(array $values)
+    public function add(array $values): void
     {
         $wheres = $values['where'] ?? [];
         $wheres[] = ['col' => '', 'op' => '', 'val' => '']; // New value
@@ -52,7 +52,7 @@ class Filters extends Component
         $this->render();
     }
 
-    public function del(array $values)
+    public function del(array $values): void
     {
         // By default, deleted values are not rendered.
         $this->stash()->set('values', $values);

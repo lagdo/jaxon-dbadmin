@@ -46,7 +46,7 @@ class Command extends MenuComponent
      *
      * @return void
      */
-    public function database(string $activeItem = '')
+    public function database(string $activeItem = ''): void
     {
         $this->activeItem = $activeItem;
         $this->render();

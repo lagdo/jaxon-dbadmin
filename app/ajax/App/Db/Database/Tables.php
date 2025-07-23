@@ -15,7 +15,7 @@ class Tables extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateDatabaseSectionMenu('tables');
         // Set main menu buttons
@@ -32,7 +32,7 @@ class Tables extends ContentComponent
      *
      * @return void
      */
-    public function show()
+    public function show(): void
     {
         $tablesInfo = $this->db()->getTables();
 

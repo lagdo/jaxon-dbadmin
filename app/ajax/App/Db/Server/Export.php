@@ -11,7 +11,7 @@ class Export extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateServerCommandMenu('server-export');
     }
@@ -21,7 +21,7 @@ class Export extends ContentComponent
      *
      * @return void
      */
-    public function server()
+    public function server(): void
     {
         $this->render();
     }

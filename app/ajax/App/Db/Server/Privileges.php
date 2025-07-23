@@ -17,7 +17,7 @@ class Privileges extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateServerSectionMenu('privileges');
         // Set main menu buttons
@@ -42,7 +42,7 @@ class Privileges extends ContentComponent
      *
      * @return void
      */
-    public function show()
+    public function show(): void
     {
         $this->pageContent = $this->db()->getPrivileges();
 

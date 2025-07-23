@@ -37,7 +37,7 @@ class Select extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         // The columns, filters and sorting values are reset.
         $this->bag('dbadmin.select')->set('columns', []);
@@ -95,7 +95,7 @@ class Select extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function after()
+    protected function after(): void
     {
         // Show the select options
         $this->cl(Options::class)->render();
@@ -113,7 +113,7 @@ class Select extends ContentComponent
      *
      * @return void
      */
-    public function show(string $table, bool $backToTables = false)
+    public function show(string $table, bool $backToTables = false): void
     {
         $this->stash()->set('back.tables', $backToTables);
         // Save the table name in the databag.
@@ -190,7 +190,7 @@ class Select extends ContentComponent
      *
      * @return void
      */
-    public function edit()
+    public function edit(): void
     {
         $this->cl(QueryEdit::class)->database($this->getSelectQuery());
     }

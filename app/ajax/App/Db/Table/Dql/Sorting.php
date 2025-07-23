@@ -23,7 +23,7 @@ class Sorting extends FuncComponent
      *
      * @return void
      */
-    public function edit()
+    public function edit(): void
     {
         $title = 'Edit order';
         $content = $this->ui()->editQuerySorting($this->formId);
@@ -48,7 +48,7 @@ class Sorting extends FuncComponent
      *
      * @return void
      */
-    public function save(array $values)
+    public function save(array $values): void
     {
         // Save the new values in the databag.
         $this->bag('dbadmin.select')->set('sorting', $values);

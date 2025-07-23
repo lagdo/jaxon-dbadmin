@@ -13,7 +13,7 @@ class Views extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateDatabaseSectionMenu('views');
         // Set main menu buttons
@@ -30,7 +30,7 @@ class Views extends ContentComponent
      *
      * @return void
      */
-    public function show()
+    public function show(): void
     {
         $viewsInfo = $this->db()->getViews();
 

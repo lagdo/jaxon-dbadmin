@@ -11,7 +11,7 @@ class Import extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateDatabaseCommandMenu('database-import');
     }
@@ -21,7 +21,7 @@ class Import extends ContentComponent
      *
      * @return void
      */
-    public function database()
+    public function database(): void
     {
         [, $this->database] = $this->bag('dbadmin')->get('db');
         $this->render();

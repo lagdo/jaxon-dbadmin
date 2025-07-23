@@ -14,7 +14,7 @@ class Status extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateServerSectionMenu('status');
         // Set main menu buttons
@@ -34,7 +34,7 @@ class Status extends ContentComponent
      *
      * @return void
      */
-    public function show()
+    public function show(): void
     {
         $this->pageContent = $this->db()->getStatus();
 

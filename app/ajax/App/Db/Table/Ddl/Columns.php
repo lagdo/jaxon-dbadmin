@@ -36,7 +36,7 @@ class Columns extends Component
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
     }
 
@@ -57,7 +57,7 @@ class Columns extends Component
      *
      * @return void
      */
-    public function add(int $target = -1)
+    public function add(int $target = -1): void
     {
         $this->tableData = $this->db()->getTableData($this->getTableName());
         // Make data available to views
@@ -139,7 +139,8 @@ class Columns extends Component
      *
      * @return void
      */
-    private function insertBefore(string $target, string $id, string $class, string $content, array $attrs = [])
+    private function insertBefore(string $target, string $id,
+        string $class, string $content, array $attrs = []): void
     {
         // Insert a div with the id before the target
         // $this->response->insertBefore($target, $this->ui()->formRowTag(), $id);
@@ -165,7 +166,8 @@ class Columns extends Component
      *
      * @return void
      */
-    private function insertAfter(string $target, string $id, string $class, string $content, array $attrs = [])
+    private function insertAfter(string $target, string $id,
+        string $class, string $content, array $attrs = []): void
     {
         // Insert a div with the id after the target
         // $this->response->insertAfter($target, $this->ui()->formRowTag(), $id);
@@ -188,7 +190,7 @@ class Columns extends Component
      *
      * @return void
      */
-    public function del(int $length, int $index)
+    public function del(int $length, int $index): void
     {
         $columnId = sprintf('%s-column-%02d', $this->formId, $index);
 
@@ -214,7 +216,7 @@ class Columns extends Component
      *
      * @return void
      */
-    public function setForDelete(int $index)
+    public function setForDelete(int $index): void
     {
         // $columnId = sprintf('%s-column-%02d', $this->formId, $index);
 
@@ -239,7 +241,7 @@ class Columns extends Component
      *
      * @return void
      */
-    public function cancelDelete(int $index)
+    public function cancelDelete(int $index): void
     {
         // $columnId = sprintf('%s-column-%02d', $this->formId, $index);
         // $columnName = sprintf('fields[%d][field]', $index + 1);

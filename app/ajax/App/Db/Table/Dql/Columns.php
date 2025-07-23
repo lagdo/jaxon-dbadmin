@@ -23,7 +23,7 @@ class Columns extends FuncComponent
      *
      * @return void
      */
-    public function edit()
+    public function edit(): void
     {
         $title = 'Edit columns';
         $content = $this->ui()->editQueryColumns($this->formId);
@@ -48,7 +48,7 @@ class Columns extends FuncComponent
      *
      * @return void
      */
-    public function save(array $values)
+    public function save(array $values): void
     {
         // Save the new values in the databag.
         $this->bag('dbadmin.select')->set('columns', $values);

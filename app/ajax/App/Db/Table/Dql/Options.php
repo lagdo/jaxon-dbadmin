@@ -49,7 +49,7 @@ class Options extends Component
      *
      * @return void
      */
-    public function saveSelectLimit(int $limit)
+    public function saveSelectLimit(int $limit): void
     {
         // Select options
         $options = $this->bag('dbadmin.select')->get('options');
@@ -67,7 +67,7 @@ class Options extends Component
      *
      * @return void
      */
-    public function saveTextLength(int $length)
+    public function saveTextLength(int $length): void
     {
         // Select options
         $options = $this->bag('dbadmin.select')->get('options');

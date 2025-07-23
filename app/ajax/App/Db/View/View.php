@@ -19,7 +19,7 @@ class View extends FuncComponent
      *
      * @return void
      */
-    protected function showTab(array $viewData, string $tabId)
+    protected function showTab(array $viewData, string $tabId): void
     {
         $this->response->html($tabId, $this->ui()->mainContent($viewData));
     }
@@ -61,7 +61,7 @@ class View extends FuncComponent
      *
      * @return void
      */
-    public function show(string $view)
+    public function show(string $view): void
     {
         $viewInfo = $this->db()->getViewInfo($view);
         // Make view info available to views
@@ -106,7 +106,7 @@ class View extends FuncComponent
      *
      * @return void
      */
-    public function add()
+    public function add(): void
     {
         $formId = 'view-form';
         $title = 'Create a view';
@@ -131,7 +131,7 @@ class View extends FuncComponent
      *
      * @return void
      */
-    public function create(array $values)
+    public function create(array $values): void
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
@@ -154,7 +154,7 @@ class View extends FuncComponent
      *
      * @return void
      */
-    public function edit(string $view)
+    public function edit(string $view): void
     {
         $viewData = $this->db()->getView($view);
         // Make view info available to views
@@ -184,7 +184,7 @@ class View extends FuncComponent
      *
      * @return void
      */
-    public function update(string $view, array $values)
+    public function update(string $view, array $values): void
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
@@ -207,7 +207,7 @@ class View extends FuncComponent
      *
      * @return void
      */
-    public function drop(string $view)
+    public function drop(string $view): void
     {
         $result = $this->db()->dropView($view);
         if(!$result['success'])

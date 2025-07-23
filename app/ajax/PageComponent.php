@@ -34,7 +34,7 @@ abstract class PageComponent extends BaseComponent
      *
      * @return void
      */
-    public function page(int $pageNumber = 0)
+    public function page(int $pageNumber = 0): void
     {
         // Get the paginator. This will also set the current page number value.
         $paginator = $this->paginator($pageNumber);

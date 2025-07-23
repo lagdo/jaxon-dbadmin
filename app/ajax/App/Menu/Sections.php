@@ -45,7 +45,7 @@ class Sections extends MenuComponent
      *
      * @return void
      */
-    public function server(string $activeItem = '')
+    public function server(string $activeItem = ''): void
     {
         $this->activeItem = $activeItem;
         // Content from the connect_error() function in connect.inc.php
@@ -92,7 +92,7 @@ class Sections extends MenuComponent
      *
      * @return void
      */
-    public function database(string $activeItem = '')
+    public function database(string $activeItem = ''): void
     {
         $this->activeItem = $activeItem;
         $this->actions = [

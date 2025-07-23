@@ -45,7 +45,7 @@ trait ImportTrait
      *
      * @return void
      */
-    protected function after()
+    protected function after(): void
     {
         $formId = 'dbadmin-import-form';
         $webFileBtnId = 'dbadmin-import-web-file-btn';
@@ -66,7 +66,7 @@ trait ImportTrait
      *
      * @return void
      */
-    public function executeWebFile(string $database)
+    public function executeWebFile(string $database): void
     {
     }
 
@@ -80,7 +80,7 @@ trait ImportTrait
      *
      * @return void
      */
-    public function executeSqlFiles(string $database, array $formValues)
+    public function executeSqlFiles(string $database, array $formValues): void
     {
         // Set the current database, but do not update the databag.
         $this->db()->setCurrentDbName($database);

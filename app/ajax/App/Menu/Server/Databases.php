@@ -26,7 +26,7 @@ class Databases extends MenuComponent
      *
      * @return void
      */
-    public function showDatabases(array $databases)
+    public function showDatabases(array $databases): void
     {
         $this->databases = $databases;
         $this->render();
@@ -39,7 +39,7 @@ class Databases extends MenuComponent
      *
      * @return void
      */
-    public function change(string $database)
+    public function change(string $database): void
     {
         // Change the value of the select field in the component content.
         $this->node()->jq('select')->val($database)->change();

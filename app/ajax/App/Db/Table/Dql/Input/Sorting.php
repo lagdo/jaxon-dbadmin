@@ -31,7 +31,7 @@ class Sorting extends Component
         return $this->ui()->formQuerySorting($values, $options);
     }
 
-    public function show()
+    public function show(): void
     {
         // Render the component with the values from the databag.
         $values = $this->bag('dbadmin.select')->get('sorting', []);
@@ -40,7 +40,7 @@ class Sorting extends Component
         $this->render();
     }
 
-    public function add(array $values)
+    public function add(array $values): void
     {
         $orders = $values['order'] ?? [];
         $orders[] = ''; // New value
@@ -51,7 +51,7 @@ class Sorting extends Component
         $this->render();
     }
 
-    public function del(array $values)
+    public function del(array $values): void
     {
         // By default, deleted values are not rendered.
         $this->stash()->set('values', $values);

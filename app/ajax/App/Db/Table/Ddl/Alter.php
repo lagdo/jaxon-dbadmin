@@ -36,7 +36,7 @@ class Alter extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $table = $this->getTableName();
         $this->tableData = $this->db()->getTableData($table);
@@ -90,7 +90,7 @@ class Alter extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function after()
+    protected function after(): void
     {
         $this->cl(Columns::class)->render();
     }
@@ -100,7 +100,7 @@ class Alter extends ContentComponent
      *
      * @return void
      */
-    public function save(string $table, array $values)
+    public function save(string $table, array $values): void
     {
         // $table = $this->getTableName();
 

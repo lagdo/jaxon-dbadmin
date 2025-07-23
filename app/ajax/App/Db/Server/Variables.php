@@ -14,7 +14,7 @@ class Variables extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateServerSectionMenu('variables');
         // Set main menu buttons
@@ -34,7 +34,7 @@ class Variables extends ContentComponent
      *
      * @return void
      */
-    public function show()
+    public function show(): void
     {
         $this->pageContent = $this->db()->getVariables();
 

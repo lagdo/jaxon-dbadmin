@@ -32,7 +32,7 @@ class QueryText extends Component
     /**
      * @inheritDoc
      */
-    protected function after()
+    protected function after(): void
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
         // jaxon.dbadmin.refreshSqlQuery
@@ -42,7 +42,7 @@ class QueryText extends Component
     /**
      * @return void
      */
-    public function refresh()
+    public function refresh(): void
     {
         $this->stash()->set('select.query', $this->getSelectQuery());
         $this->render();

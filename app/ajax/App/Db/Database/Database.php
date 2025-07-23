@@ -25,7 +25,7 @@ class Database extends FuncComponent
      *
      * @return void
      */
-    public function select(string $database, string $schema = '')
+    public function select(string $database, string $schema = ''): void
     {
         [$server,] = $this->bag('dbadmin')->get('db');
         // Set the selected server
@@ -63,7 +63,7 @@ class Database extends FuncComponent
      *
      * @return void
      */
-    public function add()
+    public function add(): void
     {
         $collations = $this->db()->getCollations();
 
@@ -89,7 +89,7 @@ class Database extends FuncComponent
      *
      * @return void
      */
-    public function create(array $formValues)
+    public function create(array $formValues): void
     {
         $database = $formValues['name'];
         $collation = $formValues['collation'];
@@ -112,7 +112,7 @@ class Database extends FuncComponent
      *
      * @return void
      */
-    public function drop(string $database)
+    public function drop(string $database): void
     {
         if(!$this->db()->dropDatabase($database))
         {

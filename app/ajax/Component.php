@@ -37,7 +37,7 @@ abstract class Component extends JaxonComponent
      *
      * @return void
      */
-    protected function activateServerSectionMenu(string $activeItem)
+    protected function activateServerSectionMenu(string $activeItem): void
     {
         $this->cl(Sections::class)->server($activeItem);
         $this->cl(ServerCommand::class)->server();
@@ -54,7 +54,7 @@ abstract class Component extends JaxonComponent
      *
      * @return void
      */
-    protected function activateServerCommandMenu(string $activeItem)
+    protected function activateServerCommandMenu(string $activeItem): void
     {
         $this->cl(Sections::class)->server();
         $this->cl(ServerCommand::class)->server($activeItem);
@@ -71,7 +71,7 @@ abstract class Component extends JaxonComponent
      *
      * @return void
      */
-    protected function activateDatabaseSectionMenu(string $activeItem)
+    protected function activateDatabaseSectionMenu(string $activeItem): void
     {
         $this->cl(Sections::class)->database($activeItem);
         $this->cl(ServerCommand::class)->server();
@@ -83,7 +83,7 @@ abstract class Component extends JaxonComponent
      *
      * @return void
      */
-    protected function activateDatabaseCommandMenu(string $activeItem)
+    protected function activateDatabaseCommandMenu(string $activeItem): void
     {
         $this->cl(Sections::class)->database();
         $this->cl(ServerCommand::class)->server();

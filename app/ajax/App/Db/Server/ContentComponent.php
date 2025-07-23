@@ -22,7 +22,7 @@ abstract class ContentComponent extends BaseComponent
      *
      * @return void
      */
-    protected function checkServerAccess()
+    protected function checkServerAccess(): void
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
         $this->db()->selectDatabase($server);

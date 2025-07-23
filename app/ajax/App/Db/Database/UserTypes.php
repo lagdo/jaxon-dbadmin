@@ -9,7 +9,7 @@ class UserTypes extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateDatabaseSectionMenu('types');
         // Set main menu buttons
@@ -25,7 +25,7 @@ class UserTypes extends ContentComponent
      *
      * @return void
      */
-    public function showUserTypes()
+    public function showUserTypes(): void
     {
         $this->showSection($this->db()->getUserTypes());
     }

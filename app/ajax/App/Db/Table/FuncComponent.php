@@ -19,7 +19,7 @@ abstract class FuncComponent extends BaseFuncComponent
      *
      * @return void
      */
-    protected function setDefaultSelectOptions()
+    protected function setDefaultSelectOptions(): void
     {
         // Do not change the values if they are already set.
         $this->bag('dbadmin.select')->new('options', ['limit' => 50, 'text_length' => 100]);

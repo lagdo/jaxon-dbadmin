@@ -56,7 +56,7 @@ trait ComponentTrait
      *
      * @return null|Store   A store populated with the view data
      */
-    protected function renderView($sViewName, array $aViewData = [])
+    protected function renderView($sViewName, array $aViewData = []): null|Store
     {
         return $this->view()->render('adminer::templates::' . $sViewName, $aViewData);
     }
@@ -68,7 +68,7 @@ trait ComponentTrait
      *
      * @return null|Store   A store populated with the view data
      */
-    protected function renderMainContent(array $aViewData = [])
+    protected function renderMainContent(array $aViewData = []): null|Store
     {
         return $this->view()->render('adminer::views::main/content', $aViewData);
     }
@@ -78,7 +78,7 @@ trait ComponentTrait
      *
      * @return void
      */
-    protected function showBreadcrumbs()
+    protected function showBreadcrumbs(): void
     {
         $this->cl(Breadcrumbs::class)->render();
     }
@@ -88,7 +88,7 @@ trait ComponentTrait
      *
      * @return void
      */
-    protected function debugQueries()
+    protected function debugQueries(): void
     {
         if(!$this->package()->getOption('debug.queries', false))
         {

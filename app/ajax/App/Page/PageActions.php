@@ -33,7 +33,7 @@ class PageActions extends Component
      *
      * @return void
      */
-    public function show(array $actions)
+    public function show(array $actions): void
     {
         $this->actions = $actions;
         $this->render();

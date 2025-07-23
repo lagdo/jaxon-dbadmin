@@ -37,7 +37,7 @@ class Create extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->bag('dbadmin')->set('db.table.name', '');
         $this->bag('dbadmin.table')->set('fields', []);
@@ -79,7 +79,7 @@ class Create extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function after()
+    protected function after(): void
     {
         $this->cl(Columns::class)->render();
     }
@@ -91,7 +91,7 @@ class Create extends ContentComponent
      *
      * @return void
      */
-    public function save(array $values)
+    public function save(array $values): void
     {
         // $fields = $this->bag('dbadmin.table')->get('fields');
         // $values = array_merge($this->defaults, $values);

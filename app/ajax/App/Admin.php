@@ -27,7 +27,7 @@ class Admin extends Component
      *
      * @return void
      */
-    public function server(string $server)
+    public function server(string $server): void
     {
         Logger::info('Connecting to server', ['server' => $server]);
         // Set the selected server

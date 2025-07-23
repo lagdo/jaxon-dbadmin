@@ -13,7 +13,7 @@ class Privilege extends FuncComponent
      *
      * @return void
      */
-    public function add()
+    public function add(): void
     {
         $userInfo = $this->db()->newUserPrivileges();
 
@@ -41,7 +41,7 @@ class Privilege extends FuncComponent
      *
      * @return void
      */
-    public function create(array $formValues)
+    public function create(array $formValues): void
     {
         $this->modal()->hide();
         $this->alert()->warning("This feature is not yet implemented.");
@@ -57,7 +57,7 @@ class Privilege extends FuncComponent
      *
      * @return void
      */
-    public function edit(string $username, string $hostname, string $database)
+    public function edit(string $username, string $hostname, string $database): void
     {
         $userInfo = $this->db()->getUserPrivileges($username, $hostname, $database);
 
@@ -85,7 +85,7 @@ class Privilege extends FuncComponent
      *
      * @return void
      */
-    public function update(array $formValues)
+    public function update(array $formValues): void
     {
         $this->modal()->hide();
         $this->alert()->warning("This feature is not yet implemented.");

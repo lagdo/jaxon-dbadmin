@@ -47,7 +47,7 @@ class Server extends FuncComponent
      *
      * @return void
      */
-    public function connect(bool $hasServerAccess)
+    public function connect(bool $hasServerAccess): void
     {
         $serverInfo = $this->db()->getServerInfo();
         // Make server info available to views

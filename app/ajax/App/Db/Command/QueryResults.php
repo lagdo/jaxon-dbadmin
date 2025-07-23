@@ -28,7 +28,7 @@ class QueryResults extends Component
      *
      * @return void
      */
-    public function exec(array $values)
+    public function exec(array $values): void
     {
         $query = trim($values['query'] ?? '');
         $limit = intval($values['limit'] ?? 0);

@@ -9,7 +9,7 @@ class Events extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateDatabaseSectionMenu('events');
         // Set main menu buttons
@@ -25,7 +25,7 @@ class Events extends ContentComponent
      *
      * @return void
      */
-    public function show()
+    public function show(): void
     {
         $this->showSection($this->db()->getEvents());
     }

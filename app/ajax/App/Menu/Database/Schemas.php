@@ -32,7 +32,7 @@ class Schemas extends MenuComponent
      *
      * @return void
      */
-    public function showDbSchemas(string $database, array $schemas)
+    public function showDbSchemas(string $database, array $schemas): void
     {
         $this->database = $database;
         $this->schemas = $schemas;

@@ -32,7 +32,7 @@ abstract class ContentComponent extends BaseComponent
      *
      * @return void
      */
-    protected function checkDatabaseAccess()
+    protected function checkDatabaseAccess(): void
     {
         [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $this->db()->selectDatabase($server, $database, $schema);
@@ -58,7 +58,7 @@ abstract class ContentComponent extends BaseComponent
      *
      * @return void
      */
-    protected function showSection(array $viewData, string $checkbox = '')
+    protected function showSection(array $viewData, string $checkbox = ''): void
     {
         $this->pageContent = $viewData;
         $this->counterId = $checkbox;

@@ -29,7 +29,7 @@ class Insert extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         // Make data available to views
         $this->view()->shareValues($this->queryData);
@@ -71,7 +71,7 @@ class Insert extends ContentComponent
      *
      * @return void
      */
-    public function show()
+    public function show(): void
     {
         $this->queryData = $this->db()->getQueryData($this->getTableName());
         // Show the error
@@ -93,7 +93,7 @@ class Insert extends ContentComponent
      *
      * @return void
      */
-    public function exec(array $options, bool $addNew)
+    public function exec(array $options, bool $addNew): void
     {
         $table = $this->getTableName();
         $results = $this->db()->insertItem($table, $options);

@@ -14,7 +14,7 @@ class Processes extends ContentComponent
     /**
      * @inheritDoc
      */
-    protected function before()
+    protected function before(): void
     {
         $this->activateServerSectionMenu('processes');
         // Set main menu buttons
@@ -34,7 +34,7 @@ class Processes extends ContentComponent
      *
      * @return void
      */
-    public function show()
+    public function show(): void
     {
         $this->pageContent = $this->db()->getProcesses();
 

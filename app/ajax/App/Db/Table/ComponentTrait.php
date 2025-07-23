@@ -11,7 +11,7 @@ trait ComponentTrait
      *
      * @return void
      */
-    protected function checkDatabaseAccess()
+    protected function checkDatabaseAccess(): void
     {
         [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $this->db()->selectDatabase($server, $database, $schema);

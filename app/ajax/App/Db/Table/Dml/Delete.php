@@ -20,7 +20,7 @@ class Delete extends FuncComponent
      *
      * @return void
      */
-    public function exec(array $rowIds)
+    public function exec(array $rowIds): void
     {
         $results = $this->db()->deleteItem($this->getTableName(), $rowIds);
 
