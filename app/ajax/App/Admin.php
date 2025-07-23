@@ -35,6 +35,6 @@ class Admin extends Component
         // Save the selected server in the databag
         $this->bag('dbadmin')->set('db', [$server, '', '']);
 
-        return $this->cl(Server::class)->connect($this->package()->getServerAccess($server));
+        $this->cl(Server::class)->connect($this->package()->getServerAccess($server));
     }
 }
