@@ -178,21 +178,21 @@ trait TableTrait
                     ->setValue($table['name'] ?? '')->setPlaceholder('Name')
             )
             ->width(3)->setClass('dbadmin-edit-table-name'),
-            $html->when(($this->engines), fn() =>
+            $html->when(count($this->engines) > 0, fn() =>
                 $html->formCol(
                     $this->getEngineSelect($table['engine'] ?? '')
                         ->setName('engine')
                 )
                 ->width(2)->setClass('dbadmin-edit-table-engine')
             ),
-            $html->when(($this->collations), fn() =>
+            $html->when(count($this->collations) > 0, fn() =>
                 $html->formCol(
                     $this->getCollationSelect($table['collation'] ?? '')
                         ->setName('collation')
                 )
                 ->width(3)->setClass('dbadmin-edit-table-collation')
             ),
-            $html->when($this->support['comment'], fn() =>
+            $html->when(isset($this->support['comment']), fn() =>
                 $html->formCol(
                     $html->formInput()
                         ->setType('text')->setName('comment')

@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
 
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
+use function array_map;
 use function compact;
 use function Jaxon\pm;
 
@@ -85,19 +86,17 @@ trait ImportTrait
         // Set the current database, but do not update the databag.
         $this->db()->setCurrentDbName($database);
 
-        $files = \array_map(function($file) {
-            return $file->path();
-        }, $this->files()['sql_files']);
-        $errorStops = $formValues['error_stops'] ?? false;
-        $onlyErrors = $formValues['only_errors'] ?? false;
-
-        if(!$files)
+        if(!($files = $this->files()['sql_files'] ?? []))
         {
             $this->alert()->title('Error')->error('No file uploaded!');
             return;
         }
 
-        $queryResults = $this->db()->executeSqlFiles($files, $errorStops, $onlyErrors);
+        $paths = array_map(fn($file) => $file->path(), $files);
+        $errorStops = $formValues['error_stops'] ?? false;
+        $onlyErrors = $formValues['only_errors'] ?? false;
+
+        $queryResults = $this->db()->executeSqlFiles($paths, $errorStops, $onlyErrors);
 
         $content = $this->ui()->queryResults($queryResults['results']);
         $this->response->html('dbadmin-command-results', $content);
