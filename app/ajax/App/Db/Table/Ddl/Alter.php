@@ -45,8 +45,13 @@ class Alter extends ContentComponent
 
         // Save the fields in the databag
         $fields = array_values($this->tableData['fields']);
-        $this->stash()->set('table.fields', $fields);
+        $editPosition = 0;
+        foreach($fields as $field)
+        {
+            $field->editPosition = $editPosition++;
+        }
         $this->bag('dbadmin.table')->set('fields', $fields);
+        $this->stash()->set('table.fields', $fields);
 
         // Set main menu buttons
         $values = pm()->form($this->formId);
@@ -84,7 +89,8 @@ class Alter extends ContentComponent
             ->foreignKeys($this->tableData['foreignKeys'])
             ->options($this->tableData['options'])
             // ->fields($this->tableData['fields'])
-            ->tableWrapper($this->formId, $this->rq(Columns::class));
+            ->formId($this->formId)
+            ->tableWrapper($this->rq(Columns::class));
     }
 
     /**

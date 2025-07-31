@@ -6,8 +6,10 @@ use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Columns;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\UiBuilder\BuilderInterface;
 
+use function count;
 use function is_array;
 use function is_string;
+use function Jaxon\je;
 use function Jaxon\rq;
 use function strcasecmp;
 
@@ -61,17 +63,25 @@ trait TableFieldTrait
     /**
      * @var string
      */
-    protected $fieldPrefix;
+    protected $formId = '';
 
     /**
-     * @var int
+     * @var string
      */
-    protected $fieldIndex;
+    protected $editPrefix = '';
 
     /**
      * @return BuilderInterface
      */
     abstract protected function builder(): BuilderInterface;
+
+    /**
+     * @return array
+     */
+    protected function formValues(): array
+    {
+        return je($this->formId)->rd()->form();
+    }
 
     /**
      * @param string $currentEngine
@@ -132,17 +142,12 @@ trait TableFieldTrait
         $html = $this->builder();
         return $html->col(
             $html->formInput(['class' => 'column-name'])
-                ->setName($this->fieldPrefix . '[name]')
+                ->setName($this->editPrefix . '[name]')
                 ->setPlaceholder($this->trans->lang('Name'))
                 ->setValue($field->name ?? '')
                 ->setDataField('name')
                 ->setDataMaxlength('64')
-                ->setAutocapitalize('off'),
-            $html->input()
-                ->setType('hidden')
-                ->setName($this->fieldPrefix . '[orig]')
-                ->setValue($field->name ?? '')
-                ->setDataField('orig')
+                ->setAutocapitalize('off')
         );
     }
 
@@ -157,11 +162,11 @@ trait TableFieldTrait
         return $html->col(
             $html->radio($field->autoIncrement)
                 ->setName('autoIncrementCol')
-                ->setValue($this->fieldIndex + 1),
+                ->setValue($field->editPosition + 1),
             $html->span()
                 ->addHtml('&nbsp;AI&nbsp;'),
             $html->checkbox($field->primary)
-                ->setName($this->fieldPrefix . '[primary]')
+                ->setName($this->editPrefix . '[primary]')
         );
     }
 
@@ -170,12 +175,12 @@ trait TableFieldTrait
      *
      * @return mixed
      */
-    protected function getCollectionCol(TableFieldEntity $field): mixed
+    protected function getCollationCol(TableFieldEntity $field): mixed
     {
         $html = $this->builder();
         return $html->col(
             $this->getCollationSelect($field->collation)
-                ->setName($this->fieldPrefix . '[collation]')->setDataField('collation')
+                ->setName($this->editPrefix . '[collation]')->setDataField('collation')
                 ->when($field->collationHidden, fn($elt) => $elt->setReadonly('readonly'))
         );
     }
@@ -197,7 +202,7 @@ trait TableFieldTrait
                         ->selected($field->onUpdate === $option)
                 )
             )
-            ->setName($this->fieldPrefix . '[onUpdate]')
+            ->setName($this->editPrefix . '[onUpdate]')
             ->setDataField('onUpdate')
             ->when($field->onUpdateHidden, fn($elt) => $elt->setReadonly('readonly'))
         );
@@ -215,7 +220,7 @@ trait TableFieldTrait
             $html->when(/*$support['comment']*/true, fn() =>
                 $html->formInput()
                     ->setType('text')
-                    ->setName($this->fieldPrefix . '[comment]')
+                    ->setName($this->editPrefix . '[comment]')
                     ->setValue($field->comment ?? '')
                     ->setDataField('comment')
                     ->setPlaceholder($this->trans->lang('Comment'))
@@ -243,7 +248,7 @@ trait TableFieldTrait
                     ->setLabel($group)
                 )
             )
-            ->setName($this->fieldPrefix . '[type]')
+            ->setName($this->editPrefix . '[type]')
             ->setDataField('type')
         );
     }
@@ -258,11 +263,12 @@ trait TableFieldTrait
         $html = $this->builder();
         return $html->col(
             $html->formInput()
-                ->setName($this->fieldPrefix . '[length]')
+                ->setStyle('width: 100%')
+                ->setName($this->editPrefix . '[length]')
                 ->setDataField('length')
                 ->setSize('3')
                 ->setPlaceholder($this->trans->lang('Length'))
-                ->setValue($field->length)
+                ->setValue($field->length ?: '')
                 ->when($field->lengthRequired, fn($elt) => $elt->setRequired('required'))
         );
     }
@@ -278,7 +284,7 @@ trait TableFieldTrait
         return $html->col(
             $html->checkbox()
                 ->selected($field->null)
-                ->setName($this->fieldPrefix . '[null]')
+                ->setName($this->editPrefix . '[null]')
                 ->setDataField('null')
                 ->setValue('1'),
             $html->span()
@@ -302,7 +308,7 @@ trait TableFieldTrait
                         ->selected($field->unsigned === $option)
                 )
             )
-            ->setName($this->fieldPrefix . '[unsigned]')
+            ->setName($this->editPrefix . '[unsigned]')
             ->setDataField('unsigned')
             ->when($field->unsignedHidden, fn($elt) => $elt->setReadonly('readonly'))
         );
@@ -325,7 +331,7 @@ trait TableFieldTrait
                         ->selected($field->onDelete === $option)
                 )
             )
-            ->setName($this->fieldPrefix . '[onDelete]')
+            ->setName($this->editPrefix . '[onDelete]')
             ->setDataField('onDelete')
             ->when($field->onDeleteHidden, fn($elt) => $elt->setReadonly('readonly'))
         );
@@ -343,10 +349,10 @@ trait TableFieldTrait
             $html->inputGroup(
                 $html->checkbox()
                     ->checked($field->hasDefault)
-                    ->setName($this->fieldPrefix . '[hasDefault]')
+                    ->setName($this->editPrefix . '[hasDefault]')
                     ->setDataField('hasDefault'),
                 $html->formInput()
-                    ->setName($this->fieldPrefix . '[default]')
+                    ->setName($this->editPrefix . '[default]')
                     ->setDataField('default')
                     ->setPlaceholder($this->trans->lang('Default value'))
                     ->setValue($field->default ?? '')
@@ -361,34 +367,41 @@ trait TableFieldTrait
      */
     protected function getActionCol(TableFieldEntity $field): mixed
     {
+        $notFirst = $field->editPosition > 0;
+        $notLast = $field->editPosition < count($this->fields) - 1;
+        $deleted = $field->editStatus === 'deleted';
+        $parameters = [$this->formValues(), $field->editPosition];
+
         $html = $this->builder();
         return $html->col(
-            // $html->buttonGroup(
-            //     $html->when($this->support['move_col'], fn() =>
-            //         $html->button()
-            //             ->primary()->setDataIndex($this->fieldIndex)->addIcon('plus')
-            //             ->setClass('dbadmin-table-column-add')
-            //     ),
-            //     $html->when($this->support['drop_col'], fn() =>
-            //         $html->button()
-            //             ->primary()->setDataIndex($this->fieldIndex)->addIcon('remove')
-            //             ->setClass('dbadmin-table-column-del')
-            //     )
-            // )
-            // ->fullWidth(false),
             $html->dropdown(
                 $html->dropdownItem()
                     ->style('primary')->addCaret(),
                 $html->dropdownMenu(
+                    $html->when($notFirst && $this->support['move_col'], fn() =>
+                        $html->dropdownMenuItem()
+                            ->jxnClick(rq(Columns::class)->up(...$parameters))
+                            ->addText('Up')
+                    ),
+                    $html->when($notLast && $this->support['move_col'], fn() =>
+                        $html->dropdownMenuItem()
+                            ->jxnClick(rq(Columns::class)->down(...$parameters))
+                            ->addText('Down')
+                    ),
                     $html->when($this->support['move_col'], fn() =>
                         $html->dropdownMenuItem()
-                            ->jxnClick(rq(Columns::class)->add($this->fieldIndex))
-                            ->addIcon('plus')
+                            ->jxnClick(rq(Columns::class)->add(...$parameters))
+                            ->addText('Add')
                     ),
-                    $html->when($this->support['drop_col'], fn() =>
+                    $html->when($this->support['drop_col'] && !$deleted, fn() =>
                         $html->dropdownMenuItem()
-                            ->jxnClick(rq(Columns::class)->setForDelete($this->fieldIndex))
-                            ->addIcon('remove')
+                            ->jxnClick(rq(Columns::class)->del(...$parameters))
+                            ->addText('Remove')
+                    ),
+                    $html->when($this->support['drop_col'] && $deleted, fn() =>
+                        $html->dropdownMenuItem()
+                            ->jxnClick(rq(Columns::class)->cancel(...$parameters))
+                            ->addText('Cancel')
                     )
                 )
             )

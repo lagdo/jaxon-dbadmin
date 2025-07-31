@@ -5,9 +5,10 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Component;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
-use function Jaxon\jq;
-use function Jaxon\pm;
-use function sprintf;
+use function array_filter;
+use function array_map;
+use function array_values;
+use function count;
 
 /**
  * When creating or modifying a table, this class
@@ -47,17 +48,16 @@ class Columns extends Component
     {
         return $this->ui()
             ->fields($this->stash()->get('table.fields'))
-            ->tableColumns($this->formId);
+            ->formId($this->formId)
+            ->tableColumns();
     }
 
     /**
-     * Insert a new column at a given position
-     *
-     * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
+     * @param array $fields
      *
      * @return void
      */
-    public function add(int $target = -1): void
+    private function _render(array $fields): void
     {
         $this->tableData = $this->db()->getTableData($this->getTableName());
         // Make data available to views
@@ -68,195 +68,112 @@ class Columns extends Component
             ->unsigned($this->tableData['unsigned'])
             ->options($this->tableData['options']);
 
-        $fields = $this->bag('dbadmin.table')->get('fields');
-        $fields = array_map(function($field) {
-            return TableFieldEntity::fromArray($field);
-        }, $fields);
-        // Append a new empty field entry
-        $fields[] = $this->db()->getTableField();
+        $fields = array_values($fields);
         $this->stash()->set('table.fields', $fields);
         $this->bag('dbadmin.table')->set('fields', $fields);
-
         $this->render();
     }
 
-    // public function add(int $target = -1)
-    // {
-    //     // Todo: Save columns data in a databag, and get the 'length' value from there.
-    //     $length = jq(".{$this->formId}-column", "#dbadmin-database-content")->length;
-
-    //     $this->tableData = $this->db()->getTableData();
-    //     // Make data available to views
-    //     $this->view()->shareValues($this->tableData);
-
-    //     $columnClass = "{$this->formId}-column";
-    //     $columnId = sprintf('%s-%02d', $columnClass, $length);
-    //     $field = $this->db()->getTableField();
-    //     $prefixFields = sprintf("fields[%d]", $length + 1);
-    //     $content = $this->ui()
-    //         ->support($this->tableData['support'])
-    //         ->collations($this->tableData['collations'])
-    //         ->unsigned($this->tableData['unsigned'])
-    //         ->options($this->tableData['options'])
-    //         ->tableColumn($columnClass, $length, $field, $prefixFields, $target < 0);
-
-    //     if($target < 0)
-    //     {
-    //         // Add the new column at the end of the list
-    //         $this->response->append($this->formId, 'innerHTML', $content);
-    //     }
-    //     else
-    //     {
-    //         // Insert the new column before the given index
-    //         /*
-    //         * The prepend() function is not suitable here because it rewrites the
-    //         * $targetId element, resetting all its event handlers and inputs.
-    //         */
-    //         $targetId = sprintf('%s-%02d', $columnClass, $target);
-    //         $this->insertAfter($targetId, $columnId, $columnClass, $content, ['data-index' => $length]);
-    //         // $this->response->prepend($targetId, 'outerHTML', $content);
-    //     }
-
-    //     // $contentId = $this->package()->getDbContentId();
-    //     // $length = jq(".$columnClass", "#$contentId")->length;
-    //     // $index = jq()->attr('data-index');
-    //     // // Set the button event handlers on the new column
-    //     // $this->response->jq('[data-field]', "#$columnId")
-    //     //     ->on('jaxon.dbadmin.renamed', jo('jaxon.dbadmin')->onColumnRenamed()));
-    //     // $this->response->jq('.dbadmin-table-column-add', "#$columnId")->click($this->rq()->add($length, $index));
-    //     // $this->response->jq('.dbadmin-table-column-del', "#$columnId")->click($this->rq()->del($length, $index)
-    //     //     ->confirm('Delete this column?'));
-    // }
-
     /**
-     * Insert a new HTML element before a given target
+     * @param array $formValues
      *
-     * @param string $target      The target element
-     * @param string $id          The new element id
-     * @param string $class       The new element class
-     * @param string $content     The new element content
-     * @param array  $attrs       The new element attributes
-     *
-     * @return void
+     * @return TableFieldEntity[]
      */
-    private function insertBefore(string $target, string $id,
-        string $class, string $content, array $attrs = []): void
+    private function getFields(array $formValues): array
     {
-        // Insert a div with the id before the target
-        // $this->response->insertBefore($target, $this->ui()->formRowTag(), $id);
-        // Set the new element class
-        // $this->response->jq("#$id")->attr('class', $this->ui()->formRowClass($class));
-        // Set the new element attributes
-        foreach($attrs as $name => $value)
-        {
-            $this->response->jq("#$id")->attr($name, $value);
-        }
-        // Set the new element content
-        $this->response->html($id, $content);
+        $fieldsValues = $formValues['fields'] ?? [];
+        return array_map(
+            fn($field) => TableFieldEntity::fromArray($field)->update($fieldsValues),
+            $this->bag('dbadmin.table')->get('fields', [])
+        );
     }
 
     /**
-     * Insert a new HTML element after a given target
+     * Insert a new column at a given position
      *
-     * @param string $target      The target element
-     * @param string $id          The new element id
-     * @param string $class       The new element class
-     * @param string $content     The new element content
-     * @param array  $attrs       The new element attributes
+     * @param array  $formValues
+     * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
      *
      * @return void
      */
-    private function insertAfter(string $target, string $id,
-        string $class, string $content, array $attrs = []): void
+    public function add(array $formValues, int $target = -1): void
     {
-        // Insert a div with the id after the target
-        // $this->response->insertAfter($target, $this->ui()->formRowTag(), $id);
-        // Set the new element class
-        // $this->response->jq("#$id")->attr('class', $this->ui()->formRowClass($class));
-        // Set the new element attributes
-        foreach($attrs as $name => $value)
+        $fields = $this->getFields($formValues);
+        // Append a new empty field entry
+        $newField = $this->db()->getTableField();
+        $newField->editStatus = 'added';
+        $newField->editPosition = count($fields);
+        $fields[] = $newField;
+
+        $this->_render($fields);
+    }
+
+    /**
+     * @param array<TableFieldEntity> $fields
+     * @param int $position
+     *
+     * @return array
+     */
+    private function deleteColumn(array $fields, int $position): array
+    {
+        if($fields[$position]->editStatus !== 'added')
         {
-            $this->response->jq("#$id")->attr($name, $value);
+            // An existing field is marked as to be deleted.
+            $fields[$position]->editStatus = 'deleted';
+            return $fields;
         }
-        // Set the new element content
-        $this->response->html($id, $content);
+
+        // An added field is removed. The positions must be updated.
+        $fields = array_filter($fields, fn($field) => $field->editPosition !== $position);
+        $editPosition = 0;
+        foreach($fields as $field)
+        {
+            $field->editPosition = $editPosition++;
+        }
+        return $fields;
     }
 
     /**
      * Delete a column
      *
-     * @param int    $length      The number of columns in the table
-     * @param int    $index       The column index
+     * @param array  $formValues
+     * @param int    $position
      *
      * @return void
      */
-    public function del(int $length, int $index): void
+    public function del(array $formValues, int $position): void
     {
-        $columnId = sprintf('%s-column-%02d', $this->formId, $index);
+        $fields = $this->getFields($formValues);
+        if(!isset($fields[$position]))
+        {
+            return;
+        }
 
         // Delete the column
-        $this->response->remove($columnId);
+        $fields = $this->deleteColumn($fields, $position);
 
-        // Reset the added columns ids and input names, so they remain contiguous.
-        // $length--;
-        // for($id = $index; $id < $length; $id++)
-        // {
-        //     $currId = sprintf('%s-column-%02d', $this->formId, $id + 1);
-        //     $nextId = sprintf('%s-column-%02d', $this->formId, $id);
-        //     $this->response->jq("#$currId")->attr('data-index', $id)->attr('id', $nextId);
-        //     $this->response->jq('.dbadmin-table-column-buttons', "#$nextId")->attr('data-index', $id);
-        //     $this->response->jq('[data-field]', "#$nextId")->trigger('jaxon.dbadmin.renamed');
-        // }
+        $this->_render($fields);
     }
 
     /**
-     * Mark an existing column as to be deleted
+     * Cancel a delete on an existing column
      *
-     * @param int    $index       The column index
-     *
-     * @return void
-     */
-    public function setForDelete(int $index): void
-    {
-        // $columnId = sprintf('%s-column-%02d', $this->formId, $index);
-
-        // // To mark a column as to be dropped, set its name to an empty string.
-        // $this->response->jq('input.column-name', "#$columnId")->attr('name', '');
-        // // Replace the icon and the onClick event handler.
-        // $this->response->jq("#dbadmin-table-column-button-group-drop-$index")
-        //     ->removeClass('btn-primary')
-        //     ->addClass('btn-danger');
-        // $this->response->jq('.dbadmin-table-column-del', "#$columnId")
-        //     // Remove the current onClick handler before setting a new one.
-        //     ->unbind('click')->click($this->rq()->cancelDelete($index));
-        // // $this->response->jq('.dbadmin-table-column-del>span', "#$columnId")
-        // //     ->removeClass('glyphicon-remove')
-        // //     ->addClass('glyphicon-trash');
-    }
-
-    /**
-     * Cancel delete on an existing column
-     *
-     * @param int    $index       The column index
+     * @param array  $formValues
+     * @param int    $position
      *
      * @return void
      */
-    public function cancelDelete(int $index): void
+    public function cancel(array $formValues, int $position): void
     {
-        // $columnId = sprintf('%s-column-%02d', $this->formId, $index);
-        // $columnName = sprintf('fields[%d][field]', $index + 1);
+        $fields = $this->getFields($formValues);
+        if(!isset($fields[$position]) || $fields[$position]->editStatus !== 'deleted')
+        {
+            return;
+        }
 
-        // // To cancel the drop, reset the column name to its initial value.
-        // $this->response->jq('input.column-name', "#$columnId")->attr('name', $columnName);
-        // // Replace the icon and the onClick event handler.
-        // $this->response->jq("#dbadmin-table-column-button-group-drop-$index")
-        //     ->removeClass('btn-danger')
-        //     ->addClass('btn-primary');
-        // $this->response->jq('.dbadmin-table-column-del', "#$columnId")
-        //     // Remove the current onClick handler before setting a new one.
-        //     ->unbind('click')->click($this->rq()->setForDelete($index));
-        // // $this->response->jq('.dbadmin-table-column-del>span', "#$columnId")
-        // //     ->removeClass('glyphicon-trash')
-        // //     ->addClass('glyphicon-remove');
+        // Change the column status
+        $fields[$position]->editStatus = 'existing';
+
+        $this->_render($fields);
     }
 }

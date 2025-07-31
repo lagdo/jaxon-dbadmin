@@ -73,7 +73,8 @@ class Create extends ContentComponent
             ->support($this->tableData['support'])
             ->engines($this->tableData['engines'])
             ->collations($this->tableData['collations'])
-            ->tableWrapper($this->formId, $this->rq(Columns::class));
+            ->formId($this->formId)
+            ->tableWrapper($this->rq(Columns::class));
     }
 
     /**
