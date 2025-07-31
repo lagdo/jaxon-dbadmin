@@ -150,37 +150,42 @@ trait TableTrait
         $hasEngines = count($this->engines) > 0;
         $hasCollations = count($this->collations) > 0;
         $html = $this->builder();
-        return $html->list(
+        return $html->div(
             $html->formRow(
                 $html->formCol(
                     $html->formInput()
                         ->setType('text')->setName('name')
                         ->setValue($this->table['name'] ?? '')->setPlaceholder('Name')
                 )
-                ->width(4)->setClass('dbadmin-edit-table-name'),
+                ->width(4)
+                ->setClass('dbadmin-table-column-left'),
                 $html->formCol(
                     $html->label()->addHtml('&nbsp')
                 )
-                ->width(1)->setClass('dbadmin-table-column-middle'),
+                ->width(1)
+                ->setClass('dbadmin-table-column-middle'),
                 $html->when($hasEngines, fn() =>
                     $html->formCol(
                         $this->getEngineSelect($this->table['engine'] ?? '')
                             ->setName('engine')
                     )
-                    ->width(3)->setClass('dbadmin-edit-table-engine')
+                    ->width(3)
+                    ->setClass('dbadmin-edit-table-engine')
                 ),
                 $html->when($hasCollations, fn() =>
                     $html->formCol(
                         $this->getCollationSelect($this->table['collation'] ?? '')
                             ->setName('collation')
                     )
-                    ->width(4)->setClass('dbadmin-edit-table-collation')
+                    ->width(4)
+                    ->setClass('dbadmin-edit-table-collation')
                 ),
                 $html->when($hasEngines || $hasCollations, fn() =>
                     $html->formCol(
                         $html->label()->addHtml('&nbsp')
                     )
-                    ->width(5)->setClass('dbadmin-table-column-middle')
+                    ->width(5)
+                    ->setClass('dbadmin-table-column-middle')
                 ),
                 $html->when(isset($this->support['comment']), fn() =>
                     $html->formCol(
@@ -189,9 +194,11 @@ trait TableTrait
                             ->setValue($this->table['comment'] ?? '')
                             ->setPlaceholder($this->trans->lang('Comment'))
                     )
-                    ->width(6)->setClass('dbadmin-table-column-right')
+                    ->width(6)
+                    ->setClass('dbadmin-table-column-right')
                 )
-            )->setClass('dbadmin-edit-table-header'),
+            )
+            ->setClass('dbadmin-table-edit-field'),
         );
     }
 
@@ -206,19 +213,22 @@ trait TableTrait
                 $html->label()
                     ->addText($this->trans->lang('Column'))
             )
-            ->width(4)->setClass('dbadmin-table-column-left'),
+            ->width(4)
+            ->setClass('dbadmin-table-column-left'),
             $html->formCol(
                 $html->radio()
                     ->checked(true)->setName('autoIncrementCol')
                     ->setValue('0')->setStyle('margin-top: 5px'),
                 $html->label()->addHtml('&nbsp;AI-P')->setStyle('padding-top: 3px')
             )
-            ->width(1)->setClass('dbadmin-table-column-middle'),
+            ->width(1)
+            ->setClass('dbadmin-table-column-middle'),
             $html->formCol(
                 $html->label()
                     ->addText($this->trans->lang('Options'))
             )
-            ->width(6)->setClass('dbadmin-table-column-middle'),
+            ->width(6)
+            ->setClass('dbadmin-table-column-middle'),
             $html->formCol(
                 $html->when($this->support['columns'], fn() =>
                     $html->button()
@@ -226,35 +236,10 @@ trait TableTrait
                         ->jxnClick(rq(Columns::class)->add($this->formValues()))
                 )
             )
-            ->width(1)->setClass('dbadmin-table-column-buttons-header')
-        )->setClass('dbadmin-table-column-header');
-    }
-
-    /**
-     * @return string
-     */
-    public function tableForm(): string
-    {
-        $html = $this->builder();
-        return $html->build(
-            $html->div(
-                $html->form(
-                    $this->tableHeaderNameRow(),
-                    $this->tableHeaderEditRow(),
-                    $this->tableHeaderColumnRow(),
-                    $html->each($this->fields, fn($field) =>
-                        $this->tableColumnElement("{$this->formId}-column", $field,
-                            sprintf("fields[%d]", $field->editPosition))
-                    )
-                )
-                ->responsive(true)->wrapped(false)->setId($this->formId)
-            )
-            ->jxnEvent(array_map(fn($handler) => [
-                $handler['selector'],
-                $handler['event'] ?? 'click',
-                $handler['call']
-            ], $this->handlers)),
-        );
+            ->width(1)
+            ->setClass('dbadmin-table-column-buttons-header')
+        )
+        ->setClass('dbadmin-table-column-header');
     }
 
     /**
@@ -284,6 +269,67 @@ trait TableTrait
     }
 
     /**
+     * @param TableFieldEntity $field
+     *
+     * @return mixed
+     */
+    private function getColumnBgColor(TableFieldEntity $field): string
+    {
+        $style = 'background-color: ';
+        return match($field->editStatus) {
+            'added' => "$style #e6ffe6;",
+            'deleted' => "$style #ffe6e6;",
+            default => "$style white;",
+        };
+    }
+
+    /**
+     * @param TableFieldEntity $field
+     *
+     * @return mixed
+     */
+    protected function tableColumnElement(TableFieldEntity $field): mixed
+    {
+        $this->editPrefix = sprintf("fields[%d]", $field->editPosition);
+
+        $html = $this->builder();
+        return $html->formRow(
+            $this->getFieldNameCol($field)
+                ->width(4)->setClass('dbadmin-table-column-left'),
+            $this->getAutoIncrementCol($field)
+                ->width(1)->setClass('dbadmin-table-column-middle')
+                ->setStyle('padding-top: 7px'),
+            $this->getOnUpdateCol($field)
+                ->width(3)->setClass('dbadmin-table-column-middle'),
+            $this->getCollationCol($field)
+                ->width(4)->setClass('dbadmin-table-column-right'),
+            $html->formCol(
+                $html->formRow(
+                    $this->getTypeCol($field)
+                        ->width(8)->setClass('dbadmin-table-column-left nested-col'),
+                    $this->getLengthCol($field)
+                        ->width(4)->setClass('dbadmin-table-column-right nested-col'),
+                )
+                ->setClass('nested-row')
+            )->width(4)->setClass('second-line'),
+            $this->getNullableCol($field)
+                ->width(1)->setClass('dbadmin-table-column-middle second-line')
+                ->setStyle('padding-top: 7px'),
+            $this->getOnDeleteCol($field)
+                ->width(3)->setClass('dbadmin-table-column-middle second-line'),
+            $this->getUnsignedCol($field)
+                ->width(4)->setClass('dbadmin-table-column-right second-line'),
+            $this->getDefaultCol($field)
+                ->width(5)->setClass('dbadmin-table-column-left second-line'),
+            $this->getCommentCol($field)
+                ->width(6)->setClass('dbadmin-table-column-middle second-line'),
+            $this->getActionCol($field)
+                ->width(1)->setClass('dbadmin-table-column-buttons second-line')
+        )
+        ->setClass("{$this->formId}-column");
+    }
+
+    /**
      * @return string
      */
     public function tableColumns(): string
@@ -291,60 +337,13 @@ trait TableTrait
         $html = $this->builder();
         return $html->build(
             $html->each($this->fields, fn($field) =>
-                $this->tableColumnElement("{$this->formId}-column", $field,
-                    sprintf("fields[%d]", $field->editPosition))
+                $html->div(
+                    $this->tableColumnElement($field)
+                )
+                ->setClass('dbadmin-table-edit-field')
+                ->setStyle($this->getColumnBgColor($field))
             )
         );
-    }
-
-    /**
-     * @param string $class
-     * @param TableFieldEntity $field
-     * @param string $editPrefix
-     * @param bool $wrap
-     *
-     * @return mixed
-     */
-    protected function tableColumnElement(string $class, TableFieldEntity $field,
-        string $editPrefix, bool $wrap = true): mixed
-    {
-        $this->editPrefix = $editPrefix;
-        $html = $this->builder();
-
-        $col = $html->col(
-            $html->row(
-                $this->getFieldNameCol($field)
-                    ->width(4)->setClass('dbadmin-table-column-left'),
-                $this->getAutoIncrementCol($field)
-                    ->width(1)->setClass('dbadmin-table-column-middle')
-                    ->setStyle('padding-top: 7px'),
-                $this->getOnUpdateCol($field)
-                    ->width(3)->setClass('dbadmin-table-column-middle'),
-                $this->getCollationCol($field)
-                    ->width(4)->setClass('dbadmin-table-column-right'),
-                $this->getTypeCol($field)
-                    ->width(3)->setClass('dbadmin-table-column-left second-line'),
-                $this->getLengthCol($field)
-                    ->width(1)->setClass('dbadmin-table-column-middle second-line'),
-                $this->getNullableCol($field)
-                    ->width(1)->setClass('dbadmin-table-column-middle second-line')
-                    ->setStyle('padding-top: 7px'),
-                $this->getOnDeleteCol($field)
-                    ->width(3)->setClass('dbadmin-table-column-middle second-line'),
-                $this->getUnsignedCol($field)
-                    ->width(4)->setClass('dbadmin-table-column-right second-line'),
-                $this->getDefaultCol($field)
-                    ->width(5)->setClass('dbadmin-table-column-left second-line'),
-                $this->getCommentCol($field)
-                    ->width(6)->setClass('dbadmin-table-column-middle second-line'),
-                $this->getActionCol($field)
-                    ->width(1)->setClass('dbadmin-table-column-buttons second-line')
-            )
-        )->width(12);
-
-        return !$wrap ? $col :
-            $html->formRow($col)
-                ->setClass($class);
     }
 
     /**

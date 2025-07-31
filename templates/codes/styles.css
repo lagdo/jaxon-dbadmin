@@ -93,6 +93,20 @@
 #jaxon-dbadmin .second-line {
     margin-top: 2px;
 }
+#jaxon-dbadmin .nested-row {
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+}
+#jaxon-dbadmin .nested-col {
+    margin-top: 2px !important;
+    margin-bottom: 0 !important;
+}
+#jaxon-dbadmin .dbadmin-table-edit-field {
+    margin-left: -5px;
+    margin-bottom: 5px;
+    padding: 5px 15px 0 5px;
+    border-radius: 8px;
+}
 #jaxon-dbadmin pre {
     overflow-x: auto;
     white-space: pre-wrap;
