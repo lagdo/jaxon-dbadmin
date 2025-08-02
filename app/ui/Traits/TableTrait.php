@@ -164,14 +164,6 @@ trait TableTrait
                 )
                 ->width(1)
                 ->setClass('dbadmin-table-column-middle'),
-                $html->when($hasEngines, fn() =>
-                    $html->formCol(
-                        $this->getEngineSelect($this->table['engine'] ?? '')
-                            ->setName('engine')
-                    )
-                    ->width(3)
-                    ->setClass('dbadmin-edit-table-engine')
-                ),
                 $html->when($hasCollations, fn() =>
                     $html->formCol(
                         $this->getCollationSelect($this->table['collation'] ?? '')
@@ -179,6 +171,14 @@ trait TableTrait
                     )
                     ->width(4)
                     ->setClass('dbadmin-edit-table-collation')
+                ),
+                $html->when($hasEngines, fn() =>
+                    $html->formCol(
+                        $this->getEngineSelect($this->table['engine'] ?? '')
+                            ->setName('engine')
+                    )
+                    ->width(3)
+                    ->setClass('dbadmin-edit-table-engine')
                 ),
                 $html->when($hasEngines || $hasCollations, fn() =>
                     $html->formCol(
@@ -299,10 +299,10 @@ trait TableTrait
             $this->getAutoIncrementCol($field)
                 ->width(1)->setClass('dbadmin-table-column-middle')
                 ->setStyle('padding-top: 7px'),
-            $this->getOnUpdateCol($field)
-                ->width(3)->setClass('dbadmin-table-column-middle'),
             $this->getCollationCol($field)
-                ->width(4)->setClass('dbadmin-table-column-right'),
+                ->width(4)->setClass('dbadmin-table-column-middle'),
+            $this->getOnUpdateCol($field)
+                ->width(3)->setClass('dbadmin-table-column-right'),
             $html->formCol(
                 $html->formRow(
                     $this->getTypeCol($field)
@@ -315,10 +315,10 @@ trait TableTrait
             $this->getNullableCol($field)
                 ->width(1)->setClass('dbadmin-table-column-middle second-line')
                 ->setStyle('padding-top: 7px'),
-            $this->getOnDeleteCol($field)
-                ->width(3)->setClass('dbadmin-table-column-middle second-line'),
             $this->getUnsignedCol($field)
-                ->width(4)->setClass('dbadmin-table-column-right second-line'),
+                ->width(4)->setClass('dbadmin-table-column-middle second-line'),
+            $this->getOnDeleteCol($field)
+                ->width(3)->setClass('dbadmin-table-column-right second-line'),
             $this->getDefaultCol($field)
                 ->width(5)->setClass('dbadmin-table-column-left second-line'),
             $this->getCommentCol($field)

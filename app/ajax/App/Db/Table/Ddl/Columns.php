@@ -25,21 +25,9 @@ class Columns extends Component
     private $tableData;
 
     /**
-     * @var string
-     */
-    protected $overrides = '';
-
-    /**
      * The form id
      */
     protected $formId = 'dbadmin-table-form';
-
-    /**
-     * @inheritDoc
-     */
-    protected function before(): void
-    {
-    }
 
     /**
      * @inheritDoc
@@ -54,58 +42,64 @@ class Columns extends Component
 
     /**
      * @param array $fields
+     * @param array  $values
      *
      * @return void
      */
-    private function _render(array $fields): void
+    private function renderFields(array $fields, array $values): void
     {
+        // The items in the fields array are not immutable.
+        // We must convert them to array saving in the databag, because they are modified later.
+        $this->bag('dbadmin.table')->set('fields',
+            array_map(fn(TableFieldEntity $field) => $field->toArray(), $fields));
+
         $this->tableData = $this->db()->getTableData($this->getTableName());
         // Make data available to views
-        $this->view()->shareValues($this->tableData);
         $this->ui()
             ->support($this->tableData['support'])
             ->collations($this->tableData['collations'])
             ->unsigned($this->tableData['unsigned'])
             ->options($this->tableData['options']);
 
-        $fields = array_values($fields);
+        // Update the fields with the values in the form.
+        $values = $values['fields'] ?? [];
+        foreach ($fields as $field) {
+            $field->update($values[$field->editPosition] ?? []);
+            $field->types = $this->db()->getFieldTypes($field->type);
+        }
         $this->stash()->set('table.fields', $fields);
-        $this->bag('dbadmin.table')->set('fields', $fields);
+
         $this->render();
     }
 
     /**
-     * @param array $formValues
-     *
      * @return TableFieldEntity[]
      */
-    private function getFields(array $formValues): array
+    private function getFields(): array
     {
-        $fieldsValues = $formValues['fields'] ?? [];
-        return array_map(
-            fn($field) => TableFieldEntity::fromArray($field)->update($fieldsValues),
-            $this->bag('dbadmin.table')->get('fields', [])
-        );
+        $bagValues = $this->bag('dbadmin.table')->get('fields', []);
+        $callback = fn($field) => TableFieldEntity::fromArray($field);
+        return array_values(array_map($callback, $bagValues));
     }
 
     /**
      * Insert a new column at a given position
      *
-     * @param array  $formValues
+     * @param array  $values
      * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
      *
      * @return void
      */
-    public function add(array $formValues, int $target = -1): void
+    public function add(array $values, int $target = -1): void
     {
-        $fields = $this->getFields($formValues);
+        $fields = $this->getFields();
         // Append a new empty field entry
         $newField = $this->db()->getTableField();
         $newField->editStatus = 'added';
         $newField->editPosition = count($fields);
         $fields[] = $newField;
 
-        $this->_render($fields);
+        $this->renderFields($fields, $values);
     }
 
     /**
@@ -116,8 +110,7 @@ class Columns extends Component
      */
     private function deleteColumn(array $fields, int $position): array
     {
-        if($fields[$position]->editStatus !== 'added')
-        {
+        if ($fields[$position]->editStatus !== 'added') {
             // An existing field is marked as to be deleted.
             $fields[$position]->editStatus = 'deleted';
             return $fields;
@@ -126,8 +119,7 @@ class Columns extends Component
         // An added field is removed. The positions must be updated.
         $fields = array_filter($fields, fn($field) => $field->editPosition !== $position);
         $editPosition = 0;
-        foreach($fields as $field)
-        {
+        foreach ($fields as $field) {
             $field->editPosition = $editPosition++;
         }
         return $fields;
@@ -136,44 +128,42 @@ class Columns extends Component
     /**
      * Delete a column
      *
-     * @param array  $formValues
+     * @param array  $values
      * @param int    $position
      *
      * @return void
      */
-    public function del(array $formValues, int $position): void
+    public function del(array $values, int $position): void
     {
-        $fields = $this->getFields($formValues);
-        if(!isset($fields[$position]))
-        {
+        $fields = $this->getFields();
+        if (!isset($fields[$position])) {
             return;
         }
 
         // Delete the column
         $fields = $this->deleteColumn($fields, $position);
 
-        $this->_render($fields);
+        $this->renderFields($fields, $values);
     }
 
     /**
      * Cancel a delete on an existing column
      *
-     * @param array  $formValues
+     * @param array  $values
      * @param int    $position
      *
      * @return void
      */
-    public function cancel(array $formValues, int $position): void
+    public function cancel(array $values, int $position): void
     {
-        $fields = $this->getFields($formValues);
-        if(!isset($fields[$position]) || $fields[$position]->editStatus !== 'deleted')
-        {
+        $fields = $this->getFields();
+        if (!isset($fields[$position]) || $fields[$position]->editStatus !== 'deleted') {
             return;
         }
 
         // Change the column status
-        $fields[$position]->editStatus = 'existing';
+        $fields[$position]->updateStatus($values['fields'][$position] ?? []);
 
-        $this->_render($fields);
+        $this->renderFields($fields, $values);
     }
 }

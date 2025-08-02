@@ -128,6 +128,20 @@ trait TableTrait
     }
 
     /**
+     * Get field types
+     *
+     * @param string $type  The type name
+     *
+     * @return array
+     */
+    public function getFieldTypes(string $type = ''): array
+    {
+        // Must be called after the connection to a schema is made.
+        // $this->connectToSchema();
+        return $this->tableFacade()->getFieldTypes($type);
+    }
+
+    /**
      * Create a table
      *
      * @param array  $values    The table values

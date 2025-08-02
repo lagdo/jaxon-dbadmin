@@ -128,7 +128,7 @@ trait TableTrait
         if ($orig === '') {
             $this->attrs->fields[] = ['', $processedField, $this->after];
             $this->after = ' AFTER ' . $this->driver->escapeId($field->name);
-        } elseif ($origField !== null && $field->changed($origField)) {
+        } elseif ($origField !== null && !$field->equals($origField)) {
             $this->attrs->edited[] = [$orig, $processedField, $this->after];
         }
         if ($foreignKey !== null) {

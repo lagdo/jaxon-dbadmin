@@ -296,7 +296,7 @@ class TableFacade extends AbstractFacade
         }
         $options = [
             'hasAutoIncrement' => $hasAutoIncrement,
-            'onUpdate' => ['CURRENT_TIMESTAMP'],
+            'onUpdate' => ['CURRENT_TIMESTAMP' => 'CURRENT_TIMESTAMP'],
             'onDelete' => $this->driver->onActions(),
         ];
 
@@ -314,8 +314,8 @@ class TableFacade extends AbstractFacade
         $unsigned = $this->driver->unsigned();
         // Give the var a better name
         $table = $status;
-        return compact('table', 'foreignKeys', 'fields', 'options', 'collations',
-            'engines', 'support', 'unsigned');
+        return compact('table', 'foreignKeys', 'fields',
+            'options', 'collations', 'engines', 'support', 'unsigned');
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Table\ContentComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
+use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
 use function array_values;
 use function Jaxon\pm;
@@ -40,17 +41,17 @@ class Alter extends ContentComponent
     {
         $table = $this->getTableName();
         $this->tableData = $this->db()->getTableData($table);
-        // Make data available to views
-        $this->view()->shareValues($this->tableData);
 
-        // Save the fields in the databag
         $fields = array_values($this->tableData['fields']);
         $editPosition = 0;
         foreach($fields as $field)
         {
             $field->editPosition = $editPosition++;
         }
-        $this->bag('dbadmin.table')->set('fields', $fields);
+
+        // Save the fields in the databag
+        $callback = fn(TableFieldEntity $field) => $field->toArray();
+        $this->bag('dbadmin.table')->set('fields', array_map($callback, $fields));
         $this->stash()->set('table.fields', $fields);
 
         // Set main menu buttons

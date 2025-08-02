@@ -196,10 +196,11 @@ trait TableFieldTrait
         return $html->col(
             $html->formSelect(
                 $html->option('(' . $this->trans->lang('ON UPDATE') . ')')
-                    ->selected(false)->setValue(''),
-                $html->each($this->options['onUpdate'], fn($option) =>
+                    ->setValue('')->selected(false),
+                $html->each($this->options['onUpdate'], fn($option, $value) =>
                     $html->option($option)
                         ->selected($field->onUpdate === $option)
+                        ->setValue($value)
                 )
             )
             ->setName($this->editPrefix . '[onUpdate]')
@@ -283,7 +284,7 @@ trait TableFieldTrait
         $html = $this->builder();
         return $html->col(
             $html->checkbox()
-                ->selected($field->null)
+                ->checked($field->null)
                 ->setName($this->editPrefix . '[null]')
                 ->setDataField('null')
                 ->setValue('1'),
@@ -302,10 +303,13 @@ trait TableFieldTrait
         $html = $this->builder();
         return $html->col(
             $html->formSelect(
-                $html->option('')->selected(false),
+                $html->option('(unsigned)')
+                    ->selected(false)
+                    ->setValue(''),
                 $html->each($this->unsigned, fn($option) =>
                     $html->option($option)
                         ->selected($field->unsigned === $option)
+                        ->setValue($option)
                 )
             )
             ->setName($this->editPrefix . '[unsigned]')
@@ -325,9 +329,11 @@ trait TableFieldTrait
         return $html->col(
             $html->formSelect(
                 $html->option('(' . $this->trans->lang('ON DELETE') . ')')
-                    ->selected(false)->setValue(''),
+                    ->setValue('')
+                    ->selected(false),
                 $html->each($this->options['onDelete'], fn($option) =>
                     $html->option($option)
+                        ->setValue($option)
                         ->selected($field->onDelete === $option)
                 )
             )
