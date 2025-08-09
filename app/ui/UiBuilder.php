@@ -80,21 +80,24 @@ class UiBuilder
 
     /**
      * @param array $servers
+     * @param bool $serverAccess
      * @param string $default
      *
      * @return mixed
      */
-    private function sidebarContent(array $servers, string $default): mixed
+    private function sidebarContent(array $servers, bool $serverAccess, string $default): mixed
     {
         return $this->html->list(
             $this->html->row(
                 $this->getHostSelectCol($servers, $default)
                     ->width(12)
             ),
-            $this->html->row(
-                $this->html->col()
-                    ->width(12)
-                    ->jxnBind(rq(ServerCommand::class))
+            $this->html->when($serverAccess, fn() =>
+                $this->html->row(
+                    $this->html->col()
+                        ->width(12)
+                        ->jxnBind(rq(ServerCommand::class))
+                )
             ),
             $this->html->row(
                 $this->html->col()
@@ -121,13 +124,14 @@ class UiBuilder
 
     /**
      * @param array $servers
+     * @param bool $serverAccess
      * @param string $default
      *
      * @return string
      */
-    public function sidebar(array $servers, string $default): string
+    public function sidebar(array $servers, bool $serverAccess, string $default): string
     {
-        return $this->html->build($this->sidebarContent($servers, $default));
+        return $this->html->build($this->sidebarContent($servers, $serverAccess, $default));
     }
 
     /**
@@ -156,16 +160,17 @@ class UiBuilder
 
     /**
      * @param array $servers
+     * @param bool $serverAccess
      * @param string $default
      *
      * @return string
      */
-    public function home(array $servers, string $default): string
+    public function home(array $servers, bool $serverAccess, string $default): string
     {
         return $this->html->build(
             $this->html->row(
                 $this->html->col(
-                    $this->sidebarContent($servers, $default)
+                    $this->sidebarContent($servers, $serverAccess, $default)
                 )
                 ->width(3),
                 $this->html->col(

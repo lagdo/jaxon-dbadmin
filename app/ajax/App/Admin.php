@@ -13,8 +13,9 @@ class Admin extends Component
     public function html(): string
     {
         $servers = $this->package()->getOption('servers', []);
+        $serverAccess = $this->package()->getOption('access.server', false);
         $default = $this->package()->getOption('default', '');
-        return $this->ui()->home($servers, $default);
+        return $this->ui()->home($servers, $serverAccess, $default);
     }
 
     /**

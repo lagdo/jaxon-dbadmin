@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table;
 
-use Lagdo\DbAdmin\Db\Exception\DbException;
-
 trait ComponentTrait
 {
     /**
@@ -15,10 +13,6 @@ trait ComponentTrait
     {
         [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
         $this->db()->selectDatabase($server, $database, $schema);
-        if(!$this->package()->getServerAccess($this->db()->getCurrentServer()))
-        {
-            throw new DbException('Access to database data is forbidden');
-        }
     }
 
     /**
