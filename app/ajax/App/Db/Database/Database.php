@@ -31,7 +31,8 @@ class Database extends FuncComponent
         // Set the selected server
         $this->db()->selectDatabase($server, $database);
 
-        $databaseInfo = $this->db()->getDatabaseInfo();
+        $systemAccess = $this->package()->getOption('access.system', false);
+        $databaseInfo = $this->db()->getDatabaseInfo($systemAccess);
         // Make database info available to views
         $this->view()->shareValues($databaseInfo);
 

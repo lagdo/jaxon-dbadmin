@@ -24,13 +24,15 @@ trait DatabaseTrait
     /**
      * Connect to a database server
      *
+     * @param bool $schemaAccess
+     *
      * @return array
      */
-    public function getDatabaseInfo()
+    public function getDatabaseInfo(bool $schemaAccess)
     {
         $this->connectToDatabase();
         $this->bcdb();
-        return $this->databaseFacade()->getDatabaseInfo();
+        return $this->databaseFacade()->getDatabaseInfo($schemaAccess);
     }
 
     /**

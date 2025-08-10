@@ -2,13 +2,14 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
-use function array_key_exists;
-use function is_array;
+use function array_filter;
 use function array_intersect;
+use function array_key_exists;
+use function array_keys;
 use function array_values;
 use function compact;
+use function is_array;
 use function is_string;
-use function array_keys;
 
 /**
  * Facade to server functions
@@ -59,9 +60,11 @@ class ServerFacade extends AbstractFacade
     /**
      * Get the databases from the connected server
      *
+     * @param bool $schemaAccess
+     *
      * @return array
      */
-    protected function databases(): array
+    protected function databases(bool $schemaAccess): array
     {
         if ($this->finalDatabases === null) {
             // Get the database lists
@@ -73,7 +76,8 @@ class ServerFacade extends AbstractFacade
                 $this->finalDatabases = array_values(array_intersect($this->finalDatabases, $this->userDatabases));
             }
         }
-        return $this->finalDatabases;
+        return $schemaAccess ? $this->finalDatabases : array_filter($this->finalDatabases,
+            fn($database) => !$this->driver->isSystemSchema($database));
     }
 
     /**
@@ -132,9 +136,11 @@ class ServerFacade extends AbstractFacade
     /**
      * Get the database list
      *
+     * @param bool $schemaAccess
+     *
      * @return array
      */
-    public function getDatabases(): array
+    public function getDatabases(bool $schemaAccess): array
     {
         $headers = [
             $this->utils->trans->lang('Database'),
@@ -145,7 +151,7 @@ class ServerFacade extends AbstractFacade
         ];
 
         // Get the database list
-        $databases = $this->databases();
+        $databases = $this->databases($schemaAccess);
         $tables = $this->driver->countTables($databases);
         $collations = $this->driver->collations();
         $details = [];

@@ -57,13 +57,15 @@ trait ServerTrait
     /**
      * Get the database list
      *
+     * @param bool $schemaAccess
+     *
      * @return array
      */
-    public function getDatabases(): array
+    public function getDatabases(bool $schemaAccess): array
     {
         $this->connectToServer();
         $this->bccl()->breadcrumb($this->utils->trans->lang('Databases'));
-        return $this->serverFacade()->getDatabases();
+        return $this->serverFacade()->getDatabases($schemaAccess);
     }
 
     /**

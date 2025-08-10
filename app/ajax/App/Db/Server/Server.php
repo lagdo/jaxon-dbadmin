@@ -23,7 +23,8 @@ class Server extends FuncComponent
     protected function showDatabaseMenu(): array
     {
         // Access to servers is forbidden. Show the first database.
-        $databasesInfo = $this->db()->getDatabases();
+        $systemAccess = $this->package()->getOption('access.system', false);
+        $databasesInfo = $this->db()->getDatabases($systemAccess);
 
         // Make databases info available to views
         $this->view()->shareValues($databasesInfo);

@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
+use function array_filter;
 use function array_intersect;
 use function array_values;
 use function is_array;
@@ -43,9 +44,11 @@ class DatabaseFacade extends AbstractFacade
     /**
      * Get the schemas from the connected database
      *
+     * @param bool $schemaAccess
+     *
      * @return array
      */
-    protected function schemas()
+    protected function schemas(bool $schemaAccess)
     {
         // Get the schema lists
         if ($this->finalSchemas === null) {
@@ -55,20 +58,23 @@ class DatabaseFacade extends AbstractFacade
                 $this->finalSchemas = array_values(array_intersect($this->finalSchemas, $this->userSchemas));
             }
         }
-        return $this->finalSchemas;
+        return $schemaAccess ? $this->finalSchemas : array_filter($this->finalSchemas,
+            fn($schema) => !$this->driver->isSystemSchema($schema));
     }
 
     /**
      * Connect to a database server
      *
+     * @param bool $schemaAccess
+     *
      * @return array
      */
-    public function getDatabaseInfo()
+    public function getDatabaseInfo(bool $schemaAccess)
     {
         // From db.inc.php
         $schemas = null;
         if ($this->driver->support("scheme")) {
-            $schemas = $this->schemas();
+            $schemas = $this->schemas($schemaAccess);
         }
         // $tables_list = $this->driver->tables();
 

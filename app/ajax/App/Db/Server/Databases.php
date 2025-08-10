@@ -51,7 +51,8 @@ class Databases extends ContentComponent
     public function show(): void
     {
         // Access to servers is forbidden. Show the first database.
-        $this->pageContent = $this->db()->getDatabases();
+        $systemAccess = $this->package()->getOption('access.system', false);
+        $this->pageContent = $this->db()->getDatabases($systemAccess);
         // Set the database dropdown list
         $this->cl(MenuDatabases::class)->showDatabases($this->pageContent['databases']);
 
