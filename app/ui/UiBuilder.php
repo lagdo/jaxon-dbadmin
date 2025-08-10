@@ -69,11 +69,10 @@ class UiBuilder
                     )
                 )
                 ->setId('jaxon-dbadmin-dbhost-select'),
-                $this->html->button()
+                $this->html->button($this->html->text('Show'))
                     ->primary()->setClass('btn-select')
                     ->jxnClick(rq(Admin::class)
                         ->server(pm()->select('jaxon-dbadmin-dbhost-select')))
-                    ->addText('Show')
             )
         );
     }

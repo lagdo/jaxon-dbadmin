@@ -163,8 +163,7 @@ trait TableFieldTrait
             $html->radio($field->autoIncrement)
                 ->setName('autoIncrementCol')
                 ->setValue($field->editPosition + 1),
-            $html->span()
-                ->addHtml('&nbsp;AI&nbsp;'),
+            $html->span($html->html('&nbsp;AI&nbsp;')),
             $html->checkbox($field->primary)
                 ->setName($this->editPrefix . '[primary]')
         );
@@ -288,8 +287,7 @@ trait TableFieldTrait
                 ->setName($this->editPrefix . '[null]')
                 ->setDataField('null')
                 ->setValue('1'),
-            $html->span()
-                ->addHtml('&nbsp;Null')
+            $html->span($html->html('&nbsp;Null'))
         );
     }
 
@@ -385,29 +383,24 @@ trait TableFieldTrait
                     ->style('primary')->addCaret(),
                 $html->dropdownMenu(
                     $html->when($notFirst && $this->support['move_col'], fn() =>
-                        $html->dropdownMenuItem()
+                        $html->dropdownMenuItem($this->html->text('Up'))
                             ->jxnClick(rq(Columns::class)->up(...$parameters))
-                            ->addText('Up')
                     ),
                     $html->when($notLast && $this->support['move_col'], fn() =>
-                        $html->dropdownMenuItem()
+                        $html->dropdownMenuItem($this->html->text('Down'))
                             ->jxnClick(rq(Columns::class)->down(...$parameters))
-                            ->addText('Down')
                     ),
                     $html->when($this->support['move_col'], fn() =>
-                        $html->dropdownMenuItem()
+                        $html->dropdownMenuItem($this->html->text('Add'))
                             ->jxnClick(rq(Columns::class)->add(...$parameters))
-                            ->addText('Add')
                     ),
                     $html->when($this->support['drop_col'] && !$deleted, fn() =>
-                        $html->dropdownMenuItem()
+                        $html->dropdownMenuItem($this->html->text('Remove'))
                             ->jxnClick(rq(Columns::class)->del(...$parameters))
-                            ->addText('Remove')
                     ),
                     $html->when($this->support['drop_col'] && $deleted, fn() =>
-                        $html->dropdownMenuItem()
+                        $html->dropdownMenuItem($this->html->text('Cancel'))
                             ->jxnClick(rq(Columns::class)->cancel(...$parameters))
-                            ->addText('Cancel')
                     )
                 )
             )

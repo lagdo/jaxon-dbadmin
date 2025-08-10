@@ -47,10 +47,9 @@ class PageBuilder
                     )
                 )
                 ->setId('dbadmin-database-server-select'),
-                $this->html->button()
+                $this->html->button($this->html->text('Show'))
                     ->primary()
                     ->setClass('btn-select')
-                    ->addText('Show')
                     ->jxnClick($onClick),
             )
         );
@@ -124,8 +123,8 @@ class PageBuilder
         return $this->html->build(
             $this->html->breadcrumb(
                 $this->html->each($breadcrumbs, fn($breadcrumb) =>
-                    $this->html->breadcrumbItem()
-                        ->active($curr++ === $last)->addText($breadcrumb)
+                    $this->html->breadcrumbItem($this->html->text($breadcrumb))
+                        ->active($curr++ === $last)
                 )
             )
         );
@@ -141,9 +140,9 @@ class PageBuilder
         return $this->html->build(
             $this->html->buttonGroup(
                 $this->html->each($actions, fn($action, $class) =>
-                    $this->html->button(['class' => $class])
+                    $this->html->button(['class' => $class],
+                        $this->html->text($action['title']))
                         ->outline()->secondary()
-                        ->addText($action['title'])
                         ->jxnClick($action['handler'])
                 )
             )
@@ -164,9 +163,9 @@ class PageBuilder
                 $this->html->col(
                     $this->html->tabNav(
                         $this->html->each($tabs, fn($tab, $id) =>
-                            $this->html->tabNavItem()
+                            $this->html->tabNavItem($this->html->text($tab))
                                 ->target("tab-content-$id")
-                                ->active($firstTabId === $id)->addText($tab)
+                                ->active($firstTabId === $id)
                         )
                     ),
                     $this->html->tabContent(
@@ -191,17 +190,16 @@ class PageBuilder
     public function mainContent(string $content, string $counterId = ''): string
     {
         return $this->html->build(
+            $this->html->html($content),
             $this->html->table(
                 $this->html->when($counterId !== '', fn() =>
                     $this->html->panel(
-                        $this->html->panelBody()
-                            ->addHtml('Selected (<span id="dbadmin-table-' .
-                                $counterId . '-count">0</span>)')
+                        $this->html->panelBody($this->html
+                            ->html("Selected (<span id=\"dbadmin-table-{$counterId}-count\">0</span>)"))
                     )
                 )
             )
             ->responsive(true)->style('bordered')
-            ->addHtml($content)
         );
     }
 }

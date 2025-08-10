@@ -137,7 +137,7 @@ trait TableTrait
         $html = $this->builder();
         return $html->formRow(
             $html->formCol(
-                $html->label()->addText('Table')
+                $html->label($this->html->text('Table'))
             )->width(2)
         )->setClass('dbadmin-edit-table-header');
     }
@@ -160,7 +160,7 @@ trait TableTrait
                 ->width(4)
                 ->setClass('dbadmin-table-column-left'),
                 $html->formCol(
-                    $html->label()->addHtml('&nbsp')
+                    $html->label($html->html('&nbsp'))
                 )
                 ->width(1)
                 ->setClass('dbadmin-table-column-middle'),
@@ -182,7 +182,7 @@ trait TableTrait
                 ),
                 $html->when($hasEngines || $hasCollations, fn() =>
                     $html->formCol(
-                        $html->label()->addHtml('&nbsp')
+                        $html->label($html->html('&nbsp'))
                     )
                     ->width(5)
                     ->setClass('dbadmin-table-column-middle')
@@ -210,8 +210,7 @@ trait TableTrait
         $html = $this->builder();
         return $html->formRow(
             $html->formCol(
-                $html->label()
-                    ->addText($this->trans->lang('Column'))
+                $html->label($this->html->text($this->trans->lang('Column')))
             )
             ->width(4)
             ->setClass('dbadmin-table-column-left'),
@@ -219,13 +218,13 @@ trait TableTrait
                 $html->radio()
                     ->checked(true)->setName('autoIncrementCol')
                     ->setValue('0')->setStyle('margin-top: 5px'),
-                $html->label()->addHtml('&nbsp;AI-P')->setStyle('padding-top: 3px')
+                $html->label($html->html('&nbsp;AI-P'))
+                    ->setStyle('padding-top: 3px')
             )
             ->width(1)
             ->setClass('dbadmin-table-column-middle'),
             $html->formCol(
-                $html->label()
-                    ->addText($this->trans->lang('Options'))
+                $html->label($this->html->text($this->trans->lang('Options')))
             )
             ->width(6)
             ->setClass('dbadmin-table-column-middle'),

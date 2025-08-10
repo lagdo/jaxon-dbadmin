@@ -24,8 +24,8 @@ trait DatabaseTrait
         return $html->build(
             $html->form(
                 $html->formRow(
-                    $html->formLabel()
-                        ->setFor('name')->addText('Name')
+                    $html->formLabel($this->html->text('Name'))
+                        ->setFor('name')
                 ),
                 $html->formRow(
                     $html->formInput()
@@ -33,20 +33,19 @@ trait DatabaseTrait
                         ->setPlaceholder('Name')->setValue($view['name'] ?? '')
                 ),
                 $html->formRow(
-                    $html->formLabel()
-                        ->setFor('select')->addText('SQL query')
+                    $html->formLabel($this->html->text('SQL query'))
+                        ->setFor('select')
                 ),
                 $html->formRow(
-                    $html->formTextarea()
+                    $html->formTextarea($this->html->text($view['select'] ?? ''))
                         ->setRows('10')->setName('select')
                         ->setSpellcheck('false')->setWrap('on')
-                        ->addText($view['select'] ?? '')
                 ),
                 $html->when($materializedView, fn() =>
                     $html->list(
                         $html->formRow(
-                            $html->formLabel()
-                                ->setFor('materialized')->addText('Materialized')
+                            $html->formLabel($this->html->text('Materialized'))
+                                ->setFor('materialized')
                         ),
                         $html->formRow(
                             $html->checkbox()
@@ -77,22 +76,21 @@ trait DatabaseTrait
                 )
                 ->width(4),
                 $html->when(isset($contents['upload']), fn() =>
-                    $html->formCol()
-                        ->width(8)->addHtml($contents['upload'])
+                    $html->formCol($html->html($contents['upload']))
+                        ->width(8)
                 ),
                 $html->when(!isset($contents['upload']), fn() =>
-                    $html->formCol()
-                        ->width(8)->addHtml($contents['upload_disabled'])
+                    $html->formCol($html->html($contents['upload_disabled']))
+                        ->width(8)
                 ),
             ),
             $html->formRow(
                 $html->when(isset($contents['upload']), fn() =>
                     $html->formCol(
                         $html->inputGroup(
-                            $html->button()
+                            $html->button($html->html($labels['select'] . '&hellip;'))
                                 ->primary()
-                                ->setId($htmlIds['sqlChooseBtnId'])
-                                ->addHtml($labels['select'] . '&hellip;'),
+                                ->setId($htmlIds['sqlChooseBtnId']),
                             $html->input()
                                 ->setType('file')->setName('sql_files[]')
                                 ->setId($htmlIds['sqlFilesInputId'])
@@ -108,10 +106,9 @@ trait DatabaseTrait
             ),
             $html->formRow(
                 $html->formCol(
-                    $html->button()
+                    $html->button($this->html->text($labels['execute']))
                         ->fullWidth()->primary()
                         ->setId($htmlIds['sqlFilesBtnId'])
-                        ->addText($labels['execute'])
                 )
                 ->width(4)
             ),
@@ -135,7 +132,7 @@ trait DatabaseTrait
                 )
                 ->width(4),
                 $html->formCol(
-                    $html->span()->addText($labels['path'])
+                    $html->span($this->html->text($labels['path']))
                 )
                 ->width(8)
             ),
@@ -150,10 +147,9 @@ trait DatabaseTrait
             ),
             $html->formRow(
                 $html->formCol(
-                    $html->button()
+                    $html->button($this->html->text($labels['run_file']))
                         ->fullWidth()->primary()
                         ->setId($htmlIds['webFileBtnId'])
-                        ->addText($labels['run_file'])
                 )
                 ->width(4)
             ),
@@ -172,13 +168,11 @@ trait DatabaseTrait
             $html->formRow(
                 $html->formCol(
                     // Actually an offset. TODO: a parameter for that.
-                    $html->text()
-                        ->addHtml('&nbsp;')
+                    $html->html('&nbsp;')
                 )->width(3),
                 $html->formCol(
                     $html->inputGroup(
-                        $html->text()
-                            ->addText($labels['error_stops']),
+                        $html->text($labels['error_stops']),
                         $html->checkbox()
                             ->setName('error_stops')
                     )
@@ -186,8 +180,7 @@ trait DatabaseTrait
                 ->width(3),
                 $html->formCol(
                     $html->inputGroup(
-                        $html->text()
-                            ->addText($labels['only_errors']),
+                        $html->text($labels['only_errors']),
                         $html->checkbox()
                             ->setName('only_errors')
                     )
@@ -251,8 +244,7 @@ trait DatabaseTrait
                             $html->radio()
                                 ->checked($options['output']['value'] === $value)
                                 ->setName('output'),
-                            $html->text()
-                                ->addHtml('&nbsp;' . $label . '&nbsp;')
+                            $html->html('&nbsp;' . $label . '&nbsp;')
                         )
                     )
                 )
@@ -270,8 +262,7 @@ trait DatabaseTrait
                             $html->radio()
                                 ->checked($options['format']['value'] === $value)
                                 ->setName('format'),
-                            $html->text()
-                                ->addHtml('&nbsp;' . $label . '&nbsp;')
+                            $html->html('&nbsp;' . $label . '&nbsp;')
                         )
                     )
                 )
@@ -300,7 +291,7 @@ trait DatabaseTrait
                 $html->formRow(
                     $html->formCol(
                         // Actually an offset. TODO: a parameter for that.
-                        $html->text()->addHtml('&nbsp;')
+                        $html->html('&nbsp;')
                     )
                     ->width(3),
                     $html->when(isset($options['routines']), fn() =>
@@ -309,8 +300,7 @@ trait DatabaseTrait
                                 ->checked($options['routines']['checked'])
                                 ->setName('routines')
                                 ->setValue($options['routines']['value']),
-                            $html->text()
-                                ->addHtml('&nbsp;' . $options['routines']['label'])
+                            $html->html('&nbsp;' . $options['routines']['label'])
                         )
                         ->width(4)
                     ),
@@ -320,8 +310,7 @@ trait DatabaseTrait
                                 ->checked($options['events']['checked'])
                                 ->setName('events')
                                 ->setValue($options['events']['value']),
-                            $html->text()
-                                ->addHtml('&nbsp;' . $options['events']['label'])
+                            $html->html('&nbsp;' . $options['events']['label'])
                         )
                         ->width(4)
                     )
@@ -347,7 +336,7 @@ trait DatabaseTrait
             $html->formRow(
                 $html->formCol(
                     // Actually an offset. TODO: a parameter for that.
-                    $html->text()->addHtml('&nbsp;')
+                    $html->html('&nbsp;')
                 )
                 ->width(3),
                 $html->formCol(
@@ -355,8 +344,7 @@ trait DatabaseTrait
                         ->checked($options['auto_increment']['checked'])
                         ->setName('auto_increment')
                         ->setValue($options['auto_increment']['value']),
-                    $html->text()
-                        ->addHtml('&nbsp;' . $options['auto_increment']['label'])
+                    $html->html('&nbsp;' . $options['auto_increment']['label'])
                 )
                 ->width(4),
                 $html->when(isset($options['triggers']), fn() =>
@@ -365,8 +353,7 @@ trait DatabaseTrait
                             ->checked($options['triggers']['checked'])
                             ->setName('triggers')
                             ->setValue($options['triggers']['value']),
-                        $html->text()
-                            ->addHtml('&nbsp;' . $options['triggers']['label'])
+                        $html->html('&nbsp;' . $options['triggers']['label'])
                     )
                     ->width(4),
                 )
@@ -391,14 +378,13 @@ trait DatabaseTrait
             $html->formRow(
                 $html->formCol(
                     // Actually an offset. TODO: a parameter for that.
-                    $html->text()->addHtml('&nbsp;')
+                    $html->html('&nbsp;')
                 )
                 ->width(3),
                 $html->formCol(
-                    $html->button()
+                    $html->button($this->html->text($labels['export']))
                         ->fullWidth()->primary()
                         ->setId($htmlIds['btnId'])
-                        ->addText($labels['export'])
                 )
                 ->width(4)
             )
@@ -424,15 +410,13 @@ trait DatabaseTrait
                                 $html->checkbox()
                                     ->selected(true)
                                     ->setId($htmlIds['databaseNameId'] . '-all'),
-                                $html->text()
-                                    ->addHtml('&nbsp;' . $databases['headers'][0])
+                                $html->html('&nbsp;' . $databases['headers'][0])
                             ),
                             $html->th(
                                 $html->checkbox()
                                     ->selected(true)
                                     ->setId($htmlIds['tableDataId'] . '-all'),
-                                $html->text()
-                                    ->addHtml('&nbsp;' . $databases['headers'][1])
+                                $html->html('&nbsp;' . $databases['headers'][1])
                             )
                         )
                     ),
@@ -445,8 +429,7 @@ trait DatabaseTrait
                                         ->setName('database_list[]')
                                         ->setClass($htmlIds['databaseNameId'])
                                         ->setValue($database['name']),
-                                    $html->text()
-                                        ->addHtml('&nbsp;' . $database['name'])
+                                    $html->html('&nbsp;' . $database['name'])
                                 ),
                                 $html->td(
                                     $html->checkbox()
@@ -469,15 +452,13 @@ trait DatabaseTrait
                                 $html->checkbox()
                                     ->selected(true)
                                     ->setId($htmlIds['tableNameId'] . '-all'),
-                                $html->text()
-                                    ->addHtml('&nbsp;' . $tables['headers'][0])
+                                $html->html('&nbsp;' . $tables['headers'][0])
                             ),
                             $html->th(
                                 $html->checkbox()
                                     ->selected(true)
                                     ->setId($htmlIds['tableDataId'] . '-all'),
-                                $html->text()
-                                    ->addHtml('&nbsp;' . $tables['headers'][1])
+                                $html->html('&nbsp;' . $tables['headers'][1])
                             )
                         )
                     ),
@@ -490,8 +471,7 @@ trait DatabaseTrait
                                         ->setName('table_list[]')
                                         ->setClass($htmlIds['tableNameId'])
                                         ->setValue($table['name']),
-                                    $html->text()
-                                        ->addHtml('&nbsp;' . $table['name'])
+                                    $html->html('&nbsp;' . $table['name'])
                                 ),
                                 $html->td(
                                     $html->checkbox()

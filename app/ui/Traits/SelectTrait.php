@@ -33,8 +33,8 @@ trait SelectTrait
     {
         $html = $this->builder();
         return $html->formRow(
-            $html->formCol()
-                ->width(9)->addHtml('&nbsp;'), // Offset
+            $html->formCol($html->html('&nbsp;'))
+                ->width(9), // Offset
             $html->formCol(
                 $html->buttonGroup(
                     $html->button()->primary()
@@ -246,8 +246,7 @@ trait SelectTrait
                 ->width(6),
                 $html->formCol(
                     $html->inputGroup(
-                        $html->text()
-                            ->addText($this->trans->lang('descending')),
+                        $html->text($this->trans->lang('descending')),
                         $html->checkbox()
                             ->checked(isset($values['desc'][$curId]))
                             ->setName("desc[$newId]")
@@ -337,17 +336,14 @@ trait SelectTrait
             $html->formRow(
                 $html->formCol(
                     $html->buttonGroup(
-                        $html->button()
+                        $html->button($this->html->text($this->trans->lang('Columns')))
                             ->outline()->secondary()->fullWidth()
-                            ->addText($this->trans->lang('Columns'))
                             ->jxnClick($handlers['btnColumns']),
-                        $html->button()
+                        $html->button($this->html->text($this->trans->lang('Filters')))
                             ->outline()->secondary()->fullWidth()
-                            ->addText($this->trans->lang('Filters'))
                             ->jxnClick($handlers['btnFilters']),
-                        $html->button()
+                        $html->button($this->html->text($this->trans->lang('Order')))
                             ->outline()->secondary()->fullWidth()
-                            ->addText($this->trans->lang('Order'))
                             ->jxnClick($handlers['btnSorting'])
                     )
                     ->fullWidth(true)
@@ -355,8 +351,9 @@ trait SelectTrait
                 ->width(6),
                 $html->formCol(
                     $html->inputGroup(
-                        $html->text()
-                            ->addText($this->trans->lang('Limit')),
+                        $html->label(
+                            $html->text($this->trans->lang('Limit'))
+                        ),
                         $html->formInput()
                             ->setId($handlers['id']['limit'])
                             ->setType('number')
@@ -370,8 +367,9 @@ trait SelectTrait
                 ->width(3),
                 $html->formCol(
                     $html->inputGroup(
-                        $html->text()
-                            ->addText($this->trans->lang('Text length')),
+                        $html->label(
+                            $html->text($this->trans->lang('Text length'))
+                        ),
                         $html->formInput()
                             ->setId($handlers['id']['length'])
                             ->setType('number')
@@ -417,14 +415,12 @@ trait SelectTrait
             $html->row(
                 $html->col(
                     $html->buttonGroup(
-                        $html->button()
+                        $html->button($this->html->text($this->trans->lang('Edit')))
                             ->outline()->secondary()->fullWidth()
-                            ->jxnClick($handlers['btnEdit'])
-                            ->addText($this->trans->lang('Edit')),
-                        $html->button()
+                            ->jxnClick($handlers['btnEdit']),
+                        $html->button($this->html->text($this->trans->lang('Execute')))
                             ->fullWidth()->secondary()
                             ->jxnClick($handlers['btnExec'])
-                            ->addText($this->trans->lang('Execute'))
                     )
                     ->fullWidth(true)
                 )

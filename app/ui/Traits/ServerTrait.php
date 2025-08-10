@@ -23,13 +23,13 @@ trait ServerTrait
         return $html->build(
             $html->col(
                 $html->panel(
-                    $html->panelBody()->addHtml($server)
+                    $html->panelBody($html->html($server))
                 )
             )
             ->width(8),
             $html->col(
                 $html->panel(
-                    $html->panelBody()->addHtml($user)
+                    $html->panelBody($html->html($user))
                 )
             )
             ->width(4),
@@ -50,8 +50,8 @@ trait ServerTrait
             $html->form(
                 $html->formRow(
                     $html->formCol(
-                        $html->formLabel()
-                            ->setFor('host')->addText($user['host']['label'])
+                        $html->formLabel($this->html->text($user['host']['label']))
+                            ->setFor('host')
                     )
                     ->width(3),
                     $html->formCol(
@@ -63,8 +63,8 @@ trait ServerTrait
                 ),
                 $html->formRow(
                     $html->formCol(
-                        $html->formLabel()
-                            ->setFor('name')->addText($user['name']['label'])
+                        $html->formLabel($this->html->text($user['name']['label']))
+                            ->setFor('name')
                     )
                     ->width(3),
                     $html->formCol(
@@ -76,8 +76,8 @@ trait ServerTrait
                 ),
                 $html->formRow(
                     $html->formCol(
-                        $html->formLabel()
-                            ->setFor('pass')->addText($user['pass']['label'])
+                        $html->formLabel($this->html->text($user['pass']['label']))
+                            ->setFor('pass')
                     )
                     ->width(3),
                     $html->formCol(
@@ -95,7 +95,7 @@ trait ServerTrait
                     ->width(3)
                     ->setClass('checkbox')
                 ),
-                $html->div()->addHtml($privileges)
+                $html->div($html->html($privileges))
             )
             ->responsive(true)->wrapped(true)->setId($formId)
         );
@@ -114,8 +114,8 @@ trait ServerTrait
             $html->form(
                 $html->formRow(
                     $html->formCol(
-                        $html->formLabel()
-                            ->setFor('name')->addText('Name')
+                        $html->formLabel($this->html->text('Name'))
+                            ->setFor('name')
                     )
                     ->width(3),
                     $html->formCol(
@@ -127,8 +127,8 @@ trait ServerTrait
                 ),
                 $html->formRow(
                     $html->formCol(
-                        $html->formLabel()
-                            ->setFor('collation')->addText('Collation')
+                        $html->formLabel($this->html->text('Collation'))
+                            ->setFor('collation')
                     )
                     ->width(3),
                     $html->formCol(

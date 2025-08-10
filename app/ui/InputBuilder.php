@@ -44,10 +44,10 @@ class InputBuilder
             $this->html->each($input['values'], function($value) use($input) {
                 $name = $input['attrs']['name'] . '[' . $value['value'] . ']';
                 return $this->html->label(
+                    $this->html->text($value['text'])->setFor($name),
                     $this->html->checkbox()
                         ->checked($value['checked'])->setName($name)
-                    )
-                    ->addText($value['text'])->setFor($name);
+                );
             })
         )
         ->setClass('checkbox');
@@ -83,11 +83,11 @@ class InputBuilder
         return $this->html->div(
             $this->html->each($input['values'], fn($value) =>
                 $this->html->label(
+                    $this->html->text($value['text']),
                     $this->html->checkbox($input['attrs'])
                         ->checked($value['checked'])
                         ->setValue($value['value'])
                 )
-                ->addText($value['text'])
             )
         )->setClass('radio');
     }
@@ -99,7 +99,8 @@ class InputBuilder
      */
     protected function textarea(array $input): mixed
     {
-        return $this->html->formTextarea($input['attrs'])->addText($input['value']);
+        return $this->html->formTextarea($input['attrs'],
+            $this->html->text($input['value']));
     }
 
     /**

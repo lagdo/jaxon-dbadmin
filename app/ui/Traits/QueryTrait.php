@@ -37,14 +37,13 @@ trait QueryTrait
                     $html->col(
                         $html->panel(
                             $html->panelBody(
-                                $html->formTextarea()
+                                $html->formTextarea($html->html($query))
                                     ->setName('query')
                                     ->setId($queryId)
                                     ->setDataLanguage('sql')
                                     ->setRows('10')
                                     ->setSpellcheck('false')
                                     ->setWrap('on')
-                                    ->addHtml($query)
                             )
                             ->setClass('sql-command-editor-panel')
                         )
@@ -59,8 +58,7 @@ trait QueryTrait
                     $html->formRow(
                         $html->formCol(
                             $html->inputGroup(
-                                $html->text()
-                                    ->addText($this->trans->lang('Limit rows')),
+                                $html->text($this->trans->lang('Limit rows')),
                                 $html->formInput()
                                     ->setName('limit')
                                     ->setType('number')
@@ -70,8 +68,7 @@ trait QueryTrait
                         ->width(3),
                         $html->formCol(
                             $html->inputGroup(
-                                $html->text()
-                                    ->addText($this->trans->lang('Stop on error')),
+                                $html->text($this->trans->lang('Stop on error')),
                                 $html->checkbox()
                                     ->setName('error_stops')
                             )
@@ -79,18 +76,16 @@ trait QueryTrait
                         ->width(3),
                         $html->formCol(
                             $html->inputGroup(
-                                $html->text()
-                                    ->addText($this->trans->lang('Show only errors')),
+                                $html->text($this->trans->lang('Show only errors')),
                                 $html->checkbox()
                                     ->setName('only_errors')
                             )
                         )
                         ->width(3),
                         $html->formCol(
-                            $html->button()
+                            $html->button($this->html->text($this->trans->lang('Execute')))
                                 ->fullWidth()->primary()
                                 ->jxnClick($rqQuery->exec(jo('jaxon.dbadmin')->getSqlQuery(), pm()->form($formId))/*->when(pm()->input($queryId))*/)
-                                ->addText($this->trans->lang('Execute'))
                         )
                         ->width(2)
                     )
@@ -120,7 +115,7 @@ trait QueryTrait
                     $html->col(
                         $html->when(count($result['errors']) > 0, fn() =>
                             $html->panel(
-                                $html->panelHeader()->addText($result['query']),
+                                $html->panelHeader($this->html->text($result['query'])),
                                 $html->panelBody(
                                     $html->each($result['errors'], fn($error) =>
                                         $html->span($error)
@@ -132,7 +127,7 @@ trait QueryTrait
                         ),
                         $html->when(count($result['messages']) > 0, fn() =>
                             $html->panel(
-                                $html->panelHeader()->addText($result['query']),
+                                $html->panelHeader($this->html->text($result['query'])),
                                 $html->panelBody(
                                     $html->each($result['messages'], fn($message) =>
                                         $html->span($message)
@@ -147,7 +142,7 @@ trait QueryTrait
                                 $html->thead(
                                     $html->tr(
                                         $html->each($result['select']['headers'], fn($header) =>
-                                            $html->th()->addHtml($header)
+                                            $html->th($html->html($header))
                                         )
                                     )
                                 ),
@@ -155,7 +150,7 @@ trait QueryTrait
                                     $html->each($result['select']['details'], fn($details) =>
                                         $html->tr(
                                             $html->each($details, fn($detail) =>
-                                                $html->td()->addHtml($detail)
+                                                $html->td($html->html($detail))
                                             )
                                         )
                                     )

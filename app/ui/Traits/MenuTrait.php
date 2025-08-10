@@ -41,9 +41,9 @@ trait MenuTrait
         return $html->build(
             $html->buttonGroup(
                 $html->each($sqlActions, fn($title, $id) =>
-                    $html->button()->outline()->primary()
+                    $html->button($this->html->text($title))->outline()->primary()
                         ->fullWidth()->setClass('dbadmin-menu-item')
-                        ->setId("dbadmin-menu-action-$id")->addText($title)
+                        ->setId("dbadmin-menu-action-$id")
                 )
             )
             ->fullWidth(true)
@@ -66,9 +66,9 @@ trait MenuTrait
                         $html->option($database)->selected(false)
                     ))
                     ->setId('dbadmin-dbname-select'),
-                $html->button()->primary()
+                $html->button($this->html->text('Show'))->primary()
                     ->setId('dbadmin-dbname-select-btn')
-                    ->setClass('btn-select')->addText('Show')
+                    ->setClass('btn-select')
             )
         );
     }
@@ -88,9 +88,9 @@ trait MenuTrait
                         $html->option($schema)->selected(false)
                     ))
                     ->setId('dbadmin-schema-select'),
-                $html->button()->primary()
+                $html->button($this->html->text('Show'))->primary()
                     ->setId('dbadmin-schema-select-btn')
-                    ->setClass('btn-select')->addText('Show')
+                    ->setClass('btn-select')
             )
         );
     }

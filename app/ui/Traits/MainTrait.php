@@ -28,8 +28,8 @@ trait MainTrait
         return $html->build(
             $html->breadcrumb(
                 $html->each($breadcrumbs, fn($breadcrumb)  =>
-                    $html->breadcrumbItem()
-                        ->active($curr++ === $last)->addText($breadcrumb)
+                    $html->breadcrumbItem($this->html->text($breadcrumb))
+                        ->active($curr++ === $last)
                 )
             )
         );
@@ -60,15 +60,15 @@ trait MainTrait
         return $html->build(
             $html->buttonGroup(
                 $html->each($mainActions, fn($title, $id) =>
-                    $html->button()->outline()->primary()
-                        ->setId("dbadmin-main-action-$id")->addText($title)
+                    $html->button($this->html->text($title))->outline()->primary()
+                        ->setId("dbadmin-main-action-$id")
                 )
             )
             ->setClass('dbadmin-main-action-group'),
             $html->buttonGroup(
                 $html->each($backActions, fn($title, $id) =>
-                    $html->button()->secondary()
-                        ->setId("dbadmin-main-action-$id")->addText($title)
+                    $html->button($this->html->text($title))->secondary()
+                        ->setId("dbadmin-main-action-$id")
                 ),
             )
             ->setClass('dbadmin-main-action-group')
@@ -90,9 +90,9 @@ trait MainTrait
                 $html->col(
                     $html->tabNav(
                         $html->each($tabs, fn($tab, $id) =>
-                            $html->tabNavItem()
+                            $html->tabNavItem($this->html->text($tab))
                                 ->target("tab-content-$id")
-                                ->active($firstTabId === $id)->addText($tab)
+                                ->active($firstTabId === $id)
                         )
                     ),
                     $html->tabContent(
@@ -116,27 +116,25 @@ trait MainTrait
     private function getTableCell($content): mixed
     {
         $html = $this->builder();
-        $element = $html->td();
         if (!is_array($content)) {
-            $element->addHtml($content);
-            return $element;
+            return $html->td($html->html($content));
         }
 
+        if(!isset($content['handler']))
+        {
+            return $html->td($html->text($content['label']));
+        }
+
+        $element = $html->td();
         if(isset($content['props']))
         {
             $element->setAttributes($content['props']);
         }
-        if(!isset($content['handler']))
-        {
-            $element->addText($content['label']);
-            return $element;
-        }
 
         $element->children(
-            $html->a()
+            $html->a($this->html->text($content['label']))
                 ->setAttributes(['href' => 'javascript:void(0)'])
                 ->jxnClick($content['handler'])
-                ->addText($content['label'])
         );
         return $element;
     }
@@ -162,7 +160,7 @@ trait MainTrait
                     )
                 ),
                 $html->each($headers, fn($header) =>
-                    $html->th()->addHtml($header)
+                    $html->th($html->html($header))
                 ),
             ),
             $html->body(
@@ -199,8 +197,8 @@ trait MainTrait
             $this->makeTable($pageContent, $counterId),
             $html->when($counterId !== '', fn() =>
                  $html->panel(
-                    $html->panelBody()
-                        ->addHtml('Selected (<span id="dbadmin-table-' . $counterId . '-count">0</span>)')
+                    $html->panelBody($html->html('Selected (<span id="dbadmin-table-' .
+                        $counterId . '-count">0</span>)'))
                 )
             )
         );
