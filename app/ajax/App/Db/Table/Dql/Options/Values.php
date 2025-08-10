@@ -1,15 +1,14 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
+namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Component;
-
-use function Jaxon\pm;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
 
 /**
  * This class provides select query features on tables.
  */
-class Options extends Component
+class Values extends Component
 {
     /**
      * The select form div id
@@ -23,23 +22,8 @@ class Options extends Component
      */
     public function html(): string
     {
-        $options = $this->stash()->get('select.options');
-        // Click handlers on buttons
-        $handlers = [
-            'btnColumns' => $this->rq(Columns::class)->edit(),
-            'btnFilters' => $this->rq(Filters::class)->edit(),
-            'btnSorting' => $this->rq(Sorting::class)->edit(),
-            'btnLimit' => $this->rq()
-                ->saveSelectLimit(pm()->input("{$this->formOptionsId}-limit")->toInt()),
-            'btnLength' => $this->rq()
-                ->saveTextLength(pm()->input("{$this->formOptionsId}-length")->toInt()),
-            'id' => [
-                'limit' => "{$this->formOptionsId}-limit",
-                'length' => "{$this->formOptionsId}-length",
-            ],
-        ];
-
-        return $this->ui()->selectOptions($options, $handlers);
+        $options = $this->bag('dbadmin.select')->get('options', []);
+        return $this->ui()->selectOptionsValues($options);
     }
 
     /**

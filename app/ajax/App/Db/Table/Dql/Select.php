@@ -9,10 +9,6 @@ use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Table;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dml\Insert;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
-use Exception;
-
-use function Jaxon\pm;
-
 /**
  * This class provides select query features on tables.
  */
@@ -50,7 +46,10 @@ class Select extends ContentComponent
 
         // Save select queries options
         $selectData = $this->db()->getSelectData($table, $options);
-        $this->stash()->set('select.options', $selectData['options']);
+        $this->bag('dbadmin.select')->set('options', [
+            'limit' => (int)($selectData['options']['limit']['value'] ?? 0),
+            'length' => (int)($selectData['options']['length']['value'] ?? 0),
+        ]);
         $this->stash()->set('select.query', $selectData['query']);
 
         // Set main menu buttons
@@ -98,7 +97,8 @@ class Select extends ContentComponent
     protected function after(): void
     {
         // Show the select options
-        $this->cl(Options::class)->render();
+        $this->cl(Options\Fields::class)->render();
+        $this->cl(Options\Values::class)->render();
         // Show the query
         $this->cl(QueryText::class)->render();
     }
@@ -121,69 +121,6 @@ class Select extends ContentComponent
 
         $this->render();
     }
-
-    /* *
-     * Execute the query (No more used, to be deleted)
-     *
-     * @after('call' => 'debugQueries')
-     *
-     * @param integer $page The page number
-     *
-     * @return void
-     * @throws Exception
-     */
-    // public function exec(int $page = 0)
-    // {
-    //     $table = $this->getTableName();
-    //     // Select options
-    //     $options = $this->getOptions();
-    //     $options['page'] = $page;
-    //     $results = $this->db()->execSelect($table, $options);
-
-    //     // Show the message
-    //     $resultsId = 'dbadmin-table-select-results';
-    //     if(($results['message']))
-    //     {
-    //         $this->response->html($resultsId, $results['message']);
-    //         return;
-    //     }
-    //     // Make data available to views
-    //     $this->view()->shareValues($results);
-
-    //     // Set ids for row update/delete
-    //     $rowIds = [];
-    //     foreach($results['rows'] as $row)
-    //     {
-    //         $rowIds[] = $row["ids"];
-    //     }
-    //     // Note: don't use the var keyword when setting a variable,
-    //     // because it will not make the variable globally accessible.
-    //     $this->response->script("jaxon.dbadmin.rowIds = JSON.parse('" . json_encode($rowIds) . "')");
-    //     $this->response->addCommand('dbadmin.row.ids.set', ['ids' => $rowIds]);
-
-    //     $content = $this->ui()->selectResults($results['headers'], $results['rows']);
-    //     $this->response->html($resultsId, $content);
-
-    //     // The Jaxon ajax calls
-    //     $updateCall = $this->rq(Query::class)->showUpdate(jo('jaxon.dbadmin')->rowIds[rowId]));
-    //     $deleteCall = $this->rq(Query::class)->execDelete(jo('jaxon.dbadmin')->rowIds[rowId]))
-    //         ->confirm($this->trans()->lang('Delete this item?'));
-
-    //     // Wrap the ajax calls into functions
-    //     $this->response->setFunction('updateRowItem', 'rowId', $updateCall);
-    //     $this->response->setFunction('deleteRowItem', 'rowId', $deleteCall);
-
-    //     // Set the functions as button event handlers
-    //     $this->response->jq(".$btnEditRowClass", "#$resultsId")
-    //         ->click(rq('.')->updateRowItem(jq()->attr('data-row-id')));
-    //     $this->response->jq(".$btnDeleteRowClass", "#$resultsId")
-    //         ->click(rq('.')->deleteRowItem(jq()->attr('data-row-id')));
-
-    //     // Pagination
-    //     $pages = $this->rq()->execSelect(pm()->page())->pages($page, $results['limit'], $results['total']);
-    //     $pagination = $this->ui()->pagination($pages);
-    //     $this->response->html("dbadmin-table-select-pagination", $pagination);
-    // }
 
     /**
      * Edit the current select query

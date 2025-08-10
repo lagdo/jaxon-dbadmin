@@ -1,7 +1,9 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
+namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Fields;
 
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Fields;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\FuncComponent;
 
 use function Jaxon\pm;
@@ -38,7 +40,7 @@ class Filters extends FuncComponent
         ]];
         $this->modal()->show($title, $content, $buttons);
 
-        $this->cl(Input\Filters::class)->show();
+        $this->cl(Form\Filters::class)->show();
     }
 
     /**
@@ -58,5 +60,7 @@ class Filters extends FuncComponent
 
         // Display the new query
         $this->cl(QueryText::class)->refresh();
+
+        $this->cl(Fields::class)->render();
     }
 }

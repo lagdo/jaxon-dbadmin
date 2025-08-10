@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Input;
+namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Fields\Form;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Component;
 

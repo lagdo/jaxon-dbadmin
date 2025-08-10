@@ -1,7 +1,9 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
+namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Fields;
 
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Fields;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\FuncComponent;
 
 use function Jaxon\pm;
@@ -9,24 +11,24 @@ use function Jaxon\pm;
 /**
  * This class provides select query features on tables.
  */
-class Columns extends FuncComponent
+class Sorting extends FuncComponent
 {
     /**
-     * The columns form div id
+     * The sorting form div id
      *
      * @var string
      */
-    private $formId = 'dbadmin-table-select-columns-form';
+    private $formId = 'dbadmin-table-select-sorting-form';
 
     /**
-     * Change the query columns
+     * Change the query sorting
      *
      * @return void
      */
     public function edit(): void
     {
-        $title = 'Edit columns';
-        $content = $this->ui()->editQueryColumns($this->formId);
+        $title = 'Edit order';
+        $content = $this->ui()->editQuerySorting($this->formId);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -38,11 +40,11 @@ class Columns extends FuncComponent
         ]];
         $this->modal()->show($title, $content, $buttons);
 
-        $this->cl(Input\Columns::class)->show();
+        $this->cl(Form\Sorting::class)->show();
     }
 
     /**
-     * Change the query columns
+     * Change the query sorting
      *
      * @param array  $values  The form values
      *
@@ -51,12 +53,14 @@ class Columns extends FuncComponent
     public function save(array $values): void
     {
         // Save the new values in the databag.
-        $this->bag('dbadmin.select')->set('columns', $values);
+        $this->bag('dbadmin.select')->set('sorting', $values);
 
         // Hide the dialog
         $this->modal()->hide();
 
         // Display the new query
         $this->cl(QueryText::class)->refresh();
+
+        $this->cl(Fields::class)->render();
     }
 }

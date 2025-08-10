@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Input;
+namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Fields\Form;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Component;
 
@@ -9,7 +9,7 @@ use function count;
 /**
  * This class provides select query features on tables.
  */
-class Filters extends Component
+class Columns extends Component
 {
     /**
      * @inheritDoc
@@ -17,25 +17,26 @@ class Filters extends Component
     public function html(): string
     {
         $values = $this->stash()->get('values', []);
-        // Filters options
-        $options = ['columns' => [], 'operators' => []];
+        // Columns options
+        $options = ['functions' => [], 'grouping' => [], 'columns' => []];
         if(count($values) > 0)
         {
             $options = $this->bag('dbadmin.select')->get('options');
             $selectData = $this->db()->getSelectData($this->getTableName(), $options);
             $options = [
-                'columns' => $selectData['options']['filters']['columns'] ?? [],
-                'operators' => $selectData['options']['filters']['operators'] ?? [],
+                'functions' => $selectData['options']['columns']['functions'] ?? [],
+                'grouping' => $selectData['options']['columns']['grouping'] ?? [],
+                'columns' => $selectData['options']['columns']['columns'] ?? [],
             ];
         }
 
-        return  $this->ui()->formQueryFilters($values, $options);
+        return  $this->ui()->formQueryColumns($values, $options);
     }
 
     public function show(): void
     {
         // Render the component with the values from the databag.
-        $values = $this->bag('dbadmin.select')->get('filters', []);
+        $values = $this->bag('dbadmin.select')->get('columns', []);
 
         $this->stash()->set('values', $values);
         $this->render();
@@ -43,9 +44,9 @@ class Filters extends Component
 
     public function add(array $values): void
     {
-        $wheres = $values['where'] ?? [];
-        $wheres[] = ['col' => '', 'op' => '', 'val' => '']; // New value
-        $values['where'] = $wheres;
+        $columns = $values['column'] ?? [];
+        $columns[] = ['fun' => '', 'col' => '']; // New value
+        $values['column'] = $columns;
         $values['del'] = []; // Do not delete anything.
 
         $this->stash()->set('values', $values);

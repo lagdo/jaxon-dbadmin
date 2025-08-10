@@ -3,9 +3,6 @@
 namespace Lagdo\DbAdmin\Ui\Traits;
 
 use Jaxon\Script\Call\JxnCall;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Input\Columns;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Input\Filters;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Input\Sorting;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Results;
@@ -44,7 +41,6 @@ trait SelectTrait
                         ->addIcon('remove')
                         ->jxnClick($rqInput->del(pm()->form($formId)))
                 )
-                ->fullWidth(false)
             )
             ->width(3)
         );
@@ -122,7 +118,7 @@ trait SelectTrait
      */
     public function editQueryColumns(string $formId): string
     {
-        $rqColumns = rq(Columns::class);
+        $rqColumns = rq(Options\Fields\Form\Columns::class);
         $html = $this->builder();
         return $html->build(
             $html->form(
@@ -202,7 +198,7 @@ trait SelectTrait
      */
     public function editQueryFilters(string $formId): string
     {
-        $rqFilters = rq(Filters::class);
+        $rqFilters = rq(Options\Fields\Form\Filters::class);
         $html = $this->builder();
         return $html->build(
             $html->form(
@@ -246,7 +242,9 @@ trait SelectTrait
                 ->width(6),
                 $html->formCol(
                     $html->inputGroup(
-                        $html->text($this->trans->lang('descending')),
+                        $html->label(
+                            $html->text($this->trans->lang('descending'))
+                        ),
                         $html->checkbox()
                             ->checked(isset($values['desc'][$curId]))
                             ->setName("desc[$newId]")
@@ -275,7 +273,7 @@ trait SelectTrait
      */
     public function editQuerySorting(string $formId): string
     {
-        $rqSorting = rq(Sorting::class);
+        $rqSorting = rq(Options\Fields\Form\Sorting::class);
         $html = $this->builder();
         return $html->build(
             $html->form(
@@ -325,62 +323,91 @@ trait SelectTrait
 
     /**
      * @param array $options
-     * @param array $handlers
      *
      * @return string
      */
-    public function selectOptions(array $options, array $handlers): string
+    public function selectOptionsFields(array $options): string
     {
+        $columnCount = count($options['columns']['column'] ?? []);
+        $filterCount = count($options['filters']['where'] ?? []);
+        $sortingCount = count($options['sorting']['order'] ?? []);
+        $html = $this->builder();
+        return $html->build(
+            $html->buttonGroup(
+                $html->button(
+                    $this->html->text($this->trans->lang('Columns ')),
+                    $this->html->when($columnCount > 0, fn() =>
+                        $html->badge((string)$columnCount)->type('secondary'))
+                )
+                    ->outline()->secondary()->fullWidth()
+                    ->jxnClick(rq(Options\Fields\Columns::class)->edit()),
+                $html->button(
+                    $this->html->text($this->trans->lang('Filters ')),
+                    $this->html->when($filterCount > 0, fn() =>
+                        $html->badge((string)$filterCount)->type('secondary'))
+                )
+                    ->outline()->secondary()->fullWidth()
+                    ->jxnClick(rq(Options\Fields\Filters::class)->edit()),
+                $html->button(
+                    $this->html->text($this->trans->lang('Order ')),
+                    $this->html->when($sortingCount > 0, fn() =>
+                        $html->badge((string)$sortingCount)->type('secondary'))
+                )
+                    ->outline()->secondary()->fullWidth()
+                    ->jxnClick(rq(Options\Fields\Sorting::class)->edit())
+            )
+            ->fullWidth()
+        );
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return string
+     */
+    public function selectOptionsValues(array $options): string
+    {
+        $optionsLimitId = 'dbadmin-table-select-options-form-limit';
+        $optionsLengthId = 'dbadmin-table-select-options-form-length';
+        $rqOptionsValues = rq(Options\Values::class);
+
         $html = $this->builder();
         return $html->build(
             $html->formRow(
-                $html->formCol(
-                    $html->buttonGroup(
-                        $html->button($this->html->text($this->trans->lang('Columns')))
-                            ->outline()->secondary()->fullWidth()
-                            ->jxnClick($handlers['btnColumns']),
-                        $html->button($this->html->text($this->trans->lang('Filters')))
-                            ->outline()->secondary()->fullWidth()
-                            ->jxnClick($handlers['btnFilters']),
-                        $html->button($this->html->text($this->trans->lang('Order')))
-                            ->outline()->secondary()->fullWidth()
-                            ->jxnClick($handlers['btnSorting'])
-                    )
-                    ->fullWidth(true)
-                )
-                ->width(6),
                 $html->formCol(
                     $html->inputGroup(
                         $html->label(
                             $html->text($this->trans->lang('Limit'))
                         ),
                         $html->formInput()
-                            ->setId($handlers['id']['limit'])
+                            ->setId($optionsLimitId)
                             ->setType('number')
                             ->setName('limit')
-                            ->setValue($options['limit']['value']),
+                            ->setValue($options['limit']),
                         $html->button()
                             ->outline()->secondary()->addIcon('ok')
-                            ->jxnClick($handlers['btnLimit'])
+                            ->jxnClick($rqOptionsValues
+                                ->saveSelectLimit(pm()->input($optionsLimitId)->toInt()))
                     )
                 )
-                ->width(3),
+                ->width(5),
                 $html->formCol(
                     $html->inputGroup(
                         $html->label(
                             $html->text($this->trans->lang('Text length'))
                         ),
                         $html->formInput()
-                            ->setId($handlers['id']['length'])
+                            ->setId($optionsLengthId)
                             ->setType('number')
                             ->setName('text_length')
-                            ->setValue($options['length']['value']),
+                            ->setValue($options['length']),
                         $html->button()
                             ->outline()->secondary()->addIcon('ok')
-                            ->jxnClick($handlers['btnLength'])
+                            ->jxnClick($rqOptionsValues
+                                ->saveTextLength(pm()->input($optionsLengthId)->toInt()))
                     )
                 )
-                ->width(3),
+                ->width(7)
             )
         );
     }
@@ -398,8 +425,18 @@ trait SelectTrait
             $html->row(
                 $html->col(
                     $html->form(
-                        $html->div()
-                            ->jxnBind(rq(Options::class)),
+                        $html->div(
+                            $html->formRow(
+                                $html->formCol(
+                                )
+                                ->width(6)
+                                ->jxnBind(rq(Options\Fields::class)),
+                                $html->formCol(
+                                )
+                                ->width(6)
+                                ->jxnBind(rq(Options\Values::class))
+                            )
+                        ),
                         $html->formRow(
                             $html->formCol(
                                 $html->pre()
@@ -419,7 +456,7 @@ trait SelectTrait
                             ->outline()->secondary()->fullWidth()
                             ->jxnClick($handlers['btnEdit']),
                         $html->button($this->html->text($this->trans->lang('Execute')))
-                            ->fullWidth()->secondary()
+                            ->fullWidth()->primary()
                             ->jxnClick($handlers['btnExec'])
                     )
                     ->fullWidth(true)
