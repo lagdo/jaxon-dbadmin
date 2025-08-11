@@ -8,6 +8,10 @@ use Lagdo\DbAdmin\Ajax\App\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
 use Lagdo\DbAdmin\Ajax\App\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
+use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Package;
+use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Ui\Database\ServerUiBuilder;
 
 use function count;
 use function is_array;
@@ -15,6 +19,18 @@ use function Jaxon\pm;
 
 class Database extends FuncComponent
 {
+    /**
+     * The constructor
+     *
+     * @param Package       $package    The DbAdmin package
+     * @param DbFacade      $db         The facade to database functions
+     * @param ServerUiBuilder $serverUi The HTML UI builder
+     * @param Translator    $trans
+     */
+    public function __construct(protected Package $package, protected DbFacade $db,
+        protected ServerUiBuilder $serverUi, protected Translator $trans)
+    {}
+
     /**
      * Select a database
      *
@@ -70,7 +86,7 @@ class Database extends FuncComponent
 
         $formId = 'database-form';
         $title = 'Create a database';
-        $content = $this->ui()->addDbForm($formId, $collations);
+        $content = $this->serverUi->addDbForm($formId, $collations);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

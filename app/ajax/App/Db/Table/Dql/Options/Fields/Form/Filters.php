@@ -29,7 +29,7 @@ class Filters extends Component
             ];
         }
 
-        return  $this->html->formFilters($values, $options);
+        return  $this->selectUi->formFilters($values, $options);
     }
 
     public function show(): void

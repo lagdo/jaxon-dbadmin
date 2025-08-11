@@ -19,10 +19,10 @@ abstract class FuncComponent extends BaseFuncComponent
      * The constructor
      *
      * @param DbFacade      $db         The facade to database functions
-     * @param SelectUiBuilder $html       The HTML UI builder
+     * @param SelectUiBuilder $selectUi The HTML UI builder
      * @param Translator    $trans
      */
     public function __construct(protected DbFacade $db,
-        protected SelectUiBuilder $html, protected Translator $trans)
+        protected SelectUiBuilder $selectUi, protected Translator $trans)
     {}
 }

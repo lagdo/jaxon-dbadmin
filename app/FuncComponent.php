@@ -4,11 +4,11 @@ namespace Lagdo\DbAdmin\App;
 
 use Jaxon\App\FuncComponent as JaxonFuncComponent;
 use Jaxon\App\View\Store;
-use Lagdo\DbAdmin\App\Ajax\Page\Breadcrumbs;
+use Lagdo\DbAdmin\Ajax\App\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
-use Lagdo\DbAdmin\App\Ui\UiBuilder;
+use Lagdo\DbAdmin\Ui\UiBuilder;
 
 use function call_user_func_array;
 use function func_get_args;

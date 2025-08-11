@@ -69,12 +69,12 @@ class Create extends MainComponent
      */
     public function html(): string
     {
-        return $this->ui()
+        return $this->tableUi
             ->support($this->tableData['support'])
             ->engines($this->tableData['engines'])
             ->collations($this->tableData['collations'])
             ->formId($this->formId)
-            ->tableWrapper($this->rq(Columns::class));
+            ->wrapper($this->rq(Columns::class));
     }
 
     /**

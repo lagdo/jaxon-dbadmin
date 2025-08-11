@@ -36,7 +36,7 @@ class Command extends MenuComponent
             ],
         ];
 
-        return $this->ui()->menuCommands($actions, $this->activeItem);
+        return $this->ui()->commands($actions, $this->activeItem);
     }
 
     /**

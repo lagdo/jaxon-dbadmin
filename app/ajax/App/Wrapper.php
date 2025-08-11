@@ -7,13 +7,13 @@ use Lagdo\DbAdmin\Ajax\Component;
 /**
  * @exclude
  */
-class Content extends Component
+class Wrapper extends Component
 {
     /**
      * @inheritDoc
      */
     public function html(): string
     {
-        return $this->ui()->content();
+        return $this->ui()->wrapper();
     }
 }

@@ -6,11 +6,27 @@ use Lagdo\DbAdmin\Ajax\App\Db\Database\Views;
 use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\Content;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
+use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Package;
+use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Ui\Table\ViewUiBuilder;
 
 use function Jaxon\pm;
 
 class View extends FuncComponent
 {
+    /**
+     * The constructor
+     *
+     * @param Package       $package    The DbAdmin package
+     * @param DbFacade      $db         The facade to database functions
+     * @param ViewUiBuilder $viewUi     The HTML UI builder
+     * @param Translator    $trans
+     */
+    public function __construct(protected Package $package, protected DbFacade $db,
+        protected ViewUiBuilder $viewUi, protected Translator $trans)
+    {}
+
     /**
      * Display the content of a tab
      *
@@ -21,7 +37,7 @@ class View extends FuncComponent
      */
     protected function showTab(array $viewData, string $tabId): void
     {
-        $this->response->html($tabId, $this->ui()->mainContent($viewData));
+        $this->response->html($tabId, $this->viewUi->pageContent($viewData));
     }
 
     /**
@@ -86,7 +102,7 @@ class View extends FuncComponent
         ];
         $this->cl(PageActions::class)->show($actions);
 
-        $content = $this->ui()->mainDbTable($viewInfo['tabs']);
+        $content = $this->viewUi->mainDbTable($viewInfo['tabs']);
         $this->cl(Content::class)->showHtml($content);
 
         // Show fields
@@ -111,7 +127,7 @@ class View extends FuncComponent
         $formId = 'view-form';
         $title = 'Create a view';
         $materializedView = $this->db()->support('materializedview');
-        $content = $this->ui()->viewForm($formId, $materializedView);
+        $content = $this->viewUi->form($formId, $materializedView);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -163,7 +179,7 @@ class View extends FuncComponent
         $formId = 'view-form';
         $title = 'Edit a view';
         $materializedView = $this->db()->support('materializedview');
-        $content = $this->ui()->viewForm($formId, $materializedView, $viewData['view']);
+        $content = $this->viewUi->form($formId, $materializedView, $viewData['view']);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

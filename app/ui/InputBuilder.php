@@ -5,6 +5,8 @@ namespace Lagdo\DbAdmin\Ui;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
+use function htmlentities;
+
 class InputBuilder
 {
     /**
@@ -112,5 +114,26 @@ class InputBuilder
     public function build(string $type, array $input): mixed
     {
         return $this->$type($input);
+    }
+
+    /**
+     * @param array $options
+     * @param string $optionClass
+     * @param bool $useKeys
+     *
+     * @return string
+     */
+    public function htmlSelect(array $options, string $optionClass, bool $useKeys = false): string
+    {
+        return $this->html->build(
+            $this->html->formSelect(
+                $this->html->each($options, fn($label, $key) =>
+                    $this->html->option($label)
+                        ->selected(false)
+                        ->setClass($optionClass)
+                        ->setValue(htmlentities($useKeys ? $key : $label))
+                )
+            )
+        );
     }
 }

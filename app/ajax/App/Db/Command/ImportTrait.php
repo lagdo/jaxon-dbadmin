@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
 
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
+use Lagdo\DbAdmin\Ui\Command\ImportUiBuilder;
 
 use function array_map;
 use function compact;
@@ -10,6 +11,11 @@ use function Jaxon\pm;
 
 trait ImportTrait
 {
+    /**
+     * @var ImportUiBuilder
+     */
+    protected ImportUiBuilder $importUi;
+
     /**
      * @var string
      */
@@ -38,7 +44,7 @@ trait ImportTrait
         $sqlFilesDivId = 'dbadmin-import-sql-files-wrapper';
         $sqlFilesInputId = 'dbadmin-import-sql-files-input';
         $htmlIds = compact('formId', 'sqlFilesBtnId', 'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId');
-        return $this->ui()->importPage($htmlIds, $importOptions['contents'], $importOptions['labels']);
+        return $this->importUi->page($htmlIds, $importOptions['contents'], $importOptions['labels']);
     }
 
     /**
@@ -74,7 +80,7 @@ trait ImportTrait
     /**
      * Run a webfile
      *
-     * upload('field' => 'dbadmin-import-sql-files-input')
+     * @upload dbadmin-import-sql-files-input
      *
      * @param string $database    The database name
      * @param array $formValues
@@ -98,7 +104,7 @@ trait ImportTrait
 
         $queryResults = $this->db()->executeSqlFiles($paths, $errorStops, $onlyErrors);
 
-        $content = $this->ui()->queryResults($queryResults['results']);
+        $content = $this->importUi->results($queryResults['results']);
         $this->response->html('dbadmin-command-results', $content);
     }
 }

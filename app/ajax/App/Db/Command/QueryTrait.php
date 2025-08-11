@@ -3,9 +3,15 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
 
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
+use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 
 trait QueryTrait
 {
+    /**
+     * @var QueryUiBuilder
+     */
+    protected QueryUiBuilder $queryUi;
+
     /**
      * @var string
      */
@@ -30,7 +36,7 @@ trait QueryTrait
         $this->cl(PageActions::class)->clear();
 
         $defaultLimit = 20;
-        return $this->ui()->queryCommand($this->query, $defaultLimit, $this->rq());
+        return $this->queryUi->command($this->query, $defaultLimit, $this->rq());
     }
 
     /**

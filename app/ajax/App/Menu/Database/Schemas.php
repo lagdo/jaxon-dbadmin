@@ -21,7 +21,7 @@ class Schemas extends MenuComponent
      */
     public function html(): string
     {
-        return $this->ui()->menuSchemas($this->database, $this->schemas);
+        return $this->ui()->schemas($this->database, $this->schemas);
     }
 
     /**

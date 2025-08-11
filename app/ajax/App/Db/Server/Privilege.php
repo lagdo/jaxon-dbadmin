@@ -3,11 +3,27 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
 use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
+use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Package;
+use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Ui\Database\ServerUiBuilder;
 
 use function Jaxon\pm;
 
 class Privilege extends FuncComponent
 {
+    /**
+     * The constructor
+     *
+     * @param Package       $package    The DbAdmin package
+     * @param DbFacade      $db         The facade to database functions
+     * @param ServerUiBuilder $serverUi The HTML UI builder
+     * @param Translator    $trans
+     */
+    public function __construct(protected Package $package, protected DbFacade $db,
+        protected ServerUiBuilder $serverUi, protected Translator $trans)
+    {}
+
     /**
      * Show the new user form
      *
@@ -19,8 +35,8 @@ class Privilege extends FuncComponent
 
         $formId = 'user-form';
         $title = 'Add user privileges';
-        $privileges = $this->ui()->mainContent($userInfo);
-        $content = $this->ui()->userForm($formId, $userInfo['user'], $privileges);
+        $privileges = $this->serverUi->pageContent($userInfo);
+        $content = $this->serverUi->addUserForm($formId, $userInfo['user'], $privileges);
 
         $buttons = [[
             'title' => 'Cancel',
@@ -63,8 +79,8 @@ class Privilege extends FuncComponent
 
         $formId = 'user-form';
         $title = 'Edit user privileges';
-        $privileges = $this->ui()->mainContent($userInfo);
-        $content = $this->ui()->userForm($formId, $userInfo['user'], $privileges);
+        $privileges = $this->serverUi->pageContent($userInfo);
+        $content = $this->serverUi->addUserForm($formId, $userInfo['user'], $privileges);
 
         $buttons = [[
             'title' => 'Cancel',

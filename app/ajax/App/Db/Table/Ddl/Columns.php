@@ -34,10 +34,10 @@ class Columns extends Component
      */
     public function html(): string
     {
-        return $this->ui()
+        return $this->tableUi
             ->fields($this->stash()->get('table.fields'))
             ->formId($this->formId)
-            ->tableColumns();
+            ->columns();
     }
 
     /**
@@ -55,7 +55,7 @@ class Columns extends Component
 
         $this->tableData = $this->db()->getTableData($this->getTableName());
         // Make data available to views
-        $this->ui()
+        $this->tableUi
             ->support($this->tableData['support'])
             ->collations($this->tableData['collations'])
             ->unsigned($this->tableData['unsigned'])

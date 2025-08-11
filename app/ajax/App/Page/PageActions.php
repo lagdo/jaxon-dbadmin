@@ -2,10 +2,11 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Page;
 
-use Jaxon\App\Component;
-use Lagdo\DbAdmin\Translator;
-use Lagdo\DbAdmin\Ui\PageBuilder;
+use Lagdo\DbAdmin\Ajax\Component;
 
+/**
+ * @exclude
+ */
 class PageActions extends Component
 {
     /**
@@ -14,25 +15,13 @@ class PageActions extends Component
     private $actions = [];
 
     /**
-     * @param PageBuilder $ui
-     * @param Translator $trans
-     */
-    public function __construct(private PageBuilder $ui, private Translator $trans)
-    {}
-
-    /**
      * @inheritDoc
      */
     public function html(): string
     {
-        return $this->ui->pageActions($this->actions);
+        return $this->ui()->actions($this->actions);
     }
 
-    /**
-     * @exclude
-     *
-     * @return void
-     */
     public function show(array $actions): void
     {
         $this->actions = $actions;

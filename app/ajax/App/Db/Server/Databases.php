@@ -40,7 +40,7 @@ class Databases extends MainComponent
     public function html(): string
     {
         // Add checkboxes to database table
-        return $this->ui()->mainContent($this->pageContent, 'database');
+        return $this->ui()->pageContent($this->pageContent, 'database');
     }
 
     /**

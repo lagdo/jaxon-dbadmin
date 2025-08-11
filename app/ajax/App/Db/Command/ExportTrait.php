@@ -3,11 +3,17 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
 
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
+use Lagdo\DbAdmin\Ui\Command\ExportUiBuilder;
 
 use function Jaxon\pm;
 
 trait ExportTrait
 {
+    /**
+     * @var ExportUiBuilder
+     */
+    protected ExportUiBuilder $exportUi;
+
     /**
      * @var string
      */
@@ -44,7 +50,7 @@ trait ExportTrait
             'tableNameId' => $tableNameId,
             'tableDataId' => $tableDataId,
         ];
-        return $this->ui()->exportPage($htmlIds, $exportOptions['databases'] ?? [],
+        return $this->exportUi->page($htmlIds, $exportOptions['databases'] ?? [],
             $exportOptions['tables'] ?? [], $exportOptions['options'], $exportOptions['labels']);
     }
 

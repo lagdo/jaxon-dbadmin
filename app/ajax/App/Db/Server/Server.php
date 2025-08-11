@@ -54,7 +54,8 @@ class Server extends FuncComponent
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
 
-        $this->cl(ServerInfo::class)->showServer($serverInfo['server'], $serverInfo['user']);
+        $this->cl(ServerInfo::class)
+            ->showServer($serverInfo['server'], $serverInfo['user']);
 
         // Show the server
         $this->cl(ServerCommand::class)->render();

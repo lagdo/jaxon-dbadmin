@@ -53,7 +53,7 @@ class Update extends MainComponent
      */
     public function html(): string
     {
-        return $this->ui()->tableQueryForm($this->queryFormId, $this->queryData['fields']);
+        return $this->tableUi->queryForm($this->queryFormId, $this->queryData['fields']);
     }
 
     /**

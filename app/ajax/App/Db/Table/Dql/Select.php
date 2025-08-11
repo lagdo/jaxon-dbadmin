@@ -80,7 +80,7 @@ class Select extends MainComponent
             'formId' => $this->formOptionsId,
             'txtQueryId' => $this->txtQueryId,
         ];
-        return $this->html->table($ids);
+        return $this->selectUi->table($ids);
     }
 
     /**

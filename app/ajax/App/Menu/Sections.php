@@ -35,7 +35,7 @@ class Sections extends MenuComponent
      */
     public function html(): string
     {
-        return $this->ui()->menuActions($this->actions, $this->activeItem);
+        return $this->ui()->actions($this->actions, $this->activeItem);
     }
 
     /**

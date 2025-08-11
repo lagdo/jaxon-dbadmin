@@ -81,7 +81,7 @@ class Alter extends MainComponent
             'collation' => $this->tableData['table']->collation,
             'comment' => $this->tableData['table']->comment,
         ];
-        return $this->ui()
+        return $this->tableUi
             ->table($editedTable)
             ->support($this->tableData['support'])
             ->engines($this->tableData['engines'])
@@ -91,7 +91,7 @@ class Alter extends MainComponent
             ->options($this->tableData['options'])
             // ->fields($this->tableData['fields'])
             ->formId($this->formId)
-            ->tableWrapper($this->rq(Columns::class));
+            ->wrapper($this->rq(Columns::class));
     }
 
     /**

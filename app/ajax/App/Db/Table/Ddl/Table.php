@@ -112,7 +112,7 @@ class Table extends MainComponent
      */
     public function html(): string
     {
-        return $this->ui()->mainDbTable($this->tableInfo['tabs']);
+        return $this->tableUi->mainDbTable($this->tableInfo['tabs']);
     }
 
     /**
@@ -158,7 +158,7 @@ class Table extends MainComponent
      */
     private function showTab(array $tableData, string $tabId): void
     {
-        $content = $this->ui()->mainContent(array_merge($this->tableInfo, $tableData));
+        $content = $this->tableUi->pageContent(array_merge($this->tableInfo, $tableData));
         $this->response->html($tabId, $content);
     }
 }

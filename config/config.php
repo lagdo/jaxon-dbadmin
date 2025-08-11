@@ -101,9 +101,15 @@ return [
             Lagdo\DbAdmin\Admin\Admin::class,
             // The UI builders
             Lagdo\DbAdmin\Ui\UiBuilder::class,
+            Lagdo\DbAdmin\Ui\InputBuilder::class,
             Lagdo\DbAdmin\Ui\MenuBuilder::class,
-            Lagdo\DbAdmin\Ui\PageBuilder::class,
+            Lagdo\DbAdmin\Ui\Database\ServerUiBuilder::class,
+            Lagdo\DbAdmin\Ui\Command\QueryUiBuilder::class,
+            Lagdo\DbAdmin\Ui\Command\ImportUiBuilder::class,
+            Lagdo\DbAdmin\Ui\Command\ExportUiBuilder::class,
             Lagdo\DbAdmin\Ui\Table\SelectUiBuilder::class,
+            Lagdo\DbAdmin\Ui\Table\TableUiBuilder::class,
+            Lagdo\DbAdmin\Ui\Table\ViewUiBuilder::class,
         ],
         'alias' => [
             // The translator

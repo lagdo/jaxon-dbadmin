@@ -42,7 +42,7 @@ abstract class MainComponent extends BaseComponent
      */
     public function html(): string
     {
-        return $this->ui()->mainContent($this->pageContent, $this->counterId);
+        return $this->ui()->pageContent($this->pageContent, $this->counterId);
     }
 
     /**

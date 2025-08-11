@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
+use Lagdo\DbAdmin\Ui\InputBuilder;
 
 use function array_map;
 use function Jaxon\jq;
@@ -13,6 +14,12 @@ class Privileges extends MainComponent
      * @var array
      */
     private $pageContent;
+
+    /**
+     * @di
+     * @var InputBuilder
+     */
+    private InputBuilder $inputUi;
 
     /**
      * @inheritDoc
@@ -34,7 +41,7 @@ class Privileges extends MainComponent
      */
     public function html(): string
     {
-        return $this->ui()->mainContent($this->pageContent);
+        return $this->ui()->pageContent($this->pageContent);
     }
 
     /**
@@ -52,7 +59,7 @@ class Privileges extends MainComponent
         // Add links, classes and data values to privileges.
         $this->pageContent['details'] = array_map(function($detail) use($user, $host, $database) {
             // Set the grant select options.
-            $detail['grants'] = $this->ui()->htmlSelect($detail['grants'], 'database-item');
+            $detail['grants'] = $this->inputUi->htmlSelect($detail['grants'], 'database-item');
             // Set the Edit button.
             $detail['edit'] = [
                 'label' => 'Edit',

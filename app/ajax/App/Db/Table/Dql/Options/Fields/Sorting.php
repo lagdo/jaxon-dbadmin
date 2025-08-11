@@ -22,7 +22,7 @@ class Sorting extends FuncComponent
     {
         $formId = 'dbadmin-table-select-sorting-form';
         $title = 'Edit order';
-        $content = $this->html->editSorting($formId);
+        $content = $this->selectUi->editSorting($formId);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

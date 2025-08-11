@@ -26,7 +26,7 @@ class Status extends MainComponent
      */
     public function html(): string
     {
-        return $this->ui()->mainContent($this->pageContent);
+        return $this->ui()->pageContent($this->pageContent);
     }
 
     /**

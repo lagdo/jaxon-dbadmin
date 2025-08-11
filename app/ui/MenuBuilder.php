@@ -44,7 +44,7 @@ class MenuBuilder
      *
      * @return string
      */
-    public function menuActions(array $actions, string $activeItem): string
+    public function actions(array $actions, string $activeItem): string
     {
         return $this->html->build(
             $this->html->menu(
@@ -63,7 +63,7 @@ class MenuBuilder
      *
      * @return string
      */
-    public function menuCommands(array $actions, string $activeItem): string
+    public function commands(array $actions, string $activeItem): string
     {
         return $this->html->build(
             $this->html->buttonGroup(
@@ -85,7 +85,7 @@ class MenuBuilder
      *
      * @return string
      */
-    public function menuDatabases(array $databases): string
+    public function databases(array $databases): string
     {
         $database = pm()->select('jaxon-dbadmin-database-select');
         $call = rq(Database::class)->select($database)->ifne($database, '');
@@ -115,7 +115,7 @@ class MenuBuilder
      *
      * @return string
      */
-    public function menuSchemas(string $database, array $schemas): string
+    public function schemas(string $database, array $schemas): string
     {
         $schema = pm()->select('jaxon-dbadmin-schema-select');
         $call = rq(Database::class)->select($database, $schema);

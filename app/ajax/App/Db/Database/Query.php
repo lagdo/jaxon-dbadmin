@@ -3,10 +3,26 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Command\QueryTrait;
+use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Package;
+use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 
-class Query extends ContentComponent
+class Query extends Component
 {
     use QueryTrait;
+
+    /**
+     * The constructor
+     *
+     * @param Package       $package    The DbAdmin package
+     * @param DbFacade      $db         The facade to database functions
+     * @param QueryUiBuilder $queryUi   The HTML UI builder
+     * @param Translator    $trans
+     */
+    public function __construct(protected Package $package, protected DbFacade $db,
+        protected QueryUiBuilder $queryUi, protected Translator $trans)
+    {}
 
     /**
      * @inheritDoc

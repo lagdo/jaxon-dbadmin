@@ -3,6 +3,9 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
 
 use Lagdo\DbAdmin\Ajax\Component;
+use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 
 use function intval;
 use function trim;
@@ -13,12 +16,23 @@ use function trim;
 class QueryResults extends Component
 {
     /**
+     * The constructor
+     *
+     * @param DbFacade      $db         The facade to database functions
+     * @param QueryUiBuilder $queryUi   The HTML UI builder
+     * @param Translator    $trans
+     */
+    public function __construct(protected DbFacade $db,
+        protected QueryUiBuilder $queryUi, protected Translator $trans)
+    {}
+
+    /**
      * @inheritDoc
      */
     public function html(): string
     {
         $results = $this->stash()->get('results');
-        return $this->ui()->queryResults($results);
+        return $this->queryUi->results($results);
     }
 
     /**

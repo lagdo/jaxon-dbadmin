@@ -22,7 +22,7 @@ class Filters extends FuncComponent
     {
         $formId = 'dbadmin-table-select-filters-form';
         $title = 'Edit filters';
-        $content = $this->html->editFilters($formId);
+        $content = $this->selectUi->editFilters($formId);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

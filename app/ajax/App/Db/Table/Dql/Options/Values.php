@@ -16,7 +16,7 @@ class Values extends Component
     public function html(): string
     {
         $options = $this->bag('dbadmin.select')->get('options', []);
-        return $this->html->optionsValues($options);
+        return $this->selectUi->optionsValues($options);
     }
 
     /**

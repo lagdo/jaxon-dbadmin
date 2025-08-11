@@ -2,10 +2,11 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Page;
 
-use Jaxon\App\Component;
-use Lagdo\DbAdmin\Db\DbFacade;
-use Lagdo\DbAdmin\Ui\PageBuilder;
+use Lagdo\DbAdmin\Ajax\Component;
 
+/**
+ * @exclude
+ */
 class Breadcrumbs extends Component
 {
     /**
@@ -14,17 +15,10 @@ class Breadcrumbs extends Component
     private $breadcrumbs = [];
 
     /**
-     * @param PageBuilder $ui
-     * @param DbFacade $db
-     */
-    public function __construct(private PageBuilder $ui, private DbFacade $db)
-    {}
-
-    /**
      * @inheritDoc
      */
     public function html(): string
     {
-        return $this->ui->breadcrumbs($this->db->getBreadcrumbs());
+        return $this->ui()->breadcrumbs($this->db->getBreadcrumbs());
     }
 }

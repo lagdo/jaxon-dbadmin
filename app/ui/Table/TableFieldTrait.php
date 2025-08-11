@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ui\Traits;
+namespace Lagdo\DbAdmin\Ui\Table;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Columns;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
@@ -71,9 +71,9 @@ trait TableFieldTrait
     protected $editPrefix = '';
 
     /**
-     * @return BuilderInterface
+     * @var BuilderInterface
      */
-    abstract protected function builder(): BuilderInterface;
+    protected BuilderInterface $ui;
 
     /**
      * @return array
@@ -90,12 +90,11 @@ trait TableFieldTrait
      */
     protected function getEngineSelect(string $currentEngine): mixed
     {
-        $html = $this->builder();
-        return $html->formSelect(
-            $html->option('(engine)')
+        return $this->ui->formSelect(
+            $this->ui->option('(engine)')
                 ->selected(false)->setValue(''),
-            $html->each($this->engines, fn($engine) =>
-                $html->option($engine)
+            $this->ui->each($this->engines, fn($engine) =>
+                $this->ui->option($engine)
                     ->selected(!strcasecmp($currentEngine, $engine))
             )
         );
@@ -108,20 +107,19 @@ trait TableFieldTrait
      */
     protected function getCollationSelect(string $currentCollation): mixed
     {
-        $html = $this->builder();
-        return $html->formSelect(
-            $html->option('(' . $this->trans->lang('collation') . ')')
+        return $this->ui->formSelect(
+            $this->ui->option('(' . $this->trans->lang('collation') . ')')
                 ->selected(false)->setValue(''),
-            $html->each($this->collations, fn($_collations, $group) =>
-                $html->list(
-                    $html->when(is_string($_collations), fn() =>
-                        $html->option($_collations)
+            $this->ui->each($this->collations, fn($_collations, $group) =>
+                $this->ui->list(
+                    $this->ui->when(is_string($_collations), fn() =>
+                        $this->ui->option($_collations)
                             ->selected($currentCollation === $_collations)
                     ),
-                    $html->when(is_array($_collations), fn() =>
-                        $html->optgroup(
-                            $html->each($_collations, fn($collation) =>
-                                $html->option($collation)
+                    $this->ui->when(is_array($_collations), fn() =>
+                        $this->ui->optgroup(
+                            $this->ui->each($_collations, fn($collation) =>
+                                $this->ui->option($collation)
                                     ->selected($currentCollation === $collation)
                             )
                         )
@@ -139,9 +137,8 @@ trait TableFieldTrait
      */
     protected function getFieldNameCol(TableFieldEntity $field): mixed
     {
-        $html = $this->builder();
-        return $html->col(
-            $html->formInput(['class' => 'column-name'])
+        return $this->ui->col(
+            $this->ui->formInput(['class' => 'column-name'])
                 ->setName($this->editPrefix . '[name]')
                 ->setPlaceholder($this->trans->lang('Name'))
                 ->setValue($field->name ?? '')
@@ -158,13 +155,12 @@ trait TableFieldTrait
      */
     protected function getAutoIncrementCol(TableFieldEntity $field): mixed
     {
-        $html = $this->builder();
-        return $html->col(
-            $html->radio($field->autoIncrement)
+        return $this->ui->col(
+            $this->ui->radio($field->autoIncrement)
                 ->setName('autoIncrementCol')
                 ->setValue($field->editPosition + 1),
-            $html->span($html->html('&nbsp;AI&nbsp;')),
-            $html->checkbox($field->primary)
+            $this->ui->span($this->ui->html('&nbsp;AI&nbsp;')),
+            $this->ui->checkbox($field->primary)
                 ->setName($this->editPrefix . '[primary]')
         );
     }
@@ -176,8 +172,7 @@ trait TableFieldTrait
      */
     protected function getCollationCol(TableFieldEntity $field): mixed
     {
-        $html = $this->builder();
-        return $html->col(
+        return $this->ui->col(
             $this->getCollationSelect($field->collation)
                 ->setName($this->editPrefix . '[collation]')->setDataField('collation')
                 ->when($field->collationHidden, fn($elt) => $elt->setReadonly('readonly'))
@@ -191,13 +186,12 @@ trait TableFieldTrait
      */
     protected function getOnUpdateCol(TableFieldEntity $field): mixed
     {
-        $html = $this->builder();
-        return $html->col(
-            $html->formSelect(
-                $html->option('(' . $this->trans->lang('ON UPDATE') . ')')
+        return $this->ui->col(
+            $this->ui->formSelect(
+                $this->ui->option('(' . $this->trans->lang('ON UPDATE') . ')')
                     ->setValue('')->selected(false),
-                $html->each($this->options['onUpdate'], fn($option, $value) =>
-                    $html->option($option)
+                $this->ui->each($this->options['onUpdate'], fn($option, $value) =>
+                    $this->ui->option($option)
                         ->selected($field->onUpdate === $option)
                         ->setValue($value)
                 )
@@ -215,10 +209,9 @@ trait TableFieldTrait
      */
     protected function getCommentCol(TableFieldEntity $field): mixed
     {
-        $html = $this->builder();
-        return $html->col(
-            $html->when(/*$support['comment']*/true, fn() =>
-                $html->formInput()
+        return $this->ui->col(
+            $this->ui->when(/*$support['comment']*/true, fn() =>
+                $this->ui->formInput()
                     ->setType('text')
                     ->setName($this->editPrefix . '[comment]')
                     ->setValue($field->comment ?? '')
@@ -235,13 +228,12 @@ trait TableFieldTrait
      */
     protected function getTypeCol(TableFieldEntity $field): mixed
     {
-        $html = $this->builder();
-        return $html->col(
-            $html->formSelect(
-                $html->each($field->types, fn($_types, $group) =>
-                    $html->optgroup(
-                        $html->each($_types, fn($type) =>
-                            $html->option($type)
+        return $this->ui->col(
+            $this->ui->formSelect(
+                $this->ui->each($field->types, fn($_types, $group) =>
+                    $this->ui->optgroup(
+                        $this->ui->each($_types, fn($type) =>
+                            $this->ui->option($type)
                                 ->selected($field->type === $type)
                         )
                     )
@@ -260,9 +252,8 @@ trait TableFieldTrait
      */
     protected function getLengthCol(TableFieldEntity $field): mixed
     {
-        $html = $this->builder();
-        return $html->col(
-            $html->formInput()
+        return $this->ui->col(
+            $this->ui->formInput()
                 ->setStyle('width: 100%')
                 ->setName($this->editPrefix . '[length]')
                 ->setDataField('length')
@@ -280,14 +271,13 @@ trait TableFieldTrait
      */
     protected function getNullableCol(TableFieldEntity $field): mixed
     {
-        $html = $this->builder();
-        return $html->col(
-            $html->checkbox()
+        return $this->ui->col(
+            $this->ui->checkbox()
                 ->checked($field->null)
                 ->setName($this->editPrefix . '[null]')
                 ->setDataField('null')
                 ->setValue('1'),
-            $html->span($html->html('&nbsp;Null'))
+            $this->ui->span($this->ui->html('&nbsp;Null'))
         );
     }
 
@@ -298,14 +288,13 @@ trait TableFieldTrait
      */
     protected function getUnsignedCol(TableFieldEntity $field): mixed
     {
-        $html = $this->builder();
-        return $html->col(
-            $html->formSelect(
-                $html->option('(unsigned)')
+        return $this->ui->col(
+            $this->ui->formSelect(
+                $this->ui->option('(unsigned)')
                     ->selected(false)
                     ->setValue(''),
-                $html->each($this->unsigned, fn($option) =>
-                    $html->option($option)
+                $this->ui->each($this->unsigned, fn($option) =>
+                    $this->ui->option($option)
                         ->selected($field->unsigned === $option)
                         ->setValue($option)
                 )
@@ -323,14 +312,13 @@ trait TableFieldTrait
      */
     protected function getOnDeleteCol(TableFieldEntity $field): mixed
     {
-        $html = $this->builder();
-        return $html->col(
-            $html->formSelect(
-                $html->option('(' . $this->trans->lang('ON DELETE') . ')')
+        return $this->ui->col(
+            $this->ui->formSelect(
+                $this->ui->option('(' . $this->trans->lang('ON DELETE') . ')')
                     ->setValue('')
                     ->selected(false),
-                $html->each($this->options['onDelete'], fn($option) =>
-                    $html->option($option)
+                $this->ui->each($this->options['onDelete'], fn($option) =>
+                    $this->ui->option($option)
                         ->setValue($option)
                         ->selected($field->onDelete === $option)
                 )
@@ -348,14 +336,13 @@ trait TableFieldTrait
      */
     protected function getDefaultCol(TableFieldEntity $field): mixed
     {
-        $html = $this->builder();
-        return $html->col(
-            $html->inputGroup(
-                $html->checkbox()
+        return $this->ui->col(
+            $this->ui->inputGroup(
+                $this->ui->checkbox()
                     ->checked($field->hasDefault)
                     ->setName($this->editPrefix . '[hasDefault]')
                     ->setDataField('hasDefault'),
-                $html->formInput()
+                $this->ui->formInput()
                     ->setName($this->editPrefix . '[default]')
                     ->setDataField('default')
                     ->setPlaceholder($this->trans->lang('Default value'))
@@ -376,30 +363,29 @@ trait TableFieldTrait
         $deleted = $field->editStatus === 'deleted';
         $parameters = [$this->formValues(), $field->editPosition];
 
-        $html = $this->builder();
-        return $html->col(
-            $html->dropdown(
-                $html->dropdownItem()
+        return $this->ui->col(
+            $this->ui->dropdown(
+                $this->ui->dropdownItem()
                     ->style('primary')->addCaret(),
-                $html->dropdownMenu(
-                    $html->when($notFirst && $this->support['move_col'], fn() =>
-                        $html->dropdownMenuItem($this->html->text('Up'))
+                $this->ui->dropdownMenu(
+                    $this->ui->when($notFirst && $this->support['move_col'], fn() =>
+                        $this->ui->dropdownMenuItem($this->ui->text('Up'))
                             ->jxnClick(rq(Columns::class)->up(...$parameters))
                     ),
-                    $html->when($notLast && $this->support['move_col'], fn() =>
-                        $html->dropdownMenuItem($this->html->text('Down'))
+                    $this->ui->when($notLast && $this->support['move_col'], fn() =>
+                        $this->ui->dropdownMenuItem($this->ui->text('Down'))
                             ->jxnClick(rq(Columns::class)->down(...$parameters))
                     ),
-                    $html->when($this->support['move_col'], fn() =>
-                        $html->dropdownMenuItem($this->html->text('Add'))
+                    $this->ui->when($this->support['move_col'], fn() =>
+                        $this->ui->dropdownMenuItem($this->ui->text('Add'))
                             ->jxnClick(rq(Columns::class)->add(...$parameters))
                     ),
-                    $html->when($this->support['drop_col'] && !$deleted, fn() =>
-                        $html->dropdownMenuItem($this->html->text('Remove'))
+                    $this->ui->when($this->support['drop_col'] && !$deleted, fn() =>
+                        $this->ui->dropdownMenuItem($this->ui->text('Remove'))
                             ->jxnClick(rq(Columns::class)->del(...$parameters))
                     ),
-                    $html->when($this->support['drop_col'] && $deleted, fn() =>
-                        $html->dropdownMenuItem($this->html->text('Cancel'))
+                    $this->ui->when($this->support['drop_col'] && $deleted, fn() =>
+                        $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
                             ->jxnClick(rq(Columns::class)->cancel(...$parameters))
                     )
                 )

@@ -28,6 +28,6 @@ class Results extends PageComponent
 
         $results = $this->db()->execSelect($this->getTableName(), $options);
         return $results['message'] ??
-            $this->html->results($results['headers'], $results['rows']);
+            $this->selectUi->results($results['headers'], $results['rows']);
     }
 }

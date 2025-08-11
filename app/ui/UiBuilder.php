@@ -15,32 +15,19 @@ use Lagdo\DbAdmin\Ajax\App\Page\ServerInfo;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function htmlentities;
 use function Jaxon\pm;
 use function Jaxon\rq;
 
 class UiBuilder
 {
-    use Traits\MenuTrait;
-    use Traits\MainTrait;
-    use Traits\ServerTrait;
-    use Traits\DatabaseTrait;
-    use Traits\QueryTrait;
-    use Traits\TableTrait;
-
-    /**
-     * @var InputBuilder
-     */
-    protected $inputBuilder;
+    use PageTrait;
 
     /**
      * @param Translator $trans
      * @param BuilderInterface $html
      */
     public function __construct(protected Translator $trans, protected BuilderInterface $html)
-    {
-        $this->inputBuilder = new InputBuilder($trans, $html);
-    }
+    {}
 
     /**
      * @return BuilderInterface
@@ -133,11 +120,50 @@ class UiBuilder
     }
 
     /**
+     * @param array $breadcrumbs
+     *
      * @return string
      */
-    public function content(): string
+    public function breadcrumbs(array $breadcrumbs): string
+    {
+        $last = count($breadcrumbs) - 1;
+        $curr = 0;
+        return $this->html->build(
+            $this->html->breadcrumb(
+                $this->html->each($breadcrumbs, fn($breadcrumb) =>
+                    $this->html->breadcrumbItem($this->html->text($breadcrumb))
+                        ->active($curr++ === $last)
+                )
+            )
+        );
+    }
+
+    /**
+     * @param array $actions
+     *
+     * @return string
+     */
+    public function actions(array $actions): string
     {
         return $this->html->build(
+            $this->html->buttonGroup(
+                $this->html->each($actions, fn($action, $class) =>
+                    $this->html->button(['class' => $class],
+                        $this->html->text($action['title']))
+                        ->outline()->secondary()
+                        ->jxnClick($action['handler'])
+                )
+            )
+            ->setClass('dbadmin-main-action-group')
+        );
+    }
+
+    /**
+     * @return mixed
+     */
+    private function wrapperContent(): mixed
+    {
+        return $this->html->list(
             $this->html->row()->jxnBind(rq(ServerInfo::class)),
             $this->html->row(
                 $this->html->col(
@@ -157,6 +183,16 @@ class UiBuilder
     }
 
     /**
+     * @return string
+     */
+    public function wrapper(): string
+    {
+        return $this->html->build(
+            $this->wrapperContent()
+        );
+    }
+
+    /**
      * @param array $servers
      * @param bool $serverAccess
      * @param string $default
@@ -172,46 +208,11 @@ class UiBuilder
                 )
                 ->width(3),
                 $this->html->col(
-                    $this->html->row()->jxnBind(rq(ServerInfo::class)),
-                    $this->html->row(
-                        $this->html->col(
-                            $this->html->span()
-                                ->jxnBind(rq(Breadcrumbs::class)),
-                            $this->html->span()
-                                ->jxnBind(rq(PageActions::class))
-                        )
-                        ->width(12)
-                    ),
-                    $this->html->row(
-                        $this->html->col()
-                            ->width(12)
-                            ->jxnBind(rq(Content::class))
-                    )
+                    $this->wrapperContent()
                 )
                 ->width(9)
             )
             ->setId('jaxon-dbadmin')
-        );
-    }
-
-    /**
-     * @param array $options
-     * @param string $optionClass
-     * @param bool $useKeys
-     *
-     * @return string
-     */
-    public function htmlSelect(array $options, string $optionClass, bool $useKeys = false): string
-    {
-        return $this->html->build(
-            $this->html->formSelect(
-                $this->html->each($options, fn($label, $key) =>
-                    $this->html->option($label)
-                        ->selected(false)
-                        ->setClass($optionClass)
-                        ->setValue(htmlentities($useKeys ? $key : $label))
-                )
-            )
         );
     }
 }

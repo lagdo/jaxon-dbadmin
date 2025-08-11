@@ -30,7 +30,7 @@ class Columns extends Component
             ];
         }
 
-        return  $this->html->formColumns($values, $options);
+        return  $this->selectUi->formColumns($values, $options);
     }
 
     public function show(): void

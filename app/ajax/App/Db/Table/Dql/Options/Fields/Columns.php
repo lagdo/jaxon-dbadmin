@@ -22,7 +22,7 @@ class Columns extends FuncComponent
     {
         $formId = 'dbadmin-table-select-columns-form';
         $title = 'Edit columns';
-        $content = $this->html->editColumns($formId);
+        $content = $this->selectUi->editColumns($formId);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

@@ -1,0 +1,174 @@
+<?php
+
+namespace Lagdo\DbAdmin\Ui\Command;
+
+use Jaxon\Script\Call\JxnCall;
+use Lagdo\DbAdmin\Ajax\App\Db\Command\QueryResults;
+use Lagdo\DbAdmin\Translator;
+use Lagdo\UiBuilder\BuilderInterface;
+
+use function count;
+use function Jaxon\jo;
+use function Jaxon\rq;
+use function Jaxon\pm;
+
+class QueryUiBuilder
+{
+    /**
+     * @param Translator $trans
+     * @param BuilderInterface $ui
+     */
+    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    {}
+
+    /**
+     * @param string $query
+     * @param int $defaultLimit
+     *
+     * @return string
+     */
+    public function command(string $query, int $defaultLimit, JxnCall $rqQuery): string
+    {
+        $formId = 'dbadmin-main-command-form';
+        $queryId = 'dbadmin-main-command-query';
+
+        return $this->ui->build(
+            $this->ui->col()->width(12)->setId('dbadmin-command-details'),
+            $this->ui->col(
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->panel(
+                            $this->ui->panelBody(
+                                $this->ui->formTextarea($this->ui->html($query))
+                                    ->setName('query')
+                                    ->setId($queryId)
+                                    ->setDataLanguage('sql')
+                                    ->setRows('10')
+                                    ->setSpellcheck('false')
+                                    ->setWrap('on')
+                            )
+                            ->setClass('sql-command-editor-panel')
+                        )
+                        ->style('default')
+                        ->setId('sql-command-editor')
+                    )
+                    ->width(12)
+                )
+            )->width(12),
+            $this->ui->col(
+                $this->ui->form(
+                    $this->ui->formRow(
+                        $this->ui->formCol(
+                            $this->ui->inputGroup(
+                                $this->ui->label(
+                                    $this->ui->text($this->trans->lang('Limit rows'))
+                                ),
+                                $this->ui->formInput()
+                                    ->setName('limit')
+                                    ->setType('number')
+                                    ->setValue($defaultLimit)
+                            )
+                        )
+                        ->width(3),
+                        $this->ui->formCol(
+                            $this->ui->inputGroup(
+                                $this->ui->label(
+                                    $this->ui->text($this->trans->lang('Stop on error'))
+                                ),
+                                $this->ui->checkbox()
+                                    ->setName('error_stops')
+                            )
+                        )
+                        ->width(3),
+                        $this->ui->formCol(
+                            $this->ui->inputGroup(
+                                $this->ui->label(
+                                    $this->ui->text($this->trans->lang('Show only errors'))
+                                ),
+                                $this->ui->checkbox()
+                                    ->setName('only_errors')
+                            )
+                        )
+                        ->width(3),
+                        $this->ui->formCol(
+                            $this->ui->button($this->ui->text($this->trans->lang('Execute')))
+                                ->fullWidth()->primary()
+                                ->jxnClick($rqQuery->exec(jo('jaxon.dbadmin')->getSqlQuery(), pm()->form($formId))/*->when(pm()->input($queryId))*/)
+                        )
+                        ->width(2)
+                    )
+                )->horizontal(true)->wrapped(true)->setId($formId)
+            )
+                ->width(12),
+            $this->ui->col()
+                ->width(12)
+                ->setId('dbadmin-command-history'),
+            $this->ui->col()
+                ->width(12)
+                ->jxnBind(rq(QueryResults::class))
+        );
+    }
+
+    /**
+     * @param array $results
+     *
+     * @return string
+     */
+    public function results(array $results): string
+    {
+        return $this->ui->build(
+            $this->ui->each($results, fn($result) =>
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->when(count($result['errors']) > 0, fn() =>
+                            $this->ui->panel(
+                                $this->ui->panelHeader($this->ui->text($result['query'])),
+                                $this->ui->panelBody(
+                                    $this->ui->each($result['errors'], fn($error) =>
+                                        $this->ui->span($error)
+                                    )
+                                )
+                                ->setStyle('padding:5px 15px')
+                            )
+                            ->style('danger')
+                        ),
+                        $this->ui->when(count($result['messages']) > 0, fn() =>
+                            $this->ui->panel(
+                                $this->ui->panelHeader($this->ui->text($result['query'])),
+                                $this->ui->panelBody(
+                                    $this->ui->each($result['messages'], fn($message) =>
+                                        $this->ui->span($message)
+                                    )
+                                )
+                                ->setStyle('padding:5px 15px')
+                            )
+                            ->style('danger')
+                        ),
+                        $this->ui->when(isset($result['select']), fn() =>
+                            $this->ui->table(
+                                $this->ui->thead(
+                                    $this->ui->tr(
+                                        $this->ui->each($result['select']['headers'], fn($header) =>
+                                            $this->ui->th($this->ui->html($header))
+                                        )
+                                    )
+                                ),
+                                $this->ui->tbody(
+                                    $this->ui->each($result['select']['details'], fn($details) =>
+                                        $this->ui->tr(
+                                            $this->ui->each($details, fn($detail) =>
+                                                $this->ui->td($this->ui->html($detail))
+                                            )
+                                        )
+                                    )
+                                ),
+                            )
+                            ->responsive(true)->style('bordered')->setStyle('margin-top:2px')
+                        ),
+                    )
+                    ->width(12)
+                )
+            )
+        );
+    }
+}
