@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl;
 
-use Lagdo\DbAdmin\Ajax\App\Db\Table\ContentComponent;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dml\Insert;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
@@ -10,7 +10,7 @@ use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use function array_merge;
 use function is_array;
 
-class Table extends ContentComponent
+class Table extends MainComponent
 {
     /**
      * @var array

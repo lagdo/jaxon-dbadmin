@@ -1,11 +1,13 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ui\Traits;
+namespace Lagdo\DbAdmin\Ui\Table;
 
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Results;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
+use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function array_shift;
@@ -13,12 +15,14 @@ use function count;
 use function Jaxon\rq;
 use function Jaxon\pm;
 
-trait SelectTrait
+class SelectUiBuilder
 {
     /**
-     * @return BuilderInterface
+     * @param Translator $trans
+     * @param BuilderInterface $ui
      */
-    abstract protected function builder(): BuilderInterface;
+    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    {}
 
     /**
      * @param JxnCall $rqInput
@@ -28,16 +32,15 @@ trait SelectTrait
      */
     private function editFormButtons(JxnCall $rqInput, string $formId): mixed
     {
-        $html = $this->builder();
-        return $html->formRow(
-            $html->formCol($html->html('&nbsp;'))
+        return $this->ui->formRow(
+            $this->ui->formCol($this->ui->html('&nbsp;'))
                 ->width(9), // Offset
-            $html->formCol(
-                $html->buttonGroup(
-                    $html->button()->primary()
+            $this->ui->formCol(
+                $this->ui->buttonGroup(
+                    $this->ui->button()->primary()
                         ->addIcon('plus')
                         ->jxnClick($rqInput->add(pm()->form($formId))),
-                    $html->button()->danger()
+                    $this->ui->button()->danger()
                         ->addIcon('remove')
                         ->jxnClick($rqInput->del(pm()->form($formId)))
                 )
@@ -52,12 +55,11 @@ trait SelectTrait
      *
      * @return string
      */
-    public function formQueryColumns(array $values, array $options): string
+    public function formColumns(array $values, array $options): string
     {
         $columns = $values['column'] ?? [];
         $count = count($columns);
         $formRows = [];
-        $html = $this->builder();
 
         for ($curId = 0, $newId = 0; $curId < $count; $curId++) {
             // Do not render deleted items
@@ -65,20 +67,20 @@ trait SelectTrait
                 continue;
             }
 
-            $formRows[] = $html->formRow(
-                $html->formCol(
-                    $html->formSelect(
-                        $html->option('')->selected(false),
-                        $html->optgroup(
-                            $html->each($options['functions'], fn($function) =>
-                                $html->option($function)
+            $formRows[] = $this->ui->formRow(
+                $this->ui->formCol(
+                    $this->ui->formSelect(
+                        $this->ui->option('')->selected(false),
+                        $this->ui->optgroup(
+                            $this->ui->each($options['functions'], fn($function) =>
+                                $this->ui->option($function)
                                     ->selected($columns[$curId]['fun'] == $function)
                             )
                         )
                         ->setLabel($this->trans->lang('Functions')),
-                        $html->optgroup(
-                            $html->each($options['grouping'], fn($grouping) =>
-                                $html->option($grouping)
+                        $this->ui->optgroup(
+                            $this->ui->each($options['grouping'], fn($grouping) =>
+                                $this->ui->option($grouping)
                                     ->selected($columns[$curId]['fun'] == $grouping)
                             )
                         )
@@ -87,18 +89,18 @@ trait SelectTrait
                     ->setName("column[$newId][fun]")
                 )
                 ->width(6),
-                $html->formCol(
-                    $html->formSelect(
-                        $html->each($options['columns'], fn($column) =>
-                            $html->option($column)
+                $this->ui->formCol(
+                    $this->ui->formSelect(
+                        $this->ui->each($options['columns'], fn($column) =>
+                            $this->ui->option($column)
                                 ->selected($columns[$curId]['col'] == $column)
                         )
                     )
                     ->setName("column[$newId][col]")
                 )
                 ->width(5),
-                $html->formCol(
-                    $html->checkbox()
+                $this->ui->formCol(
+                    $this->ui->checkbox()
                         ->checked(false)
                         ->setName("del[$newId]")
                         ->setClass("columns-item-checkbox")
@@ -107,8 +109,7 @@ trait SelectTrait
             );
             $newId++;
         }
-        $html = $this->builder();
-        return $html->build(...$formRows);
+        return $this->ui->build(...$formRows);
     }
 
     /**
@@ -116,14 +117,13 @@ trait SelectTrait
      *
      * @return string
      */
-    public function editQueryColumns(string $formId): string
+    public function editColumns(string $formId): string
     {
         $rqColumns = rq(Options\Fields\Form\Columns::class);
-        $html = $this->builder();
-        return $html->build(
-            $html->form(
+        return $this->ui->build(
+            $this->ui->form(
                 $this->editFormButtons($rqColumns, $formId),
-                $html->div()
+                $this->ui->div()
                     ->jxnBind($rqColumns)
             )
             ->responsive(true)->wrapped(false)->setId($formId)
@@ -136,12 +136,11 @@ trait SelectTrait
      *
      * @return string
      */
-    public function formQueryFilters(array $values, array $options): string
+    public function formFilters(array $values, array $options): string
     {
         $wheres = $values['where'] ?? [];
         $count = count($wheres);
         $formRows = [];
-        $html = $this->builder();
 
         for ($curId = 0, $newId = 0; $curId < $count; $curId++) {
             // Do not render deleted items
@@ -149,36 +148,36 @@ trait SelectTrait
                 continue;
             }
 
-            $formRows[] = $html->formRow(
-                $html->formCol(
-                    $html->formSelect(
-                        $html->option('(' . $this->trans->lang('anywhere') . ')'),
-                        $html->each($options['columns'], fn($column) =>
-                            $html->option($column)
+            $formRows[] = $this->ui->formRow(
+                $this->ui->formCol(
+                    $this->ui->formSelect(
+                        $this->ui->option('(' . $this->trans->lang('anywhere') . ')'),
+                        $this->ui->each($options['columns'], fn($column) =>
+                            $this->ui->option($column)
                                 ->selected($wheres[$curId]['col'] == $column)
                         )
                     )
                     ->setName("where[$newId][col]")
                 )
                 ->width(4),
-                $html->formCol(
-                    $html->formSelect(
-                        $html->each($options['operators'], fn($operator) =>
-                            $html->option($operator)
+                $this->ui->formCol(
+                    $this->ui->formSelect(
+                        $this->ui->each($options['operators'], fn($operator) =>
+                            $this->ui->option($operator)
                                 ->selected($wheres[$curId]['op'] == $operator)
                         )
                     )
                     ->setName("where[$newId][op]")
                 )
                 ->width(3),
-                $html->formCol(
-                    $html->formInput()
+                $this->ui->formCol(
+                    $this->ui->formInput()
                         ->setName("where[$newId][val]")
                         ->setValue($wheres[$curId]['val'])
                 )
                 ->width(4),
-                $html->formCol(
-                    $html->checkbox()
+                $this->ui->formCol(
+                    $this->ui->checkbox()
                         ->checked(false)
                         ->setName("del[$newId]")
                         ->setClass("filters-item-checkbox")
@@ -187,8 +186,7 @@ trait SelectTrait
             );
             $newId++;
         }
-        $html = $this->builder();
-        return $html->build(...$formRows);
+        return $this->ui->build(...$formRows);
     }
 
     /**
@@ -196,14 +194,13 @@ trait SelectTrait
      *
      * @return string
      */
-    public function editQueryFilters(string $formId): string
+    public function editFilters(string $formId): string
     {
         $rqFilters = rq(Options\Fields\Form\Filters::class);
-        $html = $this->builder();
-        return $html->build(
-            $html->form(
+        return $this->ui->build(
+            $this->ui->form(
                 $this->editFormButtons($rqFilters, $formId),
-                $html->div()
+                $this->ui->div()
                     ->jxnBind($rqFilters)
             )
             ->responsive(true)->wrapped(false)->setId($formId)
@@ -216,12 +213,11 @@ trait SelectTrait
      *
      * @return string
      */
-    public function formQuerySorting(array $values, array $options): string
+    public function formSorting(array $values, array $options): string
     {
         $orders = $values['order'] ?? [];
         $count = count($orders);
         $formRows = [];
-        $html = $this->builder();
 
         for ($curId = 0, $newId = 0; $curId < $count; $curId++) {
             // Do not render deleted items
@@ -229,31 +225,31 @@ trait SelectTrait
                 continue;
             }
 
-            $formRows[] = $html->formRow(
-                $html->formCol(
-                    $html->formSelect(
-                        $html->each($options['columns'], fn($column) =>
-                            $html->option($column)
+            $formRows[] = $this->ui->formRow(
+                $this->ui->formCol(
+                    $this->ui->formSelect(
+                        $this->ui->each($options['columns'], fn($column) =>
+                            $this->ui->option($column)
                                 ->selected($orders[$curId] == $column)
                         )
                     )
                     ->setName("order[]")
                 )
                 ->width(6),
-                $html->formCol(
-                    $html->inputGroup(
-                        $html->label(
-                            $html->text($this->trans->lang('descending'))
+                $this->ui->formCol(
+                    $this->ui->inputGroup(
+                        $this->ui->label(
+                            $this->ui->text($this->trans->lang('descending'))
                         ),
-                        $html->checkbox()
+                        $this->ui->checkbox()
                             ->checked(isset($values['desc'][$curId]))
                             ->setName("desc[$newId]")
                             ->setValue('1')
                     )
                 )
                 ->width(5),
-                $html->formCol(
-                    $html->checkbox()
+                $this->ui->formCol(
+                    $this->ui->checkbox()
                         ->checked(false)
                         ->setName("del[$newId]")
                         ->setClass("sorting-item-checkbox")
@@ -262,8 +258,7 @@ trait SelectTrait
             );
             $newId++;
         }
-        $html = $this->builder();
-        return $html->build(...$formRows);
+        return $this->ui->build(...$formRows);
     }
 
     /**
@@ -271,14 +266,13 @@ trait SelectTrait
      *
      * @return string
      */
-    public function editQuerySorting(string $formId): string
+    public function editSorting(string $formId): string
     {
         $rqSorting = rq(Options\Fields\Form\Sorting::class);
-        $html = $this->builder();
-        return $html->build(
-            $html->form(
+        return $this->ui->build(
+            $this->ui->form(
                 $this->editFormButtons($rqSorting, $formId),
-                $html->div()
+                $this->ui->div()
                     ->jxnBind($rqSorting)
             )
             ->responsive(true)->wrapped(false)
@@ -292,27 +286,26 @@ trait SelectTrait
      *
      * @return string
      */
-    public function selectResults(array $headers, array $rows): string
+    public function results(array $headers, array $rows): string
     {
         array_shift($headers);
-        $html = $this->builder();
-        return $html->build(
-            $html->table(
-                $html->thead(
-                    $html->tr(
-                        $html->each($headers, fn($header) =>
-                            $html->th($header['key'] ?? '')
+        return $this->ui->build(
+            $this->ui->table(
+                $this->ui->thead(
+                    $this->ui->tr(
+                        $this->ui->each($headers, fn($header) =>
+                            $this->ui->th($header['key'] ?? '')
                         ),
-                        $html->th(['style' => 'width:30px'])
+                        $this->ui->th(['style' => 'width:30px'])
                     )
                 ),
-                $html->tbody(
-                    $html->each($rows, fn($row) =>
-                        $html->tr(
-                            $html->each($row['cols'], fn($col) =>
-                                $html->td($col['value'])
+                $this->ui->tbody(
+                    $this->ui->each($rows, fn($row) =>
+                        $this->ui->tr(
+                            $this->ui->each($row['cols'], fn($col) =>
+                                $this->ui->td($col['value'])
                             ),
-                            $html->td(['style' => 'width:30px'])
+                            $this->ui->td(['style' => 'width:30px'])
                         )
                     )
                 ),
@@ -326,32 +319,31 @@ trait SelectTrait
      *
      * @return string
      */
-    public function selectOptionsFields(array $options): string
+    public function optionsFields(array $options): string
     {
         $columnCount = count($options['columns']['column'] ?? []);
         $filterCount = count($options['filters']['where'] ?? []);
         $sortingCount = count($options['sorting']['order'] ?? []);
-        $html = $this->builder();
-        return $html->build(
-            $html->buttonGroup(
-                $html->button(
-                    $this->html->text($this->trans->lang('Columns ')),
-                    $this->html->when($columnCount > 0, fn() =>
-                        $html->badge((string)$columnCount)->type('secondary'))
+        return $this->ui->build(
+            $this->ui->buttonGroup(
+                $this->ui->button(
+                    $this->ui->text($this->trans->lang('Columns ')),
+                    $this->ui->when($columnCount > 0, fn() =>
+                        $this->ui->badge((string)$columnCount)->type('secondary'))
                 )
                     ->outline()->secondary()->fullWidth()
                     ->jxnClick(rq(Options\Fields\Columns::class)->edit()),
-                $html->button(
-                    $this->html->text($this->trans->lang('Filters ')),
-                    $this->html->when($filterCount > 0, fn() =>
-                        $html->badge((string)$filterCount)->type('secondary'))
+                $this->ui->button(
+                    $this->ui->text($this->trans->lang('Filters ')),
+                    $this->ui->when($filterCount > 0, fn() =>
+                        $this->ui->badge((string)$filterCount)->type('secondary'))
                 )
                     ->outline()->secondary()->fullWidth()
                     ->jxnClick(rq(Options\Fields\Filters::class)->edit()),
-                $html->button(
-                    $this->html->text($this->trans->lang('Order ')),
-                    $this->html->when($sortingCount > 0, fn() =>
-                        $html->badge((string)$sortingCount)->type('secondary'))
+                $this->ui->button(
+                    $this->ui->text($this->trans->lang('Order ')),
+                    $this->ui->when($sortingCount > 0, fn() =>
+                        $this->ui->badge((string)$sortingCount)->type('secondary'))
                 )
                     ->outline()->secondary()->fullWidth()
                     ->jxnClick(rq(Options\Fields\Sorting::class)->edit())
@@ -365,43 +357,42 @@ trait SelectTrait
      *
      * @return string
      */
-    public function selectOptionsValues(array $options): string
+    public function optionsValues(array $options): string
     {
         $optionsLimitId = 'dbadmin-table-select-options-form-limit';
         $optionsLengthId = 'dbadmin-table-select-options-form-length';
         $rqOptionsValues = rq(Options\Values::class);
 
-        $html = $this->builder();
-        return $html->build(
-            $html->formRow(
-                $html->formCol(
-                    $html->inputGroup(
-                        $html->label(
-                            $html->text($this->trans->lang('Limit'))
+        return $this->ui->build(
+            $this->ui->formRow(
+                $this->ui->formCol(
+                    $this->ui->inputGroup(
+                        $this->ui->label(
+                            $this->ui->text($this->trans->lang('Limit'))
                         ),
-                        $html->formInput()
+                        $this->ui->formInput()
                             ->setId($optionsLimitId)
                             ->setType('number')
                             ->setName('limit')
                             ->setValue($options['limit']),
-                        $html->button()
+                        $this->ui->button()
                             ->outline()->secondary()->addIcon('ok')
                             ->jxnClick($rqOptionsValues
                                 ->saveSelectLimit(pm()->input($optionsLimitId)->toInt()))
                     )
                 )
                 ->width(5),
-                $html->formCol(
-                    $html->inputGroup(
-                        $html->label(
-                            $html->text($this->trans->lang('Text length'))
+                $this->ui->formCol(
+                    $this->ui->inputGroup(
+                        $this->ui->label(
+                            $this->ui->text($this->trans->lang('Text length'))
                         ),
-                        $html->formInput()
+                        $this->ui->formInput()
                             ->setId($optionsLengthId)
                             ->setType('number')
                             ->setName('text_length')
                             ->setValue($options['length']),
-                        $html->button()
+                        $this->ui->button()
                             ->outline()->secondary()->addIcon('ok')
                             ->jxnClick($rqOptionsValues
                                 ->saveTextLength(pm()->input($optionsLengthId)->toInt()))
@@ -414,32 +405,30 @@ trait SelectTrait
 
     /**
      * @param array $ids
-     * @param array $handlers
      *
      * @return string
      */
-    public function tableSelect(array $ids, array $handlers): string
+    public function table(array $ids): string
     {
-        $html = $this->builder();
-        return $html->build(
-            $html->row(
-                $html->col(
-                    $html->form(
-                        $html->div(
-                            $html->formRow(
-                                $html->formCol(
+        return $this->ui->build(
+            $this->ui->row(
+                $this->ui->col(
+                    $this->ui->form(
+                        $this->ui->div(
+                            $this->ui->formRow(
+                                $this->ui->formCol(
                                 )
                                 ->width(6)
                                 ->jxnBind(rq(Options\Fields::class)),
-                                $html->formCol(
+                                $this->ui->formCol(
                                 )
                                 ->width(6)
                                 ->jxnBind(rq(Options\Values::class))
                             )
                         ),
-                        $html->formRow(
-                            $html->formCol(
-                                $html->pre()
+                        $this->ui->formRow(
+                            $this->ui->formCol(
+                                $this->ui->pre()
                                     ->setId($ids['txtQueryId'])
                                     ->jxnBind(rq(QueryText::class))
                             )
@@ -449,27 +438,27 @@ trait SelectTrait
                 )
                 ->width(12)
             ),
-            $html->row(
-                $html->col(
-                    $html->buttonGroup(
-                        $html->button($this->html->text($this->trans->lang('Edit')))
+            $this->ui->row(
+                $this->ui->col(
+                    $this->ui->buttonGroup(
+                        $this->ui->button($this->ui->text($this->trans->lang('Edit')))
                             ->outline()->secondary()->fullWidth()
-                            ->jxnClick($handlers['btnEdit']),
-                        $html->button($this->html->text($this->trans->lang('Execute')))
+                            ->jxnClick(rq(Select::class)->edit()),
+                        $this->ui->button($this->ui->text($this->trans->lang('Execute')))
                             ->fullWidth()->primary()
-                            ->jxnClick($handlers['btnExec'])
+                            ->jxnClick(rq(Results::class)->page())
                     )
                     ->fullWidth(true)
                 )
                 ->width(3),
-                $html->col(
-                    $html->nav()
+                $this->ui->col(
+                    $this->ui->nav()
                         ->jxnPagination(rq(Results::class))
                 )
                 ->width(9)
             ),
-            $html->row(
-                $html->col()
+            $this->ui->row(
+                $this->ui->col()
                     ->width(12)
                     ->jxnBind(rq(Results::class))
             )

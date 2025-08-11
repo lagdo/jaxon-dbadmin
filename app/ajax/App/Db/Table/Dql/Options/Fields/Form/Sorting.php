@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Fields\Form;
 
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Component;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Component;
 
 use function count;
 
@@ -28,7 +28,7 @@ class Sorting extends Component
             ];
         }
 
-        return $this->ui()->formQuerySorting($values, $options);
+        return $this->html->formSorting($values, $options);
     }
 
     public function show(): void

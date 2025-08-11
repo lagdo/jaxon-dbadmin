@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Component;
-
 use function html_entity_decode;
 
 /**

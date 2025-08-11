@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options;
 
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Component;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Component;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
 
 /**
@@ -11,19 +11,12 @@ use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
 class Values extends Component
 {
     /**
-     * The select form div id
-     *
-     * @var string
-     */
-    private $formOptionsId = 'dbadmin-table-select-options-form';
-
-    /**
      * @inheritDoc
      */
     public function html(): string
     {
         $options = $this->bag('dbadmin.select')->get('options', []);
-        return $this->ui()->selectOptionsValues($options);
+        return $this->html->optionsValues($options);
     }
 
     /**

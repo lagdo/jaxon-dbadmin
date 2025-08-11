@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Tables;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\ContentComponent;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
 use function Jaxon\jq;
@@ -15,7 +15,7 @@ use function Jaxon\pm;
  * @databag dbadmin.table
  * @after showBreadcrumbs
  */
-class Create extends ContentComponent
+class Create extends MainComponent
 {
     /**
      * @var array

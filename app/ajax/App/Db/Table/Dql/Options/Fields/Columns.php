@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Fields;
 
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\FuncComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Fields;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\FuncComponent;
 
 use function Jaxon\pm;
 
@@ -14,21 +14,15 @@ use function Jaxon\pm;
 class Columns extends FuncComponent
 {
     /**
-     * The columns form div id
-     *
-     * @var string
-     */
-    private $formId = 'dbadmin-table-select-columns-form';
-
-    /**
      * Change the query columns
      *
      * @return void
      */
     public function edit(): void
     {
+        $formId = 'dbadmin-table-select-columns-form';
         $title = 'Edit columns';
-        $content = $this->ui()->editQueryColumns($this->formId);
+        $content = $this->html->editColumns($formId);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -36,7 +30,7 @@ class Columns extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(pm()->form($this->formId)),
+            'click' => $this->rq()->save(pm()->form($formId)),
         ]];
         $this->modal()->show($title, $content, $buttons);
 

@@ -28,8 +28,8 @@ abstract class Component extends JaxonComponent
      * @param UiBuilder     $ui         The HTML UI builder
      * @param Translator    $trans
      */
-    public function __construct(private Package $package, private DbFacade $db,
-        private UiBuilder $ui, private Translator $trans)
+    public function __construct(protected Package $package, protected DbFacade $db,
+        protected UiBuilder $ui, protected Translator $trans)
     {}
 
     /**

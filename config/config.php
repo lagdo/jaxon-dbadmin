@@ -99,10 +99,11 @@ return [
             Lagdo\DbAdmin\Db\DbFacade::class,
             // The db classes
             Lagdo\DbAdmin\Admin\Admin::class,
-            // The template builders
+            // The UI builders
             Lagdo\DbAdmin\Ui\UiBuilder::class,
             Lagdo\DbAdmin\Ui\MenuBuilder::class,
             Lagdo\DbAdmin\Ui\PageBuilder::class,
+            Lagdo\DbAdmin\Ui\Table\SelectUiBuilder::class,
         ],
         'alias' => [
             // The translator

@@ -17,6 +17,26 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
 trait ComponentTrait
 {
     /**
+     * @var Package
+     */
+    protected Package $package;
+
+    /**
+     * @var DbFacade
+     */
+    protected DbFacade $db;
+
+    /**
+     * @var UiBuilder
+     */
+    protected UiBuilder $ui;
+
+    /**
+     * @var Translator
+     */
+    protected Translator $trans;
+
+    /**
      * @return Package
      */
     protected function package(): Package

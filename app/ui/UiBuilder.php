@@ -27,7 +27,6 @@ class UiBuilder
     use Traits\DatabaseTrait;
     use Traits\QueryTrait;
     use Traits\TableTrait;
-    use Traits\SelectTrait;
 
     /**
      * @var InputBuilder

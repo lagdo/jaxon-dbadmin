@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl;
 
-use Lagdo\DbAdmin\Ajax\App\Db\Table\ContentComponent;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
@@ -15,7 +15,7 @@ use function Jaxon\pm;
  * @databag dbadmin.table
  * @after showBreadcrumbs
  */
-class Alter extends ContentComponent
+class Alter extends MainComponent
 {
     /**
      * @var array

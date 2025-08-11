@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
-use Lagdo\DbAdmin\Ajax\App\Db\Table\PageComponent;
-
 /**
  * This class provides select query features on tables.
  */
@@ -30,6 +28,6 @@ class Results extends PageComponent
 
         $results = $this->db()->execSelect($this->getTableName(), $options);
         return $results['message'] ??
-            $this->ui()->selectResults($results['headers'], $results['rows']);
+            $this->html->results($results['headers'], $results['rows']);
     }
 }

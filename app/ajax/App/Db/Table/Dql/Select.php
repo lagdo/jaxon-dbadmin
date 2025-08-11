@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Query as QueryEdit;
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Tables;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\ContentComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Table;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dml\Insert;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
@@ -12,7 +11,7 @@ use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 /**
  * This class provides select query features on tables.
  */
-class Select extends ContentComponent
+class Select extends MainComponent
 {
     use QueryTrait;
 
@@ -40,7 +39,7 @@ class Select extends ContentComponent
         $this->bag('dbadmin.select')->set('filters', []);
         $this->bag('dbadmin.select')->set('sorting', []);
         // While the options values are kept.
-        $options = $this->bag('dbadmin.select')->get('options');
+        $options = $this->bag('dbadmin.select')->get('options', []);
 
         $table = $this->getTableName();
 
@@ -81,14 +80,7 @@ class Select extends ContentComponent
             'formId' => $this->formOptionsId,
             'txtQueryId' => $this->txtQueryId,
         ];
-
-        // Click handlers on buttons
-        $handlers = [
-            'btnExec' => $this->rq(Results::class)->page(),
-            'btnEdit' => $this->rq()->edit(),
-        ];
-
-        return $this->ui()->tableSelect($ids, $handlers);
+        return $this->html->table($ids);
     }
 
     /**

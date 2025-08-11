@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dml;
 
-use Lagdo\DbAdmin\Ajax\App\Db\Table\ContentComponent;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
 use function Jaxon\pm;
@@ -11,7 +11,7 @@ use function Jaxon\pm;
  * This class provides insert and update query features on tables.
  * @after showBreadcrumbs
  */
-class Update extends ContentComponent
+class Update extends MainComponent
 {
     /**
      * @var array
