@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
-class Variables extends ContentComponent
+class Variables extends MainComponent
 {
     /**
      * @var array

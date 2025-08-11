@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use function array_map;
 use function Jaxon\jq;
 
-class Privileges extends ContentComponent
+class Privileges extends MainComponent
 {
     /**
      * @var array

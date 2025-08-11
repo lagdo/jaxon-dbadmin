@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
-class Status extends ContentComponent
+class Status extends MainComponent
 {
     /**
      * @var array

@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
-class Events extends ContentComponent
+class Events extends MainComponent
 {
     /**
      * @inheritDoc

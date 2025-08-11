@@ -8,7 +8,7 @@ use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use function array_map;
 use function Jaxon\jq;
 
-class Views extends ContentComponent
+class Views extends MainComponent
 {
     /**
      * @inheritDoc

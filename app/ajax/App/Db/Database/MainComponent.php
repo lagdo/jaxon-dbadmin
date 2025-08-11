@@ -9,7 +9,7 @@ use Lagdo\DbAdmin\Ajax\App\Page\Content;
  * @before checkDatabaseAccess
  * @after showBreadcrumbs
  */
-abstract class ContentComponent extends BaseComponent
+abstract class MainComponent extends BaseComponent
 {
     /**
      * @var string

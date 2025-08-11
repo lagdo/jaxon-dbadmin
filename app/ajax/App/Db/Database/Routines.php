@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
-class Routines extends ContentComponent
+class Routines extends MainComponent
 {
     /**
      * @inheritDoc

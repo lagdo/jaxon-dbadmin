@@ -10,7 +10,7 @@ use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use function array_map;
 use function Jaxon\jq;
 
-class Databases extends ContentComponent
+class Databases extends MainComponent
 {
     /**
      * @var array
