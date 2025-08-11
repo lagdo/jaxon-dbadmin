@@ -6,7 +6,7 @@ use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\FuncComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Fields;
 
-use function Jaxon\pm;
+use function Jaxon\je;
 
 /**
  * This class provides select query features on tables.
@@ -30,7 +30,7 @@ class Filters extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(pm()->form($formId)),
+            'click' => $this->rq()->save(je($formId)->rd()->form()),
         ]];
         $this->modal()->show($title, $content, $buttons);
 

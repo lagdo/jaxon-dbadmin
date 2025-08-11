@@ -11,7 +11,7 @@ use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\Table\ViewUiBuilder;
 
-use function Jaxon\pm;
+use function Jaxon\je;
 
 class View extends FuncComponent
 {
@@ -135,7 +135,7 @@ class View extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create(pm()->form($formId)),
+            'click' => $this->rq()->create(je($formId)->rd()->form()),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }
@@ -187,7 +187,7 @@ class View extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->update($view, pm()->form($formId)),
+            'click' => $this->rq()->update($view, je($formId)->rd()->form()),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }

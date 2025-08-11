@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\Ui\Command\ImportUiBuilder;
 
 use function array_map;
 use function compact;
-use function Jaxon\pm;
+use function Jaxon\je;
 
 trait ImportTrait
 {
@@ -63,7 +63,7 @@ trait ImportTrait
         $this->response->jo('jaxon.dbadmin')->setFileUpload("#$sqlFilesDivId", "#$sqlChooseBtnId", "#$sqlFilesInputId");
 
         $this->response->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($this->database));
-        $this->response->jq("#$sqlFilesBtnId")->click($this->rq()->executeSqlFiles($this->database, pm()->form($formId)));
+        $this->response->jq("#$sqlFilesBtnId")->click($this->rq()->executeSqlFiles($this->database, je($formId)->rd()->form()));
     }
 
     /**

@@ -8,7 +8,7 @@ use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\Database\ServerUiBuilder;
 
-use function Jaxon\pm;
+use function Jaxon\je;
 
 class Privilege extends FuncComponent
 {
@@ -45,7 +45,7 @@ class Privilege extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create(pm()->form($formId)),
+            'click' => $this->rq()->create(je($formId)->rd()->form()),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }
@@ -89,7 +89,7 @@ class Privilege extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->update(pm()->form($formId)),
+            'click' => $this->rq()->update(je($formId)->rd()->form()),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }

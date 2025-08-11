@@ -21,20 +21,20 @@ trait TableTrait
     public function mainDbTable(array $tabs): string
     {
         $firstTabId = array_key_first($tabs);
-        $html = $this->builder();
-        return $html->build(
-            $html->row(
-                $html->col(
-                    $html->tabNav(
-                        $html->each($tabs, fn($tab, $id) =>
-                            $html->tabNavItem($html->text($tab))
+        $ui = $this->builder();
+        return $ui->build(
+            $ui->row(
+                $ui->col(
+                    $ui->tabNav(
+                        $ui->each($tabs, fn($tab, $id) =>
+                            $ui->tabNavItem($ui->text($tab))
                                 ->target("tab-content-$id")
                                 ->active($firstTabId === $id)
                         )
                     ),
-                    $html->tabContent(
-                        $html->each($tabs, fn($_, $id) =>
-                            $html->tabContentItem()
+                    $ui->tabContent(
+                        $ui->each($tabs, fn($_, $id) =>
+                            $ui->tabContentItem()
                                 ->setId("tab-content-$id")
                                 ->active($firstTabId === $id)
                         )

@@ -18,24 +18,24 @@ trait PageTrait
      */
     private function getTableCell($content): mixed
     {
-        $html = $this->builder();
+        $ui = $this->builder();
         if (!is_array($content)) {
-            return $html->td($html->html($content));
+            return $ui->td($ui->html($content));
         }
 
         if(!isset($content['handler']))
         {
-            return $html->td($html->text($content['label']));
+            return $ui->td($ui->text($content['label']));
         }
 
-        $element = $html->td();
+        $element = $ui->td();
         if(isset($content['props']))
         {
             $element->setAttributes($content['props']);
         }
 
         $element->children(
-            $html->a($html->text($content['label']))
+            $ui->a($ui->text($content['label']))
                 ->setAttributes(['href' => 'javascript:void(0)'])
                 ->jxnClick($content['handler'])
         );
@@ -52,31 +52,31 @@ trait PageTrait
     {
         $headers = $content['headers'] ?? [];
         $details = $content['details'] ?? [];
-        $html = $this->builder();
-        return $html->table(
-            $html->thead(
-                $html->when($counterId !== '', fn() =>
-                    $html->th(
-                        $html->checkbox()
+        $ui = $this->builder();
+        return $ui->table(
+            $ui->thead(
+                $ui->when($counterId !== '', fn() =>
+                    $ui->th(
+                        $ui->checkbox()
                             ->addClass('dbadmin-table-checkbox')
                             ->setId("dbadmin-table-$counterId-all")
                     )
                 ),
-                $html->each($headers, fn($header) =>
-                    $html->th($html->html($header))
+                $ui->each($headers, fn($header) =>
+                    $ui->th($ui->html($header))
                 ),
             ),
-            $html->body(
-                $html->each($details, fn($detailGroup) =>
-                    $html->tr(
-                        $html->when($counterId !== '', fn() =>
-                            $html->td(
-                                $html->checkbox()
+            $ui->body(
+                $ui->each($details, fn($detailGroup) =>
+                    $ui->tr(
+                        $ui->when($counterId !== '', fn() =>
+                            $ui->td(
+                                $ui->checkbox()
                                     ->addClass("dbadmin-table-$counterId")
                                     ->setName("{$counterId}[]")
                             )
                         ),
-                        $html->each($detailGroup, fn($detail) =>
+                        $ui->each($detailGroup, fn($detail) =>
                             $this->getTableCell($detail ?? '')
                         )
                     )
@@ -95,13 +95,13 @@ trait PageTrait
      */
     public function pageContent(array $pageContent, string $counterId = ''): string
     {
-        $html = $this->builder();
-        return $html->build(
+        $ui = $this->builder();
+        return $ui->build(
             $this->makeTable($pageContent, $counterId),
-            $html->when($counterId !== '', function() use($html, $counterId) {
+            $ui->when($counterId !== '', function() use($ui, $counterId) {
                 $message = "Selected (<span id=\"dbadmin-table-{$counterId}-count\">0</span>)";
-                return $html->panel(
-                    $html->panelBody($html->html($message))
+                return $ui->panel(
+                    $ui->panelBody($ui->html($message))
                 );
             })
         );

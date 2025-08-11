@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dml;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
-use function Jaxon\pm;
+use function Jaxon\je;
 
 /**
  * This class provides insert and update query features on tables.
@@ -39,7 +39,7 @@ class Update extends MainComponent
         $this->view()->shareValues($this->queryData);
 
         // Set main menu buttons
-        $options = pm()->form($this->queryFormId);
+        $options = je($this->queryFormId)->rd()->form();
         $actions = [
             [$this->trans()->lang('Back'), $this->rq()->back(), true],
             [$this->trans()->lang('Save'), $this->rq()->exec($this->rowIds, $options)

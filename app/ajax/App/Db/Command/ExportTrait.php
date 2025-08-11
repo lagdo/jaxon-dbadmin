@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Ui\Command\ExportUiBuilder;
 
-use function Jaxon\pm;
+use function Jaxon\je;
 
 trait ExportTrait
 {
@@ -71,13 +71,13 @@ trait ExportTrait
         {
             $this->response->jo('jaxon.dbadmin')->selectAllCheckboxes($tableNameId);
             $this->response->jo('jaxon.dbadmin')->selectAllCheckboxes($tableDataId);
-            $this->response->jq("#$btnId")->click($this->rq()->exportOne($this->database, pm()->form($formId)));
+            $this->response->jq("#$btnId")->click($this->rq()->exportOne($this->database, je($formId)->rd()->form()));
             return;
         }
 
         $this->response->jo('jaxon.dbadmin')->selectAllCheckboxes($databaseNameId);
         $this->response->jo('jaxon.dbadmin')->selectAllCheckboxes($databaseDataId);
-        $this->response->jq("#$btnId")->click($this->rq()->exportSet(pm()->form($formId)));
+        $this->response->jq("#$btnId")->click($this->rq()->exportSet(je($formId)->rd()->form()));
     }
 
     /**

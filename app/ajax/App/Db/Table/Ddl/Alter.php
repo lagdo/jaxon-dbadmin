@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
 use function array_values;
-use function Jaxon\pm;
+use function Jaxon\je;
 
 /**
  * Alter a table
@@ -55,7 +55,7 @@ class Alter extends MainComponent
         $this->stash()->set('table.fields', $fields);
 
         // Set main menu buttons
-        $values = pm()->form($this->formId);
+        $values = je($this->formId)->rd()->form();
         $actions = [
             'table-save' => [
                 'title' => $this->trans()->lang('Save'),

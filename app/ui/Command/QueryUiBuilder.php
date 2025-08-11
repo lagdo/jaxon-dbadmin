@@ -8,9 +8,9 @@ use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
+use function Jaxon\je;
 use function Jaxon\jo;
 use function Jaxon\rq;
-use function Jaxon\pm;
 
 class QueryUiBuilder
 {
@@ -93,7 +93,7 @@ class QueryUiBuilder
                         $this->ui->formCol(
                             $this->ui->button($this->ui->text($this->trans->lang('Execute')))
                                 ->fullWidth()->primary()
-                                ->jxnClick($rqQuery->exec(jo('jaxon.dbadmin')->getSqlQuery(), pm()->form($formId))/*->when(pm()->input($queryId))*/)
+                                ->jxnClick($rqQuery->exec(jo('jaxon.dbadmin')->getSqlQuery(), je($formId)->rd()->form())/*->when(je($queryId)->rd()->input())*/)
                         )
                         ->width(2)
                     )

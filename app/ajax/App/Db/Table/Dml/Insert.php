@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Table;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
-use function Jaxon\pm;
+use function Jaxon\je;
 
 /**
  * This class provides insert and update query features on tables.
@@ -36,7 +36,7 @@ class Insert extends MainComponent
 
         // Set main menu buttons
         $table = $this->getTableName();
-        $options = pm()->form($this->queryFormId);
+        $options = je($this->queryFormId)->rd()->form();
         $actions = [
             'query-save' => [
                 'title' => $this->trans()->lang('Save'),

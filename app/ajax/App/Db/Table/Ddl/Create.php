@@ -6,8 +6,8 @@ use Lagdo\DbAdmin\Ajax\App\Db\Database\Tables;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
+use function Jaxon\je;
 use function Jaxon\jq;
-use function Jaxon\pm;
 
 /**
  * Create a new table
@@ -50,7 +50,7 @@ class Create extends MainComponent
         // Set main menu buttons
         $contentId = 'dbadmin-database-content';
         $length = jq(".{$this->formId}-column", "#$contentId")->length;
-        $values = pm()->form($this->formId);
+        $values = je($this->formId)->rd()->form();
         $actions = [
             'table-save' => [
                 'title' => $this->trans()->lang('Save'),

@@ -12,8 +12,8 @@ use Lagdo\UiBuilder\BuilderInterface;
 
 use function array_shift;
 use function count;
+use function Jaxon\je;
 use function Jaxon\rq;
-use function Jaxon\pm;
 
 class SelectUiBuilder
 {
@@ -39,10 +39,10 @@ class SelectUiBuilder
                 $this->ui->buttonGroup(
                     $this->ui->button()->primary()
                         ->addIcon('plus')
-                        ->jxnClick($rqInput->add(pm()->form($formId))),
+                        ->jxnClick($rqInput->add(je($formId)->rd()->form())),
                     $this->ui->button()->danger()
                         ->addIcon('remove')
-                        ->jxnClick($rqInput->del(pm()->form($formId)))
+                        ->jxnClick($rqInput->del(je($formId)->rd()->form()))
                 )
             )
             ->width(3)
@@ -378,7 +378,7 @@ class SelectUiBuilder
                         $this->ui->button()
                             ->outline()->secondary()->addIcon('ok')
                             ->jxnClick($rqOptionsValues
-                                ->saveSelectLimit(pm()->input($optionsLimitId)->toInt()))
+                                ->saveSelectLimit(je($optionsLimitId)->rd()->input()->toInt()))
                     )
                 )
                 ->width(5),
@@ -395,7 +395,7 @@ class SelectUiBuilder
                         $this->ui->button()
                             ->outline()->secondary()->addIcon('ok')
                             ->jxnClick($rqOptionsValues
-                                ->saveTextLength(pm()->input($optionsLengthId)->toInt()))
+                                ->saveTextLength(je($optionsLengthId)->rd()->input()->toInt()))
                     )
                 )
                 ->width(7)
