@@ -49,7 +49,7 @@ trait PageTrait
      */
     private function makeTable(array $content, string $counterId): mixed
     {
-        $headers = $content['headers'] ?? [];
+        $headers = $content['headers'] ?: [];
         $details = $content['details'] ?? [];
         return $this->ui->table(
             $this->ui->thead(

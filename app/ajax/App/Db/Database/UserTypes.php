@@ -25,7 +25,7 @@ class UserTypes extends MainComponent
      *
      * @return void
      */
-    public function showUserTypes(): void
+    public function show(): void
     {
         $this->showSection($this->db()->getUserTypes());
     }
