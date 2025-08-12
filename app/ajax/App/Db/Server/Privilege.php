@@ -10,6 +10,9 @@ use Lagdo\DbAdmin\Ui\Database\ServerUiBuilder;
 
 use function Jaxon\je;
 
+/**
+ * @before notYetAvailable
+ */
 class Privilege extends FuncComponent
 {
     /**

@@ -77,6 +77,7 @@ class Database extends FuncComponent
 
     /**
      * Show the  create database dialog
+     * @before notYetAvailable
      *
      * @return void
      */
@@ -101,6 +102,7 @@ class Database extends FuncComponent
 
     /**
      * Show the  create database dialog
+     * @before notYetAvailable
      *
      * @param array $formValues  The form values
      *
@@ -124,6 +126,7 @@ class Database extends FuncComponent
 
     /**
      * Drop a database
+     * @before notYetAvailable
      *
      * @param string $database    The database name
      *

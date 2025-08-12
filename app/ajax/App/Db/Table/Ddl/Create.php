@@ -13,6 +13,7 @@ use function Jaxon\jq;
  * Create a new table
  *
  * @databag dbadmin.table
+ * @before notYetAvailable
  * @after showBreadcrumbs
  */
 class Create extends MainComponent

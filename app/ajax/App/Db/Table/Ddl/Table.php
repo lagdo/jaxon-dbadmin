@@ -91,7 +91,8 @@ class Table extends MainComponent
             ],
             'drop-table' => [
                 'title' => $this->trans()->lang('Drop table'),
-                'handler' => $this->rq()->drop()->confirm("Drop table $table?"),
+                'handler' => $this->rq(Alter::class)->drop($table)
+                    ->confirm("Drop table $table?"),
             ],
             'select-table' => [
                 'title' => $this->trans()->lang('Select'),

@@ -119,6 +119,7 @@ class View extends FuncComponent
 
     /**
      * Show the new view form
+     * @before notYetAvailable
      *
      * @return void
      */
@@ -142,6 +143,7 @@ class View extends FuncComponent
 
     /**
      * Create a new view
+     * @before notYetAvailable
      *
      * @param array $values      The view values
      *
@@ -165,6 +167,7 @@ class View extends FuncComponent
 
     /**
      * Show edit form for a given view
+     * @before notYetAvailable
      *
      * @param string $view        The view name
      *
@@ -194,6 +197,7 @@ class View extends FuncComponent
 
     /**
      * Update a given view
+     * @before notYetAvailable
      *
      * @param string $view        The view name
      * @param array $values      The view values
@@ -218,6 +222,7 @@ class View extends FuncComponent
 
     /**
      * Drop a given view
+     * @before notYetAvailable
      *
      * @param string $view        The view name
      *

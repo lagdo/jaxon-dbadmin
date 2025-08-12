@@ -8,6 +8,7 @@ use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
+use Exception;
 
 /**
  * Commont functions for component classes
@@ -66,6 +67,15 @@ trait ComponentTrait
     protected function trans(): Translator
     {
         return $this->trans;
+    }
+
+    /**
+     * @throws Exception
+     * @return never
+     */
+    protected function notYetAvailable(): void
+    {
+        throw new AppException($this->trans->lang('This feature is not yes available'));
     }
 
     /**

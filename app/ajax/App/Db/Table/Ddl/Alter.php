@@ -10,7 +10,7 @@ use function array_values;
 use function Jaxon\je;
 
 /**
- * Alter a table
+ * Alter or drop a table
  *
  * @databag dbadmin.table
  * @after showBreadcrumbs
@@ -103,6 +103,8 @@ class Alter extends MainComponent
     }
 
     /**
+     * @before notYetAvailable
+     * @param string $table      The table name
      * @param array  $values      The table values
      *
      * @return void
@@ -122,5 +124,15 @@ class Alter extends MainComponent
 
         // $this->cl(Table::class)->render();
         // $this->alert()->success($result['message']);
+    }
+
+    /**
+     * @before notYetAvailable
+     * @param string $table      The table name
+     *
+     * @return void
+     */
+    public function drop(string $table): void
+    {
     }
 }

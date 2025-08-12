@@ -7,6 +7,7 @@ use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
 
 /**
  * This class provides insert and update query features on tables.
+ * @before notYetAvailable
  */
 class Delete extends FuncComponent
 {
