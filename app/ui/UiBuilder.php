@@ -11,7 +11,7 @@ use Lagdo\DbAdmin\Ajax\App\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\Ajax\App\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Ajax\App\Page\Content;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
-use Lagdo\DbAdmin\Ajax\App\Page\ServerInfo;
+use Lagdo\DbAdmin\Ajax\App\Page\DbConnection;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -28,14 +28,6 @@ class UiBuilder
      */
     public function __construct(protected Translator $trans, protected BuilderInterface $ui)
     {}
-
-    /**
-     * @return BuilderInterface
-     */
-    protected function builder(): BuilderInterface
-    {
-        return $this->ui;
-    }
 
     /**
      * @param array $servers
@@ -166,7 +158,7 @@ class UiBuilder
     private function wrapperContent(): mixed
     {
         return $this->ui->list(
-            $this->ui->row()->jxnBind(rq(ServerInfo::class)),
+            $this->ui->row()->jxnBind(rq(DbConnection::class)),
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->span(['style' => 'float:left'])

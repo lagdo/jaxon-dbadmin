@@ -29,14 +29,6 @@ class TableUiBuilder
     {}
 
     /**
-     * @return BuilderInterface
-     */
-    protected function builder(): BuilderInterface
-    {
-        return $this->ui;
-    }
-
-    /**
      * @param array $table
      *
      * @return self

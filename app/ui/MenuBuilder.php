@@ -22,7 +22,7 @@ class MenuBuilder
      *
      * @return string
      */
-    public function serverInfo(string $server, string $user): string
+    public function dbConnection(string $server, string $user): string
     {
         return $this->ui->build(
             $this->ui->col(

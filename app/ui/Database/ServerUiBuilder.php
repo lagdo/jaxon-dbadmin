@@ -18,38 +18,6 @@ class ServerUiBuilder
     {}
 
     /**
-     * @return BuilderInterface
-     */
-    protected function builder(): BuilderInterface
-    {
-        return $this->ui;
-    }
-
-    /**
-     * @param string $server
-     * @param string $user
-     *
-     * @return string
-     */
-    public function serverInfo(string $server, string $user): string
-    {
-        return $this->ui->build(
-            $this->ui->col(
-                $this->ui->panel(
-                    $this->ui->panelBody($this->ui->html($server))
-                )
-            )
-            ->width(8),
-            $this->ui->col(
-                $this->ui->panel(
-                    $this->ui->panelBody($this->ui->html($user))
-                )
-            )
-            ->width(4),
-        );
-    }
-
-    /**
      * @param string $formId
      * @param array $user
      * @param string $privileges

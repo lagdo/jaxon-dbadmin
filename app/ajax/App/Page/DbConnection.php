@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\App\Page;
 
 use Lagdo\DbAdmin\Ajax\MenuComponent;
 
-class ServerInfo extends MenuComponent
+class DbConnection extends MenuComponent
 {
     /**
      * @var string
@@ -21,7 +21,7 @@ class ServerInfo extends MenuComponent
      */
     public function html(): string
     {
-        return $this->ui()->serverInfo($this->server, $this->user);
+        return $this->ui()->dbConnection($this->server, $this->user);
     }
 
     /**
@@ -32,7 +32,7 @@ class ServerInfo extends MenuComponent
      *
      * @return void
      */
-    public function showServer(string $server, string $user): void
+    public function show(string $server, string $user): void
     {
         $this->server = $server;
         $this->user = $user;

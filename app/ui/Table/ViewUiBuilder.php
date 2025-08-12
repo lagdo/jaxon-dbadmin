@@ -19,14 +19,6 @@ class ViewUiBuilder
     {}
 
     /**
-     * @return BuilderInterface
-     */
-    protected function builder(): BuilderInterface
-    {
-        return $this->ui;
-    }
-
-    /**
      * @param string $formId
      * @param bool $materializedView
      * @param array $view

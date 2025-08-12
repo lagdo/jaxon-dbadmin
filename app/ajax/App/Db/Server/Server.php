@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\Ajax\App\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
 use Lagdo\DbAdmin\Ajax\App\Menu\Server\Command as ServerCommand;
 use Lagdo\DbAdmin\Ajax\App\Menu\Server\Databases as MenuDatabases;
-use Lagdo\DbAdmin\Ajax\App\Page\ServerInfo;
+use Lagdo\DbAdmin\Ajax\App\Page\DbConnection;
 use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 
 use function array_values;
@@ -54,8 +54,8 @@ class Server extends FuncComponent
         // Make server info available to views
         $this->view()->shareValues($serverInfo);
 
-        $this->cl(ServerInfo::class)
-            ->showServer($serverInfo['server'], $serverInfo['user']);
+        $this->cl(DbConnection::class)
+            ->show($serverInfo['server'], $serverInfo['user']);
 
         // Show the server
         $this->cl(ServerCommand::class)->render();

@@ -416,14 +416,10 @@ class SelectUiBuilder
                     $this->ui->form(
                         $this->ui->div(
                             $this->ui->formRow(
-                                $this->ui->formCol(
-                                )
-                                ->width(6)
-                                ->jxnBind(rq(Options\Fields::class)),
-                                $this->ui->formCol(
-                                )
-                                ->width(6)
-                                ->jxnBind(rq(Options\Values::class))
+                                $this->ui->formCol()->width(6)
+                                    ->jxnBind(rq(Options\Fields::class)),
+                                $this->ui->formCol()->width(6)
+                                    ->jxnBind(rq(Options\Values::class))
                             )
                         ),
                         $this->ui->formRow(
