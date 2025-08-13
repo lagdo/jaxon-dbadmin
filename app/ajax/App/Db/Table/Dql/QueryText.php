@@ -23,7 +23,7 @@ class QueryText extends Component
      */
     public function html(): string
     {
-        $query = $this->stash()->get('select.query');
+        $query = $this->db()->utils()->html($this->stash()->get('select.query'));
         return html_entity_decode($query, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 

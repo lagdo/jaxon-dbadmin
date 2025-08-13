@@ -71,6 +71,14 @@ class DbFacade extends AbstractFacade
     }
 
     /**
+     * @return Utils|null
+     */
+    public function utils(): Utils
+    {
+        return $this->utils;
+    }
+
+    /**
      * Get the breadcrumbs items
      *
      * @return array

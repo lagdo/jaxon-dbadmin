@@ -3,128 +3,62 @@
 namespace Lagdo\DbAdmin\Db\Facades;
 
 use Exception;
+use Lagdo\DbAdmin\Db\Facades\Select\SelectEntity;
+use Lagdo\DbAdmin\Db\Facades\Select\SelectQuery;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\Facades\Logger;
 
-use function count;
-use function str_replace;
+use function array_map;
 use function compact;
-use function preg_match;
-use function microtime;
-use function trim;
+use function count;
+use function current;
+use function key;
 use function md5;
+use function next;
+use function preg_match;
 use function strlen;
 use function strpos;
+use function trim;
 
 /**
  * Facade to table select functions
  */
 class SelectFacade extends AbstractFacade
 {
-    use Traits\SelectTrait;
+    /**
+     * @var SelectQuery
+     */
+    private SelectQuery $selectQuery;
 
     /**
-     * @param array $select
-     * @param array $columns
-     * @param array $indexes
-     * @param int $limit
-     * @param int $textLength
-     * @param array $queryOptions
-     *
-     * @return array
+     * @var SelectEntity|null
      */
-    private function getAllOptions(array $select, array $columns, array $indexes,
-        int $limit, int $textLength, array $queryOptions): array
+    private SelectEntity|null $selectEntity = null;
+
+    /**
+     * @param AbstractFacade $dbFacade
+     */
+    public function __construct(AbstractFacade $dbFacade)
     {
-        return [
-            'columns' => $this->getColumnsOptions($select, $columns, $queryOptions),
-            'filters' => $this->getFiltersOptions($columns, $indexes, $queryOptions),
-            'sorting' => $this->getSortingOptions($columns, $queryOptions),
-            'limit' => $this->getLimitOptions($limit),
-            'length' => $this->getLengthOptions($textLength),
-            // 'action' => $this->getActionOptions($indexes),
-        ];
+        parent::__construct($dbFacade);
+
+        $this->selectQuery = new SelectQuery($dbFacade);
     }
 
     /**
-     * Find out foreign keys for each column
-     *
-     * @param string $table
-     *
-     * @return array
-     */
-    private function foreignKeys(string $table): array
-    {
-        $keys = [];
-        foreach ($this->driver->foreignKeys($table) as $foreignKey) {
-            foreach ($foreignKey->source as $val) {
-                $keys[$val][] = $foreignKey;
-            }
-        }
-        return $keys;
-    }
-
-    /**
-     * Get required data for create/update on tables
-     *
      * @param string $table The table name
      * @param array $queryOptions The query options
      *
-     * @return array
+     * @return void
      * @throws Exception
      */
-    private function prepareSelect(string $table, array &$queryOptions = []): array
+    private function setSelectEntity(string $table, array $queryOptions = []): void
     {
-        $page = $this->setDefaultOptions($queryOptions);
-        $this->utils->input->setValues($queryOptions);
-
-        // From select.inc.php
-        $fields = $this->driver->fields($table);
-        [, $columns, $textLength] = $this->getFieldsOptions($fields);
-        if (!$columns && $this->driver->support("table")) {
-            throw new Exception($this->utils->trans->lang('Unable to select the table') .
-                ($fields ? "." : ": " . $this->driver->error()));
-        }
-
-        $indexes = $this->driver->indexes($table);
-        $foreignKeys = $this->foreignKeys($table);
-        [$select, $group] = $this->admin->processSelectColumns();
-        $where = $this->admin->processSelectWhere($fields, $indexes);
-        $order = $this->admin->processSelectOrder();
-        $limit = $this->admin->processSelectLimit();
         $tableStatus = $this->driver->tableStatusOrName($table);
-        $unselected = $this->setPrimaryKey($indexes, $select, $tableStatus);
         $tableName = $this->admin->tableName($tableStatus);
-
-        // $set = null;
-        // if(isset($rights["insert"]) || !this->driver->support("table")) {
-        //     $set = "";
-        //     foreach((array) $queryOptions["where"] as $val) {
-        //         if($foreignKeys[$val["col"]] && count($foreignKeys[$val["col"]]) == 1 && ($val["op"] == "="
-        //             || (!$val["op"] && !preg_match('~[_%]~', $val["val"])) // LIKE in Editor
-        //         )) {
-        //             $set .= "&set" . urlencode("[" . $this->driver->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
-        //         }
-        //     }
-        // }
-        // $this->admin->selectLinks($tableStatus, $set);
-
-        // if($page == "last")
-        // {
-        //     $isGroup = count($group) < count($select);
-        //     $found_rows = $this->driver->result($this->driver->getRowCountQuery($table, $where, $isGroup, $group));
-        //     $page = \floor(\max(0, $found_rows - 1) / $limit);
-        // }
-
-        $options = $this->getAllOptions($select, $columns,
-            $indexes, $limit, $textLength, $queryOptions);
-        $entity = $this->getSelectEntity($table, $columns, $fields,
-            $select, $group, $where, $order, $unselected, $limit, $page);
-        $query = $this->driver->buildSelectQuery($entity);
-        // From adminer.inc.php
-        $query = str_replace("\n", " ", $query);
-
-        return [$options, $query, $select, $fields, $foreignKeys, $columns, $indexes,
-            $where, $group, $order, $limit, $page, $textLength, $tableName, $unselected];
+        $this->selectEntity = new SelectEntity($table,
+            $tableName, $tableStatus, $queryOptions);
+        $this->selectQuery->prepareSelect($this->selectEntity);
     }
 
     /**
@@ -133,87 +67,115 @@ class SelectFacade extends AbstractFacade
      * @param string $table The table name
      * @param array $queryOptions The query options
      *
-     * @return array
+     * @return SelectEntity
      * @throws Exception
      */
-    public function getSelectData(string $table, array $queryOptions = []): array
+    public function getSelectData(string $table, array $queryOptions = []): SelectEntity
     {
-        [$options, $query, , , , , , , , , $limit, $page] = $this->prepareSelect($table, $queryOptions);
-        $query = $this->utils->str->html($query);
-
-        return compact('options', 'query', 'limit', 'page');
+        $this->setSelectEntity($table, $queryOptions);
+        return $this->selectEntity;
     }
 
     /**
-     * @param string $query
-     * @param int $page
-     *
-     * @return array
+     * @return void
      */
-    private function executeSelect(string $query, int $page): array
+    private function executeSelect(): void
     {
         // From driver.inc.php
-        $statement = $this->driver->execute($query);
-        // From adminer.inc.php
+        $statement = $this->driver->execute($this->selectEntity->query);
 
+        // From adminer.inc.php
         if (!$statement) {
-            return ['error' => $this->driver->error()];
+            $this->selectEntity = $this->driver->error();
+            return;
         }
+
         // From select.inc.php
-        $rows = [];
+        $this->selectEntity->duration = 0;
+        $this->selectEntity->rows = [];
         while (($row = $statement->fetchAssoc())) {
-            if ($page && $this->driver->jush() == "oracle") {
+            if ($this->selectEntity->page && $this->driver->jush() == "oracle") {
                 unset($row["RNUM"]);
             }
-            $rows[] = $row;
+            $this->selectEntity->rows[] = $row;
         }
-
-        return [$rows, 0];
     }
 
     /**
-     * @param array $rows
-     * @param array $select
-     * @param array $fields
-     * @param array $unselected
-     * @param array $queryOptions
+     * @param string $key
+     * @param int $rank
      *
      * @return array
      */
-    private function getResultHeaders(array $rows, array $select, array $fields, array $unselected, array $queryOptions): array
+    private function getResultNextValue(string $key, int $rank): array
+    {
+        $valueKey = key($this->selectEntity->select);
+        $value = $this->selectEntity->queryOptions["columns"][$valueKey] ?? [];
+
+        $fun = $value["fun"] ?? '';
+        $fieldKey = !$this->selectEntity->select ? $key :
+            ($value["col"] ?? current($this->selectEntity->select));
+        $field = $this->selectEntity->fields[$fieldKey];
+        $name = !$field ? ($fun ? "*" : $key) :
+            $this->admin->fieldName($field, $rank);
+
+        return [$fun, $name, $field];
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @param int $rank
+     *
+     * @return array
+     */
+    private function getResultHeader(string $key, $value, int $rank): array
+    {
+        if (isset($this->selectEntity->unselected[$key])) {
+            return [];
+        }
+
+        [$fun, $name, $field] = $this->getResultNextValue($key, $rank);
+        $header = compact('value', 'field', 'name');
+        if ($name != "") {
+            $this->selectEntity->names[$key] = $name;
+            $column = $this->driver->escapeId($key);
+            // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
+            // $desc = "&desc%5B0%5D=1";
+            $header['column'] = $column;
+            $header['key'] = $this->utils->str
+                ->html($this->driver->bracketEscape($key));
+            //! columns looking like functions
+            $header['sql'] = $this->selectQuery->applySqlFunction($fun, $name);
+        }
+        // $functions[$key] = $fun;
+        next($this->selectEntity->select);
+        return $header;
+    }
+
+    /**
+     * Get the result headers from the first result row
+     * @return void
+     */
+    private function getResultHeaders(): void
     {
         // Results headers
-        $headers = [
+        $this->selectEntity->headers = [
             '', // !$group && $select ? '' : lang('Modify');
         ];
-        $names = [];
-        // $functions = [];
-        reset($select);
+        $this->selectEntity->names = [];
+        // $this->selectEntity->functions = [];
+        reset($this->selectEntity->select);
+
         $rank = 1;
-        foreach ($rows[0] as $key => $value) {
-            $header = [];
-            if (!isset($unselected[$key])) {
-                $value = $queryOptions["columns"][key($select)] ?? [];
-                $fun = $value["fun"] ?? '';
-                $field = $fields[$select ? ($value ? $value["col"] : current($select)) : $key];
-                $name = ($field ? $this->admin->fieldName($field, $rank) : ($fun ? "*" : $key));
-                $header = compact('value', 'field', 'name');
-                if ($name != "") {
-                    $rank++;
-                    $names[$key] = $name;
-                    $column = $this->driver->escapeId($key);
-                    // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
-                    // $desc = "&desc%5B0%5D=1";
-                    $header['column'] = $column;
-                    $header['key'] = $this->utils->str->html($this->driver->bracketEscape($key));
-                    $header['sql'] = $this->admin->applySqlFunction($fun, $name); //! columns looking like functions
-                }
-                // $functions[$key] = $fun;
-                next($select);
+        $firstResultRow = $this->selectEntity->rows[0];
+        foreach ($firstResultRow as $key => $value) {
+            $header = $this->getResultHeader($key, $value, $rank);
+            if ($header['name'] ?? '' !== '') {
+                $rank++;
             }
-            $headers[] = $header;
+            $this->selectEntity->headers[] = $header;
         }
-        return [$headers, $names];
     }
 
     /**
@@ -240,15 +202,15 @@ class SelectFacade extends AbstractFacade
 
     /**
      * @param array $row
-     * @param array $indexes
      *
      * @return array
      */
-    private function getUniqueIds(array $row, array $indexes): array
+    private function getUniqueIds(array $row): array
     {
-        $uniqueIds = $this->admin->uniqueIds($row, $indexes);
+        $uniqueIds = $this->admin->uniqueIds($row, $this->selectEntity->indexes);
         if (empty($uniqueIds)) {
-            $pattern = '~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~';
+            $pattern = '~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)' .
+                '|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~';
             foreach ($row as $key => $value) {
                 if (!preg_match($pattern, $key)) {
                     //! columns looking like functions
@@ -260,72 +222,130 @@ class SelectFacade extends AbstractFacade
     }
 
     /**
-     * @param array $row
-     * @param array $fields
-     * @param array $indexes
+     * @param string $type
+     * @param string $value
+     *
+     * @return bool
+     */
+    private function shouldEncodeRowId(string $type, string $value): bool
+    {
+        $jush = $this->driver->jush();
+        return ($jush === "sql" || $jush === "pgsql") &&
+            strlen($value) > 64 &&
+            preg_match('~char|text|enum|set~', $type);
+    }
+
+    /**
+     * @param string $key
+     * @param string $collation
+     *
+     * @return string
+     */
+    private function getRowIdMd5Key(string $key, string $collation): string
+    {
+        return $this->driver->jush() != 'sql' ||
+            preg_match("~^utf8~", $collation) ? $key :
+                "CONVERT($key USING " . $this->driver->charset() . ")";
+    }
+
+    /**
+     * @param string $key
+     * @param string $value
      *
      * @return array
      */
-    private function getRowIds(array $row, array $fields, array $indexes): array
+    private function getRowIdValue(string $key, string $value): array
     {
-        $uniqueIds = $this->getUniqueIds($row, $indexes);
+        $key = trim($key);
+        $type = '';
+        $collation = '';
+        if (isset($this->selectEntity->fields[$key])) {
+            $type = $this->selectEntity->fields[$key]->type;
+            $collation = $this->selectEntity->fields[$key]->collation;
+        }
+        if ($this->shouldEncodeRowId($type, $value)) {
+            if (!strpos($key, '(')) {
+                //! columns looking like functions
+                $key = $this->driver->escapeId($key);
+            }
+            $key = "MD5(" . $this->getRowIdMd5Key($key, $collation) . ")";
+            $value = md5($value);
+        }
+        return [$key, $value];
+    }
+
+    /**
+     * @param array $row
+     *
+     * @return array
+     */
+    private function getRowIds(array $row): array
+    {
+        $uniqueIds = $this->getUniqueIds($row);
         // Unique identifier to edit returned data.
         // $unique_idf = "";
         $rowIds = ['where' => [], 'null' => []];
         foreach ($uniqueIds as $key => $value) {
-            $key = trim($key);
-            $type = '';
-            $collation = '';
-            if (isset($fields[$key])) {
-                $type = $fields[$key]->type;
-                $collation = $fields[$key]->collation;
-            }
-            if (($this->driver->jush() == "sql" || $this->driver->jush() == "pgsql") &&
-                preg_match('~char|text|enum|set~', $type) && strlen($value) > 64) {
-                $key = (strpos($key, '(') ? $key : $this->driver->escapeId($key)); //! columns looking like functions
-                $key = "MD5(" . ($this->driver->jush() != 'sql' || preg_match("~^utf8~", $collation) ?
-                        $key : "CONVERT($key USING " . $this->driver->charset() . ")") . ")";
-                $value = md5($value);
-            }
-            if ($value !== null) {
-                $rowIds['where'][$this->driver->bracketEscape($key)] = $value;
-            } else {
+            [$key, $value] = $this->getRowIdValue($key, $value);
+            // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" .
+            // $this->driver->bracketEscape($key) . "]") . "=" .
+            // \urlencode($value) : \urlencode("null[]") . "=" . \urlencode($key));
+            if ($value === null) {
                 $rowIds['null'][] = $this->driver->bracketEscape($key);
+                continue;
             }
-            // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" . $this->driver->bracketEscape($key) . "]") .
-            //     "=" . \urlencode($value) : \urlencode("null[]") . "=" . \urlencode($key));
+            $rowIds['where'][$this->driver->bracketEscape($key)] = $value;
         }
         return $rowIds;
     }
 
     /**
-     * @param array $row
-     * @param array $fields
-     * @param array $names
-     * @param int $textLength
+     * @param string $key
+     * @param mixed $value
      *
      * @return array
      */
-    private function getRowColumns(array $row, array $fields, array $names, int $textLength): array
+    private function getRowColumn(string $key, $value): array
+    {
+        $field = $this->selectEntity->fields[$key] ?? new TableFieldEntity();
+        $value = $this->driver->value($value, $field);
+        /*if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
+            //! filled e-mails can be contained on other pages
+            $email_fields[$key] = ($this->admin->isMail($value) ? $names[$key] : "");
+        }*/
+        $length = $this->selectEntity->textLength;
+        $value = $this->admin->selectValue($field, $value, $length);
+        return [
+            // 'id',
+            'text' => preg_match('~text|lob~', $field->type),
+            'value' => $value,
+            // 'editable' => false,
+        ];
+    }
+
+    /**
+     * @param array $row
+     *
+     * @return array
+     */
+    private function getRowColumns(array $row): array
     {
         $cols = [];
         foreach ($row as $key => $value) {
-            if (isset($names[$key])) {
-                $field = $fields[$key] ?? new TableFieldEntity();
-                $value = $this->driver->value($value, $field);
-                /*if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
-                    //! filled e-mails can be contained on other pages
-                    $email_fields[$key] = ($this->admin->isMail($value) ? $names[$key] : "");
-                }*/
-                $cols[] = [
-                    // 'id',
-                    'text' => preg_match('~text|lob~', $field->type),
-                    'value' => $this->admin->selectValue($field, $value, $textLength),
-                    // 'editable' => false,
-                ];
+            if (isset($this->selectEntity->names[$key])) {
+                $cols[] = $this->getRowColumn($key, $value);
             }
         }
         return $cols;
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasGroupsInFields(): bool
+    {
+        return count($this->selectEntity->group) <
+            count($this->selectEntity->select);
     }
 
     /**
@@ -338,11 +358,12 @@ class SelectFacade extends AbstractFacade
      */
     public function countSelect(string $table, array $queryOptions): int
     {
-        [, , $select, , , , , $where, $group] = $this->prepareSelect($table, $queryOptions);
+        $this->setSelectEntity($table, $queryOptions);
 
         try {
-            $isGroup = count($group) < count($select);
-            $query = $this->driver->getRowCountQuery($table, $where, $isGroup, $group);
+            $query = $this->driver->getRowCountQuery($table,
+                $this->selectEntity->where, $this->hasGroupsInFields(),
+                $this->selectEntity->group);
             return (int)$this->driver->result($query);
         } catch(Exception $_) {
             return -1;
@@ -360,28 +381,28 @@ class SelectFacade extends AbstractFacade
      */
     public function execSelect(string $table, array $queryOptions): array
     {
-        [, $query, $select, $fields, , , $indexes, $where, $group, , $limit, $page,
-            $textLength, , $unselected] = $this->prepareSelect($table, $queryOptions);
+        $this->setSelectEntity($table, $queryOptions);
 
-        [$rows, $duration] = $this->executeSelect($query, $page);
-        if (!$rows) {
+        $this->executeSelect();
+        if (!$this->selectEntity->rows) {
             return ['message' => $this->utils->trans->lang('No rows.')];
         }
         // $backward_keys = $this->driver->backwardKeys($table, $tableName);
-        // lengths = $this->getValuesLengths($rows, $queryOptions);
+        // lengths = $this->getValuesLengths($rows, $this->selectEntity->queryOptions);
 
-        [$headers, $names] = $this->getResultHeaders($rows, $select, $fields, $unselected, $queryOptions);
+        $this->getResultHeaders();
 
-        $results = [];
-        foreach ($rows as $row) {
-            // Unique identifier to edit returned data.
-            $rowIds = $this->getRowIds($row, $fields, $indexes);
-            $cols = $this->getRowColumns($row, $fields, $names, $textLength);
-            $results[] = ['ids' => $rowIds, 'cols' => $cols];
-        }
-
-        $rows = $results;
-        $message = null;
-        return compact('duration', 'headers', 'query', 'rows', 'limit', 'message');
+        return [
+            'duration' => $this->selectEntity->duration,
+            'headers' => $this->selectEntity->headers,
+            'query' => $this->selectEntity->query,
+            'limit' => $this->selectEntity->limit,
+            'message' => null,
+            'rows' => array_map(fn($row) => [
+                // Unique identifier to edit returned data.
+                'ids' => $this->getRowIds($row),
+                'cols' => $this->getRowColumns($row),
+            ], $this->selectEntity->rows),
+        ];
     }
 }

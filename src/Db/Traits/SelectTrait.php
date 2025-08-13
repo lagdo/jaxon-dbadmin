@@ -2,8 +2,9 @@
 
 namespace Lagdo\DbAdmin\Db\Traits;
 
-use Exception;
 use Lagdo\DbAdmin\Db\Facades\SelectFacade;
+use Lagdo\DbAdmin\Db\Facades\Select\SelectEntity;
+use Exception;
 
 /**
  * Facade to table select functions
@@ -28,10 +29,10 @@ trait SelectTrait
      * @param string $table The table name
      * @param array $queryOptions The query options
      *
-     * @return array
+     * @return SelectEntity
      * @throws Exception
      */
-    public function getSelectData(string $table, array $queryOptions = []): array
+    public function getSelectData(string $table, array $queryOptions = []): SelectEntity
     {
         $this->connectToSchema();
         $this->bcdb()->breadcrumb($this->utils->trans->lang('Tables'))

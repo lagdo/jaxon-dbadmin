@@ -46,10 +46,10 @@ class Select extends MainComponent
         // Save select queries options
         $selectData = $this->db()->getSelectData($table, $options);
         $this->bag('dbadmin.select')->set('options', [
-            'limit' => (int)($selectData['options']['limit']['value'] ?? 0),
-            'length' => (int)($selectData['options']['length']['value'] ?? 0),
+            'limit' => (int)($selectData->options['limit']['value'] ?? 0),
+            'length' => (int)($selectData->options['length']['value'] ?? 0),
         ]);
-        $this->stash()->set('select.query', $selectData['query']);
+        $this->stash()->set('select.query', $selectData->query);
 
         // Set main menu buttons
         $backToTables = $this->stash()->get('back.tables', false);

@@ -45,7 +45,7 @@ trait QueryTrait
             return [$this->utils->trans->lang('Auto Increment')];
         }
 
-        $names = ($field->null ? ['NULL', ''] : ['']);
+        $names = $field->null ? ['NULL', ''] : [''];
         return $this->getEditFunctionNames($field, $names, $update);
     }
 }

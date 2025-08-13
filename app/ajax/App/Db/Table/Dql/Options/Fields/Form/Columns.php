@@ -24,9 +24,9 @@ class Columns extends Component
             $options = $this->bag('dbadmin.select')->get('options');
             $selectData = $this->db()->getSelectData($this->getTableName(), $options);
             $options = [
-                'functions' => $selectData['options']['columns']['functions'] ?? [],
-                'grouping' => $selectData['options']['columns']['grouping'] ?? [],
-                'columns' => $selectData['options']['columns']['columns'] ?? [],
+                'functions' => $selectData->options['columns']['functions'] ?? [],
+                'grouping' => $selectData->options['columns']['grouping'] ?? [],
+                'columns' => $selectData->options['columns']['columns'] ?? [],
             ];
         }
 

@@ -38,8 +38,6 @@ class AbstractFacade
      * Initialize the facade
      *
      * @param AbstractFacade $dbFacade
-     *
-     * @return void
      */
     public function __construct(AbstractFacade $dbFacade)
     {

@@ -24,8 +24,8 @@ class Filters extends Component
             $options = $this->bag('dbadmin.select')->get('options');
             $selectData = $this->db()->getSelectData($this->getTableName(), $options);
             $options = [
-                'columns' => $selectData['options']['filters']['columns'] ?? [],
-                'operators' => $selectData['options']['filters']['operators'] ?? [],
+                'columns' => $selectData->options['filters']['columns'] ?? [],
+                'operators' => $selectData->options['filters']['operators'] ?? [],
             ];
         }
 

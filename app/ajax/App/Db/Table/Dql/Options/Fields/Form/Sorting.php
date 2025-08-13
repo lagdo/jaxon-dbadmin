@@ -24,7 +24,7 @@ class Sorting extends Component
             $options = $this->bag('dbadmin.select')->get('options');
             $selectData = $this->db()->getSelectData($this->getTableName(), $options);
             $options = [
-                'columns' => $selectData['options']['sorting']['columns'] ?? [],
+                'columns' => $selectData->options['sorting']['columns'] ?? [],
             ];
         }
 

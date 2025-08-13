@@ -14,9 +14,7 @@ use function strlen;
 class Admin
 {
     use Traits\AdminTrait;
-    use Traits\SelectTrait;
     use Traits\QueryInputTrait;
-    use Traits\SelectInputTrait;
     use Traits\QueryTrait;
     use Traits\DumpTrait;
 
@@ -69,7 +67,7 @@ class Admin
      */
     public function error(): string
     {
-        return $this->utils->str->html($this->driver->error());
+        return $this->utils->html($this->driver->error());
     }
 
     /**
@@ -106,7 +104,7 @@ class Admin
      */
     public function tableName(TableEntity $table): string
     {
-        return $this->utils->str->html($table->name);
+        return $this->utils->html($table->name);
     }
 
     /**
@@ -119,7 +117,7 @@ class Admin
      */
     public function fieldName(TableFieldEntity $field, /** @scrutinizer ignore-unused */ int $order = 0): string
     {
-        return '<span title="' . $this->utils->str->html($field->fullType) . '">' . $this->utils->str->html($field->name) . '</span>';
+        return '<span title="' . $this->utils->html($field->fullType) . '">' . $this->utils->html($field->name) . '</span>';
     }
 
     /**
@@ -146,11 +144,11 @@ class Admin
             return "<code>$value</code>";
         }
         if ($this->isMail($value)) {
-            return '<a href="' . $this->utils->str->html("mailto:$value") . '">' . $value . '</a>';
+            return '<a href="' . $this->utils->html("mailto:$value") . '">' . $value . '</a>';
         }
         elseif ($this->isUrl($value)) {
             // IE 11 and all modern browsers hide referrer
-            return '<a href="' . $this->utils->str->html($value) . '"' . $this->blankTarget() . '>' . $value . '</a>';
+            return '<a href="' . $this->utils->html($value) . '"' . $this->blankTarget() . '>' . $value . '</a>';
         }
         return $value;
     }
@@ -170,7 +168,7 @@ class Admin
         //     $expression = '';
         //     foreach ($value as $k => $v) {
         //         $expression .= '<tr>' . ($value != \array_values($value) ?
-        //             '<th>' . $this->utils->str->html($k) :
+        //             '<th>' . $this->utils->html($k) :
         //             '') . '<td>' . $this->selectValue($field, $v, $textLength);
         //     }
         //     return "<table cellspacing='0'>$expression</table>";
@@ -187,7 +185,7 @@ class Admin
                 // expected average speedup: .001 s VS .01 s on local network
                 $expression = $this->utils->str->shortenUtf8($expression, max(0, +$textLength));
             } else {
-                $expression = $this->utils->str->html($expression);
+                $expression = $this->utils->html($expression);
             }
         }
         return $this->getSelectFieldValue($expression, $field->type, $value);
