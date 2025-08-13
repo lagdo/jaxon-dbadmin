@@ -108,8 +108,11 @@ class Select extends MainComponent
     public function show(string $table, bool $backToTables = false): void
     {
         $this->stash()->set('back.tables', $backToTables);
+
         // Save the table name in the databag.
         $this->bag('dbadmin')->set('db.table.name', $table);
+        // Save the current page in the databag
+        $this->savePageNumber(1);
 
         $this->render();
     }

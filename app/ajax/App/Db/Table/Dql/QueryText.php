@@ -12,13 +12,6 @@ class QueryText extends Component
     use QueryTrait;
 
     /**
-     * The select query div id
-     *
-     * @var string
-     */
-    private $txtQueryId = 'dbadmin-table-select-query';
-
-    /**
      * @inheritDoc
      */
     public function html(): string
@@ -33,8 +26,8 @@ class QueryText extends Component
     protected function after(): void
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
-        // jaxon.dbadmin.refreshSqlQuery
-        $this->response->jo('jaxon.dbadmin')->refreshSqlQuery($this->txtQueryId, $server);
+        $txtQueryId = 'dbadmin-table-select-query';
+        $this->response->jo('jaxon.dbadmin')->refreshSqlQuery($txtQueryId, $server);
     }
 
     /**

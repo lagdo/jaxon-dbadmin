@@ -107,7 +107,7 @@ class SelectFacade extends AbstractFacade
      *
      * @return array
      */
-    private function getResultNextValue(string $key, int $rank): array
+    private function getResultHeaderItem(string $key, int $rank): array
     {
         $valueKey = key($this->selectEntity->select);
         $value = $this->selectEntity->queryOptions["columns"][$valueKey] ?? [];
@@ -135,7 +135,7 @@ class SelectFacade extends AbstractFacade
             return [];
         }
 
-        [$fun, $name, $field] = $this->getResultNextValue($key, $rank);
+        [$fun, $name, $field] = $this->getResultHeaderItem($key, $rank);
         $header = compact('value', 'field', 'name');
         if ($name != "") {
             $this->selectEntity->names[$key] = $name;
