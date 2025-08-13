@@ -88,9 +88,9 @@ class SelectEntity
     public array $rows;
 
     /**
-     * @var int
+     * @var float
      */
-    public int $duration;
+    public float $duration;
 
     /**
      * @var array

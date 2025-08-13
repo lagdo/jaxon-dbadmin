@@ -13,7 +13,9 @@ use function compact;
 use function count;
 use function current;
 use function key;
+use function max;
 use function md5;
+use function microtime;
 use function next;
 use function preg_match;
 use function strlen;
@@ -82,7 +84,9 @@ class SelectFacade extends AbstractFacade
     private function executeSelect(): void
     {
         // From driver.inc.php
+        $startTimestamp = microtime(true);
         $statement = $this->driver->execute($this->selectEntity->query);
+        $this->selectEntity->duration = max(0, microtime(true) - $startTimestamp);
 
         // From adminer.inc.php
         if (!$statement) {
@@ -91,7 +95,6 @@ class SelectFacade extends AbstractFacade
         }
 
         // From select.inc.php
-        $this->selectEntity->duration = 0;
         $this->selectEntity->rows = [];
         while (($row = $statement->fetchAssoc())) {
             if ($this->selectEntity->page && $this->driver->jush() == "oracle") {
@@ -393,10 +396,10 @@ class SelectFacade extends AbstractFacade
         $this->getResultHeaders();
 
         return [
-            'duration' => $this->selectEntity->duration,
             'headers' => $this->selectEntity->headers,
             'query' => $this->selectEntity->query,
             'limit' => $this->selectEntity->limit,
+            'duration' => $this->selectEntity->duration,
             'message' => null,
             'rows' => array_map(fn($row) => [
                 // Unique identifier to edit returned data.

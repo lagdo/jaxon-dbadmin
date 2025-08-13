@@ -6,6 +6,8 @@ use function html_entity_decode;
 
 /**
  * This component displays the SQL query.
+ *
+ * @exclude
  */
 class QueryText extends Component
 {

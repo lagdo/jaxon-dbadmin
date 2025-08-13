@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ui\Table;
 
 use Jaxon\Script\Call\JxnCall;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Results;
@@ -14,6 +15,7 @@ use function array_shift;
 use function count;
 use function Jaxon\je;
 use function Jaxon\rq;
+use function sprintf;
 
 class SelectUiBuilder
 {
@@ -448,15 +450,38 @@ class SelectUiBuilder
                 )
                 ->width(3),
                 $this->ui->col(
-                    $this->ui->nav()
-                        ->jxnPagination(rq(Results::class))
+                    $this->ui->row(
+                        $this->ui->col(
+                            $this->ui->nav()
+                                ->jxnPagination(rq(Results::class))
+                        )
+                        ->width(10)
+                        ->setStyle('overflow:hidden'),
+                        $this->ui->col()
+                            ->width(2)
+                            ->jxnBind(rq(Duration::class))
+                    )
                 )
-                ->width(9)
+                ->width(9),
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
                     ->jxnBind(rq(Results::class))
+            )
+        );
+    }
+
+    /**
+     * @param float $duration
+     *
+     * @return string
+     */
+    public function duration(float $duration): string
+    {
+        return $this->ui->build(
+            $this->ui->inputGroup(
+                $this->ui->label(sprintf('%.4f&nbsp;s', $duration))
             )
         );
     }

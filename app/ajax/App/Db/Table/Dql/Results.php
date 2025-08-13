@@ -31,6 +31,8 @@ class Results extends PageComponent
         $options = $this->getOptions(true);
         $results = $this->db()->execSelect($this->getTableName(), $options);
 
+        $this->stash()->set('select.duration', $results['duration']);
+
         // The 'message' key is set when an error occurs, or when the query returns no data.
         return $results['message'] ??
             $this->selectUi->results($results['headers'], $results['rows']);
@@ -42,5 +44,6 @@ class Results extends PageComponent
     protected function after(): void
     {
         $this->cl(QueryText::class)->refresh();
+        $this->cl(Duration::class)->render();
     }
 }
