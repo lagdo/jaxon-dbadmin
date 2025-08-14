@@ -125,7 +125,7 @@ class UiBuilder
         return $this->ui->build(
             $this->ui->breadcrumb(
                 $this->ui->each($breadcrumbs, fn($breadcrumb) =>
-                    $this->ui->breadcrumbItem($this->ui->text($breadcrumb))
+                    $this->ui->breadcrumbItem($this->ui->html($breadcrumb))
                         ->active($curr++ === $last)
                 )
             )

@@ -33,8 +33,10 @@ trait QueryTrait
     public function getQueryData(string $table, array $queryOptions = [], string $action = 'New item'): array
     {
         $this->connectToSchema();
-        $this->bcdb()->breadcrumb($this->utils->trans->lang('Tables'))
-            ->breadcrumb($table)->breadcrumb($this->utils->trans->lang($action));
+        $this->bcdb()
+            ->breadcrumb($this->utils->trans->lang('Tables'))
+            ->breadcrumb("<i>$table</i>")
+            ->breadcrumb($this->utils->trans->lang($action));
         $this->utils->input->table = $table;
         $this->utils->input->values = $queryOptions;
         return $this->queryFacade()->getQueryData($table, $queryOptions);
