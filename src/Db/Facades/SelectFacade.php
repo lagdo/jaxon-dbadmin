@@ -12,6 +12,7 @@ use function array_map;
 use function compact;
 use function count;
 use function current;
+use function is_string;
 use function key;
 use function max;
 use function md5;
@@ -225,15 +226,15 @@ class SelectFacade extends AbstractFacade
 
     /**
      * @param string $type
-     * @param string $value
+     * @param mixed $value
      *
      * @return bool
      */
-    private function shouldEncodeRowId(string $type, string $value): bool
+    private function shouldEncodeRowId(string $type, $value): bool
     {
         $jush = $this->driver->jush();
         return ($jush === "sql" || $jush === "pgsql") &&
-            strlen($value) > 64 &&
+            is_string($value) && strlen($value) > 64 &&
             preg_match('~char|text|enum|set~', $type);
     }
 
@@ -252,11 +253,11 @@ class SelectFacade extends AbstractFacade
 
     /**
      * @param string $key
-     * @param string $value
+     * @param mixed $value
      *
      * @return array
      */
-    private function getRowIdValue(string $key, string $value): array
+    private function getRowIdValue(string $key, $value): array
     {
         $key = trim($key);
         $type = '';

@@ -86,6 +86,14 @@ class Table extends MainComponent
         // ];
 
         $actions = [
+            'select-table' => [
+                'title' => $this->trans()->lang('Select'),
+                'handler' => $this->rq(Select::class)->show($table),
+            ],
+            'insert-table' => [
+                'title' => $this->trans()->lang('New item'),
+                'handler' => $this->rq(Insert::class)->show(),
+            ],
             'edit-table' => [
                 'title' => $this->trans()->lang('Alter table'),
                 'handler' => $this->rq(Alter::class)->render(),
@@ -94,14 +102,6 @@ class Table extends MainComponent
                 'title' => $this->trans()->lang('Drop table'),
                 'handler' => $this->rq(Alter::class)->drop($table)
                     ->confirm("Drop table $table?"),
-            ],
-            'select-table' => [
-                'title' => $this->trans()->lang('Select'),
-                'handler' => $this->rq(Select::class)->show($table),
-            ],
-            'insert-table' => [
-                'title' => $this->trans()->lang('New item'),
-                'handler' => $this->rq(Insert::class)->show(),
             ],
             'tables-back' => [
                 'title' => $this->trans()->lang('Back'),
