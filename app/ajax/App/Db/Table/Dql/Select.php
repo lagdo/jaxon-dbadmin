@@ -52,20 +52,18 @@ class Select extends MainComponent
         $this->stash()->set('select.query', $selectData->query);
 
         // Set main menu buttons
-        $backToTables = $this->stash()->get('back.tables', false);
         $actions = [
-            // 'select-exec' => [
-            //     'title' => $this->trans()->lang('Execute'),
-            //     'handler' => $this->rq(Results::class)->page(),
-            // ],
             'insert-table' => [
                 'title' => $this->trans()->lang('New item'),
                 'handler' => $this->rq(Insert::class)->show(),
             ],
-            'select-back' => [
+            'show-table' => [
+                'title' => $this->trans()->lang('Show table'),
+                'handler' => $this->rq(Table::class)->show($table),
+            ],
+            'back-tables' => [
                 'title' => $this->trans()->lang('Back'),
-                'handler' => $backToTables ? $this->rq(Tables::class)->show() :
-                    $this->rq(Table::class)->show($table),
+                'handler' => $this->rq(Tables::class)->show(),
             ],
         ];
         $this->cl(PageActions::class)->show($actions);
@@ -107,8 +105,6 @@ class Select extends MainComponent
      */
     public function show(string $table, bool $backToTables = false): void
     {
-        $this->stash()->set('back.tables', $backToTables);
-
         // Save the table name in the databag.
         $this->bag('dbadmin')->set('db.table.name', $table);
         // Save the current page in the databag

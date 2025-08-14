@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl;
 
+use Lagdo\DbAdmin\Ajax\App\Db\Database\Tables;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dml\Insert;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
@@ -101,6 +102,10 @@ class Table extends MainComponent
             'insert-table' => [
                 'title' => $this->trans()->lang('New item'),
                 'handler' => $this->rq(Insert::class)->show(),
+            ],
+            'tables-back' => [
+                'title' => $this->trans()->lang('Back'),
+                'handler' => $this->rq(Tables::class)->show(),
             ],
         ];
         $this->cl(PageActions::class)->show($actions);

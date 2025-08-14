@@ -75,7 +75,7 @@ trait ComponentTrait
      */
     protected function notYetAvailable(): void
     {
-        throw new AppException($this->trans->lang('This feature is not yes available'));
+        throw new AppException($this->trans->lang('This feature is not yet available'));
     }
 
     /**

@@ -42,9 +42,15 @@ class Update extends MainComponent
         // Set main menu buttons
         $options = je($this->queryFormId)->rd()->form();
         $actions = [
-            [$this->trans()->lang('Back'), $this->rq()->back(), true],
-            [$this->trans()->lang('Save'), $this->rq()->exec($this->rowIds, $options)
-                ->confirm($this->trans()->lang('Save this item?'))],
+            'update-save' => [
+                'title' => $this->trans()->lang('Save'),
+                'handler' => $this->rq()->exec($this->rowIds, $options)
+                    ->confirm($this->trans()->lang('Save this item?')),
+            ],
+            'update-back' => [
+                'title' => $this->trans()->lang('Back'),
+                'handler' => $this->rq()->back(),
+            ],
         ];
         $this->cl(PageActions::class)->show($actions);
     }
