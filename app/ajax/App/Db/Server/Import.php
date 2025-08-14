@@ -34,6 +34,7 @@ class Import extends Component
 
     /**
      * Show the import form for a server
+     * @after showBreadcrumbs
      *
      * @return void
      */

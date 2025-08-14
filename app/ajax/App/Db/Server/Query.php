@@ -34,6 +34,7 @@ class Query extends Component
 
     /**
      * Show the SQL query form for a server
+     * @after showBreadcrumbs
      *
      * @param string $query       The SQL query to display
      *

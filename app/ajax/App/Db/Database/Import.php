@@ -34,6 +34,7 @@ class Import extends Component
 
     /**
      * Show the import form for a database
+     * @after showBreadcrumbs
      *
      * @return void
      */

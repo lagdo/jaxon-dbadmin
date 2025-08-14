@@ -34,6 +34,7 @@ class Export extends Component
 
     /**
      * Show the export form for a database
+     * @after showBreadcrumbs
      *
      * @return void
      */
