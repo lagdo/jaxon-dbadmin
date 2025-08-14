@@ -13,7 +13,6 @@ use function Jaxon\jq;
  * Create a new table
  *
  * @databag dbadmin.table
- * @before notYetAvailable
  * @after showBreadcrumbs
  */
 class Create extends MainComponent
@@ -49,13 +48,12 @@ class Create extends MainComponent
         $this->view()->shareValues($this->tableData);
 
         // Set main menu buttons
-        $contentId = 'dbadmin-database-content';
-        $length = jq(".{$this->formId}-column", "#$contentId")->length;
         $values = je($this->formId)->rd()->form();
+        $length = jq(".{$this->formId}-column", "#{$this->formId}")->length;
         $actions = [
             'table-save' => [
                 'title' => $this->trans()->lang('Save'),
-                'handler' => $this->rq()->save($values)->when($length),
+                'handler' => $this->rq()->save($values)->ifgt($length, 0),
             ],
             'table-cancel' => [
                 'title' => $this->trans()->lang('Cancel'),
@@ -88,6 +86,7 @@ class Create extends MainComponent
 
     /**
      * Create a new table
+     * @before notYetAvailable
      *
      * @param array  $values      The table values
      *
