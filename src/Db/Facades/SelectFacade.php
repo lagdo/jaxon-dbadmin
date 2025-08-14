@@ -139,17 +139,16 @@ class SelectFacade extends AbstractFacade
         }
 
         [$fun, $name, $field] = $this->getResultHeaderItem($key, $rank);
-        $header = compact('value', 'field', 'name');
+        $header = compact('field', 'name');
         if ($name != "") {
             $this->selectEntity->names[$key] = $name;
-            $column = $this->driver->escapeId($key);
             // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
             // $desc = "&desc%5B0%5D=1";
-            $header['column'] = $column;
-            $header['key'] = $this->utils->str
-                ->html($this->driver->bracketEscape($key));
+            $header['column'] = $this->driver->escapeId($key);
+            // $header['key'] = $this->utils->str
+            //     ->html($this->driver->bracketEscape($key));
             //! columns looking like functions
-            $header['sql'] = $this->selectQuery->applySqlFunction($fun, $name);
+            $header['title'] = $this->selectQuery->applySqlFunction($fun, $name);
         }
         // $functions[$key] = $fun;
         next($this->selectEntity->select);

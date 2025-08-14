@@ -296,7 +296,7 @@ class SelectUiBuilder
                 $this->ui->thead(
                     $this->ui->tr(
                         $this->ui->each($headers, fn($header) =>
-                            $this->ui->th($header['key'] ?? '')
+                            $this->ui->th($header['title'] ?? '')
                         ),
                         $this->ui->th(['style' => 'width:30px'])
                     )

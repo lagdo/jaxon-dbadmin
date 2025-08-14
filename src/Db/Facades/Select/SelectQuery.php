@@ -7,6 +7,7 @@ use Lagdo\DbAdmin\Db\Facades\AbstractFacade;
 use Lagdo\DbAdmin\Driver\Entity\IndexEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableSelectEntity;
+use Lagdo\Facades\Logger;
 use Exception;
 
 use function count;
@@ -209,11 +210,11 @@ class SelectQuery extends AbstractFacade
         $values = $this->utils->input->values;
         foreach ($values['columns'] as $key => $value) {
             if ($this->colHasValidValue($value)) {
-                $fields = '*';
+                $column = '*';
                 if ($value['col'] !== '') {
-                    $fields = $this->driver->escapeId($value['col']);
+                    $column = $this->driver->escapeId($value['col']);
                 }
-                $selectEntity->select[$key] = $this->applySqlFunction($value['fun'], $fields);
+                $selectEntity->select[$key] = $this->applySqlFunction($value['fun'], $column);
                 if (!in_array($value['fun'], $this->driver->grouping())) {
                     $selectEntity->group[] = $selectEntity->select[$key];
                 }
