@@ -106,7 +106,7 @@ class DbFacade extends AbstractFacade
      */
     protected function bcdb(): self
     {
-        $this->breadcrumbs = !$this->dbName ? [] : ["<i>$this->dbName</i>"];
+        $this->breadcrumbs = !$this->dbName ? [] : ["<i><b>$this->dbName</b></i>"];
         return $this;
     }
 

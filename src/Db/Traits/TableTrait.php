@@ -35,7 +35,7 @@ trait TableTrait
         $this->connectToSchema();
         $this->bcdb()
             ->breadcrumb($this->utils->trans->lang('Tables'))
-            ->breadcrumb("<i>$table</i>");
+            ->breadcrumb("<i><b>$table</b></i>");
         $this->utils->input->table = $table;
         return $this->tableFacade()->getTableInfo($table);
     }
@@ -112,7 +112,7 @@ trait TableTrait
         if (!$table) {
             $this->breadcrumb($this->utils->trans->lang('Create table'));
         } else {
-            $this->breadcrumb("<i>$table</i>")
+            $this->breadcrumb("<i><b>$table</b></i>")
                 ->breadcrumb($this->utils->trans->lang('Alter table'));
         }
         $this->utils->input->table = $table;

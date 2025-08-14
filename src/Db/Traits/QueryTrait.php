@@ -35,7 +35,7 @@ trait QueryTrait
         $this->connectToSchema();
         $this->bcdb()
             ->breadcrumb($this->utils->trans->lang('Tables'))
-            ->breadcrumb("<i>$table</i>")
+            ->breadcrumb("<i><b>$table</b></i>")
             ->breadcrumb($this->utils->trans->lang($action));
         $this->utils->input->table = $table;
         $this->utils->input->values = $queryOptions;

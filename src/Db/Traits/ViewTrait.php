@@ -34,7 +34,7 @@ trait ViewTrait
         $this->connectToSchema();
         $this->bcdb()
             ->breadcrumb($this->utils->trans->lang('Views'))
-            ->breadcrumb("<i>$view</i>");
+            ->breadcrumb("<i><b>$view</b></i>");
         $this->utils->input->table = $view;
         return $this->viewFacade()->getViewInfo($view);
     }
