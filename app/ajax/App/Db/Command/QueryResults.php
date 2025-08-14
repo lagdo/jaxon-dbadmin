@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
 
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Ajax\Component;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Translator;
@@ -45,19 +46,21 @@ class QueryResults extends Component
     public function exec(array $values): void
     {
         $query = trim($values['query'] ?? '');
-        $limit = intval($values['limit'] ?? 0);
-        $errorStops = $values['error_stops'] ?? false;
-        $onlyErrors = $values['only_errors'] ?? false;
-
         if(!$query)
         {
             $this->alert()->title('Error')->error('The query string is empty!');
             return;
         }
 
+        $limit = intval($values['limit'] ?? 0);
+        $errorStops = $values['error_stops'] ?? false;
+        $onlyErrors = $values['only_errors'] ?? false;
         $results = $this->db()->executeCommands($query, $limit, $errorStops, $onlyErrors);
-        $this->stash()->set('results', $results['results']);
 
+        $this->stash()->set('results', $results['results']);
         $this->render();
+
+        $this->stash()->set('select.duration', $results['duration']);
+        $this->cl(Duration::class)->render();
     }
 }

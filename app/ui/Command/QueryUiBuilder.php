@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Command;
 
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Ajax\App\Db\Command\QueryResults;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -22,14 +23,78 @@ class QueryUiBuilder
     {}
 
     /**
+     * @param int $defaultLimit
+     * @param JxnCall $rqQuery
+     *
+     * @return mixed
+     */
+    private function actions(int $defaultLimit, JxnCall $rqQuery): mixed
+    {
+        $formId = 'dbadmin-main-command-form';
+
+        return $this->ui->form(
+            $this->ui->formRow(
+                $this->ui->formCol(
+                    $this->ui->inputGroup(
+                        $this->ui->label(
+                            $this->ui->text($this->trans->lang('Limit rows'))
+                        ),
+                        $this->ui->formInput()
+                            ->setName('limit')
+                            ->setType('number')
+                            ->setValue($defaultLimit)
+                    )
+                )
+                ->width(2),
+                $this->ui->formCol(
+                    $this->ui->inputGroup(
+                        $this->ui->label(
+                            $this->ui->text($this->trans->lang('Stop on error'))
+                        ),
+                        $this->ui->checkbox()
+                            ->setName('error_stops')
+                    )
+                )
+                ->width(3),
+                $this->ui->formCol(
+                    $this->ui->inputGroup(
+                        $this->ui->label(
+                            $this->ui->text($this->trans->lang('Show only errors'))
+                        ),
+                        $this->ui->checkbox()
+                            ->setName('only_errors')
+                    )
+                )
+                ->width(3),
+                $this->ui->formCol(
+                    $this->ui->formRow(
+                        $this->ui->formCol(
+                            $this->ui->button(
+                                    $this->ui->text($this->trans->lang('Execute'))
+                                )
+                                ->fullWidth()->primary()
+                                ->jxnClick($rqQuery->exec(jo('jaxon.dbadmin')->getSqlQuery(), je($formId)->rd()->form())/*->when(je($queryId)->rd()->input())*/)
+                        )
+                        ->width(8),
+                        $this->ui->formCol()
+                            ->width(4)
+                            ->jxnBind(rq(Duration::class))
+                    )
+                )
+                ->width(4)
+            )
+        )->horizontal(true)->wrapped(true)->setId($formId);
+    }
+
+    /**
      * @param string $query
      * @param int $defaultLimit
+     * @param JxnCall $rqQuery
      *
      * @return string
      */
     public function command(string $query, int $defaultLimit, JxnCall $rqQuery): string
     {
-        $formId = 'dbadmin-main-command-form';
         $queryId = 'dbadmin-main-command-query';
 
         return $this->ui->build(
@@ -56,48 +121,7 @@ class QueryUiBuilder
                 )
             )->width(12),
             $this->ui->col(
-                $this->ui->form(
-                    $this->ui->formRow(
-                        $this->ui->formCol(
-                            $this->ui->inputGroup(
-                                $this->ui->label(
-                                    $this->ui->text($this->trans->lang('Limit rows'))
-                                ),
-                                $this->ui->formInput()
-                                    ->setName('limit')
-                                    ->setType('number')
-                                    ->setValue($defaultLimit)
-                            )
-                        )
-                        ->width(3),
-                        $this->ui->formCol(
-                            $this->ui->inputGroup(
-                                $this->ui->label(
-                                    $this->ui->text($this->trans->lang('Stop on error'))
-                                ),
-                                $this->ui->checkbox()
-                                    ->setName('error_stops')
-                            )
-                        )
-                        ->width(3),
-                        $this->ui->formCol(
-                            $this->ui->inputGroup(
-                                $this->ui->label(
-                                    $this->ui->text($this->trans->lang('Show only errors'))
-                                ),
-                                $this->ui->checkbox()
-                                    ->setName('only_errors')
-                            )
-                        )
-                        ->width(3),
-                        $this->ui->formCol(
-                            $this->ui->button($this->ui->text($this->trans->lang('Execute')))
-                                ->fullWidth()->primary()
-                                ->jxnClick($rqQuery->exec(jo('jaxon.dbadmin')->getSqlQuery(), je($formId)->rd()->form())/*->when(je($queryId)->rd()->input())*/)
-                        )
-                        ->width(2)
-                    )
-                )->horizontal(true)->wrapped(true)->setId($formId)
+                $this->actions($defaultLimit, $rqQuery)
             )
                 ->width(12),
             $this->ui->col()

@@ -7,7 +7,11 @@ use Lagdo\DbAdmin\Driver\Entity\QueryEntity;
 
 use function compact;
 use function count;
+use function function_exists;
+use function ini_set;
 use function max;
+use function memory_get_usage;
+use function microtime;
 use function strlen;
 
 /**
@@ -27,6 +31,11 @@ class CommandFacade extends AbstractFacade
      * @var array
      */
     protected $results;
+
+    /**
+     * @var float
+     */
+    protected $duration;
 
     /**
      * Open a second connection to the server
@@ -153,9 +162,11 @@ class CommandFacade extends AbstractFacade
     private function executeCommand(QueryEntity $queryEntity): bool
     {
         //! Don't allow changing of character_set_results, convert encoding of displayed query
+        $startTimestamp = microtime(true);
         if ($this->driver->multiQuery($queryEntity->query) && $this->connection !== null) {
             $this->connection->execUseQuery($queryEntity->query);
         }
+        $this->duration += max(0, microtime(true) - $startTimestamp);
 
         do {
             $select = null;
@@ -175,7 +186,6 @@ class CommandFacade extends AbstractFacade
             if ($this->driver->hasError() && $queryEntity->errorStops) {
                 return false;
             }
-            // $start = \microtime(true);
         } while ($this->driver->nextResult());
 
         return true;
@@ -193,11 +203,11 @@ class CommandFacade extends AbstractFacade
      */
     public function executeCommands(string $queries, int $limit, bool $errorStops, bool $onlyErrors): array
     {
-        if (\function_exists('memory_get_usage')) {
+        if (function_exists('memory_get_usage')) {
             // @ - may be disabled, 2 - substr and trim, 8e6 - other variables
             try {
-                \ini_set('memory_limit', max($this->admin->iniBytes('memory_limit'),
-                    2 * strlen($queries) + \memory_get_usage() + 8e6));
+                ini_set('memory_limit', max($this->admin->iniBytes('memory_limit'),
+                    2 * strlen($queries) + memory_get_usage() + 8e6));
             }
             catch(\Exception $e) {
                 // Do nothing if the option is not modified.
@@ -224,6 +234,7 @@ class CommandFacade extends AbstractFacade
         $this->createConnection();
 
         $this->results = [];
+        $this->duration = 0;
         $commands = 0;
         $errors = 0;
         $queryEntity = new QueryEntity($queries, $limit, $errorStops, $onlyErrors);
@@ -244,6 +255,10 @@ class CommandFacade extends AbstractFacade
             $messages[] =  $this->utils->trans->lang('%d query(s) executed OK.', $commands - $errors);
         }
 
-        return ['results' => $this->results, 'messages' => $messages];
+        return [
+            'results' => $this->results,
+            'messages' => $messages,
+            'duration' => $this->duration,
+        ];
     }
 }
