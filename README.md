@@ -90,16 +90,16 @@ In the page that displays the dashboard, insert the HTML code returned by the ca
 This package uses the [HTML UI builder](https://github.com/lagdo/ui-builder) to build UI components for various frontend frameworks.
 The packages for the UI framework in use must also be installed.
 The following builders are available:
-- Bootstrap 3, 4 and 5: [https://github.com/lagdo/ui-builder-bootstrap](https://github.com/lagdo/ui-builder-bootstrap)
+- Bootstrap 5: [https://github.com/lagdo/ui-builder-bootstrap5](https://github.com/lagdo/ui-builder-bootstrap5)
+- Bootstrap 4: [https://github.com/lagdo/ui-builder-bootstrap4](https://github.com/lagdo/ui-builder-bootstrap4)
+- Bootstrap 3: [https://github.com/lagdo/ui-builder-bootstrap3](https://github.com/lagdo/ui-builder-bootstrap3)
 
 In the above example, the UI will be built with Bootstrap3 components.
 
 ```php
     'app' => [
-        'packages' => [
-            Lagdo\DbAdmin\Package::class => [
-                'template' => 'bootstrap3',
-            ],
+        'ui' => [
+            'template' => 'bootstrap3',
         ],
     ],
 ```
@@ -219,7 +219,6 @@ $dbAdminOptionsGetter = function($config) {
             Lagdo\DbAdmin\Package::class => [
                 // A callable that return the access options.
                 'provider' => $dbAdminOptionsGetter,
-                'template' => 'bootstrap3',
                 'servers' => [],
                 'default' => 'server_mysql',
                 'access' => [
