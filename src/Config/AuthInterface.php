@@ -15,9 +15,9 @@ interface AuthInterface
     public function user(): string;
 
     /**
-     * Get the authenticated user group name
+     * Get the authenticated user role
      * 
      * @return string
      */
-    public function group(): string;
+    public function role(): string;
 }
