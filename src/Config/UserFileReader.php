@@ -35,7 +35,6 @@ class UserFileReader
         if (!$this->useEnv) {
             return $values;
         }
-
         // The values in the server options are the names of the
         // corresponding options in the .env file.
         $values['servers'] = array_map(function(array $server) {
@@ -44,6 +43,7 @@ class UserFileReader
                     $server[$option] = env($server[$option]);
                 }
             }
+            return $server;
         }, $values['servers'] ?? []);
         return $values;
     }
@@ -57,18 +57,19 @@ class UserFileReader
      */
     public function getOptions(array $defaultOptions): array
     {
+        unset($defaultOptions['provider']); // Remove the provider field.
         $setter = new ConfigSetter();
         $reader = new ConfigReader($setter);
-        $userConfig = $setter->newConfig($defaultOptions);
+        $userConfig = $setter->newConfig(['options' => $defaultOptions]);
 
         if (!is_file($this->configFilePath)) {
-            return $userConfig->getValues();
+            return $userConfig->getOption('options');
         }
 
         $config = $reader->load($setter->newConfig(), $this->configFilePath);
         $commonOptions = $config->getOption('common', null);
         if (is_array($commonOptions)) {
-            $userConfig = $setter->setOptions($config, $commonOptions);
+            $userConfig = $setter->setOptions($userConfig, $commonOptions, 'options');
         }
 
         $fallbackOptions = $config->getOption('fallback', null);
@@ -77,12 +78,12 @@ class UserFileReader
         $userOptions = $userOptions[0] ?? $fallbackOptions;
 
         if (!is_array($userOptions)) {
-            return $this->getOptionValues($userConfig->getValues());
+            return $this->getOptionValues($userConfig->getOption('options'));
         }
 
         unset($userOptions['id']); // Remove the id field.
         $userConfig = $setter->setOptions($userConfig, $userOptions);
 
-        return $this->getOptionValues($userConfig->getValues());
+        return $this->getOptionValues($userConfig->getOption('options'));
     }
 }
