@@ -7,6 +7,7 @@ use Jaxon\Config\ConfigSetter;
 
 use function array_map;
 use function array_filter;
+use function array_values;
 use function count;
 use function env;
 use function in_array;
@@ -160,9 +161,11 @@ class UserFileReader
         }
 
         $fallbackOptions = $config->getOption('fallback', null);
-        $userOptions = array_filter($config->getOption('users', []),
-            fn($options) => $this->userMatches($options));
-        $userOptions = $userOptions[0] ?? $fallbackOptions;
+
+        $userList = $config->getOption('users', []);
+        $userList = array_values(array_filter($userList,
+            fn($options) => $this->userMatches($options)));
+        $userOptions = $userList[0] ?? $fallbackOptions;
 
         if (!is_array($userOptions)) {
             return $this->getOptionValues($userConfig->getOption($userKey));
