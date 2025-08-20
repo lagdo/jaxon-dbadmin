@@ -30,12 +30,14 @@ class Results extends PageComponent
         // Select options
         $options = $this->getOptions(true);
         $results = $this->db()->execSelect($this->getTableName(), $options);
+        if (isset($results['message'])) {
+            return $results['message'];
+        }
 
         $this->stash()->set('select.duration', $results['duration']);
 
         // The 'message' key is set when an error occurs, or when the query returns no data.
-        return $results['message'] ??
-            $this->selectUi->results($results['headers'], $results['rows']);
+        return $this->selectUi->results($results['headers'], $results['rows']);
     }
 
     /**
