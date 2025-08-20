@@ -9,8 +9,10 @@ use function array_map;
 use function array_filter;
 use function count;
 use function env;
+use function in_array;
 use function is_array;
 use function is_file;
+use function is_string;
 
 class UserFileReader
 {
@@ -44,6 +46,61 @@ class UserFileReader
     }
 
     /**
+     * @param array $options
+     *
+     * @return bool
+     */
+    private function checkUser(array $options): bool
+    {
+        $user = $options['id']['user'] ?? null;
+        return is_string($user) && $this->auth->user() === $user;
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return bool
+     */
+    private function checkUsers(array $options): bool
+    {
+        $users = $options['id']['users'] ?? null;
+        return is_array($users) && in_array($this->auth->user(), $users);
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return bool
+     */
+    private function checkRole(array $options): bool
+    {
+        $role = $options['id']['role'] ?? null;
+        return is_string($role) && $this->auth->role() === $role;
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return bool
+     */
+    private function checkRoles(array $options): bool
+    {
+        $roles = $options['id']['roles'] ?? null;
+        return is_array($roles) && in_array($this->auth->role(), $roles);
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return bool
+     */
+    private function userMatches(array $options): bool
+    {
+        return $this->checkUser($options) || $this->checkUsers($options) ||
+            $this->checkRole($options) || $this->checkRoles($options);
+    }
+
+    /**
      * Replace options with values from the .env config.
      *
      * @param array $values
@@ -55,7 +112,6 @@ class UserFileReader
         // Filter the servers list on valid entries
         $values['servers'] = array_filter($values['servers'],
             fn(array $server) => $this->checkServer($server));
-
         if (!$this->useEnv) {
             return $values;
         }
@@ -64,8 +120,10 @@ class UserFileReader
         // corresponding options in the .env file.
         $options = ['host', 'port', 'username', 'password'];
         $values['servers'] = array_map(function(array $server) use($options) {
-            foreach ($options as $option) {
-                $server[$option] = env($server[$option]);
+            if ($server['driver'] !== 'sqlite') {
+                foreach ($options as $option) {
+                    $server[$option] = env($server[$option]);
+                }
             }
             return $server;
         }, $values['servers'] ?? []);
@@ -103,7 +161,7 @@ class UserFileReader
 
         $fallbackOptions = $config->getOption('fallback', null);
         $userOptions = array_filter($config->getOption('users', []),
-            fn($options) => $options['id'] ?? null === $this->auth->user());
+            fn($options) => $this->userMatches($options));
         $userOptions = $userOptions[0] ?? $fallbackOptions;
 
         if (!is_array($userOptions)) {
