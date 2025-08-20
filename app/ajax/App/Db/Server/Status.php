@@ -31,6 +31,7 @@ class Status extends MainComponent
 
     /**
      * Show the status of a server
+     * @after showBreadcrumbs
      *
      * @return void
      */

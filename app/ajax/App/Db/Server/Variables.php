@@ -31,6 +31,7 @@ class Variables extends MainComponent
 
     /**
      * Show the variables of a server
+     * @after showBreadcrumbs
      *
      * @return void
      */

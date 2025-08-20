@@ -31,6 +31,7 @@ class Processes extends MainComponent
 
     /**
      * Show the processes of a server
+     * @after showBreadcrumbs
      *
      * @return void
      */

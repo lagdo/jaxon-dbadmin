@@ -46,6 +46,7 @@ class Privileges extends MainComponent
 
     /**
      * Show the privileges of a server
+     * @after showBreadcrumbs
      *
      * @return void
      */

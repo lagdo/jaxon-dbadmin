@@ -13,7 +13,6 @@ use function Jaxon\jq;
  * Create a new table
  *
  * @databag dbadmin.table
- * @after showBreadcrumbs
  */
 class Create extends MainComponent
 {
@@ -82,6 +81,18 @@ class Create extends MainComponent
     protected function after(): void
     {
         $this->cl(Columns::class)->render();
+    }
+
+    /**
+     * Show the create table page
+     *
+     * @after showBreadcrumbs
+     *
+     * @return void
+     */
+    public function show(): void
+    {
+        $this->render();
     }
 
     /**

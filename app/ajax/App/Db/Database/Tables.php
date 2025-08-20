@@ -22,7 +22,7 @@ class Tables extends MainComponent
         $this->cl(PageActions::class)->show([
             'add-table' => [
                 'title' => $this->trans()->lang('Create table'),
-                'handler' => $this->rq(Create::class)->render(),
+                'handler' => $this->rq(Create::class)->show(),
             ],
         ]);
     }

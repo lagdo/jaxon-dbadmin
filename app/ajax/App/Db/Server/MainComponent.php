@@ -8,7 +8,6 @@ use Lagdo\DbAdmin\Db\Exception\DbException;
 
 /**
  * @before checkServerAccess
- * @after showBreadcrumbs
  */
 abstract class MainComponent extends BaseComponent
 {

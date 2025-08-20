@@ -45,6 +45,7 @@ class Databases extends MainComponent
 
     /**
      * Show the databases of a server
+     * @after showBreadcrumbs
      *
      * @return void
      */
