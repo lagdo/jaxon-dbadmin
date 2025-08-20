@@ -24,10 +24,11 @@ abstract class Component extends BaseComponent
     protected function checkServerAccess(): void
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
-        $this->db()->selectDatabase($server);
-        if(!$this->package()->getServerAccess($this->db()->getCurrentServer()))
+        if(!$this->hasServerAccess($server))
         {
-            throw new DbException('Access to server data is forbidden');
+            throw new DbException('Access to server data is not allowed.');
         }
+
+        $this->db()->selectDatabase($server);
     }
 }

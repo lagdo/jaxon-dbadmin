@@ -33,12 +33,29 @@ abstract class Component extends JaxonComponent
     {}
 
     /**
+     * @param string|null $server
+     *
+     * @return bool
+     */
+    protected function hasServerAccess(string|null $server = null): bool
+    {
+        if ($server === null) {
+            $server = $this->bag('dbadmin')->get('db')[0] ?? '';
+        }
+        return $this->package()->getServerAccess($server);
+    }
+
+    /**
      * @param string $activeItem
      *
      * @return void
      */
     protected function activateServerSectionMenu(string $activeItem): void
     {
+        if (!$this->hasServerAccess()) {
+            return;
+        }
+
         $this->cl(Sections::class)->server($activeItem);
         $this->cl(ServerCommand::class)->server();
         // Reset the database command menu only if there is an active database
@@ -56,6 +73,10 @@ abstract class Component extends JaxonComponent
      */
     protected function activateServerCommandMenu(string $activeItem): void
     {
+        if (!$this->hasServerAccess()) {
+            return;
+        }
+
         $this->cl(Sections::class)->server();
         $this->cl(ServerCommand::class)->server($activeItem);
         // Reset the database command menu only if there is an active database
@@ -74,7 +95,7 @@ abstract class Component extends JaxonComponent
     protected function activateDatabaseSectionMenu(string $activeItem): void
     {
         $this->cl(Sections::class)->database($activeItem);
-        $this->cl(ServerCommand::class)->server();
+        $this->hasServerAccess() && $this->cl(ServerCommand::class)->server();
         $this->cl(DatabaseCommand::class)->database();
     }
 
@@ -86,7 +107,7 @@ abstract class Component extends JaxonComponent
     protected function activateDatabaseCommandMenu(string $activeItem): void
     {
         $this->cl(Sections::class)->database();
-        $this->cl(ServerCommand::class)->server();
+        $this->hasServerAccess() && $this->cl(ServerCommand::class)->server();
         $this->cl(DatabaseCommand::class)->database($activeItem);
     }
 }

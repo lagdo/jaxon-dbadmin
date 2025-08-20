@@ -30,12 +30,10 @@ class Admin extends Component
     public function server(string $server): void
     {
         $this->logger()->info('Connecting to server', ['server' => $server]);
+
         // Set the selected server
         $this->db()->selectDatabase($server);
-        // Save the selected server in the databag
-        $this->bag('dbadmin')->set('db', [$server, '', '']);
 
-        $this->cl(Server::class)
-            ->connect($this->package()->getServerAccess($server));
+        $this->cl(Server::class)->connect($server);
     }
 }

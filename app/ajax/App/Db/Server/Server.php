@@ -3,12 +3,12 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Database;
+use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Command as DatabaseCommand;
-use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
 use Lagdo\DbAdmin\Ajax\App\Menu\Server\Command as ServerCommand;
 use Lagdo\DbAdmin\Ajax\App\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\Ajax\App\Page\DbConnection;
-use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
+use Lagdo\DbAdmin\Ajax\App\Sidebar;
 
 use function array_values;
 use function count;
@@ -16,26 +16,12 @@ use function count;
 class Server extends FuncComponent
 {
     /**
-     * Show the database dropdown list.
-     *
      * @return array
      */
-    protected function showDatabaseMenu(): array
+    private function getDatabases(): array
     {
-        // Access to servers is forbidden. Show the first database.
         $systemAccess = $this->package()->getOption('access.system', false);
-        $databasesInfo = $this->db()->getDatabases($systemAccess);
-
-        // Make databases info available to views
-        $this->view()->shareValues($databasesInfo);
-
-        // Set the database dropdown list
-        $this->cl(MenuDatabases::class)->showDatabases($databasesInfo['databases']);
-
-        // Clear schema list
-        $this->cl(MenuSchemas::class)->clear();
-
-        return $databasesInfo;
+        return $this->db()->getDatabases($systemAccess)['databases'];
     }
 
     /**
@@ -44,34 +30,40 @@ class Server extends FuncComponent
      *
      * @exclude
      *
-     * @param bool $hasServerAccess
+     * @param string $server
      *
      * @return void
      */
-    public function connect(bool $hasServerAccess): void
+    public function connect(string $server): void
     {
+        // Save the selected server in the databag
+        $this->bag('dbadmin')->set('db', [$server, '', '']);
+
         $serverInfo = $this->db()->getServerInfo();
-        // Make server info available to views
-        $this->view()->shareValues($serverInfo);
 
         $this->cl(DbConnection::class)
             ->show($serverInfo['server'], $serverInfo['user']);
 
-        // Show the server
-        $this->cl(ServerCommand::class)->render();
-        $this->cl(DatabaseCommand::class)->clear();
+        // Refresh the sidebar content
+        $this->cl(Sidebar::class)->refresh($server);
 
-        if(!$hasServerAccess)
+        // Always show the database list.
+        $databases = $this->getDatabases();
+        $this->cl(MenuDatabases::class)->showDatabases($databases);
+
+        $hasServerAccess = $this->package()->getServerAccess($server);
+        if($hasServerAccess)
         {
-            $databasesInfo = $this->showDatabaseMenu();
-            if(count($databasesInfo['databases']) > 0)
-            {
-                $database = array_values($databasesInfo['databases'])[0];
-                $this->cl(Database::class)->select($database);
-            }
+            $this->cl(ServerCommand::class)->render();
+            $this->cl(Databases::class)->show();
             return;
         }
 
-        $this->cl(Databases::class)->show();
+        if(count($databases) > 0)
+        {
+            $this->cl(DatabaseCommand::class)->render();
+            $database = array_values($databases)[0];
+            $this->cl(Database::class)->select($database);
+        }
     }
 }

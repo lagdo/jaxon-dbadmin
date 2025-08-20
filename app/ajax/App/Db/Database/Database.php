@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
 use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\Server\Databases;
-use Lagdo\DbAdmin\Ajax\App\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
 use Lagdo\DbAdmin\Ajax\App\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
@@ -68,8 +67,6 @@ class Database extends FuncComponent
 
         // Save the selection in the databag
         $this->bag('dbadmin')->set('db', [$server, $database, $schema]);
-
-        $this->cl(DatabaseCommand::class)->render();
 
         // Show the database tables
         $this->cl(Tables::class)->show();
