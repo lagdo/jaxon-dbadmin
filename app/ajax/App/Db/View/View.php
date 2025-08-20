@@ -99,6 +99,10 @@ class View extends FuncComponent
                 'title' => $this->trans()->lang('Drop view'),
                 'handler' => $this->rq()->drop($view)->confirm("Drop view $view?"),
             ],
+            'back-views' => [
+                'title' => $this->trans()->lang('Back'),
+                'handler' => $this->rq(Views::class)->show(),
+            ],
         ];
         $this->cl(PageActions::class)->show($actions);
 
