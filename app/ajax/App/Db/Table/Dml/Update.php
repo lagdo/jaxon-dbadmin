@@ -35,9 +35,6 @@ class Update extends MainComponent
      */
     protected function before(): void
     {
-        // Make data available to views
-        $this->view()->shareValues($this->queryData);
-
         // Set main menu buttons
         $options = je($this->queryFormId)->rd()->form();
         $actions = [

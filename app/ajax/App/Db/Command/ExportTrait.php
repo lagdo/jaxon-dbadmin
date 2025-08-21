@@ -29,9 +29,6 @@ trait ExportTrait
 
         $exportOptions = $this->db()->getExportOptions($this->database);
 
-        // Make data available to views
-        $this->view()->shareValues($exportOptions);
-
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 

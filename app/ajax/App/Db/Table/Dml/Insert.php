@@ -32,9 +32,6 @@ class Insert extends MainComponent
      */
     protected function before(): void
     {
-        // Make data available to views
-        $this->view()->shareValues($this->queryData);
-
         // Set main menu buttons
         $table = $this->getTableName();
         $options = je($this->queryFormId)->rd()->form();

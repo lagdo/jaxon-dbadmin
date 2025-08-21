@@ -99,11 +99,10 @@ class Select extends MainComponent
      * @after showBreadcrumbs
      *
      * @param string $table       The table name
-     * @param bool $backToTables
      *
      * @return void
      */
-    public function show(string $table, bool $backToTables = false): void
+    public function show(string $table): void
     {
         // Save the table name in the databag.
         $this->bag('dbadmin')->set('db.table.name', $table);

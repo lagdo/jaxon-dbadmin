@@ -31,9 +31,6 @@ trait ImportTrait
 
         $importOptions = $this->db()->getImportOptions();
 
-        // Make data available to views
-        $this->view()->shareValues($importOptions);
-
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 

@@ -80,8 +80,6 @@ class View extends FuncComponent
     public function show(string $view): void
     {
         $viewInfo = $this->db()->getViewInfo($view);
-        // Make view info available to views
-        $this->view()->shareValues($viewInfo);
 
         // Set main menu buttons
         // $actions = [
@@ -180,8 +178,6 @@ class View extends FuncComponent
     public function edit(string $view): void
     {
         $viewData = $this->db()->getView($view);
-        // Make view info available to views
-        $this->view()->shareValues($viewData);
 
         $formId = 'view-form';
         $title = 'Edit a view';

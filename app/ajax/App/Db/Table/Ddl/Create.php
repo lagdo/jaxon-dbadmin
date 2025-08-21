@@ -43,8 +43,6 @@ class Create extends MainComponent
         $this->stash()->set('table.fields', []);
 
         $this->tableData = $this->db()->getTableData();
-        // Make data available to views
-        $this->view()->shareValues($this->tableData);
 
         // Set main menu buttons
         $values = je($this->formId)->rd()->form();

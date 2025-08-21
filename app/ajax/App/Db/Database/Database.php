@@ -48,8 +48,6 @@ class Database extends FuncComponent
 
         $systemAccess = $this->package()->getOption('access.system', false);
         $databaseInfo = $this->db()->getDatabaseInfo($systemAccess);
-        // Make database info available to views
-        $this->view()->shareValues($databaseInfo);
 
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
