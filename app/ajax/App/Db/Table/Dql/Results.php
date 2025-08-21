@@ -10,6 +10,11 @@ class Results extends PageComponent
     use QueryTrait;
 
     /**
+     * @var bool
+     */
+    private bool $hasResult = false;
+
+    /**
      * @inheritDoc
      */
     protected function count(): int
@@ -30,7 +35,9 @@ class Results extends PageComponent
         // Select options
         $options = $this->getOptions(true);
         $results = $this->db()->execSelect($this->getTableName(), $options);
-        if (isset($results['message'])) {
+
+        $this->hasResult = isset($results['message']);
+        if ($this->hasResult) {
             return $results['message'];
         }
 
@@ -46,6 +53,7 @@ class Results extends PageComponent
     protected function after(): void
     {
         $this->cl(QueryText::class)->refresh();
-        $this->cl(Duration::class)->render();
+        $this->hasResult ? $this->cl(Duration::class)->render() :
+            $this->cl(Duration::class)->clear();
     }
 }
