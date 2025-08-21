@@ -400,7 +400,7 @@ class SelectQuery extends AbstractFacade
         $primary = null;
         $selectEntity->unselected = [];
         foreach ($selectEntity->indexes as $index) {
-            if ($index->type == "PRIMARY") {
+            if ($index->type === "PRIMARY") {
                 $primary = array_flip($index->columns);
                 $selectEntity->unselected = ($selectEntity->select ? $primary : []);
                 foreach ($selectEntity->unselected as $key => $val) {
@@ -415,7 +415,11 @@ class SelectQuery extends AbstractFacade
         $oid = $selectEntity->tableStatus->oid;
         if ($oid && !$primary) {
             /*$primary = */$selectEntity->unselected = [$oid => 0];
-            $selectEntity->indexes[] = ["type" => "PRIMARY", "columns" => [$oid]];
+            // Make an index for the OID
+            $index = new IndexEntity();
+            $index->type = "PRIMARY";
+            $index->columns = [$oid];
+            $selectEntity->indexes[] = $index;
         }
     }
 
