@@ -10,7 +10,6 @@ use Lagdo\DbAdmin\Ui\Table\TableUiBuilder;
 
 /**
  * @before checkDatabaseAccess
- * @after showBreadcrumbs
  */
 abstract class Component extends BaseComponent
 {
