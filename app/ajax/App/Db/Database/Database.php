@@ -63,6 +63,8 @@ class Database extends FuncComponent
             $this->cl(MenuSchemas::class)->showDbSchemas($database, $schemas);
         }
 
+        $this->db()->selectDatabase($server, $database, $schema);
+
         // Save the selection in the databag
         $this->bag('dbadmin')->set('db', [$server, $database, $schema]);
 
