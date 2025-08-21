@@ -111,7 +111,7 @@ class UserFileReader
     private function getOptionValues(array $values): array
     {
         // Filter the servers list on valid entries
-        $values['servers'] = array_filter($values['servers'],
+        $values['servers'] = array_filter($values['servers'] ?? [],
             fn(array $server) => $this->checkServer($server));
         if (!$this->useEnv) {
             return $values;
