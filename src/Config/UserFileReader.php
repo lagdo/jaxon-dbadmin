@@ -8,12 +8,13 @@ use Jaxon\Config\ConfigSetter;
 use function array_map;
 use function array_filter;
 use function array_values;
-use function count;
 use function env;
 use function in_array;
 use function is_array;
 use function is_file;
+use function is_numeric;
 use function is_string;
+use function preg_match;
 
 class UserFileReader
 {
@@ -21,12 +22,36 @@ class UserFileReader
      * The constructor
      *
      * @param AuthInterface $auth
-     * @param string $configFilePath
-     * @param bool $useEnv
+     * @param string $configFile
      */
-    public function __construct(private AuthInterface $auth,
-        private string $configFilePath, private bool $useEnv = false)
+    public function __construct(private AuthInterface $auth, private string $configFile)
     {}
+
+    /**
+     * @param string $value
+     *
+     * @return bool
+     */
+    private function callsEnvVar(string $value): bool
+    {
+        return preg_match('/^env\(.*\)$/', $value) !== false;
+    }
+
+    /**
+     * @param array $server
+     *
+     * @return bool
+     */
+    private function checkPortNumber(array $server): bool
+    {
+        if (!isset($server['port']) || is_numeric($server['port'])) {
+            return true;
+        }
+        if (!is_string($server['port'])) {
+            return false;
+        }
+        return $this->callsEnvVar($server['port']);
+    }
 
     /**
      * @param array $server
@@ -35,15 +60,17 @@ class UserFileReader
      */
     private function checkServer(array $server): bool
     {
-        if (!isset($server['name']) || !isset($server['driver'])) {
+        if (!isset($server['name']) || !isset($server['driver']) ||
+            !is_string($server['name']) || !is_string($server['driver'])) {
             return false;
         }
         if ($server['driver'] === 'sqlite') {
-            return isset($server['directory']) && count($server) === 3;
+            return isset($server['directory']) && is_string($server['directory']);
         }
-        return isset($server['host']) && isset($server['port']) &&
-            isset($server['username']) && isset($server['password']) &&
-            count($server) === 6;
+        return isset($server['username']) && isset($server['password']) &&
+            isset($server['host']) && is_string($server['username']) &&
+            is_string($server['password']) && is_string($server['host']) &&
+            $this->checkPortNumber($server);
     }
 
     /**
@@ -102,6 +129,18 @@ class UserFileReader
     }
 
     /**
+     * @param string $value
+     *
+     * @return mixed
+     */
+    private function getOptionValue(string $value): mixed
+    {
+        // The regex here also captures the matching string.
+        $match = preg_match('/^env\((.*)\)$/', $value, $matches);
+        return $match === false || !isset($matches[1]) ? $value : env($matches[1]);
+    }
+
+    /**
      * Replace options with values from the .env config.
      *
      * @param array $values
@@ -113,21 +152,22 @@ class UserFileReader
         // Filter the servers list on valid entries
         $values['servers'] = array_filter($values['servers'] ?? [],
             fn(array $server) => $this->checkServer($server));
-        if (!$this->useEnv) {
-            return $values;
-        }
-
         // The values in the server options are the names of the
         // corresponding options in the .env file.
-        $options = ['host', 'port', 'username', 'password'];
-        $values['servers'] = array_map(function(array $server) use($options) {
-            if ($server['driver'] !== 'sqlite') {
-                foreach ($options as $option) {
-                    $server[$option] = env($server[$option]);
-                }
+        $values['servers'] = array_map(function(array $server) {
+            if ($server['driver'] === 'sqlite') {
+                return $server;
+            }
+
+            $server['host'] = $this->getOptionValue($server['host']);
+            $server['username'] = $this->getOptionValue($server['username']);
+            $server['password'] = $this->getOptionValue($server['password']);
+            if (isset($server['port']) && is_string($server['port'])) {
+                $server['port'] = $this->getOptionValue($server['port']);
             }
             return $server;
         }, $values['servers'] ?? []);
+
         return $values;
     }
 
@@ -141,7 +181,7 @@ class UserFileReader
     public function getOptions(array $defaultOptions): array
     {
         // If the config file doesn't exists, return an empty array.
-        if (!is_file($this->configFilePath)) {
+        if (!is_file($this->configFile)) {
             return [];
         }
 
@@ -154,7 +194,7 @@ class UserFileReader
         $reader = new ConfigReader($setter);
         $userConfig = $setter->newConfig([$userKey => $defaultOptions]);
 
-        $config = $reader->load($setter->newConfig(), $this->configFilePath);
+        $config = $reader->load($setter->newConfig(), $this->configFile);
         $commonOptions = $config->getOption('common', null);
         if (is_array($commonOptions)) {
             $userConfig = $setter->setOptions($userConfig, $commonOptions, $userKey);
