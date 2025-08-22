@@ -12,7 +12,7 @@ class Results extends PageComponent
     /**
      * @var bool
      */
-    private bool $hasResult = false;
+    private bool $noResult = false;
 
     /**
      * @inheritDoc
@@ -36,8 +36,8 @@ class Results extends PageComponent
         $options = $this->getOptions(true);
         $results = $this->db()->execSelect($this->getTableName(), $options);
 
-        $this->hasResult = isset($results['message']);
-        if ($this->hasResult) {
+        $this->noResult = isset($results['message']);
+        if ($this->noResult) {
             return $results['message'];
         }
 
@@ -53,7 +53,7 @@ class Results extends PageComponent
     protected function after(): void
     {
         $this->cl(QueryText::class)->refresh();
-        $this->hasResult ? $this->cl(Duration::class)->render() :
-            $this->cl(Duration::class)->clear();
+        $this->noResult ? $this->cl(Duration::class)->clear() :
+            $this->cl(Duration::class)->render();
     }
 }
