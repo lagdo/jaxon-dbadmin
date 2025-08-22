@@ -1,7 +1,6 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lagdo/jaxon-dbadmin/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/lagdo/jaxon-dbadmin/?branch=main)
 [![StyleCI](https://styleci.io/repos/402856578/shield?branch=main)](https://styleci.io/repos/402856578)
 [![Build Status](https://api.travis-ci.com/lagdo/jaxon-dbadmin.svg?branch=main)](https://app.travis-ci.com/github/lagdo/jaxon-dbadmin)
-[![Coverage Status](https://coveralls.io/repos/github/lagdo/jaxon-dbadmin/badge.svg?branch=main)](https://coveralls.io/github/lagdo/jaxon-dbadmin?branch=main)
 
 [![Latest Stable Version](https://poser.pugx.org/lagdo/jaxon-dbadmin/v/stable)](https://packagist.org/packages/lagdo/jaxon-dbadmin)
 [![Total Downloads](https://poser.pugx.org/lagdo/jaxon-dbadmin/downloads)](https://packagist.org/packages/lagdo/jaxon-dbadmin)
@@ -10,40 +9,42 @@
 A database admin dashboard based on Jaxon and Adminer
 =====================================================
 
-This package is based on [Adminer](https://github.com/vrana/adminer).
-
-It inserts a database admin dashboard into an existing PHP application.
+This package inserts a database admin dashboard into an existing PHP application.
 Thanks to the [Jaxon library](https://www.jaxon-php.org), it installs and runs in a page of the application.
-All its operations are performed with Ajax requests.
+All its operations are performed with Ajax requests, so the user never leaves the page.
+
+The database access code (and thus the provided features) come from [Adminer](https://github.com/vrana/adminer). The original code was refactored to take advantage of the latest PHP features: namespaces, Composer packages, and so on.
 
 Howtos
 ------
 
-This blog post on the `Jaxon` website explains how to install `Jaxon DbAdmin` on [Voyager](https://voyager-docs.devdojo.com), an admin panel based on the `Laravel` framework: [In english](https://www.jaxon-php.org/blog/2021/03/install-jaxon-adminer-on-voyager.html), and [in french](https://www.jaxon-php.org/blog/2021/03/installer-jaxon-adminer-dans-voyager.html).
+This blog post on the `Jaxon` website explains how to install `Jaxon DbAdmin` on [Backpack](https://backpackforlaravel.com), an admin panel based on the `Laravel` framework: [https://www.jaxon-php.org/blog/2025/07/install-jaxon-dbadmin-on-backpack.html](https://www.jaxon-php.org/blog/2025/07/install-jaxon-dbadmin-on-backpack.html).
 
-### Jaxon DbAdmin and Voyager
+### The Jaxon DbAdmin application
 
-The [https://github.com/lagdo/dbadmin-voyager](https://github.com/lagdo/dbadmin-voyager) repo provides a ready-to-use package, made with the [Voyager Admin](https://voyager.devdojo.com/) dashboard, and `Jaxon DbAdmin` included.
+The [https://github.com/lagdo/jaxon-dbadmin](https://github.com/lagdo/jaxon-dbadmin) repo provides a ready-to-use `Jaxon DbAdmin` application built with `Laravel`.
 
-The driver packages for [PostgreSQL](https://github.com/lagdo/dbadmin-driver-mysql), [MySQL](https://github.com/lagdo/dbadmin-driver-mysql) and [SQLite](https://github.com/lagdo/dbadmin-driver-sqlite) are also installed, so the user just need to add its databases in the config file.
+The driver packages for [PostgreSQL](https://github.com/lagdo/dbadmin-driver-mysql), [MySQL](https://github.com/lagdo/dbadmin-driver-mysql) and [SQLite](https://github.com/lagdo/dbadmin-driver-sqlite) are included, so the user just need to add its databases in the config file.
+
+A [Docker image](https://hub.docker.com/r/lagdo/jaxon-dbadmin) is also provided to get started easily.
 
 Documentation
 -------------
 
 Install the Jaxon library so it bootstraps from a config file and handles ajax requests.
-Here's the [documentation](https://www.jaxon-php.org/docs/v3x/advanced/bootstrap.html).
+Here's the [documentation](https://www.jaxon-php.org/docs/v5x/about/configuration.html).
 
-Install this package with Composer. If a [Jaxon plugin](https://www.jaxon-php.org/docs/v3x/plugins/frameworks.html) exists for your framework, you can also install it. It will automate the previous step.
+Install this package with Composer. If a [framework extension](https://www.jaxon-php.org/docs/v5x/integrations/about.html) is available for your framework, you must also install it. It will automate the previous step.
 
 ### The database drivers
 
 Install the drivers packages for the database servers you need to manage.
 The following drivers are available:
-- MySQL: [https://github.com/lagdo/dbadmin-driver-mysql](https://github.com/lagdo/dbadmin-driver-mysql)
 - PostgreSQL: [https://github.com/lagdo/dbadmin-driver-pgsql](https://github.com/lagdo/dbadmin-driver-mysql)
+- MySQL: [https://github.com/lagdo/dbadmin-driver-mysql](https://github.com/lagdo/dbadmin-driver-mysql)
 - Sqlite: [https://github.com/lagdo/dbadmin-driver-sqlite](https://github.com/lagdo/dbadmin-driver-sqlite)
 
-Declare the package and the database servers in the `app` section of the [Jaxon configuration file](https://www.jaxon-php.org/docs/v3x/advanced/bootstrap.html).
+Declare the package and the database servers in the `app.packages` section of the [Jaxon configuration file](https://www.jaxon-php.org/docs/v5x/about/configuration.html).
 
 See the corresponding database driver package for specific database server options.
 
@@ -77,17 +78,14 @@ See the corresponding database driver package for specific database server optio
     ],
 ```
 
-Insert the CSS and javascript codes in the HTML pages of your application using calls to `Jaxon\jaxon()->getCss()` and `Jaxon\jaxon()->getScript(true)`.
+### The CSS and javascript codes
 
-In the page that displays the dashboard, insert the HTML code returned by the call to `Jaxon\jaxon()->package(\Lagdo\DbAdmin\Package::class)->getHtml()`. Two cases are then possible.
-
-- If the dashboard is displayed on a dedicated page, make a call to `Jaxon\jaxon()->package(\Lagdo\DbAdmin\Package::class)->ready()` in your PHP code when loading the page.
-
-- If the dashboard is loaded with an Ajax request in a page already displayed, execute the javascript code returned the call to `Jaxon\jaxon()->package(\Lagdo\DbAdmin\Package::class)->getReadyScript()` after the page is loaded.
+Insert the CSS and javascript codes in the HTML page of your application, as described in the [Jaxon documentation](https://www.jaxon-php.org/docs/v5x/registrations/javascript.html).
 
 ### The UI builder
 
 This package uses the [HTML UI builder](https://github.com/lagdo/ui-builder) to build UI components for various frontend frameworks.
+
 The packages for the UI framework in use must also be installed.
 The following builders are available:
 - Bootstrap 5: [https://github.com/lagdo/ui-builder-bootstrap5](https://github.com/lagdo/ui-builder-bootstrap5)
@@ -107,9 +105,9 @@ In the above example, the UI will be built with Bootstrap3 components.
 Additional config options
 -------------------------
 
-There are other config options that can be used to customize `Jaxon DbAdmin` operation.
+There are other config options that can be used to customize the `Jaxon DbAdmin` operation.
 
-The `default` option sets a database server `Jaxon DbAdmin` must connect to when it starts.
+The `default` option sets a database server `Jaxon DbAdmin` must connect to when it starts, instead of displaying a blank page.
 
 ```php
     'app' => [
@@ -152,6 +150,7 @@ The `access.server` option can also be set at a server level, and in this case i
         ],
     ],
 ```
+
 In this configuration, the user will get access to server information only on the server with id `server_id`.
 
 The `access.databases` and `access.schemas` options define the set of databases and schemas the user can access.
@@ -182,15 +181,14 @@ In this configuration, the user will be able to get access only to three databas
 
 ### Customizing the package config
 
-The app admin may need to customize the access parameters, depending for example on the connected user account or group.
+The app admin may need to customize the access parameters, depending for example on the connected user account or role.
 
-In this case, the `provider` option can be used to define a callable that returns the access options as an array,
-which will then be used to configure the package.
+In this case, the `provider` option can be used to define a callable that returns the access options as an array, which will then be used to configure the package.
 
 The defined options are passed to the callable, so it can be used as a basis to build the customized config.
 
 ```php
-$dbAdminOptionsGetter = function($config) {
+$dbAdminOptionsGetter = function(array $config) {
     $config['servers']['server_mysql'] = [
         'driver' => 'mysql',
         'name' => '',     // The name to be displayed in the dashboard UI.
@@ -249,7 +247,7 @@ if the `debug.queries` option is set to true.
     ],
 ```
 
-### Data import
+### Data import (currently disabled)
 
 SQL files can be uploaded and executed on a server. This feature is implemented using the [Jaxon ajax upload](https://www.jaxon-php.org/docs/v3x/registrations/upload.html) feature, which then needs to be configured in the `lib` section of the `Jaxon` config file.
 
@@ -267,7 +265,7 @@ SQL files can be uploaded and executed on a server. This feature is implemented 
 As stated in the [Jaxon ajax upload documentation](https://www.jaxon-php.org/docs/v3x/registrations/upload.html), `sql_files` is the `name` attribute of the file upload field, and of course `/path/to/the/upload/dir` needs to be writable.
 Other parameters can also be defined to limit the size of the uploaded files or retrict their extensions or mime types.
 
-### Data export
+### Data export (currently disabled)
 
 Databases can also be exported to various types of files: SQL, CSV, and more.
 A directory where the exported files are going to be saved must then be defined in the configuration, as well as an url where they can be downloaded.
