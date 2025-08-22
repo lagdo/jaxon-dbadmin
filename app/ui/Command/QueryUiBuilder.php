@@ -166,7 +166,7 @@ class QueryUiBuilder
                                 )
                                 ->setStyle('padding:5px 15px')
                             )
-                            ->style('danger')
+                            ->style('success')
                         ),
                         $this->ui->when(isset($result['select']), fn() =>
                             $this->ui->table(
@@ -187,7 +187,8 @@ class QueryUiBuilder
                                     )
                                 ),
                             )
-                            ->responsive(true)->style('bordered')->setStyle('margin-top:2px')
+                            ->responsive(true)
+                            ->style('bordered')->setStyle('margin-top:2px')
                         ),
                     )
                     ->width(12)
