@@ -12,7 +12,7 @@ This package inserts a database admin dashboard into an existing PHP application
 Thanks to the [Jaxon library](https://www.jaxon-php.org), it installs and runs in a page of the application.
 All its operations are performed with Ajax requests, so the user never leaves the page.
 
-The database access code (and thus the provided features) come from [Adminer](https://github.com/vrana/adminer). The original code was refactored to take advantage of the latest PHP features: namespaces, Composer packages, and so on.
+The database access code (and thus the provided features) originates from [Adminer](https://github.com/vrana/adminer). The original code was refactored to take advantage of the latest PHP features (namespaces, interfaces, DI, and so on), and separated into multiple Composer packages.
 
 Howtos
 ------

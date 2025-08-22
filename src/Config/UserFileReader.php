@@ -234,10 +234,12 @@ class UserFileReader
         $userOptions = $userList[0] ?? $fallbackOptions;
 
         if (!is_array($userOptions)) {
-            return $this->getOptionValues($userConfig->getOption($userKey));
+            // Return nothing if no entry is found for the user.
+            return [];
         }
 
-        unset($userOptions['id']); // Remove the id field.
+        // Remove the id field.
+        unset($userOptions['id']);
         $userConfig = $setter->setOptions($userConfig, $userOptions, $userKey);
 
         return $this->getOptionValues($userConfig->getOption($userKey));
