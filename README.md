@@ -1,6 +1,5 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lagdo/jaxon-dbadmin/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/lagdo/jaxon-dbadmin/?branch=main)
 [![StyleCI](https://styleci.io/repos/402856578/shield?branch=main)](https://styleci.io/repos/402856578)
-[![Build Status](https://api.travis-ci.com/lagdo/jaxon-dbadmin.svg?branch=main)](https://app.travis-ci.com/github/lagdo/jaxon-dbadmin)
 
 [![Latest Stable Version](https://poser.pugx.org/lagdo/jaxon-dbadmin/v/stable)](https://packagist.org/packages/lagdo/jaxon-dbadmin)
 [![Total Downloads](https://poser.pugx.org/lagdo/jaxon-dbadmin/downloads)](https://packagist.org/packages/lagdo/jaxon-dbadmin)
