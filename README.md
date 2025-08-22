@@ -21,7 +21,7 @@ This blog post on the `Jaxon` website explains how to install `Jaxon DbAdmin` on
 
 ### The Jaxon DbAdmin application
 
-The [https://github.com/lagdo/jaxon-dbadmin-app](https://github.com/lagdo/jaxon-dbadmin-app) repo provides a ready-to-use `Jaxon DbAdmin` application built with `Laravel`.
+The [https://github.com/lagdo/dbadmin-app](https://github.com/lagdo/dbadmin-app) repo provides a ready-to-use `Jaxon DbAdmin` application built with `Laravel`.
 
 The driver packages for [PostgreSQL](https://github.com/lagdo/dbadmin-driver-mysql), [MySQL](https://github.com/lagdo/dbadmin-driver-mysql) and [SQLite](https://github.com/lagdo/dbadmin-driver-sqlite) are included, so the user just need to add its databases in the config file.
 
