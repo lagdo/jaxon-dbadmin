@@ -95,7 +95,6 @@ class Select extends MainComponent
 
     /**
      * Show the select query form
-     *
      * @after showBreadcrumbs
      *
      * @param string $table       The table name
@@ -114,6 +113,7 @@ class Select extends MainComponent
 
     /**
      * Edit the current select query
+     * @after showBreadcrumbs
      *
      * @return void
      */
