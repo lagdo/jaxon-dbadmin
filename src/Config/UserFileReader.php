@@ -19,6 +19,16 @@ use function preg_match;
 class UserFileReader
 {
     /**
+     * @var string
+     */
+    private string $compareRegex = '/^env\(.*\)$/';
+
+    /**
+     * @var string
+     */
+    private string $captureRegex = '/^env\((.*)\)$/';
+
+    /**
      * The constructor
      *
      * @param AuthInterface $auth
@@ -34,7 +44,7 @@ class UserFileReader
      */
     private function callsEnvVar(string $value): bool
     {
-        return preg_match('/^env\(.*\)$/', $value) !== false;
+        return preg_match($this->compareRegex, $value) !== false;
     }
 
     /**
@@ -135,9 +145,36 @@ class UserFileReader
      */
     private function getOptionValue(string $value): mixed
     {
-        // The regex here also captures the matching string.
-        $match = preg_match('/^env\((.*)\)$/', $value, $matches);
+        // We need to capture the matching string.
+        $match = preg_match($this->captureRegex, $value, $matches);
         return $match === false || !isset($matches[1]) ? $value : env($matches[1]);
+    }
+
+    /**
+     * @param array $server
+     *
+     * @return array
+     */
+    private function getSqliteOptions(array $server): array
+    {
+        $server['directory'] = $this->getOptionValue($server['directory']);
+        return $server;
+    }
+
+    /**
+     * @param array $server
+     *
+     * @return array
+     */
+    private function getServerOptions(array $server): array
+    {
+        $server['host'] = $this->getOptionValue($server['host']);
+        $server['username'] = $this->getOptionValue($server['username']);
+        $server['password'] = $this->getOptionValue($server['password']);
+        if (isset($server['port']) && is_string($server['port'])) {
+            $server['port'] = $this->getOptionValue($server['port']);
+        }
+        return $server;
     }
 
     /**
@@ -149,24 +186,13 @@ class UserFileReader
      */
     private function getOptionValues(array $values): array
     {
-        // Filter the servers list on valid entries
-        $values['servers'] = array_filter($values['servers'] ?? [],
-            fn(array $server) => $this->checkServer($server));
-        // The values in the server options are the names of the
-        // corresponding options in the .env file.
-        $values['servers'] = array_map(function(array $server) {
-            if ($server['driver'] === 'sqlite') {
-                return $server;
-            }
-
-            $server['host'] = $this->getOptionValue($server['host']);
-            $server['username'] = $this->getOptionValue($server['username']);
-            $server['password'] = $this->getOptionValue($server['password']);
-            if (isset($server['port']) && is_string($server['port'])) {
-                $server['port'] = $this->getOptionValue($server['port']);
-            }
-            return $server;
-        }, $values['servers'] ?? []);
+        // Callback to filter the servers list on valid entries.
+        $check = fn(array $server) => $this->checkServer($server);
+        // Callback to get the server options final values.
+        $convert = fn(array $server) => $server['driver'] === 'sqlite' ?
+            $this->getSqliteOptions($server) : $this->getServerOptions($server);
+        $values['servers'] = array_map($convert,
+            array_filter($values['servers'] ?? [], $check));
 
         return $values;
     }
