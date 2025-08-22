@@ -7,6 +7,7 @@ use Lagdo\DbAdmin\Ajax\App\Admin;
 
 use function realpath;
 use function Jaxon\cl;
+use function Jaxon\rq;
 
 /**
  * Jaxon DbAdmin package
@@ -66,7 +67,7 @@ class Package extends AbstractPackage
      *
      * return bool
      */
-    public function getServerAccess(string $server)
+    public function getServerAccess(string $server): bool
     {
         // Check in server options
         $serverAccess = $this->getOption("servers.$server.access.server", null);
@@ -113,6 +114,20 @@ class Package extends AbstractPackage
     public function getScript(): string
     {
         return $this->view()->render('dbadmin::codes::script.js');
+    }
+
+    /**
+     * Get the javascript code to include into the page
+     *
+     * The code must NOT be enclosed in HTML tags.
+     *
+     * @return string
+     */
+    public function getReadyScript(): string
+    {
+        $defaultServer = $this->getOption('default');
+        return !$this->getServerAccess($defaultServer) ? '' :
+            rq(Admin::class)->server($defaultServer);
     }
 
     /**
