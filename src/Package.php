@@ -126,8 +126,9 @@ class Package extends AbstractPackage
     public function getReadyScript(): string
     {
         $defaultServer = $this->getOption('default');
-        return !$this->getServerAccess($defaultServer) ? '' :
-            rq(Admin::class)->server($defaultServer);
+        return !$defaultServer ||
+            !$this->getOption("servers.$defaultServer") ? '' :
+                rq(Admin::class)->server($defaultServer);
     }
 
     /**
