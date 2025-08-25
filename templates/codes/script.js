@@ -31,6 +31,7 @@ jaxon.dbadmin = (function() {
 
     const editor = {
         page: '',
+        fontSize: '13px',
         modes: {
             sql: 'ace/mode/sql',
             mysql: 'ace/mode/mysql',
@@ -49,6 +50,7 @@ jaxon.dbadmin = (function() {
         });
         editor.ace.setTheme("ace/theme/textmate");
         editor.ace.session.setUseWrapMode(true);
+        document.getElementById(containerId).style.fontSize = editor.fontSize;
     };
 
     const createSqlSelectEditor = (containerId, driver) => {
@@ -65,6 +67,7 @@ jaxon.dbadmin = (function() {
         editor.ace.setTheme("ace/theme/textmate");
         editor.ace.session.setUseWrapMode(true);
         editor.ace.resize();
+        document.getElementById(containerId).style.fontSize = editor.fontSize;
     };
 
     const getSqlQuery = () => {
