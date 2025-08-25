@@ -318,7 +318,8 @@ class SelectQuery extends AbstractFacade
         $columns = array_map(function ($column) {
             return $this->driver->escapeId($column);
         }, $index->columns);
-        $match = $this->driver->quote($this->utils->input->values['fulltext'][$i]);
+        $fulltext = $this->utils->input->values['fulltext'][$i] ?? '';
+        $match = $this->driver->quote($fulltext);
         if (isset($this->utils->input->values['boolean'][$i])) {
             $match .= ' IN BOOLEAN MODE';
         }
@@ -334,7 +335,8 @@ class SelectQuery extends AbstractFacade
     {
         $selectEntity->where = [];
         foreach ($selectEntity->indexes as $i => $index) {
-            if ($index->type === 'FULLTEXT' && $this->utils->input->values['fulltext'][$i] !== '') {
+            $fulltext = $this->utils->input->values['fulltext'][$i] ?? '';
+            if ($index->type === 'FULLTEXT' && $fulltext !== '') {
                 $selectEntity->where[] = $this->getMatchExpression($index, $i);
             }
         }

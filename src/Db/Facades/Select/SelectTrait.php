@@ -36,7 +36,8 @@ trait SelectTrait
     {
         $fulltexts = [];
         foreach ($indexes as $i => $index) {
-            $fulltexts[$i] = $index->type == "FULLTEXT" ? $this->utils->str->html($options["fulltext"][$i]) : '';
+            $fulltexts[$i] = $index->type == "FULLTEXT" ?
+                $this->utils->str->html($options["fulltext"][$i] ?? '') : '';
         }
         return [
             // 'where' => $where,
