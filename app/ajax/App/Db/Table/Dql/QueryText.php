@@ -2,6 +2,10 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
+use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Package;
+use Lagdo\DbAdmin\Ui\Table\SelectUiBuilder;
+
 use function html_entity_decode;
 
 /**
@@ -12,6 +16,17 @@ use function html_entity_decode;
 class QueryText extends Component
 {
     use QueryTrait;
+
+    /**
+     * The constructor
+     *
+     * @param DbFacade      $db         The facade to database functions
+     * @param Package       $package    The DbAdmin package
+     * @param SelectUiBuilder $selectUi The HTML UI builder
+     */
+    public function __construct(protected DbFacade $db,
+        protected Package $package, protected SelectUiBuilder $selectUi)
+    {}
 
     /**
      * @var string
@@ -34,8 +49,9 @@ class QueryText extends Component
     protected function after(): void
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
+        $driver = $this->package->getServerDriver($server);
         $this->response->jo('jaxon.dbadmin')
-            ->createSqlSelectEditor($this->txtQueryId, $server);
+            ->createSqlSelectEditor($this->txtQueryId, $driver);
     }
 
     /**

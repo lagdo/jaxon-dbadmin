@@ -48,7 +48,8 @@ trait QueryTrait
     {
         $queryId = 'dbadmin-main-command-query';
         [$server,] = $this->bag('dbadmin')->get('db');
-        $this->response->jo('jaxon.dbadmin')->createSqlQueryEditor($queryId, $server);
+        $driver = $this->package->getServerDriver($server);
+        $this->response->jo('jaxon.dbadmin')->createSqlQueryEditor($queryId, $driver);
 
         // $this->response->jq("#$btnId")->click(jo("jaxon.dbadmin")->saveSqlEditorContent());
     }
