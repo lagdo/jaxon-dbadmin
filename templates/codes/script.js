@@ -30,53 +30,47 @@ jaxon.dbadmin = (function() {
     };
 
     const editor = {
-        container: null,
-        hintOptions: {},
+        page: '',
         modes: {
-            sql: 'text/x-sql',
-            mysql: 'text/x-mysql',
-            pgsql: 'text/x-pgsql',
+            sql: 'ace/mode/sql',
+            mysql: 'ace/mode/mysql',
+            pgsql: 'ace/mode/pgsql',
         },
     };
 
-    const createSqlEditor = function(containerId, driver) {
-        const container = document.getElementById(containerId);
-        editor.container = CodeMirror.fromTextArea(container, {
-            mode: editor.modes[driver] || editor.modes.sql,
-            indentWithTabs: true,
-            smartIndent: true,
-            lineNumbers: true,
-            matchBrackets : true,
-            autofocus: true,
-            extraKeys: {'Ctrl-Space': 'autocomplete'},
-            hintOptions: editor.hintOptions,
-            /*hintOptions: {
-                tables: {
-                    users: ["name", "score", "birthDate"],
-                    countries: ["name", "population", "size"]
-                }
-            }*/
+    const createSqlQueryEditor = function(containerId, driver) {
+        editor.ace = ace.edit(containerId, {
+            mode: editor.modes[driver] ?? editor.modes.sql,
+            selectionStyle: "text",
+            dragEnabled: false,
+            useWorker: false,
+            enableLiveAutocompletion: true,
+            showPrintMargin: false,
         });
+        editor.ace.setTheme("ace/theme/textmate");
+        editor.ace.session.setUseWrapMode(true);
     };
 
-    const refreshSqlQuery = (txtQueryId, driver) => {
-        // The query is replaced by the string formatted with CodeMirror.
-        const container = document.getElementById(txtQueryId);
-        const query = container.innerText || container.textContent;
-        // Erase the initial SQL text.
-        container.innerHTML = '';
-        CodeMirror(container, {
-            value: query,
-            mode: editor.modes[driver] || editor.modes.sql,
-            lineNumbers: false,
+    const createSqlSelectEditor = (containerId, driver) => {
+        editor.ace = ace.edit(containerId, {
+            mode: editor.modes[driver] ?? editor.modes.sql,
+            selectionStyle: "text",
+            dragEnabled: false,
+            useWorker: false,
+            showPrintMargin: false,
+            showLineNumbers: false,
+            showGutter: false, // Also hide the line number "column".
             readOnly: true,
         });
+        editor.ace.setTheme("ace/theme/textmate");
+        editor.ace.session.setUseWrapMode(true);
+        editor.ace.resize();
     };
 
     const getSqlQuery = () => {
         // Try to get the selected text first.
-        const selectedText = editor.container.getSelection();
-        return selectedText ? selectedText : editor.container.getValue();
+        const selectedText = editor.ace.getSelectedText();
+        return selectedText ? selectedText : editor.ace.getValue();
     };
 
     const saveSqlEditorContent = () => editor.container.save();
@@ -86,8 +80,8 @@ jaxon.dbadmin = (function() {
         selectTableCheckboxes,
         selectAllCheckboxes,
         setFileUpload,
-        createSqlEditor,
-        refreshSqlQuery,
+        createSqlQueryEditor,
+        createSqlSelectEditor,
         getSqlQuery,
         saveSqlEditorContent,
     };

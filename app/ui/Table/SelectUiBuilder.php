@@ -406,11 +406,24 @@ class SelectUiBuilder
     }
 
     /**
-     * @param array $ids
+     * @param string $queryDivId
+     * @param string $queryText
      *
      * @return string
      */
-    public function table(array $ids): string
+    public function queryText(string $queryDivId, string $queryText): string
+    {
+        return $this->ui->build(
+            $this->ui->div($queryText)->setId($queryDivId)
+        );
+    }
+
+    /**
+     * @param string $formId
+     *
+     * @return string
+     */
+    public function table(string $formId): string
     {
         return $this->ui->build(
             $this->ui->row(
@@ -426,13 +439,18 @@ class SelectUiBuilder
                         ),
                         $this->ui->formRow(
                             $this->ui->formCol(
-                                $this->ui->pre()
-                                    ->setId($ids['txtQueryId'])
-                                    ->jxnBind(rq(QueryText::class))
+                                $this->ui->panel(
+                                    $this->ui->panelBody()
+                                        ->setStyle('padding: 0 1px;')
+                                        ->jxnBind(rq(QueryText::class))
+                                )
+                                ->style('default')
+                                ->setStyle('padding: 5px;')
                             )
+                            ->width(12)
                         ),
                     )
-                    ->responsive(true)->wrapped(true)->setId($ids['formId'])
+                    ->responsive(true)->wrapped(true)->setId($formId)
                 )
                 ->width(12)
             ),

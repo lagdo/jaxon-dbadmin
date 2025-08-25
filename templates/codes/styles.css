@@ -4,13 +4,6 @@
 #jaxon-dbadmin {
     margin: 20px 0 0 0;
 }
-#jaxon-dbadmin #dbadmin-table-select-query {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-#jaxon-dbadmin .row>[class*=col-] {
-    margin-bottom: 10px;
-}
 #jaxon-dbadmin .panel-heading {
     padding: 10px 15px;
     border-bottom: 1px solid transparent;
@@ -117,12 +110,6 @@
 }
 #jaxon-dbadmin ul.pagination {
     margin: 0;
-}
-#jaxon-dbadmin #sql-command-editor {
-    width: 100%;
-}
-#jaxon-dbadmin #sql-command-editor .sql-command-editor-panel {
-    padding: 0 1px;
 }
 #jaxon-dbadmin .dbadmin-main-action-group {
     padding: 10px;

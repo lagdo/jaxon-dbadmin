@@ -23,13 +23,6 @@ class Select extends MainComponent
     private $formOptionsId = 'dbadmin-table-select-options-form';
 
     /**
-     * The select query div id
-     *
-     * @var string
-     */
-    private $txtQueryId = 'dbadmin-table-select-query';
-
-    /**
      * @inheritDoc
      */
     protected function before(): void
@@ -74,11 +67,7 @@ class Select extends MainComponent
      */
     public function html(): string
     {
-        $ids = [
-            'formId' => $this->formOptionsId,
-            'txtQueryId' => $this->txtQueryId,
-        ];
-        return $this->selectUi->table($ids);
+        return $this->selectUi->table($this->formOptionsId);
     }
 
     /**

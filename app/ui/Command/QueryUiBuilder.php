@@ -104,18 +104,14 @@ class QueryUiBuilder
                     $this->ui->col(
                         $this->ui->panel(
                             $this->ui->panelBody(
-                                $this->ui->formTextarea($this->ui->html($query))
-                                    ->setName('query')
+                                $this->ui->div($this->ui->html($query))
                                     ->setId($queryId)
-                                    ->setDataLanguage('sql')
-                                    ->setRows('10')
-                                    ->setSpellcheck('false')
-                                    ->setWrap('on')
                             )
                             ->setClass('sql-command-editor-panel')
+                            ->setStyle('padding: 0 1px;')
                         )
                         ->style('default')
-                        ->setId('sql-command-editor')
+                        ->setStyle('padding: 5px;')
                     )
                     ->width(12)
                 )

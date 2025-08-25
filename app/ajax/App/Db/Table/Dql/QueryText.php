@@ -14,12 +14,18 @@ class QueryText extends Component
     use QueryTrait;
 
     /**
+     * @var string
+     */
+    private $txtQueryId = 'dbadmin-table-select-query';
+
+    /**
      * @inheritDoc
      */
     public function html(): string
     {
         $query = $this->db()->utils()->html($this->stash()->get('select.query'));
-        return html_entity_decode($query, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $query = html_entity_decode($query, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return $this->selectUi->queryText($this->txtQueryId, $query);
     }
 
     /**
@@ -28,8 +34,8 @@ class QueryText extends Component
     protected function after(): void
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
-        $txtQueryId = 'dbadmin-table-select-query';
-        $this->response->jo('jaxon.dbadmin')->refreshSqlQuery($txtQueryId, $server);
+        $this->response->jo('jaxon.dbadmin')
+            ->createSqlSelectEditor($this->txtQueryId, $server);
     }
 
     /**
