@@ -88,10 +88,11 @@ class SelectFacade extends AbstractFacade
         $startTimestamp = microtime(true);
         $statement = $this->driver->execute($this->selectEntity->query);
         $this->selectEntity->duration = max(0, microtime(true) - $startTimestamp);
+        $this->selectEntity->rows = [];
 
         // From adminer.inc.php
         if (!$statement) {
-            $this->selectEntity = $this->driver->error();
+            $this->selectEntity->error = $this->driver->error();
             return;
         }
 
@@ -387,6 +388,9 @@ class SelectFacade extends AbstractFacade
         $this->setSelectEntity($table, $queryOptions);
 
         $this->executeSelect();
+        if ($this->selectEntity->error !== null) {
+            return ['message' => $this->selectEntity->error];
+        }
         if (!$this->selectEntity->rows) {
             return ['message' => $this->utils->trans->lang('No rows.')];
         }
