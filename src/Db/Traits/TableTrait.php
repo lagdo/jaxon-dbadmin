@@ -110,9 +110,9 @@ trait TableTrait
         $this->connectToSchema();
         $this->breadcrumbs(true)->item($this->utils->trans->lang('Tables'));
         if (!$table) {
-            $this->item($this->utils->trans->lang('Create table'));
+            $this->breadcrumbs()->item($this->utils->trans->lang('Create table'));
         } else {
-            $this->item("<i><b>$table</b></i>")
+            $this->breadcrumbs()->item("<i><b>$table</b></i>")
                 ->item($this->utils->trans->lang('Alter table'));
         }
         $this->utils->input->table = $table;
