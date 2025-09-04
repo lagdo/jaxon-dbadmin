@@ -32,7 +32,7 @@ trait UserTrait
     public function getPrivileges(string $database = ''): array
     {
         $this->connectToServer();
-        $this->bccl()->breadcrumb($this->utils->trans->lang('Privileges'));
+        $this->breadcrumbs()->clear()->item($this->utils->trans->lang('Privileges'));
         return $this->userFacade()->getPrivileges($database);
     }
 

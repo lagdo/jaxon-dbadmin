@@ -28,7 +28,7 @@ trait CommandTrait
      */
     public function prepareCommand()
     {
-        $this->bcdb()->breadcrumb($this->utils->trans->lang('Query'));
+        $this->breadcrumbs(true)->item($this->utils->trans->lang('Query'));
     }
 
     /**

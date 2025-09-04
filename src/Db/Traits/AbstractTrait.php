@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Db\Traits;
 
 use Jaxon\Di\Container;
+use Lagdo\DbAdmin\Db\Breadcrumbs;
 
 trait AbstractTrait
 {
@@ -33,25 +34,11 @@ trait AbstractTrait
     abstract public function connectToSchema();
 
     /**
-     * Clear the breadcrumbs
+     * Get the breadcrumbs object
      *
-     * @return self
+     * @param bool $withDb
+     *
+     * @return Breadcrumbs
      */
-    abstract protected function bccl(): self;
-
-    /**
-     * Add the selected DB name to the breadcrumbs
-     *
-     * @return self
-     */
-    abstract protected function bcdb(): self;
-
-    /**
-     * Add an item to the breadcrumbs
-     *
-     * @param string $label
-     *
-     * @return self
-     */
-    abstract protected function breadcrumb(string $label): self;
+    abstract protected function breadcrumbs(bool $withDb = false): Breadcrumbs;
 }

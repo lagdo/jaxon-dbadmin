@@ -31,7 +31,7 @@ trait ExportTrait
     public function getExportOptions(string $database = ''): array
     {
         $this->connectToDatabase();
-        $this->bcdb()->breadcrumb($this->utils->trans->lang('Export'));
+        $this->breadcrumbs(true)->item($this->utils->trans->lang('Export'));
         return $this->exportFacade()->getExportOptions($database);
     }
 

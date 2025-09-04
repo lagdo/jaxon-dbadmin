@@ -31,7 +31,7 @@ trait DatabaseTrait
     public function getDatabaseInfo(bool $schemaAccess)
     {
         $this->connectToDatabase();
-        $this->bcdb();
+        $this->breadcrumbs(true);
         return $this->databaseFacade()->getDatabaseInfo($schemaAccess);
     }
 
@@ -43,7 +43,7 @@ trait DatabaseTrait
     public function getTables()
     {
         $this->connectToSchema();
-        $this->bcdb()->breadcrumb($this->utils->trans->lang('Tables'));
+        $this->breadcrumbs(true)->item($this->utils->trans->lang('Tables'));
         return $this->databaseFacade()->getTables();
     }
 
@@ -55,7 +55,7 @@ trait DatabaseTrait
     public function getViews()
     {
         $this->connectToSchema();
-        $this->bcdb()->breadcrumb($this->utils->trans->lang('Views'));
+        $this->breadcrumbs(true)->item($this->utils->trans->lang('Views'));
         return $this->databaseFacade()->getViews();
     }
 
@@ -67,7 +67,7 @@ trait DatabaseTrait
     public function getRoutines()
     {
         $this->connectToSchema();
-        $this->bcdb()->breadcrumb($this->utils->trans->lang('Routines'));
+        $this->breadcrumbs(true)->item($this->utils->trans->lang('Routines'));
         return $this->databaseFacade()->getRoutines();
     }
 
@@ -79,7 +79,7 @@ trait DatabaseTrait
     public function getSequences()
     {
         $this->connectToSchema();
-        $this->bcdb()->breadcrumb($this->utils->trans->lang('Sequences'));
+        $this->breadcrumbs(true)->item($this->utils->trans->lang('Sequences'));
         return $this->databaseFacade()->getSequences();
     }
 
@@ -91,7 +91,7 @@ trait DatabaseTrait
     public function getUserTypes()
     {
         $this->connectToSchema();
-        $this->bcdb()->breadcrumb($this->utils->trans->lang('User types'));
+        $this->breadcrumbs(true)->item($this->utils->trans->lang('User types'));
         return $this->databaseFacade()->getUserTypes();
     }
 
@@ -103,7 +103,7 @@ trait DatabaseTrait
     public function getEvents()
     {
         $this->connectToSchema();
-        $this->bcdb()->breadcrumb($this->utils->trans->lang('Events'));
+        $this->breadcrumbs(true)->item($this->utils->trans->lang('Events'));
         return $this->databaseFacade()->getEvents();
     }
 }

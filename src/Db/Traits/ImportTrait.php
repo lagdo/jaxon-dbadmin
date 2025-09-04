@@ -29,7 +29,7 @@ trait ImportTrait
     public function getImportOptions(): array
     {
         $this->connectToDatabase();
-        $this->bcdb()->breadcrumb($this->utils->trans->lang('Import'));
+        $this->breadcrumbs(true)->item($this->utils->trans->lang('Import'));
         return $this->importFacade()->getImportOptions();
     }
 

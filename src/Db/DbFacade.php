@@ -9,8 +9,6 @@ use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Package;
 
-use function array_merge;
-
 /**
  * Facade to calls to the database functions
  */
@@ -30,9 +28,9 @@ class DbFacade extends AbstractFacade
     /**
      * The breadcrumbs items
      *
-     * @var array
+     * @var Breadcrumbs
      */
-    protected $breadcrumbs = [];
+    protected $breadcrumbs;
 
     /**
      * @var Container
@@ -68,6 +66,8 @@ class DbFacade extends AbstractFacade
         $this->package = $package;
         // Make the translator available into views
         $this->package->view()->share('trans', $this->utils->trans);
+
+        $this->breadcrumbs = new Breadcrumbs();
     }
 
     /**
@@ -79,48 +79,21 @@ class DbFacade extends AbstractFacade
     }
 
     /**
-     * Get the breadcrumbs items
+     * Get the breadcrumbs object
      *
-     * @return array
+     * @param bool $withDb
+     *
+     * @return Breadcrumbs
      */
-    public function getBreadcrumbs(): array
+    public function breadcrumbs(bool $withDb = false): Breadcrumbs
     {
-        return array_merge([$this->package->getServerName($this->dbServer)], $this->breadcrumbs);
-    }
-
-    /**
-     * Clear the breadcrumbs
-     *
-     * @return self
-     */
-    protected function bccl(): self
-    {
-        $this->breadcrumbs = [];
-        return $this;
-    }
-
-    /**
-     * Add the selected DB name to the breadcrumbs
-     *
-     * @return self
-     */
-    protected function bcdb(): self
-    {
-        $this->breadcrumbs = !$this->dbName ? [] : ["<i><b>$this->dbName</b></i>"];
-        return $this;
-    }
-
-    /**
-     * Add an item to the breadcrumbs
-     *
-     * @param string $label
-     *
-     * @return self
-     */
-    protected function breadcrumb(string $label): self
-    {
-        $this->breadcrumbs[] = $label;
-        return $this;
+        if ($withDb) {
+            $this->breadcrumbs->clear();
+            if ($this->dbName) {
+                $this->breadcrumbs->item("<i><b>$this->dbName</b></i>");
+            }
+        }
+        return $this->breadcrumbs;
     }
 
     /**

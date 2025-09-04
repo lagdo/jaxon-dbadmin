@@ -64,7 +64,7 @@ trait ServerTrait
     public function getDatabases(bool $schemaAccess): array
     {
         $this->connectToServer();
-        $this->bccl()->breadcrumb($this->utils->trans->lang('Databases'));
+        $this->breadcrumbs()->clear()->item($this->utils->trans->lang('Databases'));
         return $this->serverFacade()->getDatabases($schemaAccess);
     }
 
@@ -76,7 +76,7 @@ trait ServerTrait
     public function getProcesses(): array
     {
         $this->connectToServer();
-        $this->bccl()->breadcrumb($this->utils->trans->lang('Process list'));
+        $this->breadcrumbs()->clear()->item($this->utils->trans->lang('Process list'));
         return $this->serverFacade()->getProcesses();
     }
 
@@ -88,7 +88,7 @@ trait ServerTrait
     public function getVariables(): array
     {
         $this->connectToServer();
-        $this->bccl()->breadcrumb($this->utils->trans->lang('Variables'));
+        $this->breadcrumbs()->clear()->item($this->utils->trans->lang('Variables'));
         return $this->serverFacade()->getVariables();
     }
 
@@ -100,7 +100,7 @@ trait ServerTrait
     public function getStatus(): array
     {
         $this->connectToServer();
-        $this->bccl()->breadcrumb($this->utils->trans->lang('Status'));
+        $this->breadcrumbs()->clear()->item($this->utils->trans->lang('Status'));
         return $this->serverFacade()->getStatus();
     }
 
