@@ -122,8 +122,7 @@ class DatabaseFacade extends AbstractFacade
             }
         }
 
-        $select = $this->utils->trans->lang('Select');
-        return \compact('headers', 'details', 'select');
+        return \compact('headers', 'details');
     }
 
     /**

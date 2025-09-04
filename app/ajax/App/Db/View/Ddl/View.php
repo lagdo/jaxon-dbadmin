@@ -1,9 +1,10 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax\App\Db\View;
+namespace Lagdo\DbAdmin\Ajax\App\Db\View\Ddl;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Views;
 use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
+use Lagdo\DbAdmin\Ajax\App\Db\View\Dql\Select;
 use Lagdo\DbAdmin\Ajax\App\Page\Content;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Db\DbFacade;
@@ -89,6 +90,10 @@ class View extends FuncComponent
         // $actions = $this->getViewLinks();
 
         $actions = [
+            'select-table' => [
+                'title' => $this->trans()->lang('Select'),
+                'handler' => $this->rq(Select::class)->show($view),
+            ],
             'edit-view' => [
                 'title' => $this->trans()->lang('Edit view'),
                 'handler' => $this->rq()->edit($view),

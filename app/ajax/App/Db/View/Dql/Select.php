@@ -1,11 +1,15 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
+namespace Lagdo\DbAdmin\Ajax\App\Db\View\Dql;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Query as QueryEdit;
-use Lagdo\DbAdmin\Ajax\App\Db\Database\Tables;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Table;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dml\Insert;
+use Lagdo\DbAdmin\Ajax\App\Db\Database\Views;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\MainComponent;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Fields;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Values;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryTrait;
+use Lagdo\DbAdmin\Ajax\App\Db\View\Ddl\View;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
 /**
@@ -37,9 +41,9 @@ class Select extends MainComponent
         $table = $this->getTableName();
         // Set the breadcrumbs
         $this->db->breadcrumbs(true)
-            ->item($this->trans->lang('Tables'))
+            ->item($this->trans()->lang('Views'))
             ->item("<i><b>$table</b></i>")
-            ->item($this->trans->lang('Select'));
+            ->item($this->trans()->lang('Select'));
 
         // Save select queries options
         $selectData = $this->db()->getSelectData($table, $options);
@@ -51,17 +55,13 @@ class Select extends MainComponent
 
         // Set main menu buttons
         $actions = [
-            'insert-table' => [
-                'title' => $this->trans()->lang('New item'),
-                'handler' => $this->rq(Insert::class)->show(),
-            ],
             'show-table' => [
-                'title' => $this->trans()->lang('Show table'),
-                'handler' => $this->rq(Table::class)->show($table),
+                'title' => $this->trans()->lang('Show view'),
+                'handler' => $this->rq(View::class)->show($table),
             ],
             'back-tables' => [
                 'title' => $this->trans()->lang('Back'),
-                'handler' => $this->rq(Tables::class)->show(),
+                'handler' => $this->rq(Views::class)->show(),
             ],
         ];
         $this->cl(PageActions::class)->show($actions);
@@ -81,8 +81,8 @@ class Select extends MainComponent
     protected function after(): void
     {
         // Show the select options
-        $this->cl(Options\Fields::class)->render();
-        $this->cl(Options\Values::class)->render();
+        $this->cl(Fields::class)->render();
+        $this->cl(Values::class)->render();
         // Show the query
         $this->cl(QueryText::class)->render();
     }

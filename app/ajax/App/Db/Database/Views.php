@@ -2,7 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
-use Lagdo\DbAdmin\Ajax\App\Db\View\View;
+use Lagdo\DbAdmin\Ajax\App\Db\View\Ddl\View;
+use Lagdo\DbAdmin\Ajax\App\Db\View\Dql\Select;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
 use function array_map;
@@ -36,13 +37,22 @@ class Views extends MainComponent
 
         $view = jq()->parent()->attr('data-view-name');
         // Add links, classes and data values to view names.
-        $viewsInfo['details'] = array_map(function($detail) use($view) {
+        $select = $this->trans()->lang('Select');
+        $viewsInfo['details'] = array_map(function($detail) use($view, $select) {
+            $viewName = $detail['name'];
             $detail['show'] = [
-                'label' => $detail['name'],
+                'label' => $viewName,
                 'props' => [
-                    'data-view-name' => $detail['name'],
+                    'data-view-name' => $viewName,
                 ],
                 'handler' => $this->rq(View::class)->show($view),
+            ];
+            $detail['select'] = [
+                'label' => $select,
+                'props' => [
+                    'data-view-name' => $viewName,
+                ],
+                'handler' => $this->rq(Select::class)->show($view),
             ];
             return $detail;
         }, $viewsInfo['details']);

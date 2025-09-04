@@ -37,8 +37,8 @@ class Tables extends MainComponent
         $tablesInfo = $this->db()->getTables();
 
         $table = jq()->parent()->attr('data-table-name');
-        $select = $tablesInfo['select'];
         // Add links, classes and data values to table names.
+        $select = $this->trans()->lang('Select');
         $tablesInfo['details'] = array_map(function($detail) use($table, $select) {
             $tableName = $detail['name'];
             $detail['show'] = [
@@ -53,7 +53,7 @@ class Tables extends MainComponent
                 'props' => [
                     'data-table-name' => $tableName,
                 ],
-                'handler' => $this->rq(Select::class)->show($table, true),
+                'handler' => $this->rq(Select::class)->show($table),
             ];
             return $detail;
         }, $tablesInfo['details']);

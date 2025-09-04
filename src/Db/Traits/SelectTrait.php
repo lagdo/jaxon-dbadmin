@@ -35,10 +35,6 @@ trait SelectTrait
     public function getSelectData(string $table, array $queryOptions = []): SelectEntity
     {
         $this->connectToSchema();
-        $this->breadcrumbs(true)
-            ->item($this->utils->trans->lang('Tables'))
-            ->item("<i><b>$table</b></i>")
-            ->item($this->utils->trans->lang('Select'));
         $this->utils->input->table = $table;
         $this->utils->input->values = $queryOptions;
         return $this->selectFacade()->getSelectData($table, $queryOptions);
