@@ -107,7 +107,6 @@ class Update extends MainComponent
      * Execute the update query
      *
      * @databag('name' => 'dbadmin.select')
-     * @after('call' => 'debugQueries')
      *
      * @param array  $rowIds        The row selector
      * @param array  $options       The query options

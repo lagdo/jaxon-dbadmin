@@ -196,14 +196,4 @@ class DbFacade extends AbstractFacade
     {
         return $this->package->getServerOptions($this->dbServer);
     }
-
-    /**
-     * Get the remembered queries
-     *
-     * @return array
-     */
-    public function queries(): array
-    {
-        return $this->driver->queries();
-    }
 }

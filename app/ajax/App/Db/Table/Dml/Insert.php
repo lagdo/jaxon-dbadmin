@@ -84,8 +84,6 @@ class Insert extends MainComponent
     /**
      * Execute the insert query
      *
-     * @after('call' => 'debugQueries')
-     *
      * @param array  $options     The query options
      * @param bool $addNew        Add a new entry after saving the current one.
      *

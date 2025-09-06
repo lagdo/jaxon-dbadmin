@@ -15,7 +15,6 @@ class Delete extends FuncComponent
      * Execute the delete query
      *
      * @databag('name' => 'dbadmin.select')
-     * @after('call' => 'debugQueries')
      *
      * @param array  $rowIds        The row identifiers
      *

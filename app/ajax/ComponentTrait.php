@@ -112,21 +112,4 @@ trait ComponentTrait
     {
         $this->cl(Breadcrumbs::class)->render();
     }
-
-    /**
-     * Print the executed queries in the debug console
-     *
-     * @return void
-     */
-    protected function debugQueries(): void
-    {
-        if(!$this->package()->getOption('debug.queries', false))
-        {
-            return;
-        }
-        foreach($this->db()->queries() as $query)
-        {
-            $this->response->debug($query['start'] . ' => ' . $query['query']);
-        }
-    }
 }

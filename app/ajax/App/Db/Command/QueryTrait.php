@@ -57,8 +57,6 @@ trait QueryTrait
     /**
      * Execute an SQL query and display the results
      *
-     * @after('call' => 'debugQueries')
-     *
      * @param string $query
      * @param array $values
      *
