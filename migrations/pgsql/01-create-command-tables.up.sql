@@ -7,11 +7,19 @@ create table dbadmin_owners (
 create table dbadmin_commands (
     id serial primary key,
     query text not null,
-    title varchar(150) not null default '',
     category smallint not null,
     updated_at timestamp not null,
     owner_id integer not null,
     foreign key(owner_id) references dbadmin_owners(id)
+);
+
+create table dbadmin_command_options (
+    id serial primary key,
+    title varchar(150) not null default '',
+    details text not null default '{}',
+    command_id integer not null,
+    foreign key(command_id) references dbadmin_commands(id),
+    unique(command_id)
 );
 
 create table dbadmin_tags (

@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
+use Lagdo\DbAdmin\Command\Storage;
 use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 use Lagdo\DbAdmin\Driver\Entity\QueryEntity;
 
@@ -36,6 +37,18 @@ class CommandFacade extends AbstractFacade
      * @var float
      */
     protected $duration;
+
+    /**
+     * Initialize the facade
+     *
+     * @param AbstractFacade $dbFacade
+     * @param Storage|null $storage
+     */
+    public function __construct(AbstractFacade $dbFacade,
+        protected Storage|null $storage = null)
+    {
+        parent::__construct($dbFacade);
+    }
 
     /**
      * Open a second connection to the server
@@ -174,8 +187,8 @@ class CommandFacade extends AbstractFacade
             $messages = [];
             $statement = $this->driver->storedResult();
 
-            if ($this->driver->hasError()) {
-                $errors[] = $this->driver->errorMessage();
+            if ($this->connection->hasError()) {
+                $errors[] = $this->connection->errorMessage();
             } elseif (!$queryEntity->onlyErrors) {
                 [$select, $messages] = $this->select($statement, $queryEntity->limit);
             }
@@ -183,7 +196,7 @@ class CommandFacade extends AbstractFacade
             $result = compact('errors', 'messages', 'select');
             $result['query'] = $queryEntity->query;
             $this->results[] = $result;
-            if ($this->driver->hasError() && $queryEntity->errorStops) {
+            if ($this->connection->hasError() && $queryEntity->errorStops) {
                 return false;
             }
         } while ($this->driver->nextResult());
@@ -214,22 +227,6 @@ class CommandFacade extends AbstractFacade
             }
         }
 
-        // if($queries != '' && strlen($queries) < 1e6) { // don't add big queries
-        // 	$q = $queries . (\preg_match("~;[ \t\r\n]*\$~", $queries) ? '' : ';'); //! doesn't work with DELIMITER |
-        // 	if(!$history || \reset(\end($history)) != $q) { // no repeated queries
-        // 		\restart_session();
-        // 		$history[] = [$q, \time()]; //! add elapsed time
-        // 		\set_session('queries', $history_all); // required because reference is unlinked by stop_session()
-        // 		\stop_session();
-        // 	}
-        // }
-
-        // $timestamps = [];
-        // $total_start = \microtime(true);
-        // \parse_str($_COOKIE['adminer_export'], $adminer_export);
-        // $dump_format = $this->admin->dumpFormat();
-        // unset($dump_format['sql']);
-
         // The second connection must be created before executing the queries.
         $this->createConnection();
 
@@ -248,13 +245,16 @@ class CommandFacade extends AbstractFacade
             }
         }
 
+        if ($this->storage !== null) {
+            $this->storage->saveCommandInHistory($queries);
+        }
+
         $messages = [];
         if ($commands === 0) {
             $messages[] = $this->utils->trans->lang('No commands to execute.');
         } elseif ($onlyErrors) {
             $messages[] =  $this->utils->trans->lang('%d query(s) executed OK.', $commands - $errors);
         }
-
         return [
             'results' => $this->results,
             'messages' => $messages,

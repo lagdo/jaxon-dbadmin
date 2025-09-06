@@ -32,9 +32,8 @@ class UserFileReader
      * The constructor
      *
      * @param AuthInterface $auth
-     * @param string $configFile
      */
-    public function __construct(private AuthInterface $auth, private string $configFile)
+    public function __construct(private AuthInterface $auth)
     {}
 
     /**
@@ -200,14 +199,15 @@ class UserFileReader
     /**
      * Get the options for the authenticated user.
      *
+     * @param string $configFile
      * @param array $defaultOptions
      *
      * @return array
      */
-    public function getOptions(array $defaultOptions): array
+    public function getOptions(string $configFile, array $defaultOptions = []): array
     {
         // If the config file doesn't exists, return an empty array.
-        if (!is_file($this->configFile)) {
+        if (!is_file($configFile)) {
             return [];
         }
 
@@ -220,7 +220,7 @@ class UserFileReader
         $reader = new ConfigReader($setter);
         $userConfig = $setter->newConfig([$userKey => $defaultOptions]);
 
-        $config = $reader->load($setter->newConfig(), $this->configFile);
+        $config = $reader->load($setter->newConfig(), $configFile);
         $commonOptions = $config->getOption('common', null);
         if (is_array($commonOptions)) {
             $userConfig = $setter->setOptions($userConfig, $commonOptions, $userKey);

@@ -45,7 +45,8 @@ return [
             // Facades to the DB driver features
             Lagdo\DbAdmin\Db\Facades\CommandFacade::class => function($di) {
                 $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                return new Lagdo\DbAdmin\Db\Facades\CommandFacade($dbFacade);
+                $storage = $di->g(Lagdo\DbAdmin\Command\Storage::class);
+                return new Lagdo\DbAdmin\Db\Facades\CommandFacade($dbFacade, $storage);
             },
             Lagdo\DbAdmin\Db\Facades\DatabaseFacade::class => function($di) {
                 $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
@@ -57,7 +58,8 @@ return [
             },
             Lagdo\DbAdmin\Db\Facades\ImportFacade::class => function($di) {
                 $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                return new Lagdo\DbAdmin\Db\Facades\ImportFacade($dbFacade);
+                $storage = $di->g(Lagdo\DbAdmin\Command\Storage::class);
+                return new Lagdo\DbAdmin\Db\Facades\ImportFacade($dbFacade, $storage);
             },
             Lagdo\DbAdmin\Db\Facades\QueryFacade::class => function($di) {
                 $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
@@ -83,6 +85,35 @@ return [
                 $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
                 return new Lagdo\DbAdmin\Db\Facades\ViewFacade($dbFacade);
             },
+            Lagdo\DbAdmin\Config\AuthInterface::class => fn() =>
+                new class implements Lagdo\DbAdmin\Config\AuthInterface {
+                    public function user(): string
+                    {
+                        return '';
+                    }
+                    public function role(): string
+                    {
+                        return '';
+                    }
+                },
+            Lagdo\DbAdmin\Config\UserFileReader::class => function($di) {
+                $auth = $di->get(Lagdo\DbAdmin\Config\AuthInterface::class);
+                return new Lagdo\DbAdmin\Config\UserFileReader($auth);
+            },
+            // Query storage
+            Lagdo\DbAdmin\Command\Storage::class => function($di) {
+                $package = $di->g(Lagdo\DbAdmin\Package::class);
+                $options = $package->getOption('storage.options');
+                $database = $package->getOption('storage.database');
+                $driverId = 'dbadmin_driver_' . ($database['driver'] ?? '');
+                if (!$di->h($driverId) || !is_array($options) || !is_array($database)) {
+                    return null;
+                }
+
+                $auth = $di->g(Lagdo\DbAdmin\Config\AuthInterface::class);
+                return new Lagdo\DbAdmin\Command\Storage($auth,
+                    $di->g($driverId), $database, $options);
+            },
         ],
         'auto' => [
             // The translator
@@ -91,8 +122,6 @@ return [
             Lagdo\DbAdmin\Driver\Utils\Str::class,
             // The user input
             Lagdo\DbAdmin\Driver\Utils\Input::class,
-            // The query history
-            Lagdo\DbAdmin\Driver\Utils\History::class,
             // The utils class
             Lagdo\DbAdmin\Driver\Utils\Utils::class,
             // The facade to the database features
