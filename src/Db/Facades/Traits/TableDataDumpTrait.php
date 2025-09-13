@@ -199,7 +199,7 @@ trait TableDataDumpTrait
         }
         $fields = $this->driver->fields($table);
         $query = 'SELECT *' . $this->driver->convertFields($fields, $fields) . ' FROM ' . $this->driver->escapeTableName($table);
-        $statement = $this->driver->query($query); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
+        $statement = $this->driver->execute($query); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
         if (!$statement) {
             if ($this->options['format'] === 'sql') {
                 $this->queries[] = '-- ' . str_replace("\n", ' ', $this->driver->error()) . "\n";

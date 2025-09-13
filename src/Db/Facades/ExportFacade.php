@@ -237,8 +237,8 @@ class ExportFacade extends AbstractFacade
                 $headers['data_style'] = true;
             }
             // Set some options in database server
-            $this->driver->query("SET time_zone = '+00:00'");
-            $this->driver->query("SET sql_mode = ''");
+            $this->driver->execute("SET time_zone = '+00:00'");
+            $this->driver->execute("SET sql_mode = ''");
         }
         return $headers;
     }

@@ -176,8 +176,8 @@ class CommandFacade extends AbstractFacade
     {
         //! Don't allow changing of character_set_results, convert encoding of displayed query
         $startTimestamp = microtime(true);
-        if ($this->driver->multiQuery($queryEntity->query) && $this->connection !== null) {
-            $this->connection->execUseQuery($queryEntity->query);
+        if ($this->driver->multiQuery($queryEntity->query)) {
+            $this->driver->execUseQuery($queryEntity->query);
         }
         $this->duration += max(0, microtime(true) - $startTimestamp);
 
