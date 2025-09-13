@@ -226,26 +226,6 @@ $dbAdminOptionsGetter = function(array $config) {
     ],
 ```
 
-### Debug console output
-
-Starting from version `0.9.0`, the SQL queries that are executed can also be printed in the browser debug console,
-if the `debug.queries` option is set to true.
-
-```php
-    'app' => [
-        'packages' => [
-            Lagdo\DbAdmin\Package::class => [
-                'debug' => [
-                    'queries' => true,
-                ],
-                'servers' => [
-                    // The database servers
-                ],
-            ],
-        ],
-    ],
-```
-
 ### Data import (currently disabled)
 
 SQL files can be uploaded and executed on a server. This feature is implemented using the [Jaxon ajax upload](https://www.jaxon-php.org/docs/v3x/registrations/upload.html) feature, which then needs to be configured in the `lib` section of the `Jaxon` config file.

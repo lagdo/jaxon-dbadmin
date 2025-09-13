@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
-use Lagdo\DbAdmin\Command\Storage;
+use Lagdo\DbAdmin\Command\StorageService;
 use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 use Lagdo\DbAdmin\Driver\Entity\QueryEntity;
 
@@ -42,10 +42,10 @@ class CommandFacade extends AbstractFacade
      * Initialize the facade
      *
      * @param AbstractFacade $dbFacade
-     * @param Storage|null $storage
+     * @param StorageService|null $storage
      */
     public function __construct(AbstractFacade $dbFacade,
-        protected Storage|null $storage = null)
+        protected StorageService|null $storage = null)
     {
         parent::__construct($dbFacade);
     }
@@ -246,7 +246,7 @@ class CommandFacade extends AbstractFacade
         }
 
         if ($this->storage !== null) {
-            $this->storage->saveCommandInHistory($queries);
+            $this->storage->saveHistoryCommand($queries);
         }
 
         $messages = [];

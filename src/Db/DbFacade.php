@@ -133,16 +133,6 @@ class DbFacade extends AbstractFacade
     }
 
     /**
-     * Get the current server
-     *
-     * @return string
-     */
-    public function getCurrentServer(): string
-    {
-        return $this->dbServer;
-    }
-
-    /**
      * Connect to a database server
      *
      * @param string $server    The selected server
@@ -151,7 +141,7 @@ class DbFacade extends AbstractFacade
      *
      * @return void
      */
-    public function connect(string $server, string $database = '', string $schema = '')
+    private function connect(string $server, string $database = '', string $schema = '')
     {
         // Prevent multiple calls.
         if (!$this->driver) {
@@ -195,5 +185,20 @@ class DbFacade extends AbstractFacade
     public function getServerOptions(): array
     {
         return $this->package->getServerOptions($this->dbServer);
+    }
+
+    /**
+     * @return array
+     */
+    public function getDatabaseOptions(): array
+    {
+        $options = $this->getServerOptions();
+        if ($this->dbName !== '') {
+            $options['database'] = $this->dbName;
+        }
+        if ($this->dbSchema !== '') {
+            $options['schema'] = $this->dbSchema;
+        }
+        return $options;
     }
 }

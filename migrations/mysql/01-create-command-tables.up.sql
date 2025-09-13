@@ -4,22 +4,24 @@ create table dbadmin_owners (
     unique(username)
 );
 
-create table dbadmin_commands (
+create table dbadmin_runned_commands (
     id integer primary key auto_increment,
     query text not null,
+    driver varchar(30) not null,
+    options json not null,
     category smallint not null,
-    updated_at timestamp not null,
+    last_update timestamp not null,
     owner_id integer not null,
     foreign key(owner_id) references dbadmin_owners(id)
 );
 
-create table dbadmin_command_options (
+create table dbadmin_stored_commands (
     id integer primary key auto_increment,
     title varchar(150) not null default '',
-    details text not null default '{}',
-    command_id integer not null,
-    foreign key(command_id) references dbadmin_commands(id),
-    unique(command_id)
+    query text not null,
+    last_update timestamp not null,
+    owner_id integer not null,
+    foreign key(owner_id) references dbadmin_owners(id)
 );
 
 create table dbadmin_tags (
@@ -33,7 +35,7 @@ create unique index dbadmin_tags_title_owner_unique on dbadmin_tags(title, owner
 create table dbadmin_command_tag (
     command_id integer not null,
     tag_id integer not null,
-    foreign key(command_id) references dbadmin_commands(id),
+    foreign key(command_id) references dbadmin_stored_commands(id),
     foreign key(tag_id) references dbadmin_tags(id)
 );
 create unique index dbadmin_command_tag_unique on dbadmin_command_tag(command_id, tag_id);

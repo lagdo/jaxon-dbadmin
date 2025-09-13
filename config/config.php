@@ -45,7 +45,7 @@ return [
             // Facades to the DB driver features
             Lagdo\DbAdmin\Db\Facades\CommandFacade::class => function($di) {
                 $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                $storage = $di->g(Lagdo\DbAdmin\Command\Storage::class);
+                $storage = $di->g(Lagdo\DbAdmin\Command\StorageService::class);
                 return new Lagdo\DbAdmin\Db\Facades\CommandFacade($dbFacade, $storage);
             },
             Lagdo\DbAdmin\Db\Facades\DatabaseFacade::class => function($di) {
@@ -58,7 +58,7 @@ return [
             },
             Lagdo\DbAdmin\Db\Facades\ImportFacade::class => function($di) {
                 $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                $storage = $di->g(Lagdo\DbAdmin\Command\Storage::class);
+                $storage = $di->g(Lagdo\DbAdmin\Command\StorageService::class);
                 return new Lagdo\DbAdmin\Db\Facades\ImportFacade($dbFacade, $storage);
             },
             Lagdo\DbAdmin\Db\Facades\QueryFacade::class => function($di) {
@@ -89,7 +89,7 @@ return [
                 new class implements Lagdo\DbAdmin\Config\AuthInterface {
                     public function user(): string
                     {
-                        return '';
+                        return 'admin@company.com';
                     }
                     public function role(): string
                     {
@@ -101,7 +101,7 @@ return [
                 return new Lagdo\DbAdmin\Config\UserFileReader($auth);
             },
             // Query storage
-            Lagdo\DbAdmin\Command\Storage::class => function($di) {
+            Lagdo\DbAdmin\Command\StorageService::class => function($di) {
                 $package = $di->g(Lagdo\DbAdmin\Package::class);
                 $options = $package->getOption('storage.options');
                 $database = $package->getOption('storage.database');
@@ -111,7 +111,8 @@ return [
                 }
 
                 $auth = $di->g(Lagdo\DbAdmin\Config\AuthInterface::class);
-                return new Lagdo\DbAdmin\Command\Storage($auth,
+                $db = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
+                return new Lagdo\DbAdmin\Command\StorageService($auth, $db,
                     $di->g($driverId), $database, $options);
             },
         ],

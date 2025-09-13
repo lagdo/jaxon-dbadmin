@@ -149,7 +149,7 @@ class QueryFacade extends AbstractFacade
      */
     public function insertItem(string $table, array $queryOptions): array
     {
-        list($fields, ,) = $this->getFields($table, $queryOptions);
+        [$fields, ,] = $this->getFields($table, $queryOptions);
 
         // From edit.inc.php
         $values = [];
@@ -179,7 +179,7 @@ class QueryFacade extends AbstractFacade
      */
     public function updateItem(string $table, array $queryOptions): array
     {
-        list($fields, $where, ) = $this->getFields($table, $queryOptions);
+        [$fields, $where, ] = $this->getFields($table, $queryOptions);
 
         // From edit.inc.php
         $indexes = $this->driver->indexes($table);
@@ -212,7 +212,7 @@ class QueryFacade extends AbstractFacade
      */
     public function deleteItem(string $table, array $queryOptions): array
     {
-        list($fields, $where, $update) = $this->getFields($table, $queryOptions);
+        [$fields, $where, $update] = $this->getFields($table, $queryOptions);
 
         // From edit.inc.php
         $indexes = $this->driver->indexes($table);
