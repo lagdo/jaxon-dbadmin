@@ -2,11 +2,11 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
-use Exception;
+use Lagdo\DbAdmin\Command\TimerService;
 use Lagdo\DbAdmin\Db\Facades\Select\SelectEntity;
 use Lagdo\DbAdmin\Db\Facades\Select\SelectQuery;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
-use Lagdo\Facades\Logger;
+use Exception;
 
 use function array_map;
 use function compact;
@@ -14,9 +14,7 @@ use function count;
 use function current;
 use function is_string;
 use function key;
-use function max;
 use function md5;
-use function microtime;
 use function next;
 use function preg_match;
 use function strlen;
@@ -40,8 +38,9 @@ class SelectFacade extends AbstractFacade
 
     /**
      * @param AbstractFacade $dbFacade
+     * @param TimerService $timer
      */
-    public function __construct(AbstractFacade $dbFacade)
+    public function __construct(AbstractFacade $dbFacade, protected TimerService $timer)
     {
         parent::__construct($dbFacade);
 
@@ -85,9 +84,9 @@ class SelectFacade extends AbstractFacade
     private function executeSelect(): void
     {
         // From driver.inc.php
-        $startTimestamp = microtime(true);
+        $this->timer->start();
         $statement = $this->driver->execute($this->selectEntity->query);
-        $this->selectEntity->duration = max(0, microtime(true) - $startTimestamp);
+        $this->selectEntity->duration = $this->timer->duration();
         $this->selectEntity->rows = [];
 
         // From adminer.inc.php

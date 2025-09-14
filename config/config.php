@@ -1,6 +1,11 @@
 <?php
 
-use Lagdo\DbAdmin\Db\Exception\DbException;
+use Lagdo\DbAdmin\Admin;
+use Lagdo\DbAdmin\Command;
+use Lagdo\DbAdmin\Config;
+use Lagdo\DbAdmin\Db;
+use Lagdo\DbAdmin\Driver;
+use Lagdo\DbAdmin\Ui;
 
 use function Jaxon\jaxon;
 
@@ -38,55 +43,65 @@ return [
     'container' => [
         'set' => [
             // Selected database driver
-            Lagdo\DbAdmin\Driver\DriverInterface::class => function($di) {
+            Driver\DriverInterface::class => function($di) {
                 // The key below is defined by the corresponding plugin package.
-                return $di->g('dbadmin_driver_' . $di->g('dbadmin_config_driver'));
+                $driver = $di->g('dbadmin_driver_' . $di->g('dbadmin_config_driver'));
+                $timer = $di->g(Command\TimerService::class);
+                $driver->addQueryCallback(fn() => $timer->stop());
+                $storage = $di->g(Command\StorageService::class);
+                if ($storage !== null) {
+                    $driver->addQueryCallback(fn(string $query) => $storage->saveCommand($query));
+                }
+                return $driver;
             },
             // Facades to the DB driver features
-            Lagdo\DbAdmin\Db\Facades\CommandFacade::class => function($di) {
-                $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                $storage = $di->g(Lagdo\DbAdmin\Command\StorageService::class);
-                return new Lagdo\DbAdmin\Db\Facades\CommandFacade($dbFacade, $storage);
+            Db\Facades\CommandFacade::class => function($di) {
+                $dbFacade = $di->g(Db\DbFacade::class);
+                $timer = $di->g(Command\TimerService::class);
+                $storage = $di->g(Command\StorageService::class);
+                return new Db\Facades\CommandFacade($dbFacade, $timer, $storage);
             },
-            Lagdo\DbAdmin\Db\Facades\DatabaseFacade::class => function($di) {
-                $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                return new Lagdo\DbAdmin\Db\Facades\DatabaseFacade($dbFacade, $dbFacade->getServerOptions());
+            Db\Facades\DatabaseFacade::class => function($di) {
+                $dbFacade = $di->g(Db\DbFacade::class);
+                return new Db\Facades\DatabaseFacade($dbFacade, $dbFacade->getServerOptions());
             },
-            Lagdo\DbAdmin\Db\Facades\ExportFacade::class => function($di) {
-                $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                return new Lagdo\DbAdmin\Db\Facades\ExportFacade($dbFacade);
+            Db\Facades\ExportFacade::class => function($di) {
+                $dbFacade = $di->g(Db\DbFacade::class);
+                return new Db\Facades\ExportFacade($dbFacade);
             },
-            Lagdo\DbAdmin\Db\Facades\ImportFacade::class => function($di) {
-                $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                $storage = $di->g(Lagdo\DbAdmin\Command\StorageService::class);
-                return new Lagdo\DbAdmin\Db\Facades\ImportFacade($dbFacade, $storage);
+            Db\Facades\ImportFacade::class => function($di) {
+                $dbFacade = $di->g(Db\DbFacade::class);
+                $timer = $di->g(Command\TimerService::class);
+                $storage = $di->g(Command\StorageService::class);
+                return new Db\Facades\ImportFacade($dbFacade, $timer, $storage);
             },
-            Lagdo\DbAdmin\Db\Facades\QueryFacade::class => function($di) {
-                $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                return new Lagdo\DbAdmin\Db\Facades\QueryFacade($dbFacade);
+            Db\Facades\QueryFacade::class => function($di) {
+                $dbFacade = $di->g(Db\DbFacade::class);
+                return new Db\Facades\QueryFacade($dbFacade);
             },
-            Lagdo\DbAdmin\Db\Facades\SelectFacade::class => function($di) {
-                $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                return new Lagdo\DbAdmin\Db\Facades\SelectFacade($dbFacade);
+            Db\Facades\SelectFacade::class => function($di) {
+                $dbFacade = $di->g(Db\DbFacade::class);
+                $timer = $di->g(Command\TimerService::class);
+                return new Db\Facades\SelectFacade($dbFacade, $timer);
             },
-            Lagdo\DbAdmin\Db\Facades\ServerFacade::class => function($di) {
-                $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                return new Lagdo\DbAdmin\Db\Facades\ServerFacade($dbFacade, $dbFacade->getServerOptions());
+            Db\Facades\ServerFacade::class => function($di) {
+                $dbFacade = $di->g(Db\DbFacade::class);
+                return new Db\Facades\ServerFacade($dbFacade, $dbFacade->getServerOptions());
             },
-            Lagdo\DbAdmin\Db\Facades\TableFacade::class => function($di) {
-                $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                return new Lagdo\DbAdmin\Db\Facades\TableFacade($dbFacade);
+            Db\Facades\TableFacade::class => function($di) {
+                $dbFacade = $di->g(Db\DbFacade::class);
+                return new Db\Facades\TableFacade($dbFacade);
             },
-            Lagdo\DbAdmin\Db\Facades\UserFacade::class => function($di) {
-                $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                return new Lagdo\DbAdmin\Db\Facades\UserFacade($dbFacade);
+            Db\Facades\UserFacade::class => function($di) {
+                $dbFacade = $di->g(Db\DbFacade::class);
+                return new Db\Facades\UserFacade($dbFacade);
             },
-            Lagdo\DbAdmin\Db\Facades\ViewFacade::class => function($di) {
-                $dbFacade = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                return new Lagdo\DbAdmin\Db\Facades\ViewFacade($dbFacade);
+            Db\Facades\ViewFacade::class => function($di) {
+                $dbFacade = $di->g(Db\DbFacade::class);
+                return new Db\Facades\ViewFacade($dbFacade);
             },
-            Lagdo\DbAdmin\Config\AuthInterface::class => fn() =>
-                new class implements Lagdo\DbAdmin\Config\AuthInterface {
+            Config\AuthInterface::class => fn() =>
+                new class implements Config\AuthInterface {
                     public function user(): string
                     {
                         return 'admin@company.com';
@@ -96,12 +111,12 @@ return [
                         return '';
                     }
                 },
-            Lagdo\DbAdmin\Config\UserFileReader::class => function($di) {
-                $auth = $di->get(Lagdo\DbAdmin\Config\AuthInterface::class);
-                return new Lagdo\DbAdmin\Config\UserFileReader($auth);
+            Config\UserFileReader::class => function($di) {
+                $auth = $di->get(Config\AuthInterface::class);
+                return new Config\UserFileReader($auth);
             },
             // Query storage
-            Lagdo\DbAdmin\Command\StorageService::class => function($di) {
+            Command\StorageService::class => function($di) {
                 $package = $di->g(Lagdo\DbAdmin\Package::class);
                 $options = $package->getOption('storage.options');
                 $database = $package->getOption('storage.database');
@@ -110,9 +125,9 @@ return [
                     return null;
                 }
 
-                $auth = $di->g(Lagdo\DbAdmin\Config\AuthInterface::class);
-                $db = $di->g(Lagdo\DbAdmin\Db\DbFacade::class);
-                return new Lagdo\DbAdmin\Command\StorageService($auth, $db,
+                $auth = $di->g(Config\AuthInterface::class);
+                $db = $di->g(Db\DbFacade::class);
+                return new Command\StorageService($auth, $db,
                     $di->g($driverId), $database, $options);
             },
         ],
@@ -120,34 +135,36 @@ return [
             // The translator
             Lagdo\DbAdmin\Translator::class,
             // The string manipulation class
-            Lagdo\DbAdmin\Driver\Utils\Str::class,
+            Driver\Utils\Str::class,
             // The user input
-            Lagdo\DbAdmin\Driver\Utils\Input::class,
+            Driver\Utils\Input::class,
             // The utils class
-            Lagdo\DbAdmin\Driver\Utils\Utils::class,
+            Driver\Utils\Utils::class,
             // The facade to the database features
-            Lagdo\DbAdmin\Db\DbFacade::class,
+            Db\DbFacade::class,
+            // The Timer service
+            Command\TimerService::class,
             // The db classes
-            Lagdo\DbAdmin\Admin\Admin::class,
+            Admin\Admin::class,
             // The UI builders
-            Lagdo\DbAdmin\Ui\UiBuilder::class,
-            Lagdo\DbAdmin\Ui\InputBuilder::class,
-            Lagdo\DbAdmin\Ui\MenuBuilder::class,
-            Lagdo\DbAdmin\Ui\Database\ServerUiBuilder::class,
-            Lagdo\DbAdmin\Ui\Command\QueryUiBuilder::class,
-            Lagdo\DbAdmin\Ui\Command\ImportUiBuilder::class,
-            Lagdo\DbAdmin\Ui\Command\ExportUiBuilder::class,
-            Lagdo\DbAdmin\Ui\Table\SelectUiBuilder::class,
-            Lagdo\DbAdmin\Ui\Table\TableUiBuilder::class,
-            Lagdo\DbAdmin\Ui\Table\ViewUiBuilder::class,
+            Ui\UiBuilder::class,
+            Ui\InputBuilder::class,
+            Ui\MenuBuilder::class,
+            Ui\Database\ServerUiBuilder::class,
+            Ui\Command\QueryUiBuilder::class,
+            Ui\Command\ImportUiBuilder::class,
+            Ui\Command\ExportUiBuilder::class,
+            Ui\Table\SelectUiBuilder::class,
+            Ui\Table\TableUiBuilder::class,
+            Ui\Table\ViewUiBuilder::class,
         ],
         'alias' => [
             // The translator
-            Lagdo\DbAdmin\Driver\Utils\TranslatorInterface::class => Lagdo\DbAdmin\Translator::class,
+            Driver\Utils\TranslatorInterface::class => Lagdo\DbAdmin\Translator::class,
         ],
     ],
     'exceptions' => [
-        DbException::class => function(DbException $dbException) {
+        Db\Exception\DbException::class => function(Db\Exception\DbException $dbException) {
             $response = jaxon()->getResponse();
             $response->dialog->warning($dbException->getMessage());
             return $response;

@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Db\Facades;
 
 use Lagdo\DbAdmin\Command\StorageService;
+use Lagdo\DbAdmin\Command\TimerService;
 use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 use Lagdo\DbAdmin\Driver\Entity\QueryEntity;
 
@@ -12,7 +13,6 @@ use function function_exists;
 use function ini_set;
 use function max;
 use function memory_get_usage;
-use function microtime;
 use function strlen;
 
 /**
@@ -42,10 +42,11 @@ class CommandFacade extends AbstractFacade
      * Initialize the facade
      *
      * @param AbstractFacade $dbFacade
+     * @param TimerService $timer
      * @param StorageService|null $storage
      */
     public function __construct(AbstractFacade $dbFacade,
-        protected StorageService|null $storage = null)
+        protected TimerService $timer, protected StorageService|null $storage)
     {
         parent::__construct($dbFacade);
     }
@@ -61,7 +62,7 @@ class CommandFacade extends AbstractFacade
         //! PDO - silent error
         if ($this->connection === null && $this->driver->database() !== '') {
             $this->connection = $this->driver
-                ->connect($this->driver->database(), $this->driver->schema());
+                ->newConnection($this->driver->database(), $this->driver->schema());
         }
     }
 
@@ -174,12 +175,15 @@ class CommandFacade extends AbstractFacade
      */
     private function executeCommand(QueryEntity $queryEntity): bool
     {
+        if ($this->storage !== null) {
+            $this->storage->setCategoryToHistory();
+        }
+        $this->timer->start();
         //! Don't allow changing of character_set_results, convert encoding of displayed query
-        $startTimestamp = microtime(true);
         if ($this->driver->multiQuery($queryEntity->query)) {
             $this->driver->execUseQuery($queryEntity->query);
         }
-        $this->duration += max(0, microtime(true) - $startTimestamp);
+        $this->duration += $this->timer->duration();
 
         do {
             $select = null;
@@ -243,10 +247,6 @@ class CommandFacade extends AbstractFacade
                     break;
                 }
             }
-        }
-
-        if ($this->storage !== null) {
-            $this->storage->saveHistoryCommand($queries);
         }
 
         $messages = [];

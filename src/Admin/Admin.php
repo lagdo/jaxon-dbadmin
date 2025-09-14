@@ -19,26 +19,13 @@ class Admin
     use Traits\DumpTrait;
 
     /**
-     * @var DriverInterface
-     */
-    public $driver;
-
-    /**
-     * @var Utils
-     */
-    protected $utils;
-
-    /**
      * The constructor
      *
      * @param DriverInterface $driver
      * @param Utils $utils
      */
-    public function __construct(DriverInterface $driver, Utils $utils)
-    {
-        $this->driver = $driver;
-        $this->utils = $utils;
-    }
+    public function __construct(public DriverInterface $driver, protected Utils $utils)
+    {}
 
     /**
      * Name in title and navigation

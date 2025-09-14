@@ -19,12 +19,12 @@ class StorageService
     /**
      * @var int
      */
-    private const CAT_HISTORY = 0;
+    private const CAT_AUDIT = 0;
 
     /**
      * @var int
      */
-    private const CAT_AUDIT = 1;
+    private const CAT_HISTORY = 1;
 
     /**
      * @var bool
@@ -35,6 +35,11 @@ class StorageService
      * @var int
      */
     private int $historyLimit;
+
+    /**
+     * @var int
+     */
+    private int $category;
 
     /**
      * @var int|null
@@ -62,6 +67,15 @@ class StorageService
         $this->connection->open($database['name'], $database['schema'] ?? '');
         $this->historyEnabled = $options['history']['enabled'] ?? false;
         $this->historyLimit = $options['history']['limit'] ?? 15;
+        $this->category = self::CAT_AUDIT;
+    }
+
+    /**
+     * @return void
+     */
+    public function setCategoryToHistory(): void
+    {
+        $this->category = self::CAT_HISTORY;
     }
 
     /**
@@ -155,7 +169,7 @@ class StorageService
      */
     public function getUserCommands(): array
     {
-        return $this->getCommands(self::CAT_USER);
+        return $this->getCommands(self::CAT_HISTORY);
     }
 
     /**
@@ -164,7 +178,7 @@ class StorageService
      *
      * @return bool
      */
-    private function saveCommand(int $category, string $query): bool
+    private function saveUserCommand(int $category, string $query): bool
     {
         if ($this->historyDisabled()) {
             return false;
@@ -224,9 +238,12 @@ class StorageService
      *
      * @return bool
      */
-    public function saveHistoryCommand(string $query): bool
+    public function saveCommand(string $query): bool
     {
+        $category = $this->category;
+        // Reset to the default category.
+        $this->category = self::CAT_AUDIT;
         return $this->historyDisabled() ? false :
-            $this->saveRunnedCommand($query, self::CAT_HISTORY);
+            $this->saveRunnedCommand($query, $category);
     }
 }

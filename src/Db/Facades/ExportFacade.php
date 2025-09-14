@@ -191,7 +191,7 @@ class ExportFacade extends AbstractFacade
      */
     private function dumpDatabase(string $database)
     {
-        $this->driver->connect($database); // New connection
+        $this->driver->newConnection($database); // New connection
         $this->dumpCreateDatabaseQuery($database);
         $this->dumpUseDatabaseQuery($database);
         if ($this->options['is_sql'] && $this->driver->jush() === 'sql') {
