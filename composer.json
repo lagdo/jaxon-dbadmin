@@ -22,7 +22,7 @@
         "jaxon-php/jaxon-core": "^5.0",
         "jaxon-php/jaxon-annotations": "^3.0",
         "jaxon-php/jaxon-dialogs": "^5.0",
-        "lagdo/dbadmin-driver": "^0.12",
+        "lagdo/dbadmin-driver": "^0.13",
         "lagdo/facades": "^1.0",
         "lagdo/ui-builder": "^0.2",
         "lagdo/jaxon-ui-builder": "^0.1"
