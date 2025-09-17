@@ -45,12 +45,18 @@ return [
             // Selected database driver
             Driver\DriverInterface::class => function($di) {
                 // The key below is defined by the corresponding plugin package.
-                $driver = $di->g('dbadmin_driver_' . $di->g('dbadmin_config_driver'));
+                return $di->g('dbadmin_driver_' . $di->g('dbadmin_config_driver'));
+            },
+            // The database driver used in the application
+            Db\CallbackDriver::class => function($di) {
+                // This class will "clone" the selected driver, and define the callbacks.
+                // By doing this, the driver classes will call the driver without the callbacks.
+                $driver = new Db\CallbackDriver($di->g(Driver\DriverInterface::class));
                 $timer = $di->g(Command\TimerService::class);
                 $driver->addQueryCallback(fn() => $timer->stop());
-                $storage = $di->g(Command\StorageService::class);
-                if ($storage !== null) {
-                    $driver->addQueryCallback(fn(string $query) => $storage->saveCommand($query));
+                $logging = $di->g(Command\LoggingService::class);
+                if ($logging !== null) {
+                    $driver->addQueryCallback(fn(string $query) => $logging->saveCommand($query));
                 }
                 return $driver;
             },
@@ -58,8 +64,8 @@ return [
             Db\Facades\CommandFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
                 $timer = $di->g(Command\TimerService::class);
-                $storage = $di->g(Command\StorageService::class);
-                return new Db\Facades\CommandFacade($dbFacade, $timer, $storage);
+                $logging = $di->g(Command\LoggingService::class);
+                return new Db\Facades\CommandFacade($dbFacade, $timer, $logging);
             },
             Db\Facades\DatabaseFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
@@ -72,8 +78,8 @@ return [
             Db\Facades\ImportFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
                 $timer = $di->g(Command\TimerService::class);
-                $storage = $di->g(Command\StorageService::class);
-                return new Db\Facades\ImportFacade($dbFacade, $timer, $storage);
+                $logging = $di->g(Command\LoggingService::class);
+                return new Db\Facades\ImportFacade($dbFacade, $timer, $logging);
             },
             Db\Facades\QueryFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
@@ -104,7 +110,7 @@ return [
                 new class implements Config\AuthInterface {
                     public function user(): string
                     {
-                        return 'admin@company.com';
+                        return '';
                     }
                     public function role(): string
                     {
@@ -115,11 +121,11 @@ return [
                 $auth = $di->get(Config\AuthInterface::class);
                 return new Config\UserFileReader($auth);
             },
-            // Query storage
-            Command\StorageService::class => function($di) {
+            // Query logging
+            Command\LoggingService::class => function($di) {
                 $package = $di->g(Lagdo\DbAdmin\Package::class);
-                $options = $package->getOption('storage.options');
-                $database = $package->getOption('storage.database');
+                $options = $package->getOption('logging.options');
+                $database = $package->getOption('logging.database');
                 $driverId = 'dbadmin_driver_' . ($database['driver'] ?? '');
                 if (!$di->h($driverId) || !is_array($options) || !is_array($database)) {
                     return null;
@@ -127,7 +133,7 @@ return [
 
                 $auth = $di->g(Config\AuthInterface::class);
                 $db = $di->g(Db\DbFacade::class);
-                return new Command\StorageService($auth, $db,
+                return new Command\LoggingService($auth, $db,
                     $di->g($driverId), $database, $options);
             },
         ],

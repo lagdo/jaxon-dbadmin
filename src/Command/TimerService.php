@@ -10,12 +10,12 @@ class TimerService
     /**
      * @var float
      */
-    private float $startTimestamp;
+    private float $startTimestamp = 0;
 
     /**
      * @var float
      */
-    private float $endTimestamp;
+    private float $endTimestamp = 0;
 
     /**
      * @return void

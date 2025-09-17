@@ -6,7 +6,6 @@ use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Admin\Admin;
 use Lagdo\DbAdmin\Db\Facades\AbstractFacade;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
-use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Package;
 
 /**
@@ -33,11 +32,6 @@ class DbFacade extends AbstractFacade
     protected $breadcrumbs;
 
     /**
-     * @var Container
-     */
-    protected $di;
-
-    /**
      * @var string
      */
     protected $dbServer;
@@ -59,23 +53,12 @@ class DbFacade extends AbstractFacade
      * @param Utils $utils
      * @param Package $package
      */
-    public function __construct(Container $di, Utils $utils, Package $package)
+    public function __construct(protected Container $di, protected Utils $utils,
+        protected Package $package)
     {
-        $this->di = $di;
-        $this->utils = $utils;
-        $this->package = $package;
         // Make the translator available into views
-        $this->package->view()->share('trans', $this->utils->trans);
-
+        $this->package->view()->share('trans', $utils->trans);
         $this->breadcrumbs = new Breadcrumbs();
-    }
-
-    /**
-     * @return Utils|null
-     */
-    public function utils(): Utils
-    {
-        return $this->utils;
     }
 
     /**
@@ -148,7 +131,7 @@ class DbFacade extends AbstractFacade
             // Save the selected server options in the di container.
             $this->di->val('dbadmin_config_driver', $this->package->getServerDriver($server));
             $this->di->val('dbadmin_config_options', $this->package->getServerOptions($server));
-            $this->driver = $this->di->get(DriverInterface::class);
+            $this->driver = $this->di->get(CallbackDriver::class);
             $this->admin = $this->di->get(Admin::class);
         }
         // Open the selected database

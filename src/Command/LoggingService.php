@@ -12,19 +12,29 @@ use function gmdate;
 use function json_encode;
 
 /**
- * SQL queries history and storage.
+ * SQL queries logging and storage.
  */
-class StorageService
+class LoggingService
 {
     /**
      * @var int
      */
-    private const CAT_AUDIT = 0;
+    private const CAT_LIBRARY = 1;
 
     /**
      * @var int
      */
-    private const CAT_HISTORY = 1;
+    private const CAT_ENDUSER = 2;
+
+    /**
+     * @var int
+     */
+    private const CAT_HISTORY = 3;
+
+    /**
+     * @var bool
+     */
+    private bool $enduserEnabled;
 
     /**
      * @var bool
@@ -65,9 +75,10 @@ class StorageService
     {
         $this->connection = $driver->createConnection($database);
         $this->connection->open($database['name'], $database['schema'] ?? '');
-        $this->historyEnabled = $options['history']['enabled'] ?? false;
-        $this->historyLimit = $options['history']['limit'] ?? 15;
-        $this->category = self::CAT_AUDIT;
+        $this->enduserEnabled = (bool)($options['enduser']['enabled'] ?? false);
+        $this->historyEnabled = (bool)($options['history']['enabled'] ?? false);
+        $this->historyLimit = (int)($options['history']['limit'] ?? 15);
+        $this->category = self::CAT_ENDUSER;
     }
 
     /**
@@ -98,14 +109,16 @@ class StorageService
     private function newOwnerId(string $username): int
     {
         // Try to save the user and return his id.
-        $statement = $this->connection->query("insert into dbadmin_owners(username) values('$username')");
-        if ($statement === false) {
-            Logger::warning('Unable to save new owner in the history database.', [
-                'error' => $this->connection->error(),
-            ]);
-            return false;
+        $statement = $this->connection
+            ->query("insert into dbadmin_owners(username) values('$username')");
+        if ($statement !== false) {
+            return $this->readOwnerId($username);
         }
-        return $this->readOwnerId($username);
+
+        Logger::warning('Unable to save new owner in the query logging database.', [
+            'error' => $this->connection->error(),
+        ]);
+        return false;
     }
 
     /**
@@ -121,82 +134,21 @@ class StorageService
     /**
      * @return bool
      */
-    public function historyDisabled(): bool
+    private function enduserDisabled(): bool
     {
-        return !$this->historyEnabled || !$this->auth->user() || !$this->getOwnerId();
+        return (!$this->enduserEnabled && !$this->historyEnabled) ||
+            !$this->auth->user() || !$this->getOwnerId();
     }
 
     /**
      * @param int $category
-     *
-     * @return array
-     */
-    private function getCommands(int $category): array
-    {
-        if ($this->historyDisabled()) {
-            return [];
-        }
-
-        $ownerId = $this->getOwnerId();
-        $statement = "select id,query from dbadmin_commands c " .
-            "where c.owner_id=$ownerId and c.category=$category " .
-            "order by c.last_update desc limit {$this->historyLimit}";
-        $statement = $this->connection->query($statement);
-        if ($statement === false) {
-            Logger::warning('Unable to read commands from the history database.', [
-                'error' => $this->connection->error(),
-            ]);
-            return [];
-        }
-
-        $commands = [];
-        while (($row = $statement->fetchAssoc())) {
-            $commands[$row['id']] = $row['query'];
-        }
-        return $commands;
-    }
-
-    /**
-     * @return array
-     */
-    public function getHistoryCommands(): array
-    {
-        return $this->getCommands(self::CAT_HISTORY);
-    }
-
-    /**
-     * @return array
-     */
-    public function getUserCommands(): array
-    {
-        return $this->getCommands(self::CAT_HISTORY);
-    }
-
-    /**
-     * @param int $category
-     * @param string $query
      *
      * @return bool
      */
-    private function saveUserCommand(int $category, string $query): bool
+    private function categoryDisabled(int $category): bool
     {
-        if ($this->historyDisabled()) {
-            return false;
-        }
-
-        $ownerId = $this->getOwnerId();
-        // Duplicates on query are checked on client side, not here.
-        $now = gmdate('Y-m-d H:i:s');
-        $statement = "insert into dbadmin_commands(query,category,last_update,owner_id) " .
-            "values('$query', $category, '$now', $ownerId)";
-        $statement = $this->connection->query($statement) !== false;
-        if ($statement === false) {
-            Logger::warning('Unable to save command in the history database.', [
-                'error' => $this->connection->error(),
-            ]);
-            return false;
-        }
-        return true;
+        return (!$this->enduserEnabled && $category === self::CAT_ENDUSER) ||
+            ($category < self::CAT_ENDUSER || $category > self::CAT_HISTORY);
     }
 
     /**
@@ -207,7 +159,7 @@ class StorageService
      */
     private function saveRunnedCommand(string $query, int $category): bool
     {
-        if ($this->historyDisabled()) {
+        if ($this->categoryDisabled($category)) {
             return false;
         }
 
@@ -224,13 +176,14 @@ class StorageService
             "(query,driver,options,category,last_update,owner_id) " .
             "values('$query','$driver','$options',$category,'$now',$ownerId)";
         $statement = $this->connection->query($statement) !== false;
-        if ($statement === false) {
-            Logger::warning('Unable to save command in the history database.', [
-                'error' => $this->connection->error(),
-            ]);
-            return false;
+        if ($statement !== false) {
+            return true;
         }
-        return true;
+
+        Logger::warning('Unable to save command in the query logging database.', [
+            'error' => $this->connection->error(),
+        ]);
+        return false;
     }
 
     /**
@@ -242,8 +195,46 @@ class StorageService
     {
         $category = $this->category;
         // Reset to the default category.
-        $this->category = self::CAT_AUDIT;
-        return $this->historyDisabled() ? false :
+        $this->category = self::CAT_ENDUSER;
+        return $this->enduserDisabled() ? false :
             $this->saveRunnedCommand($query, $category);
+    }
+
+    /**
+     * @param int $category
+     *
+     * @return array
+     */
+    private function getCommands(int $category): array
+    {
+        if ($this->enduserDisabled()) {
+            return [];
+        }
+
+        $ownerId = $this->getOwnerId();
+        $statement = "select max(id) as id,query from dbadmin_runned_commands c " .
+            "where c.owner_id=$ownerId and c.category=$category " .
+            "group by query order by c.last_update desc limit {$this->historyLimit}";
+        $statement = $this->connection->query($statement);
+        if ($statement !== false) {
+            $commands = [];
+            while (($row = $statement->fetchAssoc())) {
+                $commands[$row['id']] = $row['query'];
+            }
+            return $commands;
+        }
+
+        Logger::warning('Unable to read commands from the query logging database.', [
+            'error' => $this->connection->error(),
+        ]);
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getHistoryCommands(): array
+    {
+        return $this->getCommands(self::CAT_HISTORY);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
-use Lagdo\DbAdmin\Command\StorageService;
+use Lagdo\DbAdmin\Command\LoggingService;
 use Lagdo\DbAdmin\Command\TimerService;
 use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 use Lagdo\DbAdmin\Driver\Entity\QueryEntity;
@@ -43,10 +43,10 @@ class CommandFacade extends AbstractFacade
      *
      * @param AbstractFacade $dbFacade
      * @param TimerService $timer
-     * @param StorageService|null $storage
+     * @param LoggingService|null $logging
      */
     public function __construct(AbstractFacade $dbFacade,
-        protected TimerService $timer, protected StorageService|null $storage)
+        protected TimerService $timer, protected LoggingService|null $logging)
     {
         parent::__construct($dbFacade);
     }
@@ -61,8 +61,8 @@ class CommandFacade extends AbstractFacade
         // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
         //! PDO - silent error
         if ($this->connection === null && $this->driver->database() !== '') {
-            $this->connection = $this->driver
-                ->newConnection($this->driver->database(), $this->driver->schema());
+            $this->connection = $this->driver ->newConnection(
+                $this->driver->database(), $this->driver->schema());
         }
     }
 
@@ -175,8 +175,8 @@ class CommandFacade extends AbstractFacade
      */
     private function executeCommand(QueryEntity $queryEntity): bool
     {
-        if ($this->storage !== null) {
-            $this->storage->setCategoryToHistory();
+        if ($this->logging !== null) {
+            $this->logging->setCategoryToHistory();
         }
         $this->timer->start();
         //! Don't allow changing of character_set_results, convert encoding of displayed query
