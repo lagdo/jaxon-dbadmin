@@ -19,49 +19,55 @@ class ViewUiBuilder
     {}
 
     /**
-     * @param string $formId
+     * @param string $queryId
      * @param bool $materializedView
      * @param array $view
      *
      * @return string
      */
-    public function form(string $formId, bool $materializedView, array $view = []): string
+    public function form(string $queryId, bool $materializedView, array $view = []): string
     {
         return $this->ui->build(
-            $this->ui->form(
-                $this->ui->formRow(
-                    $this->ui->formLabel($this->ui->text('Name'))
-                        ->setFor('name')
-                ),
-                $this->ui->formRow(
-                    $this->ui->formInput()
-                        ->setType('text')->setName('name')
-                        ->setPlaceholder('Name')->setValue($view['name'] ?? '')
-                ),
-                $this->ui->formRow(
-                    $this->ui->formLabel($this->ui->text('SQL query'))
-                        ->setFor('select')
-                ),
-                $this->ui->formRow(
-                    $this->ui->formTextarea($this->ui->text($view['select'] ?? ''))
-                        ->setRows('10')->setName('select')
-                        ->setSpellcheck('false')->setWrap('on')
-                ),
-                $this->ui->when($materializedView, fn() =>
-                    $this->ui->list(
-                        $this->ui->formRow(
-                            $this->ui->formLabel($this->ui->text('Materialized'))
-                                ->setFor('materialized')
-                        ),
-                        $this->ui->formRow(
-                            $this->ui->checkbox()
-                                ->checked($view['materialized'] ?? false)
-                                ->setName('materialized')
+            $this->ui->col(
+                $this->ui->form(
+                    $this->ui->formRow(
+                        $this->ui->formCol(
+                            $this->ui->formInput()
+                                ->setType('text')->setPlaceholder('Name')
+                                ->setName('name')->setValue($view['name'] ?? '')
+                        )->width(6),
+                        $this->ui->when($materializedView, fn() =>
+                            $this->ui->formCol(
+                                $this->ui->inputGroup(
+                                    $this->ui->checkbox()
+                                        ->checked($view['materialized'] ?? false)
+                                        ->setName('materialized'),
+                                    $this->ui->label($this->ui->text('Materialized'))
+                                        ->setFor('materialized'),
+                                ),
+                            )->width(6),
                         )
                     )
                 )
-            )
-            ->wrapped()->setId($formId)
+            )->width(12),
+            $this->ui->col(
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->panel(
+                            $this->ui->panelBody(
+                                $this->ui->div(
+                                        $this->ui->html($view['select'] ?? '')
+                                    )->setId($queryId)
+                            )
+                            ->setClass('sql-command-editor-panel')
+                            ->setStyle('padding: 0 1px;')
+                        )
+                        ->style('default')
+                        ->setStyle('padding: 5px;')
+                    )
+                    ->width(12)
+                )
+            )->width(12)
         );
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
+use Lagdo\DbAdmin\Ajax\App\Db\View\Ddl\Form;
 use Lagdo\DbAdmin\Ajax\App\Db\View\Ddl\View;
 use Lagdo\DbAdmin\Ajax\App\Db\View\Dql\Select;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
@@ -21,7 +22,7 @@ class Views extends MainComponent
         $this->cl(PageActions::class)->show([
             'add-view' => [
                 'title' => $this->trans()->lang('Create view'),
-                'handler' => $this->rq(View::class)->add(),
+                'handler' => $this->rq(Form::class)->add(),
             ],
         ]);
     }

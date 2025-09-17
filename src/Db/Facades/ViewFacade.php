@@ -175,7 +175,10 @@ class ViewFacade extends AbstractFacade
             throw new Exception($error);
         }
 
-        return ['view' => $values];
+        return [
+            'view' => $values,
+            'materialized' => $this->driver->support('materializedview'),
+        ];
     }
 
     /**

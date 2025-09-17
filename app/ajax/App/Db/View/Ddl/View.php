@@ -12,7 +12,7 @@ use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\Table\ViewUiBuilder;
 
-use function Jaxon\je;
+use function is_array;
 
 class View extends FuncComponent
 {
@@ -90,13 +90,13 @@ class View extends FuncComponent
         // $actions = $this->getViewLinks();
 
         $actions = [
-            'select-table' => [
+            'select-view' => [
                 'title' => $this->trans()->lang('Select'),
                 'handler' => $this->rq(Select::class)->show($view),
             ],
             'edit-view' => [
                 'title' => $this->trans()->lang('Edit view'),
-                'handler' => $this->rq()->edit($view),
+                'handler' => $this->rq(Form::class)->edit($view),
             ],
             'drop-view' => [
                 'title' => $this->trans()->lang('Drop view'),
@@ -118,34 +118,10 @@ class View extends FuncComponent
 
         // Show triggers
         $triggersInfo = $this->db()->getViewTriggers($view);
-        if(\is_array($triggersInfo))
+        if(is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
         }
-    }
-
-    /**
-     * Show the new view form
-     * @before notYetAvailable
-     *
-     * @return void
-     */
-    public function add(): void
-    {
-        $formId = 'view-form';
-        $title = 'Create a view';
-        $materializedView = $this->db()->support('materializedview');
-        $content = $this->viewUi->form($formId, $materializedView);
-        $buttons = [[
-            'title' => 'Cancel',
-            'class' => 'btn btn-tertiary',
-            'click' => 'close',
-        ],[
-            'title' => 'Save',
-            'class' => 'btn btn-primary',
-            'click' => $this->rq()->create(je($formId)->rd()->form()),
-        ]];
-        $this->modal()->show($title, $content, $buttons);
     }
 
     /**
@@ -158,7 +134,7 @@ class View extends FuncComponent
      */
     public function create(array $values): void
     {
-        $values['materialized'] = \array_key_exists('materialized', $values);
+        $values['materialized'] = isset($values['materialized']);
 
         $result = $this->db()->createView($values);
         if(!$result['success'])
@@ -167,37 +143,8 @@ class View extends FuncComponent
             return;
         }
 
-        $this->modal()->hide();
         $this->cl(Views::class)->show();
         $this->alert()->success($result['message']);
-    }
-
-    /**
-     * Show edit form for a given view
-     * @before notYetAvailable
-     *
-     * @param string $view        The view name
-     *
-     * @return void
-     */
-    public function edit(string $view): void
-    {
-        $viewData = $this->db()->getView($view);
-
-        $formId = 'view-form';
-        $title = 'Edit a view';
-        $materializedView = $this->db()->support('materializedview');
-        $content = $this->viewUi->form($formId, $materializedView, $viewData['view']);
-        $buttons = [[
-            'title' => 'Cancel',
-            'class' => 'btn btn-tertiary',
-            'click' => 'close',
-        ],[
-            'title' => 'Save',
-            'class' => 'btn btn-primary',
-            'click' => $this->rq()->update($view, je($formId)->rd()->form()),
-        ]];
-        $this->modal()->show($title, $content, $buttons);
     }
 
     /**
@@ -211,7 +158,7 @@ class View extends FuncComponent
      */
     public function update(string $view, array $values): void
     {
-        $values['materialized'] = \array_key_exists('materialized', $values);
+        $values['materialized'] = isset($values['materialized']);
 
         $result = $this->db()->updateView($view, $values);
         if(!$result['success'])
@@ -220,7 +167,6 @@ class View extends FuncComponent
             return;
         }
 
-        $this->modal()->hide();
         $this->show($view);
         $this->alert()->success($result['message']);
     }

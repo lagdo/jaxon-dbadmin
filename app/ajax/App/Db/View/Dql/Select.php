@@ -9,6 +9,7 @@ use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Fields;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options\Values;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryTrait;
+use Lagdo\DbAdmin\Ajax\App\Db\View\Ddl\Form;
 use Lagdo\DbAdmin\Ajax\App\Db\View\Ddl\View;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
@@ -58,6 +59,10 @@ class Select extends MainComponent
             'show-table' => [
                 'title' => $this->trans()->lang('Show view'),
                 'handler' => $this->rq(View::class)->show($table),
+            ],
+            'edit-view' => [
+                'title' => $this->trans()->lang('Edit view'),
+                'handler' => $this->rq(Form::class)->edit($table),
             ],
             'back-tables' => [
                 'title' => $this->trans()->lang('Back'),

@@ -40,5 +40,5 @@ trait AbstractTrait
      *
      * @return Breadcrumbs
      */
-    abstract protected function breadcrumbs(bool $withDb = false): Breadcrumbs;
+    abstract public function breadcrumbs(bool $withDb = false): Breadcrumbs;
 }
