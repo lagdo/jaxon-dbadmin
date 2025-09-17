@@ -226,9 +226,58 @@ $dbAdminOptionsGetter = function(array $config) {
     ],
 ```
 
+### Logging queries
+
+Starting from version `0.17`, the queries executed by the users can be saved in a provided database.
+
+The required options are provided under the `logging` key.
+
+```php
+    'app' => [
+        // Other config options
+        // ...
+        'packages' => [
+            Lagdo\DbAdmin\Package::class => [
+                // ...
+                'logging' => [
+                    'options' => [
+                        'library' => [
+                            'enabled' =>false,
+                        ],
+                        'enduser' => [
+                            'enabled' => true,
+                        ],
+                        'history' => [
+                            'enabled' => true,
+                            'limit' => 10,
+                        ],
+                    ],
+                    'database' => [
+                        // Same as the "servers" items, but "name" is the database name.
+                        'driver' => 'pgsql',
+                        'host' => '',
+                        'port' => 0,
+                        'username' => '',
+                        'password' => '',
+                        'name' => 'logging', // The database name
+                        'schema' => '', // Optionnally, the schema name
+                    ],
+                ],
+            ],
+        ],
+    ],
+```
+
+The `logging.database` options identify the database where the queries are saved.
+Depending on the database server, one of the scripts in the `migrations/pgsql`, `migrations/mysql` or `migrations/sqlite` directories in this repository must be used to create the logging database.
+
+The `logging.options.enduser.enabled` option enables the logging on all the user queries, while the `logging.options.history.enabled` option enables the logging only for the queries executed in the query editor.
+
+The `logging.options.history.limit` option is the number of queries in the history, which defaults to `15`, and when the `logging.options.history.distinct` option is set to true, the history displays only distinct queries.
+
 ### Data import (currently disabled)
 
-SQL files can be uploaded and executed on a server. This feature is implemented using the [Jaxon ajax upload](https://www.jaxon-php.org/docs/v3x/registrations/upload.html) feature, which then needs to be configured in the `lib` section of the `Jaxon` config file.
+SQL files can be uploaded and executed on a server. This feature is implemented using the [Jaxon ajax upload](https://www.jaxon-php.org/docs/v5x/features/upload.html) feature, which then needs to be configured in the `lib` section of the `Jaxon` config file.
 
 ```php
     'lib' => [
@@ -241,7 +290,7 @@ SQL files can be uploaded and executed on a server. This feature is implemented 
         ],
     ],
 ```
-As stated in the [Jaxon ajax upload documentation](https://www.jaxon-php.org/docs/v3x/registrations/upload.html), `sql_files` is the `name` attribute of the file upload field, and of course `/path/to/the/upload/dir` needs to be writable.
+As stated in the [Jaxon ajax upload documentation](https://www.jaxon-php.org/docs/v5x/features/upload.html), `sql_files` is the `name` attribute of the file upload field, and of course `/path/to/the/upload/dir` needs to be writable.
 Other parameters can also be defined to limit the size of the uploaded files or retrict their extensions or mime types.
 
 ### Data export (currently disabled)

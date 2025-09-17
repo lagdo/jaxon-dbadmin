@@ -30,6 +30,7 @@ jaxon.dbadmin = (function() {
     };
 
     const editor = {
+        ace: null,
         page: '',
         fontSize: '13px',
         modes: {
@@ -76,7 +77,15 @@ jaxon.dbadmin = (function() {
         return selectedText ? selectedText : editor.ace.getValue();
     };
 
-    const saveSqlEditorContent = () => editor.container.save();
+    // Set the SQL query value and reset the undo history.
+    const setSqlQuery = (query) => editor.ace.session.setValue(query);
+
+    const getCommandQuery = (commandId) => $(`#dbadmin-history-command-${commandId}`).text();
+
+    const history = {
+        editSqlQuery: (commandId) => setSqlQuery(getCommandQuery(commandId)),
+        insertSqlQuery: (commandId) => editor.ace.insert(getCommandQuery(commandId)),
+    };
 
     return {
         countTableCheckboxes,
@@ -86,6 +95,7 @@ jaxon.dbadmin = (function() {
         createSqlQueryEditor,
         createSqlSelectEditor,
         getSqlQuery,
-        saveSqlEditorContent,
+        setSqlQuery,
+        history,
     };
 })();

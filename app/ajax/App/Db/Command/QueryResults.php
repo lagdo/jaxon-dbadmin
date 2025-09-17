@@ -62,5 +62,6 @@ class QueryResults extends Component
 
         $this->stash()->set('select.duration', $results['duration']);
         $this->cl(Duration::class)->render();
+        $this->cl(QueryHistory::class)->render();
     }
 }

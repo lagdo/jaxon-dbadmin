@@ -42,6 +42,11 @@ class LoggingService
     private bool $historyEnabled;
 
     /**
+     * @var bool
+     */
+    private bool $historyDistinct;
+
+    /**
      * @var int
      */
     private int $historyLimit;
@@ -77,6 +82,7 @@ class LoggingService
         $this->connection->open($database['name'], $database['schema'] ?? '');
         $this->enduserEnabled = (bool)($options['enduser']['enabled'] ?? false);
         $this->historyEnabled = (bool)($options['history']['enabled'] ?? false);
+        $this->historyDistinct = (bool)($options['history']['distinct'] ?? false);
         $this->historyLimit = (int)($options['history']['limit'] ?? 15);
         $this->category = self::CAT_ENDUSER;
     }
@@ -212,9 +218,13 @@ class LoggingService
         }
 
         $ownerId = $this->getOwnerId();
-        $statement = "select max(id) as id,query from dbadmin_runned_commands c " .
-            "where c.owner_id=$ownerId and c.category=$category " .
-            "group by query order by c.last_update desc limit {$this->historyLimit}";
+        $statement = $this->historyDistinct ?
+            "select max(id) as id,query from dbadmin_runned_commands c " .
+                "where c.owner_id=$ownerId and c.category=$category " .
+                "group by query order by c.last_update desc limit {$this->historyLimit}" :
+            "select id,query from dbadmin_runned_commands c " .
+                "where c.owner_id=$ownerId and c.category=$category " .
+                "order by c.last_update desc limit {$this->historyLimit}";
         $statement = $this->connection->query($statement);
         if ($statement !== false) {
             $commands = [];
@@ -235,6 +245,6 @@ class LoggingService
      */
     public function getHistoryCommands(): array
     {
-        return $this->getCommands(self::CAT_HISTORY);
+        return !$this->historyEnabled ? [] : $this->getCommands(self::CAT_HISTORY);
     }
 }

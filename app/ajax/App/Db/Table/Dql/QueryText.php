@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
 use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Ui\Table\SelectUiBuilder;
 
@@ -21,10 +22,11 @@ class QueryText extends Component
      * The constructor
      *
      * @param DbFacade      $db         The facade to database functions
+     * @param Utils         $utils
      * @param Package       $package    The DbAdmin package
      * @param SelectUiBuilder $selectUi The HTML UI builder
      */
-    public function __construct(protected DbFacade $db,
+    public function __construct(protected DbFacade $db, protected Utils $utils,
         protected Package $package, protected SelectUiBuilder $selectUi)
     {}
 
@@ -38,7 +40,7 @@ class QueryText extends Component
      */
     public function html(): string
     {
-        $query = $this->db()->utils()->html($this->stash()->get('select.query'));
+        $query = $this->utils->html($this->stash()->get('select.query'));
         $query = html_entity_decode($query, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         return $this->selectUi->queryText($this->txtQueryId, $query);
     }

@@ -23,6 +23,11 @@ trait QueryTrait
     private $query = '';
 
     /**
+     * @var string
+     */
+    private $queryId = 'dbadmin-main-command-query';
+
+    /**
      * @return string
      */
     public function html(): string
@@ -32,11 +37,8 @@ trait QueryTrait
 
         $this->db()->prepareCommand();
 
-        // Set main menu buttons
-        $this->cl(PageActions::class)->clear();
-
         $defaultLimit = 20;
-        return $this->queryUi->command($this->query, $defaultLimit, $this->rq());
+        return $this->queryUi->command($this->queryId, $this->rq(), $defaultLimit);
     }
 
     /**
@@ -46,12 +48,18 @@ trait QueryTrait
      */
     protected function after(): void
     {
-        $queryId = 'dbadmin-main-command-query';
+        // Set main menu buttons
+        $this->cl(PageActions::class)->clear();
+
         [$server,] = $this->bag('dbadmin')->get('db');
         $driver = $this->package->getServerDriver($server);
-        $this->response->jo('jaxon.dbadmin')->createSqlQueryEditor($queryId, $driver);
+        $this->response->jo('jaxon.dbadmin')->createSqlQueryEditor($this->queryId, $driver);
+        if($this->query !== '')
+        {
+            $this->response->jo('jaxon.dbadmin')->setSqlQuery($this->query);
+        }
 
-        // $this->response->jq("#$btnId")->click(jo("jaxon.dbadmin")->saveSqlEditorContent());
+        $this->cl(QueryHistory::class)->render();
     }
 
     /**
@@ -64,7 +72,6 @@ trait QueryTrait
      */
     public function exec(string $query, array $values): void
     {
-        // This will set the breadcrumbs.
         $this->db()->prepareCommand();
 
         $values['query'] = $query;

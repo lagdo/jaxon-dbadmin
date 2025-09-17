@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ui\Command;
 
 use Jaxon\Script\Call\JxnCall;
+use Lagdo\DbAdmin\Ajax\App\Db\Command\QueryHistory;
 use Lagdo\DbAdmin\Ajax\App\Db\Command\QueryResults;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Translator;
@@ -11,6 +12,7 @@ use Lagdo\UiBuilder\BuilderInterface;
 use function count;
 use function Jaxon\je;
 use function Jaxon\jo;
+use function Jaxon\jq;
 use function Jaxon\rq;
 
 class QueryUiBuilder
@@ -31,6 +33,7 @@ class QueryUiBuilder
     private function actions(int $defaultLimit, JxnCall $rqQuery): mixed
     {
         $formId = 'dbadmin-main-command-form';
+        $sqlQuery = jo('jaxon.dbadmin')->getSqlQuery();
 
         return $this->ui->form(
             $this->ui->formRow(
@@ -73,7 +76,7 @@ class QueryUiBuilder
                                     $this->ui->text($this->trans->lang('Execute'))
                                 )
                                 ->fullWidth()->primary()
-                                ->jxnClick($rqQuery->exec(jo('jaxon.dbadmin')->getSqlQuery(), je($formId)->rd()->form())/*->when(je($queryId)->rd()->input())*/)
+                                ->jxnClick($rqQuery->exec($sqlQuery, je($formId)->rd()->form()))
                         )
                         ->width(8),
                         $this->ui->formCol()
@@ -87,16 +90,14 @@ class QueryUiBuilder
     }
 
     /**
-     * @param string $query
-     * @param int $defaultLimit
+     * @param string $queryId
      * @param JxnCall $rqQuery
+     * @param int $defaultLimit
      *
      * @return string
      */
-    public function command(string $query, int $defaultLimit, JxnCall $rqQuery): string
+    public function command(string $queryId, JxnCall $rqQuery, int $defaultLimit): string
     {
-        $queryId = 'dbadmin-main-command-query';
-
         return $this->ui->build(
             $this->ui->col()->width(12)->setId('dbadmin-command-details'),
             $this->ui->col(
@@ -104,8 +105,7 @@ class QueryUiBuilder
                     $this->ui->col(
                         $this->ui->panel(
                             $this->ui->panelBody(
-                                $this->ui->div($this->ui->html($query))
-                                    ->setId($queryId)
+                                $this->ui->div()->setId($queryId)
                             )
                             ->setClass('sql-command-editor-panel')
                             ->setStyle('padding: 0 1px;')
@@ -122,10 +122,10 @@ class QueryUiBuilder
                 ->width(12),
             $this->ui->col()
                 ->width(12)
-                ->setId('dbadmin-command-history'),
+                ->jxnBind(rq(QueryResults::class)),
             $this->ui->col()
                 ->width(12)
-                ->jxnBind(rq(QueryResults::class))
+                ->jxnBind(rq(QueryHistory::class))
         );
     }
 
@@ -181,7 +181,7 @@ class QueryUiBuilder
                                             )
                                         )
                                     )
-                                ),
+                                )
                             )
                             ->responsive(true)
                             ->style('bordered')->setStyle('margin-top:2px')
@@ -190,6 +190,55 @@ class QueryUiBuilder
                     ->width(12)
                 )
             )
+        );
+    }
+
+    /**
+     * @param array $commands
+     *
+     * @return string
+     */
+    public function history(array $commands): string
+    {
+        if (count($commands) === 0) {
+            return '';
+        }
+
+        $commandId = jq()->attr('data-command-id');
+        $btnEditHandler = jo('jaxon.dbadmin.history')->editSqlQuery($commandId);
+        $btnInsertHandler = jo('jaxon.dbadmin.history')->insertSqlQuery($commandId);
+        return $this->ui->build(
+            $this->ui->panel(
+                $this->ui->panelHeader($this->trans->lang('History')),
+                $this->ui->panelBody(
+                    $this->ui->each($commands, fn($query, $id) =>
+                        $this->ui->row(
+                            $this->ui->col($query)
+                                ->setId("dbadmin-history-command-$id")
+                                ->width(11),
+                            $this->ui->col(
+                                $this->ui->buttonGroup(
+                                    $this->ui->button($this->trans->lang('Edit'))
+                                        ->primary()
+                                        ->setClass('dbadmin-history-query-edit')
+                                        ->setDataCommandId($id),
+                                    $this->ui->dropdownItem()->style('primary'),
+                                    $this->ui->dropdownMenu(
+                                        $this->ui->dropdownMenuItem($this->trans->lang('Insert'))
+                                            ->setDataCommandId($id)
+                                            ->setClass('dbadmin-history-query-insert')
+                                    )
+                                )
+                            )->width(1)
+                        )
+                    )
+                )
+                ->setStyle('padding:5px 15px')
+                ->jxnEvent([
+                    ['.dbadmin-history-query-edit', 'click', $btnEditHandler],
+                    ['.dbadmin-history-query-insert', 'click', $btnInsertHandler],
+                ])
+            ),
         );
     }
 }
