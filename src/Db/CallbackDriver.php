@@ -46,8 +46,7 @@ class CallbackDriver extends Driver
      */
     public function createConnection(array $options)
     {
-        $this->connection = $this->driver->createConnection($options);
-        return $this->connection;
+        return $this->driver->createConnection($options);
     }
 
     /**

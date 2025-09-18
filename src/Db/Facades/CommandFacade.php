@@ -13,6 +13,7 @@ use function function_exists;
 use function ini_set;
 use function max;
 use function memory_get_usage;
+use function preg_match;
 use function strlen;
 
 /**
@@ -56,12 +57,13 @@ class CommandFacade extends AbstractFacade
      *
      * @return void
      */
-    private function createConnection()
+    private function openSecondConnection()
     {
         // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
         //! PDO - silent error
+        // TODO: use this connection to execute EXPLAIN queries.
         if ($this->connection === null && $this->driver->database() !== '') {
-            $this->connection = $this->driver ->newConnection(
+            $this->connection = $this->driver->connectToDatabase(
                 $this->driver->database(), $this->driver->schema());
         }
     }
@@ -180,8 +182,11 @@ class CommandFacade extends AbstractFacade
         }
         $this->timer->start();
         //! Don't allow changing of character_set_results, convert encoding of displayed query
-        if ($this->driver->multiQuery($queryEntity->query)) {
-            $this->driver->execUseQuery($queryEntity->query);
+        $space = $this->utils->str->spaceRegex();
+        $succeeded = $this->driver->multiQuery($queryEntity->query);
+        if ($succeeded && $this->connection !== null &&
+            preg_match("~^$space*+USE\\b~i", $queryEntity->query)) {
+            $this->connection->query($queryEntity->query);
         }
         $this->duration += $this->timer->duration();
 
@@ -191,8 +196,8 @@ class CommandFacade extends AbstractFacade
             $messages = [];
             $statement = $this->driver->storedResult();
 
-            if ($this->connection->hasError()) {
-                $errors[] = $this->connection->errorMessage();
+            if ($this->driver->connection()->hasError()) {
+                $errors[] = $this->driver->connection()->errorMessage();
             } elseif (!$queryEntity->onlyErrors) {
                 [$select, $messages] = $this->select($statement, $queryEntity->limit);
             }
@@ -200,7 +205,7 @@ class CommandFacade extends AbstractFacade
             $result = compact('errors', 'messages', 'select');
             $result['query'] = $queryEntity->query;
             $this->results[] = $result;
-            if ($this->connection->hasError() && $queryEntity->errorStops) {
+            if ($this->driver->connection()->hasError() && $queryEntity->errorStops) {
                 return false;
             }
         } while ($this->driver->nextResult());
@@ -232,7 +237,7 @@ class CommandFacade extends AbstractFacade
         }
 
         // The second connection must be created before executing the queries.
-        $this->createConnection();
+        $this->openSecondConnection();
 
         $this->results = [];
         $this->duration = 0;
