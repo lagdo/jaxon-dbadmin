@@ -4,8 +4,8 @@ namespace Lagdo\DbAdmin\Ajax;
 
 use Jaxon\App\View\Store;
 use Lagdo\DbAdmin\Ajax\App\Page\Breadcrumbs;
+use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
-use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 use Exception;
@@ -18,9 +18,9 @@ use Exception;
 trait ComponentTrait
 {
     /**
-     * @var Package
+     * @var DbAdminPackage
      */
-    protected Package $package;
+    protected DbAdminPackage $package;
 
     /**
      * @var DbFacade
@@ -38,9 +38,9 @@ trait ComponentTrait
     protected Translator $trans;
 
     /**
-     * @return Package
+     * @return DbAdminPackage
      */
-    protected function package(): Package
+    protected function package(): DbAdminPackage
     {
         return $this->package;
     }

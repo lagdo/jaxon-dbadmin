@@ -52,7 +52,7 @@ See the corresponding database driver package for specific database server optio
         // Other config options
         // ...
         'packages' => [
-            Lagdo\DbAdmin\Package::class => [
+            Lagdo\DbAdmin\DbAdminPackage::class => [
                 'servers' => [
                     // The database servers
                     'pgsql_server' => [ // A unique identifier for this server
@@ -111,7 +111,7 @@ The `default` option sets a database server `Jaxon DbAdmin` must connect to when
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\Package::class => [
+            Lagdo\DbAdmin\DbAdminPackage::class => [
                 'servers' => [
                     // The database servers
                 ],
@@ -131,7 +131,7 @@ The `access.server` option can also be set at a server level, and in this case i
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\Package::class => [
+            Lagdo\DbAdmin\DbAdminPackage::class => [
                 'servers' => [
                     // The database servers
                     'server_id' => [
@@ -159,7 +159,7 @@ The `access.schemas` option will apply only on servers which provide that featur
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\Package::class => [
+            Lagdo\DbAdmin\DbAdminPackage::class => [
                 'servers' => [
                     // The database servers
                     'server_id' => [
@@ -213,7 +213,7 @@ $dbAdminOptionsGetter = function(array $config) {
         // Other config options
         // ...
         'packages' => [
-            Lagdo\DbAdmin\Package::class => [
+            Lagdo\DbAdmin\DbAdminPackage::class => [
                 // A callable that return the access options.
                 'provider' => $dbAdminOptionsGetter,
                 'servers' => [],
@@ -237,7 +237,7 @@ The required options are provided under the `logging` key.
         // Other config options
         // ...
         'packages' => [
-            Lagdo\DbAdmin\Package::class => [
+            Lagdo\DbAdmin\DbAdminPackage::class => [
                 // ...
                 'logging' => [
                     'options' => [
@@ -301,7 +301,7 @@ A directory where the exported files are going to be saved must then be defined 
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\Package::class => [
+            Lagdo\DbAdmin\DbAdminPackage::class => [
                 'servers' => [
                     // The database servers
                 ],

@@ -7,8 +7,8 @@ use Lagdo\DbAdmin\Ajax\App\Db\Database\Views;
 use Lagdo\DbAdmin\Ajax\App\Db\View\Dql\Select;
 use Lagdo\DbAdmin\Ajax\App\Page\Content;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
+use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
-use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\Table\ViewUiBuilder;
 
@@ -32,12 +32,12 @@ class Form extends Component
     /**
      * The constructor
      *
-     * @param Package       $package    The DbAdmin package
-     * @param DbFacade      $db         The facade to database functions
-     * @param ViewUiBuilder $viewUi     The HTML UI builder
-     * @param Translator    $trans
+     * @param DbAdminPackage $package    The DbAdmin package
+     * @param DbFacade       $db         The facade to database functions
+     * @param ViewUiBuilder  $viewUi     The HTML UI builder
+     * @param Translator     $trans
      */
-    public function __construct(protected Package $package, protected DbFacade $db,
+    public function __construct(protected DbAdminPackage $package, protected DbFacade $db,
         protected ViewUiBuilder $viewUi, protected Translator $trans)
     {}
 

@@ -4,9 +4,9 @@ namespace Lagdo\DbAdmin\Db;
 
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Admin\Admin;
+use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\Facades\AbstractFacade;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
-use Lagdo\DbAdmin\Package;
 
 /**
  * Facade to calls to the database functions
@@ -51,10 +51,10 @@ class DbFacade extends AbstractFacade
      *
      * @param Container $di
      * @param Utils $utils
-     * @param Package $package
+     * @param DbAdminPackage $package
      */
     public function __construct(protected Container $di, protected Utils $utils,
-        protected Package $package)
+        protected DbAdminPackage $package)
     {
         // Make the translator available into views
         $this->package->view()->share('trans', $utils->trans);

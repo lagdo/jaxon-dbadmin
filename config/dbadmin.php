@@ -123,7 +123,7 @@ return [
             },
             // Query logging
             Command\LoggingService::class => function($di) {
-                $package = $di->g(Lagdo\DbAdmin\Package::class);
+                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
                 $options = $package->getOption('logging.options');
                 $database = $package->getOption('logging.database');
                 $driverId = 'dbadmin_driver_' . ($database['driver'] ?? '');
@@ -131,10 +131,11 @@ return [
                     return null;
                 }
 
+                $reader = $di->g(Config\UserFileReader::class);
                 $auth = $di->g(Config\AuthInterface::class);
                 $db = $di->g(Db\DbFacade::class);
-                return new Command\LoggingService($auth, $db,
-                    $di->g($driverId), $database, $options);
+                return new Command\LoggingService($auth, $db, $di->g($driverId),
+                    $reader->getServerOptions($database), $options);
             },
         ],
         'auto' => [

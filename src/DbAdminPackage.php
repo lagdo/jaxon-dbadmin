@@ -12,7 +12,7 @@ use function Jaxon\rq;
 /**
  * Jaxon DbAdmin package
  */
-class Package extends AbstractPackage
+class DbAdminPackage extends AbstractPackage
 {
     /**
      * Get the path to the config file
@@ -21,7 +21,7 @@ class Package extends AbstractPackage
      */
     public static function config(): string
     {
-        return realpath(__DIR__ . '/../config/config.php');
+        return realpath(__DIR__ . '/../config/dbadmin.php');
     }
 
     /**

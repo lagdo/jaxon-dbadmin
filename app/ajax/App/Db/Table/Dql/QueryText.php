@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
+use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
-use Lagdo\DbAdmin\Package;
 use Lagdo\DbAdmin\Ui\Table\SelectUiBuilder;
 
 use function html_entity_decode;
@@ -21,13 +21,13 @@ class QueryText extends Component
     /**
      * The constructor
      *
-     * @param DbFacade      $db         The facade to database functions
-     * @param Utils         $utils
-     * @param Package       $package    The DbAdmin package
+     * @param DbFacade        $db         The facade to database functions
+     * @param Utils           $utils
+     * @param DbAdminPackage  $package    The DbAdmin package
      * @param SelectUiBuilder $selectUi The HTML UI builder
      */
     public function __construct(protected DbFacade $db, protected Utils $utils,
-        protected Package $package, protected SelectUiBuilder $selectUi)
+        protected DbAdminPackage $package, protected SelectUiBuilder $selectUi)
     {}
 
     /**

@@ -3,9 +3,9 @@
 namespace Lagdo\DbAdmin\Db\Facades;
 
 use Lagdo\DbAdmin\Admin\Admin;
+use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\CallbackDriver;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
-use Lagdo\DbAdmin\Package;
 
 /**
  * Common attributes for all facades
@@ -30,9 +30,9 @@ class AbstractFacade
     /**
      * The Jaxon DbAdmin package
      *
-     * @var Package
+     * @var DbAdminPackage
      */
-    protected Package $package;
+    protected DbAdminPackage $package;
 
     /**
      * Initialize the facade

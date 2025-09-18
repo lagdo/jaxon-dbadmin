@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Tests;
 
-use Lagdo\DbAdmin\Package;
+use Lagdo\DbAdmin\DbAdminPackage;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -14,7 +14,7 @@ final class ServerTest extends TestCase
     /**
      * The Jaxon DbAdmin package
      *
-     * @var Package
+     * @var DbAdminPackage
      */
     protected $package;
 
