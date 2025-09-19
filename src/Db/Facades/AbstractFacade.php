@@ -3,8 +3,8 @@
 namespace Lagdo\DbAdmin\Db\Facades;
 
 use Lagdo\DbAdmin\Admin\Admin;
-use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\CallbackDriver;
+use Lagdo\DbAdmin\Driver\Utils\ConfigInterface;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 /**
@@ -28,11 +28,9 @@ class AbstractFacade
     protected Utils $utils;
 
     /**
-     * The Jaxon DbAdmin package
-     *
-     * @var DbAdminPackage
+     * @var ConfigInterface
      */
-    protected DbAdminPackage $package;
+    protected ConfigInterface $config;
 
     /**
      * Initialize the facade
@@ -44,6 +42,6 @@ class AbstractFacade
         $this->driver = $dbFacade->driver;
         $this->admin = $dbFacade->admin;
         $this->utils = $dbFacade->utils;
-        $this->package = $dbFacade->package;
+        $this->config = $dbFacade->config;
     }
 }

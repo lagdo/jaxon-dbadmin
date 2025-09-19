@@ -58,10 +58,30 @@ return [
     ],
     'container' => [
         'set' => [
+            // Selected database config
+            Driver\Utils\ConfigInterface::class => function() {
+                return new class implements Driver\Utils\ConfigInterface {
+                    public function driver(): string
+                    {
+                        $di = jaxon()->di();
+                        $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                        $server = $di->g('dbadmin_config_server');
+                        return $package->getServerDriver($server);
+                    }
+                    public function options(): array
+                    {
+                        $di = jaxon()->di();
+                        $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                        $server = $di->g('dbadmin_config_server');
+                        return $package->getServerOptions($server);
+                    }
+                };
+            },
             // Selected database driver
             Driver\DriverInterface::class => function($di) {
+                $driver = $di->g(Driver\Utils\ConfigInterface::class)->driver();
                 // The key below is defined by the corresponding plugin package.
-                return $di->g('dbadmin_driver_' . $di->g('dbadmin_config_driver'));
+                return $di->g("dbadmin_driver_$driver");
             },
             // The database driver used in the application
             Db\CallbackDriver::class => function($di) {
