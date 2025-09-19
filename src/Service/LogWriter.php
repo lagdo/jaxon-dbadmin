@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Command;
+namespace Lagdo\DbAdmin\Service;
 
 use Lagdo\DbAdmin\Config\AuthInterface;
 use Lagdo\Facades\Logger;
@@ -24,12 +24,12 @@ class LogWriter
     /**
      * @var int
      */
-    private const CAT_ENDUSER = 2;
+    private const CAT_BUILDER = 2;
 
     /**
      * @var int
      */
-    private const CAT_HISTORY = 3;
+    private const CAT_EDITOR = 3;
 
     /**
      * @var bool
@@ -82,7 +82,7 @@ class LogWriter
         $this->historyEnabled = (bool)($options['history']['enabled'] ?? false);
         $this->historyDistinct = (bool)($options['history']['distinct'] ?? false);
         $this->historyLimit = (int)($options['history']['limit'] ?? 15);
-        $this->category = self::CAT_ENDUSER;
+        $this->category = self::CAT_BUILDER;
         if (!$this->enduserEnabled && !$this->historyEnabled) {
             return;
         }
@@ -96,7 +96,7 @@ class LogWriter
      */
     public function setCategoryToHistory(): void
     {
-        $this->category = self::CAT_HISTORY;
+        $this->category = self::CAT_EDITOR;
     }
 
     /**
@@ -157,8 +157,8 @@ class LogWriter
      */
     private function categoryDisabled(int $category): bool
     {
-        return (!$this->enduserEnabled && $category === self::CAT_ENDUSER) ||
-            ($category < self::CAT_ENDUSER || $category > self::CAT_HISTORY);
+        return (!$this->enduserEnabled && $category === self::CAT_BUILDER) ||
+            ($category < self::CAT_BUILDER || $category > self::CAT_EDITOR);
     }
 
     /**
@@ -205,7 +205,7 @@ class LogWriter
     {
         $category = $this->category;
         // Reset to the default category.
-        $this->category = self::CAT_ENDUSER;
+        $this->category = self::CAT_BUILDER;
         return $this->enduserDisabled() ? false :
             $this->saveRunnedCommand($query, $category);
     }
@@ -250,6 +250,6 @@ class LogWriter
      */
     public function getHistoryCommands(): array
     {
-        return !$this->historyEnabled ? [] : $this->getCommands(self::CAT_HISTORY);
+        return !$this->historyEnabled ? [] : $this->getCommands(self::CAT_EDITOR);
     }
 }

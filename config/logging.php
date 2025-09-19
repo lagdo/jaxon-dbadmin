@@ -9,28 +9,26 @@ use Lagdo\DbAdmin\Ui;
 
 use function Jaxon\jaxon;
 
-function getAuth($di): Config\AuthInterface
+function getAuth(): Config\AuthInterface
 {
-    return $di->h(Config\AuthInterface::class) ?
-        $di->g(Config\AuthInterface::class) :
-        new class implements Config\AuthInterface {
-            public function user(): string
-            {
-                return '';
-            }
-            public function role(): string
-            {
-                return '';
-            }
-        };
+    return new class implements Config\AuthInterface {
+        public function user(): string
+        {
+            return '';
+        }
+        public function role(): string
+        {
+            return '';
+        }
+    };
 }
 
 return [
     'metadata' => 'annotations',
     'directories' => [
         [
-            'path' => __DIR__ . '/../app/ajax/App',
-            'namespace' => 'Lagdo\\DbAdmin\\Ajax\\App',
+            'path' => __DIR__ . '/../app/ajax/Log',
+            'namespace' => 'Lagdo\\DbAdmin\\Ajax\\Log',
             'autoload' => false,
         ],
     ],
@@ -64,16 +62,14 @@ return [
                     public function driver(): string
                     {
                         $di = jaxon()->di();
-                        $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
-                        $server = $di->g('dbadmin_config_server');
-                        return $package->getServerDriver($server);
+                        $package = $di->g(Lagdo\DbAdmin\LoggingPackage::class);
+                        return $package->getServerDriver();
                     }
                     public function options(): array
                     {
                         $di = jaxon()->di();
-                        $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
-                        $server = $di->g('dbadmin_config_server');
-                        return $package->getServerOptions($server);
+                        $package = $di->g(Lagdo\DbAdmin\LoggingPackage::class);
+                        return $package->getServerOptions();
                     }
                 };
             },
@@ -82,19 +78,6 @@ return [
                 $driver = $di->g(Driver\Utils\ConfigInterface::class)->driver();
                 // The key below is defined by the corresponding plugin package.
                 return $di->g("dbadmin_driver_$driver");
-            },
-            // The database driver used in the application
-            Db\CallbackDriver::class => function($di) {
-                // This class will "clone" the selected driver, and define the callbacks.
-                // By doing this, the driver classes will call the driver without the callbacks.
-                $driver = new Db\CallbackDriver($di->g(Driver\DriverInterface::class));
-                $timer = $di->g(Service\TimerService::class);
-                $driver->addQueryCallback(fn() => $timer->stop());
-                $logger = $di->g(Service\LogWriter::class);
-                if ($logger !== null) {
-                    $driver->addQueryCallback(fn(string $query) => $logger->saveCommand($query));
-                }
-                return $driver;
             },
             // Facades to the DB driver features
             Db\Facades\CommandFacade::class => function($di) {
@@ -142,24 +125,23 @@ return [
                 $dbFacade = $di->g(Db\DbFacade::class);
                 return new Db\Facades\ViewFacade($dbFacade);
             },
-            Config\UserFileReader::class => function($di) {
-                return new Config\UserFileReader(getAuth($di));
+            Config\UserFileReader::class => function() {
+                return new Config\UserFileReader(getAuth());
             },
-            // Query logger
-            Service\LogWriter::class => function($di) {
-                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
-                $options = $package->getOption('logging.options');
-                $database = $package->getOption('logging.database');
+            // Query logging
+            Service\LogReader::class => function($di) {
+                $package = $di->g(Lagdo\DbAdmin\LoggingPackage::class);
+                $database = $package->getOption('database');
                 $driverId = 'dbadmin_driver_' . ($database['driver'] ?? '');
-                if (!$di->h($driverId) || !$di->h(Config\AuthInterface::class) ||
-                    !is_array($options) || !is_array($database)) {
+                if (!$di->h($driverId) || !is_array($database)) {
                     return null;
                 }
 
                 $reader = $di->g(Config\UserFileReader::class);
-                $database = $reader->getServerOptions($database);
-                return new Service\LogWriter(getAuth($di), $di->g(Db\DbFacade::class),
-                    $di->g($driverId), $database, $options);
+                $db = $di->g(Db\DbFacade::class);
+                $limit = 15;
+                return new Service\LogReader($db, $di->g($driverId),
+                    $limit, $reader->getServerOptions($database));
             },
         ],
         'auto' => [
@@ -181,13 +163,7 @@ return [
             Ui\UiBuilder::class,
             Ui\InputBuilder::class,
             Ui\MenuBuilder::class,
-            Ui\Database\ServerUiBuilder::class,
-            Ui\Command\QueryUiBuilder::class,
-            Ui\Command\ImportUiBuilder::class,
-            Ui\Command\ExportUiBuilder::class,
-            Ui\Table\SelectUiBuilder::class,
-            Ui\Table\TableUiBuilder::class,
-            Ui\Table\ViewUiBuilder::class,
+            Ui\Log\LogUiBuilder::class,
         ],
         'alias' => [
             // The translator

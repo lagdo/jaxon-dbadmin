@@ -2,10 +2,10 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
-use Lagdo\DbAdmin\Command\LogWriter;
-use Lagdo\DbAdmin\Command\TimerService;
 use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 use Lagdo\DbAdmin\Driver\Entity\QueryEntity;
+use Lagdo\DbAdmin\Service\LogWriter;
+use Lagdo\DbAdmin\Service\TimerService;
 
 use function compact;
 use function count;

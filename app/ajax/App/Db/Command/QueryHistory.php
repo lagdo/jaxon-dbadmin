@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
 
 use Lagdo\DbAdmin\Ajax\Component;
-use Lagdo\DbAdmin\Command\LogWriter;
+use Lagdo\DbAdmin\Service\LogWriter;
 use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 
 class QueryHistory extends Component

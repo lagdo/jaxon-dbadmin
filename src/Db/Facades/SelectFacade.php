@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
-use Lagdo\DbAdmin\Command\TimerService;
+use Lagdo\DbAdmin\Service\TimerService;
 use Lagdo\DbAdmin\Db\Facades\Select\SelectEntity;
 use Lagdo\DbAdmin\Db\Facades\Select\SelectQuery;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
