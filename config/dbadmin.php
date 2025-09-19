@@ -9,6 +9,22 @@ use Lagdo\DbAdmin\Ui;
 
 use function Jaxon\jaxon;
 
+function getAuth($di): Config\AuthInterface
+{
+    return $di->h(Config\AuthInterface::class) ?
+        $di->g(Config\AuthInterface::class) :
+        new class implements Config\AuthInterface {
+            public function user(): string
+            {
+                return '';
+            }
+            public function role(): string
+            {
+                return '';
+            }
+        };
+}
+
 return [
     'metadata' => 'annotations',
     'directories' => [
@@ -54,9 +70,9 @@ return [
                 $driver = new Db\CallbackDriver($di->g(Driver\DriverInterface::class));
                 $timer = $di->g(Command\TimerService::class);
                 $driver->addQueryCallback(fn() => $timer->stop());
-                $logging = $di->g(Command\LoggingService::class);
-                if ($logging !== null) {
-                    $driver->addQueryCallback(fn(string $query) => $logging->saveCommand($query));
+                $logger = $di->g(Command\LogWriter::class);
+                if ($logger !== null) {
+                    $driver->addQueryCallback(fn(string $query) => $logger->saveCommand($query));
                 }
                 return $driver;
             },
@@ -64,8 +80,8 @@ return [
             Db\Facades\CommandFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
                 $timer = $di->g(Command\TimerService::class);
-                $logging = $di->g(Command\LoggingService::class);
-                return new Db\Facades\CommandFacade($dbFacade, $timer, $logging);
+                $logger = $di->g(Command\LogWriter::class);
+                return new Db\Facades\CommandFacade($dbFacade, $timer, $logger);
             },
             Db\Facades\DatabaseFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
@@ -78,8 +94,8 @@ return [
             Db\Facades\ImportFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
                 $timer = $di->g(Command\TimerService::class);
-                $logging = $di->g(Command\LoggingService::class);
-                return new Db\Facades\ImportFacade($dbFacade, $timer, $logging);
+                $logger = $di->g(Command\LogWriter::class);
+                return new Db\Facades\ImportFacade($dbFacade, $timer, $logger);
             },
             Db\Facades\QueryFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
@@ -106,36 +122,24 @@ return [
                 $dbFacade = $di->g(Db\DbFacade::class);
                 return new Db\Facades\ViewFacade($dbFacade);
             },
-            Config\AuthInterface::class => fn() =>
-                new class implements Config\AuthInterface {
-                    public function user(): string
-                    {
-                        return '';
-                    }
-                    public function role(): string
-                    {
-                        return '';
-                    }
-                },
             Config\UserFileReader::class => function($di) {
-                $auth = $di->get(Config\AuthInterface::class);
-                return new Config\UserFileReader($auth);
+                return new Config\UserFileReader(getAuth($di));
             },
-            // Query logging
-            Command\LoggingService::class => function($di) {
+            // Query logger
+            Command\LogWriter::class => function($di) {
                 $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
                 $options = $package->getOption('logging.options');
                 $database = $package->getOption('logging.database');
                 $driverId = 'dbadmin_driver_' . ($database['driver'] ?? '');
-                if (!$di->h($driverId) || !is_array($options) || !is_array($database)) {
+                if (!$di->h($driverId) || !$di->h(Config\AuthInterface::class) ||
+                    !is_array($options) || !is_array($database)) {
                     return null;
                 }
 
                 $reader = $di->g(Config\UserFileReader::class);
-                $auth = $di->g(Config\AuthInterface::class);
-                $db = $di->g(Db\DbFacade::class);
-                return new Command\LoggingService($auth, $db, $di->g($driverId),
-                    $reader->getServerOptions($database), $options);
+                $database = $reader->getServerOptions($database);
+                return new Command\LogWriter(getAuth($di), $di->g(Db\DbFacade::class),
+                    $di->g($driverId), $database, $options);
             },
         ],
         'auto' => [

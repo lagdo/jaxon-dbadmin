@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
-use Lagdo\DbAdmin\Command\LoggingService;
+use Lagdo\DbAdmin\Command\LogWriter;
 use Lagdo\DbAdmin\Command\TimerService;
 use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 use Lagdo\DbAdmin\Driver\Entity\QueryEntity;
@@ -44,10 +44,10 @@ class CommandFacade extends AbstractFacade
      *
      * @param AbstractFacade $dbFacade
      * @param TimerService $timer
-     * @param LoggingService|null $logging
+     * @param LogWriter|null $queryLogger
      */
     public function __construct(AbstractFacade $dbFacade,
-        protected TimerService $timer, protected LoggingService|null $logging)
+        protected TimerService $timer, protected LogWriter|null $queryLogger)
     {
         parent::__construct($dbFacade);
     }
@@ -177,8 +177,8 @@ class CommandFacade extends AbstractFacade
      */
     private function executeCommand(QueryEntity $queryEntity): bool
     {
-        if ($this->logging !== null) {
-            $this->logging->setCategoryToHistory();
+        if ($this->queryLogger !== null) {
+            $this->queryLogger->setCategoryToHistory();
         }
         $this->timer->start();
         //! Don't allow changing of character_set_results, convert encoding of displayed query

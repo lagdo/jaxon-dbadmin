@@ -154,19 +154,13 @@ class UserFileReader
      *
      * @return array
      */
-    private function getSqliteOptions(array $server): array
+    public function getServerOptions(array $server): array
     {
-        $server['directory'] = $this->getOptionValue($server['directory']);
-        return $server;
-    }
+        if ($server['driver'] === 'sqlite') {
+            $server['directory'] = $this->getOptionValue($server['directory']);
+            return $server;
+        }
 
-    /**
-     * @param array $server
-     *
-     * @return array
-     */
-    private function getServerOptions(array $server): array
-    {
         $server['host'] = $this->getOptionValue($server['host']);
         $server['username'] = $this->getOptionValue($server['username']);
         $server['password'] = $this->getOptionValue($server['password']);
@@ -188,8 +182,7 @@ class UserFileReader
         // Callback to filter the servers list on valid entries.
         $check = fn(array $server) => $this->checkServer($server);
         // Callback to get the server options final values.
-        $convert = fn(array $server) => $server['driver'] === 'sqlite' ?
-            $this->getSqliteOptions($server) : $this->getServerOptions($server);
+        $convert = fn(array $server) => $this->getServerOptions($server);
         $values['servers'] = array_map($convert,
             array_filter($values['servers'] ?? [], $check));
 

@@ -14,7 +14,7 @@ use function json_encode;
 /**
  * SQL queries logging and storage.
  */
-class LoggingService
+class LogWriter
 {
     /**
      * @var int
@@ -76,15 +76,19 @@ class LoggingService
      * @param array $options
      */
     public function __construct(private AuthInterface $auth, private DbFacade $db,
-        DriverInterface $driver, array $database, array $options)
+        private DriverInterface $driver, array $database, array $options)
     {
-        $this->connection = $driver->createConnection($database);
-        $this->connection->open($database['name'], $database['schema'] ?? '');
         $this->enduserEnabled = (bool)($options['enduser']['enabled'] ?? false);
         $this->historyEnabled = (bool)($options['history']['enabled'] ?? false);
         $this->historyDistinct = (bool)($options['history']['distinct'] ?? false);
         $this->historyLimit = (int)($options['history']['limit'] ?? 15);
         $this->category = self::CAT_ENDUSER;
+        if (!$this->enduserEnabled && !$this->historyEnabled) {
+            return;
+        }
+        // Connecto to the logging database.
+        $this->connection = $driver->createConnection($database);
+        $this->connection->open($database['name'], $database['schema'] ?? '');
     }
 
     /**
@@ -218,18 +222,19 @@ class LoggingService
         }
 
         $ownerId = $this->getOwnerId();
-        $statement = $this->historyDistinct ?
-            "select max(id) as id,query from dbadmin_runned_commands c " .
-                "where c.owner_id=$ownerId and c.category=$category " .
-                "group by query order by c.last_update desc limit {$this->historyLimit}" :
-            "select id,query from dbadmin_runned_commands c " .
-                "where c.owner_id=$ownerId and c.category=$category " .
-                "order by c.last_update desc limit {$this->historyLimit}";
+        // PostgreSQL doesn't allow the use of distinct and order by
+        // a field not in the select clause in the same SQL query.
+        $select = $this->historyDistinct && $this->driver->jush() !== 'pgsql' ?
+            'select distinct' : 'select';
+        $statement = "$select query from dbadmin_runned_commands c " .
+            "where c.owner_id=$ownerId and c.category=$category " .
+            "order by c.last_update desc limit {$this->historyLimit}";
         $statement = $this->connection->query($statement);
         if ($statement !== false) {
             $commands = [];
+            $id = 1;
             while (($row = $statement->fetchAssoc())) {
-                $commands[$row['id']] = $row['query'];
+                $commands[$id++] = $row['query'];
             }
             return $commands;
         }
