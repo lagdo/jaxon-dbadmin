@@ -6,7 +6,6 @@ use Jaxon\App\View\ViewRenderer;
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Admin\Admin;
 use Lagdo\DbAdmin\Db\Facades\AbstractFacade;
-use Lagdo\DbAdmin\Driver\Utils\ConfigInterface;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 /**
@@ -52,11 +51,10 @@ class DbFacade extends AbstractFacade
      *
      * @param Container $di
      * @param Utils $utils
-     * @param ConfigInterface $config
      * @param ViewRenderer $viewRenderer
      */
     public function __construct(protected Container $di, protected Utils $utils,
-        protected ConfigInterface $config, protected ViewRenderer $viewRenderer)
+        protected ViewRenderer $viewRenderer)
     {
         // Make the translator available into views
         $viewRenderer->share('trans', $utils->trans);
@@ -133,7 +131,7 @@ class DbFacade extends AbstractFacade
             // Save the selected server in the di container.
             $this->di->val('dbadmin_config_server', $server);
             // The DI is now able to return the corresponding driver.
-            $this->driver = $this->di->get(CallbackDriver::class);
+            $this->driver = $this->di->get(AppDriver::class);
             $this->admin = $this->di->get(Admin::class);
         }
         // Open the selected database
@@ -165,19 +163,12 @@ class DbFacade extends AbstractFacade
     }
 
     /**
+     * @param array $options
+     *
      * @return array
      */
-    public function getServerOptions(): array
+    public function getDatabaseOptions(array $options): array
     {
-        return $this->config->options();
-    }
-
-    /**
-     * @return array
-     */
-    public function getDatabaseOptions(): array
-    {
-        $options = $this->getServerOptions();
         if ($this->dbName !== '') {
             $options['database'] = $this->dbName;
         }

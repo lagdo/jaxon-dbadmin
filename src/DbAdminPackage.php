@@ -25,6 +25,16 @@ class DbAdminPackage extends AbstractPackage
     }
 
     /**
+     * Get the database servers
+     *
+     * @return array
+     */
+    public function getServers(): array
+    {
+        return $this->getOption('servers', []);
+    }
+
+    /**
      * Get the name of a given server
      *
      * @param string $server    The server name in the configuration

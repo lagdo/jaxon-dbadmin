@@ -3,8 +3,7 @@
 namespace Lagdo\DbAdmin\Db\Facades;
 
 use Lagdo\DbAdmin\Admin\Admin;
-use Lagdo\DbAdmin\Db\CallbackDriver;
-use Lagdo\DbAdmin\Driver\Utils\ConfigInterface;
+use Lagdo\DbAdmin\Db\AppDriver;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 /**
@@ -13,9 +12,9 @@ use Lagdo\DbAdmin\Driver\Utils\Utils;
 class AbstractFacade
 {
     /**
-     * @var CallbackDriver|null
+     * @var AppDriver|null
      */
-    protected CallbackDriver|null $driver = null;
+    protected AppDriver|null $driver = null;
 
     /**
      * @var Admin
@@ -28,11 +27,6 @@ class AbstractFacade
     protected Utils $utils;
 
     /**
-     * @var ConfigInterface
-     */
-    protected ConfigInterface $config;
-
-    /**
      * Initialize the facade
      *
      * @param AbstractFacade $dbFacade
@@ -42,6 +36,5 @@ class AbstractFacade
         $this->driver = $dbFacade->driver;
         $this->admin = $dbFacade->admin;
         $this->utils = $dbFacade->utils;
-        $this->config = $dbFacade->config;
     }
 }

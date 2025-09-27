@@ -58,36 +58,23 @@ return [
     ],
     'container' => [
         'set' => [
-            // Selected database config
-            Driver\Utils\ConfigInterface::class => function() {
-                return new class implements Driver\Utils\ConfigInterface {
-                    public function driver(): string
-                    {
-                        $di = jaxon()->di();
-                        $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
-                        $server = $di->g('dbadmin_config_server');
-                        return $package->getServerDriver($server);
-                    }
-                    public function options(): array
-                    {
-                        $di = jaxon()->di();
-                        $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
-                        $server = $di->g('dbadmin_config_server');
-                        return $package->getServerOptions($server);
-                    }
-                };
-            },
             // Selected database driver
             Driver\DriverInterface::class => function($di) {
-                $driver = $di->g(Driver\Utils\ConfigInterface::class)->driver();
-                // The key below is defined by the corresponding plugin package.
-                return $di->g("dbadmin_driver_$driver");
+                // Register a driver for each database server.
+                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                foreach($package->getServers() as $server => $options) {
+                    $di->set("dbadmin_driver_$server", fn() =>
+                        Driver\Driver::createDriver($options));
+                }
+
+                $server = $di->g('dbadmin_config_server');
+                return $di->g("dbadmin_driver_$server");
             },
             // The database driver used in the application
-            Db\CallbackDriver::class => function($di) {
+            Db\AppDriver::class => function($di) {
                 // This class will "clone" the selected driver, and define the callbacks.
                 // By doing this, the driver classes will call the driver without the callbacks.
-                $driver = new Db\CallbackDriver($di->g(Driver\DriverInterface::class));
+                $driver = new Db\AppDriver($di->g(Driver\DriverInterface::class));
                 $timer = $di->g(Service\TimerService::class);
                 $driver->addQueryCallback(fn() => $timer->stop());
                 $logger = $di->g(Service\LogWriter::class);
@@ -105,7 +92,10 @@ return [
             },
             Db\Facades\DatabaseFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
-                return new Db\Facades\DatabaseFacade($dbFacade, $dbFacade->getServerOptions());
+                $server = $di->g('dbadmin_config_server');
+                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $options = $package->getServerOptions($server);
+                return new Db\Facades\DatabaseFacade($dbFacade, $options);
             },
             Db\Facades\ExportFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
@@ -128,7 +118,10 @@ return [
             },
             Db\Facades\ServerFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
-                return new Db\Facades\ServerFacade($dbFacade, $dbFacade->getServerOptions());
+                $server = $di->g('dbadmin_config_server');
+                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $options = $package->getServerOptions($server);
+                return new Db\Facades\ServerFacade($dbFacade, $options);
             },
             Db\Facades\TableFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
@@ -145,21 +138,32 @@ return [
             Config\UserFileReader::class => function($di) {
                 return new Config\UserFileReader(getAuth($di));
             },
+            // Database driver for logging
+            'dbadmin_driver_logging' => function($di) {
+                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $options = $package->getOption('logging.database');
+                return Driver\Driver::createDriver($options);
+            },
             // Query logger
             Service\LogWriter::class => function($di) {
                 $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
                 $options = $package->getOption('logging.options');
                 $database = $package->getOption('logging.database');
-                $driverId = 'dbadmin_driver_' . ($database['driver'] ?? '');
-                if (!$di->h($driverId) || !$di->h(Config\AuthInterface::class) ||
+                if (!$di->h(Config\AuthInterface::class) ||
                     !is_array($options) || !is_array($database)) {
                     return null;
                 }
 
+                // User database, different from the logging database.
+                $server = $di->g('dbadmin_config_server');
+                $serverOptions = $package->getServerOptions($server);
+                $dbFacade = $di->g(Db\DbFacade::class);
+                $options['database'] = $dbFacade->getDatabaseOptions($serverOptions);
+
                 $reader = $di->g(Config\UserFileReader::class);
                 $database = $reader->getServerOptions($database);
-                return new Service\LogWriter(getAuth($di), $di->g(Db\DbFacade::class),
-                    $di->g($driverId), $database, $options);
+                return new Service\LogWriter(getAuth($di),
+                    $di->g('dbadmin_driver_logging'), $database, $options);
             },
         ],
         'auto' => [

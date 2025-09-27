@@ -56,28 +56,17 @@ return [
     ],
     'container' => [
         'set' => [
-            // Selected database config
-            Driver\Utils\ConfigInterface::class => function() {
-                return new class implements Driver\Utils\ConfigInterface {
-                    public function driver(): string
-                    {
-                        $di = jaxon()->di();
-                        $package = $di->g(Lagdo\DbAdmin\LoggingPackage::class);
-                        return $package->getServerDriver();
-                    }
-                    public function options(): array
-                    {
-                        $di = jaxon()->di();
-                        $package = $di->g(Lagdo\DbAdmin\LoggingPackage::class);
-                        return $package->getServerOptions();
-                    }
-                };
-            },
             // Selected database driver
             Driver\DriverInterface::class => function($di) {
-                $driver = $di->g(Driver\Utils\ConfigInterface::class)->driver();
-                // The key below is defined by the corresponding plugin package.
-                return $di->g("dbadmin_driver_$driver");
+                // Register a driver for each database server.
+                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                foreach($package->getServers() as $server => $options) {
+                    $di->set("dbadmin_driver_$server", fn() =>
+                        Driver\Driver::createDriver($options));
+                }
+
+                $server = $di->g('dbadmin_config_server');
+                return $di->g("dbadmin_driver_$server");
             },
             // Facades to the DB driver features
             Db\Facades\CommandFacade::class => function($di) {
@@ -88,7 +77,10 @@ return [
             },
             Db\Facades\DatabaseFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
-                return new Db\Facades\DatabaseFacade($dbFacade, $dbFacade->getServerOptions());
+                $server = $di->g('dbadmin_config_server');
+                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $options = $package->getServerOptions($server);
+                return new Db\Facades\DatabaseFacade($dbFacade, $options);
             },
             Db\Facades\ExportFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
@@ -111,7 +103,10 @@ return [
             },
             Db\Facades\ServerFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
-                return new Db\Facades\ServerFacade($dbFacade, $dbFacade->getServerOptions());
+                $server = $di->g('dbadmin_config_server');
+                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $options = $package->getServerOptions($server);
+                return new Db\Facades\ServerFacade($dbFacade, $options);
             },
             Db\Facades\TableFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);

@@ -8,7 +8,7 @@ use Closure;
 /**
  * Add callbacks to the driver features.
  */
-class CallbackDriver extends Driver
+class AppDriver extends Driver
 {
     /**
      * @var array
