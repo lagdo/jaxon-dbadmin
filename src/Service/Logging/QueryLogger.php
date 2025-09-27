@@ -1,11 +1,12 @@
 <?php
 
-namespace Lagdo\DbAdmin\Service;
+namespace Lagdo\DbAdmin\Service\Logging;
 
-use Lagdo\Facades\Logger;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 use Lagdo\DbAdmin\Driver\DriverInterface;
+use Lagdo\DbAdmin\Service\Options;
+use Lagdo\Facades\Logger;
 
 use function count;
 use function implode;
@@ -13,39 +14,32 @@ use function implode;
 /**
  * SQL queries logging and storage.
  */
-class LogReader
+class QueryLogger
 {
-    /**
-     * @var int
-     */
-    private const CAT_LIBRARY = 1;
-
-    /**
-     * @var int
-     */
-    private const CAT_BUILDER = 2;
-
-    /**
-     * @var int
-     */
-    private const CAT_EDITOR = 3;
-
     /**
      * @var ConnectionInterface
      */
     private ConnectionInterface $connection;
 
     /**
+     * @var int
+     */
+    private int $limit;
+
+    /**
      * The constructor
      *
      * @param DbFacade $db
      * @param DriverInterface $driver
-     * @param int $limit
      * @param array $database
+     * @param array $options
      */
     public function __construct(private DbFacade $db,
-        private DriverInterface $driver, private int $limit, array $database)
+        private DriverInterface $driver, array $database, array $options)
     {
+        $this->limit = $options['display']['limit'] ?? 15;
+
+        // Connect to the logging database.
         $this->connection = $driver->createConnection($database);
         $this->connection->open($database['name'], $database['schema'] ?? '');
     }
@@ -64,8 +58,8 @@ class LogReader
     public function getCategories(): array
     {
         return [
-            self::CAT_BUILDER => 'Query builder',
-            self::CAT_EDITOR => 'Query editor',
+            Options::CAT_BUILDER => 'Query builder',
+            Options::CAT_EDITOR => 'Query editor',
         ];
     }
 
@@ -78,18 +72,19 @@ class LogReader
     {
         $clauses = [];
         if (isset($filters['username'])) {
-            $clauses[] = "o.username like '%{$filters['username']}%' ";
+            $clauses[] = "o.username like '%{$filters['username']}%'";
         }
         if (isset($filters['category'])) {
-            $clauses[] = "c.category={$filters['category']} ";
+            $clauses[] = "c.category={$filters['category']}";
         }
         if (isset($filters['from'])) {
-            $clauses[] = "c.last_update>='{$filters['from']}' ";
+            $clauses[] = "c.last_update>='{$filters['from']}'";
         }
         if (isset($filters['to'])) {
-            $clauses[] = "c.last_update<='{$filters['to']}' ";
+            $clauses[] = "c.last_update<='{$filters['to']}'";
         }
-        return count($clauses) === 0 ? '' : 'where ' . implode('and ', $clauses);
+        return count($clauses) === 0 ? '' : 'where ' .
+            implode(' and ', $clauses);
     }
 
     /**

@@ -4,9 +4,9 @@ namespace Lagdo\DbAdmin\Ajax\Log;
 
 use Jaxon\App\Dialog\DialogTrait;
 use Jaxon\App\PageComponent;
-use Lagdo\DbAdmin\Service\LogReader;
+use Lagdo\DbAdmin\Service\Logging\QueryLogger;
 use Lagdo\DbAdmin\Translator;
-use Lagdo\DbAdmin\Ui\Log\LogUiBuilder;
+use Lagdo\DbAdmin\Ui\Logging\LogUiBuilder;
 use DateTime;
 
 use function count;
@@ -32,11 +32,11 @@ class Commands extends PageComponent
     private const BAG = 'dbadmin.logging';
 
     /**
-     * @param LogReader $logReader
-     * @param LogUiBuilder $uiBuider;
+     * @param QueryLogger $queryLogger
+     * @param LogUiBuilder $uiBuider
      * @param Translator $trans
      */
-    public function __construct(private LogReader $logReader,
+    public function __construct(private QueryLogger $queryLogger,
         private LogUiBuilder $uiBuider, private Translator $trans)
     {}
 
@@ -45,7 +45,7 @@ class Commands extends PageComponent
      */
     protected function limit(): int
     {
-        return $this->logReader->getLimit();
+        return $this->queryLogger->getLimit();
     }
 
     /**
@@ -54,7 +54,7 @@ class Commands extends PageComponent
     protected function count(): int
     {
         $filters = $this->bag(self::BAG)->get('filters', []);
-        return $this->logReader->getCommandCount($filters);
+        return $this->queryLogger->getCommandCount($filters);
     }
 
     /**
@@ -63,8 +63,8 @@ class Commands extends PageComponent
     public function html(): string
     {
         $filters = $this->bag(self::BAG)->get('filters', []);
-        $commands = $this->logReader->getCommands($filters, $this->currentPage());
-        return $this->uiBuider->commands($commands, $this->logReader->getCategories());
+        $commands = $this->queryLogger->getCommands($filters, $this->currentPage());
+        return $this->uiBuider->commands($commands, $this->queryLogger->getCategories());
     }
 
     /**
@@ -121,7 +121,7 @@ class Commands extends PageComponent
             return;
         }
 
-        $categories = $this->logReader->getCategories();
+        $categories = $this->queryLogger->getCategories();
         if (isset($categories[$category])) {
             $filters = $this->bag(self::BAG)->get('filters', []);
             $filters['category'] = $category;

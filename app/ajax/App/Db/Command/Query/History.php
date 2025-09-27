@@ -1,19 +1,22 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
+namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 
 use Lagdo\DbAdmin\Ajax\Component;
-use Lagdo\DbAdmin\Service\LogWriter;
+use Lagdo\DbAdmin\Service\DbAdmin\QueryHistory;
 use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 
-class QueryHistory extends Component
+/**
+ * @exclude
+ */
+class History extends Component
 {
     /**
      * @param QueryUiBuilder $queryUi
-     * @param LogWriter|null $queryLogger
+     * @param QueryHistory|null $queryHistory
      */
     public function __construct(private QueryUiBuilder $queryUi,
-        private LogWriter|null $queryLogger)
+        private QueryHistory|null $queryHistory)
     {}
 
     /**
@@ -21,7 +24,7 @@ class QueryHistory extends Component
      */
     public function html(): string
     {
-        $commands = !$this->queryLogger ? [] : $this->queryLogger->getHistoryCommands();
+        $commands = !$this->queryHistory ? [] : $this->queryHistory->getQueries();
         return $this->queryUi->history($commands);
     }
 }

@@ -124,19 +124,19 @@ return [
                 return new Config\UserFileReader(getAuth());
             },
             // Query logging
-            Service\LogReader::class => function($di) {
+            Service\Logging\QueryLogger::class => function($di) {
                 $package = $di->g(Lagdo\DbAdmin\LoggingPackage::class);
                 $database = $package->getOption('database');
-                $driverId = 'dbadmin_driver_' . ($database['driver'] ?? '');
-                if (!$di->h($driverId) || !is_array($database)) {
+                $options = $package->getOption('options', []);
+                if (!is_array($database) || !is_array($options)) {
                     return null;
                 }
 
+                $driver = Driver\Driver::createDriver($database);
                 $reader = $di->g(Config\UserFileReader::class);
                 $db = $di->g(Db\DbFacade::class);
-                $limit = 15;
-                return new Service\LogReader($db, $di->g($driverId),
-                    $limit, $reader->getServerOptions($database));
+                return new Service\Logging\QueryLogger($db, $driver,
+                    $reader->getServerOptions($database), $options);
             },
         ],
         'auto' => [
@@ -158,7 +158,7 @@ return [
             Ui\UiBuilder::class,
             Ui\InputBuilder::class,
             Ui\MenuBuilder::class,
-            Ui\Log\LogUiBuilder::class,
+            Ui\Logging\LogUiBuilder::class,
         ],
         'alias' => [
             // The translator

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ui\Log;
+namespace Lagdo\DbAdmin\Ui\Logging;
 
 use Lagdo\DbAdmin\Ajax\Log\Commands;
 use Lagdo\DbAdmin\Translator;

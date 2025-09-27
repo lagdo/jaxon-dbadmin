@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
+namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Ajax\Component;
@@ -14,7 +14,7 @@ use function trim;
 /**
  * @exclude
  */
-class QueryResults extends Component
+class Results extends Component
 {
     /**
      * The constructor
@@ -62,6 +62,6 @@ class QueryResults extends Component
 
         $this->stash()->set('select.duration', $results['duration']);
         $this->cl(Duration::class)->render();
-        $this->cl(QueryHistory::class)->render();
+        $this->cl(History::class)->render();
     }
 }

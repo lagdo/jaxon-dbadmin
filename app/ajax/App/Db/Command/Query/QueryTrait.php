@@ -1,9 +1,11 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
+namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
+
+use function trim;
 
 trait QueryTrait
 {
@@ -59,7 +61,7 @@ trait QueryTrait
             $this->response->jo('jaxon.dbadmin')->setSqlQuery($this->query);
         }
 
-        $this->cl(QueryHistory::class)->render();
+        $this->cl(History::class)->render();
     }
 
     /**
@@ -75,6 +77,36 @@ trait QueryTrait
         $this->db()->prepareCommand();
 
         $values['query'] = $query;
-        $this->cl(QueryResults::class)->exec($values);
+        $this->cl(Results::class)->exec($values);
+    }
+
+    /**
+     * Save an SQL query in the user favorites
+     *
+     * @param string $query
+     *
+     * @return void
+     */
+    public function save(string $query): void
+    {
+        $query = trim($query);
+        if(!$query)
+        {
+            $this->alert()->title('Error')->error('The query string is empty!');
+            return;
+        }
+
+        $title = 'Add a favorite';
+        $content = $this->queryUi->addFavoriteForm($query);
+        $buttons = [[
+            'title' => 'Cancel',
+            'class' => 'btn btn-tertiary',
+            'click' => 'close',
+        ],[
+            'title' => 'Save',
+            'class' => 'btn btn-primary',
+            'click' => $this->rq(Favorites::class)->create($this->queryUi->addFavoriteValues()),
+        ]];
+        $this->modal()->show($title, $content, $buttons);
     }
 }

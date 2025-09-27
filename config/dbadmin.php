@@ -77,7 +77,7 @@ return [
                 $driver = new Db\AppDriver($di->g(Driver\DriverInterface::class));
                 $timer = $di->g(Service\TimerService::class);
                 $driver->addQueryCallback(fn() => $timer->stop());
-                $logger = $di->g(Service\LogWriter::class);
+                $logger = $di->g(Service\DbAdmin\QueryLogger::class);
                 if ($logger !== null) {
                     $driver->addQueryCallback(fn(string $query) => $logger->saveCommand($query));
                 }
@@ -87,7 +87,7 @@ return [
             Db\Facades\CommandFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
                 $timer = $di->g(Service\TimerService::class);
-                $logger = $di->g(Service\LogWriter::class);
+                $logger = $di->g(Service\DbAdmin\QueryLogger::class);
                 return new Db\Facades\CommandFacade($dbFacade, $timer, $logger);
             },
             Db\Facades\DatabaseFacade::class => function($di) {
@@ -104,7 +104,7 @@ return [
             Db\Facades\ImportFacade::class => function($di) {
                 $dbFacade = $di->g(Db\DbFacade::class);
                 $timer = $di->g(Service\TimerService::class);
-                $logger = $di->g(Service\LogWriter::class);
+                $logger = $di->g(Service\DbAdmin\QueryLogger::class);
                 return new Db\Facades\ImportFacade($dbFacade, $timer, $logger);
             },
             Db\Facades\QueryFacade::class => function($di) {
@@ -145,7 +145,7 @@ return [
                 return Driver\Driver::createDriver($options);
             },
             // Query logger
-            Service\LogWriter::class => function($di) {
+            Service\DbAdmin\QueryLogger::class => function($di) {
                 $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
                 $options = $package->getOption('logging.options');
                 $database = $package->getOption('logging.database');
@@ -162,7 +162,22 @@ return [
 
                 $reader = $di->g(Config\UserFileReader::class);
                 $database = $reader->getServerOptions($database);
-                return new Service\LogWriter(getAuth($di),
+                return new Service\DbAdmin\QueryLogger(getAuth($di),
+                    $di->g('dbadmin_driver_logging'), $database, $options);
+            },
+            // Query history
+            Service\DbAdmin\QueryHistory::class => function($di) {
+                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $options = $package->getOption('logging.options');
+                $database = $package->getOption('logging.database');
+                if (!$di->h(Config\AuthInterface::class) ||
+                    !is_array($options) || !is_array($database)) {
+                    return null;
+                }
+
+                $reader = $di->g(Config\UserFileReader::class);
+                $database = $reader->getServerOptions($database);
+                return new Service\DbAdmin\QueryHistory(getAuth($di),
                     $di->g('dbadmin_driver_logging'), $database, $options);
             },
         ],

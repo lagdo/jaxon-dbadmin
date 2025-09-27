@@ -3,8 +3,8 @@
 namespace Lagdo\DbAdmin\Ajax\Log;
 
 use Jaxon\App\Component;
-use Lagdo\DbAdmin\Service\LogReader;
-use Lagdo\DbAdmin\Ui\Log\LogUiBuilder;
+use Lagdo\DbAdmin\Service\Logging\QueryLogger;
+use Lagdo\DbAdmin\Ui\Logging\LogUiBuilder;
 
 /**
  * @exclude
@@ -12,10 +12,10 @@ use Lagdo\DbAdmin\Ui\Log\LogUiBuilder;
 class Sidebar extends Component
 {
     /**
-     * @param LogReader $logReader
+     * @param QueryLogger $queryLogger
      * @param LogUiBuilder $uiBuider;
      */
-    public function __construct(private LogReader $logReader,
+    public function __construct(private QueryLogger $queryLogger,
         private LogUiBuilder $uiBuider)
     {}
 
@@ -24,6 +24,6 @@ class Sidebar extends Component
      */
     public function html(): string
     {
-        return $this->uiBuider->sidebar($this->logReader->getCategories());
+        return $this->uiBuider->sidebar($this->queryLogger->getCategories());
     }
 }

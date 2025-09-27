@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Log;
 
 use Jaxon\App\Component;
-use Lagdo\DbAdmin\Ui\Log\LogUiBuilder;
+use Lagdo\DbAdmin\Ui\Logging\LogUiBuilder;
 
 /**
  * @exclude

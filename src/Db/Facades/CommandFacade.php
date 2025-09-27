@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Db\Facades;
 
 use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 use Lagdo\DbAdmin\Driver\Entity\QueryEntity;
-use Lagdo\DbAdmin\Service\LogWriter;
+use Lagdo\DbAdmin\Service\DbAdmin\QueryLogger;
 use Lagdo\DbAdmin\Service\TimerService;
 
 use function compact;
@@ -44,10 +44,10 @@ class CommandFacade extends AbstractFacade
      *
      * @param AbstractFacade $dbFacade
      * @param TimerService $timer
-     * @param LogWriter|null $queryLogger
+     * @param QueryLogger|null $queryLogger
      */
     public function __construct(AbstractFacade $dbFacade,
-        protected TimerService $timer, protected LogWriter|null $queryLogger)
+        protected TimerService $timer, protected QueryLogger|null $queryLogger)
     {
         parent::__construct($dbFacade);
     }
