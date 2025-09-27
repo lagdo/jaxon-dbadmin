@@ -80,12 +80,29 @@ jaxon.dbadmin = (function() {
     // Set the SQL query value and reset the undo history.
     const setSqlQuery = (query) => editor.ace.session.setValue(query);
 
-    const getCommandQuery = (commandId) => $(`#dbadmin-history-command-${commandId}`).text();
-
-    const history = {
-        editSqlQuery: (commandId) => setSqlQuery(getCommandQuery(commandId)),
-        insertSqlQuery: (commandId) => editor.ace.insert(getCommandQuery(commandId)),
+    /**
+     * Read the data-query-id attribute in the parent with the given tag name
+     *
+     * @param {Element} node 
+     * @param {string} tag
+     *
+     * @returns {string}
+     */
+    const getQueryId = (node, tag) => {
+        while ((parent = node?.parent())) {
+            if (parent.prop('tagName')?.toLowerCase() === tag) {
+                return parent.attr('data-query-id') ?? '';
+            }
+            node = parent;
+        }
+        return '';
     };
+
+    const getHistoryQuery = (node) =>
+        $('#dbadmin-history-query-' + getQueryId(node, 'td')).text();
+
+    const getFavoriteQuery = (node) =>
+        $('#dbadmin-favorite-query-' + getQueryId(node, 'td')).text();
 
     return {
         countTableCheckboxes,
@@ -96,6 +113,14 @@ jaxon.dbadmin = (function() {
         createSqlSelectEditor,
         getSqlQuery,
         setSqlQuery,
-        history,
+        history: {
+            copySqlQuery: (node) => setSqlQuery(getHistoryQuery(node)),
+            insertSqlQuery: (node) => editor.ace.insert(getHistoryQuery(node)),
+        },
+        favorite: {
+            getQueryId: (node) => getQueryId(node, 'td'),
+            copySqlQuery: (node) => setSqlQuery(getFavoriteQuery(node)),
+            insertSqlQuery: (node) => editor.ace.insert(getFavoriteQuery(node)),
+        },
     };
 })();

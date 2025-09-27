@@ -3,8 +3,7 @@
 namespace Lagdo\DbAdmin\Ui\Command;
 
 use Jaxon\Script\Call\JxnCall;
-use Lagdo\DbAdmin\Ajax\App\Db\Command\QueryHistory;
-use Lagdo\DbAdmin\Ajax\App\Db\Command\QueryResults;
+use Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
@@ -12,17 +11,46 @@ use Lagdo\UiBuilder\BuilderInterface;
 use function count;
 use function Jaxon\je;
 use function Jaxon\jo;
-use function Jaxon\jq;
 use function Jaxon\rq;
 
 class QueryUiBuilder
 {
+    /**
+     * @var string
+     */
+    private $queryFormId = 'dbadmin-main-command-form';
+
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
      */
     public function __construct(protected Translator $trans, protected BuilderInterface $ui)
     {}
+
+    /**
+     * @param JxnCall $rqQuery
+     *
+     * @return mixed
+     */
+    private function queryButtons(JxnCall $rqQuery): mixed
+    {
+        $sqlQuery = jo('jaxon.dbadmin')->getSqlQuery();
+        $queryValues = je($this->queryFormId)->rd()->form();
+
+        return $this->ui->buttonGroup(
+        $this->ui->button(
+                $this->ui->text($this->trans->lang('Execute'))
+            )
+            ->primary()
+            ->jxnClick($rqQuery->exec($sqlQuery, $queryValues)),
+            $this->ui->button(
+                $this->ui->text($this->trans->lang('Save'))
+            )
+            ->secondary()
+            ->jxnClick(rq(Query\FavoriteFunc::class)->add($sqlQuery))
+        )
+        ->fullWidth();
+    }
 
     /**
      * @param int $defaultLimit
@@ -32,9 +60,6 @@ class QueryUiBuilder
      */
     private function actions(int $defaultLimit, JxnCall $rqQuery): mixed
     {
-        $formId = 'dbadmin-main-command-form';
-        $sqlQuery = jo('jaxon.dbadmin')->getSqlQuery();
-
         return $this->ui->form(
             $this->ui->formRow(
                 $this->ui->formCol(
@@ -72,11 +97,7 @@ class QueryUiBuilder
                 $this->ui->formCol(
                     $this->ui->formRow(
                         $this->ui->formCol(
-                            $this->ui->button(
-                                    $this->ui->text($this->trans->lang('Execute'))
-                                )
-                                ->fullWidth()->primary()
-                                ->jxnClick($rqQuery->exec($sqlQuery, je($formId)->rd()->form()))
+                            $this->queryButtons($rqQuery)
                         )
                         ->width(8),
                         $this->ui->formCol()
@@ -86,7 +107,8 @@ class QueryUiBuilder
                 )
                 ->width(4)
             )
-        )->horizontal(true)->wrapped(true)->setId($formId);
+        )->horizontal(true)->wrapped(true)
+        ->setId($this->queryFormId);
     }
 
     /**
@@ -122,10 +144,10 @@ class QueryUiBuilder
                 ->width(12),
             $this->ui->col()
                 ->width(12)
-                ->jxnBind(rq(QueryResults::class)),
-            $this->ui->col()
+                ->jxnBind(rq(Query\Results::class)),
+            $this->ui->col($this->ui->jxnHtml(rq(Query\Queries::class)))
                 ->width(12)
-                ->jxnBind(rq(QueryHistory::class))
+                ->jxnBind(rq(Query\Queries::class))
         );
     }
 
@@ -184,7 +206,8 @@ class QueryUiBuilder
                                 )
                             )
                             ->responsive(true)
-                            ->style('bordered')->setStyle('margin-top:2px')
+                            ->style('bordered')
+                            ->setStyle('margin-top:2px')
                         ),
                     )
                     ->width(12)
@@ -194,51 +217,15 @@ class QueryUiBuilder
     }
 
     /**
-     * @param array $commands
-     *
      * @return string
      */
-    public function history(array $commands): string
+    public function queries(): string
     {
-        if (count($commands) === 0) {
-            return '';
-        }
-
-        $commandId = jq()->attr('data-command-id');
-        $btnEditHandler = jo('jaxon.dbadmin.history')->editSqlQuery($commandId);
-        $btnInsertHandler = jo('jaxon.dbadmin.history')->insertSqlQuery($commandId);
         return $this->ui->build(
-            $this->ui->panel(
-                $this->ui->panelHeader($this->trans->lang('History')),
-                $this->ui->panelBody(
-                    $this->ui->each($commands, fn($query, $id) =>
-                        $this->ui->row(
-                            $this->ui->col($query)
-                                ->setId("dbadmin-history-command-$id")
-                                ->width(11),
-                            $this->ui->col(
-                                $this->ui->buttonGroup(
-                                    $this->ui->button($this->trans->lang('Edit'))
-                                        ->primary()
-                                        ->setClass('dbadmin-history-query-edit')
-                                        ->setDataCommandId($id),
-                                    $this->ui->dropdownItem()->style('primary'),
-                                    $this->ui->dropdownMenu(
-                                        $this->ui->dropdownMenuItem($this->trans->lang('Insert'))
-                                            ->setDataCommandId($id)
-                                            ->setClass('dbadmin-history-query-insert')
-                                    )
-                                )
-                            )->width(1)
-                        )
-                    )
-                )
-                ->setStyle('padding:5px 15px')
-                ->jxnEvent([
-                    ['.dbadmin-history-query-edit', 'click', $btnEditHandler],
-                    ['.dbadmin-history-query-insert', 'click', $btnInsertHandler],
-                ])
-            ),
+            $this->ui->div()
+                ->jxnBind(rq(Query\Favorite::class)),
+            $this->ui->div()
+                ->jxnBind(rq(Query\History::class))
         );
     }
 }

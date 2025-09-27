@@ -139,7 +139,7 @@ return [
                 return new Config\UserFileReader(getAuth($di));
             },
             // Database driver for logging
-            'dbadmin_driver_logging' => function($di) {
+            'dbadmin_logging_driver' => function($di) {
                 $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
                 $options = $package->getOption('logging.database');
                 return Driver\Driver::createDriver($options);
@@ -163,7 +163,7 @@ return [
                 $reader = $di->g(Config\UserFileReader::class);
                 $database = $reader->getServerOptions($database);
                 return new Service\DbAdmin\QueryLogger(getAuth($di),
-                    $di->g('dbadmin_driver_logging'), $database, $options);
+                    $di->g('dbadmin_logging_driver'), $database, $options);
             },
             // Query history
             Service\DbAdmin\QueryHistory::class => function($di) {
@@ -178,7 +178,22 @@ return [
                 $reader = $di->g(Config\UserFileReader::class);
                 $database = $reader->getServerOptions($database);
                 return new Service\DbAdmin\QueryHistory(getAuth($di),
-                    $di->g('dbadmin_driver_logging'), $database, $options);
+                    $di->g('dbadmin_logging_driver'), $database, $options);
+            },
+            // Query favorites
+            Service\DbAdmin\QueryFavorite::class => function($di) {
+                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $options = $package->getOption('logging.options');
+                $database = $package->getOption('logging.database');
+                if (!$di->h(Config\AuthInterface::class) ||
+                    !is_array($options) || !is_array($database)) {
+                    return null;
+                }
+
+                $reader = $di->g(Config\UserFileReader::class);
+                $database = $reader->getServerOptions($database);
+                return new Service\DbAdmin\QueryFavorite(getAuth($di),
+                    $di->g('dbadmin_logging_driver'), $database, $options);
             },
         ],
         'auto' => [
@@ -202,6 +217,7 @@ return [
             Ui\MenuBuilder::class,
             Ui\Database\ServerUiBuilder::class,
             Ui\Command\QueryUiBuilder::class,
+            Ui\Command\LogUiBuilder::class,
             Ui\Command\ImportUiBuilder::class,
             Ui\Command\ExportUiBuilder::class,
             Ui\Table\SelectUiBuilder::class,

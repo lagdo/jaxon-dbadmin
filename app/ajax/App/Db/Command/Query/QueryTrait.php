@@ -62,6 +62,7 @@ trait QueryTrait
         }
 
         $this->cl(History::class)->render();
+        $this->cl(Favorite::class)->render();
     }
 
     /**
@@ -78,35 +79,5 @@ trait QueryTrait
 
         $values['query'] = $query;
         $this->cl(Results::class)->exec($values);
-    }
-
-    /**
-     * Save an SQL query in the user favorites
-     *
-     * @param string $query
-     *
-     * @return void
-     */
-    public function save(string $query): void
-    {
-        $query = trim($query);
-        if(!$query)
-        {
-            $this->alert()->title('Error')->error('The query string is empty!');
-            return;
-        }
-
-        $title = 'Add a favorite';
-        $content = $this->queryUi->addFavoriteForm($query);
-        $buttons = [[
-            'title' => 'Cancel',
-            'class' => 'btn btn-tertiary',
-            'click' => 'close',
-        ],[
-            'title' => 'Save',
-            'class' => 'btn btn-primary',
-            'click' => $this->rq(Favorites::class)->create($this->queryUi->addFavoriteValues()),
-        ]];
-        $this->modal()->show($title, $content, $buttons);
     }
 }
