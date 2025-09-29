@@ -4,6 +4,8 @@ namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\UiBuilder\BuilderInterface;
 
+use function is_array;
+
 trait PageTrait
 {
     /**
@@ -12,14 +14,18 @@ trait PageTrait
     protected BuilderInterface $ui;
 
     /**
+     * @param string $title
      * @param mixed $content
      *
      * @return mixed
      */
-    private function getTableCell($content): mixed
+    private function getTableCell(string $title, $content): mixed
     {
         if (!is_array($content)) {
-            return $this->ui->td($this->ui->html($content));
+            return $title !== 'menu' ?
+                $this->ui->td($this->ui->html($content)) :
+                $this->ui->td($this->ui->html($content))
+                    ->setStyle('width:50px;');
         }
 
         if(!isset($content['handler']))
@@ -74,8 +80,8 @@ trait PageTrait
                                     ->setName("{$counterId}[]")
                             )
                         ),
-                        $this->ui->each($detailGroup, fn($detail) =>
-                            $this->getTableCell($detail ?? '')
+                        $this->ui->each($detailGroup, fn($detail, $title) =>
+                            $this->getTableCell($title, $detail ?? '')
                         )
                     )
                 ),

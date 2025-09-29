@@ -27,6 +27,19 @@ class LogUiBuilder
     {}
 
     /**
+     * @return string
+     */
+    public function queries(): string
+    {
+        return $this->ui->build(
+            $this->ui->div()
+                ->jxnBind(rq(Query\Favorite::class)),
+            $this->ui->div()
+                ->jxnBind(rq(Query\History::class))
+        );
+    }
+
+    /**
      * @return mixed
      */
     private function historyButtons(): mixed
@@ -54,9 +67,8 @@ class LogUiBuilder
             return '';
         }
 
-        $element = jq()->parent();
-        $btnCopyHandler = jo('jaxon.dbadmin.history')->copySqlQuery($element);
-        $btnInsertHandler = jo('jaxon.dbadmin.history')->insertSqlQuery($element);
+        $btnCopyHandler = jo('jaxon.dbadmin.history')->copySqlQuery(jq());
+        $btnInsertHandler = jo('jaxon.dbadmin.history')->insertSqlQuery(jq());
         return $this->ui->build(
             $this->ui->row(
                 $this->ui->col(
@@ -151,10 +163,9 @@ class LogUiBuilder
         }
 
         $sqlQuery = jo('jaxon.dbadmin')->getSqlQuery();
-        $element = jq()->parent();
-        $queryId = jo('jaxon.dbadmin.favorite')->getQueryId($element);
-        $btnCopyHandler = jo('jaxon.dbadmin.favorite')->copySqlQuery($element);
-        $btnInsertHandler = jo('jaxon.dbadmin.favorite')->insertSqlQuery($element);
+        $queryId = jo('jaxon.dbadmin.favorite')->getQueryId(jq());
+        $btnCopyHandler = jo('jaxon.dbadmin.favorite')->copySqlQuery(jq());
+        $btnInsertHandler = jo('jaxon.dbadmin.favorite')->insertSqlQuery(jq());
         $btnEditHandler = rq(Query\FavoriteFunc::class)->edit($queryId, $sqlQuery);
         $btnDeleteHandler = rq(Query\FavoriteFunc::class)->delete($queryId)
             ->confirm($this->trans->lang('Delete this query from the favorites?'));

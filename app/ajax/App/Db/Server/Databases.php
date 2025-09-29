@@ -7,9 +7,6 @@ use Lagdo\DbAdmin\Ajax\App\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
-use function array_map;
-use function Jaxon\jq;
-
 class Databases extends MainComponent
 {
     /**
@@ -57,27 +54,18 @@ class Databases extends MainComponent
         // Set the database dropdown list
         $this->cl(MenuDatabases::class)->showDatabases($this->pageContent['databases']);
 
-        $database = jq()->parent()->attr('data-database-name');
         // Add links, classes and data values to database names.
-        $this->pageContent['details'] = array_map(function($detail) use($database) {
+        foreach($this->pageContent['details'] as &$detail) {
             $databaseName = $detail['name'];
-            $detail['select'] = [
-                'label' => $databaseName,
-                'props' => [
-                    'data-database-name' => $databaseName,
-                ],
-                'handler' => $this->rq(Database::class)->select($database),
-            ];
-            $detail['drop'] = [
-                'label' => 'Drop',
-                'props' => [
-                    'data-database-name' => $databaseName,
-                ],
-                'handler' => $this->rq(Database::class)->drop($database)
-                    ->confirm("Delete database {1}?", $database),
-            ];
-            return $detail;
-        }, $this->pageContent['details']);
+            $detail['menu'] = $this->ui()->tableMenu([[
+                'label' => $this->trans->lang('Show'),
+                'handler' => $this->rq(Database::class)->select($databaseName),
+            ], [
+                'label' => $this->trans->lang('Drop'),
+                'handler' => $this->rq(Database::class)->drop($databaseName)
+                    ->confirm("Delete database {1}?", $databaseName),
+            ]]);
+        }
 
         $this->render();
 

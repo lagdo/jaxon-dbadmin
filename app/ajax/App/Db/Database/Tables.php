@@ -36,27 +36,17 @@ class Tables extends MainComponent
     {
         $tablesInfo = $this->db()->getTables();
 
-        $table = jq()->parent()->attr('data-table-name');
         // Add links, classes and data values to table names.
-        $select = $this->trans()->lang('Select');
-        $tablesInfo['details'] = array_map(function($detail) use($table, $select) {
+        foreach($tablesInfo['details'] as &$detail) {
             $tableName = $detail['name'];
-            $detail['show'] = [
-                'label' => $tableName,
-                'props' => [
-                    'data-table-name' => $tableName,
-                ],
-                'handler' => $this->rq(Table::class)->show($table),
-            ];
-            $detail['select'] = [
-                'label' => $select,
-                'props' => [
-                    'data-table-name' => $tableName,
-                ],
-                'handler' => $this->rq(Select::class)->show($table),
-            ];
-            return $detail;
-        }, $tablesInfo['details']);
+            $detail['menu'] = $this->ui()->tableMenu([[
+                'label' => $this->trans->lang('Show'),
+                'handler' => $this->rq(Table::class)->show($tableName),
+            ], [
+                'label' => $this->trans->lang('Select'),
+                'handler' => $this->rq(Select::class)->show($tableName),
+            ]]);
+        }
 
         $this->showSection($tablesInfo, 'table');
         // Set onclick handlers on table checkbox

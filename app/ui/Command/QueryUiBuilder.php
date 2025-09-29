@@ -215,17 +215,4 @@ class QueryUiBuilder
             )
         );
     }
-
-    /**
-     * @return string
-     */
-    public function queries(): string
-    {
-        return $this->ui->build(
-            $this->ui->div()
-                ->jxnBind(rq(Query\Favorite::class)),
-            $this->ui->div()
-                ->jxnBind(rq(Query\History::class))
-        );
-    }
 }

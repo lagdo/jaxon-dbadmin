@@ -7,9 +7,6 @@ use Lagdo\DbAdmin\Ajax\App\Db\View\Ddl\View;
 use Lagdo\DbAdmin\Ajax\App\Db\View\Dql\Select;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
-use function array_map;
-use function Jaxon\jq;
-
 class Views extends MainComponent
 {
     /**
@@ -36,27 +33,17 @@ class Views extends MainComponent
     {
         $viewsInfo = $this->db()->getViews();
 
-        $view = jq()->parent()->attr('data-view-name');
         // Add links, classes and data values to view names.
-        $select = $this->trans()->lang('Select');
-        $viewsInfo['details'] = array_map(function($detail) use($view, $select) {
+        foreach($viewsInfo['details'] as &$detail) {
             $viewName = $detail['name'];
-            $detail['show'] = [
-                'label' => $viewName,
-                'props' => [
-                    'data-view-name' => $viewName,
-                ],
-                'handler' => $this->rq(View::class)->show($view),
-            ];
-            $detail['select'] = [
-                'label' => $select,
-                'props' => [
-                    'data-view-name' => $viewName,
-                ],
-                'handler' => $this->rq(Select::class)->show($view),
-            ];
-            return $detail;
-        }, $viewsInfo['details']);
+            $detail['menu'] = $this->ui()->tableMenu([[
+                'label' => $this->trans->lang('Show'),
+                'handler' => $this->rq(View::class)->show($viewName),
+            ], [
+                'label' => $this->trans->lang('Select'),
+                'handler' => $this->rq(Select::class)->show($viewName),
+            ]]);
+        }
 
         $checkbox = 'view';
         $this->showSection($viewsInfo, $checkbox);

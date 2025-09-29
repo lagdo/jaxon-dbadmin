@@ -15,6 +15,7 @@ use Lagdo\DbAdmin\Ajax\App\Page\DbConnection;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
+use function array_shift;
 use function Jaxon\je;
 use function Jaxon\rq;
 
@@ -207,6 +208,30 @@ class UiBuilder
                 ->width(9)
             )
             ->setId('jaxon-dbadmin')
+        );
+    }
+
+    /**
+     * @param array $menus
+     *
+     * @return string
+     */
+    public function tableMenu(array $menus): string
+    {
+        $menu = array_shift($menus);
+        return $this->ui->build(
+            $this->ui->buttonGroup(
+                $this->ui->button($menu['label'])
+                    ->primary()
+                    ->jxnClick($menu['handler']),
+                $this->ui->dropdownItem()->style('primary'),
+                $this->ui->dropdownMenu(
+                    $this->ui->each($menus, fn($menu) =>
+                        $this->ui->dropdownMenuItem($menu['label'])
+                            ->jxnClick($menu['handler'])
+                    )
+                )
+            )
         );
     }
 }
