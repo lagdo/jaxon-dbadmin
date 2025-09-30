@@ -3,11 +3,17 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 
 use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
+use Lagdo\DbAdmin\Ajax\Exception\ValidationException;
 use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Service\DbAdmin\QueryFavorite;
 use Lagdo\DbAdmin\Ui\Command\LogUiBuilder;
 use Lagdo\DbAdmin\Translator;
+
+use function compact;
+use function is_string;
+use function strlen;
+use function trim;
 
 class FavoriteFunc extends FuncComponent
 {
@@ -22,6 +28,40 @@ class FavoriteFunc extends FuncComponent
         protected DbAdminPackage $package, protected DbFacade $db,
         protected Translator $trans, private QueryFavorite|null $queryFavorite)
     {}
+
+    /**
+     * @param array $formValues
+     *
+     * @return array
+     */
+    private function validate(array $formValues): array
+    {
+        if (!isset($formValues['title'])) {
+            throw new ValidationException($this->trans->lang('The %s field is missing.', 'title'));
+        }
+        if (!isset($formValues['query'])) {
+            throw new ValidationException($this->trans->lang('The %s field is missing.', 'query'));
+        }
+        if (!is_string($formValues['title'])) {
+            throw new ValidationException($this->trans->lang('The %s field is incorrect.', 'title'));
+        }
+        if (!is_string($formValues['query'])) {
+            throw new ValidationException($this->trans->lang('The %s field is incorrect.', 'query'));
+        }
+        $title = trim($formValues['title']);
+        $query = trim($formValues['query']);
+        if ($title === '') {
+            throw new ValidationException($this->trans->lang('The %s field is empty.', 'title'));
+        }
+        if (strlen($title) > 150) {
+            throw new ValidationException($this->trans->lang('The %s field is too long.', 'title'));
+        }
+        if ($query === '') {
+            throw new ValidationException($this->trans->lang('The %s field is empty.', 'query'));
+        }
+
+        return compact('title', 'query');
+    }
 
     /**
      * @param string $query
@@ -59,10 +99,12 @@ class FavoriteFunc extends FuncComponent
      */
     public function create(array $formValues): void
     {
+        $values = $this->validate($formValues);
+
         // Get the driver name from the package config options.
         $server = $this->db()->getServerName();
-        $formValues['driver'] = $this->package()->getServerDriver($server);
-        $this->queryFavorite->createQuery($formValues);
+        $values['driver'] = $this->package()->getServerDriver($server);
+        $this->queryFavorite->createQuery($values);
 
         $this->modal()->hide();
         $this->alert()
@@ -117,10 +159,12 @@ class FavoriteFunc extends FuncComponent
      */
     public function update(int $queryId, array $formValues): void
     {
+        $values = $this->validate($formValues);
+
         // Get the driver name from the package config options.
         $server = $this->db()->getServerName();
-        $formValues['driver'] = $this->package()->getServerDriver($server);
-        $this->queryFavorite->updateQuery($queryId, $formValues);
+        $values['driver'] = $this->package()->getServerDriver($server);
+        $this->queryFavorite->updateQuery($queryId, $values);
 
         $this->modal()->hide();
         $this->alert()->title($this->trans->lang('Success'))

@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ajax;
 
 use Jaxon\App\View\Store;
 use Lagdo\DbAdmin\Ajax\App\Page\Breadcrumbs;
+use Lagdo\DbAdmin\Ajax\Exception\AppException;
 use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Translator;

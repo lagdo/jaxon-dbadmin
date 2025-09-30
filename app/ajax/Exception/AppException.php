@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax;
+namespace Lagdo\DbAdmin\Ajax\Exception;
 
 use Exception;
 
