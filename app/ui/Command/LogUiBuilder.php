@@ -175,7 +175,7 @@ class LogUiBuilder
                     $this->ui->each($queries, fn($query) =>
                         $this->ui->tr(
                             $this->ui->td(
-                                $this->ui->div($query['title'])
+                                $this->ui->div("[{$query['driver']}] {$query['title']}")
                                     ->setStyle('font-size:14px; font-style:italic;'),
                                 $this->ui->div($query['query'])
                                     ->setId('dbadmin-favorite-query-' . $query['id'])

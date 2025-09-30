@@ -62,6 +62,14 @@ class DbFacade extends AbstractFacade
     }
 
     /**
+     * @return string
+     */
+    public function getServerName(): string
+    {
+        return $this->dbServer;
+    }
+
+    /**
      * Get the breadcrumbs object
      *
      * @param bool $withDb

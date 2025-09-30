@@ -19,6 +19,7 @@ create table dbadmin_stored_commands (
     id serial primary key,
     title varchar(150) not null default '',
     query text not null,
+    driver varchar(30) not null,
     last_update timestamp not null,
     owner_id integer not null,
     foreign key(owner_id) references dbadmin_owners(id)

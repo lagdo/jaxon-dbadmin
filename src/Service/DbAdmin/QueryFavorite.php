@@ -64,12 +64,13 @@ class QueryFavorite
         $values = [
             'title' => $values['title'],
             'query' => $values['query'],
+            'driver' => $values['driver'],
             'last_update' => $this->currentTime(),
             'owner_id' => $this->getOwnerId(),
         ];
         $sql = "insert into dbadmin_stored_commands" .
-            "(title,query,last_update,owner_id) " .
-            "values(:title,:query,:last_update,:owner_id)";
+            "(title,query,driver,last_update,owner_id) " .
+            "values(:title,:query,:driver,:last_update,:owner_id)";
         $statement = $this->executeQuery($sql, $values);
         if ($statement !== false) {
             return true;
@@ -92,12 +93,13 @@ class QueryFavorite
         $values = [
             'title' => $values['title'],
             'query' => $values['query'],
+            'driver' => $values['driver'],
             'last_update' => $this->currentTime(),
             'owner_id' => $this->getOwnerId(),
             'query_id' => $queryId,
         ];
-        $sql = "update dbadmin_stored_commands set " .
-            "title=:title,query=:query,last_update=:last_update " .
+        $sql = "update dbadmin_stored_commands set title=:title," .
+            "query=:query,driver=:driver,last_update=:last_update " .
             "where id=:query_id and owner_id=:owner_id";
         $statement = $this->executeQuery($sql, $values);
         if ($statement !== false) {
@@ -156,6 +158,10 @@ class QueryFavorite
         if (isset($filters['title'])) {
             $values['title'] = "%{$filters['title']}%";
             $clauses[] = "c.title like :title";
+        }
+        if (isset($filters['driver'])) {
+            $values['driver'] = $filters['driver'];
+            $clauses[] = "c.driver=:driver";
         }
         if (isset($filters['from'])) {
             $values['from'] = $filters['from'];
