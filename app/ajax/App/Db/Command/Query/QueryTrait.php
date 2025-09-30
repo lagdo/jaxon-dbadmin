@@ -5,8 +5,6 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 
-use function trim;
-
 trait QueryTrait
 {
     /**
@@ -36,9 +34,7 @@ trait QueryTrait
     {
         // Set the current database, but do not update the databag.
         $this->db()->setCurrentDbName($this->database);
-
         $this->db()->prepareCommand();
-
         $defaultLimit = 20;
         return $this->queryUi->command($this->queryId, $this->rq(), $defaultLimit);
     }
@@ -54,15 +50,20 @@ trait QueryTrait
         $this->cl(PageActions::class)->clear();
 
         [$server,] = $this->bag('dbadmin')->get('db');
-        $driver = $this->package->getServerDriver($server);
-        $this->response->jo('jaxon.dbadmin')->createSqlQueryEditor($this->queryId, $driver);
+        $this->response->jo('jaxon.dbadmin')->createSqlQueryEditor($this->queryId,
+            $this->package->getServerDriver($server));
         if($this->query !== '')
         {
             $this->response->jo('jaxon.dbadmin')->setSqlQuery($this->query);
         }
 
-        $this->cl(History::class)->render();
-        $this->cl(Favorite::class)->render();
+        $config = $this->package->getConfig();
+        if ($config->getOption('logging.options.history.enabled')) {
+            $this->cl(History::class)->render();
+        }
+        if ($config->getOption('logging.options.favorite.enabled')) {
+            $this->cl(Favorite::class)->render();
+        }
     }
 
     /**
