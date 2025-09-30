@@ -8,7 +8,6 @@ use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Service\Options;
 use Lagdo\Facades\Logger;
 
-use function gmdate;
 use function json_encode;
 
 /**
@@ -16,7 +15,7 @@ use function json_encode;
  */
 class QueryLogger
 {
-    use OwnerTrait;
+    use ConnectionTrait;
 
     /**
      * @var bool
@@ -63,16 +62,7 @@ class QueryLogger
         }
 
         // Connect to the logging database.
-        $this->connection = $driver->createConnection($database);
-        $this->connection->open($database['name'], $database['schema'] ?? '');
-    }
-
-    /**
-     * @var ConnectionInterface|null
-     */
-    protected function connection(): ?ConnectionInterface
-    {
-        return $this->connection;
+        $this->connect($driver, $database);
     }
 
     /**
@@ -127,15 +117,19 @@ class QueryLogger
             // Hide the password.
             $this->userDatabase['password'] = '';
         }
-        $driver = $this->userDatabase['driver'];
-        $options = json_encode($this->userDatabase) ?? '{}';
+        $values = [
+            'query' => $query,
+            'driver' => $this->userDatabase['driver'],
+            'options' => json_encode($this->userDatabase) ?? '{}',
+            'category' => $category,
+            'last_update' => $this->currentTime(),
+            'owner_id' => $this->getOwnerId(),
+        ];
         // Duplicates on query are checked on client side, not here.
-        $ownerId = $this->getOwnerId();
-        $now = gmdate('Y-m-d H:i:s');
-        $statement = "insert into dbadmin_runned_commands" .
-            "(query,driver,options,category,last_update,owner_id) " .
-            "values('$query','$driver','$options',$category,'$now',$ownerId)";
-        $statement = $this->connection->query($statement) !== false;
+        $query = "insert into dbadmin_runned_commands" .
+            "(query,driver,options,category,last_update,owner_id) values" .
+            "(:query,:driver,:options,:category,:last_update,:owner_id)";
+        $statement = $this->executeQuery($query, $values);
         if ($statement !== false) {
             return true;
         }

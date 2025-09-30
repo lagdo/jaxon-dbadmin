@@ -3,20 +3,17 @@
 namespace Lagdo\DbAdmin\Service\DbAdmin;
 
 use Lagdo\DbAdmin\Config\AuthInterface;
-use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\Facades\Logger;
 
-use function count;
 use function implode;
-use function gmdate;
 
 /**
  * SQL queries logging and storage.
  */
 class QueryFavorite
 {
-    use OwnerTrait;
+    use ConnectionTrait;
 
     /**
      * @var bool
@@ -27,11 +24,6 @@ class QueryFavorite
      * @var int
      */
     private int $limit;
-
-    /**
-     * @var ConnectionInterface
-     */
-    private ConnectionInterface $connection;
 
     /**
      * The constructor
@@ -51,16 +43,7 @@ class QueryFavorite
         }
 
         // Connect to the logging database.
-        $this->connection = $driver->createConnection($database);
-        $this->connection->open($database['name'], $database['schema'] ?? '');
-    }
-
-    /**
-     * @var ConnectionInterface
-     */
-    protected function connection(): ConnectionInterface
-    {
-        return $this->connection;
+        $this->connect($driver, $database);
     }
 
     /**
@@ -78,14 +61,16 @@ class QueryFavorite
      */
     public function createQuery(array $values): bool
     {
-        $title = $values['title'];
-        $query = $values['query'];
-        $ownerId = $this->getOwnerId();
-        $now = gmdate('Y-m-d H:i:s');
-        $statement = "insert into dbadmin_stored_commands" .
+        $values = [
+            'title' => $values['title'],
+            'query' => $values['query'],
+            'last_update' => $this->currentTime(),
+            'owner_id' => $this->getOwnerId(),
+        ];
+        $sql = "insert into dbadmin_stored_commands" .
             "(title,query,last_update,owner_id) " .
-            "values('$title','$query','$now',$ownerId)";
-        $statement = $this->connection->query($statement);
+            "values(:title,:query,:last_update,:owner_id)";
+        $statement = $this->executeQuery($sql, $values);
         if ($statement !== false) {
             return true;
         }
@@ -104,14 +89,17 @@ class QueryFavorite
      */
     public function updateQuery(int $queryId, array $values): bool
     {
-        $title = $values['title'];
-        $query = $values['query'];
-        $ownerId = $this->getOwnerId();
-        $now = gmdate('Y-m-d H:i:s');
-        $statement = "update dbadmin_stored_commands set " .
-            "title='$title',query='$query',last_update='$now' " .
-            "where id=$queryId and owner_id=$ownerId";
-        $statement = $this->connection->query($statement);
+        $values = [
+            'title' => $values['title'],
+            'query' => $values['query'],
+            'last_update' => $this->currentTime(),
+            'owner_id' => $this->getOwnerId(),
+            'query_id' => $queryId,
+        ];
+        $sql = "update dbadmin_stored_commands set " .
+            "title=:title,query=:query,last_update=:last_update " .
+            "where id=:query_id and owner_id=:owner_id";
+        $statement = $this->executeQuery($sql, $values);
         if ($statement !== false) {
             return true;
         }
@@ -129,10 +117,13 @@ class QueryFavorite
      */
     public function deleteQuery(int $queryId): bool
     {
-        $ownerId = $this->getOwnerId();
-        $statement = "delete from dbadmin_stored_commands where " .
-            "id=$queryId and owner_id=$ownerId";
-        $statement = $this->connection->query($statement);
+        $values = [
+            'owner_id' => $this->getOwnerId(),
+            'query_id' => $queryId,
+        ];
+        $sql = "delete from dbadmin_stored_commands where " .
+            "id=:query_id and owner_id=:owner_id";
+        $statement = $this->executeQuery($sql, $values);
         if ($statement !== false) {
             return true;
         }
@@ -154,22 +145,27 @@ class QueryFavorite
     /**
      * @param array $filters
      *
-     * @return string
+     * @return array
      */
-    private function getWhereClause(array $filters): string
+    private function getWhereClause(array $filters): array
     {
-        $clauses = [];
+        $values = [
+            'owner_id' => $this->getOwnerId(),
+        ];
+        $clauses = ['c.owner_id=:owner_id'];
         if (isset($filters['title'])) {
-            $clauses[] = "c.title like '%{$filters['title']}%'";
+            $values['title'] = "%{$filters['title']}%";
+            $clauses[] = "c.title like :title";
         }
         if (isset($filters['from'])) {
-            $clauses[] = "c.last_update>='{$filters['from']}'";
+            $values['from'] = $filters['from'];
+            $clauses[] = "c.last_update>=:from";
         }
         if (isset($filters['to'])) {
-            $clauses[] = "c.last_update<='{$filters['to']}'";
+            $values['to'] = $filters['to'];
+            $clauses[] = "c.last_update<=:to";
         }
-        return count($clauses) === 0 ? '' : 'where ' .
-            implode(' and ', $clauses);
+        return [$values, 'where ' . implode(' and ', $clauses)];
     }
 
     /**
@@ -179,11 +175,10 @@ class QueryFavorite
      */
     public function getQueryCount(array $filters): int
     {
-        $whereClause = $this->getWhereClause($filters);
-        $statement = "select count(*) as c from dbadmin_stored_commands c " .
-            "inner join dbadmin_owners o on c.owner_id=o.id $whereClause";
-        $statement = $this->connection->query($statement);
-        return !$statement || !($row = $statement->fetchAssoc()) ? 0 : $row['c'];
+        [$values, $whereClause] = $this->getWhereClause($filters);
+        $sql = "select count(*) as cnt from dbadmin_stored_commands c $whereClause";
+        $statement = $this->executeQuery($sql, $values);
+        return !$statement || !($row = $statement->fetchAssoc()) ? 0 : $row['cnt'];
     }
 
     /**
@@ -194,13 +189,13 @@ class QueryFavorite
      */
     public function getQueries(array $filters, int $page): array
     {
-        $whereClause = $this->getWhereClause($filters);
+        [$values, $whereClause] = $this->getWhereClause($filters);
         $offsetClause = $page > 1 ? 'offset ' . ($page - 1) * $this->limit : '';
         // PostgreSQL doesn't allow the use of distinct and order by
         // a field not in the select clause in the same SQL query.
-        $statement = "select c.* from dbadmin_stored_commands c $whereClause " .
+        $sql = "select c.* from dbadmin_stored_commands c $whereClause " .
             "order by c.last_update desc,c.id desc limit {$this->limit} $offsetClause";
-        $statement = $this->connection->query($statement);
+        $statement = $this->executeQuery($sql, $values);
         if ($statement !== false) {
             $commands = [];
             while (($row = $statement->fetchAssoc())) {
@@ -222,10 +217,13 @@ class QueryFavorite
      */
     public function getQuery(int $queryId): ?array
     {
-        $ownerId = $this->getOwnerId();
-        $statement = "select c.* from dbadmin_stored_commands c where " .
-            "id=$queryId and owner_id=$ownerId";
-        $statement = $this->connection->query($statement);
+        $values = [
+            'query_id' => $queryId,
+            'owner_id' => $this->getOwnerId(),
+        ];
+        $sql = "select c.* from dbadmin_stored_commands c where " .
+            "id=:query_id and owner_id=:owner_id";
+        $statement = $this->executeQuery($sql, $values);
         return !$statement ? null : $statement->fetchAssoc();
     }
 }

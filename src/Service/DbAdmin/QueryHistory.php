@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\Service\DbAdmin;
 
 use Lagdo\DbAdmin\Config\AuthInterface;
-use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Service\Options;
 use Lagdo\Facades\Logger;
@@ -13,7 +12,7 @@ use Lagdo\Facades\Logger;
  */
 class QueryHistory
 {
-    use OwnerTrait;
+    use ConnectionTrait;
 
     /**
      * @var bool
@@ -29,11 +28,6 @@ class QueryHistory
      * @var int
      */
     private int $historyLimit;
-
-    /**
-     * @var ConnectionInterface
-     */
-    private ConnectionInterface $connection;
 
     /**
      * The constructor
@@ -54,16 +48,7 @@ class QueryHistory
         }
 
         // Connect to the logging database.
-        $this->connection = $driver->createConnection($database);
-        $this->connection->open($database['name'], $database['schema'] ?? '');
-    }
-
-    /**
-     * @var ConnectionInterface
-     */
-    protected function connection(): ConnectionInterface
-    {
-        return $this->connection;
+        $this->connect($driver, $database);
     }
 
     /**
@@ -92,10 +77,14 @@ class QueryHistory
         $category = Options::CAT_EDITOR;
         $select = $this->historyDistinct && $this->driver->jush() !== 'pgsql' ?
             'select distinct' : 'select';
-        $statement = "$select query from dbadmin_runned_commands c " .
-            "where c.owner_id=$ownerId and c.category=$category " .
+        $query = "$select query from dbadmin_runned_commands c " .
+            "where c.owner_id=:owner_id and c.category=:category " .
             "order by c.last_update desc limit {$this->historyLimit}";
-        $statement = $this->connection->query($statement);
+        $values = [
+            'owner_id' => $ownerId,
+            'category' => $category,
+        ];
+        $statement = $this->executeQuery($query, $values);
         if ($statement !== false) {
             $commands = [];
             $id = 1;
