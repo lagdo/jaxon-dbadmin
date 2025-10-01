@@ -34,7 +34,9 @@ trait QueryTrait
     {
         // Set the current database, but do not update the databag.
         $this->db()->setCurrentDbName($this->database);
+
         $this->db()->prepareCommand();
+
         $defaultLimit = 20;
         return $this->queryUi->command($this->queryId, $this->rq(), $defaultLimit);
     }
@@ -57,6 +59,9 @@ trait QueryTrait
             $this->response->jo('jaxon.dbadmin')->setSqlQuery($this->query);
         }
 
+        if (!$this->package->hasLoggingDatabase()) {
+            return;
+        }
         $config = $this->package->getConfig();
         if ($config->getOption('logging.options.history.enabled')) {
             $this->cl(History::class)->render();

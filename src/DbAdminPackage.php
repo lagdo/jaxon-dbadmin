@@ -5,6 +5,8 @@ namespace Lagdo\DbAdmin;
 use Jaxon\Plugin\AbstractPackage;
 use Lagdo\DbAdmin\Ajax\App\Admin;
 
+use function in_array;
+use function is_array;
 use function realpath;
 use function Jaxon\cl;
 use function Jaxon\rq;
@@ -87,6 +89,16 @@ class DbAdminPackage extends AbstractPackage
         }
         // Check in global options
         return $this->getOption('access.server', true) === true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasLoggingDatabase(): bool
+    {
+        $options = $this->getOption('logging.database');
+        return is_array($options) && isset($options['driver']) &&
+            in_array($options['driver'], ['pgsql', 'mysql', 'sqlite']);
     }
 
     /**

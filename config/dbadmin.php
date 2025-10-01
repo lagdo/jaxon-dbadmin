@@ -138,19 +138,24 @@ return [
             Config\UserFileReader::class => function($di) {
                 return new Config\UserFileReader(getAuth($di));
             },
+            // Database options for logging
+            'dbadmin_logging_database' => function($di) {
+                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                return !$package->hasLoggingDatabase() ? null :
+                    $package->getOption('logging.database');
+            },
             // Database driver for logging
             'dbadmin_logging_driver' => function($di) {
-                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
-                $options = $package->getOption('logging.database');
+                $options = $di->g('dbadmin_logging_database');
                 return Driver\Driver::createDriver($options);
             },
             // Query logger
             Service\DbAdmin\QueryLogger::class => function($di) {
                 $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
                 $options = $package->getOption('logging.options');
-                $database = $package->getOption('logging.database');
-                if (!$di->h(Config\AuthInterface::class) ||
-                    !is_array($options) || !is_array($database)) {
+                $database = $di->g('dbadmin_logging_database');
+                if (!is_array($database) || !is_array($options) ||
+                    !$di->h(Config\AuthInterface::class)) {
                     return null;
                 }
 
@@ -169,9 +174,9 @@ return [
             Service\DbAdmin\QueryHistory::class => function($di) {
                 $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
                 $options = $package->getOption('logging.options');
-                $database = $package->getOption('logging.database');
-                if (!$di->h(Config\AuthInterface::class) ||
-                    !is_array($options) || !is_array($database)) {
+                $database = $di->g('dbadmin_logging_database');
+                if (!is_array($database) || !is_array($options) ||
+                    !$di->h(Config\AuthInterface::class)) {
                     return null;
                 }
 
@@ -184,9 +189,9 @@ return [
             Service\DbAdmin\QueryFavorite::class => function($di) {
                 $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
                 $options = $package->getOption('logging.options');
-                $database = $package->getOption('logging.database');
-                if (!$di->h(Config\AuthInterface::class) ||
-                    !is_array($options) || !is_array($database)) {
+                $database = $di->g('dbadmin_logging_database');
+                if (!is_array($database) || !is_array($options) ||
+                    !$di->h(Config\AuthInterface::class)) {
                     return null;
                 }
 
