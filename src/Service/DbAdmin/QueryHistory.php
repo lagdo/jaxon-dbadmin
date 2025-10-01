@@ -77,7 +77,7 @@ class QueryHistory
         $category = Options::CAT_EDITOR;
         $select = $this->historyDistinct && $this->driver->jush() !== 'pgsql' ?
             'select distinct' : 'select';
-        $query = "$select query from dbadmin_runned_commands c " .
+        $query = "$select driver,query from dbadmin_runned_commands c " .
             "where c.owner_id=:owner_id and c.category=:category " .
             "order by c.last_update desc limit {$this->historyLimit}";
         $values = [
@@ -89,7 +89,7 @@ class QueryHistory
             $commands = [];
             $id = 1;
             while (($row = $statement->fetchAssoc())) {
-                $commands[$id++] = $row['query'];
+                $commands[$id++] = $row;
             }
             return $commands;
         }

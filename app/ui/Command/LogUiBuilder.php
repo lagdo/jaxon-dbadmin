@@ -63,10 +63,6 @@ class LogUiBuilder
      */
     public function history(array $queries): string
     {
-        if (count($queries) === 0) {
-            return '';
-        }
-
         $btnCopyHandler = jo('jaxon.dbadmin.history')->copySqlQuery(jq());
         $btnInsertHandler = jo('jaxon.dbadmin.history')->insertSqlQuery(jq());
         return $this->ui->build(
@@ -83,8 +79,12 @@ class LogUiBuilder
                         $this->ui->tbody(
                             $this->ui->each($queries, fn($query, $id) =>
                                 $this->ui->tr(
-                                    $this->ui->td($query)
-                                        ->setId("dbadmin-history-query-$id"),
+                                    $this->ui->td(
+                                        $this->ui->div("[{$query['driver']}]")
+                                            ->setStyle('font-size:14px; font-style:italic;'),
+                                        $this->ui->div($query['query'])
+                                            ->setId("dbadmin-history-query-$id")
+                                    ),
                                     $this->ui->td($this->historyButtons())
                                         ->setDataQueryId($id)
                                         ->setStyle('width:50px;')
