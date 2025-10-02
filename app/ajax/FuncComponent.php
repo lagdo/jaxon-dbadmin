@@ -11,6 +11,7 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
 
 /**
  * @databag dbadmin
+ * @callback jaxon.dbadmin.callback.spinner
  */
 class FuncComponent extends JaxonFuncComponent
 {

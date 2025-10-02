@@ -10,6 +10,7 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
 
 /**
  * @databag dbadmin
+ * @callback jaxon.dbadmin.callback.spinner
  */
 abstract class PageComponent extends BaseComponent
 {

@@ -7,6 +7,9 @@ use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\MenuBuilder;
 
+/**
+ * @callback jaxon.dbadmin.callback.spinner
+ */
 abstract class MenuComponent extends Component
 {
     /**
@@ -14,7 +17,8 @@ abstract class MenuComponent extends Component
      * @param Translator $trans
      * @param DbFacade $db
      */
-    public function __construct(private MenuBuilder $ui, private Translator $trans, private DbFacade $db)
+    public function __construct(private MenuBuilder $ui,
+        private Translator $trans, private DbFacade $db)
     {}
 
     /**

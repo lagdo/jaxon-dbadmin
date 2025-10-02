@@ -124,3 +124,35 @@ jaxon.dbadmin = (function() {
         },
     };
 })();
+
+jaxon.dom.ready(() => {
+    const spin = {
+        spinner: new Spin.Spinner({ position: 'fixed' }),
+        count: 0, // To make sure that the spinner is started once.
+    };
+
+    const spinnerCallback = {
+        onRequest: function() {
+            if(spin.count++ === 0)
+            {
+                spin.spinner.spin(document.body);
+            }
+        },
+        onComplete: function() {
+            if(--spin.count === 0)
+            {
+                spin.spinner.stop();
+            }
+        },
+        onFailure: function() {
+            if(--spin.count === 0)
+            {
+                spin.spinner.stop();
+            }
+        },
+    };
+
+    jaxon.dbadmin.callback = {
+        spinner: spinnerCallback,
+    };
+});
