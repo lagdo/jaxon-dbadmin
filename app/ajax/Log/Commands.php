@@ -16,6 +16,7 @@ use function trim;
 
 /**
  * @databag dbadmin.logging
+ * @callback jaxon.dbadmin.callback.spinner
  */
 class Commands extends PageComponent
 {
