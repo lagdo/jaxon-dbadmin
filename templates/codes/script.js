@@ -46,6 +46,8 @@ jaxon.dbadmin = (function() {
             selectionStyle: "text",
             dragEnabled: false,
             useWorker: false,
+            enableBasicAutocompletion: true,
+            enableSnippets: false,
             enableLiveAutocompletion: true,
             showPrintMargin: false,
         });
