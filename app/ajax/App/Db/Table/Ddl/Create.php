@@ -2,6 +2,9 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl;
 
+use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Before;
+use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Tables;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
@@ -11,9 +14,8 @@ use function Jaxon\jq;
 
 /**
  * Create a new table
- *
- * @databag dbadmin.table
  */
+#[Databag('dbadmin.table')]
 class Create extends MainComponent
 {
     /**
@@ -84,10 +86,9 @@ class Create extends MainComponent
     /**
      * Show the create table page
      *
-     * @after showBreadcrumbs
-     *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function show(): void
     {
         $this->render();
@@ -95,12 +96,12 @@ class Create extends MainComponent
 
     /**
      * Create a new table
-     * @before notYetAvailable
      *
      * @param array  $values      The table values
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
     public function save(array $values): void
     {
         // $fields = $this->bag('dbadmin.table')->get('fields');

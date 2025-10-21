@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Page;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\MenuComponent;
 
 class DbConnection extends MenuComponent
@@ -25,13 +26,12 @@ class DbConnection extends MenuComponent
     }
 
     /**
-     * @exclude
-     *
      * @param string $server
      * @param string $user
      *
      * @return void
      */
+    #[Exclude]
     public function show(string $server, string $user): void
     {
         $this->server = $server;

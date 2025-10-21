@@ -2,13 +2,12 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Page;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\Component;
 
 use function array_merge;
 
-/**
- * @exclude
- */
+#[Exclude]
 class Breadcrumbs extends Component
 {
     /**

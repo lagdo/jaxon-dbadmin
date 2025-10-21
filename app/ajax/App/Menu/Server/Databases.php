@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Menu\Server;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\MenuComponent;
 
 class Databases extends MenuComponent
@@ -20,12 +21,11 @@ class Databases extends MenuComponent
     }
 
     /**
-     * @exclude
-     *
      * @param array $databases
      *
      * @return void
      */
+    #[Exclude]
     public function showDatabases(array $databases): void
     {
         $this->databases = $databases;
@@ -33,12 +33,11 @@ class Databases extends MenuComponent
     }
 
     /**
-     * @exclude
-     *
      * @param string $database
      *
      * @return void
      */
+    #[Exclude]
     public function change(string $database): void
     {
         // Change the value of the select field in the component content.

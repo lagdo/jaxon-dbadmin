@@ -2,11 +2,10 @@
 
 namespace Lagdo\DbAdmin\Ajax\App;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\Component;
 
-/**
- * @exclude
- */
+#[Exclude]
 class Wrapper extends Component
 {
     /**

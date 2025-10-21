@@ -2,15 +2,15 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db;
 
+use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\Component as BaseComponent;
 
 use function count;
 
 /**
  * Base component for classes that need a db server selected.
- *
- * @before selectDatabase
  */
+#[Before('selectDatabase')]
 abstract class Component extends BaseComponent
 {
     /**

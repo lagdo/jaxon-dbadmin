@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\Component;
 use Lagdo\DbAdmin\Ui\Table\SelectUiBuilder;
 
@@ -9,9 +10,8 @@ use function is_float;
 
 /**
  * This component displays the SQL query duration.
- *
- * @exclude
  */
+#[Exclude]
 class Duration extends Component
 {
     /**

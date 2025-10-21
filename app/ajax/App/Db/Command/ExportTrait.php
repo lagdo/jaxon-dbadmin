@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
 
+use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Ui\Command\ExportUiBuilder;
 
@@ -131,12 +132,12 @@ trait ExportTrait
 
     /**
      * Export a set of databases on a server
-     * @before notYetAvailable
      *
      * @param array $formValues
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
     public function exportSet(array $formValues): void
     {
         $databases = [
@@ -153,13 +154,13 @@ trait ExportTrait
 
     /**
      * Export one database on a server
-     * @before notYetAvailable
      *
      * @param string $database    The database name
      * @param array $formValues
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
     public function exportOne(string $database, array $formValues): void
     {
         $databases = [

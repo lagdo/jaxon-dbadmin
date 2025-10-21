@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
 
+use Jaxon\Attributes\Attribute\Before;
+use Jaxon\Attributes\Attribute\Upload;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Ui\Command\ImportUiBuilder;
 
@@ -65,27 +67,26 @@ trait ImportTrait
 
     /**
      * Run a webfile
-     * @before notYetAvailable
      *
      * @param string $database    The database name
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
     public function executeWebFile(string $database): void
     {
     }
 
     /**
      * Run a webfile
-     * @before notYetAvailable
-     *
-     * @upload dbadmin-import-sql-files-input
      *
      * @param string $database    The database name
      * @param array $formValues
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
+    #[Upload('dbadmin-import-sql-files-input')]
     public function executeSqlFiles(string $database, array $formValues): void
     {
         // Set the current database, but do not update the databag.

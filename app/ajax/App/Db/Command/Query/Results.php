@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Ajax\Component;
 use Lagdo\DbAdmin\Db\DbFacade;
@@ -11,9 +12,7 @@ use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 use function intval;
 use function trim;
 
-/**
- * @exclude
- */
+#[Exclude]
 class Results extends Component
 {
     /**

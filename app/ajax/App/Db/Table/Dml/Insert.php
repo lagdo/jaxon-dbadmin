@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dml;
 
+use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Table;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
@@ -11,8 +13,8 @@ use function Jaxon\je;
 
 /**
  * This class provides insert and update query features on tables.
- * @before notYetAvailable
  */
+#[Before('notYetAvailable')]
 class Insert extends MainComponent
 {
     /**
@@ -65,10 +67,9 @@ class Insert extends MainComponent
     /**
      * Show the update query form
      *
-     * @after showBreadcrumbs
-     *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function show(): void
     {
         $this->queryData = $this->db()->getQueryData($this->getTableName());

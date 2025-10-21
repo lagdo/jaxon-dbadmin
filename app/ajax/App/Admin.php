@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App;
 
+use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\Ajax\Component;
 use Lagdo\DbAdmin\Ajax\App\Db\Server\Server;
 
@@ -21,12 +22,11 @@ class Admin extends Component
     /**
      * Connect to a database server.
      *
-     * @after showBreadcrumbs
-     *
      * @param string $server      The database server id in the package config
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function server(string $server): void
     {
         $this->logger()->info('Connecting to server', ['server' => $server]);

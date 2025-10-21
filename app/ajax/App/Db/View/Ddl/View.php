@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\View\Ddl;
 
+use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Views;
 use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\View\Dql\Select;
@@ -72,12 +74,11 @@ class View extends FuncComponent
     /**
      * Show detailed info of a given view
      *
-     * @after showBreadcrumbs
-     *
      * @param string $view        The view name
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function show(string $view): void
     {
         $viewInfo = $this->db()->getViewInfo($view);
@@ -126,12 +127,12 @@ class View extends FuncComponent
 
     /**
      * Create a new view
-     * @before notYetAvailable
      *
      * @param array $values      The view values
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
     public function create(array $values): void
     {
         $values['materialized'] = isset($values['materialized']);
@@ -149,13 +150,13 @@ class View extends FuncComponent
 
     /**
      * Update a given view
-     * @before notYetAvailable
      *
      * @param string $view        The view name
      * @param array $values      The view values
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
     public function update(string $view, array $values): void
     {
         $values['materialized'] = isset($values['materialized']);
@@ -173,12 +174,12 @@ class View extends FuncComponent
 
     /**
      * Drop a given view
-     * @before notYetAvailable
      *
      * @param string $view        The view name
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
     public function drop(string $view): void
     {
         $result = $this->db()->dropView($view);

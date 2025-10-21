@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
+use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
 class Status extends MainComponent
@@ -31,10 +32,10 @@ class Status extends MainComponent
 
     /**
      * Show the status of a server
-     * @after showBreadcrumbs
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function show(): void
     {
         $this->pageContent = $this->db()->getStatus();

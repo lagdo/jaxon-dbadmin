@@ -2,24 +2,25 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dml;
 
+use Jaxon\Attributes\Attribute\Before;
+use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\FuncComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
 
 /**
  * This class provides insert and update query features on tables.
- * @before notYetAvailable
  */
+#[Before('notYetAvailable')]
 class Delete extends FuncComponent
 {
     /**
      * Execute the delete query
      *
-     * @databag('name' => 'dbadmin.select')
-     *
      * @param array  $rowIds        The row identifiers
      *
      * @return void
      */
+    #[Databag('dbadmin.select')]
     public function exec(array $rowIds): void
     {
         $results = $this->db()->deleteItem($this->getTableName(), $rowIds);

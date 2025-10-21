@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\App\Page;
 
 use Jaxon\App\Component;
+use Jaxon\Attributes\Attribute\Exclude;
 
 class Content extends Component
 {
@@ -20,12 +21,11 @@ class Content extends Component
     }
 
     /**
-     * @exclude
-     *
      * @param string $html
      *
      * @return void
      */
+    #[Exclude]
     public function showHtml(string $html): void
     {
         $this->html = $html;

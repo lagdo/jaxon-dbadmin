@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
+use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\Ajax\App\Db\Command\ImportTrait;
 use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
@@ -34,10 +35,10 @@ class Import extends Component
 
     /**
      * Show the import form for a server
-     * @after showBreadcrumbs
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function server(): void
     {
         $this->render();

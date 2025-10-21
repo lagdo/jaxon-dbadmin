@@ -3,11 +3,10 @@
 namespace Lagdo\DbAdmin\Ajax\Log;
 
 use Jaxon\App\Component;
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ui\Logging\LogUiBuilder;
 
-/**
- * @exclude
- */
+#[Exclude]
 class Wrapper extends Component
 {
     /**

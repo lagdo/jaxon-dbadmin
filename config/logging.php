@@ -24,7 +24,9 @@ function getAuth(): Config\AuthInterface
 }
 
 return [
-    'metadata' => 'annotations',
+    'metadata' => [
+        'format' => 'attributes',
+    ],
     'directories' => [
         [
             'path' => __DIR__ . '/../app/ajax/Log',

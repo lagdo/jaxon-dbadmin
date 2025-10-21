@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
@@ -11,9 +12,8 @@ use function html_entity_decode;
 
 /**
  * This component displays the SQL query.
- *
- * @exclude
  */
+#[Exclude]
 class QueryText extends Component
 {
     use QueryTrait;

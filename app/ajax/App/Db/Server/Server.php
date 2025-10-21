@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Database;
 use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Command as DatabaseCommand;
@@ -28,12 +29,11 @@ class Server extends FuncComponent
      * Connect to a db server.
      * The database list will be displayed in the HTML select component.
      *
-     * @exclude
-     *
      * @param string $server
      *
      * @return void
      */
+    #[Exclude]
     public function connect(string $server): void
     {
         // Save the selected server in the databag

@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl;
 
+use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Component;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
@@ -14,9 +15,8 @@ use function count;
  * When creating or modifying a table, this class
  * provides CRUD features on table columns.
  * It does not persist data. It only updates the UI.
- *
- * @databag dbadmin.table
  */
+#[Databag('dbadmin.table')]
 class Columns extends Component
 {
     /**

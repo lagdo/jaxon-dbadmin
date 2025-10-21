@@ -2,6 +2,9 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dml;
 
+use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Before;
+use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
@@ -9,8 +12,8 @@ use function Jaxon\je;
 
 /**
  * This class provides insert and update query features on tables.
- * @before notYetAvailable
  */
+#[Before('notYetAvailable')]
 class Update extends MainComponent
 {
     /**
@@ -69,12 +72,11 @@ class Update extends MainComponent
     /**
      * Show the update query form
      *
-     * @after showBreadcrumbs
-     *
      * @param array  $rowIds        The row identifiers
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function show(array $rowIds): void
     {
         $this->rowIds = $rowIds;
@@ -92,10 +94,9 @@ class Update extends MainComponent
     /**
      * Get back to the select query from which the update or delete was called
      *
-     * @databag('name' => 'dbadmin.select')
-     *
      * @return void
      */
+    #[Databag('dbadmin.select')]
     public function back(): void
     {
         // $select = $this->cl(Select::class);
@@ -106,13 +107,12 @@ class Update extends MainComponent
     /**
      * Execute the update query
      *
-     * @databag('name' => 'dbadmin.select')
-     *
      * @param array  $rowIds        The row selector
      * @param array  $options       The query options
      *
      * @return void
      */
+    #[Databag('dbadmin.select')]
     public function exec(array $rowIds, array $options): void
     {
         $options['where'] = $rowIds['where'];

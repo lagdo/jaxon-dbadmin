@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
+use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Query as QueryEdit;
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Tables;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Table;
@@ -89,12 +90,12 @@ class Select extends MainComponent
 
     /**
      * Show the select query form
-     * @after showBreadcrumbs
      *
      * @param string $table       The table name
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function show(string $table): void
     {
         // Save the table name in the databag.
@@ -107,10 +108,10 @@ class Select extends MainComponent
 
     /**
      * Edit the current select query
-     * @after showBreadcrumbs
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function edit(): void
     {
         $this->cl(QueryEdit::class)->database($this->getSelectQuery());

@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Menu\Database;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\MenuComponent;
 
 class Schemas extends MenuComponent
@@ -25,13 +26,12 @@ class Schemas extends MenuComponent
     }
 
     /**
-     * @exclude
-     *
      * @param string $database
      * @param array $schemas
      *
      * @return void
      */
+    #[Exclude]
     public function showDbSchemas(string $database, array $schemas): void
     {
         $this->database = $database;

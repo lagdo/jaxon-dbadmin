@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
+use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\Ajax\App\Db\Command\Query\QueryTrait;
 use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
@@ -34,12 +35,12 @@ class Query extends Component
 
     /**
      * Show the SQL command form for a database
-     * @after showBreadcrumbs
      *
      * @param string $query       The SQL query to display
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function database(string $query = ''): void
     {
         [, $this->database] = $this->bag('dbadmin')->get('db');

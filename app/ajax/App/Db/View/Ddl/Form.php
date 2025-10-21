@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\View\Ddl;
 
+use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\Ajax\App\Db\Component;
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Views;
 use Lagdo\DbAdmin\Ajax\App\Db\View\Dql\Select;
@@ -62,8 +63,8 @@ class Form extends Component
 
     /**
      * @return void
-     * @after showBreadcrumbs
      */
+    #[After('showBreadcrumbs')]
     public function add(): void
     {
         $this->data = ['materialized' => $this->db()->support('materializedview')];
@@ -85,8 +86,8 @@ class Form extends Component
      * @param string $view
      *
      * @return void
-     * @after showBreadcrumbs
      */
+    #[After('showBreadcrumbs')]
     public function edit(string $view): void
     {
         $this->data = $this->db()->getView($view);

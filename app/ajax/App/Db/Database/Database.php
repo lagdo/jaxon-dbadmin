@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
+use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\Server\Databases;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
@@ -33,13 +35,12 @@ class Database extends FuncComponent
     /**
      * Select a database
      *
-     * @after showBreadcrumbs
-     *
      * @param string $database    The database name
      * @param string $schema      The database schema
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function select(string $database, string $schema = ''): void
     {
         [$server,] = $this->bag('dbadmin')->get('db');
@@ -74,10 +75,10 @@ class Database extends FuncComponent
 
     /**
      * Show the  create database dialog
-     * @before notYetAvailable
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
     public function add(): void
     {
         $collations = $this->db()->getCollations();
@@ -99,12 +100,12 @@ class Database extends FuncComponent
 
     /**
      * Show the  create database dialog
-     * @before notYetAvailable
      *
      * @param array $formValues  The form values
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
     public function create(array $formValues): void
     {
         $database = $formValues['name'];
@@ -123,12 +124,12 @@ class Database extends FuncComponent
 
     /**
      * Drop a database
-     * @before notYetAvailable
      *
      * @param string $database    The database name
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
     public function drop(string $database): void
     {
         if(!$this->db()->dropDatabase($database))

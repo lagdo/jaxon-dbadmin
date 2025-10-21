@@ -2,13 +2,13 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
+use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\Component as BaseComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\Content;
 
-/**
- * @before checkDatabaseAccess
- * @after showBreadcrumbs
- */
+#[Before('checkDatabaseAccess')]
+#[After('showBreadcrumbs')]
 abstract class MainComponent extends BaseComponent
 {
     /**

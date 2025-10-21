@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl;
 
+use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Tables;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dml\Insert;
@@ -21,12 +22,11 @@ class Table extends MainComponent
     /**
      * Show detailed info of a given table
      *
-     * @after showBreadcrumbs
-     *
      * @param string $table       The table name
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function show(string $table): void
     {
         // Save the table name in the databag.

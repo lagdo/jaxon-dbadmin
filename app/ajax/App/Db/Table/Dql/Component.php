@@ -2,15 +2,15 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
+use Jaxon\Attributes\Attribute\Before;
+use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Component as BaseComponent;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\Table\SelectUiBuilder;
 
-/**
- * @databag dbadmin.select
- * @before setDefaultSelectOptions
- */
+#[Databag('dbadmin.select')]
+#[Before('setDefaultSelectOptions')]
 abstract class Component extends BaseComponent
 {
     use ComponentTrait;

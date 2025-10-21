@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
+use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\Ajax\App\Db\Command\ExportTrait;
 use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
@@ -34,10 +35,10 @@ class Export extends Component
 
     /**
      * Show the export form for a database
-     * @after showBreadcrumbs
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function database(): void
     {
         [, $this->database] = $this->bag('dbadmin')->get('db');

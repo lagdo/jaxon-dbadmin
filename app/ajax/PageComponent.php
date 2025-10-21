@@ -3,15 +3,15 @@
 namespace Lagdo\DbAdmin\Ajax;
 
 use Jaxon\App\PageComponent as BaseComponent;
+use Jaxon\Attributes\Attribute\Callback;
+use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
-/**
- * @databag dbadmin
- * @callback jaxon.dbadmin.callback.spinner
- */
+#[Databag('dbadmin')]
+#[Callback('jaxon.dbadmin.callback.spinner')]
 abstract class PageComponent extends BaseComponent
 {
     use ComponentTrait;

@@ -2,13 +2,12 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\Component;
 use Lagdo\DbAdmin\Service\DbAdmin\QueryHistory;
 use Lagdo\DbAdmin\Ui\Command\LogUiBuilder;
 
-/**
- * @exclude
- */
+#[Exclude]
 class History extends Component
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
+use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Database;
 use Lagdo\DbAdmin\Ajax\App\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
@@ -42,10 +43,10 @@ class Databases extends MainComponent
 
     /**
      * Show the databases of a server
-     * @after showBreadcrumbs
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function show(): void
     {
         // Access to servers is forbidden. Show the first database.

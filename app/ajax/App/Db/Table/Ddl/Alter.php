@@ -2,6 +2,9 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl;
 
+use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Before;
+use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
@@ -11,10 +14,9 @@ use function Jaxon\je;
 
 /**
  * Alter or drop a table
- *
- * @databag dbadmin.table
- * @after showBreadcrumbs
  */
+#[Databag('dbadmin.table')]
+#[After('showBreadcrumbs')]
 class Alter extends MainComponent
 {
     /**
@@ -103,12 +105,12 @@ class Alter extends MainComponent
     }
 
     /**
-     * @before notYetAvailable
      * @param string $table      The table name
      * @param array  $values      The table values
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
     public function save(string $table, array $values): void
     {
         // $table = $this->getTableName();
@@ -127,11 +129,11 @@ class Alter extends MainComponent
     }
 
     /**
-     * @before notYetAvailable
      * @param string $table      The table name
      *
      * @return void
      */
+    #[Before('notYetAvailable')]
     public function drop(string $table): void
     {
     }

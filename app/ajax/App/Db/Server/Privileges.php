@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
+use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Ui\InputBuilder;
 
@@ -16,9 +18,9 @@ class Privileges extends MainComponent
     private $pageContent;
 
     /**
-     * @di
      * @var InputBuilder
      */
+    #[Inject]
     private InputBuilder $inputUi;
 
     /**
@@ -46,10 +48,10 @@ class Privileges extends MainComponent
 
     /**
      * Show the privileges of a server
-     * @after showBreadcrumbs
      *
      * @return void
      */
+    #[After('showBreadcrumbs')]
     public function show(): void
     {
         $this->pageContent = $this->db()->getPrivileges();

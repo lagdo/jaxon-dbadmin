@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Menu;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Events;
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Routines;
 use Lagdo\DbAdmin\Ajax\App\Db\Database\Sequences;
@@ -38,12 +39,11 @@ class Sections extends MenuComponent
     }
 
     /**
-     * @exclude
-     *
      * @param string $activeItem
      *
      * @return void
      */
+    #[Exclude]
     public function server(string $activeItem = ''): void
     {
         $this->activeItem = $activeItem;
@@ -84,12 +84,11 @@ class Sections extends MenuComponent
     }
 
     /**
-     * @exclude
-     *
      * @param string $activeItem
      *
      * @return void
      */
+    #[Exclude]
     public function database(string $activeItem = ''): void
     {
         $this->activeItem = $activeItem;

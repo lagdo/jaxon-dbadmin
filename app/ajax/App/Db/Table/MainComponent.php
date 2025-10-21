@@ -2,15 +2,14 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table;
 
+use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\App\Page\Content;
 use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\Table\TableUiBuilder;
 
-/**
- * @before checkDatabaseAccess
- */
+#[Before('checkDatabaseAccess')]
 abstract class MainComponent extends Component
 {
     use ComponentTrait;

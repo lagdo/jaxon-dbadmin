@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax;
 
 use Jaxon\App\View\Store;
+use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\App\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Ajax\Exception\AppException;
 use Lagdo\DbAdmin\DbAdminPackage;
@@ -13,9 +14,8 @@ use Exception;
 
 /**
  * Commont functions for component classes
- *
- * @databag dbadmin
  */
+#[Databag('dbadmin')]
 trait ComponentTrait
 {
     /**

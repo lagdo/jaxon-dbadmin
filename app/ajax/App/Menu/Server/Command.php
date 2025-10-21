@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Menu\Server;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\App\Db\Server\Export;
 use Lagdo\DbAdmin\Ajax\App\Db\Server\Import;
 use Lagdo\DbAdmin\Ajax\App\Db\Server\Query;
@@ -40,12 +41,11 @@ class Command extends MenuComponent
     }
 
     /**
-     * @exclude
-     *
      * @param string $activeItem
      *
      * @return void
      */
+    #[Exclude]
     public function server(string $activeItem = ''): void
     {
         $this->activeItem = $activeItem;

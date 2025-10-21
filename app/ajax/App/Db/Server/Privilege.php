@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
+use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
@@ -10,9 +11,7 @@ use Lagdo\DbAdmin\Ui\Database\ServerUiBuilder;
 
 use function Jaxon\je;
 
-/**
- * @before notYetAvailable
- */
+#[Before('notYetAvailable')]
 class Privilege extends FuncComponent
 {
     /**
