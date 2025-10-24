@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
 use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\App\Db\Command\ExportTrait;
 use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
@@ -34,6 +35,17 @@ class Export extends Component
     }
 
     /**
+     * @inheritDoc
+     */
+    protected function after(): void
+    {
+        $this->response->jo('jaxon.dbadmin')
+            ->selectAllCheckboxes($this->exportUi->databaseNameId);
+        $this->response->jo('jaxon.dbadmin')
+            ->selectAllCheckboxes($this->exportUi->databaseDataId);
+    }
+
+    /**
      * Show the export form for a server
      *
      * @return void
@@ -42,5 +54,27 @@ class Export extends Component
     public function server(): void
     {
         $this->render();
+    }
+
+    /**
+     * Export a set of databases on a server
+     *
+     * @param array $formValues
+     *
+     * @return void
+     */
+    #[Before('notYetAvailable')]
+    public function export(array $formValues): void
+    {
+        $databases = [
+            'list' => $formValues['database_list'] ?? [],
+            'data' => $formValues['database_data'] ?? [],
+        ];
+        $tables = [
+            'list' => '*',
+            'data' => [],
+        ];
+
+        $this->exportDb($databases, $tables, $formValues);
     }
 }

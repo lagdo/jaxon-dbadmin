@@ -8,7 +8,6 @@ use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Ui\Command\ImportUiBuilder;
 
 use function array_map;
-use function compact;
 use function Jaxon\je;
 
 trait ImportTrait
@@ -19,79 +18,52 @@ trait ImportTrait
     protected ImportUiBuilder $importUi;
 
     /**
-     * @var string
-     */
-    private $database = '';
-
-    /**
      * @return string
      */
     public function html(): string
     {
-        // Set the current database, but do not update the databag.
-        $this->db()->setCurrentDbName($this->database);
-
         $importOptions = $this->db()->getImportOptions();
+        $formValues = je($this->importUi->formId)->rd()->form();
+        $handlers = [
+            'webFileBtn' => $this->rq()->executeWebFile(),
+            'sqlFilesBtn' => $this->rq()->executeSqlFiles($formValues),
+        ];
 
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 
-        $formId = 'dbadmin-import-form';
-        $webFileBtnId = 'dbadmin-import-web-file-btn';
-        $sqlFilesBtnId = 'dbadmin-import-sql-files-btn';
-        $sqlChooseBtnId = 'dbadmin-import-choose-files-btn';
-        $sqlFilesDivId = 'dbadmin-import-sql-files-wrapper';
-        $sqlFilesInputId = 'dbadmin-import-sql-files-input';
-        $htmlIds = compact('formId', 'sqlFilesBtnId', 'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId');
-        return $this->importUi->page($htmlIds, $importOptions['contents'], $importOptions['labels']);
+        return $this->importUi->import($importOptions['contents'], $handlers);
     }
 
     /**
-     * Called after rendering the component.
-     *
-     * @return void
+     * @inheritDoc
      */
     protected function after(): void
     {
-        $formId = 'dbadmin-import-form';
-        $webFileBtnId = 'dbadmin-import-web-file-btn';
-        $sqlFilesBtnId = 'dbadmin-import-sql-files-btn';
-        $sqlChooseBtnId = 'dbadmin-import-choose-files-btn';
-        $sqlFilesDivId = 'dbadmin-import-sql-files-wrapper';
-        $sqlFilesInputId = 'dbadmin-import-sql-files-input';
-        $this->response->jo('jaxon.dbadmin')->setFileUpload("#$sqlFilesDivId", "#$sqlChooseBtnId", "#$sqlFilesInputId");
-
-        $this->response->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($this->database));
-        $this->response->jq("#$sqlFilesBtnId")->click($this->rq()->executeSqlFiles($this->database, je($formId)->rd()->form()));
+        $this->response->jo('jaxon.dbadmin')->setFileUpload("#{$this->importUi->sqlFilesDivId}");
     }
 
     /**
      * Run a webfile
-     *
-     * @param string $database    The database name
      *
      * @return void
      */
     #[Before('notYetAvailable')]
-    public function executeWebFile(string $database): void
+    public function executeWebFile(): void
     {
     }
 
     /**
      * Run a webfile
      *
-     * @param string $database    The database name
      * @param array $formValues
      *
      * @return void
      */
     #[Before('notYetAvailable')]
     #[Upload('dbadmin-import-sql-files-input')]
-    public function executeSqlFiles(string $database, array $formValues): void
+    public function executeSqlFiles(array $formValues): void
     {
-        // Set the current database, but do not update the databag.
-        $this->db()->setCurrentDbName($database);
-
         if(!($files = $this->files()['sql_files'] ?? []))
         {
             $this->alert()->title('Error')->error('No file uploaded!');
@@ -101,7 +73,6 @@ trait ImportTrait
         $paths = array_map(fn($file) => $file->path(), $files);
         $errorStops = $formValues['error_stops'] ?? false;
         $onlyErrors = $formValues['only_errors'] ?? false;
-
         $queryResults = $this->db()->executeSqlFiles($paths, $errorStops, $onlyErrors);
 
         $content = $this->importUi->results($queryResults['results']);

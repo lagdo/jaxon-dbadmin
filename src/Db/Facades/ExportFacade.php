@@ -46,14 +46,11 @@ class ExportFacade extends AbstractFacade
         $results = [
             'options' => $this->getBaseOptions($database, $table),
             'prefixes' => [],
-            'labels' => [
-                'export' => $this->utils->trans->lang('Export'),
-            ],
         ];
-        if (($database)) {
-            $results['tables'] = $this->getDbTables();
-        } else {
+        if (!$database) {
             $results['databases'] = $this->getDatabases();
+        } else {
+            $results['tables'] = $this->getDbTables();
         }
         return $results;
     }
@@ -256,6 +253,7 @@ class ExportFacade extends AbstractFacade
     {
         // From dump.inc.php
         // $tables = array_flip($options['tables']) + array_flip($options['data']);
+        // Todo: use match
         // $ext = dump_headers((count($tables) == 1 ? key($tables) : DB), (DB == '' || count($tables) > 1));
         $options['is_sql'] = preg_match('~sql~', $options['format']);
         $this->databases = $databases;

@@ -2,6 +2,16 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
+use function array_map;
+use function extension_loaded;
+use function file_get_contents;
+use function function_exists;
+use function iconv;
+use function implode;
+use function ini_get;
+use function preg_match;
+use function substr;
+
 /**
  * Facade to import functions
  */
@@ -14,69 +24,46 @@ class ImportFacade extends CommandFacade
      */
     public function getImportOptions(): array
     {
-        $contents = [];
         // From sql.inc.php
-        $gz = \extension_loaded('zlib') ? '[.gz]' : '';
+        $gz = extension_loaded('zlib') ? '[.gz]' : '';
         // ignore post_max_size because it is for all form fields
         // together and bytes computing would be necessary.
-        if ($this->admin->iniBool('file_uploads')) {
-            $contents['upload'] = "SQL$gz (&lt; " . \ini_get('upload_max_filesize') . 'B)';
-        } else {
-            $contents['upload_disabled'] = $this->utils->trans->lang('File uploads are disabled.');
-        }
-
-        $importServerPath = $this->admin->importServerPath();
-        if (($importServerPath)) {
+        $contents = $this->admin->iniBool('file_uploads') ?
+            ['upload' => "SQL$gz (&lt; " . ini_get('upload_max_filesize') . 'B)'] :
+            ['upload_disabled' => $this->utils->trans->lang('File uploads are disabled.')];
+        if (($importServerPath = $this->admin->importServerPath())) {
             $contents['path'] = $this->utils->str->html($importServerPath) . $gz;
         }
 
-        $labels = [
-            'path' => $this->utils->trans->lang('Webserver file %s', ''),
-            'file_upload' => $this->utils->trans->lang('File upload'),
-            'from_server' => $this->utils->trans->lang('From server'),
-            'execute' => $this->utils->trans->lang('Execute'),
-            'run_file' => $this->utils->trans->lang('Run file'),
-            'select' => $this->utils->trans->lang('Select'),
-            'error_stops' => $this->utils->trans->lang('Stop on error'),
-            'only_errors' => $this->utils->trans->lang('Show only errors'),
-        ];
-
-        return \compact('contents', 'labels');
+        return ['contents' => $contents];
     }
 
     /**
-     * Get file contents from $_FILES
-     * From the getFile() function in functions.inc.php
+     * From the get_file() function in functions.inc.php
      *
-     * @param array $files
+     * @param string $file
      * @param bool $decompress
      *
      * @return string
      */
-    protected function readFiles(array $files, bool $decompress = false): string
+    protected function readFile(string $file, bool $decompress = false): string
     {
-        $queries = '';
-        foreach ($files as $name) {
-            $compressed = \preg_match('~\.gz$~', $name);
-            if ($decompress && $compressed) {
-                //! may not be reachable because of open_basedir
-                $content = \file_get_contents("compress.zlib://$name");
-                $start = \substr($content, 0, 3);
-                if (\function_exists("iconv") && \preg_match("~^\xFE\xFF|^\xFF\xFE~", $start, $regs)) {
-                    // not ternary operator to save memory
-                    $content = \iconv("utf-16", "utf-8", $content);
-                } elseif ($start == "\xEF\xBB\xBF") {
-                    // UTF-8 BOM
-                    $content = \substr($content, 3);
-                }
-                $queries .= $content . "\n\n";
-            } else {
-                //! may not be reachable because of open_basedir
-                $queries .= \file_get_contents($name) . "\n\n";
-            }
+        $compressed = preg_match('~\.gz$~', $file);
+        if (!$decompress || !$compressed) {
+            //! may not be reachable because of open_basedir
+            return file_get_contents($file);
         }
-        //! Does'nt support SQL files not ending with semicolon
-        return $queries;
+
+        //! may not be reachable because of open_basedir
+        $content = file_get_contents("compress.zlib://$file");
+        $start = substr($content, 0, 3);
+        return match(true) {
+            preg_match("~^\xFE\xFF|^\xFF\xFE~", $start, $regs) &&
+                function_exists("iconv") => iconv("utf-16", "utf-8", $content),
+            // UTF-8 BOM
+            $start === "\xEF\xBB\xBF" => substr($content, 3),
+            default => $content,
+        };
     }
 
     /**
@@ -90,7 +77,8 @@ class ImportFacade extends CommandFacade
      */
     public function executeSqlFiles(array $files, bool $errorStops, bool $onlyErrors): array
     {
-        $queries = $this->readFiles($files);
+        $queries = array_map(fn($file) => $this->readFile($file), $files);
+        $queries = implode("\n\n", $queries);
         return $this->executeCommands($queries, 0, $errorStops, $onlyErrors);
     }
 }

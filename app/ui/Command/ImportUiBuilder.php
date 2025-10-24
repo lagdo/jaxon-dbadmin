@@ -2,11 +2,18 @@
 
 namespace Lagdo\DbAdmin\Ui\Command;
 
+use Jaxon\Script\JsExpr;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
+use function Jaxon\jq;
+
 class ImportUiBuilder
 {
+    public string $formId = 'dbadmin-import-form';
+
+    public string $sqlFilesDivId = 'dbadmin-import-sql-files-wrapper';
+
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
@@ -15,18 +22,18 @@ class ImportUiBuilder
     {}
 
     /**
-     * @param array $htmlIds
      * @param array $contents
-     * @param array $labels
+     * @param JsExpr $handler
      *
      * @return mixed
      */
-    private function fileCol(array $htmlIds, array $contents, array $labels): mixed
+    private function fileCol(array $contents, JsExpr $handler): mixed
     {
+        $sqlFilesInputId = 'dbadmin-import-sql-files-input';
         return $this->ui->col(
             $this->ui->formRow(
                 $this->ui->formCol(
-                    $this->ui->label($labels['file_upload'])
+                    $this->ui->label($this->trans->lang('File upload'))
                 )
                 ->width(4),
                 $this->ui->when(isset($contents['upload']), fn() =>
@@ -42,27 +49,28 @@ class ImportUiBuilder
                 $this->ui->when(isset($contents['upload']), fn() =>
                     $this->ui->formCol(
                         $this->ui->inputGroup(
-                            $this->ui->button($this->ui->html($labels['select'] . '&hellip;'))
+                            $this->ui->button($this->ui->html($this->trans->lang('Select') . '&hellip;'))
                                 ->primary()
-                                ->setId($htmlIds['sqlChooseBtnId']),
+                                // Trigger a click on the hidden file select component when the user clicks on the button.
+                                ->jxnClick(jq("#$sqlFilesInputId")->trigger('click')),
                             $this->ui->input()
                                 ->setType('file')->setName('sql_files[]')
-                                ->setId($htmlIds['sqlFilesInputId'])
+                                ->setId($sqlFilesInputId)
                                 ->setMultiple('multiple')
                                 ->setStyle('display:none;'),
                             $this->ui->formInput()
                                 ->setType('text')->setReadonly('readonly')
                         )
-                        ->setId($htmlIds['sqlFilesDivId'])
+                        ->setId($this->sqlFilesDivId)
                     )
                     ->width(12)
                 )
             ),
             $this->ui->formRow(
                 $this->ui->formCol(
-                    $this->ui->button($this->ui->text($labels['execute']))
+                    $this->ui->button($this->ui->text($this->trans->lang('Execute')))
                         ->fullWidth()->primary()
-                        ->setId($htmlIds['sqlFilesBtnId'])
+                        ->jxnClick($handler)
                 )
                 ->width(4)
             ),
@@ -70,22 +78,21 @@ class ImportUiBuilder
     }
 
     /**
-     * @param array $htmlIds
      * @param array $contents
-     * @param array $labels
+     * @param JsExpr $handler
      *
      * @return mixed
      */
-    private function pathCol(array $htmlIds, array $contents, array $labels): mixed
+    private function pathCol(array $contents, JsExpr $handler): mixed
     {
         return $this->ui->col(
             $this->ui->formRow(
                 $this->ui->formCol(
-                    $this->ui->label($labels['from_server'])
+                    $this->ui->label($this->trans->lang('From server'))
                 )
                 ->width(4),
                 $this->ui->formCol(
-                    $this->ui->span($this->ui->text($labels['path']))
+                    $this->ui->span($this->ui->text($this->trans->lang('Webserver file %s', '')))
                 )
                 ->width(8)
             ),
@@ -100,9 +107,9 @@ class ImportUiBuilder
             ),
             $this->ui->formRow(
                 $this->ui->formCol(
-                    $this->ui->button($this->ui->text($labels['run_file']))
+                    $this->ui->button($this->ui->text($this->trans->lang('Run file')))
                         ->fullWidth()->primary()
-                        ->setId($htmlIds['webFileBtnId'])
+                        ->jxnClick($handler)
                 )
                 ->width(4)
             ),
@@ -110,11 +117,9 @@ class ImportUiBuilder
     }
 
     /**
-     * @param array $labels
-     *
      * @return mixed
      */
-    private function optionsCol(array $labels): mixed
+    private function optionsCol(): mixed
     {
         return $this->ui->col(
             $this->ui->formRow(
@@ -125,7 +130,7 @@ class ImportUiBuilder
                 $this->ui->formCol(
                     $this->ui->inputGroup(
                         $this->ui->label(
-                            $this->ui->text($labels['error_stops'])
+                            $this->ui->text($this->trans->lang('Stop on error'))
                         ),
                         $this->ui->checkbox()
                             ->setName('error_stops')
@@ -135,7 +140,7 @@ class ImportUiBuilder
                 $this->ui->formCol(
                     $this->ui->inputGroup(
                         $this->ui->label(
-                            $this->ui->text($labels['only_errors'])
+                            $this->ui->text($this->trans->lang('Show only errors'))
                         ),
                         $this->ui->checkbox()
                             ->setName('only_errors')
@@ -147,29 +152,30 @@ class ImportUiBuilder
     }
 
     /**
-     * @param array $htmlIds
      * @param array $contents
-     * @param array $labels
+     * @param array<JsExpr> $handlers
      *
      * @return string
      */
-    public function page(array $htmlIds, array $contents, array $labels): string
+    public function import(array $contents, array $handlers): string
     {
         return $this->ui->build(
             $this->ui->col()->width(12)->setId('dbadmin-command-details'),
             $this->ui->col(
                 $this->ui->form(
                     $this->ui->row(
-                        $this->fileCol($htmlIds, $contents, $labels)->width(6),
+                        $this->fileCol($contents, $handlers['sqlFilesBtn'])
+                            ->width(6),
                         $this->ui->when(isset($contents['path']), fn() =>
-                            $this->pathCol($htmlIds, $contents, $labels)->width(6)
+                            $this->pathCol($contents, $handlers['webFileBtn'])
+                                ->width(6)
                         ),
                     ),
                     $this->ui->row(
-                        $this->optionsCol($labels)->width(12)
+                        $this->optionsCol()->width(12)
                     )
                 )
-                ->responsive(true)->wrapped(false)->setId($htmlIds['formId'])
+                ->responsive(true)->wrapped(false)->setId($this->formId)
             )->width(12),
             $this->ui->col()->width(12)->setId('dbadmin-command-history'),
             $this->ui->col()->width(12)->setId('dbadmin-command-results')

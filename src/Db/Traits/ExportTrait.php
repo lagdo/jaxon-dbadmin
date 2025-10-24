@@ -24,15 +24,13 @@ trait ExportTrait
     /**
      * Get data for export
      *
-     * @param string $database      The database name
-     *
      * @return array
      */
-    public function getExportOptions(string $database = ''): array
+    public function getExportOptions(): array
     {
         $this->connectToDatabase();
         $this->breadcrumbs(true)->item($this->utils->trans->lang('Export'));
-        return $this->exportFacade()->getExportOptions($database);
+        return $this->exportFacade()->getExportOptions($this->dbName);
     }
 
     /**

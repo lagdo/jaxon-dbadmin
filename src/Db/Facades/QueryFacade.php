@@ -161,7 +161,7 @@ class QueryFacade extends AbstractFacade
         }
 
         $result = $this->driver->insert($table, $values);
-        $lastId = ($result ? $this->driver->lastAutoIncrementId() : 0);
+        $lastId = $result ? $this->driver->lastAutoIncrementId() : 0;
         $message = $this->utils->trans->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ''));
 
         $error = $this->driver->error();

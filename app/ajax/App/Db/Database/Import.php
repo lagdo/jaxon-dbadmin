@@ -3,12 +3,14 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 
 use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\App\Db\Command\ImportTrait;
 use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\Command\ImportUiBuilder;
 
+#[Before('setDatabase')]
 class Import extends Component
 {
     use ImportTrait;
@@ -24,6 +26,12 @@ class Import extends Component
     public function __construct(protected DbAdminPackage $package, protected DbFacade $db,
         protected ImportUiBuilder $importUi, protected Translator $trans)
     {}
+
+    protected function setDatabase(): void
+    {
+        [, $database] = $this->bag('dbadmin')->get('db');
+        $this->db()->setCurrentDbName($database);
+    }
 
     /**
      * @inheritDoc
@@ -41,7 +49,6 @@ class Import extends Component
     #[After('showBreadcrumbs')]
     public function database(): void
     {
-        [, $this->database] = $this->bag('dbadmin')->get('db');
         $this->render();
     }
 }

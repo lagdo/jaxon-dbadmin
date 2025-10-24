@@ -16,9 +16,7 @@ jaxon.dbadmin = (function() {
         $('.' + checkboxId, '#jaxon-dbadmin').prop('checked', this.checked);
     });
 
-    const setFileUpload = (container, buttonId, fileInputId) => {
-        // Trigger a click on the hidden file select component when the user clicks on the button.
-        $(buttonId).click(() => $(fileInputId).trigger("click"));
+    const setFileUpload = (container) => {
         $(container).on('change', ':file', function() {
             const fileInput = $(this);
             const numFiles = fileInput.get(0).files ? fileInput.get(0).files.length : 1;
