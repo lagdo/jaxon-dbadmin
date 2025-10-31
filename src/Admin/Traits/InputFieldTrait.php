@@ -18,6 +18,7 @@ trait InputFieldTrait
     private function getInputFieldExpression(TableFieldEntity $field, string $value, string $function): string
     {
         $expression = $this->driver->quote($value);
+        // Todo: use match
         if (preg_match('~^(now|getdate|uuid)$~', $function)) {
             return "$function()";
         }

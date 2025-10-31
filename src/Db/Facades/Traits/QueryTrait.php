@@ -118,6 +118,7 @@ trait QueryTrait
             $default = $regs[1];
         }
         // }
+        // Todo: use match
         if ($row === null) {
             return !$update && $field->autoIncrement ? "" : (isset($queryOptions["select"]) ? false : $default);
         }

@@ -156,6 +156,7 @@ trait TableTrait
     //             foreach(\array_filter($values['partition_names']) as $key => $val)
     //             {
     //                 $value = $values['partition_values'][$key];
+    //                 // Todo: use match
     //                 $partitions[] = "\n  PARTITION " . $this->driver->escapeId($val) .
     //                     ' VALUES ' . ($values['partition_by'] == 'RANGE' ? 'LESS THAN' : 'IN') .
     //                     ($value != '' ? ' ($value)' : ' MAXVALUE'); //! SQL injection

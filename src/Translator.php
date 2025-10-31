@@ -130,6 +130,7 @@ class Translator implements TranslatorInterface
         /*if (array_key_exists($string, $this->translations)) {
             $string = $this->translations[$string];
         }
+        // Todo: use match
         if (is_array($string)) {
             $pos = ($number == 1 ? 0
                 // different forms for 1, 2-4, other

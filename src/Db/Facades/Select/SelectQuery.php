@@ -233,6 +233,7 @@ class SelectQuery extends AbstractFacade
         $op = $value['op'];
         $val = $value['val'];
         $col = $value['col'];
+        // Todo: use match
         if (preg_match('~IN$~', $op)) {
             $in = $this->driver->processLength($val);
             return " $op " . ($in !== '' ? $in : '(NULL)');

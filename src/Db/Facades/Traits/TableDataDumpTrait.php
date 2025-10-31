@@ -49,6 +49,7 @@ trait TableDataDumpTrait
                 $row[$key] = '"' . str_replace('"', '""', $val) . '"';
             }
         }
+        // Todo: use match
         $separator = $this->options['format'] === 'csv' ? ',' :
             ($this->options['format'] === 'tsv' ? "\t" : ';');
         $this->queries[] = implode($separator, $row);

@@ -107,6 +107,7 @@ trait ConnectionTrait
      */
     private function getOwnerId(bool $canCreate = true): int
     {
+        // Todo: use match
         return $this->ownerId !== null ? $this->ownerId :
             ($this->readOwnerId($this->user()) ?: ($canCreate ?
                 $this->newOwnerId($this->user()) : 0));
