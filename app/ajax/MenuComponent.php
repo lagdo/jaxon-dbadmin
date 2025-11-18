@@ -3,12 +3,10 @@
 namespace Lagdo\DbAdmin\Ajax;
 
 use Jaxon\App\Component;
-use Jaxon\Attributes\Attribute\Callback;
 use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\MenuBuilder;
 
-#[Callback('jaxon.dbadmin.callback.spinner')]
 abstract class MenuComponent extends Component
 {
     /**

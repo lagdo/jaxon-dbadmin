@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl;
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Before;
 use Jaxon\Attributes\Attribute\Databag;
+use Jaxon\Attributes\Attribute\Export;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
@@ -17,6 +18,7 @@ use function Jaxon\je;
  */
 #[Databag('dbadmin.table')]
 #[After('showBreadcrumbs')]
+#[Export(['render'])]
 class Alter extends MainComponent
 {
     /**

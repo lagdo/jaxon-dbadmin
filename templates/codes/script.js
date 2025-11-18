@@ -129,30 +129,31 @@ jaxon.dom.ready(() => {
     const spin = {
         spinner: new Spin.Spinner({ position: 'fixed' }),
         count: 0, // To make sure that the spinner is started once.
+        cursor: jaxon.config.cursor.update,
     };
 
-    const spinnerCallback = {
+    // Replace the default Jaxon defined cursor with our custom spinner.
+    jaxon.config.cursor.update = {
         onRequest: function() {
             if(spin.count++ === 0)
             {
                 spin.spinner.spin(document.body);
+                spin.cursor.onRequest();
             }
         },
         onComplete: function() {
             if(--spin.count === 0)
             {
                 spin.spinner.stop();
+                spin.cursor.onComplete();
             }
         },
         onFailure: function() {
             if(--spin.count === 0)
             {
                 spin.spinner.stop();
+                spin.cursor.onFailure && spin.cursor.onFailure();
             }
         },
-    };
-
-    jaxon.dbadmin.callback = {
-        spinner: spinnerCallback,
     };
 });

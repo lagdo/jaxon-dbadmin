@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Ajax;
 
 use Jaxon\App\Component as JaxonComponent;
 use Jaxon\App\Dialog\DialogTrait;
-use Jaxon\Attributes\Attribute\Callback;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\App\Menu\Sections;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Command as DatabaseCommand;
@@ -15,7 +14,6 @@ use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
 #[Databag('dbadmin')]
-#[Callback('jaxon.dbadmin.callback.spinner')]
 abstract class Component extends JaxonComponent
 {
     use DialogTrait;

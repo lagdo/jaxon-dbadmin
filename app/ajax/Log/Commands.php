@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Ajax\Log;
 
 use Jaxon\App\Dialog\DialogTrait;
 use Jaxon\App\PageComponent;
-use Jaxon\Attributes\Attribute\Callback;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Service\Logging\QueryLogger;
 use Lagdo\DbAdmin\Translator;
@@ -17,7 +16,6 @@ use function preg_match;
 use function trim;
 
 #[Databag('dbadmin.logging')]
-#[Callback('jaxon.dbadmin.callback.spinner')]
 class Commands extends PageComponent
 {
     use DialogTrait;
