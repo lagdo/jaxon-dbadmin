@@ -4,6 +4,8 @@ namespace Lagdo\DbAdmin\Db\Traits;
 
 use Lagdo\DbAdmin\Db\Facades\ExportFacade;
 
+use function array_keys;
+
 /**
  * Facade to export functions
  */
@@ -34,19 +36,33 @@ trait ExportTrait
     }
 
     /**
+     * @return array
+     */
+    public function getSelectValues(): array
+    {
+        $this->connectToServer();
+        return [
+            'output' => array_keys($this->exportFacade()->getSelectOutputValues()),
+            'format' => array_keys($this->exportFacade()->getSelectFormatValues()),
+            'db_style' => $this->exportFacade()->getSelectDatabaseValues(),
+            'table_style' => $this->exportFacade()->getSelectTableValues(),
+            'data_style' => $this->exportFacade()->getSelectDataValues(),
+        ];
+    }
+
+    /**
      * Export databases
      * The databases and tables parameters are array where the keys are names and the values
      * are boolean which indicate whether the corresponding data should be exported too.
      *
      * @param array  $databases     The databases to dump
-     * @param array  $tables        The tables to dump
      * @param array  $dumpOptions   The export options
      *
      * @return array|string
      */
-    public function exportDatabases(array $databases, array $tables, array $dumpOptions)
+    public function exportDatabases(array $databases, array $dumpOptions)
     {
         $this->connectToServer();
-        return $this->exportFacade()->exportDatabases($databases, $tables, $dumpOptions);
+        return $this->exportFacade()->exportDatabases($databases, $dumpOptions);
     }
 }

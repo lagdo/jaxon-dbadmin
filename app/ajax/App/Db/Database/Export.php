@@ -47,9 +47,9 @@ class Export extends Component
     protected function after(): void
     {
         $this->response->jo('jaxon.dbadmin')
-            ->selectAllCheckboxes($this->exportUi->tableNameId);
+            ->setExportEventHandlers($this->exportUi->tableNameId);
         $this->response->jo('jaxon.dbadmin')
-            ->selectAllCheckboxes($this->exportUi->tableDataId);
+            ->setExportEventHandlers($this->exportUi->tableDataId);
     }
 
     /**
@@ -70,19 +70,23 @@ class Export extends Component
      *
      * @return void
      */
-    #[Before('notYetAvailable')]
     public function export(array $formValues): void
     {
         [, $database] = $this->bag('dbadmin')->get('db');
         $databases = [
-            'list' => [$database],
-            'data' => [],
+            $database =>  [],
         ];
-        $tables = [
-            'list' => $formValues['table_list'] ?? [],
-            'data' => $formValues['table_data'] ?? [],
-        ];
+        foreach ($formValues['table_list'] ?? [] as $table) {
+            $databases[$database][$table]['table'] = true;
+            $databases[$database][$table]['data'] = false;
+        }
+        foreach ($formValues['table_data'] ?? [] as $table) {
+            if(!isset($databases[$database][$table]['table'])) {
+                $databases[$database][$table]['table'] = false;
+            }
+            $databases[$database][$table]['data'] = true;
+        }
 
-        $this->exportDb($databases, $tables, $formValues);
+        $this->exportDb($databases, $formValues);
     }
 }

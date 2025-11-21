@@ -33,8 +33,10 @@ class ExportUiBuilder
      *
      * @return mixed
      */
-    private function outputCol(JxnCall $rqExport, array $options): mixed
+    private function optionsCol(JxnCall $rqExport, array $options): mixed
     {
+        $hasDbOptions = isset($options['types']) ||
+            isset($options['routines']) || isset($options['events']);
         return $this->ui->col(
             $this->ui->formRow(
                 $this->ui->formCol(
@@ -47,6 +49,7 @@ class ExportUiBuilder
                         $this->ui->list(
                             $this->ui->radio()
                                 ->checked($options['output']['value'] === $value)
+                                ->setValue($value)
                                 ->setName('output'),
                             $this->ui->html('&nbsp;' . $label . '&nbsp;')
                         )
@@ -65,6 +68,7 @@ class ExportUiBuilder
                         $this->ui->list(
                             $this->ui->radio()
                                 ->checked($options['format']['value'] === $value)
+                                ->setValue($value)
                                 ->setName('format'),
                             $this->ui->html('&nbsp;' . $label . '&nbsp;')
                         )
@@ -91,13 +95,23 @@ class ExportUiBuilder
                     ->width(8)
                 )
             ),
-            $this->ui->when(isset($options['routines']) || isset($options['events']), fn() =>
+            $this->ui->when($hasDbOptions, fn() =>
                 $this->ui->formRow(
                     $this->ui->formCol(
                         // Actually an offset. TODO: a parameter for that.
                         $this->ui->html('&nbsp;')
                     )
                     ->width(3),
+                    $this->ui->when(isset($options['types']), fn() =>
+                        $this->ui->formCol(
+                            $this->ui->checkbox()
+                                ->checked($options['types']['checked'])
+                                ->setName('types')
+                                ->setValue($options['types']['value']),
+                            $this->ui->html('&nbsp;' . $options['types']['label'])
+                        )
+                        ->width(3)
+                    ),
                     $this->ui->when(isset($options['routines']), fn() =>
                         $this->ui->formCol(
                             $this->ui->checkbox()
@@ -106,7 +120,7 @@ class ExportUiBuilder
                                 ->setValue($options['routines']['value']),
                             $this->ui->html('&nbsp;' . $options['routines']['label'])
                         )
-                        ->width(4)
+                        ->width(3)
                     ),
                     $this->ui->when(isset($options['events']), fn() =>
                         $this->ui->formCol(
@@ -116,7 +130,7 @@ class ExportUiBuilder
                                 ->setValue($options['events']['value']),
                             $this->ui->html('&nbsp;' . $options['events']['label'])
                         )
-                        ->width(4)
+                        ->width(3)
                     )
                 ),
             ),
@@ -150,7 +164,7 @@ class ExportUiBuilder
                         ->setValue($options['auto_increment']['value']),
                     $this->ui->html('&nbsp;' . $options['auto_increment']['label'])
                 )
-                ->width(4),
+                ->width(3),
                 $this->ui->when(isset($options['triggers']), fn() =>
                     $this->ui->formCol(
                         $this->ui->checkbox()
@@ -159,7 +173,7 @@ class ExportUiBuilder
                             ->setValue($options['triggers']['value']),
                         $this->ui->html('&nbsp;' . $options['triggers']['label'])
                     )
-                    ->width(4),
+                    ->width(3),
                 )
             ),
             $this->ui->formRow(
@@ -197,119 +211,130 @@ class ExportUiBuilder
 
     /**
      * @param array $databases
+     *
+     * @return mixed
+     */
+    private function databasesCol(array $databases): mixed
+    {
+        return $this->ui->col(
+            $this->ui->table(
+                $this->ui->thead(
+                    $this->ui->tr(
+                        $this->ui->th(
+                            $this->ui->checkbox()
+                                ->checked(true)
+                                ->setId($this->databaseNameId . '-all'),
+                            $this->ui->html('&nbsp;' . $databases['headers'][0])
+                        ),
+                        $this->ui->th(
+                            $this->ui->checkbox()
+                                ->checked(true)
+                                ->setId($this->databaseDataId . '-all'),
+                            $this->ui->html('&nbsp;' . $databases['headers'][1])
+                        )
+                    )
+                ),
+                $this->ui->tbody(
+                    $this->ui->each($databases['details'], fn($database, $pos) =>
+                        $this->ui->tr(
+                            $this->ui->td(
+                                $this->ui->checkbox()
+                                    ->checked(true)
+                                    ->setName('database_list[]')
+                                    ->setClass($this->databaseNameId)
+                                    ->setValue($database['name'])
+                                    ->setDataPos($pos),
+                                $this->ui->html('&nbsp;' . $database['name'])
+                            ),
+                            $this->ui->td(
+                                $this->ui->checkbox()
+                                    ->checked(true)
+                                    ->setName('database_data[]')
+                                    ->setId("{$this->databaseDataId}-$pos")
+                                    ->setClass($this->databaseDataId)
+                                    ->setValue($database['name'])
+                            )
+                        )
+                    )
+                )
+            )
+            ->responsive(true)->style('bordered')
+        );
+    }
+
+    /**
      * @param array $tables
      *
      * @return mixed
      */
-    private function itemsCol(array $databases, array $tables): mixed
+    private function tablesCol(array $tables): mixed
     {
         return $this->ui->col(
-            $this->ui->when(count($databases) > 0, fn() =>
-                $this->ui->table(
-                    $this->ui->thead(
-                        $this->ui->tr(
-                            $this->ui->th(
-                                $this->ui->checkbox()
-                                    ->selected(true)
-                                    ->setId($this->databaseNameId . '-all'),
-                                $this->ui->html('&nbsp;' . $databases['headers'][0])
-                            ),
-                            $this->ui->th(
-                                $this->ui->checkbox()
-                                    ->selected(true)
-                                    ->setId($this->tableDataId . '-all'),
-                                $this->ui->html('&nbsp;' . $databases['headers'][1])
-                            )
+            $this->ui->table(
+                $this->ui->thead(
+                    $this->ui->tr(
+                        $this->ui->th(
+                            $this->ui->checkbox()
+                                ->checked(true)
+                                ->setId($this->tableNameId . '-all'),
+                            $this->ui->html('&nbsp;' . $tables['headers'][0])
+                        ),
+                        $this->ui->th(
+                            $this->ui->checkbox()
+                                ->checked(true)
+                                ->setId($this->tableDataId . '-all'),
+                            $this->ui->html('&nbsp;' . $tables['headers'][1])
                         )
-                    ),
-                    $this->ui->tbody(
-                        $this->ui->each($databases['details'], fn($database) =>
-                            $this->ui->tr(
-                                $this->ui->td(
-                                    $this->ui->checkbox()
-                                        ->selected(true)
-                                        ->setName('database_list[]')
-                                        ->setClass($this->databaseNameId)
-                                        ->setValue($database['name']),
-                                    $this->ui->html('&nbsp;' . $database['name'])
-                                ),
-                                $this->ui->td(
-                                    $this->ui->checkbox()
-                                        ->selected(true)
-                                        ->setName('database_data[]')
-                                        ->setClass($this->databaseDataId)
-                                        ->setValue($database['name'])
-                                )
+                    )
+                ),
+                $this->ui->tbody(
+                    $this->ui->each($tables['details'], fn($table, $pos) =>
+                        $this->ui->tr(
+                            $this->ui->td(
+                                $this->ui->checkbox()
+                                    ->checked(true)
+                                    ->setName('table_list[]')
+                                    ->setClass($this->tableNameId)
+                                    ->setValue($table['name'])
+                                    ->setDataPos($pos),
+                                $this->ui->html('&nbsp;' . $table['name'])
+                            ),
+                            $this->ui->td(
+                                $this->ui->checkbox()
+                                    ->checked(true)
+                                    ->setName('table_data[]')
+                                    ->setId("{$this->tableDataId}-$pos")
+                                    ->setClass($this->tableDataId)
+                                    ->setValue($table['name'])
                             )
                         )
                     )
                 )
-                ->responsive(true)->style('bordered')
-            ),
-            $this->ui->when(count($tables) > 0, fn() =>
-                $this->ui->table(
-                    $this->ui->thead(
-                        $this->ui->tr(
-                            $this->ui->th(
-                                $this->ui->checkbox()
-                                    ->selected(true)
-                                    ->setId($this->tableNameId . '-all'),
-                                $this->ui->html('&nbsp;' . $tables['headers'][0])
-                            ),
-                            $this->ui->th(
-                                $this->ui->checkbox()
-                                    ->selected(true)
-                                    ->setId($this->tableDataId . '-all'),
-                                $this->ui->html('&nbsp;' . $tables['headers'][1])
-                            )
-                        )
-                    ),
-                    $this->ui->tbody(
-                        $this->ui->each($tables['details'], fn($table) =>
-                            $this->ui->tr(
-                                $this->ui->td(
-                                    $this->ui->checkbox()
-                                        ->selected(true)
-                                        ->setName('table_list[]')
-                                        ->setClass($this->tableNameId)
-                                        ->setValue($table['name']),
-                                    $this->ui->html('&nbsp;' . $table['name'])
-                                ),
-                                $this->ui->td(
-                                    $this->ui->checkbox()
-                                        ->selected(true)
-                                        ->setName('table_data[]')
-                                        ->setClass($this->tableDataId)
-                                        ->setValue($table['name'])
-                                )
-                            )
-                        )
-                    )
-                )
-                ->responsive(true)->style('bordered')
-            ),
+            )
+            ->responsive(true)->style('bordered')
         );
     }
 
     /**
      * @param JxnCall $rqExport
-     * @param array $exportOptions
+     * @param array $options
      *
      * @return string
      */
-    public function export(JxnCall $rqExport, array $exportOptions): string
+    public function export(JxnCall $rqExport, array $options): string
     {
-        $databases = $exportOptions['databases'] ?? [];
-        $tables = $exportOptions['tables'] ?? [];
-        $options = $exportOptions['options'];
         return $this->ui->build(
             $this->ui->col(
                 $this->ui->form(
                     $this->ui->row(
-                        $this->outputCol($rqExport, $options)
+                        $this->optionsCol($rqExport, $options['options'])
                             ->width(7),
-                        $this->itemsCol($databases, $tables)
-                            ->width(5)
+                        $this->ui->when(isset($options['databases']), fn() =>
+                            $this->databasesCol($options['databases'])->width(5)
+                        ),
+                        $this->ui->when(isset($options['tables']), fn() =>
+                            $this->tablesCol($options['tables'])->width(5)
+                        )
                     )
                 )
                 ->responsive(true)->wrapped(false)->setId($this->formId)

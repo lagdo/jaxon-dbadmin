@@ -7,23 +7,51 @@ use function preg_replace;
 
 trait TableExportTrait
 {
+    public function getSelectOutputValues(): array
+    {
+        return $this->admin->dumpOutput();
+    }
+
+    public function getSelectFormatValues(): array
+    {
+        return $this->admin->dumpFormat();
+    }
+
+    public function getSelectDatabaseValues(): array
+    {
+        return ['', 'USE', 'DROP+CREATE', 'CREATE'];
+    }
+
+    public function getSelectTableValues(): array
+    {
+        return ['', 'DROP+CREATE', 'CREATE'];
+    }
+
+    public function getSelectDataValues(): array
+    {
+        //! use insertOrUpdate() in all drivers
+        return $this->driver->jush() !== 'sql' ? ['', 'TRUNCATE+INSERT', 'INSERT'] :
+            ['', 'TRUNCATE+INSERT', 'INSERT', 'INSERT+UPDATE'];
+    }
+
     private function getDataRowOptions(string $database, string $table): array
     {
-        // \parse_str($_COOKIE['adminer_export'], $row);
-        // if(!$row) {
-        $row = [
+        // \parse_str($_COOKIE['adminer_export'], $options);
+        // if(!$options) {
+        $options = [
             'output' => 'text',
             'format' => 'sql',
-            'db_style' => ($database != '' ? '' : 'CREATE'),
+            'db_style' => ($database !== '' ? '' : 'CREATE'),
             'table_style' => 'DROP+CREATE',
             'data_style' => 'INSERT',
+            'types' => true,
         ];
         // }
-        // if(!isset($row['events'])) { // backwards compatibility
-        $row['routines'] = $row['events'] = ($table == '');
-        $row['triggers'] = $row['table_style'];
+        // if(!isset($options['events'])) { // backwards compatibility
+        $options['routines'] = $options['events'] = ($table === '');
+        $options['triggers'] = true; // $options['table_style']; // Is a boolean
         // }
-        return $row;
+        return $options;
     }
 
     /**
@@ -35,28 +63,21 @@ trait TableExportTrait
     private function getBaseOptions(string $database, string $table): array
     {
         // From dump.inc.php
-        $db_style = ['', 'USE', 'DROP+CREATE', 'CREATE'];
-        $table_style = ['', 'DROP+CREATE', 'CREATE'];
-        $data_style = ['', 'TRUNCATE+INSERT', 'INSERT'];
-        if ($this->driver->jush() == 'sql') { //! use insertOrUpdate() in all drivers
-            $data_style[] = 'INSERT+UPDATE';
-        }
-
         $row = $this->getDataRowOptions($database, $table);
         $options = [
             'output' => [
                 'label' => $this->utils->trans->lang('Output'),
-                'options' => $this->admin->dumpOutput(),
+                'options' => $this->getSelectOutputValues(),
                 'value' => $row['output'],
             ],
             'format' => [
                 'label' => $this->utils->trans->lang('Format'),
-                'options' => $this->admin->dumpFormat(),
+                'options' => $this->getSelectFormatValues(),
                 'value' => $row['format'],
             ],
             'table_style' => [
-                'label' => $this->utils->trans->lang('Tables'),
-                'options' => $table_style,
+                'label' => $this->utils->trans->lang('Table'),
+                'options' => $this->getSelectTableValues(),
                 'value' => $row['table_style'],
             ],
             'auto_increment' => [
@@ -66,36 +87,45 @@ trait TableExportTrait
             ],
             'data_style' => [
                 'label' => $this->utils->trans->lang('Data'),
-                'options' => $data_style,
+                'options' => $this->getSelectDataValues(),
                 'value' => $row['data_style'],
             ],
         ];
-        if ($this->driver->jush() !== 'sqlite') {
-            $options['db_style'] = [
-                'label' => $this->utils->trans->lang('Database'),
-                'options' => $db_style,
-                'value' => $row['db_style'],
-            ];
-            if ($this->driver->support('routine')) {
-                $options['routines'] = [
-                    'label' => $this->utils->trans->lang('Routines'),
-                    'value' => 1,
-                    'checked' => $row['routines'],
-                ];
-            }
-            if ($this->driver->support('event')) {
-                $options['events'] = [
-                    'label' => $this->utils->trans->lang('Events'),
-                    'value' => 1,
-                    'checked' => $row['events'],
-                ];
-            }
-        }
         if ($this->driver->support('trigger')) {
             $options['triggers'] = [
                 'label' => $this->utils->trans->lang('Triggers'),
                 'value' => 1,
                 'checked' => $row['triggers'],
+            ];
+        }
+        if ($this->driver->jush() === 'sqlite') {
+            return $options;
+        }
+
+        $options['db_style'] = [
+            'label' => $this->utils->trans->lang('Database'),
+            'options' => $this->getSelectDatabaseValues(),
+            'value' => $row['db_style'],
+        ];
+        if ($this->driver->support('type')) {
+            $options['types'] = [
+                'label' => $this->utils->trans->lang('Types'),
+                'value' => 1,
+                'checked' => $row['types'],
+            ];
+        }
+        if ($this->driver->support('routine')) {
+            $options['routines'] = [
+                'label' => $this->utils->trans->lang('Routines'),
+                'value' => 1,
+                'checked' => $row['routines'],
+            ];
+        }
+        if ($this->driver->support('event')) {
+            $options['events'] = [
+                'label' => $this->utils->trans->lang('Events'),
+                'value' => 1,
+                'checked' => $row['events'],
             ];
         }
         return $options;

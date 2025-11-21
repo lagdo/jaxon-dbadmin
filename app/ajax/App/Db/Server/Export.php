@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 
 use Jaxon\Attributes\Attribute\After;
-use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\App\Db\Command\ExportTrait;
 use Lagdo\DbAdmin\DbAdminPackage;
 use Lagdo\DbAdmin\Db\DbFacade;
@@ -40,9 +39,9 @@ class Export extends Component
     protected function after(): void
     {
         $this->response->jo('jaxon.dbadmin')
-            ->selectAllCheckboxes($this->exportUi->databaseNameId);
+            ->setExportEventHandlers($this->exportUi->databaseNameId);
         $this->response->jo('jaxon.dbadmin')
-            ->selectAllCheckboxes($this->exportUi->databaseDataId);
+            ->setExportEventHandlers($this->exportUi->databaseDataId);
     }
 
     /**
@@ -63,18 +62,20 @@ class Export extends Component
      *
      * @return void
      */
-    #[Before('notYetAvailable')]
     public function export(array $formValues): void
     {
-        $databases = [
-            'list' => $formValues['database_list'] ?? [],
-            'data' => $formValues['database_data'] ?? [],
-        ];
-        $tables = [
-            'list' => '*',
-            'data' => [],
-        ];
+        $databases = [];
+        foreach ($formValues['database_list'] ?? [] as $database) {
+            $databases[$database]['*']['table'] = true;
+            $databases[$database]['*']['data'] = false;
+        }
+        foreach ($formValues['database_data'] ?? [] as $database) {
+            if(!isset($databases[$database]['*']['table'])) {
+                $databases[$database]['*']['table'] = false;
+            }
+            $databases[$database]['*']['data'] = true;
+        }
 
-        $this->exportDb($databases, $tables, $formValues);
+        $this->exportDb($databases, $formValues);
     }
 }

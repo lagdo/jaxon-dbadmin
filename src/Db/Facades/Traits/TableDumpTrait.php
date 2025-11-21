@@ -2,11 +2,8 @@
 
 namespace Lagdo\DbAdmin\Db\Facades\Traits;
 
-use Lagdo\DbAdmin\Driver\Entity\TableEntity;
-
-use function implode;
 use function array_keys;
-use function in_array;
+use function implode;
 
 trait TableDumpTrait
 {
@@ -123,42 +120,28 @@ trait TableDumpTrait
     }
 
     /**
-     * @param string $table
-     * @param TableEntity $tableStatus
-     * @param bool $dbDumpTable
-     * @param bool $dbDumpData
+     * @param array $tables
      *
      * @return void
      */
-    private function dumpTableOnly(string $table, TableEntity $tableStatus, bool $dbDumpTable, bool $dbDumpData)
+    private function dumpTables(array $tables)
     {
-        if ($this->driver->isView($tableStatus)) {
-            // The views will be dumped after the tables
-            $this->views[] = $table;
-            return;
-        }
-        $this->fkeys[] = $table;
-        $dumpTable = $dbDumpTable || in_array($table, $this->tables['list']);
-        $dumpData = $dbDumpData || in_array($table, $this->tables['data']);
-        if ($dumpTable || $dumpData) {
-            $this->dumpTable($table, $dumpTable, $dumpData);
-        }
-    }
-
-    /**
-     * @param string $database      The database name
-     *
-     * @return void
-     */
-    private function dumpTables(string $database)
-    {
-        $dbDumpTable = $this->tables['list'] === '*' && in_array($database, $this->databases['list']);
-        $dbDumpData = in_array($database, $this->databases['data']);
         $this->views = []; // View names
         $this->fkeys = []; // Table names for foreign keys
-        $dbTables = $this->driver->tableStatuses(true);
-        foreach ($dbTables as $table => $tableStatus) {
-            $this->dumpTableOnly($table, $tableStatus, $dbDumpTable, $dbDumpData);
+
+        foreach ($this->driver->tableStatuses(true) as $table => $tableStatus) {
+            if(!isset($tables[$tableStatus->name]) && !isset($tables['*'])) {
+                continue;
+            }
+
+            if ($this->driver->isView($tableStatus)) {
+                // The views will be dumped after the tables
+                $this->views[] = $table;
+                continue;
+            }
+
+            $dump = $tables[$tableStatus->name] ?? $tables['*'];
+            $this->dumpTable($table, $dump['table'], $dump['data']);
         }
     }
 }

@@ -3,7 +3,9 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
 
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
+use Lagdo\DbAdmin\Ajax\Exception\ValidationException;
 use Lagdo\DbAdmin\Ui\Command\ExportUiBuilder;
+use Lagdo\Facades\Logger;
 
 use function file_put_contents;
 use function gzencode;
@@ -19,6 +21,36 @@ trait ExportTrait
     protected ExportUiBuilder $exportUi;
 
     /**
+     * @param array $formValues
+     *
+     * @return array
+     */
+    private function options(array $formValues): array
+    {
+        // Convert checkbox values to boolean
+        $options = [
+            'types' => isset($formValues['types']),
+            'routines' => isset($formValues['routines']),
+            'events' => isset($formValues['events']),
+            'autoIncrement' => isset($formValues['auto_increment']),
+            'triggers' => isset($formValues['triggers']),
+        ];
+
+        foreach($this->db()->getSelectValues() as $name => $values) {
+            if(isset($formValues[$name])) {
+                $value = trim($formValues[$name]);
+                if (!in_array($value, $values)) {
+                    $message = $this->trans->lang('The "%s" value is incorrect.', $name);
+                    throw new ValidationException($message . ' ' . json_encode($values));
+                }
+                $options[$name] = $value;
+            }
+        }
+
+        return $options;
+    }
+
+    /**
      * @return string
      */
     public function html(): string
@@ -26,36 +58,31 @@ trait ExportTrait
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 
-        $exportOptions = $this->db()->getExportOptions();
-        return $this->exportUi->export($this->rq(), $exportOptions);
+        $options = $this->db()->getExportOptions();
+        return $this->exportUi->export($this->rq(), $options);
     }
 
     /**
      * Execute an SQL query and display the results
      *
      * @param array  $databases     The databases to dump
-     * @param array  $tables        The tables to dump
      * @param array  $formValues
      *
      * @return void
      */
-    protected function exportDb(array $databases, array $tables, array $formValues): void
+    protected function exportDb(array $databases, array $formValues): void
     {
-        // Convert checkbox values to boolean
-        $formValues['routines'] = isset($formValues['routines']);
-        $formValues['events'] = isset($formValues['events']);
-        $formValues['autoIncrement'] = isset($formValues['auto_increment']);
-        $formValues['triggers'] = isset($formValues['triggers']);
-        $results = $this->db()->exportDatabases($databases, $tables, $formValues);
+        $options = $this->options($formValues);
+        $results = $this->db()->exportDatabases($databases, $options);
         if(is_string($results))
         {
             $this->alert()->title('Error')->error($results);
             return;
         }
 
-        $content = $this->view()->render('adminer::views::sql/dump', $results);
+        $content = $this->view()->render('dbadmin::views::sql/dump', $results);
         // Dump file
-        $output = $formValues['output'] ?? 'text';
+        $output = $options['output'] ?? 'text';
         if($output === 'gz')
         {
             // Zip content
@@ -74,6 +101,10 @@ trait ExportTrait
         $path = rtrim($this->package()->getOption('export.dir'), '/') . $name;
         if(!@file_put_contents($path, $content))
         {
+            Logger::debug('Unable to write dump to file.', [
+                'path' => $path,
+                'content' => $content,
+            ]);
             $this->alert()->title('Error')->error('Unable to write dump to file.');
             return;
         }
