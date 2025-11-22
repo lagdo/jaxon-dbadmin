@@ -328,12 +328,14 @@ class ExportUiBuilder
                 $this->ui->form(
                     $this->ui->row(
                         $this->optionsCol($rqExport, $options['options'])
-                            ->width(7),
+                            ->width(6),
                         $this->ui->when(isset($options['databases']), fn() =>
-                            $this->databasesCol($options['databases'])->width(5)
+                            $this->databasesCol($options['databases'])
+                                ->width(6)
                         ),
                         $this->ui->when(isset($options['tables']), fn() =>
-                            $this->tablesCol($options['tables'])->width(5)
+                            $this->tablesCol($options['tables'])
+                                ->width(6)
                         )
                     )
                 )

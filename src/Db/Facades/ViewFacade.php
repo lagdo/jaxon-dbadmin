@@ -106,7 +106,7 @@ class ViewFacade extends AbstractFacade
             if ($field->autoIncrement) {
                 $type .= ' <i>' . $this->utils->trans->lang('Auto Increment') . '</i>';
             }
-            if ($field->hasDefault) {
+            if ($field->hasDefault()) {
                 $type .= /*' ' . $this->utils->trans->lang('Default value') .*/ ' [<b>' . $this->utils->str->html($field->default) . '</b>]';
             }
             $detail = [

@@ -66,7 +66,7 @@ return [
                 $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
                 foreach($package->getServers() as $server => $options) {
                     $di->set("dbadmin_driver_$server", fn() =>
-                        Driver\Driver::createDriver($options));
+                        Db\AppDriver::createDriver($options));
                 }
 
                 $server = $di->g('dbadmin_config_server');
@@ -149,7 +149,7 @@ return [
             // Database driver for logging
             'dbadmin_logging_driver' => function($di) {
                 $options = $di->g('dbadmin_logging_database');
-                return Driver\Driver::createDriver($options);
+                return Db\AppDriver::createDriver($options);
             },
             // Query logger
             Service\DbAdmin\QueryLogger::class => function($di) {

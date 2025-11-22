@@ -64,7 +64,7 @@ return [
                 $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
                 foreach($package->getServers() as $server => $options) {
                     $di->set("dbadmin_driver_$server", fn() =>
-                        Driver\Driver::createDriver($options));
+                        Db\AppDriver::createDriver($options));
                 }
 
                 $server = $di->g('dbadmin_config_server');
@@ -134,7 +134,7 @@ return [
                     return null;
                 }
 
-                $driver = Driver\Driver::createDriver($database);
+                $driver = Db\AppDriver::createDriver($database);
                 $reader = $di->g(Config\UserFileReader::class);
                 $db = $di->g(Db\DbFacade::class);
                 return new Service\Logging\QueryLogger($db, $driver,

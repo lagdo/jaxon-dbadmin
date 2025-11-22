@@ -339,7 +339,7 @@ trait TableFieldTrait
         return $this->ui->col(
             $this->ui->inputGroup(
                 $this->ui->checkbox()
-                    ->checked($field->hasDefault)
+                    ->checked($field->hasDefault())
                     ->setName($this->editPrefix . '[hasDefault]')
                     ->setDataField('hasDefault'),
                 $this->ui->formInput()

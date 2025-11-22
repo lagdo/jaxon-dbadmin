@@ -99,7 +99,7 @@ trait ExportTrait
             default => '.txt',
         };
         $path = rtrim($this->package()->getOption('export.dir'), '/') . $name;
-        if(!@file_put_contents($path, $content))
+        if(!@file_put_contents($path, "$content\n"))
         {
             Logger::debug('Unable to write dump to file.', [
                 'path' => $path,

@@ -228,9 +228,9 @@ class DatabaseFacade extends AbstractFacade
 
         // From db.inc.php
         $details = [];
-        foreach ($this->driver->userTypes() as $userType) {
+        foreach ($this->driver->userTypes(false) as $userType) {
             $details[] = [
-                'name' => $this->utils->str->html($userType),
+                'name' => $this->utils->str->html($userType->name),
             ];
         }
 

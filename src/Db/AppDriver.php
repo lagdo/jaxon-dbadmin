@@ -3,7 +3,10 @@
 namespace Lagdo\DbAdmin\Db;
 
 use Lagdo\DbAdmin\Driver\Driver;
+use Lagdo\DbAdmin\Driver\DriverInterface;
 use Closure;
+
+use function Jaxon\jaxon;
 
 /**
  * Add callbacks to the driver features.
@@ -18,7 +21,7 @@ class AppDriver extends Driver
     /**
      * @param Driver $driver
      */
-    public function __construct(private Driver $driver)
+    public function __construct(protected Driver $driver)
     {
         // "Clone" the driver instance.
         $this->utils = $driver->utils;
@@ -39,6 +42,30 @@ class AppDriver extends Driver
     public function name()
     {
         return $this->driver->name();
+    }
+
+    /**
+     * @return void
+     */
+    protected function beforeConnection()
+    {
+        $this->driver->beforeConnection();
+    }
+
+    /**
+     * @return void
+     */
+    protected function configConnection()
+    {
+        $this->driver->configConnection();
+    }
+
+    /**
+     * @return void
+     */
+    protected function openedConnection()
+    {
+        $this->driver->openedConnection();
     }
 
     /**
@@ -100,5 +127,18 @@ class AppDriver extends Driver
         // Call the query callbacks.
         $this->callCallbacks($query);
         return $result;
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return DriverInterface|null
+     */
+    public static function createDriver(array $options): ?DriverInterface
+    {
+        $drivers = Driver::drivers();
+        $driver = $options['driver'];
+        $closure = $drivers[$driver] ?? null;
+        return !$closure ? null : $closure(jaxon()->di(), $options);
     }
 }

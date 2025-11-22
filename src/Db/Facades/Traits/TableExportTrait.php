@@ -83,7 +83,7 @@ trait TableExportTrait
             'auto_increment' => [
                 'label' => $this->utils->trans->lang('Auto Increment'),
                 'value' => 1,
-                'checked' => $row['autoIncrement'] ?? false,
+                'checked' => $row['autoIncrement'] ?? true,
             ],
             'data_style' => [
                 'label' => $this->utils->trans->lang('Data'),

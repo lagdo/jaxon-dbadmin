@@ -2,14 +2,21 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
+use Lagdo\DbAdmin\Driver\Entity\FieldType;
+use Lagdo\DbAdmin\Driver\Entity\RoutineEntity;
+use Lagdo\DbAdmin\Driver\Entity\RoutineInfoEntity;
+use Lagdo\Facades\Logger;
 use Exception;
 
+use function array_filter;
+use function array_map;
 use function count;
+use function implode;
+use function ksort;
 use function preg_match;
+use function rtrim;
 use function str_replace;
-use function array_unique;
-use function array_merge;
-use function array_pop;
+use function trim;
 
 /**
  * Facade to export functions
@@ -43,51 +50,118 @@ class ExportFacade extends AbstractFacade
      */
     public function getExportOptions(string $database, string $table = ''): array
     {
-        $results = [
+        return $database === '' ? [
+            'databases' => $this->getDatabases(),
+            'options' => $this->getBaseOptions($database, $table),
+            'prefixes' => [],
+        ] : [
+            'tables' => $this->getDbTables(),
             'options' => $this->getBaseOptions($database, $table),
             'prefixes' => [],
         ];
-        if (!$database) {
-            $results['databases'] = $this->getDatabases();
-        } else {
-            $results['tables'] = $this->getDbTables();
+    }
+
+    /**
+     * @param array<FieldType> $params
+     *
+     * @return string
+     */
+    private function getRoutineParams(array $params): string
+    {
+        // From dump.inc.php create_routine()
+        $params = array_filter($params, fn($param) => $param->name !== '');
+        ksort($params); // enforce params order
+        $regex = "~^(" . $this->driver->inout() . ")\$~";
+
+        $params = array_map(function($param) use($regex) {
+            $inout = preg_match($regex, $param->inout) ? "{$param->inout} " : '';
+            return $inout . $this->driver->escapeId($param->name) .
+                $this->driver->processType($param, 'CHARACTER SET');
+        },$params);
+        return implode(', ', $params);
+    }
+
+    /**
+     * Generate SQL query for creating routine
+     *
+     * @param RoutineEntity $routine
+     * @param RoutineInfoEntity $routineInfo
+     *
+     * @return string
+     */
+    private function getRoutineQuery(RoutineEntity $routine, RoutineInfoEntity $routineInfo): string
+    {
+        // From dump.inc.php create_routine()
+        $routineName = $this->driver->escapeId(trim($routine->name));
+        $routineParams = $this->getRoutineParams($routineInfo->params);
+        $routineReturns = $routine->type !== 'FUNCTION' ? '' :
+            ' RETURNS' . $this->driver->processType($routineInfo->return, 'CHARACTER SET');
+        $routineLanguage = $routineInfo->language ? " LANGUAGE {$routineInfo->language}" : '';
+        $definition = rtrim($routineInfo->definition, ';');
+        $routineDefinition = $this->driver->jush() !== 'pgsql' ? "\n$definition;" :
+            ' AS ' . $this->driver->quote($definition);
+
+        return "CREATE {$routine->type} $routineName ($routineParams)" .
+            "{$routineReturns}{$routineLanguage}{$routineDefinition};";
+    }
+
+    /**
+     * Dump types in the connected database
+     *
+     * @return void
+     */
+    private function dumpTypes()
+    {
+        if (!$this->options['types']) {
+            return;
         }
-        return $results;
+
+        // From dump.inc.php
+        $style = $this->options['db_style'];
+        foreach ($this->driver->userTypes(true) as $type) {
+            $this->queries[] = ''; // Empty line
+            if (count($type->enums) === 0) {
+                //! https://github.com/postgres/postgres/blob/REL_17_4/src/bin/pg_dump/pg_dump.c#L10846
+                $this->queries[] = "-- Could not export type {$type->name}";
+                continue;
+            }
+
+            $typeName = $this->driver->escapeId($type->name);
+            if ($style !== 'DROP+CREATE') {
+                $this->queries[] = "DROP TYPE IF EXISTS $typeName;;";
+            }
+            $enums = implode("', '", $type->enums);
+            $this->queries[] = "CREATE TYPE $typeName AS ENUM ('$enums');";
+        }
     }
 
     /**
      * Dump routines in the connected database
      *
-     * @param string $database      The database name
-     *
      * @return void
      */
-    private function dumpRoutines(string $database)
+    private function dumpRoutines()
     {
+        if (!$this->options['routines']) {
+            return;
+        }
+
         // From dump.inc.php
         $style = $this->options['db_style'];
+        foreach ($this->driver->routines() as $routine) {
+            $routineName = $this->driver->escapeId(trim($routine->name));
+            $routineInfo = $this->driver->routine($routine->specificName, $routine->type);
+            if ($routineInfo === null) {
+                continue;
+            }
 
-        if ($this->options['routines']) {
-            $sql = 'SHOW FUNCTION STATUS WHERE Db = ' . $this->driver->quote($database);
-            foreach ($this->driver->rows($sql) as $row) {
-                $sql = 'SHOW CREATE FUNCTION ' . $this->driver->escapeId($row['Name']);
-                $create = $this->driver->removeDefiner($this->driver->result($sql, 2));
-                $this->queries[] = $this->driver->setUtf8mb4($create);
-                if ($style != 'DROP+CREATE') {
-                    $this->queries[] = 'DROP FUNCTION IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';
-                }
-                $this->queries[] = "$create;;\n";
+            $create = $this->getRoutineQuery($routine, $routineInfo);
+            $this->driver->setUtf8mb4($create);
+            $this->queries[] = ''; // Empty line
+            if ($style !== 'DROP+CREATE') {
+                $this->queries[] = "DROP {$routine->type} IF EXISTS $routineName;;";
             }
-            $sql = 'SHOW PROCEDURE STATUS WHERE Db = ' . $this->driver->quote($database);
-            foreach ($this->driver->rows($sql) as $row) {
-                $sql = 'SHOW CREATE PROCEDURE ' . $this->driver->escapeId($row['Name']);
-                $create = $this->driver->removeDefiner($this->driver->result($sql, 2));
-                $this->queries[] = $this->driver->setUtf8mb4($create);
-                if ($style != 'DROP+CREATE') {
-                    $this->queries[] = 'DROP PROCEDURE IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';
-                }
-                $this->queries[] = "$create;;\n";
-            }
+            $this->queries[] = $create;
         }
     }
 
@@ -98,51 +172,22 @@ class ExportFacade extends AbstractFacade
      */
     private function dumpEvents()
     {
+        if (!$this->options['events']) {
+            return;
+        }
+
         // From dump.inc.php
         $style = $this->options['db_style'];
-
-        if ($this->options['events']) {
-            foreach ($this->driver->rows('SHOW EVENTS') as $row) {
-                $sql = 'SHOW CREATE EVENT ' . $this->driver->escapeId($row['Name']);
-                $create = $this->driver->removeDefiner($this->driver->result($sql, 3));
-                $this->queries[] = $this->driver->setUtf8mb4($create);
-                if ($style != 'DROP+CREATE') {
-                    $this->queries[] = 'DROP EVENT IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';
-                }
-                $this->queries[] = "$create;;\n";
+        foreach ($this->driver->rows('SHOW EVENTS') as $row) {
+            $sql = 'SHOW CREATE EVENT ' . $this->driver->escapeId($row['Name']);
+            $create = $this->driver->removeDefiner($this->driver->result($sql, 3));
+            $this->driver->setUtf8mb4($create);
+            $this->queries[] = ''; // Empty line
+            if ($style !== 'DROP+CREATE') {
+                $this->queries[] = 'DROP EVENT IF EXISTS ' . $this->driver->escapeId($row['Name']) . ';;';
             }
+            $this->queries[] = "$create;;\n";
         }
-    }
-
-    /**
-     * @return void
-     */
-    private function dumpViewsAndFKeys()
-    {
-        // Add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
-        if ($this->driver->support('fkeys_sql')) {
-            foreach ($this->fkeys as $table) {
-                $this->queries[] = $this->driver->getForeignKeysQuery($table);
-            }
-        }
-        // Dump the views after all the tables
-        foreach ($this->views as $view) {
-            $this->dumpCreateTableOrView($view, $this->options['table_style'], 1);
-        }
-    }
-
-    /**
-     * @param string $database
-     *
-     * @return string
-     */
-    private function getCreateDatabaseQuery(string $database): string
-    {
-        if (!$this->options['is_sql'] || preg_match('~CREATE~', $this->options['db_style']) === false) {
-            return '';
-        }
-        $sql = 'SHOW CREATE DATABASE ' . $this->driver->escapeId($database);
-        return $this->driver->result($sql, 1);
     }
 
     /**
@@ -152,75 +197,47 @@ class ExportFacade extends AbstractFacade
      */
     private function dumpUseDatabaseQuery(string $database)
     {
-        if (!$this->options['is_sql'] || !$this->options['db_style'] || $this->driver->jush() !== 'sql') {
+        $style = $this->options['db_style'];
+        if ($style === '' || !preg_match('~sql~', $this->options['format'])) {
             return;
         }
-        if (($query = $this->driver->getUseDatabaseQuery($database))) {
-            $this->queries[] = $query . ';';
-            $this->queries[] = ''; // Empty line
-        }
+
+        $this->queries[] = $this->driver->getUseDatabaseQuery($database, $style);
     }
 
     /**
      * @param string $database
+     * @param array $tableOptions
      *
      * @return void
      */
-    private function dumpCreateDatabaseQuery(string $database)
-    {
-        if (!($create = $this->getCreateDatabaseQuery($database))) {
-            return;
-        }
-        if (($query = $this->driver->setUtf8mb4($create))) {
-            $this->queries[] = $query . ';';
-        }
-        if ($this->options['db_style'] === 'DROP+CREATE') {
-            $this->queries[] = 'DROP DATABASE IF EXISTS ' . $this->driver->escapeId($database) . ';';
-        }
-        $this->queries[] = $create . ';';
-        $this->queries[] = ''; // Empty line
-    }
-
-    /**
-     * @param string $database
-     *
-     * @return void
-     */
-    private function dumpDatabase(string $database)
+    private function dumpDatabase(string $database, array $tableOptions)
     {
         $this->driver->open($database); // New connection
-        $this->dumpCreateDatabaseQuery($database);
         $this->dumpUseDatabaseQuery($database);
-        if ($this->options['is_sql'] && $this->driver->jush() === 'sql') {
-            $count = count($this->queries);
-            $this->queries[] = "DELIMITER ;;\n";
-            // Dump routines and events currently works only for MySQL.
-            $this->dumpRoutines($database);
+
+        if ($this->options['to_sql']) {
+            $this->dumpTypes();
+            $this->dumpRoutines();
             $this->dumpEvents();
-            $this->queries[] = "DELIMITER ;;\n";
-            if ($count + 2 === count($this->queries)) {
-                // No routine or event were dumped, so the last 2 entries are removed.
-                array_pop($this->queries);
-                array_pop($this->queries);
-            }
         }
 
         if (!$this->options['table_style'] && !$this->options['data_style']) {
             return;
         }
 
-        $this->dumpTables($database);
-        $this->dumpViewsAndFKeys();
+        $statuses = array_filter($this->driver->tableStatuses(true), fn($status) =>
+            isset($tableOptions['*']) || isset($tableOptions[$status->name]));
+        $this->dumpTables($statuses, $tableOptions);
+        // Dump the views after all the tables
+        $this->dumpViews($statuses);
     }
 
     /**
-     * @return array|null
+     * @return array
      */
-    private function getDatabaseExportHeaders(): ?array
+    private function getDatabaseExportHeaders(): array
     {
-        if (!$this->options['is_sql']) {
-            return null;
-        }
         $headers = [
             'version' => $this->driver->version(),
             'driver' => $this->driver->name(),
@@ -228,7 +245,7 @@ class ExportFacade extends AbstractFacade
             'sql' => false,
             'data_style' => false,
         ];
-        if ($this->driver->jush() == 'sql') {
+        if ($this->driver->jush() === 'sql') {
             $headers['sql'] = true;
             if (isset($this->options['data_style'])) {
                 $headers['data_style'] = true;
@@ -244,34 +261,31 @@ class ExportFacade extends AbstractFacade
      * Export databases
      *
      * @param array  $databases     The databases to dump
-     * @param array  $tables        The tables to dump
      * @param array  $options       The export options
      *
      * @return array|string
      */
-    public function exportDatabases(array $databases, array $tables, array $options)
+    public function exportDatabases(array $databases, array $options): array|string
     {
         // From dump.inc.php
         // $tables = array_flip($options['tables']) + array_flip($options['data']);
-        // Todo: use match
         // $ext = dump_headers((count($tables) == 1 ? key($tables) : DB), (DB == '' || count($tables) > 1));
-        $options['is_sql'] = preg_match('~sql~', $options['format']);
-        $this->databases = $databases;
-        $this->tables = $tables;
         $this->options = $options;
+        // Export to SQL format (renamed from is_sql to to_sql).
+        $this->options['to_sql'] = preg_match('~sql~', $options['format']) === 1;
 
-        $headers = $this->getDatabaseExportHeaders();
+        $headers = !$this->options['to_sql'] ? null : $this->getDatabaseExportHeaders();
 
-        foreach (array_unique(array_merge($databases['list'], $databases['data'])) as $database) {
+        foreach ($databases as $database => $tables) {
             try {
-                $this->dumpDatabase($database);
+                $this->dumpDatabase($database, $tables);
             }
             catch (Exception $e) {
                 return $e->getMessage();
             }
         }
 
-        if ($this->options['is_sql']) {
+        if ($this->options['to_sql']) {
             $this->queries[] = '-- ' . $this->driver->result('SELECT NOW()');
         }
 

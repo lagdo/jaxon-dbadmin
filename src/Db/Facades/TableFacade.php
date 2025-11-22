@@ -281,7 +281,6 @@ class TableFacade extends AbstractFacade
         $hasAutoIncrement = false;
         foreach ($fields as &$field) {
             $hasAutoIncrement = $hasAutoIncrement || $field->autoIncrement;
-            $field->hasDefault = $field->default !== null;
             if (preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate)) {
                 $field->onUpdate = 'CURRENT_TIMESTAMP';
             }

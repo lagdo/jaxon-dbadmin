@@ -10,8 +10,8 @@ SET foreign_key_checks = 0;
 <?php if(($this->headers['data_style'])): ?>
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 <?php endif ?>
-<?php endif ?>
 
+<?php endif ?>
 <?php endif ?>
 <?php foreach($this->queries as $query): ?>
 <?php echo $query, "\n" ?>
