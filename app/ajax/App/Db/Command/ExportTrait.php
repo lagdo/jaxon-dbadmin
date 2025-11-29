@@ -81,26 +81,25 @@ trait ExportTrait
         }
 
         $content = $this->view()->render('dbadmin::views::sql/dump', $results);
+        $extensions = ['sql' => '.sql', 'csv' => '.csv', 'csv;' => '.csv', 'tsv' => '.txt'];
+        $format = $options['format'] ?? 'sql';
+        $filename = uniqid() . $extensions[$format] ?? $extensions['sql'];
+
         // Dump file
-        $output = $options['output'] ?? 'text';
-        if($output === 'gz')
-        {
+        $output = $options['output'] ?? 'open';
+        if ($output === 'gzip') {
             // Zip content
             if(!($content = gzencode($content)))
             {
                 $this->alert()->title('Error')->error('Unable to gzip dump.');
                 return;
             }
+
+            $filename .= '.gz';
         }
 
-        $name = '/' . uniqid() . match($output) {
-            'gz' => '.gz',
-            'file' => '.sql',
-            default => '.txt',
-        };
-        $path = rtrim($this->package()->getOption('export.dir'), '/') . $name;
-        if(!@file_put_contents($path, "$content\n"))
-        {
+        $path = rtrim($this->package()->getOption('export.dir'), '/') . "/$filename";
+        if (!@file_put_contents($path, "$content\n")) {
             Logger::debug('Unable to write dump to file.', [
                 'path' => $path,
                 'content' => $content,
@@ -109,7 +108,12 @@ trait ExportTrait
             return;
         }
 
-        $link = rtrim($this->package()->getOption('export.url'), '/') . $name;
-        $this->response->jo()->open($link, '_blank')->focus();
+        $link = rtrim($this->package()->getOption('export.url'), '/') . "/$filename";
+        if ($output === 'open') {
+            $this->response->jo()->open($link, '_blank')->focus();
+            return;
+        }
+
+        $this->response->jo('jaxon.dbadmin')->downloadFile($link, $filename);
     }
 }

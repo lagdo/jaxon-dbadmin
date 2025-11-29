@@ -39,7 +39,7 @@ trait TableExportTrait
         // \parse_str($_COOKIE['adminer_export'], $options);
         // if(!$options) {
         $options = [
-            'output' => 'text',
+            'output' => 'open',
             'format' => 'sql',
             'db_style' => ($database !== '' ? '' : 'CREATE'),
             'table_style' => 'DROP+CREATE',

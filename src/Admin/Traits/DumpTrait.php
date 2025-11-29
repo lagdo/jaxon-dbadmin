@@ -13,7 +13,12 @@ trait DumpTrait
      */
     public function dumpFormat(): array
     {
-        return ['sql' => 'SQL', 'csv' => 'CSV,', 'csv;' => 'CSV;', 'tsv' => 'TSV'];
+        return [
+            'sql' => 'SQL',
+            'csv' => 'CSV,',
+            'csv;' => 'CSV;',
+            'tsv' => 'TSV',
+        ];
     }
 
     /**
@@ -23,9 +28,12 @@ trait DumpTrait
      */
     public function dumpOutput(): array
     {
-        $output = ['text' => $this->utils->trans->lang('open'), 'file' => $this->utils->trans->lang('save')];
+        $output = [
+            'open' => $this->utils->trans->lang('open'),
+            'save' => $this->utils->trans->lang('save'),
+        ];
         if (function_exists('gzencode')) {
-            $output['gz'] = 'gzip';
+            $output['gzip'] = 'gzip';
         }
         return $output;
     }

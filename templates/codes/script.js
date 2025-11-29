@@ -12,9 +12,21 @@ jaxon.dbadmin = (function() {
         });
     };
 
-    const selectAllCheckboxes = (checkboxId) => $('#' + checkboxId + '-all').change(function() {
-        $('.' + checkboxId, '#jaxon-dbadmin').prop('checked', this.checked);
-    });
+    const setExportEventHandlers = (checkboxId) => {
+        // Select all
+        $('#' + checkboxId + '-all').change(function() {
+            $('.' + checkboxId, '#jaxon-dbadmin').prop('checked', this.checked);
+        });
+        // Select database or table
+        const prefixLength = checkboxId.length - 5;
+        if (checkboxId.substring(prefixLength, checkboxId.length) === '-name') {
+            $('.' + checkboxId, '#jaxon-dbadmin').change(function() {
+                const dataCheckboxId = checkboxId.substring(0, prefixLength) +
+                    '-data-' + $(this).attr('data-pos');
+                $('#' + dataCheckboxId, '#jaxon-dbadmin').prop('checked', this.checked);
+            });
+        }
+    };
 
     const setFileUpload = (container) => {
         $(container).on('change', ':file', function() {
@@ -25,6 +37,15 @@ jaxon.dbadmin = (function() {
             const text = numFiles > 1 ? numFiles + ' files selected' : label;
             textInput.length > 0 && textInput.val(text);
         });
+    };
+
+    const downloadFile = (url, filename) => {
+        const downloadLink = document.createElement("a");
+        downloadLink.href = url;
+        downloadLink.download = filename;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
     };
 
     const editor = {
@@ -107,8 +128,9 @@ jaxon.dbadmin = (function() {
     return {
         countTableCheckboxes,
         selectTableCheckboxes,
-        selectAllCheckboxes,
+        setExportEventHandlers,
         setFileUpload,
+        downloadFile,
         createSqlQueryEditor,
         createSqlSelectEditor,
         getSqlQuery,
