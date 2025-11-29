@@ -15,9 +15,9 @@ trait DumpTrait
     {
         return [
             'sql' => 'SQL',
-            'csv' => 'CSV,',
-            'csv;' => 'CSV;',
-            'tsv' => 'TSV',
+            // 'csv' => 'CSV,',
+            // 'csv;' => 'CSV;',
+            // 'tsv' => 'TSV',
         ];
     }
 
