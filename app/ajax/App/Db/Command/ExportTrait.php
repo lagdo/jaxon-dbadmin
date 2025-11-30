@@ -7,10 +7,12 @@ use Lagdo\DbAdmin\Ajax\Exception\ValidationException;
 use Lagdo\DbAdmin\Ui\Command\ExportUiBuilder;
 use Lagdo\Facades\Logger;
 
-use function file_put_contents;
 use function gzencode;
+use function in_array;
+use function is_callable;
 use function is_string;
-use function rtrim;
+use function json_encode;
+use function trim;
 use function uniqid;
 
 trait ExportTrait
@@ -72,6 +74,14 @@ trait ExportTrait
      */
     protected function exportDb(array $databases, array $formValues): void
     {
+        $writer = $this->package()->getOption('export.writer');
+        $urlBuilder = $this->package()->getOption('export.url');
+        if (!is_callable($writer) || !is_callable($urlBuilder)) {
+            $this->alert()->title('Error')
+                ->error('The export feature is not setup.');
+            return;
+        }
+
         $options = $this->options($formValues);
         $results = $this->db()->exportDatabases($databases, $options);
         if(is_string($results))
@@ -98,22 +108,20 @@ trait ExportTrait
             $filename .= '.gz';
         }
 
-        $path = rtrim($this->package()->getOption('export.dir'), '/') . "/$filename";
-        if (!@file_put_contents($path, "$content\n")) {
+        if (!$writer("$content\n", $filename)) {
             Logger::debug('Unable to write dump to file.', [
-                'path' => $path,
+                'filename' => $filename,
                 'content' => $content,
             ]);
             $this->alert()->title('Error')->error('Unable to write dump to file.');
             return;
         }
 
-        $link = rtrim($this->package()->getOption('export.url'), '/') . "/$filename";
         if ($output === 'open') {
-            $this->response->jo()->open($link, '_blank')->focus();
+            $this->response->jo()->open($urlBuilder($filename), '_blank')->focus();
             return;
         }
 
-        $this->response->jo('jaxon.dbadmin')->downloadFile($link, $filename);
+        $this->response->jo('jaxon.dbadmin')->downloadFile($urlBuilder($filename), $filename);
     }
 }
