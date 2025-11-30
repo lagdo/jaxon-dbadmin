@@ -293,10 +293,20 @@ SQL files can be uploaded and executed on a server. This feature is implemented 
 As stated in the [Jaxon ajax upload documentation](https://www.jaxon-php.org/docs/v5x/features/upload.html), `sql_files` is the `name` attribute of the file upload field, and of course `/path/to/the/upload/dir` needs to be writable.
 Other parameters can also be defined to limit the size of the uploaded files or retrict their extensions or mime types.
 
-### Data export (currently disabled)
+### Data export
 
 Databases can also be exported to various types of files: SQL, CSV, and more.
-A directory where the exported files are going to be saved must then be defined in the configuration, as well as an url where they can be downloaded.
+
+The export feature is configured with three callbacks.
+
+The `writer` callback saves the export data content in a file. It takes the content and the file name as parameters.
+
+The `reader` callback takes an export file name as parameter, then reads and returns its content.
+
+The `url` callback takes the file name as parameter, and returns the URI to the exported file.
+
+The web app must then be configured to return the file content on a request to the URI.
+It will typically get the file name from the request parameters, use the reader callback to get the file content, which it will then return as response to the request.
 
 ```php
     'app' => [
@@ -306,14 +316,20 @@ A directory where the exported files are going to be saved must then be defined 
                     // The database servers
                 ],
                 'export' => [
-                    'dir' => '/path/to/the/export/dir',
-                    'url' => 'http://www.domain.com/exports',
+                    'writer' => fn(string $content, string $filename) =>
+                        @file_put_contents("$exportDir/$filename", "$content\n"),
+                    'reader' => function(string $filename) use($appDir): string {
+                        $exportDir = "$appDir/exports/user";
+                        $filepath = "$exportDir/$filename";
+                        return !is_dir($exportDir) || !is_file($filepath) ?
+                            "No file $filepath found." : file_get_contents($filepath);
+                    },
+                    'url' => fn($filename) => "/export.php?file=$filename",
                 ],
             ],
         ],
     ],
 ```
-The web server needs to be setup to serve the files in the directory `dir` from url `url`.
 
 Contribute
 ----------
