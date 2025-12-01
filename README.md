@@ -297,13 +297,12 @@ Other parameters can also be defined to limit the size of the uploaded files or 
 
 Databases can also be exported to various types of files: SQL, CSV, and more.
 
-The export feature is configured with three callbacks.
+The export feature is configured with two callbacks.
 
-The `writer` callback saves the export data content in a file. It takes the content and the file name as parameters.
+The `writer` callback saves the export data content in a file. It takes the content and the file name as parameters, and returns the URI to the exported file.
+It must return an empty string in case of error.
 
 The `reader` callback takes an export file name as parameter, then reads and returns its content.
-
-The `url` callback takes the file name as parameter, and returns the URI to the exported file.
 
 The web app must then be configured to return the file content on a request to the URI.
 It will typically get the file name from the request parameters, use the reader callback to get the file content, which it will then return as response to the request.
@@ -316,15 +315,16 @@ It will typically get the file name from the request parameters, use the reader 
                     // The database servers
                 ],
                 'export' => [
-                    'writer' => fn(string $content, string $filename) =>
-                        @file_put_contents("$exportDir/$filename", "$content\n"),
-                    'reader' => function(string $filename) use($appDir): string {
-                        $exportDir = "$appDir/exports/user";
-                        $filepath = "$exportDir/$filename";
-                        return !is_dir($exportDir) || !is_file($filepath) ?
-                            "No file $filepath found." : file_get_contents($filepath);
+                    'writer' => function(string $content, string $filename) use($appDir): string {
+                        $filepath = "$appDir/exports/user/$filename";
+                        return !@file_put_contents($filepath, "$content\n") ?
+                            '' : "/export.php?file=$filename";
                     },
-                    'url' => fn($filename) => "/export.php?file=$filename",
+                    'reader' => function(string $filename) use($appDir): string {
+                        $filepath = "$appDir/exports/user/$filename";
+                        return !is_file($filepath) ? "No file $filepath found." :
+                            file_get_contents($filepath);
+                    },
                 ],
             ],
         ],

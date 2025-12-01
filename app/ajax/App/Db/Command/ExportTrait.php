@@ -75,8 +75,7 @@ trait ExportTrait
     protected function exportDb(array $databases, array $formValues): void
     {
         $writer = $this->package()->getOption('export.writer');
-        $urlBuilder = $this->package()->getOption('export.url');
-        if (!is_callable($writer) || !is_callable($urlBuilder)) {
+        if (!is_callable($writer)) {
             $this->alert()->title('Error')
                 ->error('The export feature is not setup.');
             return;
@@ -108,20 +107,21 @@ trait ExportTrait
             $filename .= '.gz';
         }
 
-        if (!$writer("$content\n", $filename)) {
+        $exportUrl = $writer("$content\n", $filename);
+        if ($exportUrl === '') {
             Logger::debug('Unable to write dump to file.', [
                 'filename' => $filename,
-                'content' => $content,
+                'options' => $options,
             ]);
             $this->alert()->title('Error')->error('Unable to write dump to file.');
             return;
         }
 
         if ($output === 'open') {
-            $this->response->jo()->open($urlBuilder($filename), '_blank')->focus();
+            $this->response->jo()->open($exportUrl, '_blank')->focus();
             return;
         }
 
-        $this->response->jo('jaxon.dbadmin')->downloadFile($urlBuilder($filename), $filename);
+        $this->response->jo('jaxon.dbadmin')->downloadFile($exportUrl, $filename);
     }
 }
