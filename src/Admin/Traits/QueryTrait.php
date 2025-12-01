@@ -4,6 +4,8 @@ namespace Lagdo\DbAdmin\Admin\Traits;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
+use function preg_match;
+
 trait QueryTrait
 {
     /**
@@ -16,7 +18,8 @@ trait QueryTrait
     private function getEditFunctionNames(TableFieldEntity $field, array $values, bool $update): array
     {
         $names = $values;
-        foreach ($this->driver->editFunctions() as $key => $functions) {
+        $dbFunctions = [$this->driver->insertFunctions(), $this->driver->editFunctions()];
+        foreach ($dbFunctions as $key => $functions) {
             if (!$key || (!isset($this->utils->input->values['call']) && $update)) { // relative functions
                 foreach ($functions as $pattern => $value) {
                     if (!$pattern || preg_match("~$pattern~", $field->type)) {
