@@ -69,7 +69,7 @@ class LogUiBuilder
             $this->ui->row(
                 $this->ui->col(
                         $this->ui->h4($this->trans->lang('History'))
-                            ->setStyle('font-size:16px;')
+                            ->setStyle('font-size:16px; font-weight:600;')
                     )
                     ->width(12)
             ),
@@ -113,7 +113,7 @@ class LogUiBuilder
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->h4($this->trans->lang('Favorites'))
-                        ->setStyle('font-size:16px;'))
+                        ->setStyle('font-size:16px; font-weight:600;'))
                     ->width(3),
                 $this->ui->col(
                     $this->ui->nav()
