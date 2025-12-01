@@ -62,9 +62,8 @@ trait PageTrait
                 $this->ui->when($counterId !== '', fn() =>
                     $this->ui->th(
                         $this->ui->checkbox()
-                            ->addClass('dbadmin-table-checkbox')
                             ->setId("dbadmin-table-$counterId-all")
-                    )
+                    )->addClass('dbadmin-table-checkbox')
                 ),
                 $this->ui->each($headers, fn($header) =>
                     $this->ui->th($this->ui->html($header))
@@ -78,7 +77,7 @@ trait PageTrait
                                 $this->ui->checkbox()
                                     ->addClass("dbadmin-table-$counterId")
                                     ->setName("{$counterId}[]")
-                            )
+                            )->addClass('dbadmin-table-checkbox')
                         ),
                         $this->ui->each($detailGroup, fn($detail, $title) =>
                             $this->getTableCell($title, $detail ?? '')
