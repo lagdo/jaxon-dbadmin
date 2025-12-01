@@ -214,9 +214,9 @@ class ExportUiBuilder
      *
      * @return mixed
      */
-    private function databasesCol(array $databases): mixed
+    private function databases(array $databases): mixed
     {
-        return $this->ui->col(
+        return $this->ui->div(
             $this->ui->table(
                 $this->ui->thead(
                     $this->ui->tr(
@@ -259,7 +259,7 @@ class ExportUiBuilder
                 )
             )
             ->responsive(true)->style('bordered')
-        );
+        )->setStyle('max-height: 450px; overflow: scroll;');
     }
 
     /**
@@ -267,9 +267,9 @@ class ExportUiBuilder
      *
      * @return mixed
      */
-    private function tablesCol(array $tables): mixed
+    private function tables(array $tables): mixed
     {
-        return $this->ui->col(
+        return $this->ui->div(
             $this->ui->table(
                 $this->ui->thead(
                     $this->ui->tr(
@@ -312,7 +312,7 @@ class ExportUiBuilder
                 )
             )
             ->responsive(true)->style('bordered')
-        );
+        )->setStyle('max-height: 450px; overflow: scroll;');
     }
 
     /**
@@ -330,11 +330,11 @@ class ExportUiBuilder
                         $this->optionsCol($rqExport, $options['options'])
                             ->width(6),
                         $this->ui->when(isset($options['databases']), fn() =>
-                            $this->databasesCol($options['databases'])
+                            $this->ui->col($this->databases($options['databases']))
                                 ->width(6)
                         ),
                         $this->ui->when(isset($options['tables']), fn() =>
-                            $this->tablesCol($options['tables'])
+                            $this->ui->col($this->tables($options['tables']))
                                 ->width(6)
                         )
                     )
