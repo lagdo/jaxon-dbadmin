@@ -21,7 +21,7 @@ class Privileges extends MainComponent
      * @var InputBuilder
      */
     #[Inject]
-    private InputBuilder $inputUi;
+    protected InputBuilder $inputUi;
 
     /**
      * @inheritDoc
