@@ -4,10 +4,12 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Command;
 
 use Jaxon\Attributes\Attribute\Before;
 use Jaxon\Attributes\Attribute\Upload;
+use Jaxon\Request\Upload\FileInterface;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Ui\Command\ImportUiBuilder;
 
 use function array_map;
+use function implode;
 use function Jaxon\je;
 
 trait ImportTrait
@@ -50,7 +52,18 @@ trait ImportTrait
      */
     #[Before('notYetAvailable')]
     public function executeWebFile(): void
+    {}
+
+    /**
+     * @param array<FileInterface> $files
+     * @param bool $decompress
+     *
+     * @return string
+     */
+    private function readQueries(array $files, bool $decompress = false): string
     {
+        $cbReadFile = fn($file) => $file->filesystem()->read($file->path());
+        return implode("\n\n", array_map($cbReadFile, $files));
     }
 
     /**
@@ -60,7 +73,6 @@ trait ImportTrait
      *
      * @return void
      */
-    #[Before('notYetAvailable')]
     #[Upload('dbadmin-import-sql-files-input')]
     public function executeSqlFiles(array $formValues): void
     {
@@ -70,12 +82,10 @@ trait ImportTrait
             return;
         }
 
-        $paths = array_map(fn($file) => $file->path(), $files);
         $errorStops = $formValues['error_stops'] ?? false;
         $onlyErrors = $formValues['only_errors'] ?? false;
-        $queryResults = $this->db()->executeSqlFiles($paths, $errorStops, $onlyErrors);
+        $results = $this->db()->executeSqlFiles($files, $errorStops, $onlyErrors);
 
-        $content = $this->importUi->results($queryResults['results']);
-        $this->response->html('dbadmin-command-results', $content);
+        $this->cl(Query\Results::class)->renderResults($results);
     }
 }

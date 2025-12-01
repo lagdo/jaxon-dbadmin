@@ -9,9 +9,6 @@ use Lagdo\DbAdmin\Db\DbFacade;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 
-use function intval;
-use function trim;
-
 #[Exclude]
 class Results extends Component
 {
@@ -36,26 +33,14 @@ class Results extends Component
     }
 
     /**
-     * Execute an SQL query and display the results
+     * Display the query results
      *
-     * @param array $values
+     * @param array $results
      *
      * @return void
      */
-    public function exec(array $values): void
+    public function renderResults(array $results): void
     {
-        $query = trim($values['query'] ?? '');
-        if(!$query)
-        {
-            $this->alert()->title('Error')->error('The query string is empty!');
-            return;
-        }
-
-        $limit = intval($values['limit'] ?? 0);
-        $errorStops = $values['error_stops'] ?? false;
-        $onlyErrors = $values['only_errors'] ?? false;
-        $results = $this->db()->executeCommands($query, $limit, $errorStops, $onlyErrors);
-
         $this->stash()->set('results', $results['results']);
         $this->render();
 

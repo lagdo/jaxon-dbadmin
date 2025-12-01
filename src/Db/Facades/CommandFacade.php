@@ -196,7 +196,7 @@ class CommandFacade extends AbstractFacade
             $messages = [];
             $statement = $this->driver->storedResult();
 
-            if ($this->driver->connection()->hasError()) {
+            if (!$statement || $this->driver->connection()->hasError()) {
                 $errors[] = $this->driver->connection()->errorMessage();
             } elseif (!$queryEntity->onlyErrors) {
                 [$select, $messages] = $this->select($statement, $queryEntity->limit);

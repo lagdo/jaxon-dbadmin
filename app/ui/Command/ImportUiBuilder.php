@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ui\Command;
 
 use Jaxon\Script\JsExpr;
+use Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -10,8 +11,16 @@ use function Jaxon\jq;
 
 class ImportUiBuilder
 {
+    use QueryResultsTrait;
+
+    /**
+     * @var string
+     */
     public string $formId = 'dbadmin-import-form';
 
+    /**
+     * @var string
+     */
     public string $sqlFilesDivId = 'dbadmin-import-sql-files-wrapper';
 
     /**
@@ -177,8 +186,12 @@ class ImportUiBuilder
                 )
                 ->responsive(true)->wrapped(false)->setId($this->formId)
             )->width(12),
-            $this->ui->col()->width(12)->setId('dbadmin-command-history'),
-            $this->ui->col()->width(12)->setId('dbadmin-command-results')
+            $this->ui->col()
+                ->width(12)
+                ->jxnBind(rq(Query\Results::class)),
+            $this->ui->col($this->ui->jxnHtml(rq(Query\Queries::class)))
+                ->width(12)
+                ->jxnBind(rq(Query\Queries::class))
         );
     }
 }

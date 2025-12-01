@@ -5,6 +5,9 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 
+use function intval;
+use function trim;
+
 trait QueryTrait
 {
     /**
@@ -81,9 +84,20 @@ trait QueryTrait
      */
     public function exec(string $query, array $values): void
     {
+        $query = trim($query);
+        if(!$query)
+        {
+            $this->alert()->title('Error')->error('The query string is empty!');
+            return;
+        }
+
         $this->db()->prepareCommand();
 
-        $values['query'] = $query;
-        $this->cl(Results::class)->exec($values);
+        $limit = intval($values['limit'] ?? 0);
+        $errorStops = $values['error_stops'] ?? false;
+        $onlyErrors = $values['only_errors'] ?? false;
+        $results = $this->db()->executeCommands($query, $limit, $errorStops, $onlyErrors);
+
+        $this->cl(Results::class)->renderResults($results);
     }
 }

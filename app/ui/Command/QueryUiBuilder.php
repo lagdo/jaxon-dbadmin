@@ -8,13 +8,14 @@ use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function count;
 use function Jaxon\je;
 use function Jaxon\jo;
 use function Jaxon\rq;
 
 class QueryUiBuilder
 {
+    use QueryResultsTrait;
+
     /**
      * @var string
      */
@@ -148,71 +149,6 @@ class QueryUiBuilder
             $this->ui->col($this->ui->jxnHtml(rq(Query\Queries::class)))
                 ->width(12)
                 ->jxnBind(rq(Query\Queries::class))
-        );
-    }
-
-    /**
-     * @param array $results
-     *
-     * @return string
-     */
-    public function results(array $results): string
-    {
-        return $this->ui->build(
-            $this->ui->each($results, fn($result) =>
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->when(count($result['errors']) > 0, fn() =>
-                            $this->ui->panel(
-                                $this->ui->panelHeader($this->ui->text($result['query'])),
-                                $this->ui->panelBody(
-                                    $this->ui->each($result['errors'], fn($error) =>
-                                        $this->ui->span($error)
-                                    )
-                                )
-                                ->setStyle('padding:5px 15px')
-                            )
-                            ->style('danger')
-                        ),
-                        $this->ui->when(count($result['messages']) > 0, fn() =>
-                            $this->ui->panel(
-                                $this->ui->panelHeader($this->ui->text($result['query'])),
-                                $this->ui->panelBody(
-                                    $this->ui->each($result['messages'], fn($message) =>
-                                        $this->ui->span($message)
-                                    )
-                                )
-                                ->setStyle('padding:5px 15px')
-                            )
-                            ->style('success')
-                        ),
-                        $this->ui->when(isset($result['select']), fn() =>
-                            $this->ui->table(
-                                $this->ui->thead(
-                                    $this->ui->tr(
-                                        $this->ui->each($result['select']['headers'], fn($header) =>
-                                            $this->ui->th($this->ui->html($header))
-                                        )
-                                    )
-                                ),
-                                $this->ui->tbody(
-                                    $this->ui->each($result['select']['details'], fn($details) =>
-                                        $this->ui->tr(
-                                            $this->ui->each($details, fn($detail) =>
-                                                $this->ui->td($this->ui->html($detail))
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                            ->responsive(true)
-                            ->style('bordered')
-                            ->setStyle('margin-top:2px')
-                        ),
-                    )
-                    ->width(12)
-                )
-            )
         );
     }
 }
