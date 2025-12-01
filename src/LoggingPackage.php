@@ -54,11 +54,10 @@ class LoggingPackage extends AbstractPackage
      */
     public function getCss(): string
     {
-        return $this->view()->render('dbadmin::codes::css.html') .
-            "\n<style>\n" .
-            $this->view()->render('dbadmin::codes::styles.css') .
-            "\n</style>\n<!-- Spinner CSS code. -->\n<style>\n" .
+        return "<style>\n" .
             $this->view()->render('dbadmin::codes::spin.css') .
+            "\n/* Spinner CSS code. */\n" .
+            $this->view()->render('dbadmin::codes::styles.css') .
             "\n</style>\n";
     }
 
@@ -83,9 +82,9 @@ class LoggingPackage extends AbstractPackage
      */
     public function getScript(): string
     {
-        return $this->view()->render('dbadmin::codes::script.js') .
-            "\n\n// Spinner javascript code.\n" .
-            $this->view()->render('dbadmin::codes::spin.js');
+        return "// Spinner javascript code.\n\n" .
+            $this->view()->render('dbadmin::codes::spin.js') . "\n\n" .
+            $this->view()->render('dbadmin::codes::script.js');
     }
 
     /**

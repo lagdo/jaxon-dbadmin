@@ -114,3 +114,17 @@
 #jaxon-dbadmin .dbadmin-main-action-group {
     padding: 10px;
 }
+#dbadmin-main-command-query { 
+    height: 200px;
+    min-height: 120px;
+    resize: vertical;
+}
+#dbadmin-views-edit-view { 
+    height: 300px;
+    min-height: 120px;
+    resize: vertical;
+}
+#dbadmin-table-select-query { 
+    height: 20px;
+    resize: none;
+}

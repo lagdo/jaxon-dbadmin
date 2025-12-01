@@ -1,8 +1,20 @@
-jaxon.dbadmin = (function() {
+jaxon.dbadmin = {};
+
+(function(self) {
+    /**
+     * @param {string} checkboxId
+     *
+     * @returns {void}
+     */
     const countTableCheckboxes = (checkboxId) => $('#dbadmin-table-' + checkboxId + '-count')
         .html($('.dbadmin-table-' + checkboxId + ':checked').length);
 
-    const selectTableCheckboxes = (checkboxId) => {
+    /**
+     * @param {string} checkboxId
+     *
+     * @returns {void}
+     */
+    self.selectTableCheckboxes = (checkboxId) => {
         $('#dbadmin-table-' + checkboxId + '-all').change(function() {
             $('.dbadmin-table-' + checkboxId, '#jaxon-dbadmin').prop('checked', this.checked);
             countTableCheckboxes(checkboxId);
@@ -12,7 +24,12 @@ jaxon.dbadmin = (function() {
         });
     };
 
-    const setExportEventHandlers = (checkboxId) => {
+    /**
+     * @param {string} checkboxId
+     *
+     * @returns {void}
+     */
+    self.setExportEventHandlers = (checkboxId) => {
         // Select all
         $('#' + checkboxId + '-all').change(function() {
             $('.' + checkboxId, '#jaxon-dbadmin').prop('checked', this.checked);
@@ -28,7 +45,12 @@ jaxon.dbadmin = (function() {
         }
     };
 
-    const setFileUpload = (container) => {
+    /**
+     * @param {string} container
+     *
+     * @returns {void}
+     */
+    self.setFileUpload = (container) => {
         $(container).on('change', ':file', function() {
             const fileInput = $(this);
             const numFiles = fileInput.get(0).files ? fileInput.get(0).files.length : 1;
@@ -39,7 +61,13 @@ jaxon.dbadmin = (function() {
         });
     };
 
-    const downloadFile = (url, filename) => {
+    /**
+     * @param {string} url
+     * @param {string} filename
+     *
+     * @returns {void}
+     */
+    self.downloadFile = (url, filename) => {
         const downloadLink = document.createElement("a");
         downloadLink.href = url;
         downloadLink.download = filename;
@@ -47,105 +75,7 @@ jaxon.dbadmin = (function() {
         downloadLink.click();
         document.body.removeChild(downloadLink);
     };
-
-    const editor = {
-        ace: null,
-        page: '',
-        fontSize: '13px',
-        modes: {
-            sql: 'ace/mode/sql',
-            mysql: 'ace/mode/mysql',
-            pgsql: 'ace/mode/pgsql',
-        },
-    };
-
-    const createSqlQueryEditor = function(containerId, driver) {
-        editor.ace = ace.edit(containerId, {
-            mode: editor.modes[driver] ?? editor.modes.sql,
-            selectionStyle: "text",
-            dragEnabled: false,
-            useWorker: false,
-            enableBasicAutocompletion: true,
-            enableSnippets: false,
-            enableLiveAutocompletion: true,
-            showPrintMargin: false,
-        });
-        editor.ace.setTheme("ace/theme/textmate");
-        editor.ace.session.setUseWrapMode(true);
-        document.getElementById(containerId).style.fontSize = editor.fontSize;
-    };
-
-    const createSqlSelectEditor = (containerId, driver) => {
-        editor.ace = ace.edit(containerId, {
-            mode: editor.modes[driver] ?? editor.modes.sql,
-            selectionStyle: "text",
-            dragEnabled: false,
-            useWorker: false,
-            showPrintMargin: false,
-            showLineNumbers: false,
-            showGutter: false, // Also hide the line number "column".
-            readOnly: true,
-        });
-        editor.ace.setTheme("ace/theme/textmate");
-        editor.ace.session.setUseWrapMode(true);
-        editor.ace.resize();
-        document.getElementById(containerId).style.fontSize = editor.fontSize;
-    };
-
-    const getSqlQuery = () => {
-        // Try to get the selected text first.
-        const selectedText = editor.ace.getSelectedText();
-        return selectedText ? selectedText : editor.ace.getValue();
-    };
-
-    // Set the SQL query value and reset the undo history.
-    const setSqlQuery = (query) => editor.ace.session.setValue(query);
-
-    /**
-     * Read the data-query-id attribute in the parent with the given tag name
-     *
-     * @param {Element} node 
-     * @param {string} tag
-     *
-     * @returns {string}
-     */
-    const getQueryId = (node, tag) => {
-        while ((parent = node?.parent())) {
-            if (parent.prop('tagName')?.toLowerCase() === tag) {
-                return parent.attr('data-query-id') ?? '';
-            }
-            node = parent;
-        }
-        return '';
-    };
-
-    const getHistoryQuery = (node) =>
-        $('#dbadmin-history-query-' + getQueryId(node, 'td')).text();
-
-    const getFavoriteQuery = (node) =>
-        $('#dbadmin-favorite-query-' + getQueryId(node, 'td')).text();
-
-    return {
-        countTableCheckboxes,
-        selectTableCheckboxes,
-        setExportEventHandlers,
-        setFileUpload,
-        downloadFile,
-        createSqlQueryEditor,
-        createSqlSelectEditor,
-        getSqlQuery,
-        setSqlQuery,
-        history: {
-            copySqlQuery: (node) => setSqlQuery(getHistoryQuery(node)),
-            insertSqlQuery: (node) => editor.ace.insert(getHistoryQuery(node)),
-        },
-        favorite: {
-            getQueryId: (node) => getQueryId(node, 'td'),
-            copySqlQuery: (node) => setSqlQuery(getFavoriteQuery(node)),
-            insertSqlQuery: (node) => editor.ace.insert(getFavoriteQuery(node)),
-        },
-    };
-})();
+})(jaxon.dbadmin);
 
 jaxon.dom.ready(() => {
     const spin = {
