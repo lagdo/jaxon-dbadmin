@@ -4,6 +4,11 @@ namespace Lagdo\DbAdmin\Db;
 
 use Lagdo\DbAdmin\Driver\Driver;
 use Lagdo\DbAdmin\Driver\DriverInterface;
+use Lagdo\DbAdmin\Driver\Driver\DatabaseInterface;
+use Lagdo\DbAdmin\Driver\Driver\GrammarInterface;
+use Lagdo\DbAdmin\Driver\Driver\QueryInterface;
+use Lagdo\DbAdmin\Driver\Driver\ServerInterface;
+use Lagdo\DbAdmin\Driver\Driver\TableInterface;
 use Closure;
 
 use function Jaxon\jaxon;
@@ -28,12 +33,46 @@ class AppDriver extends Driver
         $this->config = $driver->config;
         $this->mainConnection = $driver->mainConnection;
         $this->connection = $driver->connection;
+    }
 
-        $this->server = $driver->server;
-        $this->database = $driver->database;
-        $this->table = $driver->table;
-        $this->query = $driver->query;
-        $this->grammar = $driver->grammar;
+    /**
+     * @var ServerInterface
+     */
+    protected function _server(): ServerInterface
+    {
+        return $this->driver->_server();
+    }
+
+    /**
+     * @var DatabaseInterface
+     */
+    protected function _database(): DatabaseInterface
+    {
+        return $this->driver->_database();
+    }
+
+    /**
+     * @var TableInterface
+     */
+    protected function _table(): TableInterface
+    {
+        return $this->driver->_table();
+    }
+
+    /**
+     * @var GrammarInterface
+     */
+    protected function _grammar(): GrammarInterface
+    {
+        return $this->driver->_grammar();
+    }
+
+    /**
+     * @var QueryInterface
+     */
+    protected function _query(): QueryInterface
+    {
+        return $this->driver->_query();
     }
 
     /**
