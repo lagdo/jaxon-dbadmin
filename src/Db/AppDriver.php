@@ -102,9 +102,9 @@ class AppDriver extends Driver
     /**
      * @return void
      */
-    protected function openedConnection()
+    protected function connectionOpened()
     {
-        $this->driver->openedConnection();
+        $this->driver->connectionOpened();
     }
 
     /**

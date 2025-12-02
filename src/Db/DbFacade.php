@@ -143,7 +143,7 @@ class DbFacade extends AbstractFacade
             $this->admin = $this->di->get(Admin::class);
         }
         // Open the selected database
-        $this->driver->open($database, $schema);
+        $this->driver->openConnection($database, $schema);
     }
 
     /**

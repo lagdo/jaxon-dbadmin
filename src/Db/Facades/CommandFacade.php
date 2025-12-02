@@ -63,7 +63,7 @@ class CommandFacade extends AbstractFacade
         //! PDO - silent error
         // TODO: use this connection to execute EXPLAIN queries.
         if ($this->connection === null && $this->driver->database() !== '') {
-            $this->connection = $this->driver->connectToDatabase(
+            $this->connection = $this->driver->newConnection(
                 $this->driver->database(), $this->driver->schema());
         }
     }
@@ -196,8 +196,8 @@ class CommandFacade extends AbstractFacade
             $messages = [];
             $statement = $this->driver->storedResult();
 
-            if (!$statement || $this->driver->connection()->hasError()) {
-                $errors[] = $this->driver->connection()->errorMessage();
+            if (!$statement || $this->driver->hasError()) {
+                $errors[] = $this->driver->errorMessage();
             } elseif (!$queryEntity->onlyErrors) {
                 [$select, $messages] = $this->select($statement, $queryEntity->limit);
             }
@@ -205,7 +205,7 @@ class CommandFacade extends AbstractFacade
             $result = compact('errors', 'messages', 'select');
             $result['query'] = $queryEntity->query;
             $this->results[] = $result;
-            if ($this->driver->connection()->hasError() && $queryEntity->errorStops) {
+            if ($this->driver->hasError() && $queryEntity->errorStops) {
                 return false;
             }
         } while ($this->driver->nextResult());
