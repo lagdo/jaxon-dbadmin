@@ -37,7 +37,7 @@ trait ServerTrait
      *
      * @return bool
      */
-    public function support(string $feature)
+    public function support(string $feature): bool
     {
         $this->connectToServer();
         return $this->serverFacade()->support($feature);

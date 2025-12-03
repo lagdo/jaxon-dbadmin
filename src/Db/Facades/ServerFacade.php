@@ -52,7 +52,7 @@ class ServerFacade extends AbstractFacade
      *
      * @return bool
      */
-    public function support(string $feature)
+    public function support(string $feature): bool
     {
         return $this->driver->support($feature);
     }

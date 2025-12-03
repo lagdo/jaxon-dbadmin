@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Db;
 
+use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
+use Lagdo\DbAdmin\Driver\Db\StatementInterface;
 use Lagdo\DbAdmin\Driver\Driver;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Driver\DatabaseInterface;
@@ -86,7 +88,7 @@ class AppDriver extends Driver
     /**
      * @return void
      */
-    protected function beforeConnection()
+    protected function beforeConnection(): void
     {
         $this->driver->beforeConnection();
     }
@@ -94,7 +96,7 @@ class AppDriver extends Driver
     /**
      * @return void
      */
-    protected function configConnection()
+    protected function configConnection(): void
     {
         $this->driver->configConnection();
     }
@@ -102,7 +104,7 @@ class AppDriver extends Driver
     /**
      * @return void
      */
-    protected function connectionOpened()
+    protected function connectionOpened(): void
     {
         $this->driver->connectionOpened();
     }
@@ -110,7 +112,7 @@ class AppDriver extends Driver
     /**
      * @inheritDoc
      */
-    public function createConnection(array $options)
+    public function createConnection(array $options): ConnectionInterface|null
     {
         return $this->driver->createConnection($options);
     }
@@ -138,7 +140,7 @@ class AppDriver extends Driver
     /**
      * @inheritDoc
      */
-    public function multiQuery(string $query)
+    public function multiQuery(string $query): bool
     {
         $result = $this->driver->multiQuery($query);
         // Call the query callbacks.
@@ -149,7 +151,7 @@ class AppDriver extends Driver
     /**
      * @inheritDoc
      */
-    public function result(string $query, int $field = -1)
+    public function result(string $query, int $field = -1): mixed
     {
         $result = $this->driver->result($query, $field);
         // Call the query callbacks.
@@ -160,7 +162,7 @@ class AppDriver extends Driver
     /**
      * @inheritDoc
      */
-    public function execute(string $query)
+    public function execute(string $query): StatementInterface|bool
     {
         $result = $this->driver->execute($query);
         // Call the query callbacks.
