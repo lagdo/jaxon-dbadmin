@@ -275,61 +275,92 @@ The `logging.options.enduser.enabled` option enables the logging on all the user
 
 The `logging.options.history.limit` option is the number of queries in the history, which defaults to `15`, and when the `logging.options.history.distinct` option is set to true, the history displays only distinct queries.
 
-### Data import (currently disabled)
-
-SQL files can be uploaded and executed on a server. This feature is implemented using the [Jaxon ajax upload](https://www.jaxon-php.org/docs/v5x/features/upload.html) feature, which then needs to be configured in the `lib` section of the `Jaxon` config file.
-
-```php
-    'lib' => [
-        'upload' => [
-            'files' => [
-                'sql_files' => [
-                    'dir' => '/path/to/the/upload/dir',
-                ],
-            ],
-        ],
-    ],
-```
-As stated in the [Jaxon ajax upload documentation](https://www.jaxon-php.org/docs/v5x/features/upload.html), `sql_files` is the `name` attribute of the file upload field, and of course `/path/to/the/upload/dir` needs to be writable.
-Other parameters can also be defined to limit the size of the uploaded files or retrict their extensions or mime types.
-
 ### Data export
 
-Databases can also be exported to various types of files: SQL, CSV, and more.
+Databases can be exported to various types of files: SQL, CSV, and more.
 
 The export feature is configured with two callbacks.
 
 The `writer` callback saves the export data content in a file. It takes the content and the file name as parameters, and returns the URI to the exported file.
-It must return an empty string in case of error.
+It must return an empty string in case of error, and the web app must be configured to return the file content on a request to the URI.
 
 The `reader` callback takes an export file name as parameter, then reads and returns its content.
 
-The web app must then be configured to return the file content on a request to the URI.
-It will typically get the file name from the request parameters, use the reader callback to get the file content, which it will then return as response to the request.
+Both callbacks can use the [Jaxon Storage](https://github.com/jaxon-php/jaxon-storage), as in the example below, to read and write the exported files, which can then be saved on different types of filesystems, thanks to the [Flysystem](https://flysystem.thephpleague.com) library.
+
+The callbacks can also save the file in different locations, depending for example on the application user.
 
 ```php
+use League\Flysystem\FilesystemException;
+use League\Flysystem\UnableToReadFile;
+use League\Flysystem\UnableToWriteFile;
+
     'app' => [
+        'storage' => [
+            'exports' => [
+                'adapter' => 'local',
+                'dir' => "/path/to/exports",
+            ],
+        ],
         'packages' => [
             Lagdo\DbAdmin\DbAdminPackage::class => [
                 'servers' => [
                     // The database servers
                 ],
                 'export' => [
-                    'writer' => function(string $content, string $filename) use($appDir): string {
-                        $filepath = "$appDir/exports/user/$filename";
-                        return !@file_put_contents($filepath, "$content\n") ?
-                            '' : "/export.php?file=$filename";
+                    'writer' => function(string $content, string $filename): string {
+                        try {
+                            // Make a Filesystem object with the storage.exports options.
+                            $storage = jaxon()->di()->g(StorageManager::class)->get('exports');
+                            $storage->write($filename, "$content\n");
+                        } catch (FilesystemException|UnableToWriteFile) {
+                            return '';
+                        }
+                        // Return the link to the exported file.
+                        return "/export.php?file=$filename";
                     },
-                    'reader' => function(string $filename) use($appDir): string {
-                        $filepath = "$appDir/exports/user/$filename";
-                        return !is_file($filepath) ? "No file $filepath found." :
-                            file_get_contents($filepath);
+                    'reader' => function(string $filename): string {
+                        try {
+                            // Make a Filesystem object with the storage.exports options.
+                            $storage = jaxon()->di()->g(StorageManager::class)->get('exports');
+                            return !$storage->fileExists($filename) ?
+                                "No file $filename found." : $storage->read($filename);
+                        } catch (FilesystemException|UnableToReadFile) {
+                            return "No file $filename found.";
+                        }
                     },
                 ],
             ],
         ],
     ],
 ```
+
+### Data import (with file upload)
+
+SQL files can be uploaded and executed on a server. This feature is implemented using the [Jaxon ajax upload](https://github.com/jaxon-php/jaxon-upload) and [Jaxon Storage](https://github.com/jaxon-php/jaxon-storage) packages, which then needs to be configured in the `Jaxon` config file.
+
+```php
+    'app' => [
+        'storage' => [
+            'uploads' => [
+                'adapter' => 'local',
+                'dir' => '/path/to/the/upload/dir',
+            ],
+        ],
+        'upload' => [
+            'enabled' => true,
+            'files' => [
+                'sql_files' => [
+                    'storage' => 'uploads',
+                ],
+            ],
+        ],
+    ],
+```
+
+In this example, `sql_files` is the `name` attribute of the file upload field, and of course `/path/to/the/upload/dir` needs to be writable.
+Other parameters can also be defined to limit the size of the uploaded files or retrict their extensions or mime types.
+the [Jaxon ajax upload documentation](https://www.jaxon-php.org/docs/v5x/features/upload.html)
 
 Contribute
 ----------
