@@ -63,12 +63,14 @@
 }
 #jaxon-dbadmin .dbadmin-table-column-left {
     padding-right: 1px;
+    margin-top: 2px;
 }
 #jaxon-dbadmin .dbadmin-table-column-default,
 #jaxon-dbadmin .dbadmin-table-column-middle,
 #jaxon-dbadmin .dbadmin-table-column-right {
     padding-left: 1px;
     padding-right: 1px;
+    margin-top: 2px;
 }
 #jaxon-dbadmin .dbadmin-table-column-null,
 #jaxon-dbadmin .dbadmin-table-column-null-header {
@@ -82,9 +84,6 @@
 #jaxon-dbadmin .dbadmin-table-column-buttons-header {
     padding-left: 1px;
     padding-right: 1px;
-}
-#jaxon-dbadmin .second-line {
-    margin-top: 2px;
 }
 #jaxon-dbadmin .nested-row {
     padding: 0 !important;

@@ -46,8 +46,7 @@ class SelectUiBuilder
                         ->addIcon('remove')
                         ->jxnClick($rqInput->del(je($formId)->rd()->form()))
                 )
-            )
-            ->width(3)
+            )->width(3)
         );
     }
 
@@ -85,10 +84,8 @@ class SelectUiBuilder
                                 $this->ui->option($grouping)
                                     ->selected($columns[$curId]['fun'] == $grouping)
                             )
-                        )
-                        ->setLabel($this->trans->lang('Aggregation')),
-                    )
-                    ->setName("column[$newId][fun]")
+                        )->setLabel($this->trans->lang('Aggregation')),
+                    )->setName("column[$newId][fun]")
                 )
                 ->width(6),
                 $this->ui->formCol(
@@ -97,8 +94,7 @@ class SelectUiBuilder
                             $this->ui->option($column)
                                 ->selected($columns[$curId]['col'] == $column)
                         )
-                    )
-                    ->setName("column[$newId][col]")
+                    )->setName("column[$newId][col]")
                 )
                 ->width(5),
                 $this->ui->formCol(
@@ -106,8 +102,7 @@ class SelectUiBuilder
                         ->checked(false)
                         ->setName("del[$newId]")
                         ->setClass("columns-item-checkbox")
-                )
-                ->width(1)
+                )->width(1)
             );
             $newId++;
         }
@@ -127,8 +122,7 @@ class SelectUiBuilder
                 $this->editFormButtons($rqColumns, $formId),
                 $this->ui->div()
                     ->jxnBind($rqColumns)
-            )
-            ->responsive(true)->wrapped(false)->setId($formId)
+            )->responsive(true)->wrapped(false)->setId($formId)
         );
     }
 
@@ -158,33 +152,27 @@ class SelectUiBuilder
                             $this->ui->option($column)
                                 ->selected($wheres[$curId]['col'] == $column)
                         )
-                    )
-                    ->setName("where[$newId][col]")
-                )
-                ->width(4),
+                    )->setName("where[$newId][col]")
+                )->width(4),
                 $this->ui->formCol(
                     $this->ui->formSelect(
                         $this->ui->each($options['operators'], fn($operator) =>
                             $this->ui->option($operator)
                                 ->selected($wheres[$curId]['op'] == $operator)
                         )
-                    )
-                    ->setName("where[$newId][op]")
-                )
-                ->width(3),
+                    )->setName("where[$newId][op]")
+                )->width(3),
                 $this->ui->formCol(
                     $this->ui->formInput()
                         ->setName("where[$newId][val]")
                         ->setValue($wheres[$curId]['val'])
-                )
-                ->width(4),
+                )->width(4),
                 $this->ui->formCol(
                     $this->ui->checkbox()
                         ->checked(false)
                         ->setName("del[$newId]")
                         ->setClass("filters-item-checkbox")
-                )
-                ->width(1)
+                )->width(1)
             );
             $newId++;
         }
@@ -204,8 +192,7 @@ class SelectUiBuilder
                 $this->editFormButtons($rqFilters, $formId),
                 $this->ui->div()
                     ->jxnBind($rqFilters)
-            )
-            ->responsive(true)->wrapped(false)->setId($formId)
+            )->responsive(true)->wrapped(false)->setId($formId)
         );
     }
 
@@ -234,10 +221,8 @@ class SelectUiBuilder
                             $this->ui->option($column)
                                 ->selected($orders[$curId] == $column)
                         )
-                    )
-                    ->setName("order[]")
-                )
-                ->width(6),
+                    )->setName("order[]")
+                )->width(6),
                 $this->ui->formCol(
                     $this->ui->inputGroup(
                         $this->ui->label(
@@ -248,15 +233,13 @@ class SelectUiBuilder
                             ->setName("desc[$newId]")
                             ->setValue('1')
                     )
-                )
-                ->width(5),
+                )->width(5),
                 $this->ui->formCol(
                     $this->ui->checkbox()
                         ->checked(false)
                         ->setName("del[$newId]")
                         ->setClass("sorting-item-checkbox")
-                )
-                ->width(1)
+                )->width(1)
             );
             $newId++;
         }
@@ -276,9 +259,8 @@ class SelectUiBuilder
                 $this->editFormButtons($rqSorting, $formId),
                 $this->ui->div()
                     ->jxnBind($rqSorting)
-            )
-            ->responsive(true)->wrapped(false)
-            ->setId($formId)
+            )->responsive(true)->wrapped(false)
+                ->setId($formId)
         );
     }
 
@@ -311,8 +293,7 @@ class SelectUiBuilder
                         )
                     )
                 ),
-            )
-            ->responsive(true)->style('bordered')
+            )->responsive(true)->style('bordered')
         );
     }
 
@@ -326,31 +307,28 @@ class SelectUiBuilder
         $columnCount = count($options['columns']['column'] ?? []);
         $filterCount = count($options['filters']['where'] ?? []);
         $sortingCount = count($options['sorting']['order'] ?? []);
+
         return $this->ui->build(
             $this->ui->buttonGroup(
                 $this->ui->button(
                     $this->ui->text($this->trans->lang('Columns ')),
                     $this->ui->when($columnCount > 0, fn() =>
                         $this->ui->badge((string)$columnCount)->type('secondary'))
-                )
-                    ->outline()->secondary()->fullWidth()
+                )->outline()->secondary()->fullWidth()
                     ->jxnClick(rq(Options\Fields\Columns::class)->edit()),
                 $this->ui->button(
                     $this->ui->text($this->trans->lang('Filters ')),
                     $this->ui->when($filterCount > 0, fn() =>
                         $this->ui->badge((string)$filterCount)->type('secondary'))
-                )
-                    ->outline()->secondary()->fullWidth()
+                )->outline()->secondary()->fullWidth()
                     ->jxnClick(rq(Options\Fields\Filters::class)->edit()),
                 $this->ui->button(
                     $this->ui->text($this->trans->lang('Order ')),
                     $this->ui->when($sortingCount > 0, fn() =>
                         $this->ui->badge((string)$sortingCount)->type('secondary'))
-                )
-                    ->outline()->secondary()->fullWidth()
+                )->outline()->secondary()->fullWidth()
                     ->jxnClick(rq(Options\Fields\Sorting::class)->edit())
-            )
-            ->fullWidth()
+            )->fullWidth()
         );
     }
 
@@ -379,11 +357,10 @@ class SelectUiBuilder
                             ->setValue($options['limit']),
                         $this->ui->button()
                             ->outline()->secondary()->addIcon('ok')
-                            ->jxnClick($rqOptionsValues
-                                ->saveSelectLimit(je($optionsLimitId)->rd()->input()->toInt()))
+                            ->jxnClick($rqOptionsValues->saveSelectLimit(
+                                je($optionsLimitId)->rd()->input()->toInt()))
                     )
-                )
-                ->width(5),
+                )->width(5),
                 $this->ui->formCol(
                     $this->ui->inputGroup(
                         $this->ui->label(
@@ -396,11 +373,10 @@ class SelectUiBuilder
                             ->setValue($options['length']),
                         $this->ui->button()
                             ->outline()->secondary()->addIcon('ok')
-                            ->jxnClick($rqOptionsValues
-                                ->saveTextLength(je($optionsLengthId)->rd()->input()->toInt()))
+                            ->jxnClick($rqOptionsValues->saveTextLength(
+                                je($optionsLengthId)->rd()->input()->toInt()))
                     )
-                )
-                ->width(7)
+                )->width(7)
             )
         );
     }
@@ -443,16 +419,12 @@ class SelectUiBuilder
                                     $this->ui->panelBody()
                                         ->setStyle('padding: 0 1px;')
                                         ->jxnBind(rq(QueryText::class))
-                                )
-                                ->style('default')
-                                ->setStyle('padding: 5px;')
-                            )
-                            ->width(12)
+                                )->style('default')
+                                    ->setStyle('padding: 5px;')
+                            )->width(12)
                         ),
-                    )
-                    ->responsive(true)->wrapped(true)->setId($formId)
-                )
-                ->width(12)
+                    )->responsive(true)->wrapped(true)->setId($formId)
+                )->width(12)
             ),
             $this->ui->row(
                 $this->ui->col(
@@ -463,24 +435,20 @@ class SelectUiBuilder
                         $this->ui->button($this->ui->text($this->trans->lang('Execute')))
                             ->fullWidth()->primary()
                             ->jxnClick(rq(Results::class)->page())
-                    )
-                    ->fullWidth(true)
-                )
-                ->width(3),
+                    )->fullWidth(true)
+                )->width(3),
                 $this->ui->col(
                     $this->ui->row(
                         $this->ui->col(
                             $this->ui->nav()
                                 ->jxnPagination(rq(Results::class))
-                        )
-                        ->width(10)
-                        ->setStyle('overflow:hidden'),
+                        )->width(10)
+                            ->setStyle('overflow:hidden'),
                         $this->ui->col()
                             ->width(2)
                             ->jxnBind(rq(Duration::class))
                     )
-                )
-                ->width(9),
+                )->width(9),
             ),
             $this->ui->row(
                 $this->ui->col()

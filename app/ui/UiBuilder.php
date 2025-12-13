@@ -15,6 +15,7 @@ use Lagdo\DbAdmin\Ajax\App\Page\DbConnection;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
+use function count;
 use function array_shift;
 use function Jaxon\je;
 use function Jaxon\rq;
@@ -46,10 +47,10 @@ class UiBuilder
                             ->selected($serverId === $default)
                             ->setValue($serverId)
                     )
-                )
-                ->setId('jaxon-dbadmin-dbhost-select'),
+                )->setId('jaxon-dbadmin-dbhost-select'),
                 $this->ui->button($this->ui->text('Show'))
-                    ->primary()->setClass('btn-select')
+                    ->primary()
+                    ->setClass('btn-select')
                     ->jxnClick(rq(Admin::class)
                         ->server(je('jaxon-dbadmin-dbhost-select')->rd()->select()))
             )
@@ -144,12 +145,12 @@ class UiBuilder
             $this->ui->buttonGroup(
                 $this->ui->each($actions, fn($action, $class) =>
                     $this->ui->button(['class' => $class],
-                        $this->ui->text($action['title']))
-                        ->outline()->secondary()
+                        $this->ui->text($action['title'])
+                    )->outline()
+                        ->secondary()
                         ->jxnClick($action['handler'])
                 )
-            )
-            ->setClass('dbadmin-main-action-group')
+            )->setClass('dbadmin-main-action-group')
         );
     }
 
@@ -166,8 +167,7 @@ class UiBuilder
                         ->jxnBind(rq(Breadcrumbs::class)),
                     $this->ui->span(['style' => 'float:right'])
                         ->jxnBind(rq(PageActions::class))
-                )
-                ->width(12)
+                )->width(12)
             ),
             $this->ui->row(
                 $this->ui->col()
@@ -200,14 +200,11 @@ class UiBuilder
             $this->ui->row(
                 $this->ui->col(
                     $this->sidebarContent($servers, $serverAccess, $default)
-                )
-                ->width(3),
+                )->width(3),
                 $this->ui->col(
                     $this->wrapperContent()
-                )
-                ->width(9)
-            )
-            ->setId('jaxon-dbadmin')
+                )->width(9)
+            )->setId('jaxon-dbadmin')
         );
     }
 

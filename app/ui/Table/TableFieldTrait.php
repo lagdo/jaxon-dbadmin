@@ -92,7 +92,8 @@ trait TableFieldTrait
     {
         return $this->ui->formSelect(
             $this->ui->option('(engine)')
-                ->selected(false)->setValue(''),
+                ->selected(false)
+                ->setValue(''),
             $this->ui->each($this->engines, fn($engine) =>
                 $this->ui->option($engine)
                     ->selected(!strcasecmp($currentEngine, $engine))
@@ -109,7 +110,8 @@ trait TableFieldTrait
     {
         return $this->ui->formSelect(
             $this->ui->option('(' . $this->trans->lang('collation') . ')')
-                ->selected(false)->setValue(''),
+                ->selected(false)
+                ->setValue(''),
             $this->ui->each($this->collations, fn($_collations, $group) =>
                 $this->ui->list(
                     $this->ui->when(is_string($_collations), fn() =>
@@ -122,8 +124,7 @@ trait TableFieldTrait
                                 $this->ui->option($collation)
                                     ->selected($currentCollation === $collation)
                             )
-                        )
-                        ->setLabel($group)
+                        )->setLabel($group)
                     )
                 )
             )
@@ -174,7 +175,8 @@ trait TableFieldTrait
     {
         return $this->ui->col(
             $this->getCollationSelect($field->collation)
-                ->setName($this->editPrefix . '[collation]')->setDataField('collation')
+                ->setName($this->editPrefix . '[collation]')
+                ->setDataField('collation')
                 ->when($field->collationHidden, fn($elt) => $elt->setReadonly('readonly'))
         );
     }
@@ -195,10 +197,9 @@ trait TableFieldTrait
                         ->selected($field->onUpdate === $option)
                         ->setValue($value)
                 )
-            )
-            ->setName($this->editPrefix . '[onUpdate]')
-            ->setDataField('onUpdate')
-            ->when($field->onUpdateHidden, fn($elt) => $elt->setReadonly('readonly'))
+            )->setName($this->editPrefix . '[onUpdate]')
+                ->setDataField('onUpdate')
+                ->when($field->onUpdateHidden, fn($elt) => $elt->setReadonly('readonly'))
         );
     }
 
@@ -236,12 +237,10 @@ trait TableFieldTrait
                             $this->ui->option($type)
                                 ->selected($field->type === $type)
                         )
-                    )
-                    ->setLabel($group)
+                    )->setLabel($group)
                 )
-            )
-            ->setName($this->editPrefix . '[type]')
-            ->setDataField('type')
+            )->setName($this->editPrefix . '[type]')
+                ->setDataField('type')
         );
     }
 
@@ -298,10 +297,9 @@ trait TableFieldTrait
                         ->selected($field->unsigned === $option)
                         ->setValue($option)
                 )
-            )
-            ->setName($this->editPrefix . '[unsigned]')
-            ->setDataField('unsigned')
-            ->when($field->unsignedHidden, fn($elt) => $elt->setReadonly('readonly'))
+            )->setName($this->editPrefix . '[unsigned]')
+                ->setDataField('unsigned')
+                ->when($field->unsignedHidden, fn($elt) => $elt->setReadonly('readonly'))
         );
     }
 
@@ -322,10 +320,9 @@ trait TableFieldTrait
                         ->setValue($option)
                         ->selected($field->onDelete === $option)
                 )
-            )
-            ->setName($this->editPrefix . '[onDelete]')
-            ->setDataField('onDelete')
-            ->when($field->onDeleteHidden, fn($elt) => $elt->setReadonly('readonly'))
+            )->setName($this->editPrefix . '[onDelete]')
+                ->setDataField('onDelete')
+                ->when($field->onDeleteHidden, fn($elt) => $elt->setReadonly('readonly'))
         );
     }
 
@@ -362,6 +359,7 @@ trait TableFieldTrait
         $notLast = $field->editPosition < count($this->fields) - 1;
         $deleted = $field->editStatus === 'deleted';
         $parameters = [$this->formValues(), $field->editPosition];
+        $rqColumns = rq(Columns::class);
 
         return $this->ui->col(
             $this->ui->dropdown(
@@ -370,27 +368,26 @@ trait TableFieldTrait
                 $this->ui->dropdownMenu(
                     $this->ui->when($notFirst && $this->support['move_col'], fn() =>
                         $this->ui->dropdownMenuItem($this->ui->text('Up'))
-                            ->jxnClick(rq(Columns::class)->up(...$parameters))
+                            ->jxnClick($rqColumns->up(...$parameters))
                     ),
                     $this->ui->when($notLast && $this->support['move_col'], fn() =>
                         $this->ui->dropdownMenuItem($this->ui->text('Down'))
-                            ->jxnClick(rq(Columns::class)->down(...$parameters))
+                            ->jxnClick($rqColumns->down(...$parameters))
                     ),
                     $this->ui->when($this->support['move_col'], fn() =>
                         $this->ui->dropdownMenuItem($this->ui->text('Add'))
-                            ->jxnClick(rq(Columns::class)->add(...$parameters))
+                            ->jxnClick($rqColumns->add(...$parameters))
                     ),
                     $this->ui->when($this->support['drop_col'] && !$deleted, fn() =>
                         $this->ui->dropdownMenuItem($this->ui->text('Remove'))
-                            ->jxnClick(rq(Columns::class)->del(...$parameters))
+                            ->jxnClick($rqColumns->del(...$parameters))
                     ),
                     $this->ui->when($this->support['drop_col'] && $deleted, fn() =>
                         $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
-                            ->jxnClick(rq(Columns::class)->cancel(...$parameters))
+                            ->jxnClick($rqColumns->cancel(...$parameters))
                     )
                 )
-            )
-            ->setClass('dbadmin-table-column-buttons')
+            )->setClass('dbadmin-table-column-buttons')
         );
     }
 }

@@ -42,8 +42,7 @@ class ExportUiBuilder
                 $this->ui->formCol(
                     $this->ui->label($options['output']['label'])
                         ->setFor('output')
-                )
-                ->width(3),
+                )->width(3),
                 $this->ui->formCol(
                     $this->ui->each($options['output']['options'], fn($label, $value) =>
                         $this->ui->list(
@@ -54,15 +53,13 @@ class ExportUiBuilder
                             $this->ui->html('&nbsp;' . $label . '&nbsp;')
                         )
                     )
-                )
-                ->width(8)
+                )->width(8)
             ),
             $this->ui->formRow(
                 $this->ui->formCol(
                     $this->ui->label($options['format']['label'])
                         ->setFor('format')
-                )
-                ->width(3),
+                )->width(3),
                 $this->ui->formCol(
                     $this->ui->each($options['format']['options'], fn($label, $value) =>
                         $this->ui->list(
@@ -73,26 +70,22 @@ class ExportUiBuilder
                             $this->ui->html('&nbsp;' . $label . '&nbsp;')
                         )
                     )
-                )
-                ->width(8)
+                )->width(8)
             ),
             $this->ui->when(isset($options['db_style']), fn() =>
                 $this->ui->formRow(
                     $this->ui->formCol(
                         $this->ui->label($options['db_style']['label'])
                             ->setFor('db_style')
-                    )
-                    ->width(3),
+                    )->width(3),
                     $this->ui->formCol(
                         $this->ui->formSelect(
                             $this->ui->each($options['db_style']['options'], fn($label) =>
                                 $this->ui->option($label)
                                     ->selected($options['db_style']['value'] == $label)
                             )
-                        )
-                        ->setName('db_style')
-                    )
-                    ->width(8)
+                        )->setName('db_style')
+                    )->width(8)
                 )
             ),
             $this->ui->when($hasDbOptions, fn() =>
@@ -100,8 +93,7 @@ class ExportUiBuilder
                     $this->ui->formCol(
                         // Actually an offset. TODO: a parameter for that.
                         $this->ui->html('&nbsp;')
-                    )
-                    ->width(3),
+                    )->width(3),
                     $this->ui->when(isset($options['types']), fn() =>
                         $this->ui->formCol(
                             $this->ui->checkbox()
@@ -109,8 +101,7 @@ class ExportUiBuilder
                                 ->setName('types')
                                 ->setValue($options['types']['value']),
                             $this->ui->html('&nbsp;' . $options['types']['label'])
-                        )
-                        ->width(3)
+                        )->width(3)
                     ),
                     $this->ui->when(isset($options['routines']), fn() =>
                         $this->ui->formCol(
@@ -119,8 +110,7 @@ class ExportUiBuilder
                                 ->setName('routines')
                                 ->setValue($options['routines']['value']),
                             $this->ui->html('&nbsp;' . $options['routines']['label'])
-                        )
-                        ->width(3)
+                        )->width(3)
                     ),
                     $this->ui->when(isset($options['events']), fn() =>
                         $this->ui->formCol(
@@ -129,8 +119,7 @@ class ExportUiBuilder
                                 ->setName('events')
                                 ->setValue($options['events']['value']),
                             $this->ui->html('&nbsp;' . $options['events']['label'])
-                        )
-                        ->width(3)
+                        )->width(3)
                     )
                 ),
             ),
@@ -138,33 +127,28 @@ class ExportUiBuilder
                 $this->ui->formCol(
                     $this->ui->label($options['table_style']['label'])
                         ->setFor('table_style')
-                )
-                ->width(3),
+                )->width(3),
                 $this->ui->formCol(
                     $this->ui->formSelect(
                         $this->ui->each($options['table_style']['options'], fn($label) =>
                             $this->ui->option($label)
                                 ->selected($options['table_style']['value'] == $label)
                         )
-                    )
-                    ->setName('table_style')
-                )
-                ->width(8)
+                    )->setName('table_style')
+                )->width(8)
             ),
             $this->ui->formRow(
                 $this->ui->formCol(
                     // Actually an offset. TODO: a parameter for that.
                     $this->ui->html('&nbsp;')
-                )
-                ->width(3),
+                )->width(3),
                 $this->ui->formCol(
                     $this->ui->checkbox()
                         ->checked($options['auto_increment']['checked'])
                         ->setName('auto_increment')
                         ->setValue($options['auto_increment']['value']),
                     $this->ui->html('&nbsp;' . $options['auto_increment']['label'])
-                )
-                ->width(3),
+                )->width(3),
                 $this->ui->when(isset($options['triggers']), fn() =>
                     $this->ui->formCol(
                         $this->ui->checkbox()
@@ -172,39 +156,34 @@ class ExportUiBuilder
                             ->setName('triggers')
                             ->setValue($options['triggers']['value']),
                         $this->ui->html('&nbsp;' . $options['triggers']['label'])
-                    )
-                    ->width(3),
+                    )->width(3),
                 )
             ),
             $this->ui->formRow(
                 $this->ui->formCol(
                     $this->ui->label($options['data_style']['label'])
                         ->setFor('data_style')
-                )
-                ->width(3),
+                )->width(3),
                 $this->ui->formCol(
                     $this->ui->formSelect(
                         $this->ui->each($options['data_style']['options'], fn($label) =>
                             $this->ui->option($label)
                                 ->selected($options['data_style']['value'] == $label)
                         )
-                    )
-                    ->setName('data_style')
-                )
-                ->width(8)
+                    )->setName('data_style')
+                )->width(8)
             ),
             $this->ui->formRow(
                 $this->ui->formCol(
                     // Actually an offset. TODO: a parameter for that.
                     $this->ui->html('&nbsp;')
-                )
-                ->width(3),
+                )->width(3),
                 $this->ui->formCol(
                     $this->ui->button($this->ui->text($this->trans->lang('Export')))
-                        ->fullWidth()->primary()
+                        ->fullWidth()
+                        ->primary()
                         ->jxnClick($rqExport->export(je($this->formId)->rd()->form()))
-                )
-                ->width(4)
+                )->width(4)
             )
         );
     }
@@ -257,8 +236,7 @@ class ExportUiBuilder
                         )
                     )
                 )
-            )
-            ->responsive(true)->style('bordered')
+            )->responsive(true)->style('bordered')
         )->setStyle('max-height: 450px; overflow: scroll;');
     }
 
@@ -310,8 +288,7 @@ class ExportUiBuilder
                         )
                     )
                 )
-            )
-            ->responsive(true)->style('bordered')
+            )->responsive(true)->style('bordered')
         )->setStyle('max-height: 450px; overflow: scroll;');
     }
 
@@ -338,10 +315,8 @@ class ExportUiBuilder
                                 ->width(6)
                         )
                     )
-                )
-                ->responsive(true)->wrapped(false)->setId($this->formId)
-            )
-            ->width(12),
+                )->responsive(true)->wrapped(false)->setId($this->formId)
+            )->width(12),
             $this->ui->col()->width(12)->setId('dbadmin-export-results')
         );
     }
