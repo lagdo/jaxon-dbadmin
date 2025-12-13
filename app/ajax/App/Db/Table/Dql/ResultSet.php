@@ -2,10 +2,13 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
+use function array_map;
+use function count;
+
 /**
  * This class provides select query features on tables.
  */
-class Results extends PageComponent
+class ResultSet extends PageComponent
 {
     use QueryTrait;
 
@@ -22,6 +25,30 @@ class Results extends PageComponent
         $table = $this->getTableName();
         $options = $this->getOptions(false); // Do not take the page.
         return $this->db()->countSelect($table, $options);
+    }
+
+    /**
+     * @param array $results
+     *
+     * @return array
+     */
+    private function rows(array $results): array
+    {
+        $editId = 0;
+        $editIds = [[]]; // The first entry is an empty array
+        $rows = array_map(function($row) use(&$editId, &$editIds) {
+            $editId++;
+            $editIds[] = $row['ids'];
+            // Id the row is editable, then the editId value is greated than 0.
+            $row['editId'] = count($row['ids']['where'] ?? []) > 0 ? $editId : 0;
+
+            return $row;
+        }, $results['rows']);
+
+        // Ids to edit rows.
+        $this->bag('dbadmin.row.edit')->set('row.ids', $editIds);
+
+        return $rows;
     }
 
     /**
@@ -44,7 +71,7 @@ class Results extends PageComponent
         $this->stash()->set('select.duration', $results['duration']);
 
         // The 'message' key is set when an error occurs, or when the query returns no data.
-        return $this->selectUi->results($results['headers'], $results['rows']);
+        return $this->selectUi->resultSet($results['headers'], $this->rows($results));
     }
 
     /**

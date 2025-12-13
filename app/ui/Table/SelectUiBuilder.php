@@ -3,10 +3,12 @@
 namespace Lagdo\DbAdmin\Ui\Table;
 
 use Jaxon\Script\Call\JxnCall;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dml\Update;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Results;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\ResultRow;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
@@ -39,7 +41,8 @@ class SelectUiBuilder
                 ->width(9), // Offset
             $this->ui->formCol(
                 $this->ui->buttonGroup(
-                    $this->ui->button()->primary()
+                    $this->ui->button()
+                        ->primary()
                         ->addIcon('plus')
                         ->jxnClick($rqInput->add(je($formId)->rd()->form())),
                     $this->ui->button()->danger()
@@ -265,12 +268,37 @@ class SelectUiBuilder
     }
 
     /**
+     * @param array $row
+     *
+     * @return mixed
+     */
+    public function resultRow(array $row): mixed
+    {
+        $editable = $row['editId'] > 0;
+        $uiElt = $this->ui->tr(
+            $this->ui->each($row['cols'], fn($col) =>
+                $this->ui->td($col['value'])
+            ),
+            $this->ui->td(
+                !$editable ? '' : $this->ui->button($this->trans->lang('Edit'))
+                    ->primary()
+                    ->jxnClick(rq(Update::class)->edit($row['editId']))
+            )->setStyle('width:30px')
+        );
+        if ($editable) {
+            $uiElt->jxnBind(rq(ResultRow::class), $row['editId']);
+        }
+
+        return $uiElt;
+    }
+
+    /**
      * @param array $headers
      * @param array $rows
      *
      * @return string
      */
-    public function results(array $headers, array $rows): string
+    public function resultSet(array $headers, array $rows): string
     {
         array_shift($headers);
         return $this->ui->build(
@@ -284,14 +312,7 @@ class SelectUiBuilder
                     )
                 ),
                 $this->ui->tbody(
-                    $this->ui->each($rows, fn($row) =>
-                        $this->ui->tr(
-                            $this->ui->each($row['cols'], fn($col) =>
-                                $this->ui->td($col['value'])
-                            ),
-                            $this->ui->td(['style' => 'width:30px'])
-                        )
-                    )
+                    $this->ui->each($rows, fn($row) => $this->resultRow($row))
                 ),
             )->responsive(true)->style('bordered')
         );
@@ -314,19 +335,25 @@ class SelectUiBuilder
                     $this->ui->text($this->trans->lang('Columns ')),
                     $this->ui->when($columnCount > 0, fn() =>
                         $this->ui->badge((string)$columnCount)->type('secondary'))
-                )->outline()->secondary()->fullWidth()
+                )->outline()
+                    ->secondary()
+                    ->fullWidth()
                     ->jxnClick(rq(Options\Fields\Columns::class)->edit()),
                 $this->ui->button(
                     $this->ui->text($this->trans->lang('Filters ')),
                     $this->ui->when($filterCount > 0, fn() =>
                         $this->ui->badge((string)$filterCount)->type('secondary'))
-                )->outline()->secondary()->fullWidth()
+                )->outline()
+                    ->secondary()
+                    ->fullWidth()
                     ->jxnClick(rq(Options\Fields\Filters::class)->edit()),
                 $this->ui->button(
                     $this->ui->text($this->trans->lang('Order ')),
                     $this->ui->when($sortingCount > 0, fn() =>
                         $this->ui->badge((string)$sortingCount)->type('secondary'))
-                )->outline()->secondary()->fullWidth()
+                )->outline()
+                    ->secondary()
+                    ->fullWidth()
                     ->jxnClick(rq(Options\Fields\Sorting::class)->edit())
             )->fullWidth()
         );
@@ -356,7 +383,9 @@ class SelectUiBuilder
                             ->setName('limit')
                             ->setValue($options['limit']),
                         $this->ui->button()
-                            ->outline()->secondary()->addIcon('ok')
+                            ->outline()
+                            ->secondary()
+                            ->addIcon('ok')
                             ->jxnClick($rqOptionsValues->saveSelectLimit(
                                 je($optionsLimitId)->rd()->input()->toInt()))
                     )
@@ -372,7 +401,9 @@ class SelectUiBuilder
                             ->setName('text_length')
                             ->setValue($options['length']),
                         $this->ui->button()
-                            ->outline()->secondary()->addIcon('ok')
+                            ->outline()
+                            ->secondary()
+                            ->addIcon('ok')
                             ->jxnClick($rqOptionsValues->saveTextLength(
                                 je($optionsLengthId)->rd()->input()->toInt()))
                     )
@@ -407,9 +438,11 @@ class SelectUiBuilder
                     $this->ui->form(
                         $this->ui->div(
                             $this->ui->formRow(
-                                $this->ui->formCol()->width(6)
+                                $this->ui->formCol()
+                                    ->width(6)
                                     ->jxnBind(rq(Options\Fields::class)),
-                                $this->ui->formCol()->width(6)
+                                $this->ui->formCol()
+                                    ->width(6)
                                     ->jxnBind(rq(Options\Values::class))
                             )
                         ),
@@ -434,14 +467,14 @@ class SelectUiBuilder
                             ->jxnClick(rq(Select::class)->edit()),
                         $this->ui->button($this->ui->text($this->trans->lang('Execute')))
                             ->fullWidth()->primary()
-                            ->jxnClick(rq(Results::class)->page())
+                            ->jxnClick(rq(ResultSet::class)->page())
                     )->fullWidth(true)
                 )->width(3),
                 $this->ui->col(
                     $this->ui->row(
                         $this->ui->col(
                             $this->ui->nav()
-                                ->jxnPagination(rq(Results::class))
+                                ->jxnPagination(rq(ResultSet::class))
                         )->width(10)
                             ->setStyle('overflow:hidden'),
                         $this->ui->col()
@@ -453,7 +486,7 @@ class SelectUiBuilder
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->jxnBind(rq(Results::class))
+                    ->jxnBind(rq(ResultSet::class))
             )
         );
     }
