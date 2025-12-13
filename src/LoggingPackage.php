@@ -3,8 +3,8 @@
 namespace Lagdo\DbAdmin;
 
 use Jaxon\Plugin\AbstractPackage;
-use Lagdo\DbAdmin\Ajax\Log\Commands;
-use Lagdo\DbAdmin\Ajax\Log\Wrapper;
+use Lagdo\DbAdmin\Ajax\Audit\Commands;
+use Lagdo\DbAdmin\Ajax\Audit\Wrapper;
 
 use function realpath;
 use function Jaxon\cl;

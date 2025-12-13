@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax\Log;
+namespace Lagdo\DbAdmin\Ajax\Audit;
 
 use Jaxon\App\Dialog\DialogTrait;
 use Jaxon\App\PageComponent;

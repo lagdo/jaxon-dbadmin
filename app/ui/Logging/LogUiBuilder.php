@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Logging;
 
-use Lagdo\DbAdmin\Ajax\Log\Commands;
+use Lagdo\DbAdmin\Ajax\Audit\Commands;
 use Lagdo\DbAdmin\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
