@@ -276,14 +276,14 @@ class SelectUiBuilder
     {
         $editable = $row['editId'] > 0;
         $uiElt = $this->ui->tr(
-            $this->ui->each($row['cols'], fn($col) =>
-                $this->ui->td($col['value'])
-            ),
             $this->ui->td(
                 !$editable ? '' : $this->ui->button($this->trans->lang('Edit'))
                     ->primary()
                     ->jxnClick(rq(Update::class)->edit($row['editId']))
-            )->setStyle('width:30px')
+            )->setStyle('width:30px'),
+            $this->ui->each($row['cols'], fn($col) =>
+                $this->ui->td($col['value'])
+            )
         );
         if ($editable) {
             $uiElt->jxnBind(rq(ResultRow::class), $row['editId']);
@@ -305,10 +305,10 @@ class SelectUiBuilder
             $this->ui->table(
                 $this->ui->thead(
                     $this->ui->tr(
+                        $this->ui->th(['style' => 'width:30px']),
                         $this->ui->each($headers, fn($header) =>
                             $this->ui->th($header['title'] ?? '')
-                        ),
-                        $this->ui->th(['style' => 'width:30px'])
+                        )
                     )
                 ),
                 $this->ui->tbody(

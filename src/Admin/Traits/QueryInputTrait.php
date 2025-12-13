@@ -4,15 +4,14 @@ namespace Lagdo\DbAdmin\Admin\Traits;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
+use function array_sum;
 use function file_get_contents;
-use function substr;
 use function function_exists;
 use function iconv;
-use function json_decode;
 use function is_array;
-use function preg_match;
 use function is_string;
-use function array_sum;
+use function json_decode;
+use function substr;
 
 trait QueryInputTrait
 {
@@ -89,13 +88,11 @@ trait QueryInputTrait
      */
     private function getEnumFieldValue($value)
     {
-        if ($value === -1) {
-            return false;
-        }
-        if ($value === '') {
-            return 'NULL';
-        }
-        return +$value;
+        return match(true) {
+            $value === -1 => false,
+            $value === '' => 'NULL',
+            default => +$value,
+        };
     }
 
     /**
@@ -105,10 +102,8 @@ trait QueryInputTrait
      */
     private function getOrigFieldValue(TableFieldEntity $field)
     {
-        if (preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) === false) {
-            return false;
-        }
-        return $this->driver->escapeId($field->name);
+        return preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) === false ?
+            false : $this->driver->escapeId($field->name);
     }
 
     /**
@@ -118,10 +113,8 @@ trait QueryInputTrait
      */
     private function getJsonFieldValue($value)
     {
-        if (!is_array($value = json_decode($value, true))) {
-            return false; //! Report errors
-        }
-        return $value;
+        //! Report errors
+        return !is_array($value = json_decode($value, true)) ? false : $value;
     }
 
     /**
@@ -134,12 +127,11 @@ trait QueryInputTrait
         if (!$this->iniBool('file_uploads')) {
             return false;
         }
+
         $idf = $this->driver->bracketEscape($field->name);
         $file = $this->getFileContents("fields-$idf");
-        if (!is_string($file)) {
-            return false; //! report errors
-        }
-        return $this->driver->quoteBinary($file);
+        //! report errors
+        return !is_string($file) ? false : $this->driver->quoteBinary($file);
     }
 
     /**
@@ -155,27 +147,16 @@ trait QueryInputTrait
         $idf = $this->driver->bracketEscape($field->name);
         $function = $inputs['function'][$idf] ?? '';
         $value = $inputs['fields'][$idf];
-        if ($field->autoIncrement && $value === '') {
-            return null;
-        }
-        if ($function === 'NULL') {
-            return 'NULL';
-        }
-        if ($field->type === 'enum') {
-            return $this->getEnumFieldValue($value);
-        }
-        if ($function === 'orig') {
-            return $this->getOrigFieldValue($field);
-        }
-        if ($field->type === 'set') {
-            return array_sum((array) $value);
-        }
-        if ($function == 'json') {
-            return $this->getJsonFieldValue($value);
-        }
-        if (preg_match('~blob|bytea|raw|file~', $field->type)) {
-            return $this->getBinaryFieldValue($field);
-        }
-        return $this->getUnconvertedFieldValue($field, $value, $function);
+
+        return match(true) {
+            $field->autoIncrement && $value === '' => null,
+            $function === 'NULL' => 'NULL',
+            $field->type === 'enum' => $this->getEnumFieldValue($value),
+            $function === 'orig' => $this->getOrigFieldValue($field),
+            $field->type === 'set' => array_sum((array) $value),
+            $function == 'json' => $this->getJsonFieldValue($value),
+            preg_match('~blob|bytea|raw|file~', $field->type) => $this->getBinaryFieldValue($field),
+            default => $this->getUnconvertedFieldValue($field, $value, $function),
+        };
     }
 }

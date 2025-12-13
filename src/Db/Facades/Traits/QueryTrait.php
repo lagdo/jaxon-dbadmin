@@ -84,7 +84,7 @@ trait QueryTrait
             if ($select) {
                 $statement = $this->driver->select($table, $select, [$where], $select, [],
                     (isset($queryOptions["select"]) ? 2 : 1));
-                if (($statement)) {
+                if ($statement) {
                     $row = $statement->fetchAssoc();
                 }/* else {
                     $error = $this->driver->error();

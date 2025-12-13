@@ -33,7 +33,7 @@ class QueryFacade extends AbstractFacade
         // From functions.inc.php (function input($field, $value, $function))
         $name = $this->utils->str->html($this->driver->bracketEscape($field->name));
         $save = $options['save'];
-        $reset = ($this->driver->jush() == 'mssql' && $field->autoIncrement);
+        $reset = $this->driver->jush() === 'mssql' && $field->autoIncrement;
         if (is_array($value) && !$function) {
             $value = json_encode($value, JSON_PRETTY_PRINT);
             $function = 'json';
@@ -154,9 +154,9 @@ class QueryFacade extends AbstractFacade
         // From edit.inc.php
         $values = [];
         foreach ($fields as $name => $field) {
-            $val = $this->admin->processInput($field, $queryOptions);
-            if ($val !== false && $val !== null) {
-                $values[$this->driver->escapeId($name)] = $val;
+            $value = $this->admin->processInput($field, $queryOptions);
+            if ($value !== false && $value !== null) {
+                $values[$this->driver->escapeId($name)] = $value;
             }
         }
 
@@ -188,9 +188,9 @@ class QueryFacade extends AbstractFacade
 
         $values = [];
         foreach ($fields as $name => $field) {
-            $val = $this->admin->processInput($field, $queryOptions);
-            if ($val !== false && $val !== null) {
-                $values[$this->driver->escapeId($name)] = $val;
+            $value = $this->admin->processInput($field, $queryOptions);
+            if ($value !== false && $value !== null) {
+                $values[$this->driver->escapeId($name)] = $value;
             }
         }
 

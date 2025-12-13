@@ -357,38 +357,42 @@ class TableUiBuilder
 
     /**
      * @param array $fields
+     * @param string $maxHeight
      *
      * @return string
      */
-    public function queryForm(array $fields): string
+    public function queryForm(array $fields, string $maxHeight = ''): string
     {
-        return $this->ui->build(
-            $this->ui->form(
-                $this->ui->each($fields, fn($field) =>
-                    $this->ui->formRow(
-                        $this->ui->formCol(
-                            $this->ui->label($field['name'])
-                                ->setTitle($field['type'])
-                        )->width(3),
-                        $this->ui->formCol(
-                            $this->ui->when($field['functions']['type'] === 'name', fn() =>
-                                $this->ui->label($field['functions']['name'])
-                            ),
-                            $this->ui->when($field['functions']['type'] === 'select', fn() =>
-                                $this->ui->formSelect(
-                                    $this->ui->each($field['functions']['options'], fn($function) =>
-                                        $this->ui->option($function)
-                                            ->selected($function === $field['functions']['selected'])
-                                    )
-                                )->setName($field['functions']['name'])
-                            )
-                        )->width(2),
-                        $this->ui->formCol(
-                            $this->inputBuilder->build($field['input']['type'], $field['input'])
-                        )->width(7)
-                    )
+        $form = $this->ui->form(
+            $this->ui->each($fields, fn($field) =>
+                $this->ui->formRow(
+                    $this->ui->formCol(
+                        $this->ui->label($field['name'])
+                            ->setTitle($field['type'])
+                    )->width(3),
+                    $this->ui->formCol(
+                        $this->ui->when($field['functions']['type'] === 'name', fn() =>
+                            $this->ui->label($field['functions']['name'])
+                        ),
+                        $this->ui->when($field['functions']['type'] === 'select', fn() =>
+                            $this->ui->formSelect(
+                                $this->ui->each($field['functions']['options'], fn($function) =>
+                                    $this->ui->option($function)
+                                        ->selected($function === $field['functions']['selected'])
+                                )
+                            )->setName($field['functions']['name'])
+                        )
+                    )->width(2),
+                    $this->ui->formCol(
+                        $this->inputBuilder->build($field['input']['type'], $field['input'])
+                    )->width(7)
                 )
-            )->responsive(true)->wrapped(false)->setId($this->formId)
+            )
+        )->responsive(true)->wrapped(false)->setId($this->formId);
+
+        return $maxHeight === '' ? $this->ui->build($form) : $this->ui->build(
+            $this->ui->div($form)
+                ->setStyle("max-height:$maxHeight; overflow-x:hidden; overflow-y:scroll;")
         );
     }
 }

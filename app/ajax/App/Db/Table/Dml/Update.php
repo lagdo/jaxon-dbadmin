@@ -2,30 +2,20 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dml;
 
-use Jaxon\Attributes\Attribute\After;
-use Jaxon\Attributes\Attribute\Before;
 use Jaxon\Attributes\Attribute\Databag;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
-use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\ResultRow;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\FuncComponent;
 
+use function count;
 use function Jaxon\je;
 
 /**
  * This class provides insert and update query features on tables.
  */
-#[Before('notYetAvailable')]
-class Update extends MainComponent
+#[Databag('dbadmin.select')]
+#[Databag('dbadmin.row.edit')]
+class Update extends FuncComponent
 {
-    /**
-     * @var array
-     */
-    private $rowIds;
-
-    /**
-     * @var array
-     */
-    private $queryData;
-
     /**
      * The query form div id
      *
@@ -34,99 +24,81 @@ class Update extends MainComponent
     private $queryFormId = 'dbadmin-table-query-form';
 
     /**
-     * @inheritDoc
-     */
-    protected function before(): void
-    {
-        // Set main menu buttons
-        $options = je($this->queryFormId)->rd()->form();
-        $actions = [
-            'update-save' => [
-                'title' => $this->trans()->lang('Save'),
-                'handler' => $this->rq()->exec($this->rowIds, $options)
-                    ->confirm($this->trans()->lang('Save this item?')),
-            ],
-            'update-back' => [
-                'title' => $this->trans()->lang('Back'),
-                'handler' => $this->rq()->back(),
-            ],
-        ];
-        $this->cl(PageActions::class)->show($actions);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function html(): string
-    {
-        return $this->tableUi->queryForm($this->queryFormId, $this->queryData['fields']);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function after(): void
-    {
-    }
-
-    /**
-     * Show the update query form
-     *
-     * @param array  $rowIds        The row identifiers
+     * @param int $editId
      *
      * @return void
      */
-    #[After('showBreadcrumbs')]
-    public function show(array $rowIds): void
+    public function edit(int $editId): void
     {
-        $this->rowIds = $rowIds;
-        $this->queryData = $this->db()
-            ->getQueryData($this->getTableName(), $rowIds, 'Edit item');
-        // Show the error
-        if(($this->queryData['error']))
+        $rowIds = $this->bag('dbadmin.row.edit')->get('row.ids', []);
+        if(!isset($rowIds[$editId]) || count($rowIds[$editId]['where']) === 0)
         {
-            $this->alert()->title($this->trans()->lang('Error'))->error($this->queryData['error']);
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error('Invalid query data');
             return;
         }
-        $this->render();
-    }
 
-    /**
-     * Get back to the select query from which the update or delete was called
-     *
-     * @return void
-     */
-    #[Databag('dbadmin.select')]
-    public function back(): void
-    {
-        // $select = $this->cl(Select::class);
-        // $select->show(false);
-        // $select->execSelect();
-    }
-
-    /**
-     * Execute the update query
-     *
-     * @param array  $rowIds        The row selector
-     * @param array  $options       The query options
-     *
-     * @return void
-     */
-    #[Databag('dbadmin.select')]
-    public function exec(array $rowIds, array $options): void
-    {
-        $options['where'] = $rowIds['where'];
-        $options['null'] = $rowIds['null'];
-
-        $results = $this->db()->updateItem($this->getTableName(), $options);
-
+        $queryData = $this->db()->getQueryData($this->getTableName(), $rowIds[$editId]);
         // Show the error
-        if(($results['error']))
+        if(isset($queryData['error']))
         {
-            $this->alert()->title($this->trans()->lang('Error'))->error($results['error']);
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error($queryData['error']);
             return;
         }
-        $this->alert()->title($this->trans()->lang('Success'))->success($results['message']);
-        $this->back();
+
+        $title = 'Edit row';
+        $content = $this->tableUi->queryForm($queryData['fields'], '500px');
+        // Bootbox options
+        $options = ['size' => 'large'];
+        $buttons = [[
+            'title' => $this->trans()->lang('Cancel'),
+            'class' => 'btn btn-tertiary',
+            'click' => 'close',
+        ], [
+            'title' => $this->trans()->lang('Save'),
+            'class' => 'btn btn-primary',
+            'click' => $this->rq()->save(je($this->queryFormId)->rd()->form())
+                ->confirm($this->trans()->lang('Save this item?')),
+        ]];
+        $this->modal()->show($title, $content, $buttons, $options);
+    }
+
+    /**
+     * @param int   $editId
+     * @param array $formValues
+     *
+     * @return void
+     */
+    public function save(int $editId, array $formValues): void
+    {
+        $rowIds = $this->bag('dbadmin.row.edit')->get('row.ids', []);
+        if(!isset($rowIds[$editId]) || count($rowIds[$editId]['where']) === 0)
+        {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error('Invalid query data');
+            return;
+        }
+
+        $results = $this->db()->updateItem($this->getTableName(), $formValues);
+        // Show the error
+        if(isset($results['error']))
+        {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error($results['error']);
+            return;
+        }
+
+        // Update the result row.
+        // $this->cl(ResultRow::class)->item($editId)->render();
+
+        $this->modal()->hide();
+        $this->alert()
+            ->title($this->trans()->lang('Success'))
+            ->success($results['message']);
     }
 }

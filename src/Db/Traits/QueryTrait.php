@@ -26,17 +26,12 @@ trait QueryTrait
      *
      * @param string $table         The table name
      * @param array  $queryOptions  The query options
-     * @param string $action        The action title
      *
      * @return array
      */
-    public function getQueryData(string $table, array $queryOptions = [], string $action = 'New item'): array
+    public function getQueryData(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
-        $this->breadcrumbs(true)
-            ->item($this->utils->trans->lang('Tables'))
-            ->item("<i><b>$table</b></i>")
-            ->item($this->utils->trans->lang($action));
         $this->utils->input->table = $table;
         $this->utils->input->values = $queryOptions;
         return $this->queryFacade()->getQueryData($table, $queryOptions);

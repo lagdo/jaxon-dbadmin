@@ -36,7 +36,7 @@ class ResultSet extends PageComponent
     {
         $editId = 0;
         $editIds = [[]]; // The first entry is an empty array
-        $rows = array_map(function($row) use(&$editId, &$editIds) {
+        $rows = array_map(function($row) use(&$editId, &$editIds): array {
             $editId++;
             $editIds[] = $row['ids'];
             // Id the row is editable, then the editId value is greated than 0.
