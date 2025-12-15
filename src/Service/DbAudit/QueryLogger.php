@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Db\Service\DbAudit;
 
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Service\Options;
-use Lagdo\DbAdmin\Driver\Db\Connection;
+use Lagdo\DbAdmin\Driver\Db\AbstractConnection;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\Facades\Logger;
 
@@ -17,9 +17,9 @@ use function implode;
 class QueryLogger
 {
     /**
-     * @var Connection
+     * @var AbstractConnection
      */
-    private Connection $connection;
+    private AbstractConnection $connection;
 
     /**
      * @var int

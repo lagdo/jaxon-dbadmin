@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Service\DbAdmin;
 
-use Lagdo\DbAdmin\Driver\Db\Connection;
+use Lagdo\DbAdmin\Driver\Db\AbstractConnection;
 use Lagdo\DbAdmin\Driver\Db\StatementInterface;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\Facades\Logger;
@@ -20,9 +20,9 @@ trait ConnectionTrait
     private int|null $ownerId = null;
 
     /**
-     * @var Connection
+     * @var AbstractConnection
      */
-    private Connection $connection;
+    private AbstractConnection $connection;
 
     /**
      * @param DriverInterface $driver
@@ -43,9 +43,9 @@ trait ConnectionTrait
     }
 
     /**
-     * @var Connection
+     * @var AbstractConnection
      */
-    protected function connection(): Connection
+    protected function connection(): AbstractConnection
     {
         return $this->connection;
     }
@@ -94,8 +94,7 @@ trait ConnectionTrait
         }
 
         Logger::warning('Unable to save new owner in the query audit database.', [
-            'error' => $this->connection?->error() ??
-                'Not connected to the audit database',
+            'error' => $this->connection?->error() ?? 'Not connected to the audit database',
         ]);
         return false;
     }
