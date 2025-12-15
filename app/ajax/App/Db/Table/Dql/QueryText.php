@@ -3,8 +3,8 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dql;
 
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\DbAdminPackage;
-use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Db\DbAdminPackage;
+use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Ui\Table\SelectUiBuilder;
 

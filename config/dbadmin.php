@@ -1,9 +1,10 @@
 <?php
 
-use Lagdo\DbAdmin\Config;
 use Lagdo\DbAdmin\Db;
+use Lagdo\DbAdmin\Db\Config;
+use Lagdo\DbAdmin\Db\Driver\Facades;
+use Lagdo\DbAdmin\Db\Service;
 use Lagdo\DbAdmin\Driver;
-use Lagdo\DbAdmin\Service;
 use Lagdo\DbAdmin\Ui;
 
 use function Jaxon\jaxon;
@@ -62,20 +63,20 @@ return [
             // Selected database driver
             Driver\DriverInterface::class => function($di) {
                 // Register a driver for each database server.
-                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $package = $di->g(Db\DbAdminPackage::class);
                 foreach($package->getServers() as $server => $options) {
                     $di->set("dbadmin_driver_$server", fn() =>
-                        Db\AppDriver::createDriver($options));
+                        Db\Driver\AppDriver::createDriver($options));
                 }
 
                 $server = $di->g('dbadmin_config_server');
                 return $di->g("dbadmin_driver_$server");
             },
             // The database driver used in the application
-            Db\AppDriver::class => function($di) {
+            Db\Driver\AppDriver::class => function($di) {
                 // This class will "clone" the selected driver, and define the callbacks.
                 // By doing this, the driver classes will call the driver without the callbacks.
-                $driver = new Db\AppDriver($di->g(Driver\DriverInterface::class));
+                $driver = new Db\Driver\AppDriver($di->g(Driver\DriverInterface::class));
                 $timer = $di->g(Service\TimerService::class);
                 $driver->addQueryCallback(fn() => $timer->stop());
                 $logger = $di->g(Service\DbAdmin\QueryLogger::class);
@@ -85,74 +86,74 @@ return [
                 return $driver;
             },
             // Facades to the DB driver features
-            Db\Facades\CommandFacade::class => function($di) {
-                $dbFacade = $di->g(Db\DbFacade::class);
+            Facades\CommandFacade::class => function($di) {
+                $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $timer = $di->g(Service\TimerService::class);
                 $logger = $di->g(Service\DbAdmin\QueryLogger::class);
-                return new Db\Facades\CommandFacade($dbFacade, $timer, $logger);
+                return new Facades\CommandFacade($dbFacade, $timer, $logger);
             },
-            Db\Facades\DatabaseFacade::class => function($di) {
-                $dbFacade = $di->g(Db\DbFacade::class);
+            Facades\DatabaseFacade::class => function($di) {
+                $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $server = $di->g('dbadmin_config_server');
-                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $package = $di->g(Db\DbAdminPackage::class);
                 $options = $package->getServerOptions($server);
-                return new Db\Facades\DatabaseFacade($dbFacade, $options);
+                return new Facades\DatabaseFacade($dbFacade, $options);
             },
-            Db\Facades\ExportFacade::class => function($di) {
-                $dbFacade = $di->g(Db\DbFacade::class);
-                return new Db\Facades\ExportFacade($dbFacade);
+            Facades\ExportFacade::class => function($di) {
+                $dbFacade = $di->g(Db\Driver\DbFacade::class);
+                return new Facades\ExportFacade($dbFacade);
             },
-            Db\Facades\ImportFacade::class => function($di) {
-                $dbFacade = $di->g(Db\DbFacade::class);
+            Facades\ImportFacade::class => function($di) {
+                $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $timer = $di->g(Service\TimerService::class);
                 $logger = $di->g(Service\DbAdmin\QueryLogger::class);
-                return new Db\Facades\ImportFacade($dbFacade, $timer, $logger);
+                return new Facades\ImportFacade($dbFacade, $timer, $logger);
             },
-            Db\Facades\QueryFacade::class => function($di) {
-                $dbFacade = $di->g(Db\DbFacade::class);
-                return new Db\Facades\QueryFacade($dbFacade);
+            Facades\QueryFacade::class => function($di) {
+                $dbFacade = $di->g(Db\Driver\DbFacade::class);
+                return new Facades\QueryFacade($dbFacade);
             },
-            Db\Facades\SelectFacade::class => function($di) {
-                $dbFacade = $di->g(Db\DbFacade::class);
+            Facades\SelectFacade::class => function($di) {
+                $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $timer = $di->g(Service\TimerService::class);
-                return new Db\Facades\SelectFacade($dbFacade, $timer);
+                return new Facades\SelectFacade($dbFacade, $timer);
             },
-            Db\Facades\ServerFacade::class => function($di) {
-                $dbFacade = $di->g(Db\DbFacade::class);
+            Facades\ServerFacade::class => function($di) {
+                $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $server = $di->g('dbadmin_config_server');
-                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $package = $di->g(Db\DbAdminPackage::class);
                 $options = $package->getServerOptions($server);
-                return new Db\Facades\ServerFacade($dbFacade, $options);
+                return new Facades\ServerFacade($dbFacade, $options);
             },
-            Db\Facades\TableFacade::class => function($di) {
-                $dbFacade = $di->g(Db\DbFacade::class);
-                return new Db\Facades\TableFacade($dbFacade);
+            Facades\TableFacade::class => function($di) {
+                $dbFacade = $di->g(Db\Driver\DbFacade::class);
+                return new Facades\TableFacade($dbFacade);
             },
-            Db\Facades\UserFacade::class => function($di) {
-                $dbFacade = $di->g(Db\DbFacade::class);
-                return new Db\Facades\UserFacade($dbFacade);
+            Facades\UserFacade::class => function($di) {
+                $dbFacade = $di->g(Db\Driver\DbFacade::class);
+                return new Facades\UserFacade($dbFacade);
             },
-            Db\Facades\ViewFacade::class => function($di) {
-                $dbFacade = $di->g(Db\DbFacade::class);
-                return new Db\Facades\ViewFacade($dbFacade);
+            Facades\ViewFacade::class => function($di) {
+                $dbFacade = $di->g(Db\Driver\DbFacade::class);
+                return new Facades\ViewFacade($dbFacade);
             },
             Config\UserFileReader::class => function($di) {
                 return new Config\UserFileReader(getAuth($di));
             },
             // Database options for logging
             'dbadmin_logging_database' => function($di) {
-                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $package = $di->g(Db\DbAdminPackage::class);
                 return !$package->hasLoggingDatabase() ? null :
                     $package->getOption('logging.database');
             },
             // Database driver for logging
             'dbadmin_logging_driver' => function($di) {
                 $options = $di->g('dbadmin_logging_database');
-                return Db\AppDriver::createDriver($options);
+                return Db\Driver\AppDriver::createDriver($options);
             },
             // Query logger
             Service\DbAdmin\QueryLogger::class => function($di) {
-                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $package = $di->g(Db\DbAdminPackage::class);
                 $options = $package->getOption('logging.options');
                 $database = $di->g('dbadmin_logging_database');
                 if (!is_array($database) || !is_array($options) ||
@@ -163,7 +164,7 @@ return [
                 // User database, different from the logging database.
                 $server = $di->g('dbadmin_config_server');
                 $serverOptions = $package->getServerOptions($server);
-                $dbFacade = $di->g(Db\DbFacade::class);
+                $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $options['database'] = $dbFacade->getDatabaseOptions($serverOptions);
 
                 $reader = $di->g(Config\UserFileReader::class);
@@ -173,7 +174,7 @@ return [
             },
             // Query history
             Service\DbAdmin\QueryHistory::class => function($di) {
-                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $package = $di->g(Db\DbAdminPackage::class);
                 $options = $package->getOption('logging.options');
                 $database = $di->g('dbadmin_logging_database');
                 if (!is_array($database) || !is_array($options) ||
@@ -188,7 +189,7 @@ return [
             },
             // Query favorites
             Service\DbAdmin\QueryFavorite::class => function($di) {
-                $package = $di->g(Lagdo\DbAdmin\DbAdminPackage::class);
+                $package = $di->g(Db\DbAdminPackage::class);
                 $options = $package->getOption('logging.options');
                 $database = $di->g('dbadmin_logging_database');
                 if (!is_array($database) || !is_array($options) ||
@@ -204,7 +205,7 @@ return [
         ],
         'auto' => [
             // The translator
-            Lagdo\DbAdmin\Translator::class,
+            Db\Translator::class,
             // The string manipulation class
             Driver\Utils\Str::class,
             // The user input
@@ -212,9 +213,9 @@ return [
             // The utils class
             Driver\Utils\Utils::class,
             // The db classes
-            Db\AppPage::class,
+            Db\Driver\AppPage::class,
             // The facade to the database features
-            Db\DbFacade::class,
+            Db\Driver\DbFacade::class,
             // The Timer service
             Service\TimerService::class,
             // The UI builders
@@ -232,7 +233,7 @@ return [
         ],
         'alias' => [
             // The translator
-            Driver\Utils\TranslatorInterface::class => Lagdo\DbAdmin\Translator::class,
+            Driver\Utils\TranslatorInterface::class => Lagdo\DbAdmin\Db\Translator::class,
         ],
     ],
     'exceptions' => [

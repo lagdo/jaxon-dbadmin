@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Service\DbAdmin;
+namespace Lagdo\DbAdmin\Db\Service\DbAdmin;
 
 use Lagdo\DbAdmin\Driver\Db\Connection;
 use Lagdo\DbAdmin\Driver\Db\StatementInterface;

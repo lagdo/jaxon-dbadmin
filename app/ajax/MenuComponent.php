@@ -3,8 +3,8 @@
 namespace Lagdo\DbAdmin\Ajax;
 
 use Jaxon\App\Component;
-use Lagdo\DbAdmin\Db\DbFacade;
-use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Db\Driver\DbFacade;
+use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\MenuBuilder;
 
 abstract class MenuComponent extends Component

@@ -8,9 +8,9 @@ use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\App\Menu\Sections;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\Ajax\App\Menu\Server\Command as ServerCommand;
-use Lagdo\DbAdmin\DbAdminPackage;
-use Lagdo\DbAdmin\Db\DbFacade;
-use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Db\DbAdminPackage;
+use Lagdo\DbAdmin\Db\Driver\DbFacade;
+use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
 #[Databag('dbadmin')]

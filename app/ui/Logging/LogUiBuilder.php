@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ui\Logging;
 
 use Lagdo\DbAdmin\Ajax\Audit\Commands;
-use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function array_filter;

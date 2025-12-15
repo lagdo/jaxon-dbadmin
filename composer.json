@@ -40,7 +40,7 @@
         "psr-4": {
             "Lagdo\\DbAdmin\\Ajax\\": "app/ajax/",
             "Lagdo\\DbAdmin\\Ui\\": "app/ui/",
-            "Lagdo\\DbAdmin\\": "src/"
+            "Lagdo\\DbAdmin\\Db\\": "src/"
         }
     },
     "autoload-dev": {

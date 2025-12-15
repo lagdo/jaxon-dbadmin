@@ -1,11 +1,11 @@
 <?php
 
-namespace Lagdo\DbAdmin\Service\DbAdmin;
+namespace Lagdo\DbAdmin\Db\Service\DbAdmin;
 
-use Lagdo\DbAdmin\Config\AuthInterface;
+use Lagdo\DbAdmin\Db\Config\AuthInterface;
 use Lagdo\DbAdmin\Driver\Db\Connection;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Service\Options;
+use Lagdo\DbAdmin\Db\Service\Options;
 use Lagdo\Facades\Logger;
 
 use function json_encode;

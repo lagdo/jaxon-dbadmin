@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Service;
+namespace Lagdo\DbAdmin\Db\Service;
 
 use function max;
 use function microtime;

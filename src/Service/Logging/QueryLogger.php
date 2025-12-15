@@ -1,11 +1,11 @@
 <?php
 
-namespace Lagdo\DbAdmin\Service\Logging;
+namespace Lagdo\DbAdmin\Db\Service\Logging;
 
-use Lagdo\DbAdmin\Db\DbFacade;
+use Lagdo\DbAdmin\Db\Driver\DbFacade;
+use Lagdo\DbAdmin\Db\Service\Options;
 use Lagdo\DbAdmin\Driver\Db\Connection;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Service\Options;
 use Lagdo\Facades\Logger;
 
 use function count;

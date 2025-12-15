@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Server;
 use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\Component as BaseComponent;
 use Lagdo\DbAdmin\Ajax\App\Page\Content;
-use Lagdo\DbAdmin\Db\Exception\DbException;
+use Lagdo\DbAdmin\Db\Driver\Exception\DbException;
 
 #[Before('checkServerAccess')]
 abstract class MainComponent extends BaseComponent

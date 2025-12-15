@@ -10,7 +10,7 @@ use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\ResultRow;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
-use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function array_shift;

@@ -12,7 +12,7 @@ use Lagdo\DbAdmin\Ajax\App\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Ajax\App\Page\Content;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 use Lagdo\DbAdmin\Ajax\App\Page\DbConnection;
-use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;

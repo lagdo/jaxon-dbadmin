@@ -5,8 +5,8 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Ajax\Component;
-use Lagdo\DbAdmin\Db\DbFacade;
-use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Db\Driver\DbFacade;
+use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 
 #[Exclude]

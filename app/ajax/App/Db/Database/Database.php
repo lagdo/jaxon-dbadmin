@@ -9,9 +9,9 @@ use Lagdo\DbAdmin\Ajax\App\Db\Server\Databases;
 use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
 use Lagdo\DbAdmin\Ajax\App\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
-use Lagdo\DbAdmin\DbAdminPackage;
-use Lagdo\DbAdmin\Db\DbFacade;
-use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Db\DbAdminPackage;
+use Lagdo\DbAdmin\Db\Driver\DbFacade;
+use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Database\ServerUiBuilder;
 
 use function count;

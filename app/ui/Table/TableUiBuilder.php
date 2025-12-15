@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ui\Table;
 use Jaxon\Script\Call\JxnClassCall;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Columns;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
-use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\InputBuilder;
 use Lagdo\DbAdmin\Ui\PageTrait;
 use Lagdo\UiBuilder\BuilderInterface;

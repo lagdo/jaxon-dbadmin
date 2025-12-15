@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ui\Command;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
-use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;

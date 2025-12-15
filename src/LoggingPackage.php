@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin;
+namespace Lagdo\DbAdmin\Db;
 
 use Jaxon\Plugin\AbstractPackage;
 use Lagdo\DbAdmin\Ajax\Audit\Commands;

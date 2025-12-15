@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 
 use Lagdo\DbAdmin\Ajax\PageComponent;
-use Lagdo\DbAdmin\Service\DbAdmin\QueryFavorite;
+use Lagdo\DbAdmin\Db\Service\DbAdmin\QueryFavorite;
 use Lagdo\DbAdmin\Ui\Command\LogUiBuilder;
 
 class FavoritePage extends PageComponent

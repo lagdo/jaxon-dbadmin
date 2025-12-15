@@ -5,9 +5,9 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Database;
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\App\Db\Command\ExportTrait;
-use Lagdo\DbAdmin\DbAdminPackage;
-use Lagdo\DbAdmin\Db\DbFacade;
-use Lagdo\DbAdmin\Translator;
+use Lagdo\DbAdmin\Db\DbAdminPackage;
+use Lagdo\DbAdmin\Db\Driver\DbFacade;
+use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Command\ExportUiBuilder;
 
 #[Before('setDatabase')]

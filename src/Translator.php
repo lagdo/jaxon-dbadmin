@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin;
+namespace Lagdo\DbAdmin\Db;
 
 use Lagdo\DbAdmin\Driver\Utils\TranslatorInterface;
 

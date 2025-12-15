@@ -4,11 +4,11 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 
 use Lagdo\DbAdmin\Ajax\App\Db\FuncComponent;
 use Lagdo\DbAdmin\Ajax\Exception\ValidationException;
-use Lagdo\DbAdmin\DbAdminPackage;
-use Lagdo\DbAdmin\Db\DbFacade;
-use Lagdo\DbAdmin\Service\DbAdmin\QueryFavorite;
+use Lagdo\DbAdmin\Db\DbAdminPackage;
+use Lagdo\DbAdmin\Db\Driver\DbFacade;
+use Lagdo\DbAdmin\Db\Service\DbAdmin\QueryFavorite;
+use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Command\LogUiBuilder;
-use Lagdo\DbAdmin\Translator;
 
 use function compact;
 use function is_string;

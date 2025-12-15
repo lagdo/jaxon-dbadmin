@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Tests;
 
-use Lagdo\DbAdmin\DbAdminPackage;
+use Lagdo\DbAdmin\Db\DbAdminPackage;
 use PHPUnit\Framework\TestCase;
 use Exception;
 

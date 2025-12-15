@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Config;
+namespace Lagdo\DbAdmin\Db\Config;
 
 use Jaxon\Config\ConfigReader;
 use Jaxon\Config\ConfigSetter;
