@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
-use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
+use Lagdo\DbAdmin\Driver\Db\Connection;
 use Lagdo\DbAdmin\Driver\Entity\QueryEntity;
 use Lagdo\DbAdmin\Service\DbAdmin\QueryLogger;
 use Lagdo\DbAdmin\Service\TimerService;
@@ -25,7 +25,7 @@ class CommandFacade extends AbstractFacade
      * Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
      * //! PDO - silent error
      *
-     * @var ConnectionInterface
+     * @var Connection
      */
     protected $connection = null;
 

@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db;
 
-use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
+use Lagdo\DbAdmin\Driver\Db\Connection;
 use Lagdo\DbAdmin\Driver\Db\StatementInterface;
 use Lagdo\DbAdmin\Driver\Driver;
 use Lagdo\DbAdmin\Driver\DriverInterface;
@@ -112,7 +112,7 @@ class AppDriver extends Driver
     /**
      * @inheritDoc
      */
-    public function createConnection(array $options): ConnectionInterface|null
+    public function createConnection(array $options): Connection|null
     {
         return $this->driver->createConnection($options);
     }

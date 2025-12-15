@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Service\Logging;
 
 use Lagdo\DbAdmin\Db\DbFacade;
-use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
+use Lagdo\DbAdmin\Driver\Db\Connection;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Service\Options;
 use Lagdo\Facades\Logger;
@@ -17,9 +17,9 @@ use function implode;
 class QueryLogger
 {
     /**
-     * @var ConnectionInterface
+     * @var Connection
      */
-    private ConnectionInterface $connection;
+    private Connection $connection;
 
     /**
      * @var int

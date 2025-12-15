@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Service\DbAdmin;
 
 use Lagdo\DbAdmin\Config\AuthInterface;
-use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
+use Lagdo\DbAdmin\Driver\Db\Connection;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Service\Options;
 use Lagdo\Facades\Logger;
@@ -38,9 +38,9 @@ class QueryLogger
     private int $category;
 
     /**
-     * @var ConnectionInterface
+     * @var Connection
      */
-    private ConnectionInterface $connection;
+    private Connection $connection;
 
     /**
      * The constructor

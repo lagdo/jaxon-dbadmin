@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Service\DbAdmin;
 
-use Lagdo\DbAdmin\Driver\Db\ConnectionInterface;
+use Lagdo\DbAdmin\Driver\Db\Connection;
 use Lagdo\DbAdmin\Driver\Db\StatementInterface;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\Facades\Logger;
@@ -20,9 +20,9 @@ trait ConnectionTrait
     private int|null $ownerId = null;
 
     /**
-     * @var ConnectionInterface
+     * @var Connection
      */
-    private ConnectionInterface $connection;
+    private Connection $connection;
 
     /**
      * @param DriverInterface $driver
@@ -43,9 +43,9 @@ trait ConnectionTrait
     }
 
     /**
-     * @var ConnectionInterface
+     * @var Connection
      */
-    protected function connection(): ConnectionInterface
+    protected function connection(): Connection
     {
         return $this->connection;
     }
