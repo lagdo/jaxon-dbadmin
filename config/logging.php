@@ -1,6 +1,5 @@
 <?php
 
-use Lagdo\DbAdmin\Admin;
 use Lagdo\DbAdmin\Config;
 use Lagdo\DbAdmin\Db;
 use Lagdo\DbAdmin\Driver;
@@ -150,12 +149,12 @@ return [
             Driver\Utils\Input::class,
             // The utils class
             Driver\Utils\Utils::class,
+            // The db classes
+            Db\AppPage::class,
             // The facade to the database features
             Db\DbFacade::class,
             // The Timer service
             Service\TimerService::class,
-            // The db classes
-            Admin\Admin::class,
             // The UI builders
             Ui\UiBuilder::class,
             Ui\InputBuilder::class,

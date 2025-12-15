@@ -47,7 +47,7 @@ class TableFacade extends AbstractFacade
     {
         // From table.inc.php
         $status = $this->status($table);
-        $name = $this->admin->tableName($status);
+        $name = $this->page->tableName($status);
         $title = $this->utils->trans->lang('Table') . ': ' . ($name != '' ? $name : $this->utils->str->html($table));
 
         $comment = $status->comment;

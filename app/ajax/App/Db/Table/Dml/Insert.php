@@ -3,8 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dml;
 
 use Jaxon\Attributes\Attribute\After;
-use Jaxon\Attributes\Attribute\Before;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\MainComponent;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\FuncComponent;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Table;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
@@ -14,20 +13,47 @@ use function Jaxon\je;
 /**
  * This class provides insert and update query features on tables.
  */
-#[Before('notYetAvailable')]
-class Insert extends MainComponent
+class Insert extends FuncComponent
 {
-    /**
-     * @var array
-     */
-    private $queryData;
-
     /**
      * The query form div id
      *
      * @var string
      */
     private $queryFormId = 'dbadmin-table-query-form';
+
+    /**
+     * @return void
+     */
+    public function show(): void
+    {
+        $queryData = $this->db()->getInsertData($this->getTableName());
+        // Show the error
+        if(isset($queryData['error']))
+        {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error($queryData['error']);
+            return;
+        }
+
+        $title = 'Edit row';
+        $content = $this->tableUi->queryForm($queryData['fields'], '400px');
+        // Bootbox options
+        $options = ['size' => 'large'];
+        $buttons = [[
+            'title' => $this->trans()->lang('Cancel'),
+            'class' => 'btn btn-tertiary',
+            'click' => 'close',
+        ], [
+            'title' => $this->trans()->lang('Save'),
+            'class' => 'btn btn-primary',
+            'click' => $this->rq()->save(je($this->queryFormId)->rd()->form())
+                ->confirm($this->trans()->lang('Save this item?')),
+        ]];
+        $this->modal()->show($title, $content, $buttons, $options);
+    }
+
 
     /**
      * @inheritDoc
@@ -70,9 +96,9 @@ class Insert extends MainComponent
      * @return void
      */
     #[After('showBreadcrumbs')]
-    public function show(): void
+    public function showf(): void
     {
-        $this->queryData = $this->db()->getQueryData($this->getTableName());
+        $this->queryData = $this->db()->getInsertData($this->getTableName());
         // Show the error
         if(($this->queryData['error']))
         {

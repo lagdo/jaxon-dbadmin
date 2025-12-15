@@ -22,19 +22,19 @@ trait QueryTrait
     }
 
     /**
-     * Get data for insert/update on a table
+     * Get data for insert on a table
      *
      * @param string $table         The table name
      * @param array  $queryOptions  The query options
      *
      * @return array
      */
-    public function getQueryData(string $table, array $queryOptions = []): array
+    public function getInsertData(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
         $this->utils->input->table = $table;
         $this->utils->input->values = $queryOptions;
-        return $this->queryFacade()->getQueryData($table, $queryOptions);
+        return $this->queryFacade()->getInsertData($table, $queryOptions);
     }
 
     /**
@@ -42,15 +42,32 @@ trait QueryTrait
      *
      * @param string $table         The table name
      * @param array  $queryOptions  The query options
+     * @param array  $values        The updated values
      *
      * @return array
      */
-    public function insertItem(string $table, array $queryOptions): array
+    public function insertItem(string $table, array $queryOptions, array $values): array
+    {
+        $this->connectToSchema();
+        $this->utils->input->table = $table;
+        $this->utils->input->values = $values;
+        return $this->queryFacade()->insertItem($table, $queryOptions, $values);
+    }
+
+    /**
+     * Get data for update/delete in a table
+     *
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
+     *
+     * @return array
+     */
+    public function getUpdateData(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
         $this->utils->input->table = $table;
         $this->utils->input->values = $queryOptions;
-        return $this->queryFacade()->insertItem($table, $queryOptions);
+        return $this->queryFacade()->getUpdateData($table, $queryOptions);
     }
 
     /**
@@ -58,15 +75,16 @@ trait QueryTrait
      *
      * @param string $table         The table name
      * @param array  $queryOptions  The query options
+     * @param array  $values        The updated values
      *
      * @return array
      */
-    public function updateItem(string $table, array $queryOptions): array
+    public function updateItem(string $table, array $queryOptions, array $values): array
     {
         $this->connectToSchema();
         $this->utils->input->table = $table;
-        $this->utils->input->values = $queryOptions;
-        return $this->queryFacade()->updateItem($table, $queryOptions);
+        $this->utils->input->values = $values;
+        return $this->queryFacade()->updateItem($table, $queryOptions, $values);
     }
 
     /**

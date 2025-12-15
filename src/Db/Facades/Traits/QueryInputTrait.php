@@ -254,7 +254,8 @@ trait QueryInputTrait
         if ($field->type === 'set') {
             return $this->getSetInput($field, $attrs, $value);
         }
-        if (preg_match('~blob|bytea|raw|file~', $field->type) && $this->admin->iniBool('file_uploads')) {
+        if (preg_match('~blob|bytea|raw|file~', $field->type) &&
+            $this->utils->iniBool('file_uploads')) {
             $attrs['name'] = "fields-$name";
             return ['type' => 'file', 'attrs' => $attrs];
         }

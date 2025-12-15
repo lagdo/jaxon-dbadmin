@@ -57,7 +57,7 @@ class SelectFacade extends AbstractFacade
     private function setSelectEntity(string $table, array $queryOptions = []): void
     {
         $tableStatus = $this->driver->tableStatusOrName($table);
-        $tableName = $this->admin->tableName($tableStatus);
+        $tableName = $this->page->tableName($tableStatus);
         $this->selectEntity = new SelectEntity($table,
             $tableName, $tableStatus, $queryOptions);
         $this->selectQuery->prepareSelect($this->selectEntity);
@@ -121,7 +121,7 @@ class SelectFacade extends AbstractFacade
             ($value["col"] ?? current($this->selectEntity->select));
         $field = $this->selectEntity->fields[$fieldKey];
         $name = !$field ? ($fun ? "*" : $key) :
-            $this->admin->fieldName($field, $rank);
+            $this->page->fieldName($field, $rank);
 
         return [$fun, $name, $field];
     }
@@ -210,7 +210,7 @@ class SelectFacade extends AbstractFacade
      */
     private function getUniqueIds(array $row): array
     {
-        $uniqueIds = $this->admin->uniqueIds($row, $this->selectEntity->indexes);
+        $uniqueIds = $this->utils->uniqueIds($row, $this->selectEntity->indexes);
         if (empty($uniqueIds)) {
             $pattern = '~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)' .
                 '|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~';
@@ -314,10 +314,10 @@ class SelectFacade extends AbstractFacade
         $value = $this->driver->value($value, $field);
         /*if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
             //! filled e-mails can be contained on other pages
-            $email_fields[$key] = ($this->admin->isMail($value) ? $names[$key] : "");
+            $email_fields[$key] = ($this->page->isMail($value) ? $names[$key] : "");
         }*/
         $length = $this->selectEntity->textLength;
-        $value = $this->admin->selectValue($field, $value, $length);
+        $value = $this->page->selectValue($field, $value, $length);
         return [
             // 'id',
             'text' => preg_match('~text|lob~', $field->type),

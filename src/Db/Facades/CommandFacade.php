@@ -228,7 +228,7 @@ class CommandFacade extends AbstractFacade
         if (function_exists('memory_get_usage')) {
             // @ - may be disabled, 2 - substr and trim, 8e6 - other variables
             try {
-                ini_set('memory_limit', max($this->admin->iniBytes('memory_limit'),
+                ini_set('memory_limit', max($this->utils->iniBytes('memory_limit'),
                     2 * strlen($queries) + memory_get_usage() + 8e6));
             }
             catch(\Exception $e) {

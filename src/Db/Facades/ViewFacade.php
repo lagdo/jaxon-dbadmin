@@ -44,7 +44,7 @@ class ViewFacade extends AbstractFacade
     {
         // From table.inc.php
         $status = $this->status($view);
-        $name = $this->admin->tableName($status);
+        $name = $this->page->tableName($status);
         $title = ($status->engine == 'materialized view' ? $this->utils->trans->lang('Materialized view') :
             $this->utils->trans->lang('View')) . ': ' . ($name != '' ? $name : $this->utils->str->html($view));
 

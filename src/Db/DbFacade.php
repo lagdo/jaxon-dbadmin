@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Db;
 
 use Jaxon\App\View\ViewRenderer;
 use Jaxon\Di\Container;
-use Lagdo\DbAdmin\Admin\Admin;
 use Lagdo\DbAdmin\Db\Facades\AbstractFacade;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
@@ -140,7 +139,7 @@ class DbFacade extends AbstractFacade
             $this->di->val('dbadmin_config_server', $server);
             // The DI is now able to return the corresponding driver.
             $this->driver = $this->di->get(AppDriver::class);
-            $this->admin = $this->di->get(Admin::class);
+            $this->page = $this->di->get(AppPage::class);
         }
         // Open the selected database
         $this->driver->openConnection($database, $schema);

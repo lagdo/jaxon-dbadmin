@@ -39,7 +39,8 @@ class Update extends FuncComponent
             return;
         }
 
-        $queryData = $this->db()->getQueryData($this->getTableName(), $rowIds[$editId]);
+        $queryOptions = $rowIds[$editId];
+        $queryData = $this->db()->getUpdateData($this->getTableName(),  $queryOptions);
         // Show the error
         if(isset($queryData['error']))
         {
@@ -50,7 +51,7 @@ class Update extends FuncComponent
         }
 
         $title = 'Edit row';
-        $content = $this->tableUi->queryForm($queryData['fields'], '500px');
+        $content = $this->tableUi->queryForm($queryData['fields'], '400px');
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[
@@ -60,7 +61,7 @@ class Update extends FuncComponent
         ], [
             'title' => $this->trans()->lang('Save'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(je($this->queryFormId)->rd()->form())
+            'click' => $this->rq()->save($editId, je($this->queryFormId)->rd()->form())
                 ->confirm($this->trans()->lang('Save this item?')),
         ]];
         $this->modal()->show($title, $content, $buttons, $options);
@@ -83,7 +84,8 @@ class Update extends FuncComponent
             return;
         }
 
-        $results = $this->db()->updateItem($this->getTableName(), $formValues);
+        $queryOptions = $rowIds[$editId];
+        $results = $this->db()->updateItem($this->getTableName(), $queryOptions, $formValues);
         // Show the error
         if(isset($results['error']))
         {

@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Facades;
 
-use Lagdo\DbAdmin\Admin\Admin;
+use Lagdo\DbAdmin\Db\AppPage;
 use Lagdo\DbAdmin\Db\AppDriver;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
@@ -17,9 +17,9 @@ class AbstractFacade
     protected AppDriver|null $driver = null;
 
     /**
-     * @var Admin
+     * @var AppPage
      */
-    protected Admin $admin;
+    protected AppPage $page;
 
     /**
      * @var Utils
@@ -34,7 +34,7 @@ class AbstractFacade
     public function __construct(AbstractFacade $dbFacade)
     {
         $this->driver = $dbFacade->driver;
-        $this->admin = $dbFacade->admin;
+        $this->page = $dbFacade->page;
         $this->utils = $dbFacade->utils;
     }
 }

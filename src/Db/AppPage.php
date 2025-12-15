@@ -1,23 +1,20 @@
 <?php
 
-namespace Lagdo\DbAdmin\Admin;
+namespace Lagdo\DbAdmin\Db;
 
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Entity\TableEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
+use function function_exists;
+use function is_string;
 use function max;
 use function preg_match;
 use function strlen;
 
-class Admin
+class AppPage
 {
-    use Traits\AdminTrait;
-    use Traits\QueryInputTrait;
-    use Traits\QueryTrait;
-    use Traits\DumpTrait;
-
     /**
      * The constructor
      *
@@ -58,31 +55,6 @@ class Admin
     }
 
     /**
-     * Find unique identifier of a row
-     *
-     * @param array $row
-     * @param array $indexes Result of indexes()
-     *
-     * @return array
-     */
-    public function uniqueIds(array $row, array $indexes): array
-    {
-        foreach ($indexes as $index) {
-            if (preg_match('~PRIMARY|UNIQUE~', $index->type)) {
-                $ids = [];
-                foreach ($index->columns as $key) {
-                    if (!isset($row[$key])) { // NULL is ambiguous
-                        continue 2;
-                    }
-                    $ids[$key] = $row[$key];
-                }
-                return $ids;
-            }
-        }
-        return [];
-    }
-
-    /**
      * Table caption used in navigation and headings
      *
      * @param TableEntity $table
@@ -104,7 +76,21 @@ class Admin
      */
     public function fieldName(TableFieldEntity $field, /** @scrutinizer ignore-unused */ int $order = 0): string
     {
-        return '<span title="' . $this->utils->html($field->fullType) . '">' . $this->utils->html($field->name) . '</span>';
+        return '<span title="' . $this->utils->html($field->fullType) . '">' .
+            $this->utils->html($field->name) . '</span>';
+    }
+
+    /**
+     * Check if field should be shortened
+     *
+     * @param TableFieldEntity $field
+     *
+     * @return bool
+     */
+    public function isShortable(TableFieldEntity $field): bool
+    {
+        $pattern = '~char|text|json|lob|geometry|point|linestring|polygon|string|bytea~';
+        return preg_match($pattern, $field->type) > 0;
     }
 
     /**
@@ -118,26 +104,21 @@ class Admin
      */
     private function getSelectFieldValue($value, string $type, $original): string
     {
-        if ($value === null) {
-            return '<i>NULL</i>';
-        }
-        if (preg_match('~char|binary|boolean~', $type) && !preg_match('~var~', $type)) {
-            return "<code>$value</code>";
-        }
-        if (preg_match('~blob|bytea|raw|file~', $type) && !$this->utils->str->isUtf8($value)) {
-            return '<i>' . $this->utils->trans->lang('%d byte(s)', strlen($original)) . '</i>';
-        }
-        if (preg_match('~json~', $type)) {
-            return "<code>$value</code>";
-        }
-        if ($this->isMail($value)) {
-            return '<a href="' . $this->utils->html("mailto:$value") . '">' . $value . '</a>';
-        }
-        elseif ($this->isUrl($value)) {
+        return match(true) {
+            $value === null => '<i>NULL</i>',
+            preg_match('~char|binary|boolean~', $type) &&
+                !preg_match('~var~', $type) => "<code>$value</code>",
+            preg_match('~blob|bytea|raw|file~', $type) &&
+                !$this->utils->str->isUtf8($value) => '<i>' .
+                    $this->utils->trans->lang('%d byte(s)', strlen($original)) . '</i>',
+            preg_match('~json~', $type) => "<code>$value</code>",
+            $this->utils->isMail($value) => '<a href="' .
+                $this->utils->html("mailto:$value") . '">' . $value . '</a>',
             // IE 11 and all modern browsers hide referrer
-            return '<a href="' . $this->utils->html($value) . '"' . $this->blankTarget() . '>' . $value . '</a>';
-        }
-        return $value;
+            $this->utils->isUrl($value) => '<a href="' . $this->utils->html($value) .
+                '"' . $this->blankTarget() . '>' . $value . '</a>',
+            default => $value,
+        };
     }
 
     /**
@@ -176,5 +157,47 @@ class Admin
             }
         }
         return $this->getSelectFieldValue($expression, $field->type, $value);
+    }
+
+    /**
+     * Returns export format options
+     *
+     * @return array
+     */
+    public function dumpFormat(): array
+    {
+        return [
+            'sql' => 'SQL',
+            // 'csv' => 'CSV,',
+            // 'csv;' => 'CSV;',
+            // 'tsv' => 'TSV',
+        ];
+    }
+
+    /**
+     * Returns export output options
+     *
+     * @return array
+     */
+    public function dumpOutput(): array
+    {
+        $output = [
+            'open' => $this->utils->trans->lang('open'),
+            'save' => $this->utils->trans->lang('save'),
+        ];
+        if (function_exists('gzencode')) {
+            $output['gzip'] = 'gzip';
+        }
+        return $output;
+    }
+
+    /**
+     * Set the path of the file for webserver load
+     *
+     * @return string
+     */
+    public function importServerPath(): string
+    {
+        return 'adminer.sql';
     }
 }

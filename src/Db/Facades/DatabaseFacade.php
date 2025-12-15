@@ -114,7 +114,7 @@ class DatabaseFacade extends AbstractFacade
         foreach ($tableStatus as $table => $status) {
             if (!$this->driver->isView($status)) {
                 $details[] = [
-                    'name' => $this->admin->tableName($status),
+                    'name' => $this->page->tableName($status),
                     'engine' => $status->engine,
                     'collation' => '',
                     'comment' => $status->comment,
@@ -152,7 +152,7 @@ class DatabaseFacade extends AbstractFacade
         foreach ($tableStatus as $table => $status) {
             if ($this->driver->isView($status)) {
                 $details[] = [
-                    'name' => $this->admin->tableName($status),
+                    'name' => $this->page->tableName($status),
                     'engine' => $status->engine,
                     'comment' => $status->comment,
                 ];

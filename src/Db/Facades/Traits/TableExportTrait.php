@@ -9,12 +9,12 @@ trait TableExportTrait
 {
     public function getSelectOutputValues(): array
     {
-        return $this->admin->dumpOutput();
+        return $this->page->dumpOutput();
     }
 
     public function getSelectFormatValues(): array
     {
-        return $this->admin->dumpFormat();
+        return $this->page->dumpFormat();
     }
 
     public function getSelectDatabaseValues(): array

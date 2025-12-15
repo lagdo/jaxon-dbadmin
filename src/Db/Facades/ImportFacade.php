@@ -25,10 +25,10 @@ class ImportFacade extends CommandFacade
         $gz = extension_loaded('zlib') ? '[.gz]' : '';
         // ignore post_max_size because it is for all form fields
         // together and bytes computing would be necessary.
-        $contents = $this->admin->iniBool('file_uploads') ?
+        $contents = $this->utils->iniBool('file_uploads') ?
             ['upload' => "SQL$gz (&lt; " . ini_get('upload_max_filesize') . 'B)'] :
             ['upload_disabled' => $this->utils->trans->lang('File uploads are disabled.')];
-        if (($importServerPath = $this->admin->importServerPath())) {
+        if (($importServerPath = $this->page->importServerPath())) {
             $contents['path'] = $this->utils->str->html($importServerPath) . $gz;
         }
 

@@ -2,12 +2,11 @@
 
 namespace Lagdo\DbAdmin\Db\Facades\Select;
 
-use Lagdo\DbAdmin\Admin\Traits\InputFieldTrait;
 use Lagdo\DbAdmin\Db\Facades\AbstractFacade;
+use Lagdo\DbAdmin\Db\Facades\Traits\InputFieldTrait;
 use Lagdo\DbAdmin\Driver\Entity\IndexEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableSelectEntity;
-use Lagdo\Facades\Logger;
 use Exception;
 
 use function count;
@@ -17,7 +16,6 @@ use function in_array;
 use function preg_match;
 use function strtoupper;
 use function str_replace;
-
 
 class SelectQuery extends AbstractFacade
 {
@@ -64,7 +62,7 @@ class SelectQuery extends AbstractFacade
         //         }
         //     }
         // }
-        // $this->admin->selectLinks($tableStatus, $set);
+        // $this->page->selectLinks($tableStatus, $set);
 
         // if($page == "last")
         // {
@@ -124,10 +122,10 @@ class SelectQuery extends AbstractFacade
         $selectEntity->columns = []; // selectable columns
         $selectEntity->textLength = 0;
         foreach ($selectEntity->fields as $key => $field) {
-            $name = $this->admin->fieldName($field);
+            $name = $this->page->fieldName($field);
             if (isset($field->privileges["select"]) && $name != "") {
                 $selectEntity->columns[$key] = html_entity_decode(strip_tags($name), ENT_QUOTES);
-                if ($this->admin->isShortable($field)) {
+                if ($this->page->isShortable($field)) {
                     $this->setSelectTextLength($selectEntity);
                 }
             }
