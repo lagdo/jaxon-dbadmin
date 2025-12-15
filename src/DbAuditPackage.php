@@ -11,9 +11,9 @@ use function Jaxon\cl;
 use function Jaxon\rq;
 
 /**
- * Jaxon DbAdmin logging package
+ * Jaxon DbAdmin audit package
  */
-class LoggingPackage extends AbstractPackage
+class DbAuditPackage extends AbstractPackage
 {
     /**
      * Get the path to the config file
@@ -22,7 +22,7 @@ class LoggingPackage extends AbstractPackage
      */
     public static function config(): string
     {
-        return realpath(__DIR__ . '/../config/logging.php');
+        return realpath(__DIR__ . '/../config/dbaudit.php');
     }
 
     /**

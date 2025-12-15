@@ -4,18 +4,18 @@ namespace Lagdo\DbAdmin\Ajax\Audit;
 
 use Jaxon\App\Component;
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\Db\Service\Logging\QueryLogger;
-use Lagdo\DbAdmin\Ui\Logging\LogUiBuilder;
+use Lagdo\DbAdmin\Db\Service\DbAudit\QueryLogger;
+use Lagdo\DbAdmin\Ui\AuditUiBuilder;
 
 #[Exclude]
 class Sidebar extends Component
 {
     /**
      * @param QueryLogger $queryLogger
-     * @param LogUiBuilder $uiBuider;
+     * @param AuditUiBuilder $uiBuider;
      */
     public function __construct(private QueryLogger $queryLogger,
-        private LogUiBuilder $uiBuider)
+        private AuditUiBuilder $uiBuider)
     {}
 
     /**

@@ -5,9 +5,9 @@ namespace Lagdo\DbAdmin\Ajax\Audit;
 use Jaxon\App\Dialog\DialogTrait;
 use Jaxon\App\PageComponent;
 use Jaxon\Attributes\Attribute\Databag;
-use Lagdo\DbAdmin\Db\Service\Logging\QueryLogger;
+use Lagdo\DbAdmin\Db\Service\DbAudit\QueryLogger;
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Logging\LogUiBuilder;
+use Lagdo\DbAdmin\Ui\AuditUiBuilder;
 use DateTime;
 
 use function count;
@@ -15,7 +15,7 @@ use function implode;
 use function preg_match;
 use function trim;
 
-#[Databag('dbadmin.logging')]
+#[Databag('dbadmin.audit')]
 class Commands extends PageComponent
 {
     use DialogTrait;
@@ -28,15 +28,15 @@ class Commands extends PageComponent
     /**
      * @var string
      */
-    private const BAG = 'dbadmin.logging';
+    private const BAG = 'dbadmin.audit';
 
     /**
      * @param QueryLogger $queryLogger
-     * @param LogUiBuilder $uiBuider
+     * @param AuditUiBuilder $uiBuider
      * @param Translator $trans
      */
     public function __construct(private QueryLogger $queryLogger,
-        private LogUiBuilder $uiBuider, private Translator $trans)
+        private AuditUiBuilder $uiBuider, private Translator $trans)
     {}
 
     /**

@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 
 use Lagdo\DbAdmin\Ajax\Component;
-use Lagdo\DbAdmin\Ui\Command\LogUiBuilder;
+use Lagdo\DbAdmin\Ui\Command\AuditUiBuilder;
 
 /**
  * User queries container (history and favorites)
@@ -11,9 +11,9 @@ use Lagdo\DbAdmin\Ui\Command\LogUiBuilder;
 class Queries extends Component
 {
     /**
-     * @param LogUiBuilder $logUi
+     * @param AuditUiBuilder $auditUi
      */
-    public function __construct(private LogUiBuilder $logUi)
+    public function __construct(private AuditUiBuilder $auditUi)
     {}
 
     /**
@@ -21,6 +21,6 @@ class Queries extends Component
      */
     public function html(): string
     {
-        return $this->logUi->queries();
+        return $this->auditUi->queries();
     }
 }

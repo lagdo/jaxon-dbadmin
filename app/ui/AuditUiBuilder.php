@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ui\Logging;
+namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\DbAdmin\Ajax\Audit\Commands;
 use Lagdo\DbAdmin\Db\Translator;
@@ -13,7 +13,7 @@ use function json_encode;
 use function Jaxon\je;
 use function Jaxon\rq;
 
-class LogUiBuilder
+class AuditUiBuilder
 {
     /**
      * @param Translator $trans
@@ -117,7 +117,7 @@ class LogUiBuilder
      */
     public function sidebar(array $categories): string
     {
-        $formId = 'dbadmin-sidebar-logging-form';
+        $formId = 'dbadmin-sidebar-audit-form';
         return $this->ui->build(
             $this->ui->form(
                 $this->ui->formRow(

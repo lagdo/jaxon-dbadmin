@@ -47,7 +47,7 @@ class QueryHistory
             return;
         }
 
-        // Connect to the logging database.
+        // Connect to the audit database.
         $this->connect($driver, $database);
     }
 
@@ -94,7 +94,7 @@ class QueryHistory
             return $commands;
         }
 
-        Logger::warning('Unable to read commands from the query logging database.', [
+        Logger::warning('Unable to read commands from the query audit database.', [
             'error' => $this->connection->error(),
         ]);
         return [];

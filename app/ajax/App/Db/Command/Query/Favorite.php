@@ -3,14 +3,14 @@
 namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 
 use Lagdo\DbAdmin\Ajax\App\Db\Component;
-use Lagdo\DbAdmin\Ui\Command\LogUiBuilder;
+use Lagdo\DbAdmin\Ui\Command\AuditUiBuilder;
 
 class Favorite extends Component
 {
     /**
-     * @param LogUiBuilder $logUi
+     * @param AuditUiBuilder $auditUi
      */
-    public function __construct(private LogUiBuilder $logUi)
+    public function __construct(private AuditUiBuilder $auditUi)
     {}
 
     /**
@@ -18,7 +18,7 @@ class Favorite extends Component
      */
     public function html(): string
     {
-        return $this->logUi->favorite();
+        return $this->auditUi->favorite();
     }
 
     /**

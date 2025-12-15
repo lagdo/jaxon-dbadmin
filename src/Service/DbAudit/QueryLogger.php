@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Service\Logging;
+namespace Lagdo\DbAdmin\Db\Service\DbAudit;
 
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Service\Options;
@@ -39,7 +39,7 @@ class QueryLogger
     {
         $this->limit = $options['display']['limit'] ?? 15;
 
-        // Connect to the logging database.
+        // Connect to the audit database.
         $this->connection = $driver->createConnection($database);
         $this->connection->open($database['name'], $database['schema'] ?? '');
     }
@@ -125,7 +125,7 @@ class QueryLogger
             return $commands;
         }
 
-        Logger::warning('Unable to read commands from the query logging database.', [
+        Logger::warning('Unable to read commands from the query audit database.', [
             'error' => $this->connection->error(),
         ]);
         return [];

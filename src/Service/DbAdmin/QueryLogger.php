@@ -61,7 +61,7 @@ class QueryLogger
             return;
         }
 
-        // Connect to the logging database.
+        // Connect to the audit database.
         $this->connect($driver, $database);
     }
 
@@ -134,7 +134,7 @@ class QueryLogger
             return true;
         }
 
-        Logger::warning('Unable to save command in the query logging database.', [
+        Logger::warning('Unable to save command in the query audit database.', [
             'error' => $this->connection->error(),
         ]);
         return false;

@@ -12,7 +12,7 @@ use function Jaxon\jo;
 use function Jaxon\jq;
 use function Jaxon\rq;
 
-class LogUiBuilder
+class AuditUiBuilder
 {
     /**
      * @var string

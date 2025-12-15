@@ -10,7 +10,7 @@ use Lagdo\Facades\Logger;
 use function gmdate;
 
 /**
- * Connection to the logging database
+ * Connection to the audit database
  */
 trait ConnectionTrait
 {
@@ -93,9 +93,9 @@ trait ConnectionTrait
             return $this->readOwnerId($username);
         }
 
-        Logger::warning('Unable to save new owner in the query logging database.', [
+        Logger::warning('Unable to save new owner in the query audit database.', [
             'error' => $this->connection?->error() ??
-                'Not connected to the logging database',
+                'Not connected to the audit database',
         ]);
         return false;
     }

@@ -94,9 +94,9 @@ class DbAdminPackage extends AbstractPackage
     /**
      * @return bool
      */
-    public function hasLoggingDatabase(): bool
+    public function hasAuditDatabase(): bool
     {
-        $options = $this->getOption('logging.database');
+        $options = $this->getOption('audit.database');
         return is_array($options) && isset($options['driver']) &&
             in_array($options['driver'], ['pgsql', 'mysql', 'sqlite']);
     }

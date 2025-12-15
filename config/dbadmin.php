@@ -140,28 +140,28 @@ return [
             Config\UserFileReader::class => function($di) {
                 return new Config\UserFileReader(getAuth($di));
             },
-            // Database options for logging
-            'dbadmin_logging_database' => function($di) {
+            // Database options for audit
+            'dbaudit_database_server' => function($di) {
                 $package = $di->g(Db\DbAdminPackage::class);
-                return !$package->hasLoggingDatabase() ? null :
-                    $package->getOption('logging.database');
+                return !$package->hasAuditDatabase() ? null :
+                    $package->getOption('audit.database');
             },
-            // Database driver for logging
-            'dbadmin_logging_driver' => function($di) {
-                $options = $di->g('dbadmin_logging_database');
+            // Database driver for audit
+            'dbaudit_database_driver' => function($di) {
+                $options = $di->g('dbaudit_database_server');
                 return Db\Driver\AppDriver::createDriver($options);
             },
             // Query logger
             Service\DbAdmin\QueryLogger::class => function($di) {
                 $package = $di->g(Db\DbAdminPackage::class);
-                $options = $package->getOption('logging.options');
-                $database = $di->g('dbadmin_logging_database');
+                $options = $package->getOption('audit.options');
+                $database = $di->g('dbaudit_database_server');
                 if (!is_array($database) || !is_array($options) ||
                     !$di->h(Config\AuthInterface::class)) {
                     return null;
                 }
 
-                // User database, different from the logging database.
+                // User database, different from the audit database.
                 $server = $di->g('dbadmin_config_server');
                 $serverOptions = $package->getServerOptions($server);
                 $dbFacade = $di->g(Db\Driver\DbFacade::class);
@@ -170,13 +170,13 @@ return [
                 $reader = $di->g(Config\UserFileReader::class);
                 $database = $reader->getServerOptions($database);
                 return new Service\DbAdmin\QueryLogger(getAuth($di),
-                    $di->g('dbadmin_logging_driver'), $database, $options);
+                    $di->g('dbaudit_database_driver'), $database, $options);
             },
             // Query history
             Service\DbAdmin\QueryHistory::class => function($di) {
                 $package = $di->g(Db\DbAdminPackage::class);
-                $options = $package->getOption('logging.options');
-                $database = $di->g('dbadmin_logging_database');
+                $options = $package->getOption('audit.options');
+                $database = $di->g('dbaudit_database_server');
                 if (!is_array($database) || !is_array($options) ||
                     !$di->h(Config\AuthInterface::class)) {
                     return null;
@@ -185,13 +185,13 @@ return [
                 $reader = $di->g(Config\UserFileReader::class);
                 $database = $reader->getServerOptions($database);
                 return new Service\DbAdmin\QueryHistory(getAuth($di),
-                    $di->g('dbadmin_logging_driver'), $database, $options);
+                    $di->g('dbaudit_database_driver'), $database, $options);
             },
             // Query favorites
             Service\DbAdmin\QueryFavorite::class => function($di) {
                 $package = $di->g(Db\DbAdminPackage::class);
-                $options = $package->getOption('logging.options');
-                $database = $di->g('dbadmin_logging_database');
+                $options = $package->getOption('audit.options');
+                $database = $di->g('dbaudit_database_server');
                 if (!is_array($database) || !is_array($options) ||
                     !$di->h(Config\AuthInterface::class)) {
                     return null;
@@ -200,7 +200,7 @@ return [
                 $reader = $di->g(Config\UserFileReader::class);
                 $database = $reader->getServerOptions($database);
                 return new Service\DbAdmin\QueryFavorite(getAuth($di),
-                    $di->g('dbadmin_logging_driver'), $database, $options);
+                    $di->g('dbaudit_database_driver'), $database, $options);
             },
         ],
         'auto' => [
@@ -224,7 +224,7 @@ return [
             Ui\MenuBuilder::class,
             Ui\Database\ServerUiBuilder::class,
             Ui\Command\QueryUiBuilder::class,
-            Ui\Command\LogUiBuilder::class,
+            Ui\Command\AuditUiBuilder::class,
             Ui\Command\ImportUiBuilder::class,
             Ui\Command\ExportUiBuilder::class,
             Ui\Table\SelectUiBuilder::class,

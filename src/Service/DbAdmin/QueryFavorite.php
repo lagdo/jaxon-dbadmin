@@ -42,7 +42,7 @@ class QueryFavorite
             return;
         }
 
-        // Connect to the logging database.
+        // Connect to the audit database.
         $this->connect($driver, $database);
     }
 
@@ -76,7 +76,7 @@ class QueryFavorite
             return true;
         }
 
-        Logger::warning('Unable to save command in the query logging database.', [
+        Logger::warning('Unable to save command in the query audit database.', [
             'error' => $this->connection->error(),
         ]);
         return false;
@@ -106,7 +106,7 @@ class QueryFavorite
             return true;
         }
 
-        Logger::warning('Unable to save command in the query logging database.', [
+        Logger::warning('Unable to save command in the query audit database.', [
             'error' => $this->connection->error(),
         ]);
         return false;
@@ -130,7 +130,7 @@ class QueryFavorite
             return true;
         }
 
-        Logger::warning('Unable to save command in the query logging database.', [
+        Logger::warning('Unable to save command in the query audit database.', [
             'error' => $this->connection->error(),
         ]);
         return false;
@@ -210,7 +210,7 @@ class QueryFavorite
             return $commands;
         }
 
-        Logger::warning('Unable to read commands from the query logging database.', [
+        Logger::warning('Unable to read commands from the query audit database.', [
             'error' => $this->connection->error(),
         ]);
         return [];

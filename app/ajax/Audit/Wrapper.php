@@ -4,15 +4,15 @@ namespace Lagdo\DbAdmin\Ajax\Audit;
 
 use Jaxon\App\Component;
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\Ui\Logging\LogUiBuilder;
+use Lagdo\DbAdmin\Ui\AuditUiBuilder;
 
 #[Exclude]
 class Wrapper extends Component
 {
     /**
-     * @param LogUiBuilder $uiBuider;
+     * @param AuditUiBuilder $uiBuider;
      */
-    public function __construct(private LogUiBuilder $uiBuider)
+    public function __construct(private AuditUiBuilder $uiBuider)
     {}
 
     /**

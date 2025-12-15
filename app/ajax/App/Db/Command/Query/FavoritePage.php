@@ -4,15 +4,15 @@ namespace Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
 
 use Lagdo\DbAdmin\Ajax\PageComponent;
 use Lagdo\DbAdmin\Db\Service\DbAdmin\QueryFavorite;
-use Lagdo\DbAdmin\Ui\Command\LogUiBuilder;
+use Lagdo\DbAdmin\Ui\Command\AuditUiBuilder;
 
 class FavoritePage extends PageComponent
 {
     /**
-     * @param LogUiBuilder $logUi
+     * @param AuditUiBuilder $auditUi
      * @param QueryFavorite|null $queryFavorite
      */
-    public function __construct(private LogUiBuilder $logUi,
+    public function __construct(private AuditUiBuilder $auditUi,
         private QueryFavorite|null $queryFavorite)
     {}
 
@@ -38,6 +38,6 @@ class FavoritePage extends PageComponent
     public function html(): string
     {
         $queries = $this->queryFavorite->getQueries([], $this->currentPage());
-        return $this->logUi->favorites($queries);
+        return $this->auditUi->favorites($queries);
     }
 }

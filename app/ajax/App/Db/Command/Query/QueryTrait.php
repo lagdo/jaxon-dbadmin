@@ -62,14 +62,14 @@ trait QueryTrait
             $this->response->jo('jaxon.dbadmin')->setSqlQuery($this->query);
         }
 
-        if (!$this->package->hasLoggingDatabase()) {
+        if (!$this->package->hasAuditDatabase()) {
             return;
         }
         $config = $this->package->getConfig();
-        if ($config->getOption('logging.options.history.enabled')) {
+        if ($config->getOption('audit.options.history.enabled')) {
             $this->cl(History::class)->render();
         }
-        if ($config->getOption('logging.options.favorite.enabled')) {
+        if ($config->getOption('audit.options.favorite.enabled')) {
             $this->cl(Favorite::class)->render();
         }
     }

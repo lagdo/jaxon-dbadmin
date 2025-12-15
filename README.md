@@ -226,11 +226,11 @@ $dbAdminOptionsGetter = function(array $config) {
     ],
 ```
 
-### Logging queries
+### Audit queries
 
 Starting from version `0.17`, the queries executed by the users can be saved in a provided database.
 
-The required options are provided under the `logging` key.
+The required options are provided under the `audit` key.
 
 ```php
     'app' => [
@@ -239,7 +239,7 @@ The required options are provided under the `logging` key.
         'packages' => [
             Lagdo\DbAdmin\Db\DbAdminPackage::class => [
                 // ...
-                'logging' => [
+                'audit' => [
                     'options' => [
                         'library' => [
                             'enabled' =>false,
@@ -259,7 +259,7 @@ The required options are provided under the `logging` key.
                         'port' => 0,
                         'username' => '',
                         'password' => '',
-                        'name' => 'logging', // The database name
+                        'name' => 'auditdb', // The database name
                         'schema' => '', // Optionnally, the schema name
                     ],
                 ],
@@ -268,12 +268,12 @@ The required options are provided under the `logging` key.
     ],
 ```
 
-The `logging.database` options identify the database where the queries are saved.
-Depending on the database server, one of the scripts in the `migrations/pgsql`, `migrations/mysql` or `migrations/sqlite` directories in this repository must be used to create the logging database.
+The `audit.database` options identify the database where the queries are saved.
+Depending on the database server, one of the scripts in the `migrations/pgsql`, `migrations/mysql` or `migrations/sqlite` directories in this repository must be used to create the audit database.
 
-The `logging.options.enduser.enabled` option enables the logging on all the user queries, while the `logging.options.history.enabled` option enables the logging only for the queries executed in the query editor.
+The `audit.options.enduser.enabled` option enables the audit on all the user queries, while the `audit.options.history.enabled` option enables the audit only for the queries executed in the query editor.
 
-The `logging.options.history.limit` option is the number of queries in the history, which defaults to `15`, and when the `logging.options.history.distinct` option is set to true, the history displays only distinct queries.
+The `audit.options.history.limit` option is the number of queries in the history, which defaults to `15`, and when the `audit.options.history.distinct` option is set to true, the history displays only distinct queries.
 
 ### Data export
 
