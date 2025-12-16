@@ -2,17 +2,17 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dml;
 
-use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Databag;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\FuncComponent;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Table;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
-use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
 
 use function Jaxon\je;
 
 /**
  * This class provides insert and update query features on tables.
  */
+#[Databag('dbadmin.select')]
+#[Databag('dbadmin.row.edit')]
 class Insert extends FuncComponent
 {
     /**
@@ -23,23 +23,26 @@ class Insert extends FuncComponent
     private $queryFormId = 'dbadmin-table-query-form';
 
     /**
+     * @param bool $fromSelect
+     *
      * @return void
      */
-    public function show(): void
+    public function show(bool $fromSelect): void
     {
-        $queryData = $this->db()->getInsertData($this->getTableName());
+        $tableName = $this->getTableName();
+        $insertData = $this->db()->getInsertData($tableName);
         // Show the error
-        if(isset($queryData['error']))
+        if(isset($insertData['error']))
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
-                ->error($queryData['error']);
+                ->error($insertData['error']);
             return;
         }
 
-        $title = 'New item';
-        $content = $this->tableUi->formId($this->formId)
-            ->queryForm($queryData['fields'], '400px');
+        $title = "New item in table $tableName";
+        $content = $this->tableUi->formId($this->queryFormId)
+            ->queryForm($insertData['fields'], '400px');
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[
@@ -49,79 +52,41 @@ class Insert extends FuncComponent
         ], [
             'title' => $this->trans()->lang('Save'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(je($this->queryFormId)->rd()->form())
+            'click' => $this->rq()->save($fromSelect, je($this->queryFormId)->rd()->form())
                 ->confirm($this->trans()->lang('Save this item?')),
         ]];
         $this->modal()->show($title, $content, $buttons, $options);
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    protected function before(): void
-    {
-        // Set main menu buttons
-        $table = $this->getTableName();
-        $options = je($this->queryFormId)->rd()->form();
-        $actions = [
-            'query-save' => [
-                'title' => $this->trans()->lang('Save'),
-                'handler' => $this->rq()->exec($options, true)
-                    ->confirm($this->trans()->lang('Save this item?')),
-            ],
-            'query-save-select' => [
-                'title' => $this->trans()->lang('Save and select'),
-                'handler' => $this->rq()->exec($options, false)
-                    ->confirm($this->trans()->lang('Save this item?')),
-            ],
-            'query-back' => [
-                'title' => $this->trans()->lang('Back'),
-                'handler' => $this->rq(Table::class)->show($table),
-            ],
-        ];
-        $this->cl(PageActions::class)->show($actions);
-    }
-
-    /**
-     * Show the update query form
-     *
-     * @return void
-     */
-    #[After('showBreadcrumbs')]
-    public function showf(): void
-    {
-        $this->queryData = $this->db()->getInsertData($this->getTableName());
-        // Show the error
-        if(($this->queryData['error']))
-        {
-            $this->alert()->title($this->trans()->lang('Error'))->error($this->queryData['error']);
-            return;
-        }
-        $this->render();
-    }
-
     /**
      * Execute the insert query
      *
-     * @param array  $options     The query options
-     * @param bool $addNew        Add a new entry after saving the current one.
+     * @param bool $fromSelect
+     * @param array $formValues
      *
      * @return void
      */
-    public function exec(array $options, bool $addNew): void
+    public function save(bool $fromSelect, array $formValues): void
     {
-        $table = $this->getTableName();
-        $results = $this->db()->insertItem($table, $options);
-
+        // No specific options for inserts.
+        $result = $this->db()->insertItem($this->getTableName(), [], $formValues);
         // Show the error
-        if(($results['error']))
+        if(isset($result['error']))
         {
-            $this->alert()->title($this->trans()->lang('Error'))->error($results['error']);
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error($result['error']);
             return;
         }
-        $this->alert()->title($this->trans()->lang('Success'))->success($results['message']);
 
-        $addNew ? $this->render() : $this->cl(Select::class)->show($table);
+        // Refresh the result set.
+        if ($fromSelect) {
+            $this->cl(ResultSet::class)->page();
+        }
+
+        $this->modal()->hide();
+        $this->alert()
+            ->title($this->trans()->lang('Success'))
+            ->success($result['message']);
     }
 }

@@ -54,7 +54,7 @@ class Select extends MainComponent
         $actions = [
             'insert-table' => [
                 'title' => $this->trans()->lang('New item'),
-                'handler' => $this->rq(Insert::class)->show(),
+                'handler' => $this->rq(Insert::class)->show(true),
             ],
             'show-table' => [
                 'title' => $this->trans()->lang('Show table'),

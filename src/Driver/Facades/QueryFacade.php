@@ -202,7 +202,8 @@ class QueryFacade extends AbstractFacade
     {
         // From edit.inc.php
         $fields = $this->driver->fields($table);
-        $where = $this->driver->where($options, $fields);
+        // Important: get the where clauses before filtering the fields.
+        $where = $privilege === 'insert' ? [] : $this->driver->where($options, $fields);
         // Remove fields without the required privilege, or that cannot be edited.
         $fields = array_filter($fields, fn(TableFieldEntity $field) =>
             isset($field->privileges[$privilege]) &&
@@ -334,7 +335,6 @@ class QueryFacade extends AbstractFacade
         [$fields,] = $this->getFields($table, $options, 'insert');
         if (empty($fields)) {
             return [
-                'tableName' => $tableName,
                 'error' => $this->utils->trans->lang('You have no privileges to update this table.'),
             ];
         }
@@ -342,8 +342,6 @@ class QueryFacade extends AbstractFacade
         // No data when inserting a new row
         $rowData = [];
         return [
-            'tableName' => $tableName,
-            'error' => null,
             'fields' =>  $this->getQueryEntries($fields, $rowData, $options),
         ];
     }
@@ -460,9 +458,7 @@ class QueryFacade extends AbstractFacade
         }
 
         $idf = $this->driver->bracketEscape($field->name);
-        $function = $values['function'][$idf];
         $value = $values['fields'][$idf];
-
         if ($field->type === "enum" || count($enumValues) > 0) {
             $value = $value[0];
             if ($value === "orig") {
@@ -477,6 +473,9 @@ class QueryFacade extends AbstractFacade
         if ($field->autoIncrement && $value === '') {
             return null;
         }
+
+        // The function is not provided for auto-incremented fields.
+        $function = $values['function'][$idf];
         if ($function === 'orig') {
             return preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) ?
                 $this->driver->escapeId($field->name) : false;
@@ -538,14 +537,16 @@ class QueryFacade extends AbstractFacade
         [$fields,] = $this->getFields($table, $options, 'insert');
         $values = $this->getInputValues($fields, $values);
 
-        $result = $this->driver->insert($table, $values);
-        $lastId = !$result ? 0 : $this->driver->lastAutoIncrementId();
+        if (!$this->driver->insert($table, $values)) {
+            return [
+                'error' => $this->driver->error(),
+            ];
+        }
 
+        $lastId = $this->driver->lastAutoIncrementId();
         return [
-            'result' => $result,
             'message' => $this->utils->trans->lang('Item%s has been inserted.',
                 $lastId ? " $lastId" : ''),
-            'error' => $this->driver->error(),
         ];
     }
 

@@ -92,7 +92,7 @@ class Table extends MainComponent
             ],
             'insert-table' => [
                 'title' => $this->trans()->lang('New item'),
-                'handler' => $this->rq(Insert::class)->show(),
+                'handler' => $this->rq(Insert::class)->show(false),
             ],
             'edit-table' => [
                 'title' => $this->trans()->lang('Alter table'),
