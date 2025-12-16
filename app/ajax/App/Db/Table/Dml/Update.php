@@ -60,6 +60,11 @@ class Update extends FuncComponent
             'class' => 'btn btn-tertiary',
             'click' => 'close',
         ], [
+            'title' => $this->trans()->lang('Delete'),
+            'class' => 'btn btn-danger',
+            'click' => $this->rq(Delete::class)->exec($editId)
+                ->confirm($this->trans()->lang('Delete this item?')),
+        ], [
             'title' => $this->trans()->lang('Save'),
             'class' => 'btn btn-primary',
             'click' => $this->rq()->save($editId, je($this->queryFormId)->rd()->form())

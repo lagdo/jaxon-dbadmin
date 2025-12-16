@@ -2,36 +2,54 @@
 
 namespace Lagdo\DbAdmin\Ajax\App\Db\Table\Dml;
 
-use Jaxon\Attributes\Attribute\Before;
 use Jaxon\Attributes\Attribute\Databag;
+use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\FuncComponent;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
+
+use function count;
 
 /**
  * This class provides insert and update query features on tables.
  */
-#[Before('notYetAvailable')]
+#[Databag('dbadmin.select')]
+#[Databag('dbadmin.row.edit')]
 class Delete extends FuncComponent
 {
     /**
      * Execute the delete query
      *
-     * @param array  $rowIds        The row identifiers
+     * @param int   $editId
      *
      * @return void
      */
-    #[Databag('dbadmin.select')]
-    public function exec(array $rowIds): void
+    public function exec(int $editId): void
     {
-        $results = $this->db()->deleteItem($this->getTableName(), $rowIds);
-
-        // Show the error
-        if(($results['error']))
+        $rowIds = $this->bag('dbadmin.row.edit')->get('row.ids', []);
+        if(!isset($rowIds[$editId]) || count($rowIds[$editId]['where']) === 0)
         {
-            $this->alert()->title($this->trans()->lang('Error'))->error($results['error']);
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error('Invalid query data');
             return;
         }
-        $this->alert()->title($this->trans()->lang('Success'))->success($results['message']);
-        $this->rq(Select::class)->exec();
+
+        $queryOptions = $rowIds[$editId];
+        $result = $this->db()->deleteItem($this->getTableName(), $queryOptions);
+        // Show the error
+        if(isset($result['error']))
+        {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error($result['error']);
+            return;
+        }
+
+        // Refresh the result set.
+        $this->cl(ResultSet::class)->page();
+
+        $this->modal()->hide();
+        $this->alert()
+            ->title($this->trans()->lang('Success'))
+            ->success($result['message']);
     }
 }

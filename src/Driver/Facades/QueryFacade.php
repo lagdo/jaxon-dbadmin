@@ -630,12 +630,14 @@ class QueryFacade extends AbstractFacade
         $uniqueIds = $this->utils->uniqueIds($options['where'], $indexes);
         $limit = count($uniqueIds) === 0 ? 1 : 0; // Limit to 1 if no unique ids are found.
 
-        $result = $this->driver->delete($table, "\nWHERE $where", $limit);
+        if (!$this->driver->delete($table, "\nWHERE $where", $limit)) {
+            return [
+                'error' => $this->driver->error(),
+            ];
+        }
 
         return [
-            'result' => $result,
             'message' => $this->utils->trans->lang('Item has been deleted.'),
-            'error' => $this->driver->error(),
         ];
     }
 }
