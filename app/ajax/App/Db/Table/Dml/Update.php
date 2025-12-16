@@ -6,7 +6,6 @@ use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\ResultRow;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\FuncComponent;
 
-use function array_map;
 use function count;
 use function Jaxon\je;
 
@@ -87,6 +86,8 @@ class Update extends FuncComponent
         }
 
         $queryOptions = $rowIds[$editId];
+        // Add the select options, which are used to format the modified data
+        $queryOptions['select'] = $this->bag('dbadmin.select')->get('options', []);
         $result = $this->db()->updateItem($this->getTableName(), $queryOptions, $formValues);
         // Show the error
         if(isset($result['error']))
@@ -96,13 +97,18 @@ class Update extends FuncComponent
                 ->error($result['error']);
             return;
         }
+        // Show the warning
+        if(isset($result['warning']))
+        {
+            $this->alert()
+                ->title($this->trans()->lang('Warning'))
+                ->warning($result['warning']);
+            return;
+        }
 
-        // Format the updated data for the select resultset.
-        $this->stash()->set('select.row', [
-            'editId' => $editId,
-            'cols' => array_map(fn($value) => ['value' => $value], $result['data']),
-        ]);
         // Update the result row.
+        $result['editId'] = $editId;
+        $this->stash()->set('select.result', $result);
         $this->cl(ResultRow::class)->item("row$editId")->render();
 
         $this->modal()->hide();

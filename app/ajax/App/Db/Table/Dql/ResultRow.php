@@ -20,6 +20,6 @@ class ResultRow extends MainComponent
      */
     public function html(): string
     {
-        return $this->selectUi->resultRowContent($this->stash()->get('select.row'));
+        return $this->selectUi->resultRowContent($this->stash()->get('select.result'));
     }
 }

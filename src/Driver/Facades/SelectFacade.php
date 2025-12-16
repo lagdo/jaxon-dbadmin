@@ -98,7 +98,7 @@ class SelectFacade extends AbstractFacade
         // From select.inc.php
         $this->selectEntity->rows = [];
         while (($row = $statement->fetchAssoc())) {
-            if ($this->selectEntity->page && $this->driver->jush() == "oracle") {
+            if ($this->selectEntity->page && $this->driver->jush() === "oracle") {
                 unset($row["RNUM"]);
             }
             $this->selectEntity->rows[] = $row;
@@ -308,22 +308,12 @@ class SelectFacade extends AbstractFacade
      *
      * @return array
      */
-    private function getRowColumn(string $key, $value): array
+    private function getColumnValue(string $key, $value): array
     {
         $field = $this->selectEntity->fields[$key] ?? new TableFieldEntity();
+        $textLength = $this->selectEntity->textLength;
         $value = $this->driver->value($value, $field);
-        /*if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
-            //! filled e-mails can be contained on other pages
-            $email_fields[$key] = ($this->page->isMail($value) ? $names[$key] : "");
-        }*/
-        $length = $this->selectEntity->textLength;
-        $value = $this->page->selectValue($field, $value, $length);
-        return [
-            // 'id',
-            'text' => preg_match('~text|lob~', $field->type),
-            'value' => $value,
-            // 'editable' => false,
-        ];
+        return $this->page->getFieldValue($field, $textLength, $value);
     }
 
     /**
@@ -331,12 +321,12 @@ class SelectFacade extends AbstractFacade
      *
      * @return array
      */
-    private function getRowColumns(array $row): array
+    private function getRowValues(array $row): array
     {
         $cols = [];
         foreach ($row as $key => $value) {
             if (isset($this->selectEntity->names[$key])) {
-                $cols[] = $this->getRowColumn($key, $value);
+                $cols[] = $this->getColumnValue($key, $value);
             }
         }
         return $cols;
@@ -407,7 +397,7 @@ class SelectFacade extends AbstractFacade
             'rows' => array_map(fn($row) => [
                 // Unique identifier to edit returned data.
                 'ids' => $this->getRowIds($row),
-                'cols' => $this->getRowColumns($row),
+                'cols' => $this->getRowValues($row),
             ], $this->selectEntity->rows),
         ];
     }

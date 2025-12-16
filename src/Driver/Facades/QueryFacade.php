@@ -550,6 +550,24 @@ class QueryFacade extends AbstractFacade
     }
 
     /**
+     * @param array $result
+     * @param array<string, TableFieldEntity> $fields
+     * @param int $textLength
+     *
+     * @return array
+     */
+    private function formatResult(array $result, array $fields, int $textLength): array
+    {
+        $formatted = [];
+        foreach ($result as $fieldName => $value) {
+            $field = $fields[$fieldName];
+            $value = $this->driver->value($value, $field);
+            $formatted[] = $this->page->getFieldValue($field, $textLength, $value);
+        }
+        return $formatted;
+    }
+
+    /**
      * Update one or more items in a table
      *
      * @param string $table         The table name
@@ -579,8 +597,16 @@ class QueryFacade extends AbstractFacade
         // Get the modified data
         // Todo: check if the values in the where clause are changed.
         $statement = $this->driver->select($table, array_keys($values), [$where]);
+        $result = !$statement ? null : $statement->fetchAssoc();
+        if (!$result) {
+            return [
+                'warning' => $this->utils->trans->lang('Unable to read the updated row.'),
+            ];
+        }
+
+        $textLength = $options['select']['length'];
         return [
-            'data' => !$statement ? null : $statement->fetchAssoc(),
+            'cols' => $this->formatResult($result, $fields, $textLength),
             'message' => $this->utils->trans->lang('Item has been updated.'),
         ];
     }

@@ -124,12 +124,12 @@ class AppPage
      * Format value to use in select
      *
      * @param TableFieldEntity $field
-     * @param mixed $value
      * @param int|string|null $textLength
+     * @param mixed $value
      *
      * @return string
      */
-    public function selectValue(TableFieldEntity $field, $value, $textLength): string
+    public function selectValue(TableFieldEntity $field, $textLength, $value): string
     {
         // if (\is_array($value)) {
         //     $expression = '';
@@ -156,6 +156,27 @@ class AppPage
             }
         }
         return $this->getSelectFieldValue($expression, $field->type, $value);
+    }
+
+    /**
+     * @param TableFieldEntity $field
+     * @param int $textLength
+     * @param mixed $value
+     *
+     * @return array
+     */
+    public function getFieldValue(TableFieldEntity $field, int $textLength, mixed $value): array
+    {
+        /*if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
+            //! filled e-mails can be contained on other pages
+            $email_fields[$key] = ($this->page->isMail($value) ? $names[$key] : "");
+        }*/
+        return [
+            // 'id',
+            'text' => preg_match('~text|lob~', $field->type),
+            'value' => $this->selectValue($field, $textLength, $value),
+            // 'editable' => false,
+        ];
     }
 
     /**
