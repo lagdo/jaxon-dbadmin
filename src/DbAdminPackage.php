@@ -2,8 +2,8 @@
 
 namespace Lagdo\DbAdmin\Db;
 
+use Lagdo\DbAdmin\Ajax\Admin\Admin;
 use Jaxon\Plugin\AbstractPackage;
-use Lagdo\DbAdmin\Ajax\App\Admin;
 
 use function in_array;
 use function is_array;

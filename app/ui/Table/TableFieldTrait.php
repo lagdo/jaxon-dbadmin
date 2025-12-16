@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Table;
 
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Columns;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Columns;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\UiBuilder\BuilderInterface;
 

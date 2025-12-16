@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ajax;
 
 use Jaxon\App\View\Store;
 use Jaxon\Attributes\Attribute\Databag;
-use Lagdo\DbAdmin\Ajax\App\Page\Breadcrumbs;
+use Lagdo\DbAdmin\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Ajax\Exception\AppException;
 use Lagdo\DbAdmin\Db\DbAdminPackage;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;

@@ -74,7 +74,7 @@ return [
             Facades\CommandFacade::class => function($di) {
                 $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $timer = $di->g(Service\TimerService::class);
-                $logger = $di->g(Service\DbAdmin\QueryLogger::class);
+                $logger = $di->g(Service\Admin\QueryLogger::class);
                 return new Facades\CommandFacade($dbFacade, $timer, $logger);
             },
             Facades\DatabaseFacade::class => function($di) {
@@ -91,7 +91,7 @@ return [
             Facades\ImportFacade::class => function($di) {
                 $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $timer = $di->g(Service\TimerService::class);
-                $logger = $di->g(Service\DbAdmin\QueryLogger::class);
+                $logger = $di->g(Service\Admin\QueryLogger::class);
                 return new Facades\ImportFacade($dbFacade, $timer, $logger);
             },
             Facades\QueryFacade::class => function($di) {
@@ -126,7 +126,7 @@ return [
                 return new Config\UserFileReader(getAuth());
             },
             // Query audit
-            Service\DbAudit\QueryLogger::class => function($di) {
+            Service\Audit\QueryLogger::class => function($di) {
                 $package = $di->g(Db\DbAuditPackage::class);
                 $database = $package->getOption('database');
                 $options = $package->getOption('options', []);
@@ -137,7 +137,7 @@ return [
                 $driver = Db\Driver\AppDriver::createDriver($database);
                 $reader = $di->g(Config\UserFileReader::class);
                 $db = $di->g(Db\Driver\DbFacade::class);
-                return new Service\DbAudit\QueryLogger($db, $driver,
+                return new Service\Audit\QueryLogger($db, $driver,
                     $reader->getServerOptions($database), $options);
             },
         ],

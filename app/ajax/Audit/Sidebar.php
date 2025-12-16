@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\Audit;
 
 use Jaxon\App\Component;
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\Db\Service\DbAudit\QueryLogger;
+use Lagdo\DbAdmin\Db\Service\Audit\QueryLogger;
 use Lagdo\DbAdmin\Ui\AuditUiBuilder;
 
 #[Exclude]

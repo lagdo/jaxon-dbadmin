@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ui\Table;
 
 use Jaxon\Script\Call\JxnClassCall;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Ddl\Columns;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Columns;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\InputBuilder;

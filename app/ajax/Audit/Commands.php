@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ajax\Audit;
 use Jaxon\App\Dialog\DialogTrait;
 use Jaxon\App\PageComponent;
 use Jaxon\Attributes\Attribute\Databag;
-use Lagdo\DbAdmin\Db\Service\DbAudit\QueryLogger;
+use Lagdo\DbAdmin\Db\Service\Audit\QueryLogger;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\AuditUiBuilder;
 use DateTime;

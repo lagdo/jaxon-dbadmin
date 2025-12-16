@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui;
 
-use Lagdo\DbAdmin\Ajax\App\Db\Database\Database;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Database;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\je;

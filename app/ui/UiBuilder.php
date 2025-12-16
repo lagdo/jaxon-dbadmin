@@ -2,16 +2,16 @@
 
 namespace Lagdo\DbAdmin\Ui;
 
-use Lagdo\DbAdmin\Ajax\App\Admin;
-use Lagdo\DbAdmin\Ajax\App\Menu\Sections as MenuSections;
-use Lagdo\DbAdmin\Ajax\App\Menu\Database\Command as DatabaseCommand;
-use Lagdo\DbAdmin\Ajax\App\Menu\Database\Schemas as MenuSchemas;
-use Lagdo\DbAdmin\Ajax\App\Menu\Server\Command as ServerCommand;
-use Lagdo\DbAdmin\Ajax\App\Menu\Server\Databases as MenuDatabases;
-use Lagdo\DbAdmin\Ajax\App\Page\Breadcrumbs;
-use Lagdo\DbAdmin\Ajax\App\Page\Content;
-use Lagdo\DbAdmin\Ajax\App\Page\PageActions;
-use Lagdo\DbAdmin\Ajax\App\Page\DbConnection;
+use Lagdo\DbAdmin\Ajax\Admin\Admin;
+use Lagdo\DbAdmin\Ajax\Admin\Menu\Sections as MenuSections;
+use Lagdo\DbAdmin\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
+use Lagdo\DbAdmin\Ajax\Admin\Menu\Database\Schemas as MenuSchemas;
+use Lagdo\DbAdmin\Ajax\Admin\Menu\Server\Command as ServerCommand;
+use Lagdo\DbAdmin\Ajax\Admin\Menu\Server\Databases as MenuDatabases;
+use Lagdo\DbAdmin\Ajax\Admin\Page\Breadcrumbs;
+use Lagdo\DbAdmin\Ajax\Admin\Page\Content;
+use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
+use Lagdo\DbAdmin\Ajax\Admin\Page\DbConnection;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 

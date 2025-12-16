@@ -31,8 +31,8 @@ return [
     ],
     'directories' => [
         [
-            'path' => __DIR__ . '/../app/ajax/App',
-            'namespace' => 'Lagdo\\DbAdmin\\Ajax\\App',
+            'path' => __DIR__ . '/../app/ajax/Admin',
+            'namespace' => 'Lagdo\\DbAdmin\\Ajax\\Admin',
             'autoload' => false,
         ],
     ],
@@ -79,7 +79,7 @@ return [
                 $driver = new Db\Driver\AppDriver($di->g(Driver\DriverInterface::class));
                 $timer = $di->g(Service\TimerService::class);
                 $driver->addQueryCallback(fn() => $timer->stop());
-                $logger = $di->g(Service\DbAdmin\QueryLogger::class);
+                $logger = $di->g(Service\Admin\QueryLogger::class);
                 if ($logger !== null) {
                     $driver->addQueryCallback(fn(string $query) => $logger->saveCommand($query));
                 }
@@ -89,7 +89,7 @@ return [
             Facades\CommandFacade::class => function($di) {
                 $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $timer = $di->g(Service\TimerService::class);
-                $logger = $di->g(Service\DbAdmin\QueryLogger::class);
+                $logger = $di->g(Service\Admin\QueryLogger::class);
                 return new Facades\CommandFacade($dbFacade, $timer, $logger);
             },
             Facades\DatabaseFacade::class => function($di) {
@@ -106,7 +106,7 @@ return [
             Facades\ImportFacade::class => function($di) {
                 $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $timer = $di->g(Service\TimerService::class);
-                $logger = $di->g(Service\DbAdmin\QueryLogger::class);
+                $logger = $di->g(Service\Admin\QueryLogger::class);
                 return new Facades\ImportFacade($dbFacade, $timer, $logger);
             },
             Facades\QueryFacade::class => function($di) {
@@ -152,7 +152,7 @@ return [
                 return Db\Driver\AppDriver::createDriver($options);
             },
             // Query logger
-            Service\DbAdmin\QueryLogger::class => function($di) {
+            Service\Admin\QueryLogger::class => function($di) {
                 $package = $di->g(Db\DbAdminPackage::class);
                 $options = $package->getOption('audit.options');
                 $database = $di->g('dbaudit_database_server');
@@ -169,11 +169,11 @@ return [
 
                 $reader = $di->g(Config\UserFileReader::class);
                 $database = $reader->getServerOptions($database);
-                return new Service\DbAdmin\QueryLogger(getAuth($di),
+                return new Service\Admin\QueryLogger(getAuth($di),
                     $di->g('dbaudit_database_driver'), $database, $options);
             },
             // Query history
-            Service\DbAdmin\QueryHistory::class => function($di) {
+            Service\Admin\QueryHistory::class => function($di) {
                 $package = $di->g(Db\DbAdminPackage::class);
                 $options = $package->getOption('audit.options');
                 $database = $di->g('dbaudit_database_server');
@@ -184,11 +184,11 @@ return [
 
                 $reader = $di->g(Config\UserFileReader::class);
                 $database = $reader->getServerOptions($database);
-                return new Service\DbAdmin\QueryHistory(getAuth($di),
+                return new Service\Admin\QueryHistory(getAuth($di),
                     $di->g('dbaudit_database_driver'), $database, $options);
             },
             // Query favorites
-            Service\DbAdmin\QueryFavorite::class => function($di) {
+            Service\Admin\QueryFavorite::class => function($di) {
                 $package = $di->g(Db\DbAdminPackage::class);
                 $options = $package->getOption('audit.options');
                 $database = $di->g('dbaudit_database_server');
@@ -199,7 +199,7 @@ return [
 
                 $reader = $di->g(Config\UserFileReader::class);
                 $database = $reader->getServerOptions($database);
-                return new Service\DbAdmin\QueryFavorite(getAuth($di),
+                return new Service\Admin\QueryFavorite(getAuth($di),
                     $di->g('dbaudit_database_driver'), $database, $options);
             },
         ],

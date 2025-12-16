@@ -3,13 +3,13 @@
 namespace Lagdo\DbAdmin\Ui\Table;
 
 use Jaxon\Script\Call\JxnCall;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dml\Update;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Duration;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Options;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\QueryText;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\ResultRow;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\ResultSet;
-use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\Select;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dml\Update;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Duration;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultRow;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultSet;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 

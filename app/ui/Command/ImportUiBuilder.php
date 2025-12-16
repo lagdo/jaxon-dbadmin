@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ui\Command;
 
 use Jaxon\Script\JsExpr;
-use Lagdo\DbAdmin\Ajax\App\Db\Command\Query;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
