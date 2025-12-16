@@ -272,10 +272,10 @@ class SelectUiBuilder
      *
      * @return mixed
      */
-    public function resultRow(array $row): mixed
+    private function _resultRowContent(array $row): mixed
     {
         $editable = $row['editId'] > 0;
-        $uiElt = $this->ui->tr(
+        return $this->ui->list(
             $this->ui->td(
                 !$editable ? '' : $this->ui->button($this->trans->lang('Edit'))
                     ->primary()
@@ -285,11 +285,16 @@ class SelectUiBuilder
                 $this->ui->td($col['value'])
             )
         );
-        if ($editable) {
-            $uiElt->jxnBind(rq(ResultRow::class), $row['editId']);
-        }
+    }
 
-        return $uiElt;
+    /**
+     * @param array $row
+     *
+     * @return string
+     */
+    public function resultRowContent(array $row): string
+    {
+        return $this->ui->build($this->_resultRowContent($row));
     }
 
     /**
@@ -312,7 +317,13 @@ class SelectUiBuilder
                     )
                 ),
                 $this->ui->tbody(
-                    $this->ui->each($rows, fn($row) => $this->resultRow($row))
+                    $this->ui->each($rows, function($row) {
+                        $uiElt = $this->ui->tr($this->_resultRowContent($row));
+                        if ($row['editId'] > 0) {
+                            $uiElt->jxnBind(rq(ResultRow::class), 'row' . $row['editId']);
+                        }
+                        return $uiElt;
+                    })
                 ),
             )->responsive(true)->style('bordered')
         );

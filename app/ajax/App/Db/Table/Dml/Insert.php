@@ -37,8 +37,9 @@ class Insert extends FuncComponent
             return;
         }
 
-        $title = 'Edit row';
-        $content = $this->tableUi->queryForm($queryData['fields'], '400px');
+        $title = 'New item';
+        $content = $this->tableUi->formId($this->formId)
+            ->queryForm($queryData['fields'], '400px');
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[
@@ -80,14 +81,6 @@ class Insert extends FuncComponent
             ],
         ];
         $this->cl(PageActions::class)->show($actions);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function html(): string
-    {
-        return $this->tableUi->queryForm($this->queryData['fields']);
     }
 
     /**

@@ -37,6 +37,38 @@ class TableFacade extends AbstractFacade
     private $attrs;
 
     /**
+     * @param TableEntity $status
+     *
+     * @return array<string, string>
+     */
+    private function getTabs(TableEntity $status): array
+    {
+        $tabs = [
+            'fields' => $this->utils->trans->lang('Columns'),
+            // 'indexes' => $this->utils->trans->lang('Indexes'),
+            // 'foreign-keys' => $this->utils->trans->lang('Foreign keys'),
+            // 'triggers' => $this->utils->trans->lang('Triggers'),
+        ];
+        if ($this->driver->isView($status)) {
+            if ($this->driver->support('view_trigger')) {
+                $tabs['triggers'] = $this->utils->trans->lang('Triggers');
+            }
+            return $tabs;
+        }
+
+        if ($this->driver->support('indexes')) {
+            $tabs['indexes'] = $this->utils->trans->lang('Indexes');
+        }
+        if ($this->driver->supportForeignKeys($status)) {
+            $tabs['foreign-keys'] = $this->utils->trans->lang('Foreign keys');
+        }
+        if ($this->driver->support('trigger')) {
+            $tabs['triggers'] = $this->utils->trans->lang('Triggers');
+        }
+        return $tabs;
+    }
+
+    /**
      * Get details about a table
      *
      * @param string $table     The table name
@@ -48,33 +80,13 @@ class TableFacade extends AbstractFacade
         // From table.inc.php
         $status = $this->status($table);
         $name = $this->page->tableName($status);
-        $title = $this->utils->trans->lang('Table') . ': ' . ($name != '' ? $name : $this->utils->str->html($table));
 
-        $comment = $status->comment;
-
-        $tabs = [
-            'fields' => $this->utils->trans->lang('Columns'),
-            // 'indexes' => $this->utils->trans->lang('Indexes'),
-            // 'foreign-keys' => $this->utils->trans->lang('Foreign keys'),
-            // 'triggers' => $this->utils->trans->lang('Triggers'),
+        return [
+            'title' => $this->utils->trans->lang('Table') . ': ' .
+                ($name != '' ? $name : $this->utils->str->html($table)),
+            'comment' => $status->comment,
+            'tabs' => $this->getTabs($status),
         ];
-        if ($this->driver->isView($status)) {
-            if ($this->driver->support('view_trigger')) {
-                $tabs['triggers'] = $this->utils->trans->lang('Triggers');
-            }
-        } else {
-            if ($this->driver->support('indexes')) {
-                $tabs['indexes'] = $this->utils->trans->lang('Indexes');
-            }
-            if ($this->driver->supportForeignKeys($status)) {
-                $tabs['foreign-keys'] = $this->utils->trans->lang('Foreign keys');
-            }
-            if ($this->driver->support('trigger')) {
-                $tabs['triggers'] = $this->utils->trans->lang('Triggers');
-            }
-        }
-
-        return compact('title', 'comment', 'tabs');
     }
 
     /**

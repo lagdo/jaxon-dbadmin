@@ -5,7 +5,6 @@ namespace Lagdo\DbAdmin\Db\Driver\Facades;
 use Lagdo\DbAdmin\Driver\Entity\FieldType;
 use Lagdo\DbAdmin\Driver\Entity\RoutineEntity;
 use Lagdo\DbAdmin\Driver\Entity\RoutineInfoEntity;
-use Lagdo\Facades\Logger;
 use Exception;
 
 use function array_filter;
@@ -110,7 +109,7 @@ class ExportFacade extends AbstractFacade
      *
      * @return void
      */
-    private function dumpTypes()
+    private function dumpTypes(): void
     {
         if (!$this->options['types']) {
             return;
@@ -140,7 +139,7 @@ class ExportFacade extends AbstractFacade
      *
      * @return void
      */
-    private function dumpRoutines()
+    private function dumpRoutines(): void
     {
         if (!$this->options['routines']) {
             return;
@@ -170,7 +169,7 @@ class ExportFacade extends AbstractFacade
      *
      * @return void
      */
-    private function dumpEvents()
+    private function dumpEvents(): void
     {
         if (!$this->options['events']) {
             return;
@@ -195,7 +194,7 @@ class ExportFacade extends AbstractFacade
      *
      * @return void
      */
-    private function dumpUseDatabaseQuery(string $database)
+    private function dumpUseDatabaseQuery(string $database): void
     {
         $style = $this->options['db_style'];
         if ($style === '' || !preg_match('~sql~', $this->options['format'])) {
@@ -211,7 +210,7 @@ class ExportFacade extends AbstractFacade
      *
      * @return void
      */
-    private function dumpDatabase(string $database, array $tableOptions)
+    private function dumpDatabase(string $database, array $tableOptions): void
     {
         $this->driver->openConnection($database); // New connection
         $this->dumpUseDatabaseQuery($database);

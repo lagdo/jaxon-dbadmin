@@ -4,19 +4,19 @@ namespace Lagdo\DbAdmin\Db\Driver\Facades\Traits;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
-use function is_array;
-use function in_array;
-use function reset;
+use function array_pad;
 use function count;
+use function explode;
+use function in_array;
+use function is_array;
+use function is_int;
+use function min;
 use function preg_match;
 use function preg_match_all;
+use function reset;
 use function stripcslashes;
 use function str_replace;
-use function is_int;
-use function explode;
 use function substr_count;
-use function min;
-use function array_pad;
 
 trait QueryInputTrait
 {
@@ -156,10 +156,7 @@ trait QueryInputTrait
             $length3 = empty($match[2]) || $field->unsigned ? 0 : 1;
             return $length1 * $match[1] + $length2 + $length3;
         }
-        if ($this->driver->typeExists($field->type)) {
-            return $this->driver->type($field->type) + ($field->unsigned ? 0 : 1);
-        }
-        return 0;
+        return $this->driver->typeLength($field);
     }
 
     /**

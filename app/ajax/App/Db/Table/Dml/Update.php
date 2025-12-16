@@ -6,6 +6,7 @@ use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\Dql\ResultRow;
 use Lagdo\DbAdmin\Ajax\App\Db\Table\FuncComponent;
 
+use function array_map;
 use function count;
 use function Jaxon\je;
 
@@ -51,7 +52,8 @@ class Update extends FuncComponent
         }
 
         $title = 'Edit row';
-        $content = $this->tableUi->queryForm($queryData['fields'], '400px');
+        $content = $this->tableUi->formId($this->queryFormId)
+            ->queryForm($queryData['fields'], '400px');
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[
@@ -85,22 +87,27 @@ class Update extends FuncComponent
         }
 
         $queryOptions = $rowIds[$editId];
-        $results = $this->db()->updateItem($this->getTableName(), $queryOptions, $formValues);
+        $result = $this->db()->updateItem($this->getTableName(), $queryOptions, $formValues);
         // Show the error
-        if(isset($results['error']))
+        if(isset($result['error']))
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
-                ->error($results['error']);
+                ->error($result['error']);
             return;
         }
 
+        // Format the updated data for the select resultset.
+        $this->stash()->set('select.row', [
+            'editId' => $editId,
+            'cols' => array_map(fn($value) => ['value' => $value], $result['data']),
+        ]);
         // Update the result row.
-        // $this->cl(ResultRow::class)->item($editId)->render();
+        $this->cl(ResultRow::class)->item("row$editId")->render();
 
         $this->modal()->hide();
         $this->alert()
             ->title($this->trans()->lang('Success'))
-            ->success($results['message']);
+            ->success($result['message']);
     }
 }
