@@ -14,6 +14,28 @@ All its operations are performed with Ajax requests, so the user never leaves th
 
 The database access code (and thus the provided features) originates from [Adminer](https://github.com/vrana/adminer). The original code was refactored to take advantage of the latest PHP features (namespaces, interfaces, DI, and so on), and separated into multiple Composer packages.
 
+## Features and current status
+
+This application and the related packages are still being actively developed, and the provided features are still basic and need improvements.
+
+The following features are currently available:
+- Browse servers and databases.
+- Show tables and views details.
+- Query a table.
+- Query a view.
+- Execute queries in the query editor.
+- Use a better editor for SQL queries.
+- Save and show the query history.
+- Save queries in user favorites.
+- Import or export data.
+- Insert, modify or delete data in a table.
+
+The following features are either disabled or not yet implemented, and planned for future releases:
+- Navigate through related tables.
+- Create, alter or drop a database, table or view.
+- Code completion for table and field names in the SQL editor.
+- An advanced GUI-based query builder.
+
 Howtos
 ------
 
