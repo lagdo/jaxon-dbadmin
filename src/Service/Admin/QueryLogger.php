@@ -3,10 +3,8 @@
 namespace Lagdo\DbAdmin\Db\Service\Admin;
 
 use Lagdo\DbAdmin\Db\Config\AuthInterface;
+use Lagdo\DbAdmin\Db\Service\Audit\ConnectionProxy;
 use Lagdo\DbAdmin\Db\Service\Audit\Options;
-use Lagdo\DbAdmin\Driver\Db\AbstractConnection;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\Facades\Logger;
 
 use function json_encode;
 
@@ -15,7 +13,7 @@ use function json_encode;
  */
 class QueryLogger
 {
-    use ConnectionTrait;
+    use UserQueryTrait;
 
     /**
      * @var bool
@@ -38,31 +36,19 @@ class QueryLogger
     private int $category;
 
     /**
-     * @var AbstractConnection
-     */
-    private AbstractConnection $connection;
-
-    /**
      * The constructor
      *
      * @param AuthInterface $auth
-     * @param DriverInterface $driver
-     * @param array $database
+     * @param ConnectionProxy $proxy
      * @param array $options
      */
     public function __construct(private AuthInterface $auth,
-        private DriverInterface $driver, array $database, array $options)
+        private ConnectionProxy $proxy, array $options)
     {
         $this->enduserEnabled = (bool)($options['enduser']['enabled'] ?? false);
         $this->historyEnabled = (bool)($options['history']['enabled'] ?? false);
         $this->category = Options::CAT_BUILDER;
         $this->userDatabase = $options['database'];
-        if (!$this->enduserEnabled && !$this->historyEnabled) {
-            return;
-        }
-
-        // Connect to the audit database.
-        $this->connect($driver, $database);
     }
 
     /**
@@ -126,17 +112,15 @@ class QueryLogger
             'owner_id' => $this->getOwnerId(),
         ];
         // Duplicates on query are checked on client side, not here.
-        $query = "insert into dbadmin_runned_commands" .
-            "(query,driver,options,category,last_update,owner_id) values" .
-            "(:query,:driver,:options,:category,:last_update,:owner_id)";
-        $statement = $this->executeQuery($query, $values);
+        $query = "INSERT INTO dbadmin_runned_commands
+(query,driver,options,category,last_update,owner_id)
+VALUES (:query,:driver,:options,:category,:last_update,:owner_id)";
+        $statement = $this->proxy->executeQuery($query, $values);
         if ($statement !== false) {
             return true;
         }
 
-        Logger::warning('Unable to save command in the query audit database.', [
-            'error' => $this->connection->error(),
-        ]);
+        $this->proxy->logWarning('Unable to save command in the query audit database.');
         return false;
     }
 

@@ -2,6 +2,7 @@
 
 use Lagdo\DbAdmin\Db;
 use Lagdo\DbAdmin\Db\Config;
+use Lagdo\DbAdmin\Db\Driver\Exception;
 use Lagdo\DbAdmin\Db\Driver\Facades;
 use Lagdo\DbAdmin\Db\Service;
 use Lagdo\DbAdmin\Driver;
@@ -125,6 +126,15 @@ return [
             Config\UserFileReader::class => function() {
                 return new Config\UserFileReader(getAuth());
             },
+            // Connection to the audit database
+            Service\Audit\ConnectionProxy::class => function($di) {
+                $package = $di->g(Db\DbAuditPackage::class);
+                $database = $package->getOption('database');
+                $driver = Db\Driver\AppDriver::createDriver($database);
+                $reader = $di->g(Config\UserFileReader::class);
+                return new Service\Audit\ConnectionProxy($driver,
+                    $reader->getServerOptions($database));
+            },
             // Query audit
             Service\Audit\QueryLogger::class => function($di) {
                 $package = $di->g(Db\DbAuditPackage::class);
@@ -134,11 +144,8 @@ return [
                     return null;
                 }
 
-                $driver = Db\Driver\AppDriver::createDriver($database);
-                $reader = $di->g(Config\UserFileReader::class);
-                $db = $di->g(Db\Driver\DbFacade::class);
-                return new Service\Audit\QueryLogger($db, $driver,
-                    $reader->getServerOptions($database), $options);
+                $proxy = $di->g(Service\Audit\ConnectionProxy::class);
+                return new Service\Audit\QueryLogger($proxy, $options);
             },
         ],
         'auto' => [
@@ -164,11 +171,11 @@ return [
         ],
         'alias' => [
             // The translator
-            Driver\Utils\TranslatorInterface::class => Lagdo\DbAdmin\Db\Translator::class,
+            Driver\Utils\TranslatorInterface::class => Db\Translator::class,
         ],
     ],
     'exceptions' => [
-        Db\Exception\DbException::class => function(Db\Exception\DbException $dbException) {
+        Exception\DbException::class => function(Exception\DbException $dbException) {
             $response = jaxon()->getResponse();
             $response->dialog->warning($dbException->getMessage());
             return $response;

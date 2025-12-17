@@ -2,6 +2,7 @@
 
 use Lagdo\DbAdmin\Db;
 use Lagdo\DbAdmin\Db\Config;
+use Lagdo\DbAdmin\Db\Driver\Exception;
 use Lagdo\DbAdmin\Db\Driver\Facades;
 use Lagdo\DbAdmin\Db\Service;
 use Lagdo\DbAdmin\Driver;
@@ -151,6 +152,14 @@ return [
                 $options = $di->g('dbaudit_database_server');
                 return Db\Driver\AppDriver::createDriver($options);
             },
+            // Connection to the audit database
+            Service\Audit\ConnectionProxy::class => function($di) {
+                $driver = $di->g('dbaudit_database_driver');
+                $database = $di->g('dbaudit_database_server');
+                $reader = $di->g(Config\UserFileReader::class);
+                return new Service\Audit\ConnectionProxy($driver,
+                    $reader->getServerOptions($database));
+            },
             // Query logger
             Service\Admin\QueryLogger::class => function($di) {
                 $package = $di->g(Db\DbAdminPackage::class);
@@ -167,10 +176,8 @@ return [
                 $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $options['database'] = $dbFacade->getDatabaseOptions($serverOptions);
 
-                $reader = $di->g(Config\UserFileReader::class);
-                $database = $reader->getServerOptions($database);
-                return new Service\Admin\QueryLogger(getAuth($di),
-                    $di->g('dbaudit_database_driver'), $database, $options);
+                $proxy = $di->g(Service\Audit\ConnectionProxy::class);
+                return new Service\Admin\QueryLogger(getAuth($di), $proxy, $options);
             },
             // Query history
             Service\Admin\QueryHistory::class => function($di) {
@@ -182,10 +189,8 @@ return [
                     return null;
                 }
 
-                $reader = $di->g(Config\UserFileReader::class);
-                $database = $reader->getServerOptions($database);
-                return new Service\Admin\QueryHistory(getAuth($di),
-                    $di->g('dbaudit_database_driver'), $database, $options);
+                $proxy = $di->g(Service\Audit\ConnectionProxy::class);
+                return new Service\Admin\QueryHistory(getAuth($di), $proxy, $options);
             },
             // Query favorites
             Service\Admin\QueryFavorite::class => function($di) {
@@ -197,10 +202,8 @@ return [
                     return null;
                 }
 
-                $reader = $di->g(Config\UserFileReader::class);
-                $database = $reader->getServerOptions($database);
-                return new Service\Admin\QueryFavorite(getAuth($di),
-                    $di->g('dbaudit_database_driver'), $database, $options);
+                $proxy = $di->g(Service\Audit\ConnectionProxy::class);
+                return new Service\Admin\QueryFavorite(getAuth($di), $proxy, $options);
             },
         ],
         'auto' => [
@@ -233,11 +236,11 @@ return [
         ],
         'alias' => [
             // The translator
-            Driver\Utils\TranslatorInterface::class => Lagdo\DbAdmin\Db\Translator::class,
+            Driver\Utils\TranslatorInterface::class => Db\Translator::class,
         ],
     ],
     'exceptions' => [
-        Db\Exception\DbException::class => function(Db\Exception\DbException $dbException) {
+        Exception\DbException::class => function(Exception\DbException $dbException) {
             $response = jaxon()->getResponse();
             $response->dialog->warning($dbException->getMessage());
             return $response;

@@ -2,11 +2,6 @@
 
 namespace Lagdo\DbAdmin\Db\Service\Audit;
 
-use Lagdo\DbAdmin\Db\Driver\DbFacade;
-use Lagdo\DbAdmin\Driver\Db\AbstractConnection;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\Facades\Logger;
-
 use function count;
 use function implode;
 
@@ -16,11 +11,6 @@ use function implode;
 class QueryLogger
 {
     /**
-     * @var AbstractConnection
-     */
-    private AbstractConnection $connection;
-
-    /**
      * @var int
      */
     private int $limit;
@@ -28,19 +18,12 @@ class QueryLogger
     /**
      * The constructor
      *
-     * @param DbFacade $db
-     * @param DriverInterface $driver
-     * @param array $database
+     * @param ConnectionProxy $proxy
      * @param array $options
      */
-    public function __construct(private DbFacade $db,
-        private DriverInterface $driver, array $database, array $options)
+    public function __construct(private ConnectionProxy $proxy, array $options)
     {
         $this->limit = $options['display']['limit'] ?? 15;
-
-        // Connect to the audit database.
-        $this->connection = $driver->createConnection($database);
-        $this->connection->open($database['name'], $database['schema'] ?? '');
     }
 
     /**
@@ -82,8 +65,9 @@ class QueryLogger
         if (isset($filters['to'])) {
             $clauses[] = "c.last_update<='{$filters['to']}'";
         }
-        return count($clauses) === 0 ? '' : 'where ' .
-            implode(' and ', $clauses);
+
+        return count($clauses) === 0 ? '' : 'WHERE ' .
+            implode(' AND ', $clauses);
     }
 
     /**
@@ -94,9 +78,9 @@ class QueryLogger
     public function getCommandCount(array $filters): int
     {
         $whereClause = $this->getWhereClause($filters);
-        $statement = "select count(*) as c from dbadmin_runned_commands c " .
-            "inner join dbadmin_owners o on c.owner_id=o.id $whereClause";
-        $statement = $this->connection->query($statement);
+        $statement = "SELECT count(*) AS c FROM dbadmin_runned_commands c
+INNER JOIN dbadmin_owners o ON c.owner_id=o.id $whereClause";
+        $statement = $this->proxy->executeQuery($statement);
         return !$statement || !($row = $statement->fetchAssoc()) ? 0 : $row['c'];
     }
 
@@ -109,24 +93,22 @@ class QueryLogger
     public function getCommands(array $filters, int $page): array
     {
         $whereClause = $this->getWhereClause($filters);
-        $offsetClause = $page > 1 ? 'offset ' . ($page - 1) * $this->limit : '';
+        $offsetClause = $page > 1 ? 'OFFSET ' . ($page - 1) * $this->limit : '';
         // PostgreSQL doesn't allow the use of distinct and order by
         // a field not in the select clause in the same SQL query.
-        $statement = "select c.*, o.username from dbadmin_runned_commands c " .
-            "inner join dbadmin_owners o on c.owner_id=o.id $whereClause " .
-            "order by c.last_update desc,c.id desc limit {$this->limit} $offsetClause";
-        $statement = $this->connection->query($statement);
-        if ($statement !== false) {
-            $commands = [];
-            while (($row = $statement->fetchAssoc())) {
-                $commands[] = $row;
-            }
-            return $commands;
+        $statement = "SELECT c.*, o.username FROM dbadmin_runned_commands c
+INNER JOIN dbadmin_owners o ON c.owner_id=o.id $whereClause
+ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";
+        $statement = $this->proxy->executeQuery($statement);
+        if ($statement === false) {
+            $this->proxy->logWarning('Unable to read commands from the query audit database.');
+            return [];
         }
 
-        Logger::warning('Unable to read commands from the query audit database.', [
-            'error' => $this->connection->error(),
-        ]);
-        return [];
+        $commands = [];
+        while (($row = $statement->fetchAssoc())) {
+            $commands[] = $row;
+        }
+        return $commands;
     }
 }
