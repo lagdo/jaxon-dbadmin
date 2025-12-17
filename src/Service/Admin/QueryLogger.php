@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\Db\Service\Admin;
 
-use Lagdo\DbAdmin\Db\Config\AuthInterface;
-use Lagdo\DbAdmin\Db\Service\Audit\ConnectionProxy;
 use Lagdo\DbAdmin\Db\Service\Audit\Options;
 
 use function json_encode;
@@ -13,8 +11,6 @@ use function json_encode;
  */
 class QueryLogger
 {
-    use UserQueryTrait;
-
     /**
      * @var bool
      */
@@ -38,25 +34,15 @@ class QueryLogger
     /**
      * The constructor
      *
-     * @param AuthInterface $auth
      * @param ConnectionProxy $proxy
      * @param array $options
      */
-    public function __construct(private AuthInterface $auth,
-        private ConnectionProxy $proxy, array $options)
+    public function __construct(private ConnectionProxy $proxy, array $options)
     {
         $this->enduserEnabled = (bool)($options['enduser']['enabled'] ?? false);
         $this->historyEnabled = (bool)($options['history']['enabled'] ?? false);
         $this->category = Options::CAT_BUILDER;
         $this->userDatabase = $options['database'];
-    }
-
-    /**
-     * @var string
-     */
-    protected function user(): string
-    {
-        return $this->auth->user();
     }
 
     /**
@@ -73,7 +59,7 @@ class QueryLogger
     private function enduserDisabled(): bool
     {
         return (!$this->enduserEnabled && !$this->historyEnabled) ||
-            !$this->auth->user() || !$this->getOwnerId(true);
+            !$this->proxy->getOwnerId(true);
     }
 
     /**
@@ -108,8 +94,8 @@ class QueryLogger
             'driver' => $this->userDatabase['driver'],
             'options' => json_encode($this->userDatabase) ?? '{}',
             'category' => $category,
-            'last_update' => $this->currentTime(),
-            'owner_id' => $this->getOwnerId(),
+            'last_update' => $this->proxy->currentTime(),
+            'owner_id' => $this->proxy->getOwnerId(),
         ];
         // Duplicates on query are checked on client side, not here.
         $query = "INSERT INTO dbadmin_runned_commands
@@ -134,6 +120,7 @@ VALUES (:query,:driver,:options,:category,:last_update,:owner_id)";
         $category = $this->category;
         // Reset to the default category.
         $this->category = Options::CAT_BUILDER;
+
         return $this->enduserDisabled() ? false :
             $this->saveRunnedCommand($query, $category);
     }

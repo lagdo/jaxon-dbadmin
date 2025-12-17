@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\Db\Service\Admin;
 
-use Lagdo\DbAdmin\Db\Config\AuthInterface;
-use Lagdo\DbAdmin\Db\Service\Audit\ConnectionProxy;
 use Lagdo\DbAdmin\Db\Service\Audit\Options;
 
 /**
@@ -11,8 +9,6 @@ use Lagdo\DbAdmin\Db\Service\Audit\Options;
  */
 class QueryHistory
 {
-    use UserQueryTrait;
-
     /**
      * @var bool
      */
@@ -31,24 +27,14 @@ class QueryHistory
     /**
      * The constructor
      *
-     * @param AuthInterface $auth
      * @param ConnectionProxy $proxy
      * @param array $options
      */
-    public function __construct(private AuthInterface $auth,
-        private ConnectionProxy $proxy, array $options)
+    public function __construct(private ConnectionProxy $proxy, array $options)
     {
         $this->historyEnabled = (bool)($options['history']['enabled'] ?? false);
         $this->historyDistinct = (bool)($options['history']['distinct'] ?? false);
         $this->historyLimit = (int)($options['history']['limit'] ?? 15);
-    }
-
-    /**
-     * @var string
-     */
-    protected function user(): string
-    {
-        return $this->auth->user();
     }
 
     /**
@@ -57,7 +43,7 @@ class QueryHistory
     public function getQueries(): array
     {
         if (!$this->historyEnabled ||
-            ($ownerId = $this->getOwnerId(false)) === 0) {
+            ($ownerId = $this->proxy->getOwnerId(false)) === 0) {
             return [];
         }
 

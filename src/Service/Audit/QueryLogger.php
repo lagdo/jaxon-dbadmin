@@ -100,15 +100,15 @@ INNER JOIN dbadmin_owners o ON c.owner_id=o.id $whereClause";
 INNER JOIN dbadmin_owners o ON c.owner_id=o.id $whereClause
 ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";
         $statement = $this->proxy->executeQuery($statement);
-        if ($statement === false) {
-            $this->proxy->logWarning('Unable to read commands from the query audit database.');
-            return [];
+        if ($statement !== false) {
+            $commands = [];
+            while (($row = $statement->fetchAssoc())) {
+                $commands[] = $row;
+            }
+            return $commands;
         }
 
-        $commands = [];
-        while (($row = $statement->fetchAssoc())) {
-            $commands[] = $row;
-        }
-        return $commands;
+        $this->proxy->logWarning('Unable to read commands from the query audit database.');
+        return [];
     }
 }

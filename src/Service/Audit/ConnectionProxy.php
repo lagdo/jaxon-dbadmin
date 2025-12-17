@@ -25,17 +25,6 @@ class ConnectionProxy
      */
     public function __construct(private DriverInterface $driver, array $database)
     {
-        $this->connect($driver, $database);
-    }
-
-    /**
-     * @param DriverInterface $driver
-     * @param array $database
-     *
-     * @return void
-     */
-    private function connect(DriverInterface $driver, array $database): void
-    {
         $connection = $driver->createConnection($database);
         if ($connection->open($database['name'], $database['schema'] ?? '')) {
             $this->connection = $connection;

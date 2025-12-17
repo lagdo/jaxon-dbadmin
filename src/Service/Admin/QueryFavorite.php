@@ -2,9 +2,6 @@
 
 namespace Lagdo\DbAdmin\Db\Service\Admin;
 
-use Lagdo\DbAdmin\Db\Config\AuthInterface;
-use Lagdo\DbAdmin\Db\Service\Audit\ConnectionProxy;
-
 use function implode;
 
 /**
@@ -12,8 +9,6 @@ use function implode;
  */
 class QueryFavorite
 {
-    use UserQueryTrait;
-
     /**
      * @var bool
      */
@@ -27,23 +22,13 @@ class QueryFavorite
     /**
      * The constructor
      *
-     * @param AuthInterface $auth
      * @param ConnectionProxy $proxy
      * @param array $options
      */
-    public function __construct(private AuthInterface $auth,
-        private ConnectionProxy $proxy, array $options)
+    public function __construct(private ConnectionProxy $proxy, array $options)
     {
         $this->enabled = (bool)($options['enduser']['enabled'] ?? false);
         $this->limit = (int)($options['enduser']['limit'] ?? 15);
-    }
-
-    /**
-     * @var string
-     */
-    protected function user(): string
-    {
-        return $this->auth->user();
     }
 
     /**
@@ -61,8 +46,8 @@ class QueryFavorite
             'title' => $values['title'],
             'query' => $values['query'],
             'driver' => $values['driver'],
-            'last_update' => $this->currentTime(),
-            'owner_id' => $this->getOwnerId(),
+            'last_update' => $this->proxy->currentTime(),
+            'owner_id' => $this->proxy->getOwnerId(),
         ];
         $sql = "INSERT INTO dbadmin_stored_commands (title,query,driver,last_update,owner_id)
 VALUES (:title,:query,:driver,:last_update,:owner_id)";
@@ -91,8 +76,8 @@ VALUES (:title,:query,:driver,:last_update,:owner_id)";
             'title' => $values['title'],
             'query' => $values['query'],
             'driver' => $values['driver'],
-            'last_update' => $this->currentTime(),
-            'owner_id' => $this->getOwnerId(),
+            'last_update' => $this->proxy->currentTime(),
+            'owner_id' => $this->proxy->getOwnerId(),
             'query_id' => $queryId,
         ];
         $sql = "UPDATE dbadmin_stored_commands SET title=:title,query=:query,
@@ -118,7 +103,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND owner_id=:owner_i
         }
 
         $values = [
-            'owner_id' => $this->getOwnerId(),
+            'owner_id' => $this->proxy->getOwnerId(),
             'query_id' => $queryId,
         ];
         $sql = "DELETE FROM dbadmin_stored_commands WHERE id=:query_id AND owner_id=:owner_id";
@@ -147,7 +132,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND owner_id=:owner_i
     private function getWhereClause(array $filters): array
     {
         $values = [
-            'owner_id' => $this->getOwnerId(),
+            'owner_id' => $this->proxy->getOwnerId(),
         ];
         $clauses = ['c.owner_id=:owner_id'];
         if (isset($filters['title'])) {
@@ -230,7 +215,7 @@ ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";
 
         $values = [
             'query_id' => $queryId,
-            'owner_id' => $this->getOwnerId(),
+            'owner_id' => $this->proxy->getOwnerId(),
         ];
         $sql = "SELECT c.* FROM dbadmin_stored_commands c WHERE id=:query_id AND owner_id=:owner_id";
         $statement = $this->proxy->executeQuery($sql, $values);

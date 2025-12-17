@@ -153,11 +153,11 @@ return [
                 return Db\Driver\AppDriver::createDriver($options);
             },
             // Connection to the audit database
-            Service\Audit\ConnectionProxy::class => function($di) {
+            Service\Admin\ConnectionProxy::class => function($di) {
                 $driver = $di->g('dbaudit_database_driver');
                 $database = $di->g('dbaudit_database_server');
                 $reader = $di->g(Config\UserFileReader::class);
-                return new Service\Audit\ConnectionProxy($driver,
+                return new Service\Admin\ConnectionProxy(getAuth($di), $driver,
                     $reader->getServerOptions($database));
             },
             // Query logger
@@ -176,8 +176,8 @@ return [
                 $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $options['database'] = $dbFacade->getDatabaseOptions($serverOptions);
 
-                $proxy = $di->g(Service\Audit\ConnectionProxy::class);
-                return new Service\Admin\QueryLogger(getAuth($di), $proxy, $options);
+                $proxy = $di->g(Service\Admin\ConnectionProxy::class);
+                return new Service\Admin\QueryLogger($proxy, $options);
             },
             // Query history
             Service\Admin\QueryHistory::class => function($di) {
@@ -189,8 +189,8 @@ return [
                     return null;
                 }
 
-                $proxy = $di->g(Service\Audit\ConnectionProxy::class);
-                return new Service\Admin\QueryHistory(getAuth($di), $proxy, $options);
+                $proxy = $di->g(Service\Admin\ConnectionProxy::class);
+                return new Service\Admin\QueryHistory($proxy, $options);
             },
             // Query favorites
             Service\Admin\QueryFavorite::class => function($di) {
@@ -202,8 +202,8 @@ return [
                     return null;
                 }
 
-                $proxy = $di->g(Service\Audit\ConnectionProxy::class);
-                return new Service\Admin\QueryFavorite(getAuth($di), $proxy, $options);
+                $proxy = $di->g(Service\Admin\ConnectionProxy::class);
+                return new Service\Admin\QueryFavorite($proxy, $options);
             },
         ],
         'auto' => [
