@@ -316,6 +316,7 @@ The callbacks can also save the file in different locations, depending for examp
 use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToReadFile;
 use League\Flysystem\UnableToWriteFile;
+use function Jaxon\Storage\storage;
 
     'app' => [
         'storage' => [
@@ -333,7 +334,7 @@ use League\Flysystem\UnableToWriteFile;
                     'writer' => function(string $content, string $filename): string {
                         try {
                             // Make a Filesystem object with the storage.exports options.
-                            $storage = jaxon()->di()->g(StorageManager::class)->get('exports');
+                            $storage = storage()->get('exports');
                             $storage->write($filename, "$content\n");
                         } catch (FilesystemException|UnableToWriteFile) {
                             return '';
@@ -344,7 +345,7 @@ use League\Flysystem\UnableToWriteFile;
                     'reader' => function(string $filename): string {
                         try {
                             // Make a Filesystem object with the storage.exports options.
-                            $storage = jaxon()->di()->g(StorageManager::class)->get('exports');
+                            $storage = storage()->get('exports');
                             return !$storage->fileExists($filename) ?
                                 "No file $filename found." : $storage->read($filename);
                         } catch (FilesystemException|UnableToReadFile) {
