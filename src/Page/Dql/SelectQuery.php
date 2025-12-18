@@ -1,12 +1,14 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades\Select;
+namespace Lagdo\DbAdmin\Db\Page\Dql;
 
-use Lagdo\DbAdmin\Db\Driver\Facades\AbstractFacade;
-use Lagdo\DbAdmin\Db\Driver\Facades\Traits\InputFieldTrait;
+use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\Page\Traits\InputFieldTrait;
+use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Entity\IndexEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableSelectEntity;
+use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Exception;
 
 use function count;
@@ -17,10 +19,50 @@ use function preg_match;
 use function strtoupper;
 use function str_replace;
 
-class SelectQuery extends AbstractFacade
+class SelectQuery
 {
     use InputFieldTrait;
-    use SelectTrait;
+
+    /**
+     * The constructor
+     *
+     * @param AppPage $page
+     * @param DriverInterface $driver
+     * @param Utils $utils
+     */
+    public function __construct(private AppPage $page,
+        private DriverInterface $driver, private Utils $utils)
+    {}
+
+    /**
+     * @return SelectOptions
+     */
+    private function options(): SelectOptions
+    {
+        return new SelectOptions($this->driver, $this->utils);
+    }
+
+    /**
+     * @param SelectEntity $selectEntity
+     *
+     * @return void
+     */
+    private function setFieldsOptions(SelectEntity $selectEntity): void
+    {
+        $selectEntity->rights = []; // privilege => 0
+        $selectEntity->columns = []; // selectable columns
+        $selectEntity->textLength = 0;
+        foreach ($selectEntity->fields as $key => $field) {
+            $name = $this->page->fieldName($field);
+            if (isset($field->privileges["select"]) && $name != "") {
+                $selectEntity->columns[$key] = html_entity_decode(strip_tags($name), ENT_QUOTES);
+                if ($this->page->isShortable($field)) {
+                    $this->setSelectTextLength($selectEntity);
+                }
+            }
+            $selectEntity->rights[] = $field->privileges;
+        }
+    }
 
     /**
      * Get required data for select on tables
@@ -32,7 +74,7 @@ class SelectQuery extends AbstractFacade
      */
     public function prepareSelect(SelectEntity $selectEntity): SelectEntity
     {
-        $this->setDefaultOptions($selectEntity);
+        $this->options()->setDefaultOptions($selectEntity);
 
         // From select.inc.php
         $selectEntity->fields = $this->driver->fields($selectEntity->table);
@@ -71,66 +113,11 @@ class SelectQuery extends AbstractFacade
         //     $page = \floor(\max(0, $found_rows - 1) / $limit);
         // }
 
-        $this->setSelectOptions($selectEntity);
+        $this->options()->setSelectOptions($selectEntity);
         $this->setSelectEntity($selectEntity);
         $this->setSelectQuery($selectEntity);
 
         return $selectEntity;
-    }
-
-    /**
-     * @param SelectEntity $selectEntity
-     *
-     * @return void
-     */
-    private function setDefaultOptions(SelectEntity $selectEntity): void
-    {
-        $defaultOptions = [
-            'columns' => [],
-            'where' => [],
-            'order' => [],
-            'desc' => [],
-            'fulltext' => [],
-            'limit' => '50',
-            'text_length' => '100',
-            'page' => '1',
-        ];
-        foreach ($defaultOptions as $name => $value) {
-            if (!isset($this->utils->input->values[$name])) {
-                $this->utils->input->values[$name] = $value;
-            }
-            if (!isset($selectEntity->queryOptions[$name])) {
-                $selectEntity->queryOptions[$name] = $value;
-            }
-        }
-        $page = intval($selectEntity->queryOptions['page']);
-        if ($page > 0) {
-            $page -= 1; // Page numbers start at 0 here, instead of 1.
-        }
-        $selectEntity->queryOptions['page'] = $page;
-        $selectEntity->page = $page;
-    }
-
-    /**
-     * @param SelectEntity $selectEntity
-     *
-     * @return void
-     */
-    private function setFieldsOptions(SelectEntity $selectEntity): void
-    {
-        $selectEntity->rights = []; // privilege => 0
-        $selectEntity->columns = []; // selectable columns
-        $selectEntity->textLength = 0;
-        foreach ($selectEntity->fields as $key => $field) {
-            $name = $this->page->fieldName($field);
-            if (isset($field->privileges["select"]) && $name != "") {
-                $selectEntity->columns[$key] = html_entity_decode(strip_tags($name), ENT_QUOTES);
-                if ($this->page->isShortable($field)) {
-                    $this->setSelectTextLength($selectEntity);
-                }
-            }
-            $selectEntity->rights[] = $field->privileges;
-        }
     }
 
     /**
@@ -441,26 +428,6 @@ class SelectQuery extends AbstractFacade
      *
      * @return void
      */
-    private function setSelectOptions(SelectEntity $selectEntity): void
-    {
-        $selectEntity->options = [
-            'columns' => $this->getColumnsOptions($selectEntity->select,
-                $selectEntity->columns, $selectEntity->queryOptions),
-            'filters' => $this->getFiltersOptions($selectEntity->columns,
-                $selectEntity->indexes, $selectEntity->queryOptions),
-            'sorting' => $this->getSortingOptions($selectEntity->columns,
-                $selectEntity->queryOptions),
-            'limit' => $this->getLimitOptions($selectEntity->limit),
-            'length' => $this->getLengthOptions($selectEntity->textLength),
-            // 'action' => $this->getActionOptions($selectEntity->indexes),
-        ];
-    }
-
-    /**
-     * @param SelectEntity $selectEntity
-     *
-     * @return void
-     */
     private function setSelectEntity(SelectEntity $selectEntity): void
     {
         $select2 = $selectEntity->select;
@@ -494,56 +461,4 @@ class SelectQuery extends AbstractFacade
             $select2, $selectEntity->where, $group2, $selectEntity->order,
             $selectEntity->limit, $selectEntity->page);
     }
-
-    /**
-     * Print action box in select
-     *
-     * @param array $indexes
-     *
-     * @return array
-     */
-    // private function getActionOptions(array $indexes)
-    // {
-    //     $columns = [];
-    //     foreach ($indexes as $index) {
-    //         $current_key = \reset($index->columns);
-    //         if ($index->type != "FULLTEXT" && $current_key) {
-    //             $columns[$current_key] = 1;
-    //         }
-    //     }
-    //     $columns[""] = 1;
-    //     return ['columns' => $columns];
-    // }
-
-    /**
-     * Print command box in select
-     *
-     * @return bool whether to print default commands
-     */
-    // private function getCommandOptions()
-    // {
-    //     return !$this->driver->isInformationSchema($this->driver->database());
-    // }
-
-    /**
-     * Print import box in select
-     *
-     * @return bool whether to print default import
-     */
-    // private function getImportOptions()
-    // {
-    //     return !$this->driver->isInformationSchema($this->driver->database());
-    // }
-
-    /**
-     * Print extra text in the end of a select form
-     *
-     * @param array $emailFields Fields holding e-mails
-     * @param array $columns Selectable columns
-     *
-     * @return array
-     */
-    // private function getEmailOptions(array $emailFields, array $columns)
-    // {
-    // }
 }

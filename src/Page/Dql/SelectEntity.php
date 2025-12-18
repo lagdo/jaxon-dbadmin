@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades\Select;
+namespace Lagdo\DbAdmin\Db\Page\Dql;
 
 use Lagdo\DbAdmin\Driver\Entity\TableEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableSelectEntity;

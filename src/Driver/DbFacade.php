@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\Db\Driver;
 use Jaxon\App\View\ViewRenderer;
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Db\Driver\Facades\AbstractFacade;
+use Lagdo\DbAdmin\Db\Page\AppPage;
 use Lagdo\DbAdmin\Db\Service\Breadcrumbs;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
@@ -13,16 +14,16 @@ use Lagdo\DbAdmin\Driver\Utils\Utils;
  */
 class DbFacade extends AbstractFacade
 {
-    use Traits\ServerTrait;
-    use Traits\UserTrait;
-    use Traits\DatabaseTrait;
-    use Traits\TableTrait;
-    use Traits\SelectTrait;
-    use Traits\QueryTrait;
-    use Traits\ViewTrait;
-    use Traits\CommandTrait;
-    use Traits\ExportTrait;
-    use Traits\ImportTrait;
+    use Facades\ServerTrait;
+    use Facades\UserTrait;
+    use Facades\DatabaseTrait;
+    use Facades\TableTrait;
+    use Facades\SelectTrait;
+    use Facades\QueryTrait;
+    use Facades\ViewTrait;
+    use Facades\CommandTrait;
+    use Facades\ExportTrait;
+    use Facades\ImportTrait;
 
     /**
      * The breadcrumbs items

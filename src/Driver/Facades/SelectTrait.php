@@ -1,9 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Traits;
+namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
-use Lagdo\DbAdmin\Db\Driver\Facades\SelectFacade;
-use Lagdo\DbAdmin\Db\Driver\Facades\Select\SelectEntity;
+use Lagdo\DbAdmin\Db\Page\Dql\SelectEntity;
 use Exception;
 
 /**

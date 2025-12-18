@@ -361,7 +361,7 @@ class TableUiBuilder
      *
      * @return string
      */
-    public function queryForm(array $fields, string $maxHeight = ''): string
+    public function rowDataForm(array $fields, string $maxHeight = ''): string
     {
         $form = $this->ui->form(
             $this->ui->each($fields, fn($field) =>
@@ -371,16 +371,16 @@ class TableUiBuilder
                             ->setTitle($field['type'])
                     )->width(3),
                     $this->ui->formCol(
-                        $this->ui->when($field['functions']['type'] === 'name', fn() =>
-                            $this->ui->label($field['functions']['name'])
+                        $this->ui->when($field['function']['type'] === 'name', fn() =>
+                            $this->ui->label($field['function']['name'])
                         ),
-                        $this->ui->when($field['functions']['type'] === 'select', fn() =>
+                        $this->ui->when($field['function']['type'] === 'select', fn() =>
                             $this->ui->formSelect(
-                                $this->ui->each($field['functions']['options'], fn($function) =>
+                                $this->ui->each($field['function']['options'], fn($function) =>
                                     $this->ui->option($function)
-                                        ->selected($function === $field['functions']['selected'])
+                                        ->selected($function === $field['function']['value'])
                                 )
-                            )->setName($field['functions']['name'])
+                            )->setName($field['function']['name'])
                         )
                     )->width(2),
                     $this->ui->formCol(

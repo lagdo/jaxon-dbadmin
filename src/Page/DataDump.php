@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades\Traits;
+namespace Lagdo\DbAdmin\Db\Page;
 
 use function implode;
 use function strlen;

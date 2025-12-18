@@ -158,7 +158,7 @@ return [
             // The utils class
             Driver\Utils\Utils::class,
             // The db classes
-            Db\Driver\AppPage::class,
+            Db\Page\AppPage::class,
             // The facade to the database features
             Db\Driver\DbFacade::class,
             // The Timer service

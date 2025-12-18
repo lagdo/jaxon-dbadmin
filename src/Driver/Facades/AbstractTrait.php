@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Traits;
+namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Db\Service\Breadcrumbs;

@@ -1,10 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Traits;
-
-use Lagdo\DbAdmin\Db\Driver\Facades\ExportFacade;
-
-use function array_keys;
+namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
 /**
  * Facade to export functions
@@ -41,13 +37,7 @@ trait ExportTrait
     public function getSelectValues(): array
     {
         $this->connectToServer();
-        return [
-            'output' => array_keys($this->exportFacade()->getSelectOutputValues()),
-            'format' => array_keys($this->exportFacade()->getSelectFormatValues()),
-            'db_style' => $this->exportFacade()->getSelectDatabaseValues(),
-            'table_style' => $this->exportFacade()->getSelectTableValues(),
-            'data_style' => $this->exportFacade()->getSelectDataValues(),
-        ];
+        return $this->exportFacade()->getSelectValues();
     }
 
     /**

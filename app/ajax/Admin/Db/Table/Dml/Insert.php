@@ -42,7 +42,7 @@ class Insert extends FuncComponent
 
         $title = "New item in table $tableName";
         $content = $this->tableUi->formId($this->queryFormId)
-            ->queryForm($insertData['fields'], '400px');
+            ->rowDataForm($insertData['fields'], '400px');
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[

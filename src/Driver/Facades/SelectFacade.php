@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
+use Lagdo\DbAdmin\Db\Page\Dql\SelectEntity;
+use Lagdo\DbAdmin\Db\Page\Dql\SelectQuery;
 use Lagdo\DbAdmin\Db\Service\TimerService;
-use Lagdo\DbAdmin\Db\Driver\Facades\Select\SelectEntity;
-use Lagdo\DbAdmin\Db\Driver\Facades\Select\SelectQuery;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Exception;
 
@@ -44,7 +44,7 @@ class SelectFacade extends AbstractFacade
     {
         parent::__construct($dbFacade);
 
-        $this->selectQuery = new SelectQuery($dbFacade);
+        $this->selectQuery = new SelectQuery($this->page, $this->driver, $this->utils);
     }
 
     /**

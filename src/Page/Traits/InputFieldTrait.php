@@ -1,10 +1,14 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades\Traits;
+namespace Lagdo\DbAdmin\Db\Page\Traits;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
+use function file_get_contents;
+use function function_exists;
+use function iconv;
 use function preg_match;
+use function substr;
 
 trait InputFieldTrait
 {
@@ -60,5 +64,61 @@ trait InputFieldTrait
 
         $expression = $this->getInputFieldExpression($field, $value, $function);
         return $this->driver->unconvertField($field, $expression);
+    }
+
+    /**
+     * @param array $file
+     * @param string $key
+     * @param bool $decompress
+     *
+     * @return string
+     */
+    private function readFileContent(array $file, string $key, bool $decompress): string
+    {
+        $name = $file['name'][$key];
+        $tmpName = $file['tmp_name'][$key];
+        $content = file_get_contents($decompress && preg_match('~\.gz$~', $name) ?
+            "compress.zlib://$tmpName" : $tmpName); //! may not be reachable because of open_basedir
+        if (!$decompress) {
+            return $content;
+        }
+        $start = substr($content, 0, 3);
+        if (function_exists('iconv') && preg_match("~^\xFE\xFF|^\xFF\xFE~", $start, $regs)) {
+            // not ternary operator to save memory
+            return iconv('utf-16', 'utf-8', $content) . "\n\n";
+        }
+        if ($start == "\xEF\xBB\xBF") { // UTF-8 BOM
+            return substr($content, 3) . "\n\n";
+        }
+        return $content;
+    }
+
+    /**
+     * Get file contents from $_FILES
+     *
+     * @param string $key
+     * @param bool $decompress
+     *
+     * @return string|null
+     */
+    private function getFileContents(string $key, bool $decompress = false)
+    {
+        $file = $_FILES[$key];
+        if (!$file) {
+            return null;
+        }
+
+        foreach ($file as $key => $val) {
+            $file[$key] = (array) $val;
+        }
+        $queries = '';
+        foreach ($file['error'] as $key => $error) {
+            if (($error)) {
+                return $error;
+            }
+            $queries .= $this->readFileContent($file, $key, $decompress);
+        }
+        //! Support SQL files not ending with semicolon
+        return $queries;
     }
 }

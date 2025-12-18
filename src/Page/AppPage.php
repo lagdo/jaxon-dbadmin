@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver;
+namespace Lagdo\DbAdmin\Db\Page;
 
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Driver\DriverInterface;
@@ -177,6 +177,26 @@ class AppPage
             'value' => $this->selectValue($field, $textLength, $value),
             // 'editable' => false,
         ];
+    }
+
+    /**
+     * @param TableFieldEntity $field
+     *
+     * @return string
+     */
+    public function getTableFieldType(TableFieldEntity $field): string
+    {
+        $type = $this->utils->str->html($field->fullType);
+        if ($field->null) {
+            $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
+        }
+        if ($field->autoIncrement) {
+            $type .= ' <i>' . $this->utils->trans->lang('Auto Increment') . '</i>';
+        }
+        if ($field->default !== '') {
+            $type .= /*' ' . $this->utils->trans->lang('Default value') .*/ ' [<b>' . $this->utils->str->html($field->default) . '</b>]';
+        }
+        return $type;
     }
 
     /**

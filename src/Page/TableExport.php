@@ -1,12 +1,27 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades\Traits;
+namespace Lagdo\DbAdmin\Db\Page;
+
+use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Driver\DriverInterface;
+use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 use function compact;
 use function preg_replace;
 
-trait TableExportTrait
+class TableExport
 {
+    /**
+     * The constructor
+     *
+     * @param AppPage $page
+     * @param DriverInterface $driver
+     * @param Utils $utils
+     */
+    public function __construct(private AppPage $page,
+        private DriverInterface $driver, private Utils $utils)
+    {}
+
     public function getSelectOutputValues(): array
     {
         return $this->page->dumpOutput();
@@ -60,7 +75,7 @@ trait TableExportTrait
      *
      * @return array
      */
-    private function getBaseOptions(string $database, string $table): array
+    public function getBaseOptions(string $database, string $table): array
     {
         // From dump.inc.php
         $row = $this->getDataRowOptions($database, $table);
@@ -134,7 +149,7 @@ trait TableExportTrait
     /**
      * @return array
      */
-    private function getDbTables(): array
+    public function getDbTables(): array
     {
         $tables = [
             'headers' => [$this->utils->trans->lang('Tables'), $this->utils->trans->lang('Data')],
@@ -155,7 +170,7 @@ trait TableExportTrait
     /**
      * @return array
      */
-    private function getDatabases(): array
+    public function getDatabases(): array
     {
         $databases = [
             'headers' => [$this->utils->trans->lang('Database'), $this->utils->trans->lang('Data')],

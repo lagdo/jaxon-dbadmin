@@ -52,7 +52,7 @@ class Update extends FuncComponent
 
         $title = 'Edit row';
         $content = $this->tableUi->formId($this->queryFormId)
-            ->queryForm($queryData['fields'], '400px');
+            ->rowDataForm($queryData['fields'], '400px');
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[

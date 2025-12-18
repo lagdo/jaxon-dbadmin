@@ -1,9 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Traits;
+namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
 use Exception;
-use Lagdo\DbAdmin\Db\Driver\Facades\ViewFacade;
 
 /**
  * Facade to view functions

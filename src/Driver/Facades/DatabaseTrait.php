@@ -1,8 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Traits;
-
-use Lagdo\DbAdmin\Db\Driver\Facades\DatabaseFacade;
+namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
 /**
  * Facade to database functions
