@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\Ui\Table;
 
 use Jaxon\Script\Call\JxnCall;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dml\Update;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
@@ -274,13 +273,8 @@ class SelectUiBuilder
      */
     private function _resultRowContent(array $row): mixed
     {
-        $editable = $row['editId'] > 0;
         return $this->ui->list(
-            $this->ui->td(
-                !$editable ? '' : $this->ui->button($this->trans->lang('Edit'))
-                    ->primary()
-                    ->jxnClick(rq(Update::class)->edit($row['editId']))
-            )->setStyle('width:30px'),
+            $this->ui->td($row['menu'])->setStyle('width:30px'),
             $this->ui->each($row['cols'], fn($col) =>
                 $this->ui->td($col['value'])
             )

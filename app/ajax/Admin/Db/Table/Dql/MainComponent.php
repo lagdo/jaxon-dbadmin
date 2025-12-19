@@ -7,6 +7,7 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Table\MainComponent as BaseComponent;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Table\SelectUiBuilder;
+use Lagdo\DbAdmin\Ui\UiBuilder;
 
 #[Databag('dbadmin.select')]
 abstract class MainComponent extends BaseComponent
@@ -14,11 +15,12 @@ abstract class MainComponent extends BaseComponent
     /**
      * The constructor
      *
-     * @param DbFacade      $db         The facade to database functions
-     * @param SelectUiBuilder $selectUi The HTML UI builder
-     * @param Translator    $trans
+     * @param DbFacade          $db         The facade to database functions
+     * @param UiBuilder         $ui         The HTML UI builder
+     * @param SelectUiBuilder   $selectUi   The HTML UI builder
+     * @param Translator        $trans
      */
-    public function __construct(protected DbFacade $db,
+    public function __construct(protected DbFacade $db, protected UiBuilder $ui,
         protected SelectUiBuilder $selectUi, protected Translator $trans)
     {}
 }

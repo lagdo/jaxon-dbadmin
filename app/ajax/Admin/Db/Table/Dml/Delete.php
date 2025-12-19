@@ -7,25 +7,26 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\FuncComponent;
 
 use function count;
+use function is_array;
 
 /**
  * This class provides insert and update query features on tables.
  */
 #[Databag('dbadmin.select')]
-#[Databag('dbadmin.row.edit')]
 class Delete extends FuncComponent
 {
     /**
      * Execute the delete query
      *
      * @param int   $editId
+     * @param array $rowIds
      *
      * @return void
      */
-    public function exec(int $editId): void
+    public function exec(int $editId, array $rowIds): void
     {
-        $rowIds = $this->bag('dbadmin.row.edit')->get('row.ids', []);
-        if(!isset($rowIds[$editId]) || count($rowIds[$editId]['where']) === 0)
+        if(!is_array($rowIds['where'] ?? 0) ||
+            count($rowIds['where']) === 0 || $editId <= 0)
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
@@ -33,8 +34,7 @@ class Delete extends FuncComponent
             return;
         }
 
-        $queryOptions = $rowIds[$editId];
-        $result = $this->db()->deleteItem($this->getTableName(), $queryOptions);
+        $result = $this->db()->deleteItem($this->getTableName(), $rowIds);
         // Show the error
         if(isset($result['error']))
         {

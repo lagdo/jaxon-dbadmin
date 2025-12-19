@@ -11,6 +11,7 @@ use function count;
 class ResultSet extends PageComponent
 {
     use QueryTrait;
+    use RowMenuTrait;
 
     /**
      * @var bool
@@ -35,17 +36,19 @@ class ResultSet extends PageComponent
     private function rows(array $results): array
     {
         $editId = 0;
-        $editIds = [[]]; // The first entry is an empty array
+        $editIds = [];
         $rows = array_map(function($row) use(&$editId, &$editIds): array {
-            $editId++;
-            $editIds[] = $row['ids'];
-            // Id the row is editable, then the editId value is greated than 0.
-            $row['editId'] = count($row['ids']['where'] ?? []) > 0 ? $editId : 0;
+            $editId++; // The edit ids start from 1.
+            $editIds[$this->bagEntryName($editId)] = $row['ids'];
+
+            // The row is editable when the editId value is greated than 0.
+            $editable = count($row['ids']['where'] ?? []) > 0;
+            $row['editId'] = $editable ? $editId : 0;
+            $row['menu'] = $editable ? $this->getRowMenu($editId) : '';
 
             return $row;
         }, $results['rows']);
 
-        // Ids to edit rows.
         $this->bag('dbadmin.row.edit')->set('row.ids', $editIds);
 
         return $rows;
@@ -63,6 +66,7 @@ class ResultSet extends PageComponent
         $options = $this->getOptions(true);
         $results = $this->db()->execSelect($this->getTableName(), $options);
 
+        // The 'message' key is set when an error occurs, or when the query returns no data.
         $this->noResult = isset($results['message']);
         if ($this->noResult) {
             return $results['message'];
@@ -70,7 +74,6 @@ class ResultSet extends PageComponent
 
         $this->stash()->set('select.duration', $results['duration']);
 
-        // The 'message' key is set when an error occurs, or when the query returns no data.
         return $this->selectUi->resultSet($results['headers'], $this->rows($results));
     }
 

@@ -7,9 +7,6 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Table;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 
-use function array_map;
-use function Jaxon\jq;
-
 class Tables extends MainComponent
 {
     /**

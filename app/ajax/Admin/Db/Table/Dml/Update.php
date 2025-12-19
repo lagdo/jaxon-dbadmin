@@ -7,13 +7,13 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultRow;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\FuncComponent;
 
 use function count;
+use function is_array;
 use function Jaxon\je;
 
 /**
  * This class provides insert and update query features on tables.
  */
 #[Databag('dbadmin.select')]
-#[Databag('dbadmin.row.edit')]
 class Update extends FuncComponent
 {
     /**
@@ -25,13 +25,14 @@ class Update extends FuncComponent
 
     /**
      * @param int $editId
+     * @param array $rowIds
      *
      * @return void
      */
-    public function edit(int $editId): void
+    public function edit(int $editId, array $rowIds): void
     {
-        $rowIds = $this->bag('dbadmin.row.edit')->get('row.ids', []);
-        if(!isset($rowIds[$editId]) || count($rowIds[$editId]['where']) === 0)
+        if(!is_array($rowIds['where'] ?? 0) ||
+            count($rowIds['where']) === 0 || $editId <= 0)
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
@@ -39,8 +40,7 @@ class Update extends FuncComponent
             return;
         }
 
-        $queryOptions = $rowIds[$editId];
-        $queryData = $this->db()->getUpdateData($this->getTableName(),  $queryOptions);
+        $queryData = $this->db()->getUpdateData($this->getTableName(),  $rowIds);
         // Show the error
         if(isset($queryData['error']))
         {
@@ -60,14 +60,9 @@ class Update extends FuncComponent
             'class' => 'btn btn-tertiary',
             'click' => 'close',
         ], [
-            'title' => $this->trans()->lang('Delete'),
-            'class' => 'btn btn-danger',
-            'click' => $this->rq(Delete::class)->exec($editId)
-                ->confirm($this->trans()->lang('Delete this item?')),
-        ], [
             'title' => $this->trans()->lang('Save'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save($editId, je($this->queryFormId)->rd()->form())
+            'click' => $this->rq()->save($editId, $rowIds, je($this->queryFormId)->rd()->form())
                 ->confirm($this->trans()->lang('Save this item?')),
         ]];
         $this->modal()->show($title, $content, $buttons, $options);
@@ -75,14 +70,15 @@ class Update extends FuncComponent
 
     /**
      * @param int   $editId
+     * @param array $rowIds
      * @param array $formValues
      *
      * @return void
      */
-    public function save(int $editId, array $formValues): void
+    public function save(int $editId, array $rowIds, array $formValues): void
     {
-        $rowIds = $this->bag('dbadmin.row.edit')->get('row.ids', []);
-        if(!isset($rowIds[$editId]) || count($rowIds[$editId]['where']) === 0)
+        if(!is_array($rowIds['where'] ?? 0) ||
+            count($rowIds['where']) === 0 || $editId <= 0)
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
@@ -90,10 +86,9 @@ class Update extends FuncComponent
             return;
         }
 
-        $queryOptions = $rowIds[$editId];
         // Add the select options, which are used to format the modified data
-        $queryOptions['select'] = $this->bag('dbadmin.select')->get('options', []);
-        $result = $this->db()->updateItem($this->getTableName(), $queryOptions, $formValues);
+        $rowIds['select'] = $this->bag('dbadmin.select')->get('options', []);
+        $result = $this->db()->updateItem($this->getTableName(), $rowIds, $formValues);
         // Show the error
         if(isset($result['error']))
         {
@@ -112,9 +107,7 @@ class Update extends FuncComponent
         }
 
         // Update the result row.
-        $result['editId'] = $editId;
-        $this->stash()->set('select.result', $result);
-        $this->cl(ResultRow::class)->item("row$editId")->render();
+        $this->cl(ResultRow::class)->renderItem($editId, $result);
 
         $this->modal()->hide();
         $this->alert()
