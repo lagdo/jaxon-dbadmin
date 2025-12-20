@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
+use Lagdo\DbAdmin\Db\Page\Dml\DataFieldInput;
+use Lagdo\DbAdmin\Db\Page\Dml\DataFieldValue;
 use Lagdo\DbAdmin\Db\Page\Dml\DataRowReader;
 use Lagdo\DbAdmin\Db\Page\Dml\DataRowWriter;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
@@ -15,9 +17,9 @@ class QueryFacade extends AbstractFacade
 {
     /**
      * @var string
-     * read => get data for single row insert, update or delete
+     * read => edit action for single row insert, update or delete
      * save => save action for insert, update or delete
-     * select => get data for bulk edit
+     * select => edit action for bulk update
      * clone => clone a selected set of data rows
      */
     private string $action;
@@ -32,8 +34,12 @@ class QueryFacade extends AbstractFacade
      */
     private function writer(): DataRowWriter
     {
+        $fieldValue = new DataFieldValue($this->page, $this->driver,
+            $this->utils, $this->action, $this->operation);
+        $fieldInput = new DataFieldInput($this->page, $this->driver,
+            $this->utils, $this->action, $this->operation);
         return new DataRowWriter($this->page, $this->driver, $this->utils,
-            $this->action, $this->operation);
+            $this->action, $this->operation, $fieldValue, $fieldInput);
     }
 
     /**
@@ -41,7 +47,7 @@ class QueryFacade extends AbstractFacade
      */
     private function reader(): DataRowReader
     {
-        return new DataRowReader($this->driver, $this->utils);
+        return new DataRowReader($this->page, $this->driver, $this->utils);
     }
 
     /**
@@ -57,7 +63,8 @@ class QueryFacade extends AbstractFacade
         // From edit.inc.php
         $fields = $this->driver->fields($table);
         // Important: get the where clauses before filtering the fields.
-        $where = $this->operation === 'insert' ? [] : $this->driver->where($options, $fields);
+        $where = $this->operation === 'insert' ? [] :
+            $this->driver->where($options, $fields);
         // Remove fields without the required privilege, or that cannot be edited.
         $fields = array_filter($fields, fn(TableFieldEntity $field) =>
             isset($field->privileges[$this->operation]) &&
@@ -162,7 +169,7 @@ class QueryFacade extends AbstractFacade
         }
 
         return [
-            'fields' => $this->writer()->getInputValues($fields, $options, $rowData),
+            'fields' => $this->writer()->getInputValues($fields, $rowData),
         ];
     }
 
@@ -207,7 +214,7 @@ class QueryFacade extends AbstractFacade
         // From edit.inc.php
         $indexes = $this->driver->indexes($table);
         $uniqueIds = $this->utils->uniqueIds($options['where'], $indexes);
-        return count($uniqueIds) === 0 ? 1 : 0; // Limit to 1 if no unique ids are found.
+        return count($uniqueIds ?? []) === 0 ? 1 : 0; // Limit to 1 if no unique ids are found.
     }
 
     /**

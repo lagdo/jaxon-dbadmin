@@ -225,6 +225,7 @@ return [
             Ui\UiBuilder::class,
             Ui\InputBuilder::class,
             Ui\MenuBuilder::class,
+            Ui\Data\EditUiBuilder::class,
             Ui\Database\ServerUiBuilder::class,
             Ui\Command\QueryUiBuilder::class,
             Ui\Command\AuditUiBuilder::class,

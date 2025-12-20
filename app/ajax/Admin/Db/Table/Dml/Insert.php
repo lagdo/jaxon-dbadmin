@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dml;
 
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultSet;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\FuncComponent;
 
 use function Jaxon\je;
 
@@ -41,8 +40,7 @@ class Insert extends FuncComponent
         }
 
         $title = "New item in table $tableName";
-        $content = $this->tableUi->formId($this->queryFormId)
-            ->rowDataForm($insertData['fields'], '400px');
+        $content = $this->editUi->rowDataForm($this->queryFormId, $insertData['fields'], '400px');
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[

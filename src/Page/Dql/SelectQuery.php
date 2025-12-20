@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\Db\Page\Dql;
 
 use Lagdo\DbAdmin\Db\Page\AppPage;
-use Lagdo\DbAdmin\Db\Page\Traits\InputFieldTrait;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Entity\IndexEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
@@ -21,8 +20,6 @@ use function str_replace;
 
 class SelectQuery
 {
-    use InputFieldTrait;
-
     /**
      * The constructor
      *
@@ -227,16 +224,16 @@ class SelectQuery
             return ' ' . $val; // SQL injection
         }
         if ($op === 'LIKE %%') {
-            return ' LIKE ' . $this->getUnconvertedFieldValue($fields[$col], "%$val%");
+            return ' LIKE ' . $this->page->getUnconvertedFieldValue($fields[$col], "%$val%");
         }
         if ($op === 'ILIKE %%') {
-            return ' ILIKE ' . $this->getUnconvertedFieldValue($fields[$col], "%$val%");
+            return ' ILIKE ' . $this->page->getUnconvertedFieldValue($fields[$col], "%$val%");
         }
         if ($op === 'FIND_IN_SET') {
             return ')';
         }
         if (!preg_match('~NULL$~', $op)) {
-            return " $op " . $this->getUnconvertedFieldValue($fields[$col], $val);
+            return " $op " . $this->page->getUnconvertedFieldValue($fields[$col], $val);
         }
         return " $op";
     }

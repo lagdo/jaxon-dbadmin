@@ -1,0 +1,172 @@
+<?php
+
+namespace Lagdo\DbAdmin\Db\Page\Dml;
+
+use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+
+use function implode;
+use function in_array;
+use function preg_match;
+
+class FieldEditEntity
+{
+    /**
+     * @var mixed
+     */
+    public $name;
+
+    /**
+     * @var mixed
+     */
+    public $type;
+
+    /**
+     * @var mixed
+     */
+    public $fullType;
+
+    /**
+     * @var mixed
+     */
+    public $comment;
+
+    /**
+     * @var mixed
+     */
+    public $value;
+
+    /**
+     * @var string|null
+     */
+    public $function;
+
+    /**
+     * @var array
+     */
+    public $functions;
+
+    /**
+     * @var array
+     */
+    public $valueInput;
+
+    /**
+     * @var array|null
+     */
+    public $functionInput;
+
+    /**
+     * @var array
+     */
+    public $enums = [];
+
+    /**
+     * @param TableFieldEntity $field
+     */
+    public function __construct(public TableFieldEntity $field)
+    {
+        $this->type = $field->type;
+        $this->comment = $field->comment;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isDisabled(): bool
+    {
+        return $this->field->isDisabled();
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isEnum(): bool
+    {
+        return $this->field->type === 'enum';
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isSet(): bool
+    {
+        return $this->field->type === 'set';
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isBool(): bool
+    {
+        return preg_match('~bool~', $this->field->type);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isJson(): bool
+    {
+        return $this->function === "json" || preg_match('~^jsonb?$~', $this->field->type);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isText(): bool
+    {
+        return (bool)preg_match('~text|lob|memo~i', $this->field->type);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasNewLine(): bool
+    {
+        return preg_match("~\n~", $this->value ?? '');
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isChecked(): bool
+    {
+        return preg_match('~^(1|t|true|y|yes|on)$~i', $this->value ?? '');
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasFunction(): bool
+    {
+        return in_array($this->function, $this->functions) ||
+            isset($functions[$this->function]);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isNumber(): bool
+    {
+        return (!$this->hasFunction() || $this->function === "") &&
+            preg_match('~(?<!o)int(?!er)~', $this->field->type) &&
+            !preg_match('~\[\]~', $this->field->fullType);
+    }
+
+    /**
+     * @param int $maxlength
+     *
+     * @return boolean
+     */
+    public function bigSize(int $maxlength): bool
+    {
+        return preg_match('~char|binary~', $this->field->type) && $maxlength > 20;
+    }
+
+    /**
+     * @return string
+     */
+    public function enumsLength(): string
+    {
+        return !$this->enums ? '' : "'" . implode("', '", $this->enums) . "'";
+    }
+}

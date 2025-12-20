@@ -6,7 +6,6 @@ use Jaxon\Script\Call\JxnClassCall;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Columns;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\InputBuilder;
 use Lagdo\DbAdmin\Ui\PageTrait;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -22,10 +21,8 @@ class TableUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
-     * @param InputBuilder $inputBuilder
      */
-    public function __construct(protected Translator $trans,
-        protected BuilderInterface $ui, protected InputBuilder $inputBuilder)
+    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
     {}
 
     /**
@@ -352,47 +349,6 @@ class TableUiBuilder
                 )->setClass('dbadmin-table-edit-field')
                     ->setStyle($this->getColumnBgColor($field))
             )
-        );
-    }
-
-    /**
-     * @param array $fields
-     * @param string $maxHeight
-     *
-     * @return string
-     */
-    public function rowDataForm(array $fields, string $maxHeight = ''): string
-    {
-        $form = $this->ui->form(
-            $this->ui->each($fields, fn($field) =>
-                $this->ui->formRow(
-                    $this->ui->formCol(
-                        $this->ui->label($field['name'])
-                            ->setTitle($field['type'])
-                    )->width(3),
-                    $this->ui->formCol(
-                        $this->ui->when($field['function']['type'] === 'name', fn() =>
-                            $this->ui->label($field['function']['name'])
-                        ),
-                        $this->ui->when($field['function']['type'] === 'select', fn() =>
-                            $this->ui->formSelect(
-                                $this->ui->each($field['function']['options'], fn($function) =>
-                                    $this->ui->option($function)
-                                        ->selected($function === $field['function']['value'])
-                                )
-                            )->setName($field['function']['name'])
-                        )
-                    )->width(2),
-                    $this->ui->formCol(
-                        $this->inputBuilder->build($field['input']['type'], $field['input'])
-                    )->width(7)
-                )
-            )
-        )->responsive(true)->wrapped(false)->setId($this->formId);
-
-        return $maxHeight === '' ? $this->ui->build($form) : $this->ui->build(
-            $this->ui->div($form)
-                ->setStyle("max-height:$maxHeight; overflow-x:hidden; overflow-y:scroll;")
         );
     }
 }

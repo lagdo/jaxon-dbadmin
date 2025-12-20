@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dml;
 
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultRow;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\FuncComponent;
 
 use function count;
 use function is_array;
@@ -51,8 +50,7 @@ class Update extends FuncComponent
         }
 
         $title = 'Edit row';
-        $content = $this->tableUi->formId($this->queryFormId)
-            ->rowDataForm($queryData['fields'], '400px');
+        $content = $this->editUi->rowDataForm($this->queryFormId, $queryData['fields'], '400px');
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[

@@ -2,10 +2,10 @@
 
 namespace Lagdo\DbAdmin\Db\Page\Dml;
 
-use Lagdo\DbAdmin\Db\Page\Traits\InputFieldTrait;
-use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Lagdo\DbAdmin\Db\Page\AppPage;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 use function count;
 use function implode;
@@ -16,19 +16,19 @@ use function preg_match;
 use function substr;
 
 /**
- * Reads data from the user inputs
+ * Reads data from the user inputs for data row insert and update.
  */
 class DataRowReader
 {
-    use InputFieldTrait;
-
     /**
      * The constructor
      *
+     * @param AppPage $page
      * @param DriverInterface $driver
      * @param Utils $utils
      */
-    public function __construct(private DriverInterface $driver, private Utils $utils)
+    public function __construct(private AppPage $page,
+        private DriverInterface $driver, private Utils $utils)
     {}
 
     /**
@@ -57,6 +57,7 @@ class DataRowReader
             if ($value === "null") {
                 return "NULL";
             }
+
             $value = substr($value, 4); // 4 - strlen("val-")
         }
 
@@ -64,8 +65,8 @@ class DataRowReader
             return null;
         }
 
-        // The function is not provided for auto-incremented fields.
-        $function = $values['function'][$fieldId];
+        // The function is not provided for auto-incremented fields or enums.
+        $function = $values['function'][$fieldId] ?? '';
         if ($function === 'orig') {
             return preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) ?
                 $this->driver->escapeId($field->name) : false;
@@ -81,17 +82,19 @@ class DataRowReader
             //! report errors
             return !is_array($value) ? false : $value;
         }
+
         if ($this->utils->isBlob($field) && $this->utils->iniBool('file_uploads')) {
-            $file = $this->getFileContents("fields-$fieldId");
+            $file = $this->page->getFileContents("fields-$fieldId");
             //! report errors
             return !is_string($file) ? false : $this->driver->quoteBinary($file);
         }
-        return $this->getUnconvertedFieldValue($field, $value, $function);
+
+        return $this->page->getUnconvertedFieldValue($field, $value, $function);
     }
 
     /**
-     * @param array<TableFieldEntity> $fields
-     * @param array $inputs
+     * @param array<TableFieldEntity> $fields The table fields
+     * @param array $inputs The user form inputs
      *
      * @return array
      */
@@ -108,6 +111,7 @@ class DataRowReader
                 $values[$this->driver->escapeId($name)] = $value;
             }
         }
+
         return $values;
     }
 }
