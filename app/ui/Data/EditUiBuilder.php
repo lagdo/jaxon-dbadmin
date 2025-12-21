@@ -28,7 +28,8 @@ class EditUiBuilder
                     $this->ui->radio($input['orig']['attrs'])
                         ->setStyle('margin-right:3px;'),
                     $this->ui->html($input['orig']['label'])
-                )->setFor($input['orig']['attrs']['id'])->setStyle('margin-right:7px;')
+                )->setFor($input['orig']['attrs']['id'])
+                    ->setStyle('margin-right:7px;')
             ),
             $this->ui->each($input['items'], fn($item) =>
                 $this->ui->label(
@@ -66,8 +67,9 @@ class EditUiBuilder
     protected function getBoolValueInput(array $input): mixed
     {
         return $this->ui->list(
-            $this->ui->input($input['hidden']['attrs']),
-            $this->ui->checkbox($input['checkbox']['attrs'])
+            $this->ui->input($input['attrs']['hidden'])
+                ->setType('hidden'),
+            $this->ui->checkbox($input['attrs']['checkbox'])
         );
     }
 
@@ -78,7 +80,8 @@ class EditUiBuilder
      */
     protected function getFileValueInput(array $input): mixed
     {
-        return $this->ui->formInput($input['attrs']);
+        return $this->ui->formInput($input['attrs'])
+            ->setType('file');
     }
 
     /**
@@ -112,13 +115,14 @@ class EditUiBuilder
     }
 
     /**
-     * @param array $input
+     * @param FieldEditEntity $field
      *
      * @return mixed
      */
-    protected function getValueInput(array $input): mixed
+    protected function getFieldValue(FieldEditEntity $field): mixed
     {
-        return match($input['type']) {
+        $input = $field->valueInput;
+        return match($input['field']) {
             'enum' => $this->getEnumValueInput($input),
             'bool' => $this->getBoolValueInput($input),
             'set' => $this->getSetValueInput($input),
@@ -130,24 +134,25 @@ class EditUiBuilder
     }
 
     /**
-     * @param array|null $input
+     * @param FieldEditEntity $field
      *
      * @return mixed
      */
-    private function getFunctionInput(array|null $input): mixed
+    private function getFieldFunction(FieldEditEntity $field): mixed
     {
+        $input = $field->functionInput;
         return $input === null ?
             $this->ui->text('') :
             $this->ui->list(
-                $this->ui->when($input['type'] === 'name', fn() =>
+                $this->ui->when(isset($input['label']), fn() =>
                     $this->ui->span($input['label'])
                 ),
-                $this->ui->when($input['type'] === 'select', fn() =>
+                $this->ui->when(isset($input['select']), fn() =>
                     $this->ui->formSelect(
-                        $input['attrs'],
-                        $this->ui->each($input['options'], fn($option) =>
+                        $input['select']['attrs'],
+                        $this->ui->each($input['select']['options'], fn($option) =>
                             $this->ui->option($option)
-                                ->selected($option === $input['value'])
+                                ->selected($option === $input['select']['value'])
                         )
                     )
                 )
@@ -159,12 +164,14 @@ class EditUiBuilder
      *
      * @return mixed
      */
-    public function getFieldLabel(FieldEditEntity $field): mixed
+    public function getFieldTitle(FieldEditEntity $field): mixed
     {
-        return !isset($field->valueInput['attrs']['id']) ?
-            $this->ui->span($field->name)->setTitle($field->type) :
-            $this->ui->label($field->name)->setTitle($field->type)
-                ->setFor($field->valueInput['attrs']['id']);
+        return isset($field->valueInput['attrs']['id']) ?
+            $this->ui->label($field->name)
+                ->setFor($field->valueInput['attrs']['id'])
+                ->setTitle($field->type) :
+            $this->ui->span($field->name)
+                ->setTitle($field->type);
     }
 
     /**
@@ -180,17 +187,17 @@ class EditUiBuilder
             $this->ui->each($fields, fn(FieldEditEntity $field) =>
                 $this->ui->formRow(
                     $this->ui->formCol(
-                        $this->getFieldLabel($field)
+                        $this->getFieldTitle($field)
                     )->width(3),
                     $this->ui->formCol(
-                        $this->getFunctionInput($field->functionInput)
+                        $this->getFieldFunction($field)
                     )->width(2),
                     $this->ui->formCol(
-                        $this->getValueInput($field->valueInput)
+                        $this->getFieldValue($field)
                     )->width(7)
                 )
             )
-        )->responsive(true)->wrapped(false)->setId($formId);
+        )->wrapped(false)->setId($formId);
 
         return $maxHeight === '' ?
             $this->ui->build($form) :

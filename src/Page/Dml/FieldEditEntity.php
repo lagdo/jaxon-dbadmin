@@ -61,6 +61,11 @@ class FieldEditEntity
     public $enums = [];
 
     /**
+     * @var bool|null
+     */
+    public $isText = null;
+
+    /**
      * @param TableFieldEntity $field
      */
     public function __construct(public TableFieldEntity $field)
@@ -114,7 +119,7 @@ class FieldEditEntity
      */
     public function isText(): bool
     {
-        return (bool)preg_match('~text|lob|memo~i', $this->field->type);
+        return $this->isText ??= (bool)preg_match('~text|lob|memo~i', $this->field->type);
     }
 
     /**
@@ -123,6 +128,14 @@ class FieldEditEntity
     public function hasNewLine(): bool
     {
         return preg_match("~\n~", $this->value ?? '');
+    }
+
+    /**
+     * @return boolean
+     */
+    public function editText(): bool
+    {
+        return $this->isText() || $this->hasNewLine();
     }
 
     /**
@@ -168,5 +181,13 @@ class FieldEditEntity
     public function enumsLength(): string
     {
         return !$this->enums ? '' : "'" . implode("', '", $this->enums) . "'";
+    }
+
+    /**
+     * @return mixed
+     */
+    public function functionValue(): mixed
+    {
+        return $this->function === null || $this->hasFunction() ? $this->function : '';
     }
 }

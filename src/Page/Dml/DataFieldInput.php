@@ -7,6 +7,7 @@ use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 use function count;
+use function explode;
 use function in_array;
 use function is_array;
 use function is_string;
@@ -57,17 +58,12 @@ class DataFieldInput
      */
     private function itemList(FieldEditEntity $editField, array $attrs, string $default = ""): array|null
     {
-        // From html.inc.php: function enum_input(string $type, string $attrs, array $field, $value, string $empty = "")
-        $inputType = match($editField->type) {
-            'enum' => 'radio',
-            'set' => 'checkbox',
-            default => null,
-        };
-        if ($inputType === null) {
+        if ($editField->type !== 'enum' && $editField->type !== 'set' ) {
             // Only for enums and sets
             return null;
         }
 
+        // From html.inc.php: function enum_input(string $type, string $attrs, array $field, $value, string $empty = "")
         $fieldId = $attrs['id'];
         $prefix = $editField->type === 'enum' ? 'val-' : '';
         $items = [];
@@ -75,9 +71,8 @@ class DataFieldInput
             $checkedAttr = $this->getCheckedAttr($editField, 'null', null);
             $items[] = [
                 'attrs' => [
-                    'type' => $inputType,
                     ...$attrs,
-                    'id' => "{$fieldId}_null",
+                    'id' => "{$fieldId}_null", // Overwrite the id value in the $attrs array.
                     'value' => 'null',
                     ...$checkedAttr,
                 ],
@@ -85,7 +80,6 @@ class DataFieldInput
             ];
         }
 
-        // The length value to consider depends on the field type.
         preg_match_all("~'((?:[^']|'')*)'~", $editField->field->length, $matches);
         foreach (($matches[1] ?? []) as $enumValue) {
             $enumValue = stripcslashes(str_replace("''", "'", $enumValue));
@@ -93,9 +87,8 @@ class DataFieldInput
             $checkedAttr = $this->getCheckedAttr($editField, $fieldName, $enumValue);
             $items[] = [
                 'attrs' => [
-                    'type' => $inputType,
                     ...$attrs,
-                    'id' => "{$fieldId}_{$enumValue}",
+                    'id' => "{$fieldId}_{$enumValue}", // Overwrite the id value in the $attrs array.
                     'value' => $this->utils->html($fieldName),
                     ...$checkedAttr,
                 ],
@@ -115,15 +108,10 @@ class DataFieldInput
     private function getEnumFieldInput(FieldEditEntity $editField, array $attrs): array
     {
         // From adminer.inc.php: function editInput(?string $table, array $field, string $attrs, $value): string
-        $values = [
-            'type' => 'enum',
-            'items' => $this->itemList($editField, $attrs, 'NULL'),
-        ];
-
+        $values = ['field' => 'enum'];
         if ($this->action === 'select') {
             $values['orig'] = [
                 'attrs' => [
-                    'type' => 'radio',
                     ...$attrs,
                     'value' => 'orig',
                     'checked' => 'checked',
@@ -131,6 +119,7 @@ class DataFieldInput
                 'label' => '<i>' . $this->utils->trans->lang('original') . '</i>',
             ];
         }
+        $values['items'] = $this->itemList($editField, $attrs, 'NULL');
 
         return $values;
     }
@@ -148,7 +137,7 @@ class DataFieldInput
         }
 
         return [
-            'type' => 'set',
+            'field' => 'set',
             'items' => $this->itemList($editField, $attrs),
         ];
     }
@@ -163,18 +152,14 @@ class DataFieldInput
     {
         $checkedAttr = $editField->isChecked() ? ['checked' => 'checked'] : [];
         return [
-            'type' => 'bool',
-            'hidden' => [
-                'attrs' => [
-                    'type' => 'hidden',
+            'field' => 'bool',
+            'attrs' => [
+                'hidden' => [
                     ...$attrs,
+                    'id' => '', // Unset the id value in the $attrs array
                     'value' => '0',
-                    'id' => '', // Unset the if value in the $attrs array
                 ],
-            ],
-            'checkbox' => [
-                'attrs' => [
-                    'type' => 'checkbox',
+                'checkbox' => [
                     ...$attrs,
                     'value' => '1',
                     ...$checkedAttr,
@@ -202,9 +187,8 @@ class DataFieldInput
     private function getFileFieldInput(FieldEditEntity $editField, array $attrs): array
     {
         return [
-            'type' => 'file',
+            'field' => 'file',
             'attrs' => [
-                'type' => 'file',
                 'id' => $attrs['id'],
                 'name' => "fields-{$editField->name}",
             ],
@@ -220,7 +204,7 @@ class DataFieldInput
     private function getJsonFieldInput(FieldEditEntity $editField, array $attrs): array
     {
         return [
-            'type' => 'json',
+            'field' => 'json',
             'attrs' => [
                 ...$attrs,
                 'cols' => '50',
@@ -234,13 +218,12 @@ class DataFieldInput
     /**
      * @param FieldEditEntity $editField
      * @param array $attrs
-     * @param mixed $value
      *
      * @return array
      */
-    private function getTextFieldInput(FieldEditEntity $editField, array $attrs, bool $isText): array
+    private function getTextFieldInput(FieldEditEntity $editField, array $attrs): array
     {
-        $fieldAttrs = $isText && $this->driver->jush() !== 'sqlite' ? [
+        $fieldAttrs = $editField->isText() && $this->driver->jush() !== 'sqlite' ? [
             'cols' => '50',
             'rows' => '5',
         ] : [
@@ -248,7 +231,7 @@ class DataFieldInput
             'rows' => min(5, substr_count($editField->value, "\n") + 1),
         ];
         return [
-            'type' => 'text',
+            'field' => 'text',
             'attrs' => [
                 ...$attrs,
                 ...$fieldAttrs,
@@ -308,7 +291,7 @@ class DataFieldInput
         }
 
         return [
-            'type' => 'input',
+            'field' => 'input',
             'attrs' => $attrs,
         ];
     }
@@ -351,8 +334,7 @@ class DataFieldInput
 
             $editField->isJson() => $this->getJsonFieldInput($editField, $attrs),
 
-            ($isText = $editField->isText()) || $editField->hasNewLine() =>
-                $this->getTextFieldInput($editField, $attrs, $isText),
+            $editField->editText() => $this->getTextFieldInput($editField, $attrs),
 
             default => $this->getDefaultFieldInput($editField, $attrs),
         };
@@ -372,22 +354,22 @@ class DataFieldInput
             return null; // No function for enum values
         }
 
-        if (count($editField->functions) <= 1) {
+        if (count($editField->functions) < 2) {
             return [
-                'type' => 'name',
-                'label' => $this->utils->str->html(reset($editField->functions)),
+                'label' => $this->utils->str->html($editField->functions[0] ?? ''),
             ];
         }
 
         $disabledAttr = $editField->isDisabled() ? ['disabled' => 'disabled'] : [];
         return [
-            'type' => 'select',
-            'attrs' => [
-                'name' => "function[{$editField->name}]",
-                ...$disabledAttr,
+            'select' => [
+                'attrs' => [
+                    'name' => "function[{$editField->name}]",
+                    ...$disabledAttr,
+                ],
+                'options' => $editField->functions,
+                'value' => $editField->functionValue(),
             ],
-            'options' => $editField->functions,
-            'value' => $editField->function === null || $editField->hasFunction() ? $editField->function : '',
         ];
     }
 

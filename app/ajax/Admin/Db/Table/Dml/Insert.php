@@ -11,7 +11,6 @@ use function Jaxon\je;
  * This class provides insert and update query features on tables.
  */
 #[Databag('dbadmin.select')]
-#[Databag('dbadmin.row.edit')]
 class Insert extends FuncComponent
 {
     /**
