@@ -2,6 +2,11 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql;
 
+use Lagdo\DbAdmin\Db\Driver\DbFacade;
+use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Ui\Select\ResultUiBuilder;
+use Lagdo\DbAdmin\Ui\UiBuilder;
+
 use function array_map;
 use function count;
 
@@ -17,6 +22,18 @@ class ResultSet extends PageComponent
      * @var bool
      */
     private bool $noResult = false;
+
+    /**
+     * The constructor
+     *
+     * @param DbFacade          $db         The facade to database functions
+     * @param UiBuilder         $ui         The HTML UI builder
+     * @param ResultUiBuilder   $resultUi   The HTML UI builder
+     * @param Translator        $trans
+     */
+    public function __construct(protected DbFacade $db, protected UiBuilder $ui,
+        protected ResultUiBuilder $resultUi, protected Translator $trans)
+    {}
 
     /**
      * @inheritDoc
@@ -74,7 +91,7 @@ class ResultSet extends PageComponent
 
         $this->stash()->set('select.duration', $results['duration']);
 
-        return $this->selectUi->resultSet($results['headers'], $this->rows($results));
+        return $this->resultUi->resultSet($results['headers'], $this->rows($results));
     }
 
     /**

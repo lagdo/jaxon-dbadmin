@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options\Fields;
 
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\FuncComponent;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options\Fields;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options\FuncComponent;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
 
 use function Jaxon\je;
 
@@ -22,7 +22,7 @@ class Filters extends FuncComponent
     {
         $formId = 'dbadmin-table-select-filters-form';
         $title = 'Edit filters';
-        $content = $this->selectUi->editFilters($formId);
+        $content = $this->optionsUi->editFilters($formId);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

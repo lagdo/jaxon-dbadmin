@@ -1,24 +1,17 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ui\Table;
+namespace Lagdo\DbAdmin\Ui\Select;
 
 use Jaxon\Script\Call\JxnCall;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultRow;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultSet;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function array_shift;
 use function count;
 use function Jaxon\je;
 use function Jaxon\rq;
-use function sprintf;
 
-class SelectUiBuilder
+class OptionsUiBuilder
 {
     /**
      * @param Translator $trans
@@ -79,8 +72,7 @@ class SelectUiBuilder
                                 $this->ui->option($function)
                                     ->selected($columns[$curId]['fun'] == $function)
                             )
-                        )
-                        ->setLabel($this->trans->lang('Functions')),
+                        )->setLabel($this->trans->lang('Functions')),
                         $this->ui->optgroup(
                             $this->ui->each($options['grouping'], fn($grouping) =>
                                 $this->ui->option($grouping)
@@ -97,8 +89,7 @@ class SelectUiBuilder
                                 ->selected($columns[$curId]['col'] == $column)
                         )
                     )->setName("column[$newId][col]")
-                )
-                ->width(5),
+                )->width(5),
                 $this->ui->formCol(
                     $this->ui->checkbox()
                         ->checked(false)
@@ -122,8 +113,7 @@ class SelectUiBuilder
         return $this->ui->build(
             $this->ui->form(
                 $this->editFormButtons($rqColumns, $formId),
-                $this->ui->div()
-                    ->jxnBind($rqColumns)
+                $this->ui->div()->jxnBind($rqColumns)
             )->wrapped(false)->setId($formId)
         );
     }
@@ -267,63 +257,6 @@ class SelectUiBuilder
     }
 
     /**
-     * @param array $row
-     *
-     * @return mixed
-     */
-    private function _resultRowContent(array $row): mixed
-    {
-        return $this->ui->list(
-            $this->ui->td($row['menu'])->setStyle('width:30px'),
-            $this->ui->each($row['cols'], fn($col) =>
-                $this->ui->td($col['value'])
-            )
-        );
-    }
-
-    /**
-     * @param array $row
-     *
-     * @return string
-     */
-    public function resultRowContent(array $row): string
-    {
-        return $this->ui->build($this->_resultRowContent($row));
-    }
-
-    /**
-     * @param array $headers
-     * @param array $rows
-     *
-     * @return string
-     */
-    public function resultSet(array $headers, array $rows): string
-    {
-        array_shift($headers);
-        return $this->ui->build(
-            $this->ui->table(
-                $this->ui->thead(
-                    $this->ui->tr(
-                        $this->ui->th(['style' => 'width:30px']),
-                        $this->ui->each($headers, fn($header) =>
-                            $this->ui->th($header['title'] ?? '')
-                        )
-                    )
-                ),
-                $this->ui->tbody(
-                    $this->ui->each($rows, function($row) {
-                        $uiElt = $this->ui->tr($this->_resultRowContent($row));
-                        if ($row['editId'] > 0) {
-                            $uiElt->jxnBind(rq(ResultRow::class), 'row' . $row['editId']);
-                        }
-                        return $uiElt;
-                    })
-                ),
-            )->responsive(true)->style('bordered')
-        );
-    }
-
-    /**
      * @param array $options
      *
      * @return string
@@ -374,6 +307,8 @@ class SelectUiBuilder
         $optionsLimitId = 'dbadmin-table-select-options-form-limit';
         $optionsLengthId = 'dbadmin-table-select-options-form-length';
         $rqOptionsValues = rq(Options\Values::class);
+        $selectLimitValue = je($optionsLimitId)->rd()->input()->toInt();
+        $textLengthValue = je($optionsLengthId)->rd()->input()->toInt();
 
         return $this->ui->build(
             $this->ui->formRow(
@@ -391,8 +326,7 @@ class SelectUiBuilder
                             ->outline()
                             ->secondary()
                             ->addIcon('ok')
-                            ->jxnClick($rqOptionsValues->saveSelectLimit(
-                                je($optionsLimitId)->rd()->input()->toInt()))
+                            ->jxnClick($rqOptionsValues->saveSelectLimit($selectLimitValue))
                     )
                 )->width(5),
                 $this->ui->formCol(
@@ -409,103 +343,9 @@ class SelectUiBuilder
                             ->outline()
                             ->secondary()
                             ->addIcon('ok')
-                            ->jxnClick($rqOptionsValues->saveTextLength(
-                                je($optionsLengthId)->rd()->input()->toInt()))
+                            ->jxnClick($rqOptionsValues->saveTextLength($textLengthValue))
                     )
                 )->width(7)
-            )
-        );
-    }
-
-    /**
-     * @param string $queryDivId
-     * @param string $queryText
-     *
-     * @return string
-     */
-    public function queryText(string $queryDivId, string $queryText): string
-    {
-        return $this->ui->build(
-            $this->ui->div($queryText)->setId($queryDivId)
-        );
-    }
-
-    /**
-     * @param string $formId
-     *
-     * @return string
-     */
-    public function table(string $formId): string
-    {
-        return $this->ui->build(
-            $this->ui->row(
-                $this->ui->col(
-                    $this->ui->form(
-                        $this->ui->div(
-                            $this->ui->formRow(
-                                $this->ui->formCol()
-                                    ->width(6)
-                                    ->jxnBind(rq(Options\Fields::class)),
-                                $this->ui->formCol()
-                                    ->width(6)
-                                    ->jxnBind(rq(Options\Values::class))
-                            )
-                        ),
-                        $this->ui->formRow(
-                            $this->ui->formCol(
-                                $this->ui->panel(
-                                    $this->ui->panelBody()
-                                        ->setStyle('padding: 0 1px;')
-                                        ->jxnBind(rq(QueryText::class))
-                                )->style('default')
-                                    ->setStyle('padding: 5px;')
-                            )->width(12)
-                        ),
-                    )->wrapped(true)->setId($formId)
-                )->width(12)
-            ),
-            $this->ui->row(
-                $this->ui->col(
-                    $this->ui->buttonGroup(
-                        $this->ui->button($this->ui->text($this->trans->lang('Edit')))
-                            ->outline()->secondary()->fullWidth()
-                            ->jxnClick(rq(Select::class)->edit()),
-                        $this->ui->button($this->ui->text($this->trans->lang('Execute')))
-                            ->fullWidth()->primary()
-                            ->jxnClick(rq(ResultSet::class)->page())
-                    )->fullWidth(true)
-                )->width(3),
-                $this->ui->col(
-                    $this->ui->row(
-                        $this->ui->col(
-                            $this->ui->nav()
-                                ->jxnPagination(rq(ResultSet::class))
-                        )->width(10)
-                            ->setStyle('overflow:hidden'),
-                        $this->ui->col()
-                            ->width(2)
-                            ->jxnBind(rq(Duration::class))
-                    )
-                )->width(9),
-            ),
-            $this->ui->row(
-                $this->ui->col()
-                    ->width(12)
-                    ->jxnBind(rq(ResultSet::class))
-            )
-        );
-    }
-
-    /**
-     * @param float $duration
-     *
-     * @return string
-     */
-    public function duration(float $duration): string
-    {
-        return $this->ui->build(
-            $this->ui->inputGroup(
-                $this->ui->label(sprintf('%.4f&nbsp;s', $duration))
             )
         );
     }

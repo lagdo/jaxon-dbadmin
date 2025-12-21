@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options\Fields;
 
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\FuncComponent;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options\Fields;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options\FuncComponent;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
 
 use function Jaxon\je;
 
@@ -22,7 +22,7 @@ class Sorting extends FuncComponent
     {
         $formId = 'dbadmin-table-select-sorting-form';
         $title = 'Edit order';
-        $content = $this->selectUi->editSorting($formId);
+        $content = $this->optionsUi->editSorting($formId);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

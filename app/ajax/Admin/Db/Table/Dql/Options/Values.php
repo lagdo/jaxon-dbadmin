@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options;
 
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Component;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
 
 /**
@@ -16,7 +15,7 @@ class Values extends Component
     public function html(): string
     {
         $options = $this->bag('dbadmin.select')->get('options', []);
-        return $this->selectUi->optionsValues($options);
+        return $this->optionsUi->optionsValues($options);
     }
 
     /**

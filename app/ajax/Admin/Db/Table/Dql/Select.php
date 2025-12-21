@@ -73,7 +73,7 @@ class Select extends MainComponent
      */
     public function html(): string
     {
-        return $this->selectUi->table($this->formOptionsId);
+        return $this->selectUi->home($this->formOptionsId);
     }
 
     /**

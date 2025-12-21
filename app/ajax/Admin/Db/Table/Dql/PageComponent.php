@@ -7,7 +7,7 @@ use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\PageComponent as BaseComponent;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Table\SelectUiBuilder;
+use Lagdo\DbAdmin\Ui\Select\SelectUiBuilder;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
 #[Before('setDefaultSelectOptions')]

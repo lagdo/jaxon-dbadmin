@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options\Fields\Form;
 
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Component;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options\Component;
 
 use function count;
 
@@ -29,7 +29,7 @@ class Filters extends Component
             ];
         }
 
-        return  $this->selectUi->formFilters($values, $options);
+        return  $this->optionsUi->formFilters($values, $options);
     }
 
     public function show(): void

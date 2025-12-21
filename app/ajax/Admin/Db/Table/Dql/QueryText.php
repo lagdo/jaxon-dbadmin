@@ -6,7 +6,7 @@ use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Db\DbAdminPackage;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
-use Lagdo\DbAdmin\Ui\Table\SelectUiBuilder;
+use Lagdo\DbAdmin\Ui\Select\SelectUiBuilder;
 
 use function html_entity_decode;
 
