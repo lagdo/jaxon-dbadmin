@@ -68,6 +68,7 @@ class DataFieldInput
             return null;
         }
 
+        $fieldId = $attrs['id'];
         $prefix = $editField->type === 'enum' ? 'val-' : '';
         $items = [];
         if ($editField->field->null && $prefix) {
@@ -76,6 +77,7 @@ class DataFieldInput
                 'attrs' => [
                     'type' => $inputType,
                     ...$attrs,
+                    'id' => "{$fieldId}_null",
                     'value' => 'null',
                     ...$checkedAttr,
                 ],
@@ -93,6 +95,7 @@ class DataFieldInput
                 'attrs' => [
                     'type' => $inputType,
                     ...$attrs,
+                    'id' => "{$fieldId}_{$enumValue}",
                     'value' => $this->utils->html($fieldName),
                     ...$checkedAttr,
                 ],
@@ -138,6 +141,24 @@ class DataFieldInput
      *
      * @return array
      */
+    private function getSetFieldInput(FieldEditEntity $editField, array $attrs): array
+    {
+        if (is_string($editField->value)) {
+            $editField->value = explode(",", $editField->value);
+        }
+
+        return [
+            'type' => 'set',
+            'items' => $this->itemList($editField, $attrs),
+        ];
+    }
+
+    /**
+     * @param FieldEditEntity $editField
+     * @param array $attrs
+     *
+     * @return array
+     */
     private function getBoolFieldInput(FieldEditEntity $editField, array $attrs): array
     {
         $checkedAttr = $editField->isChecked() ? ['checked' => 'checked'] : [];
@@ -148,6 +169,7 @@ class DataFieldInput
                     'type' => 'hidden',
                     ...$attrs,
                     'value' => '0',
+                    'id' => '', // Unset the if value in the $attrs array
                 ],
             ],
             'checkbox' => [
@@ -163,33 +185,27 @@ class DataFieldInput
 
     /**
      * @param FieldEditEntity $editField
-     * @param array $attrs
      *
-     * @return array
+     * @return bool
      */
-    private function getSetFieldInput(FieldEditEntity $editField, array $attrs): array
+    private function isBlob(FieldEditEntity $editField): bool
     {
-        if (is_string($editField->value)) {
-            $editField->value = explode(",", $editField->value);
-        }
-
-        return [
-            'type' => 'set',
-            'items' => $this->itemList($editField, $attrs),
-        ];
+        return $this->utils->isBlob($editField->field) && $this->utils->iniBool("file_uploads");
     }
 
     /**
      * @param FieldEditEntity $editField
+     * @param array $attrs
      *
      * @return array
      */
-    private function getFileFieldInput(FieldEditEntity $editField): array
+    private function getFileFieldInput(FieldEditEntity $editField, array $attrs): array
     {
         return [
             'type' => 'file',
             'attrs' => [
                 'type' => 'file',
+                'id' => $attrs['id'],
                 'name' => "fields-{$editField->name}",
             ],
         ];
@@ -229,7 +245,7 @@ class DataFieldInput
             'rows' => '5',
         ] : [
             'cols' => '30',
-            'rows' => '' . min(5, substr_count($editField->value, "\n") + 1),
+            'rows' => min(5, substr_count($editField->value, "\n") + 1),
         ];
         return [
             'type' => 'text',
@@ -309,6 +325,7 @@ class DataFieldInput
     {
         // From input(array $field, $value, ?string $function, ?bool $autofocus = false) in html.inc.php
         $attrs = [
+            'id' => "fields_{$editField->name}",
             'name' => $editField->isEnum() || $editField->isSet() ?
                 "fields[{$editField->name}][]" : "fields[{$editField->name}]",
         ];
@@ -330,8 +347,7 @@ class DataFieldInput
 
             $editField->isSet() => $this->getSetFieldInput($editField, $attrs),
 
-            $this->utils->isBlob($editField->field) &&
-                $this->utils->iniBool("file_uploads") => $this->getFileFieldInput($editField),
+            $this->isBlob($editField) => $this->getFileFieldInput($editField, $attrs),
 
             $editField->isJson() => $this->getJsonFieldInput($editField, $attrs),
 

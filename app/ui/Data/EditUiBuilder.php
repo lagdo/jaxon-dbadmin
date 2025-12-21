@@ -25,16 +25,36 @@ class EditUiBuilder
         return $this->ui->list(
             $this->ui->when(isset($input['orig']), fn() =>
                 $this->ui->label(
-                    $this->ui->radio($input['orig']['attrs']),
+                    $this->ui->radio($input['orig']['attrs'])
+                        ->setStyle('margin-right:3px;'),
                     $this->ui->html($input['orig']['label'])
-                )
+                )->setFor($input['orig']['attrs']['id'])->setStyle('margin-right:7px;')
             ),
             $this->ui->each($input['items'], fn($item) =>
                 $this->ui->label(
-                    $this->ui->radio($item['attrs']),
+                    $this->ui->radio($item['attrs'])
+                        ->setStyle('margin-right:3px;'),
                     $this->ui->html($item['label'])
-                )
+                )->setFor($item['attrs']['id'])
+                    ->setStyle('margin-right:7px;')
             )
+        );
+    }
+
+    /**
+     * @param array $input
+     *
+     * @return mixed
+     */
+    protected function getSetValueInput(array $input): mixed
+    {
+        return $this->ui->each($input['items'], fn($item) =>
+            $this->ui->label(
+                $this->ui->checkbox($item['attrs'])
+                    ->setStyle('margin-right:3px;'),
+                $this->ui->html($item['label'])
+            )->setFor($item['attrs']['id'])
+                ->setStyle('margin-right:7px;')
         );
     }
 
@@ -48,21 +68,6 @@ class EditUiBuilder
         return $this->ui->list(
             $this->ui->input($input['hidden']['attrs']),
             $this->ui->checkbox($input['checkbox']['attrs'])
-        );
-    }
-
-    /**
-     * @param array $input
-     *
-     * @return mixed
-     */
-    protected function getSetValueInput(array $input): mixed
-    {
-        return $this->ui->each($input['items'], fn($item) =>
-            $this->ui->label(
-                $this->ui->checkbox($item['attrs']),
-                $this->ui->html($item['label'])
-            )
         );
     }
 
@@ -150,6 +155,19 @@ class EditUiBuilder
     }
 
     /**
+     * @param FieldEditEntity $field
+     *
+     * @return mixed
+     */
+    public function getFieldLabel(FieldEditEntity $field): mixed
+    {
+        return !isset($field->valueInput['attrs']['id']) ?
+            $this->ui->span($field->name)->setTitle($field->type) :
+            $this->ui->label($field->name)->setTitle($field->type)
+                ->setFor($field->valueInput['attrs']['id']);
+    }
+
+    /**
      * @param string $formId
      * @param array<FieldEditEntity> $fields
      * @param string $maxHeight
@@ -162,7 +180,7 @@ class EditUiBuilder
             $this->ui->each($fields, fn(FieldEditEntity $field) =>
                 $this->ui->formRow(
                     $this->ui->formCol(
-                        $this->ui->label($field->name)->setTitle($field->type)
+                        $this->getFieldLabel($field)
                     )->width(3),
                     $this->ui->formCol(
                         $this->getFunctionInput($field->functionInput)
