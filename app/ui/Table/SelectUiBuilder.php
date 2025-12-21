@@ -124,7 +124,7 @@ class SelectUiBuilder
                 $this->editFormButtons($rqColumns, $formId),
                 $this->ui->div()
                     ->jxnBind($rqColumns)
-            )->responsive(true)->wrapped(false)->setId($formId)
+            )->wrapped(false)->setId($formId)
         );
     }
 
@@ -194,7 +194,7 @@ class SelectUiBuilder
                 $this->editFormButtons($rqFilters, $formId),
                 $this->ui->div()
                     ->jxnBind($rqFilters)
-            )->responsive(true)->wrapped(false)->setId($formId)
+            )->wrapped(false)->setId($formId)
         );
     }
 
@@ -261,7 +261,7 @@ class SelectUiBuilder
                 $this->editFormButtons($rqSorting, $formId),
                 $this->ui->div()
                     ->jxnBind($rqSorting)
-            )->responsive(true)->wrapped(false)
+            )->wrapped(false)
                 ->setId($formId)
         );
     }
@@ -461,7 +461,7 @@ class SelectUiBuilder
                                     ->setStyle('padding: 5px;')
                             )->width(12)
                         ),
-                    )->responsive(true)->wrapped(true)->setId($formId)
+                    )->wrapped(true)->setId($formId)
                 )->width(12)
             ),
             $this->ui->row(

@@ -250,9 +250,8 @@ class TableUiBuilder
                     $this->headerEditRow(),
                     $this->headerColumnRow(),
                     $this->ui->div()->jxnBind($xComponent)
-                )->responsive(true)->wrapped(false)->setId($this->formId)
-            )
-            ->jxnEvent(array_map(fn($handler) => [
+                )->wrapped(false)->setId($this->formId)
+            )->jxnEvent(array_map(fn($handler) => [
                 $handler['selector'],
                 $handler['event'] ?? 'click',
                 $handler['call']

@@ -76,8 +76,7 @@ class ServerUiBuilder
                     ->setClass('checkbox')
                 ),
                 $this->ui->div($this->ui->html($privileges))
-            )
-            ->responsive(true)->wrapped(true)->setId($formId)
+            )->wrapped(true)->setId($formId)
         );
     }
 
@@ -126,8 +125,7 @@ class ServerUiBuilder
                     )
                     ->width(6)
                 )
-            )
-            ->responsive(true)->wrapped(true)->setId($formId)
+            )->wrapped(true)->setId($formId)
         );
     }
 }

@@ -31,19 +31,17 @@ class AuditUiBuilder
             $this->ui->row(
                 $this->ui->col($this->ui->h3($this->trans->lang('Commands'))
                     ->setStyle('font-size:18px; margin:5px 0;')
-                )
-                ->width(3),
+                )->width(3),
                 $this->ui->col(
                     $this->ui->nav()
                         ->jxnPagination(rq(Commands::class))
                         ->setStyle('float:right;')
-                )
-                ->width(9)
+                )->width(9)
             ),
             $this->ui->row(
                 $this->ui->col()
-                ->jxnBind(rq(Commands::class))
-                ->width(12)
+                    ->jxnBind(rq(Commands::class))
+                    ->width(12)
             )
         );
     }
@@ -81,8 +79,7 @@ class AuditUiBuilder
                     ->setStyle('font-weight:500;'),
                 $this->ui->div($command['query'])
                     ->setStyle('font-weight:300;'),
-            )
-            ->setStyle('font-size:12px;')
+            )->setStyle('font-size:12px;')
         );
     }
 
@@ -105,8 +102,7 @@ class AuditUiBuilder
                         $this->command($command, $categories[$command['category']] ?? '')
                     )
                 ),
-            )
-            ->responsive(true)->style('bordered')
+            )->responsive(true)->style('bordered')
         );
     }
 

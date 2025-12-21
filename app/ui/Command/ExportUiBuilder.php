@@ -315,7 +315,7 @@ class ExportUiBuilder
                                 ->width(6)
                         )
                     )
-                )->responsive(true)->wrapped(false)->setId($this->formId)
+                )->wrapped(false)->setId($this->formId)
             )->width(12),
             $this->ui->col()->width(12)->setId('dbadmin-export-results')
         );

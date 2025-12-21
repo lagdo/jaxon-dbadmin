@@ -183,8 +183,7 @@ class ImportUiBuilder
                     $this->ui->row(
                         $this->optionsCol()->width(12)
                     )
-                )
-                ->responsive(true)->wrapped(false)->setId($this->formId)
+                )->wrapped(false)->setId($this->formId)
             )->width(12),
             $this->ui->col()
                 ->width(12)

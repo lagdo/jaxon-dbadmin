@@ -32,10 +32,8 @@ class AuditUiBuilder
     public function queries(): string
     {
         return $this->ui->build(
-            $this->ui->div()
-                ->jxnBind(rq(Query\Favorite::class)),
-            $this->ui->div()
-                ->jxnBind(rq(Query\History::class))
+            $this->ui->div()->jxnBind(rq(Query\Favorite::class)),
+            $this->ui->div()->jxnBind(rq(Query\History::class))
         );
     }
 
@@ -70,8 +68,7 @@ class AuditUiBuilder
                 $this->ui->col(
                         $this->ui->h4($this->trans->lang('History'))
                             ->setStyle('font-size:16px; font-weight:600;')
-                    )
-                    ->width(12)
+                    )->width(12)
             ),
             $this->ui->row(
                 $this->ui->col(
@@ -90,16 +87,13 @@ class AuditUiBuilder
                                         ->setStyle('width:50px;')
                                 )
                             )
-                        )
-                        ->setStyle('padding:5px 15px')
-                        ->jxnEvent([
-                            ['.dbadmin-history-query-copy', 'click', $btnCopyHandler],
-                            ['.dbadmin-history-query-insert', 'click', $btnInsertHandler],
-                        ])
-                    )
-                    ->responsive(true)->style('bordered'),
-                )
-                ->width(12)
+                        )->setStyle('padding:5px 15px')
+                            ->jxnEvent([
+                                ['.dbadmin-history-query-copy', 'click', $btnCopyHandler],
+                                ['.dbadmin-history-query-insert', 'click', $btnInsertHandler],
+                            ])
+                    )->responsive(true)->style('bordered'),
+                )->width(12)
             ),
         );
     }
@@ -180,22 +174,18 @@ class AuditUiBuilder
                                 $this->ui->div($query['query'])
                                     ->setId('dbadmin-favorite-query-' . $query['id'])
                             ),
-                            $this->ui->td(
-                                $this->favoriteButtons()
-                            )
+                            $this->ui->td($this->favoriteButtons())
                                 ->setDataQueryId($query['id'])
                                 ->setStyle('width:50px;')
                         )
                     )
-                )
-                ->jxnEvent([
+                )->jxnEvent([
                     ['.dbadmin-favorite-query-copy', 'click', $btnCopyHandler],
                     ['.dbadmin-favorite-query-insert', 'click', $btnInsertHandler],
                     ['.dbadmin-favorite-query-edit', 'click', $btnEditHandler],
                     ['.dbadmin-favorite-query-delete', 'click', $btnDeleteHandler],
                 ])
-            )
-            ->responsive(true)->style('bordered'),
+            )->responsive(true)->style('bordered'),
         );
     }
 
@@ -218,9 +208,9 @@ class AuditUiBuilder
                 $this->ui->formTextarea($query)
                     ->setName('query')
                     ->setStyle('min-height:200px;')
-            )
-            ->responsive(true)->horizontal(false)->wrapped(true)
-            ->setId($this->favoriteFormId)
+            )->horizontal(false)
+                ->wrapped(true)
+                ->setId($this->favoriteFormId)
         );
     }
 
@@ -244,9 +234,9 @@ class AuditUiBuilder
                 $this->ui->formTextarea($query['query'])
                     ->setName('query')
                     ->setStyle('min-height:200px;')
-            )
-            ->responsive(true)->horizontal(false)->wrapped(true)
-            ->setId($this->favoriteFormId)
+            )->horizontal(false)
+                ->wrapped(true)
+                ->setId($this->favoriteFormId)
         );
     }
 
