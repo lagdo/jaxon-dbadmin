@@ -15,11 +15,18 @@ use function implode;
 use function intval;
 use function in_array;
 use function preg_match;
-use function strtoupper;
 use function str_replace;
 
+/**
+ * Prepare a select query using the user provided options.
+ */
 class SelectQuery
 {
+    /**
+     * @var SelectOptions
+     */
+    private $selectOptions;
+
     /**
      * The constructor
      *
@@ -29,14 +36,8 @@ class SelectQuery
      */
     public function __construct(private AppPage $page,
         private DriverInterface $driver, private Utils $utils)
-    {}
-
-    /**
-     * @return SelectOptions
-     */
-    private function options(): SelectOptions
     {
-        return new SelectOptions($this->driver, $this->utils);
+        $this->selectOptions = new SelectOptions($this->driver, $this->utils);
     }
 
     /**
@@ -59,62 +60,6 @@ class SelectQuery
             }
             $selectEntity->rights[] = $field->privileges;
         }
-    }
-
-    /**
-     * Get required data for select on tables
-     *
-     * @param SelectEntity $selectEntity
-     *
-     * @return SelectEntity
-     * @throws Exception
-     */
-    public function prepareSelect(SelectEntity $selectEntity): SelectEntity
-    {
-        $this->options()->setDefaultOptions($selectEntity);
-
-        // From select.inc.php
-        $selectEntity->fields = $this->driver->fields($selectEntity->table);
-        $this->setFieldsOptions($selectEntity);
-        if (!$selectEntity->columns && $this->driver->support("table")) {
-            throw new Exception($this->utils->trans->lang('Unable to select the table') .
-                ($selectEntity->fields ? "." : ": " . $this->driver->error()));
-        }
-
-        $selectEntity->indexes = $this->driver->indexes($selectEntity->table);
-        $this->setForeignKeys($selectEntity);
-        $this->setSelectColumns($selectEntity);
-
-        $this->setSelectWhere($selectEntity);
-        $this->setSelectOrder($selectEntity);
-        $this->setSelectLimit($selectEntity);
-        $this->setPrimaryKey($selectEntity);
-
-        // $set = null;
-        // if(isset($rights["insert"]) || !this->driver->support("table")) {
-        //     $set = "";
-        //     foreach((array) $queryOptions["where"] as $val) {
-        //         if($foreignKeys[$val["col"]] && count($foreignKeys[$val["col"]]) == 1 && ($val["op"] == "="
-        //             || (!$val["op"] && !preg_match('~[_%]~', $val["val"])) // LIKE in Editor
-        //         )) {
-        //             $set .= "&set" . urlencode("[" . $this->driver->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
-        //         }
-        //     }
-        // }
-        // $this->page->selectLinks($tableStatus, $set);
-
-        // if($page == "last")
-        // {
-        //     $isGroup = count($group) < count($select);
-        //     $found_rows = $this->driver->result($this->driver->getRowCountQuery($table, $where, $isGroup, $group));
-        //     $page = \floor(\max(0, $found_rows - 1) / $limit);
-        // }
-
-        $this->options()->setSelectOptions($selectEntity);
-        $this->setSelectEntity($selectEntity);
-        $this->setSelectQuery($selectEntity);
-
-        return $selectEntity;
     }
 
     /**
@@ -159,28 +104,6 @@ class SelectQuery
     // }
 
     /**
-     * Apply SQL function
-     *
-     * @param string $function
-     * @param string $column escaped column identifier
-     *
-     * @return string
-     */
-    public function applySqlFunction(string $function, string $column): string
-    {
-        if (!$function) {
-            return $column;
-        }
-        if ($function === 'unixepoch') {
-            return "DATETIME($column, '$function')";
-        }
-        if ($function === 'count distinct') {
-            return "COUNT(DISTINCT $column)";
-        }
-        return strtoupper($function) . "($column)";
-    }
-
-    /**
      * @param SelectEntity $selectEntity
      *
      * @return void
@@ -196,7 +119,7 @@ class SelectQuery
                 if ($value['col'] !== '') {
                     $column = $this->driver->escapeId($value['col']);
                 }
-                $selectEntity->select[$key] = $this->applySqlFunction($value['fun'], $column);
+                $selectEntity->select[$key] = $this->page->applySqlFunction($value['fun'], $column);
                 if (!in_array($value['fun'], $this->driver->grouping())) {
                     $selectEntity->group[] = $selectEntity->select[$key];
                 }
@@ -413,18 +336,6 @@ class SelectQuery
      *
      * @return void
      */
-    public function setSelectQuery(SelectEntity $selectEntity): void
-    {
-        $query = $this->driver->buildSelectQuery($selectEntity->tableSelect);
-        // From adminer.inc.php
-        $selectEntity->query = str_replace("\n", " ", $query);
-    }
-
-    /**
-     * @param SelectEntity $selectEntity
-     *
-     * @return void
-     */
     private function setSelectEntity(SelectEntity $selectEntity): void
     {
         $select2 = $selectEntity->select;
@@ -457,5 +368,64 @@ class SelectQuery
         $selectEntity->tableSelect = new TableSelectEntity($selectEntity->table,
             $select2, $selectEntity->where, $group2, $selectEntity->order,
             $selectEntity->limit, $selectEntity->page);
+    }
+
+    /**
+     * Get required data for select on tables
+     *
+     * @param SelectEntity $selectEntity
+     *
+     * @return SelectEntity
+     * @throws Exception
+     */
+    public function prepareSelect(SelectEntity $selectEntity): SelectEntity
+    {
+        $this->selectOptions->setDefaultOptions($selectEntity);
+
+        // From select.inc.php
+        $selectEntity->fields = $this->driver->fields($selectEntity->table);
+        $this->setFieldsOptions($selectEntity);
+        if (!$selectEntity->columns && $this->driver->support("table")) {
+            throw new Exception($this->utils->trans->lang('Unable to select the table') .
+                ($selectEntity->fields ? "." : ": " . $this->driver->error()));
+        }
+
+        $selectEntity->indexes = $this->driver->indexes($selectEntity->table);
+        $this->setForeignKeys($selectEntity);
+        $this->setSelectColumns($selectEntity);
+
+        $this->setSelectWhere($selectEntity);
+        $this->setSelectOrder($selectEntity);
+        $this->setSelectLimit($selectEntity);
+        $this->setPrimaryKey($selectEntity);
+
+        // $set = null;
+        // if(isset($rights["insert"]) || !this->driver->support("table")) {
+        //     $set = "";
+        //     foreach((array) $queryOptions["where"] as $val) {
+        //         if($foreignKeys[$val["col"]] && count($foreignKeys[$val["col"]]) == 1 && ($val["op"] == "="
+        //             || (!$val["op"] && !preg_match('~[_%]~', $val["val"])) // LIKE in Editor
+        //         )) {
+        //             $set .= "&set" . urlencode("[" . $this->driver->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
+        //         }
+        //     }
+        // }
+        // $this->page->selectLinks($tableStatus, $set);
+
+        // if($page == "last")
+        // {
+        //     $isGroup = count($group) < count($select);
+        //     $found_rows = $this->driver->result($this->driver->getRowCountQuery($table, $where, $isGroup, $group));
+        //     $page = \floor(\max(0, $found_rows - 1) / $limit);
+        // }
+
+        $this->selectOptions->setSelectOptions($selectEntity);
+        $this->setSelectEntity($selectEntity);
+
+        $query = $this->driver->buildSelectQuery($selectEntity->tableSelect);
+        // From adminer.inc.php
+        $selectEntity->query = str_replace("\n", " ", $query);
+
+        return $selectEntity;
     }
 }

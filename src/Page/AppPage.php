@@ -13,6 +13,7 @@ use function iconv;
 use function max;
 use function preg_match;
 use function strlen;
+use function strtoupper;
 use function substr;
 
 class AppPage
@@ -93,6 +94,28 @@ class AppPage
     {
         $pattern = '~char|text|json|lob|geometry|point|linestring|polygon|string|bytea~';
         return preg_match($pattern, $field->type) > 0;
+    }
+
+    /**
+     * Apply SQL function
+     *
+     * @param string $function
+     * @param string $column escaped column identifier
+     *
+     * @return string
+     */
+    public function applySqlFunction(string $function, string $column): string
+    {
+        if (!$function) {
+            return $column;
+        }
+        if ($function === 'unixepoch') {
+            return "DATETIME($column, '$function')";
+        }
+        if ($function === 'count distinct') {
+            return "COUNT(DISTINCT $column)";
+        }
+        return strtoupper($function) . "($column)";
     }
 
     /**
