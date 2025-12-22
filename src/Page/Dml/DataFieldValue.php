@@ -112,7 +112,7 @@ class DataFieldValue
      *
      * @return mixed
      */
-    private function getFieldDefaultValue(TableFieldEntity $field, array|null $rowData): mixed
+    private function getInputValue(TableFieldEntity $field, array|null $rowData): mixed
     {
         $update = $this->operation === 'update';
         // $default = $options["set"][$this->driver->bracketEscape($name)] ?? null;
@@ -146,17 +146,12 @@ class DataFieldValue
 
     /**
      * @param TableFieldEntity $field
-     * @param array|null $rowData
+     * @param mixed $value
      *
      * @return array
      */
-    private function getInputValues(TableFieldEntity $field, array|null $rowData): array
+    private function getInputFunction(TableFieldEntity $field, mixed $value): array
     {
-        $value = $this->getFieldDefaultValue($field, $rowData);
-        // if (!$this->action !== 'save' && is_string($value)) {
-        //     $value = adminer()->editVal($value, $field);
-        // }
-
         $formInput = []; // No user input available here.
         $update = $this->operation === 'update';
         $function = match(true) {
@@ -196,11 +191,15 @@ class DataFieldValue
         $editField = new FieldEditEntity($field);
 
         // From html.inc.php: function edit_form(string $table, array $fields, $row, ?bool $update, string $error = '')
-        [$editField->value, $editField->function] = $this->getInputValues($field, $rowData);
+        $value = $this->getInputValue($field, $rowData);
+        // if (!$this->action !== 'save' && is_string($value)) {
+        //     $value = adminer()->editVal($value, $field);
+        // }
+        [$editField->value, $editField->function] = $this->getInputFunction($field, $value);
 
         // From html.inc.php: input(array $field, $value, ?string $function, ?bool $autofocus = false)
-        $editField->name = $this->utils->str->html($this->driver->bracketEscape($field->name));
-        $editField->fullType = $this->utils->str->html($field->fullType);
+        $editField->name = $this->utils->html($this->driver->bracketEscape($field->name));
+        $editField->fullType = $this->utils->html($field->fullType);
 
         if (is_array($editField->value) && !$editField->function) {
              // 128 - JSON_PRETTY_PRINT, 64 - JSON_UNESCAPED_SLASHES, 256 - JSON_UNESCAPED_UNICODE available since PHP 5.4

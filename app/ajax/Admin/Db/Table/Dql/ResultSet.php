@@ -56,12 +56,18 @@ class ResultSet extends PageComponent
         $editIds = [];
         $rows = array_map(function($row) use(&$editId, &$editIds): array {
             $editId++; // The edit ids start from 1.
-            $editIds[$this->bagEntryName($editId)] = $row['ids'];
+            $editItemId = $this->bagEntryName($editId);
 
+            $editIds[$editItemId] = $row['ids'];
+
+            $row['editId'] = 0;
+            $row['menu'] = '';
             // The row is editable when the editId value is greated than 0.
-            $editable = count($row['ids']['where'] ?? []) > 0;
-            $row['editId'] = $editable ? $editId : 0;
-            $row['menu'] = $editable ? $this->getRowMenu($editId) : '';
+            if (count($row['ids']['where'] ?? []) > 0) {
+                $row['editId'] = $editId;
+                $row['editItemId'] = $editItemId;
+                $row['menu'] = $this->getRowMenu($editId);
+            }
 
             return $row;
         }, $results['rows']);

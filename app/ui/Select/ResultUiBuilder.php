@@ -26,7 +26,7 @@ class ResultUiBuilder
     private function _resultRowContent(array $row): mixed
     {
         return $this->ui->list(
-            $this->ui->td($row['menu'])->setStyle('width:30px'),
+            $this->ui->td($row['menu'], ['style' => 'width:30px']),
             $this->ui->each($row['cols'], fn($col) =>
                 $this->ui->td($col['value'])
             )
@@ -57,20 +57,17 @@ class ResultUiBuilder
                 $this->ui->thead(
                     $this->ui->tr(
                         $this->ui->th(['style' => 'width:30px']),
-                        $this->ui->each($headers, fn($header) =>
+                        $this->ui->each($headers, fn(array $header) =>
                             $this->ui->th($header['title'] ?? '')
                         )
                     )
                 ),
                 $this->ui->tbody(
-                    $this->ui->each($rows, function($row) {
-                        $uiElt = $this->ui->tr($this->_resultRowContent($row));
-                        if ($row['editId'] > 0) {
-                            $uiElt->jxnBind(rq(ResultRow::class), 'row' . $row['editId']);
-                        }
-                        return $uiElt;
-                    })
-                ),
+                    $this->ui->each($rows, fn(array $row) =>
+                        $this->ui->tr($this->_resultRowContent($row))
+                            ->when($row['editId'] > 0, fn($tr) =>
+                                $tr->jxnBind(rq(ResultRow::class), $row['editItemId'])))
+                )
             )->responsive(true)->style('bordered')
         );
     }

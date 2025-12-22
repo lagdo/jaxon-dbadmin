@@ -27,9 +27,9 @@ use function trim;
 class SelectFacade extends AbstractFacade
 {
     /**
-     * @var SelectQuery
+     * @var SelectQuery|null
      */
-    private SelectQuery $selectQuery;
+    private SelectQuery|null $selectQuery = null;
 
     /**
      * @var SelectEntity|null
@@ -43,8 +43,14 @@ class SelectFacade extends AbstractFacade
     public function __construct(AbstractFacade $dbFacade, protected TimerService $timer)
     {
         parent::__construct($dbFacade);
+    }
 
-        $this->selectQuery = new SelectQuery($this->page, $this->driver, $this->utils);
+    /**
+     * @return SelectQuery
+     */
+    private function query(): SelectQuery
+    {
+        return $this->selectQuery ??= new SelectQuery($this->page, $this->driver, $this->utils);
     }
 
     /**
@@ -60,7 +66,7 @@ class SelectFacade extends AbstractFacade
         $tableName = $this->page->tableName($tableStatus);
         $this->selectEntity = new SelectEntity($table,
             $tableName, $tableStatus, $queryOptions);
-        $this->selectQuery->prepareSelect($this->selectEntity);
+        $this->query()->prepareSelect($this->selectEntity);
     }
 
     /**
@@ -149,7 +155,7 @@ class SelectFacade extends AbstractFacade
             // $header['key'] = $this->utils->str
             //     ->html($this->driver->bracketEscape($key));
             //! columns looking like functions
-            $header['title'] = $this->selectQuery->applySqlFunction($fun, $name);
+            $header['title'] = $this->query()->applySqlFunction($fun, $name);
         }
         // $functions[$key] = $fun;
         next($this->selectEntity->select);
@@ -358,7 +364,7 @@ class SelectFacade extends AbstractFacade
                 $this->selectEntity->where, $this->hasGroupsInFields(),
                 $this->selectEntity->group);
             return (int)$this->driver->result($query);
-        } catch(Exception $_) {
+        } catch(Exception) {
             return -1;
         }
     }

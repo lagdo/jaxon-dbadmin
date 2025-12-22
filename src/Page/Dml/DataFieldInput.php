@@ -14,7 +14,6 @@ use function is_string;
 use function min;
 use function preg_match;
 use function preg_match_all;
-use function reset;
 use function stripcslashes;
 use function str_replace;
 use function substr_count;
@@ -236,7 +235,7 @@ class DataFieldInput
                 ...$attrs,
                 ...$fieldAttrs,
             ],
-            'value' => $this->utils->str->html($editField->value),
+            'value' => $this->utils->html($editField->value),
         ];
     }
 
@@ -325,17 +324,11 @@ class DataFieldInput
 
         return match(true) {
             $editField->isEnum() => $this->getEnumFieldInput($editField, $attrs),
-
             $editField->isBool() => $this->getBoolFieldInput($editField, $attrs),
-
             $editField->isSet() => $this->getSetFieldInput($editField, $attrs),
-
             $this->isBlob($editField) => $this->getFileFieldInput($editField, $attrs),
-
             $editField->isJson() => $this->getJsonFieldInput($editField, $attrs),
-
             $editField->editText() => $this->getTextFieldInput($editField, $attrs),
-
             default => $this->getDefaultFieldInput($editField, $attrs),
         };
     }
