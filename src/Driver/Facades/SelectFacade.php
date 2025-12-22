@@ -8,6 +8,7 @@ use Lagdo\DbAdmin\Db\Page\Dql\SelectResult;
 use Lagdo\DbAdmin\Db\Service\TimerService;
 use Exception;
 
+use function array_keys;
 use function count;
 
 /**
@@ -61,11 +62,9 @@ class SelectFacade extends AbstractFacade
     {
         $tableStatus = $this->driver->tableStatusOrName($table);
         $tableName = $this->page->tableName($tableStatus);
-        $selectEntity = new SelectEntity($table,
-            $tableName, $tableStatus, $queryOptions);
-        $this->query()->prepareSelect($selectEntity);
-
-        return $selectEntity;
+        $selectEntity = new SelectEntity($table, $tableName,
+            $tableStatus, $queryOptions);
+        return $this->query()->prepareSelect($selectEntity);
     }
 
     /**
@@ -83,17 +82,6 @@ class SelectFacade extends AbstractFacade
     }
 
     /**
-     * @param SelectEntity $selectEntity
-     *
-     * @return bool
-     */
-    private function hasGroupsInFields(SelectEntity $selectEntity): bool
-    {
-        return count($selectEntity->group) <
-            count($selectEntity->select);
-    }
-
-    /**
      * Get required data for create/update on tables
      *
      * @param string $table The table name
@@ -104,11 +92,11 @@ class SelectFacade extends AbstractFacade
     public function countSelect(string $table, array $queryOptions): int
     {
         $selectEntity = $this->prepareSelect($table, $queryOptions);
+        $hasGroupsInFields = count($selectEntity->group) < count($selectEntity->select);
 
         try {
-            $query = $this->driver->getRowCountQuery($table,
-                $selectEntity->where, $this->hasGroupsInFields($selectEntity),
-                $selectEntity->group);
+            $query = $this->driver->getRowCountQuery($table, $selectEntity->where,
+                $hasGroupsInFields, $selectEntity->group);
             return (int)$this->driver->result($query);
         } catch(Exception) {
             return -1;
@@ -157,7 +145,6 @@ class SelectFacade extends AbstractFacade
     public function execSelect(string $table, array $queryOptions): array
     {
         $selectEntity = $this->prepareSelect($table, $queryOptions);
-
         $this->executeQuery($selectEntity);
 
         if ($selectEntity->error !== null) {
@@ -165,7 +152,7 @@ class SelectFacade extends AbstractFacade
                 'message' => $selectEntity->error,
             ];
         }
-        if (!$selectEntity->rows) {
+        if (count($selectEntity->rows) === 0) {
             return [
                 'message' => $this->utils->trans->lang('No rows.'),
             ];
@@ -174,7 +161,8 @@ class SelectFacade extends AbstractFacade
         // $backward_keys = $this->driver->backwardKeys($table, $tableName);
         // lengths = $this->getValuesLengths($rows, $selectEntity->queryOptions);
 
-        $this->result()->setResultHeaders($selectEntity);
+        $queryFields = array_keys($selectEntity->rows[0]);
+        $this->result()->setResultHeaders($selectEntity, $queryFields);
 
         return [
             'headers' => $selectEntity->headers,

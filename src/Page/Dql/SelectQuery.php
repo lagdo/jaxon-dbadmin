@@ -138,27 +138,20 @@ class SelectQuery
         $op = $value['op'];
         $val = $value['val'];
         $col = $value['col'];
-        // Todo: use match
-        if (preg_match('~IN$~', $op)) {
-            $in = $this->driver->processLength($val);
-            return " $op " . ($in !== '' ? $in : '(NULL)');
-        }
-        if ($op === 'SQL') {
-            return ' ' . $val; // SQL injection
-        }
-        if ($op === 'LIKE %%') {
-            return ' LIKE ' . $this->page->getUnconvertedFieldValue($fields[$col], "%$val%");
-        }
-        if ($op === 'ILIKE %%') {
-            return ' ILIKE ' . $this->page->getUnconvertedFieldValue($fields[$col], "%$val%");
-        }
-        if ($op === 'FIND_IN_SET') {
-            return ')';
-        }
-        if (!preg_match('~NULL$~', $op)) {
-            return " $op " . $this->page->getUnconvertedFieldValue($fields[$col], $val);
-        }
-        return " $op";
+
+        return match(true) {
+            preg_match('~IN$~', $op) => " $op " .
+                (($in = $this->driver->processLength($val)) !== '' ? $in : '(NULL)'),
+            $op === 'SQL' => " $val", // SQL injection
+            $op === 'LIKE %%' => ' LIKE ' . $this->page
+                ->getUnconvertedFieldValue($fields[$col], "%$val%"),
+            $op === 'ILIKE %%' => ' ILIKE ' . $this->page
+                ->getUnconvertedFieldValue($fields[$col], "%$val%"),
+            $op === 'FIND_IN_SET' => ')',
+            !preg_match('~NULL$~', $op) => " $op " .
+                $this->page->getUnconvertedFieldValue($fields[$col], $val),
+            default => " $op",
+        };
     }
 
     /**
@@ -172,6 +165,7 @@ class SelectQuery
         $op = $value['op'];
         $val = $value['val'];
         $in = preg_match('~IN$~', $op) ? ',' : '';
+
         return (preg_match('~^[-\d.' . $in . ']+$~', $val) ||
                 !preg_match('~' . $this->driver->numberRegex() . '|bit~', $field->type)) &&
             (!preg_match("~[\x80-\xFF]~", $val) ||
@@ -207,10 +201,8 @@ class SelectQuery
                         $value, $field) . $condition;
             }
         }
-        if (empty($clauses)) {
-            return '1 = 0';
-        }
-        return '(' . implode(' OR ', $clauses) . ')';
+
+        return empty($clauses) ? '1 = 0' : ('(' . implode(' OR ', $clauses) . ')');
     }
 
     /**
@@ -229,6 +221,7 @@ class SelectQuery
         if (isset($this->utils->input->values['boolean'][$i])) {
             $match .= ' IN BOOLEAN MODE';
         }
+
         return 'MATCH (' . implode(', ', $columns) . ') AGAINST (' . $match . ')';
     }
 

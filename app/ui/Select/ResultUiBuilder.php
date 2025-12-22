@@ -6,7 +6,6 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultRow;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function array_shift;
 use function Jaxon\rq;
 
 class ResultUiBuilder
@@ -51,7 +50,8 @@ class ResultUiBuilder
      */
     public function resultSet(array $headers, array $rows): string
     {
-        array_shift($headers);
+        $rqResultRow = rq(ResultRow::class);
+
         return $this->ui->build(
             $this->ui->table(
                 $this->ui->thead(
@@ -66,7 +66,7 @@ class ResultUiBuilder
                     $this->ui->each($rows, fn(array $row) =>
                         $this->ui->tr($this->_resultRowContent($row))
                             ->when($row['editId'] > 0, fn($tr) =>
-                                $tr->jxnBind(rq(ResultRow::class), $row['editItemId'])))
+                                $tr->jxnBind($rqResultRow, $row['editItemId'])))
                 )
             )->responsive(true)->style('bordered')
         );

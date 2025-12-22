@@ -8,8 +8,8 @@ use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 use function array_map;
-use function compact;
 use function current;
+use function in_array;
 use function is_string;
 use function key;
 use function md5;
@@ -19,6 +19,9 @@ use function strlen;
 use function strpos;
 use function trim;
 
+/**
+ * Prepare the results of a select query for the frontend.
+ */
 class SelectResult
 {
     /**
@@ -35,11 +38,11 @@ class SelectResult
     /**
      * @param SelectEntity $selectEntity
      * @param string $key
-     * @param int $rank
+     * @param int $position
      *
      * @return array
      */
-    private function getResultHeaderItem(SelectEntity $selectEntity, string $key, int $rank): array
+    private function getResultHeaderItem(SelectEntity $selectEntity, string $key, int $position): array
     {
         $valueKey = key($selectEntity->select);
         $value = $selectEntity->queryOptions["columns"][$valueKey] ?? [];
@@ -48,8 +51,7 @@ class SelectResult
         $fieldKey = !$selectEntity->select ? $key :
             ($value["col"] ?? current($selectEntity->select));
         $field = $selectEntity->fields[$fieldKey];
-        $name = !$field ? ($fun ? "*" : $key) :
-            $this->page->fieldName($field, $rank);
+        $name = !$field ? ($fun ? "*" : $key) : $this->page->fieldName($field, $position);
 
         return [$fun, $name, $field];
     }
@@ -57,26 +59,24 @@ class SelectResult
     /**
      * @param SelectEntity $selectEntity
      * @param string $key
-     * @param mixed $value
-     * @param int $rank
+     * @param int $position
      *
      * @return array
      */
-    private function getResultHeader(SelectEntity $selectEntity, string $key, $value, int $rank): array
+    private function getResultHeader(SelectEntity $selectEntity, string $key, int $position): array
     {
         if (isset($selectEntity->unselected[$key])) {
             return [];
         }
 
-        [$fun, $name, $field] = $this->getResultHeaderItem($selectEntity, $key, $rank);
-        $header = compact('field', 'name');
+        [$fun, $name, $field] = $this->getResultHeaderItem($selectEntity, $key, $position);
+        $header = ['field' => $field, 'name' => $name];
         if ($name != "") {
             $selectEntity->names[$key] = $name;
             // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
             // $desc = "&desc%5B0%5D=1";
             $header['column'] = $this->driver->escapeId($key);
-            // $header['key'] = $this->utils->str
-            //     ->html($this->driver->bracketEscape($key));
+            // $header['key'] = $this->utils->html($this->driver->bracketEscape($key));
             //! columns looking like functions
             $header['title'] = $this->page->applySqlFunction($fun, $name);
         }
@@ -88,24 +88,25 @@ class SelectResult
 
     /**
      * Get the result headers from the first result row
+     *
+     * @param SelectEntity $selectEntity
+     * @param array $queryFields
+     *
      * @return void
      */
-    public function setResultHeaders(SelectEntity $selectEntity): void
+    public function setResultHeaders(SelectEntity $selectEntity, array $queryFields): void
     {
         // Results headers
-        $selectEntity->headers = [
-            '', // !$group && $select ? '' : lang('Modify');
-        ];
+        $selectEntity->headers = [];
         $selectEntity->names = [];
         // $selectEntity->functions = [];
         reset($selectEntity->select);
 
-        $rank = 1;
-        $firstResultRow = $selectEntity->rows[0];
-        foreach ($firstResultRow as $key => $value) {
-            $header = $this->getResultHeader($selectEntity, $key, $value, $rank);
+        $position = 1;
+        foreach ($queryFields as $key) {
+            $header = $this->getResultHeader($selectEntity, $key, $position);
             if ($header['name'] ?? '' !== '') {
-                $rank++;
+                $position++;
             }
             $selectEntity->headers[] = $header;
         }
@@ -163,8 +164,7 @@ class SelectResult
      */
     private function shouldEncodeRowId(string $type, $value): bool
     {
-        $jush = $this->driver->jush();
-        return ($jush === "sql" || $jush === "pgsql") &&
+        return in_array($this->driver->jush(), ['sql', 'pgsql']) &&
             is_string($value) && strlen($value) > 64 &&
             preg_match('~char|text|enum|set~', $type);
     }
@@ -206,7 +206,7 @@ class SelectResult
             $key = "MD5(" . $this->getRowIdMd5Key($key, $collation) . ")";
             $value = md5($value);
         }
-        return [$key, $value];
+        return [$this->driver->bracketEscape($key), $value];
     }
 
     /**
@@ -223,14 +223,15 @@ class SelectResult
         $rowIds = ['where' => [], 'null' => []];
         foreach ($uniqueIds as $key => $value) {
             [$key, $value] = $this->getRowIdValue($selectEntity, $key, $value);
+
             // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" .
-            // $this->driver->bracketEscape($key) . "]") . "=" .
+            // $key . "]") . "=" .
             // \urlencode($value) : \urlencode("null[]") . "=" . \urlencode($key));
             if ($value === null) {
-                $rowIds['null'][] = $this->driver->bracketEscape($key);
+                $rowIds['null'][] = $key;
                 continue;
             }
-            $rowIds['where'][$this->driver->bracketEscape($key)] = $value;
+            $rowIds['where'][$key] = $value;
         }
         return $rowIds;
     }
@@ -275,7 +276,7 @@ class SelectResult
     public function getRows(SelectEntity $selectEntity): array
     {
         return array_map(fn($row) => [
-            // Unique identifier to edit returned data.
+            // The unique identifiers to edit the result rows.
             'ids' => $this->getRowIds($selectEntity, $row),
             'cols' => $this->getRowValues($selectEntity, $row),
         ], $selectEntity->rows);
