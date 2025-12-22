@@ -87,7 +87,7 @@ class FieldEditEntity
      */
     public function isEnum(): bool
     {
-        return $this->field->type === 'enum';
+        return $this->type === 'enum';
     }
 
     /**
@@ -95,7 +95,7 @@ class FieldEditEntity
      */
     public function isSet(): bool
     {
-        return $this->field->type === 'set';
+        return $this->type === 'set';
     }
 
     /**
@@ -103,7 +103,7 @@ class FieldEditEntity
      */
     public function isBool(): bool
     {
-        return preg_match('~bool~', $this->field->type);
+        return preg_match('~bool~', $this->type);
     }
 
     /**
@@ -111,7 +111,7 @@ class FieldEditEntity
      */
     public function isJson(): bool
     {
-        return $this->function === "json" || preg_match('~^jsonb?$~', $this->field->type);
+        return $this->function === "json" || preg_match('~^jsonb?$~', $this->type);
     }
 
     /**
@@ -119,7 +119,7 @@ class FieldEditEntity
      */
     public function isText(): bool
     {
-        return $this->isText ??= (bool)preg_match('~text|lob|memo~i', $this->field->type);
+        return $this->isText ??= (bool)preg_match('~text|lob|memo~i', $this->type);
     }
 
     /**
@@ -136,7 +136,7 @@ class FieldEditEntity
     public function isSearch(): bool
     {
         // PostgreSQL search types.
-        return in_array($this->field->type, ['tsvector', 'tsquery']);
+        return in_array($this->type, ['tsvector', 'tsquery']);
     }
 
     /**
@@ -170,7 +170,7 @@ class FieldEditEntity
     public function isNumber(): bool
     {
         return (!$this->hasFunction() || $this->function === "") &&
-            preg_match('~(?<!o)int(?!er)~', $this->field->type) &&
+            preg_match('~(?<!o)int(?!er)~', $this->type) &&
             !preg_match('~\[\]~', $this->field->fullType);
     }
 
@@ -181,7 +181,7 @@ class FieldEditEntity
      */
     public function bigSize(int $maxlength): bool
     {
-        return preg_match('~char|binary~', $this->field->type) && $maxlength > 20;
+        return preg_match('~char|binary~', $this->type) && $maxlength > 20;
     }
 
     /**

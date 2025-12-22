@@ -265,7 +265,7 @@ class DataFieldInput
             ((preg_match("~binary~", $type) ? 2 : 1) *
                 ($match[1] ?? 0) + (($match[3] ?? false) ? 1 : 0) +
                 (($match[2] ?? false) && !$unsigned ? 1 : 0)) :
-            ($types[$type] ? $types[$type] + ($unsigned ? 0 : 1) : 0)
+            (isset($types[$type]) ? $types[$type] + ($unsigned ? 0 : 1) : 0)
         );
 
         return $this->driver->jush() === 'sql' &&

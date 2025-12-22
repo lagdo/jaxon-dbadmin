@@ -6,11 +6,13 @@ use Lagdo\DbAdmin\Db\Page\AppPage;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Driver\Entity\UserTypeEntity;
 
 use function bin2hex;
 use function implode;
 use function is_array;
 use function is_bool;
+use function json_encode;
 use function preg_match;
 
 /**
@@ -22,6 +24,11 @@ class DataFieldValue
      * @var bool
      */
     private bool $isUpdate = false;
+
+    /**
+     * @var array<UserTypeEntity>
+     */
+    private array $userTypes;
 
     /**
      * The constructor
@@ -36,6 +43,7 @@ class DataFieldValue
         private Utils $utils, private string $action, private string $operation)
     {
         $this->isUpdate = $operation === 'update';
+        $this->userTypes = $this->driver->userTypes(true);
     }
 
     /**
@@ -221,7 +229,8 @@ class DataFieldValue
         // $editField->functions = [...$editField->functions, ...$this->editFunctions($field)];
         $editField->functions = $this->editFunctions($field);
 
-        $editField->enums = $this->driver->enumValues($field);
+        $userType = $this->userTypes[$field->type] ?? null;
+        $editField->enums = $userType?->enums ?? [];
         if ($editField->enums) {
             $editField->type = 'enum';
             $editField->field->length = $editField->enumsLength();

@@ -28,7 +28,7 @@ class EditUiBuilder
                     $this->ui->radio($input['orig']['attrs'])
                         ->setAttribute('value', $input['orig']['value'], false)
                         ->setStyle('margin-right:3px;'),
-                    $this->ui->html($input['orig']['label'])
+                    $this->ui->span($input['orig']['label'])
                 )->setFor($input['orig']['attrs']['id'])
                     ->setStyle('margin-right:7px;')
             ),
@@ -37,7 +37,7 @@ class EditUiBuilder
                     $this->ui->radio($item['attrs'])
                         ->setAttribute('value', $item['value'], false)
                         ->setStyle('margin-right:3px;'),
-                    $this->ui->html($item['label'])
+                    $this->ui->span($item['label'])
                 )->setFor($item['attrs']['id'])
                     ->setStyle('margin-right:7px;')
             )
@@ -56,7 +56,7 @@ class EditUiBuilder
                 $this->ui->checkbox($item['attrs'])
                     ->setAttribute('value', $item['value'], false)
                     ->setStyle('margin-right:3px;'),
-                $this->ui->html($item['label'])
+                $this->ui->span($item['label'])
             )->setFor($item['attrs']['id'])
                 ->setStyle('margin-right:7px;')
         );
