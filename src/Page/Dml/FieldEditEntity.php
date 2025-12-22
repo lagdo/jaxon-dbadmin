@@ -133,9 +133,18 @@ class FieldEditEntity
     /**
      * @return boolean
      */
+    public function isSearch(): bool
+    {
+        // PostgreSQL search types.
+        return in_array($this->field->type, ['tsvector', 'tsquery']);
+    }
+
+    /**
+     * @return boolean
+     */
     public function editText(): bool
     {
-        return $this->isText() || $this->hasNewLine();
+        return $this->isText() || $this->hasNewLine() || $this->isSearch();
     }
 
     /**

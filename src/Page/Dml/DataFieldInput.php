@@ -215,13 +215,23 @@ class DataFieldInput
 
     /**
      * @param FieldEditEntity $editField
+     *
+     * @return bool
+     */
+    private function textSizeIsFixed(FieldEditEntity $editField): bool
+    {
+        return ($editField->isText() && $this->driver->jush() !== 'sqlite') || $editField->isSearch();
+    }
+
+    /**
+     * @param FieldEditEntity $editField
      * @param array $attrs
      *
      * @return array
      */
     private function getTextFieldInput(FieldEditEntity $editField, array $attrs): array
     {
-        $fieldAttrs = $editField->isText() && $this->driver->jush() !== 'sqlite' ? [
+        $fieldAttrs = $this->textSizeIsFixed($editField) ? [
             'cols' => '50',
             'rows' => '5',
         ] : [
