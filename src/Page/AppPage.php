@@ -209,7 +209,7 @@ class AppPage
      *
      * @return string
      */
-    public function getInputFieldExpression(TableFieldEntity $field,
+    private function getInputFieldExpression(TableFieldEntity $field,
         string $value, string $function): string
     {
         $fieldName = $this->driver->escapeId($field->name);

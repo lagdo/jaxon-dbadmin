@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\Db\Page\Dml;
 use Lagdo\DbAdmin\Db\Page\AppPage;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Driver\Entity\UserTypeEntity;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 use function count;
@@ -21,6 +22,11 @@ use function substr;
 class DataRowReader
 {
     /**
+     * @var array<UserTypeEntity>
+     */
+    private array $userTypes;
+
+    /**
      * The constructor
      *
      * @param AppPage $page
@@ -29,7 +35,9 @@ class DataRowReader
      */
     public function __construct(private AppPage $page,
         private DriverInterface $driver, private Utils $utils)
-    {}
+    {
+        $this->userTypes = $this->driver->userTypes(true);
+    }
 
     /**
      * Get the user input values for data save on insert and update
@@ -37,11 +45,10 @@ class DataRowReader
      *
      * @param TableFieldEntity $field
      * @param array $values
-     * @param array $enumValues
      *
      * @return mixed
      */
-    private function getInputValue(TableFieldEntity $field, array $values, array $enumValues): mixed
+    private function getInputValue(TableFieldEntity $field, array $values): mixed
     {
         if ($field->isDisabled()) {
             return false;
@@ -49,6 +56,9 @@ class DataRowReader
 
         $fieldId = $this->driver->bracketEscape($field->name);
         $value = $values['fields'][$fieldId];
+
+        $userType = $this->userTypes[$field->type] ?? null;
+        $enumValues = $userType?->enums ?? [];
         if ($field->type === "enum" || count($enumValues) > 0) {
             $value = $value[0];
             if ($value === "orig") {
@@ -72,6 +82,10 @@ class DataRowReader
                 $this->driver->escapeId($field->name) : false;
         }
 
+        if ($function === 'NULL') {
+            return 'NULL';
+        }
+
         if ($field->type === 'set') {
             $value = implode(',', (array)$value);
         }
@@ -80,13 +94,13 @@ class DataRowReader
             $function = '';
             $value = json_decode($value, true);
             //! report errors
-            return !is_array($value) ? false : $value;
+            return is_array($value) ? $value : false;
         }
 
         if ($this->utils->isBlob($field) && $this->utils->iniBool('file_uploads')) {
             $file = $this->page->getFileContents("fields-$fieldId");
             //! report errors
-            return !is_string($file) ? false : $this->driver->quoteBinary($file);
+            return is_string($file) ? $this->driver->quoteBinary($file) : false;
         }
 
         return $this->page->getUnconvertedFieldValue($field, $value, $function);
@@ -100,13 +114,10 @@ class DataRowReader
      */
     public function getInputValues(array $fields, array $inputs): array
     {
-        $userTypes = $this->driver->userTypes(true);
         // From edit.inc.php
         $values = [];
         foreach ($fields as $name => $field) {
-            $userType = $userTypes[$field->type] ?? null;
-            $enumValues = !$userType ? [] : $userType->enums;
-            $value = $this->getInputValue($field, $inputs, $enumValues);
+            $value = $this->getInputValue($field, $inputs);
             if ($value !== false && $value !== null) {
                 $values[$this->driver->escapeId($name)] = $value;
             }

@@ -209,7 +209,7 @@ class DataFieldInput
                 'rows' => '5',
                 'class' => 'jush-js',
             ],
-            'value' => $this->utils->str->html($editField->value),
+            'value' => $this->utils->str->html($editField->value ?? ''),
         ];
     }
 
@@ -236,7 +236,7 @@ class DataFieldInput
             'rows' => '5',
         ] : [
             'cols' => '30',
-            'rows' => min(5, substr_count($editField->value, "\n") + 1),
+            'rows' => min(5, substr_count($editField->value ?? '', "\n") + 1),
         ];
         return [
             'field' => 'text',
@@ -244,7 +244,7 @@ class DataFieldInput
                 ...$attrs,
                 ...$fieldAttrs,
             ],
-            'value' => $this->utils->html($editField->value),
+            'value' => $this->utils->html($editField->value ?? ''),
         ];
     }
 
