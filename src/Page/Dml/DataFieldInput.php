@@ -63,7 +63,6 @@ class DataFieldInput
         }
 
         // From html.inc.php: function enum_input(string $type, string $attrs, array $field, $value, string $empty = "")
-        $fieldId = $attrs['id'];
         $prefix = $editField->type === 'enum' ? 'val-' : '';
         $items = [];
         if ($editField->field->null && $prefix) {
@@ -71,11 +70,11 @@ class DataFieldInput
             $items[] = [
                 'attrs' => [
                     ...$attrs,
-                    'id' => "{$fieldId}_null", // Overwrite the id value in the $attrs array.
-                    'value' => 'null',
+                    'id' => "{$attrs['id']}_null", // Overwrite the id value in the $attrs array.
                     ...$checkedAttr,
                 ],
                 'label' => "<i>$default</i>",
+                'value' => 'null',
             ];
         }
 
@@ -87,11 +86,11 @@ class DataFieldInput
             $items[] = [
                 'attrs' => [
                     ...$attrs,
-                    'id' => "{$fieldId}_{$enumValue}", // Overwrite the id value in the $attrs array.
-                    'value' => $this->utils->html($fieldName),
+                    'id' => "{$attrs['id']}_{$enumValue}", // Overwrite the id value in the $attrs array.
                     ...$checkedAttr,
                 ],
                 'label' => $this->utils->html($enumValue),
+                'value' => $this->utils->html($fieldName),
             ];
         }
 
@@ -112,10 +111,10 @@ class DataFieldInput
             $values['orig'] = [
                 'attrs' => [
                     ...$attrs,
-                    'value' => 'orig',
                     'checked' => 'checked',
                 ],
                 'label' => '<i>' . $this->utils->trans->lang('original') . '</i>',
+                'value' => 'orig',
             ];
         }
         $values['items'] = $this->itemList($editField, $attrs, 'NULL');
@@ -281,7 +280,6 @@ class DataFieldInput
         if ($editField->isNumber()) {
             $attrs['type'] = 'number';
         }
-        $attrs['value'] = $this->utils->html($editField->value ?? '');
         if ($maxlength > 0) {
             $attrs['data-maxlength'] = $maxlength;
         }
@@ -292,6 +290,7 @@ class DataFieldInput
         return [
             'field' => 'input',
             'attrs' => $attrs,
+            'value' => $this->utils->html($editField->value ?? ''),
         ];
     }
 
