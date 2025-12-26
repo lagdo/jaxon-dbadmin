@@ -4,6 +4,10 @@ namespace Lagdo\DbAdmin\Db;
 
 use Lagdo\DbAdmin\Ajax\Admin\Admin;
 use Jaxon\Plugin\AbstractPackage;
+use Jaxon\Plugin\CssCode;
+use Jaxon\Plugin\CssCodeGeneratorInterface;
+use Jaxon\Plugin\JsCode;
+use Jaxon\Plugin\JsCodeGeneratorInterface;
 
 use function in_array;
 use function is_array;
@@ -14,7 +18,7 @@ use function Jaxon\rq;
 /**
  * Jaxon DbAdmin package
  */
-class DbAdminPackage extends AbstractPackage
+class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterface, JsCodeGeneratorInterface
 {
     /**
      * Get the path to the config file
@@ -102,46 +106,30 @@ class DbAdminPackage extends AbstractPackage
     }
 
     /**
-     * Get the HTML tags to include CSS code and files into the page
-     *
-     * The code must be enclosed in the appropriate HTML tags.
-     *
-     * @return string
+     * @inheritDoc
      */
-    public function getCss(): string
+    public function getCssCode(): CssCode
     {
-        return "<style>\n" .
+        $sCode = "/* Spinner CSS code. */\n" .
             $this->view()->render('dbadmin::codes::spin.css') .
-            "\n/* Spinner CSS code. */\n" .
-            $this->view()->render('dbadmin::codes::styles.css') .
-            "\n</style>\n";
+            "\n/* DbAdmin CSS code. */\n" .
+            $this->view()->render('dbadmin::codes::styles.css');
+
+        return new CssCode($sCode);
     }
 
     /**
-     * Get the HTML tags to include javascript code and files into the page
-     *
-     * The code must be enclosed in the appropriate HTML tags.
-     *
-     * @return string
+     * @inheritDoc
      */
-    public function getJs(): string
+    public function getJsCode(): JsCode
     {
-        return $this->view()->render('dbadmin::codes::js.html');
-    }
-
-    /**
-     * Get the javascript code to include into the page
-     *
-     * The code must NOT be enclosed in HTML tags.
-     *
-     * @return string
-     */
-    public function getScript(): string
-    {
-        return "// Spinner javascript code.\n\n" .
+        $html = $this->view()->render('dbadmin::codes::js.html');
+        $code = "// Spinner javascript code.\n\n" .
             $this->view()->render('dbadmin::codes::spin.js') . "\n\n" .
             $this->view()->render('dbadmin::codes::script.js') . "\n\n" .
             $this->view()->render('dbadmin::codes::editor.js');
+
+        return new JsCode(sCode: $code, sHtml: $html);
     }
 
     /**
