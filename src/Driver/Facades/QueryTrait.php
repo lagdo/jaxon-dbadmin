@@ -36,6 +36,23 @@ trait QueryTrait
     }
 
     /**
+     * Build the SQL query to insert a new item in a table
+     *
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
+     * @param array  $values        The updated values
+     *
+     * @return array
+     */
+    public function getInsertQuery(string $table, array $queryOptions, array $values): array
+    {
+        $this->connectToSchema();
+        $this->utils->input->table = $table;
+        $this->utils->input->values = $values;
+        return $this->queryFacade()->getInsertQuery($table, $queryOptions, $values);
+    }
+
+    /**
      * Insert a new item in a table
      *
      * @param string $table         The table name
@@ -69,6 +86,23 @@ trait QueryTrait
     }
 
     /**
+     * Build the SQL query to update one or more items in a table
+     *
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
+     * @param array  $values        The updated values
+     *
+     * @return array
+     */
+    public function getUpdateQuery(string $table, array $queryOptions, array $values): array
+    {
+        $this->connectToSchema();
+        $this->utils->input->table = $table;
+        $this->utils->input->values = $values;
+        return $this->queryFacade()->getUpdateQuery($table, $queryOptions, $values);
+    }
+
+    /**
      * Update one or more items in a table
      *
      * @param string $table         The table name
@@ -83,6 +117,22 @@ trait QueryTrait
         $this->utils->input->table = $table;
         $this->utils->input->values = $values;
         return $this->queryFacade()->updateItem($table, $queryOptions, $values);
+    }
+
+    /**
+     * Build the SQL query to delete one or more items in a table
+     *
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
+     *
+     * @return array
+     */
+    public function getDeleteQuery(string $table, array $queryOptions): array
+    {
+        $this->connectToSchema();
+        $this->utils->input->table = $table;
+        $this->utils->input->values = $queryOptions;
+        return $this->queryFacade()->getDeleteQuery($table, $queryOptions);
     }
 
     /**

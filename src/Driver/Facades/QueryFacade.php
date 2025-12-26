@@ -174,6 +174,29 @@ class QueryFacade extends AbstractFacade
     }
 
     /**
+     * Build the SQL query to insert a new item in a table
+     *
+     * @param string $table         The table name
+     * @param array  $options       The query options
+     * @param array  $values        The updated values
+     *
+     * @return array
+     */
+    public function getInsertQuery(string $table, array $options, array $values): array
+    {
+        $this->action = 'save';
+        $this->operation = 'insert';
+
+        [$fields,] = $this->getFields($table, $options);
+        $values = $this->reader()->getInputValues($fields, $values);
+
+        $query = $this->driver->getInsertQuery($table, $values);
+        return $query !== '' ? ['query' => $query] : [
+            'error' => $this->utils->trans->lang('Unable to build the SQL code for this insert query.'),
+        ];
+    }
+
+    /**
      * Insert a new item in a table
      *
      * @param string $table         The table name
@@ -218,6 +241,30 @@ class QueryFacade extends AbstractFacade
     }
 
     /**
+     * Build the SQL query to update one or more items in a table
+     *
+     * @param string $table         The table name
+     * @param array  $options       The query options
+     * @param array  $values        The updated values
+     *
+     * @return array
+     */
+    public function getUpdateQuery(string $table, array $options, array $values): array
+    {
+        $this->action = 'save';
+        $this->operation = 'update';
+
+        [$fields, $where] = $this->getFields($table, $options);
+        $values = $this->reader()->getInputValues($fields, $values);
+        $limit = $this->getQueryLimit($table, $options);
+
+        $query = $this->driver->getUpdateQuery($table, $values, "\nWHERE $where", $limit);
+        return $query !== '' ? ['query' => $query] : [
+            'error' => $this->utils->trans->lang('Unable to build the SQL code for this insert query.'),
+        ];
+    }
+
+    /**
      * Update one or more items in a table
      *
      * @param string $table         The table name
@@ -254,6 +301,28 @@ class QueryFacade extends AbstractFacade
         return [
             'cols' => $this->writer()->getUpdatedRow($result, $fields, $options),
             'message' => $this->utils->trans->lang('Item has been updated.'),
+        ];
+    }
+
+    /**
+     * Build the SQL query to delete one or more items in a table
+     *
+     * @param string $table         The table name
+     * @param array  $options       The query options
+     *
+     * @return array
+     */
+    public function getDeleteQuery(string $table, array $options): array
+    {
+        $this->action = 'save';
+        $this->operation = 'update';
+
+        [, $where] = $this->getFields($table, $options);
+        $limit = $this->getQueryLimit($table, $options);
+
+        $query = $this->driver->getDeleteQuery($table, "\nWHERE $where", $limit);
+        return $query !== '' ? ['query' => $query] : [
+            'error' => $this->utils->trans->lang('Unable to build the SQL code for this insert query.'),
         ];
     }
 
