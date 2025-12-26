@@ -50,7 +50,8 @@ class Update extends FuncComponent
         }
 
         $title = 'Edit row';
-        $content = $this->editUi->rowDataForm($this->queryFormId, $queryData['fields'], '400px');
+        $content = $this->editUi->rowDataForm($this->queryFormId, $queryData['fields']);
+        $values = je($this->queryFormId)->rd()->form();
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[
@@ -58,11 +59,16 @@ class Update extends FuncComponent
             'class' => 'btn btn-tertiary',
             'click' => 'close',
         ], [
+            'title' => $this->trans()->lang('Query'),
+            'class' => 'btn btn-primary',
+            'click' => $this->rq()->showQuery($editId, $rowIds, $values),
+        ], [
             'title' => $this->trans()->lang('Save'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save($editId, $rowIds, je($this->queryFormId)->rd()->form())
+            'click' => $this->rq()->save($editId, $rowIds, $values)
                 ->confirm($this->trans()->lang('Save this item?')),
         ]];
+
         $this->modal()->show($title, $content, $buttons, $options);
     }
 
@@ -111,5 +117,42 @@ class Update extends FuncComponent
         $this->alert()
             ->title($this->trans()->lang('Success'))
             ->success($result['message']);
+    }
+
+    /**
+     * @param int   $editId
+     * @param array $rowIds
+     * @param array $formValues
+     *
+     * @return void
+     */
+    public function showQuery(int $editId, array $rowIds, array $formValues): void
+    {
+        if(!is_array($rowIds['where'] ?? 0) ||
+            count($rowIds['where']) === 0 || $editId <= 0)
+        {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error('Invalid query data');
+            return;
+        }
+
+        // Add the select options, which are used to format the modified data
+        $rowIds['select'] = $this->bag('dbadmin.select')->get('options', []);
+        $result = $this->db()->getUpdateQuery($this->getTableName(), $rowIds, $formValues);
+        // Show the error
+        if(isset($result['error']))
+        {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error($result['error']);
+            return;
+        }
+
+        // Show the query in a modal dialog.
+        $this->modal()->hide();
+
+        $buttons = [];
+        $this->showSqlQueryForm('SQL query for update', $result['query'], $buttons);
     }
 }

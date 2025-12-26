@@ -43,6 +43,9 @@ class Query extends Component
     #[After('showBreadcrumbs')]
     public function database(string $query = ''): void
     {
+        // The request might come from a modal dialog.
+        $this->modal()->hide();
+
         [, $this->database] = $this->bag('dbadmin')->get('db');
         $this->query = $query;
         $this->render();

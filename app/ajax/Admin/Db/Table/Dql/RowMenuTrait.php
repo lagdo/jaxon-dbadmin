@@ -35,6 +35,9 @@ trait RowMenuTrait
             'label' => $this->trans->lang('Delete'),
             'handler' => $this->rq(Delete::class)->exec($editId, $bagEntryValue)
                 ->confirm($this->trans()->lang('Delete this item?')),
+        ], [
+            'label' => $this->trans->lang('Delete query'),
+            'handler' => $this->rq(Delete::class)->showQuery($editId, $bagEntryValue),
         ]]);
     }
 }

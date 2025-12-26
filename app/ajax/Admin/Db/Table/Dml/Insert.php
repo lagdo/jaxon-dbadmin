@@ -39,7 +39,8 @@ class Insert extends FuncComponent
         }
 
         $title = "New item in table $tableName";
-        $content = $this->editUi->rowDataForm($this->queryFormId, $insertData['fields'], '400px');
+        $content = $this->editUi->rowDataForm($this->queryFormId, $insertData['fields']);
+        $values = je($this->queryFormId)->rd()->form();
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[
@@ -47,11 +48,16 @@ class Insert extends FuncComponent
             'class' => 'btn btn-tertiary',
             'click' => 'close',
         ], [
+            'title' => $this->trans()->lang('Query'),
+            'class' => 'btn btn-primary',
+            'click' => $this->rq()->showQuery($fromSelect, $values),
+        ], [
             'title' => $this->trans()->lang('Save'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save($fromSelect, je($this->queryFormId)->rd()->form())
+            'click' => $this->rq()->save($fromSelect, $values)
                 ->confirm($this->trans()->lang('Save this item?')),
         ]];
+
         $this->modal()->show($title, $content, $buttons, $options);
     }
 
@@ -85,5 +91,33 @@ class Insert extends FuncComponent
         $this->alert()
             ->title($this->trans()->lang('Success'))
             ->success($result['message']);
+    }
+
+    /**
+     * Execute the insert query
+     *
+     * @param bool $fromSelect
+     * @param array $formValues
+     *
+     * @return void
+     */
+    public function showQuery(bool $fromSelect, array $formValues): void
+    {
+        // No specific options for inserts.
+        $result = $this->db()->getInsertQuery($this->getTableName(), [], $formValues);
+        // Show the error
+        if(isset($result['error']))
+        {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error($result['error']);
+            return;
+        }
+
+        // Show the query in a modal dialog.
+        $this->modal()->hide();
+
+        $buttons = [];
+        $this->showSqlQueryForm('SQL query for insert', $result['query'], $buttons);
     }
 }

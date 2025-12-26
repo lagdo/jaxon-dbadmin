@@ -210,4 +210,28 @@ class EditUiBuilder
                     ->setStyle("max-height:$maxHeight; overflow-x:hidden; overflow-y:scroll;")
             );
     }
+
+    /**
+     * @param string $queryDivId
+     * @param string $queryText
+     *
+     * @return string
+     */
+    public function sqlCodeForm(string $queryDivId, string $queryText): string
+    {
+        return $this->ui->build(
+            $this->ui->formRow(
+                $this->ui->formCol(
+                    $this->ui->panel(
+                        $this->ui->panelBody(
+                            $this->ui->div($queryText)
+                                ->setId($queryDivId)
+                                ->setStyle('height: 300px;')
+                        )->setStyle('padding: 0 1px;')
+                    )->style('default')
+                        ->setStyle('padding: 5px;')
+                )->width(12)
+            )
+        );
+    }
 }
