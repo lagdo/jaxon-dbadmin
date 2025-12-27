@@ -55,12 +55,11 @@ class DataRowReader
         }
 
         $fieldId = $this->driver->bracketEscape($field->name);
-        $value = $values['field_values'][$fieldId];
-
         $userType = $this->userTypes[$field->type] ?? null;
         $enumValues = $userType?->enums ?? [];
         if ($field->type === "enum" || count($enumValues) > 0) {
-            $value = $value[0];
+            // An enum field with no value selected will have no entry in the values.
+            $value = $values['field_values'][$fieldId][0] ?? '';
             if ($value === "orig") {
                 return false;
             }
@@ -69,7 +68,11 @@ class DataRowReader
             }
 
             $value = substr($value, 4); // 4 - strlen("val-")
+            // There's no function on enum fields.
+            return $this->page->getUnconvertedFieldValue($field, $value);
         }
+
+        $value = $values['field_values'][$fieldId];
 
         if ($field->autoIncrement && $value === '') {
             return null;
