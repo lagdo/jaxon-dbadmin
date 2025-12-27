@@ -318,7 +318,7 @@ class DataFieldInput
         $attrs = [
             'id' => "fields_{$editField->name}",
             'name' => $editField->isEnum() || $editField->isSet() ?
-                "fields[{$editField->name}][]" : "fields[{$editField->name}]",
+                "field_values[{$editField->name}][]" : "field_values[{$editField->name}]",
         ];
         if ($editField->isDisabled()) {
             $attrs['disabled'] = 'disabled';
@@ -366,7 +366,7 @@ class DataFieldInput
         return [
             'select' => [
                 'attrs' => [
-                    'name' => "function[{$editField->name}]",
+                    'name' => "field_functions[{$editField->name}]",
                     ...$disabledAttr,
                 ],
                 'options' => $editField->functions,

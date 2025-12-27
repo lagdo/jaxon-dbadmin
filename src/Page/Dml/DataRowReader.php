@@ -55,7 +55,7 @@ class DataRowReader
         }
 
         $fieldId = $this->driver->bracketEscape($field->name);
-        $value = $values['fields'][$fieldId];
+        $value = $values['field_values'][$fieldId];
 
         $userType = $this->userTypes[$field->type] ?? null;
         $enumValues = $userType?->enums ?? [];
@@ -76,7 +76,7 @@ class DataRowReader
         }
 
         // The function is not provided for auto-incremented fields or enums.
-        $function = $values['function'][$fieldId] ?? '';
+        $function = $values['field_functions'][$fieldId] ?? '';
         if ($function === 'orig') {
             return preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) ?
                 $this->driver->escapeId($field->name) : false;
