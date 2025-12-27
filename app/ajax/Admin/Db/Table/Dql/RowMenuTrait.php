@@ -37,7 +37,7 @@ trait RowMenuTrait
                 ->confirm($this->trans()->lang('Delete this item?')),
         ], [
             'label' => $this->trans->lang('Delete query'),
-            'handler' => $this->rq(Delete::class)->showQuery($editId, $bagEntryValue),
+            'handler' => $this->rq(Delete::class)->showQueryCode($editId, $bagEntryValue),
         ]]);
     }
 }

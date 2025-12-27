@@ -11,6 +11,9 @@ use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Data\EditUiBuilder;
 
+use function in_array;
+use function is_array;
+
 #[Before('checkDatabaseAccess')]
 abstract class FuncComponent extends BaseFuncComponent
 {
@@ -29,13 +32,75 @@ abstract class FuncComponent extends BaseFuncComponent
     {}
 
     /**
+     * Build the form data with the edited values
+     *
+     * @param array $queryFields
+     * @param array $formValues
+     *
+     * @return array
+     */
+    protected function getEditedFormValues(array $queryFields, array $formValues): array
+    {
+        // Update the functions
+        foreach ($formValues['field_functions'] ?? [] as $field => $function) {
+            // Make sure the field is present.
+            if (!isset($queryFields[$field])) {
+                continue;
+            }
+
+            $queryField = $queryFields[$field];
+
+            if (isset($queryField->functionInput['select'])) {
+                $queryField->functionInput['select']['value'] = $function;
+            }
+        }
+
+        // Update the values
+        foreach ($formValues['field_values'] ?? [] as $field => $value)
+        {
+            // Make sure the field is present.
+            if (!isset($queryFields[$field])) {
+                continue;
+            }
+
+            $queryField = $queryFields[$field];
+
+            // The field has a simple value.
+            if (isset($queryField->valueInput['value'])) {
+                $queryField->valueInput['value'] = $value;
+                continue;
+            }
+
+            // The field is a checkbox for a boolean.
+            if ($queryField->valueInput['field'] === 'bool') {
+                $queryField->valueInput['checked'] = $value === '1';
+                continue;
+            }
+
+            // The field is a file upload.
+            if ($queryField->valueInput['field'] === 'file') {
+                continue;
+            }
+
+            // The field has an array value (set or enum).
+            if (isset($queryField->valueInput['items']) && is_array($value)) {
+                foreach ($queryField->valueInput['items'] as &$item) {
+                    $item['checked'] = in_array($item['value'], $value);
+                }
+            }
+        }
+
+        return $queryFields;
+    }
+
+    /**
      * @param string $title
      * @param string $query
      * @param array $buttons
      *
      * @return void
      */
-    protected function showSqlQueryForm(string $title, string $query, array $buttons = []): void
+    protected function showQueryCodeForm(string $title, string $query, array $buttons = []): void
     {
         // Show the query in a modal dialog.
         $queryDivId = 'dbadmin-table-show-sql-query';

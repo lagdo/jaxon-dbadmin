@@ -22,24 +22,14 @@ class Insert extends FuncComponent
 
     /**
      * @param bool $fromSelect
+     * @param array $fields
      *
      * @return void
      */
-    public function show(bool $fromSelect): void
+    private function showQueryDataForm(bool $fromSelect, array $fields): void
     {
-        $tableName = $this->getTableName();
-        $insertData = $this->db()->getInsertData($tableName);
-        // Show the error
-        if(isset($insertData['error']))
-        {
-            $this->alert()
-                ->title($this->trans()->lang('Error'))
-                ->error($insertData['error']);
-            return;
-        }
-
-        $title = "New item in table $tableName";
-        $content = $this->editUi->rowDataForm($this->queryFormId, $insertData['fields']);
+        $title = 'New item in table ' . $this->getTableName();
+        $content = $this->editUi->rowDataForm($this->queryFormId, $fields);
         $values = je($this->queryFormId)->rd()->form();
         // Bootbox options
         $options = ['size' => 'large'];
@@ -50,7 +40,7 @@ class Insert extends FuncComponent
         ], [
             'title' => $this->trans()->lang('Query'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->showQuery($fromSelect, $values),
+            'click' => $this->rq()->showQueryCode($fromSelect, $values),
         ], [
             'title' => $this->trans()->lang('Save'),
             'class' => 'btn btn-primary',
@@ -59,6 +49,26 @@ class Insert extends FuncComponent
         ]];
 
         $this->modal()->show($title, $content, $buttons, $options);
+    }
+
+    /**
+     * @param bool $fromSelect
+     *
+     * @return void
+     */
+    public function show(bool $fromSelect): void
+    {
+        $insertData = $this->db()->getInsertData($this->getTableName());
+        // Show the error
+        if(isset($insertData['error']))
+        {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error($insertData['error']);
+            return;
+        }
+
+        $this->showQueryDataForm($fromSelect, $insertData['fields']);
     }
 
     /**
@@ -94,14 +104,42 @@ class Insert extends FuncComponent
     }
 
     /**
-     * Execute the insert query
+     * Back to the insert form
      *
      * @param bool $fromSelect
      * @param array $formValues
      *
      * @return void
      */
-    public function showQuery(bool $fromSelect, array $formValues): void
+    public function showQueryForm(bool $fromSelect, array $formValues): void
+    {
+        // We need the table fields to be able to go back to the update form.
+        $insertData = $this->db()->getInsertData($this->getTableName());
+        // Show the error
+        if(isset($insertData['error']))
+        {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error($insertData['error']);
+            return;
+        }
+
+        // Show the query in a modal dialog.
+        $this->modal()->hide();
+
+        $fields = $this->getEditedFormValues($insertData['fields'], $formValues);
+        $this->showQueryDataForm($fromSelect, $fields);
+    }
+
+    /**
+     * Show the insert query
+     *
+     * @param bool $fromSelect
+     * @param array $formValues
+     *
+     * @return void
+     */
+    public function showQueryCode(bool $fromSelect, array $formValues): void
     {
         // No specific options for inserts.
         $result = $this->db()->getInsertQuery($this->getTableName(), [], $formValues);
@@ -117,7 +155,11 @@ class Insert extends FuncComponent
         // Show the query in a modal dialog.
         $this->modal()->hide();
 
-        $buttons = [];
-        $this->showSqlQueryForm('SQL query for insert', $result['query'], $buttons);
+        $buttons = [[
+            'title' => $this->trans()->lang('Back'),
+            'class' => 'btn btn-primary',
+            'click' => $this->rq()->showQueryForm($fromSelect, $formValues),
+        ]];
+        $this->showQueryCodeForm('SQL query for insert', $result['query'], $buttons);
     }
 }

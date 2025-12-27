@@ -53,14 +53,14 @@ class Delete extends FuncComponent
     }
 
     /**
-     * Execute the delete query
+     * Show the delete query
      *
      * @param int   $editId
      * @param array $rowIds
      *
      * @return void
      */
-    public function showQuery(int $editId, array $rowIds): void
+    public function showQueryCode(int $editId, array $rowIds): void
     {
         if(!is_array($rowIds['where'] ?? 0) ||
             count($rowIds['where']) === 0 || $editId <= 0)
@@ -82,6 +82,6 @@ class Delete extends FuncComponent
         }
 
         // Show the query in a modal dialog.
-        $this->showSqlQueryForm('SQL query for delete', $result['query']);
+        $this->showQueryCodeForm('SQL query for delete', $result['query']);
     }
 }
