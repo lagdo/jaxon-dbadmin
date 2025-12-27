@@ -38,16 +38,15 @@ class DataFieldInput
 
     /**
      * @param FieldEditEntity $editField
-     * @param string $fieldName
+     * @param string $fieldValue
      * @param string|null $enumValue
      *
-     * @return array
+     * @return bool
      */
-    private function getCheckedAttr(FieldEditEntity $editField, string $fieldName, string|null $enumValue): array
+    private function isChecked(FieldEditEntity $editField, string $fieldValue, string|null $enumValue): bool
     {
-        $checked = is_array($editField->value) ?
-            in_array($fieldName, $editField->value) : $editField->value === $enumValue;
-        return $checked ? ['checked' => 'checked'] : [];
+        return !is_array($editField->value) ? $editField->value === $enumValue :
+            in_array($fieldValue, $editField->value);
     }
 
     /**
@@ -55,7 +54,7 @@ class DataFieldInput
      * 
      * @param FieldEditEntity $editField
      */
-    private function itemList(FieldEditEntity $editField, array $attrs, string $default = ""): array|null
+    private function getItemList(FieldEditEntity $editField, array $attrs, string $default = ""): array|null
     {
         if ($editField->type !== 'enum' && $editField->type !== 'set' ) {
             // Only for enums and sets
@@ -66,31 +65,29 @@ class DataFieldInput
         $prefix = $editField->type === 'enum' ? 'val-' : '';
         $items = [];
         if ($editField->field->null && $prefix) {
-            $checkedAttr = $this->getCheckedAttr($editField, 'null', null);
             $items[] = [
                 'attrs' => [
                     ...$attrs,
                     'id' => "{$attrs['id']}_null", // Overwrite the id value in the $attrs array.
-                    ...$checkedAttr,
                 ],
                 'label' => "<i>$default</i>",
                 'value' => 'null',
+                'checked' => $this->isChecked($editField, 'null', null),
             ];
         }
 
         preg_match_all("~'((?:[^']|'')*)'~", $editField->field->length, $matches);
         foreach (($matches[1] ?? []) as $enumValue) {
             $enumValue = stripcslashes(str_replace("''", "'", $enumValue));
-            $fieldName = "$prefix$enumValue";
-            $checkedAttr = $this->getCheckedAttr($editField, $fieldName, $enumValue);
+            $fieldValue = "$prefix$enumValue";
             $items[] = [
                 'attrs' => [
                     ...$attrs,
                     'id' => "{$attrs['id']}_{$enumValue}", // Overwrite the id value in the $attrs array.
-                    ...$checkedAttr,
                 ],
                 'label' => $this->utils->html($enumValue),
-                'value' => $this->utils->html($fieldName),
+                'value' => $this->utils->html($fieldValue),
+                'checked' => $this->isChecked($editField, $fieldValue, $enumValue),
             ];
         }
 
@@ -106,20 +103,21 @@ class DataFieldInput
     private function getEnumFieldInput(FieldEditEntity $editField, array $attrs): array
     {
         // From adminer.inc.php: function editInput(?string $table, array $field, string $attrs, $value): string
-        $values = ['field' => 'enum'];
+        $items = $this->getItemList($editField, $attrs, 'NULL');
         if ($this->action === 'select') {
-            $values['orig'] = [
-                'attrs' => [
-                    ...$attrs,
-                    'checked' => 'checked',
-                ],
+            // Prepend the value to the item list
+            $items = [[
+                'attrs' => $attrs,
                 'label' => '<i>' . $this->utils->trans->lang('original') . '</i>',
                 'value' => 'orig',
-            ];
+                'checked' => true,
+            ], ...$items];
         }
-        $values['items'] = $this->itemList($editField, $attrs, 'NULL');
 
-        return $values;
+        return [
+            'field' => 'enum',
+            'items' => $items,
+        ];
     }
 
     /**
@@ -136,7 +134,7 @@ class DataFieldInput
 
         return [
             'field' => 'set',
-            'items' => $this->itemList($editField, $attrs),
+            'items' => $this->getItemList($editField, $attrs),
         ];
     }
 
@@ -148,7 +146,6 @@ class DataFieldInput
      */
     private function getBoolFieldInput(FieldEditEntity $editField, array $attrs): array
     {
-        $checkedAttr = $editField->isChecked() ? ['checked' => 'checked'] : [];
         return [
             'field' => 'bool',
             'attrs' => [
@@ -160,9 +157,9 @@ class DataFieldInput
                 'checkbox' => [
                     ...$attrs,
                     'value' => '1',
-                    ...$checkedAttr,
                 ],
             ],
+            'checked' => $editField->isChecked(),
         ];
     }
 

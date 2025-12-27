@@ -23,19 +23,12 @@ class EditUiBuilder
     protected function getEnumValueInput(array $input): mixed
     {
         return $this->ui->list(
-            $this->ui->when(isset($input['orig']), fn() =>
-                $this->ui->label(
-                    $this->ui->radio($input['orig']['attrs'])
-                        ->setAttribute('value', $input['orig']['value'], false)
-                        ->setStyle('margin-right:3px;'),
-                    $this->ui->span($input['orig']['label'])
-                )->setFor($input['orig']['attrs']['id'])
-                    ->setStyle('margin-right:7px;')
-            ),
             $this->ui->each($input['items'], fn($item) =>
                 $this->ui->label(
                     $this->ui->radio($item['attrs'])
                         ->setAttribute('value', $item['value'], false)
+                        ->when($item['checked'], fn($radio) =>
+                            $radio->setAttribute('checked', 'checked'))
                         ->setStyle('margin-right:3px;'),
                     $this->ui->span($item['label'])
                 )->setFor($item['attrs']['id'])
@@ -55,6 +48,8 @@ class EditUiBuilder
             $this->ui->label(
                 $this->ui->checkbox($item['attrs'])
                     ->setAttribute('value', $item['value'], false)
+                    ->when($item['checked'], fn($checkbox) =>
+                        $checkbox->setAttribute('checked', 'checked'))
                     ->setStyle('margin-right:3px;'),
                 $this->ui->span($item['label'])
             )->setFor($item['attrs']['id'])
@@ -73,6 +68,8 @@ class EditUiBuilder
             $this->ui->input($input['attrs']['hidden'])
                 ->setType('hidden'),
             $this->ui->checkbox($input['attrs']['checkbox'])
+                ->when($input['checked'], fn($checkbox) =>
+                    $checkbox->setAttribute('checked', 'checked'))
         );
     }
 
