@@ -24,7 +24,7 @@
         "jaxon-php/jaxon-dialogs": "^5.1",
         "jaxon-php/jaxon-storage": "^1.1",
         "jaxon-php/jaxon-upload": "^2.1",
-        "lagdo/dbadmin-driver": "^0.19",
+        "lagdo/dbadmin-driver": "0.20.*",
         "lagdo/facades": "^1.0",
         "lagdo/ui-builder": "^0.2",
         "lagdo/jaxon-ui-builder": "^0.1"
