@@ -72,7 +72,7 @@ class DataRowReader
             return $this->page->getUnconvertedFieldValue($field, $value);
         }
 
-        $value = $values['field_values'][$fieldId];
+        $value = $values['field_values'][$fieldId] ?? '';
 
         if ($field->autoIncrement && $value === '') {
             return null;
