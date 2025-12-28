@@ -31,7 +31,7 @@ trait QueryResultsTrait
                                         $this->ui->span($error)
                                     )
                                 )->setStyle('padding:5px 15px')
-                            )->style('danger')
+                            )->look('danger')
                         ),
                         $this->ui->when(count($messages) > 0, fn() =>
                             $this->ui->panel(
@@ -41,7 +41,7 @@ trait QueryResultsTrait
                                         $this->ui->span($message)
                                     )
                                 )->setStyle('padding:5px 15px')
-                            )->style('success')
+                            )->look('success')
                         ),
                         $this->ui->when(count($select) > 0, fn() =>
                             $this->ui->table(
@@ -62,7 +62,7 @@ trait QueryResultsTrait
                                     )
                                 )
                             )->responsive(true)
-                                ->style('bordered')
+                                ->look('bordered')
                                 ->setStyle('margin-top:2px')
                         ),
                     )->width(12)

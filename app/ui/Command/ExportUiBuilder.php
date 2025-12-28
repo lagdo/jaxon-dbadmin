@@ -236,7 +236,7 @@ class ExportUiBuilder
                         )
                     )
                 )
-            )->responsive(true)->style('bordered')
+            )->responsive(true)->look('bordered')
         )->setStyle('max-height: 450px; overflow: scroll;');
     }
 
@@ -288,7 +288,7 @@ class ExportUiBuilder
                         )
                     )
                 )
-            )->responsive(true)->style('bordered')
+            )->responsive(true)->look('bordered')
         )->setStyle('max-height: 450px; overflow: scroll;');
     }
 

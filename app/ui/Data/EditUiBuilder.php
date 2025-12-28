@@ -231,7 +231,7 @@ class EditUiBuilder
                                 ->setId($queryDivId)
                                 ->setStyle('height: 300px;')
                         )->setStyle('padding: 0 1px;')
-                    )->style('default')
+                    )->look('default')
                         ->setStyle('padding: 5px;')
                 )->width(12)
             )

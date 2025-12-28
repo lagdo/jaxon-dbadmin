@@ -71,9 +71,9 @@ class AuditUiBuilder
         return $this->ui->tr(
             $this->ui->td($lastUpdate)
                 ->setStyle('width:120px;'),
-            $this->ui->td($command['username'] . '<br/>' .
-                $this->trans->lang($category))
-                ->setStyle('width:180px;'),
+            $this->ui->td(
+                $command['username'] . '<br/>' . $this->trans->lang($category)
+            )->setStyle('width:180px;'),
             $this->ui->td(
                 $this->ui->div($this->commandOptions($command))
                     ->setStyle('font-weight:500;'),
@@ -102,7 +102,7 @@ class AuditUiBuilder
                         $this->command($command, $categories[$command['category']] ?? '')
                     )
                 ),
-            )->responsive(true)->style('bordered')
+            )->responsive(true)->look('bordered')
         );
     }
 
@@ -120,8 +120,7 @@ class AuditUiBuilder
                     $this->ui->formCol(
                         $this->ui->formLabel($this->trans->lang('Category'))
                             ->setFor('category')
-                    )
-                    ->width(12),
+                    )->width(12),
                     $this->ui->formCol(
                         $this->ui->formSelect(
                             $this->ui->option('')
@@ -130,60 +129,50 @@ class AuditUiBuilder
                                 $this->ui->option($this->trans->lang($category))
                                     ->setValue($id)
                             )
-                        )
-                        ->setName('category')
-                    )
-                    ->width(12)
+                        )->setName('category')
+                    )->width(12)
                 ),
                 $this->ui->formRow(
                     $this->ui->formCol(
                         $this->ui->formLabel($this->trans->lang('User'))
                             ->setFor('username')
-                    )
-                    ->width(12),
+                    )->width(12),
                     $this->ui->formCol(
                         $this->ui->formInput()->setType('text')
                             ->setName('username')
-                    )
-                    ->width(12)
+                    )->width(12)
                 ),
                 $this->ui->formRow(
                     $this->ui->formCol(
                         $this->ui->formLabel($this->trans->lang('From'))
                             ->setFor('from_date')
-                    )
-                    ->width(12),
+                    )->width(12),
                     $this->ui->formCol(
                         $this->ui->formInput()
                             ->setType('date')->setName('from_date')
-                    )
-                    ->width(7)
-                    ->setStyle('padding-right:1px'),
+                    )->width(7)
+                        ->setStyle('padding-right:1px'),
                     $this->ui->formCol(
                         $this->ui->formInput()
                             ->setType('time')->setName('from_time')
-                    )
-                    ->width(5)
-                    ->setStyle('padding-left:1px')
+                    )->width(5)
+                        ->setStyle('padding-left:1px')
                 ),
                 $this->ui->formRow(
                     $this->ui->formCol(
                         $this->ui->formLabel($this->trans->lang('To'))
                             ->setFor('to_date')
-                    )
-                    ->width(12),
+                    )->width(12),
                     $this->ui->formCol(
                         $this->ui->formInput()
                             ->setType('date')->setName('to_date')
-                    )
-                    ->width(7)
-                    ->setStyle('padding-right:1px'),
+                    )->width(7)
+                        ->setStyle('padding-right:1px'),
                     $this->ui->formCol(
                         $this->ui->formInput()
                             ->setType('time')->setName('to_time')
-                    )
-                    ->width(5)
-                    ->setStyle('padding-left:1px')
+                    )->width(5)
+                        ->setStyle('padding-left:1px')
                 ),
                 $this->ui->formRow(
                     $this->ui->formCol(
@@ -191,13 +180,10 @@ class AuditUiBuilder
                             ->primary()
                             ->jxnClick(rq(Commands::class)
                                 ->show(je($formId)->rd()->form()))
-                    )
-                    ->width(12)
-                )
-                ->setStyle('padding-top: 10px; float:right;')
-            )
-            ->setId($formId)->horizontal(false)->wrapped(true)
-            ->setStyle('margin-top:16px;margin-right:12px;')
+                    )->width(12)
+                )->setStyle('padding-top: 10px; float:right;')
+            )->setId($formId)->horizontal(false)->wrapped(true)
+                ->setStyle('margin-top:16px;margin-right:12px;')
         );
     }
 }

@@ -68,7 +68,7 @@ class ResultUiBuilder
                             ->when($row['editId'] > 0, fn($tr) =>
                                 $tr->jxnBind($rqResultRow, $row['editItemId'])))
                 )
-            )->responsive(true)->style('bordered')
+            )->responsive(true)->look('bordered')
         );
     }
 }

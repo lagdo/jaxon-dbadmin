@@ -41,16 +41,13 @@ class QueryUiBuilder
         return $this->ui->buttonGroup(
         $this->ui->button(
                 $this->ui->text($this->trans->lang('Execute'))
-            )
-            ->primary()
-            ->jxnClick($rqQuery->exec($sqlQuery, $queryValues)),
+            )->primary()
+                ->jxnClick($rqQuery->exec($sqlQuery, $queryValues)),
             $this->ui->button(
                 $this->ui->text($this->trans->lang('Save'))
-            )
-            ->secondary()
-            ->jxnClick(rq(Query\FavoriteFunc::class)->add($sqlQuery))
-        )
-        ->fullWidth();
+            )->secondary()
+                ->jxnClick(rq(Query\FavoriteFunc::class)->add($sqlQuery))
+        )->fullWidth();
     }
 
     /**
@@ -73,8 +70,7 @@ class QueryUiBuilder
                             ->setType('number')
                             ->setValue($defaultLimit)
                     )
-                )
-                ->width(2),
+                )->width(2),
                 $this->ui->formCol(
                     $this->ui->inputGroup(
                         $this->ui->label(
@@ -83,8 +79,7 @@ class QueryUiBuilder
                         $this->ui->checkbox()
                             ->setName('error_stops')
                     )
-                )
-                ->width(3),
+                )->width(3),
                 $this->ui->formCol(
                     $this->ui->inputGroup(
                         $this->ui->label(
@@ -93,8 +88,7 @@ class QueryUiBuilder
                         $this->ui->checkbox()
                             ->setName('only_errors')
                     )
-                )
-                ->width(3),
+                ) ->width(3),
                 $this->ui->formCol(
                     $this->ui->formRow(
                         $this->ui->formCol(
@@ -105,11 +99,10 @@ class QueryUiBuilder
                             ->width(4)
                             ->jxnBind(rq(Duration::class))
                     )
-                )
-                ->width(4)
+                )->width(4)
             )
         )->horizontal(true)->wrapped(true)
-        ->setId($this->queryFormId);
+            ->setId($this->queryFormId);
     }
 
     /**
@@ -129,20 +122,16 @@ class QueryUiBuilder
                         $this->ui->panel(
                             $this->ui->panelBody(
                                 $this->ui->div()->setId($queryId)
-                            )
-                            ->setClass('sql-command-editor-panel')
-                            ->setStyle('padding: 0 1px;')
-                        )
-                        ->style('default')
-                        ->setStyle('padding: 5px;')
-                    )
-                    ->width(12)
+                            )->setClass('sql-command-editor-panel')
+                                ->setStyle('padding: 0 1px;')
+                        )->look('default')
+                            ->setStyle('padding: 5px;')
+                    )->width(12)
                 )
             )->width(12),
             $this->ui->col(
                 $this->actions($defaultLimit, $rqQuery)
-            )
-                ->width(12),
+            )->width(12),
             $this->ui->col()
                 ->width(12)
                 ->jxnBind(rq(Query\Results::class)),

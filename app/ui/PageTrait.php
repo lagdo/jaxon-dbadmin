@@ -85,7 +85,7 @@ trait PageTrait
                     )
                 ),
             ),
-        )->responsive()->style('bordered');
+        )->responsive()->look('bordered');
     }
 
     /**

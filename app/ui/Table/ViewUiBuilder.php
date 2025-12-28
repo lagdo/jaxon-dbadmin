@@ -62,7 +62,7 @@ class ViewUiBuilder
                             ->setClass('sql-command-editor-panel')
                             ->setStyle('padding: 0 1px;')
                         )
-                        ->style('default')
+                        ->look('default')
                         ->setStyle('padding: 5px;')
                     )
                     ->width(12)

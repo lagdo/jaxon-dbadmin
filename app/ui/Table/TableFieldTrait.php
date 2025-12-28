@@ -364,7 +364,7 @@ trait TableFieldTrait
         return $this->ui->col(
             $this->ui->dropdown(
                 $this->ui->dropdownItem()
-                    ->style('primary')->addCaret(),
+                    ->look('primary')->addCaret(),
                 $this->ui->dropdownMenu(
                     $this->ui->when($notFirst && $this->support['move_col'], fn() =>
                         $this->ui->dropdownMenuItem($this->ui->text('Up'))

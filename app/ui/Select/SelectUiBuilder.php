@@ -76,7 +76,7 @@ class SelectUiBuilder
                                     $this->ui->panelBody()
                                         ->setStyle('padding: 0 1px;')
                                         ->jxnBind(rq(QueryText::class))
-                                )->style('default')
+                                )->look('default')
                                     ->setStyle('padding: 5px;')
                             )->width(12)
                         ),

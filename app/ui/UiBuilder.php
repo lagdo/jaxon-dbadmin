@@ -221,7 +221,7 @@ class UiBuilder
                 $this->ui->button($menu['label'])
                     ->primary()
                     ->jxnClick($menu['handler']),
-                $this->ui->dropdownItem()->style('primary'),
+                $this->ui->dropdownItem()->look('primary'),
                 $this->ui->dropdownMenu(
                     $this->ui->each($menus, fn($menu) =>
                         $this->ui->dropdownMenuItem($menu['label'])

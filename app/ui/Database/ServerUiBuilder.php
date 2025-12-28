@@ -32,48 +32,41 @@ class ServerUiBuilder
                     $this->ui->formCol(
                         $this->ui->formLabel($this->ui->text($user['host']['label']))
                             ->setFor('host')
-                    )
-                    ->width(3),
+                    )->width(3),
                     $this->ui->formCol(
                         $this->ui->formInput()
                             ->setType('text')->setName('host')
                             ->setDataMaxlength('60')->setValue($user['host']['value'])
-                    )
-                    ->width(6),
+                    )->width(6),
                 ),
                 $this->ui->formRow(
                     $this->ui->formCol(
                         $this->ui->formLabel($this->ui->text($user['name']['label']))
                             ->setFor('name')
-                    )
-                    ->width(3),
+                    )->width(3),
                     $this->ui->formCol(
                         $this->ui->formInput()
                             ->setType('text')->setName('name')
                             ->setDataMaxlength('80')->setValue($user['name']['value'])
-                    )
-                    ->width(6),
+                    )->width(6),
                 ),
                 $this->ui->formRow(
                     $this->ui->formCol(
                         $this->ui->formLabel($this->ui->text($user['pass']['label']))
                             ->setFor('pass')
-                    )
-                    ->width(3),
+                    )->width(3),
                     $this->ui->formCol(
                         $this->ui->formInput()
                             ->setType('text')->setName('pass')
                             ->setAutocomplete('new-password')
                             ->setValue($user['pass']['value'])
-                    )
-                    ->width(6),
+                    )->width(6),
                     $this->ui->formCol(
                         $this->ui->checkbox()
                             ->setName('hashed')->checked($user['hashed']['value']),
                         $this->ui->text($user['hashed']['label'])
-                    )
-                    ->width(3)
-                    ->setClass('checkbox')
+                    )->width(3)
+                        ->setClass('checkbox')
                 ),
                 $this->ui->div($this->ui->html($privileges))
             )->wrapped(true)->setId($formId)
@@ -93,22 +86,19 @@ class ServerUiBuilder
                 $this->ui->formRow(
                     $this->ui->formCol(
                         $this->ui->formLabel($this->ui->text('Name'))
-                            ->setFor('name')
-                    )
-                    ->width(3),
+                                ->setFor('name')
+                    )->width(3),
                     $this->ui->formCol(
                         $this->ui->formInput()
                             ->setType('text')->setName('name')
                             ->setPlaceholder('Name')
-                    )
-                    ->width(6)
+                    )->width(6)
                 ),
                 $this->ui->formRow(
                     $this->ui->formCol(
                         $this->ui->formLabel($this->ui->text('Collation'))
                             ->setFor('collation')
-                    )
-                    ->width(3),
+                    )->width(3),
                     $this->ui->formCol(
                         $this->ui->formSelect(
                             $this->ui->option('(collation)')->selected(true),
@@ -120,10 +110,8 @@ class ServerUiBuilder
                                     )
                                 )
                             )
-                        )
-                        ->setName('collation')
-                    )
-                    ->width(6)
+                        )->setName('collation')
+                    )->width(6)
                 )
             )->wrapped(true)->setId($formId)
         );
