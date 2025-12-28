@@ -142,22 +142,28 @@ class EditUiBuilder
     private function getFieldFunction(FieldEditEntity $field): mixed
     {
         $input = $field->functionInput;
-        return $input === null ?
-            $this->ui->text('') :
-            $this->ui->list(
-                $this->ui->when(isset($input['label']), fn() =>
-                    $this->ui->span($input['label'])
-                ),
-                $this->ui->when(isset($input['select']), fn() =>
-                    $this->ui->formSelect(
-                        $input['select']['attrs'],
-                        $this->ui->each($input['select']['options'], fn($option) =>
-                            $this->ui->option($option)
-                                ->selected($option === $input['select']['value'])
-                        )
-                    )
+        return $this->ui->take(
+            [isset($input['label']), fn() => $this->ui->span($input['label'])],
+            [isset($input['select']), fn() => $this->ui->formSelect(
+                $input['select']['attrs'],
+                $this->ui->each($input['select']['options'], fn($option) =>
+                    $this->ui->option($option)
+                        ->selected($option === $input['select']['value'])
                 )
-            );
+            )],
+            [true, fn() => $this->ui->text('')],
+        );
+        // return $this->ui->list(match(true) {
+        //     isset($input['label']) => $this->ui->span($input['label']),
+        //     isset($input['select']) => $this->ui->formSelect(
+        //         $input['select']['attrs'],
+        //         $this->ui->each($input['select']['options'], fn($option) =>
+        //             $this->ui->option($option)
+        //                 ->selected($option === $input['select']['value'])
+        //         )
+        //     ),
+        //     default => $this->ui->text(''),
+        // });
     }
 
     /**
@@ -214,7 +220,7 @@ class EditUiBuilder
      *
      * @return string
      */
-    public function sqlCodeForm(string $queryDivId, string $queryText): string
+    public function sqlCodeElement(string $queryDivId, string $queryText): string
     {
         return $this->ui->build(
             $this->ui->formRow(
