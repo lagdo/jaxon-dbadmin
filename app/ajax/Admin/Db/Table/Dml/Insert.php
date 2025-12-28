@@ -26,7 +26,7 @@ class Insert extends FuncComponent
      *
      * @return void
      */
-    private function showQueryDataForm(bool $fromSelect, array $fields): void
+    private function showQueryDataDialog(bool $fromSelect, array $fields): void
     {
         $title = 'New item in table ' . $this->getTableName();
         $content = $this->editUi->rowDataForm($this->queryFormId, $fields);
@@ -42,7 +42,7 @@ class Insert extends FuncComponent
             'class' => 'btn btn-primary',
             'click' => $this->rq()->showQueryCode($fromSelect, $values),
         ], [
-            'title' => $this->trans()->lang('Save'),
+            'title' => $this->trans()->lang('Insert'),
             'class' => 'btn btn-primary',
             'click' => $this->rq()->save($fromSelect, $values)
                 ->confirm($this->trans()->lang('Save this item?')),
@@ -68,7 +68,7 @@ class Insert extends FuncComponent
             return;
         }
 
-        $this->showQueryDataForm($fromSelect, $insertData['fields']);
+        $this->showQueryDataDialog($fromSelect, $insertData['fields']);
     }
 
     /**
@@ -128,7 +128,7 @@ class Insert extends FuncComponent
         $this->modal()->hide();
 
         $fields = $this->getEditedFormValues($insertData['fields'], $formValues);
-        $this->showQueryDataForm($fromSelect, $fields);
+        $this->showQueryDataDialog($fromSelect, $fields);
     }
 
     /**
@@ -160,6 +160,6 @@ class Insert extends FuncComponent
             'class' => 'btn btn-primary',
             'click' => $this->rq()->showQueryForm($fromSelect, $formValues),
         ]];
-        $this->showQueryCodeForm('SQL query for insert', $result['query'], $buttons);
+        $this->showQueryCodeDialog('SQL query for insert', $result['query'], $buttons);
     }
 }

@@ -82,6 +82,6 @@ class Delete extends FuncComponent
         }
 
         // Show the query in a modal dialog.
-        $this->showQueryCodeForm('SQL query for delete', $result['query']);
+        $this->showQueryCodeDialog('SQL query for delete', $result['query']);
     }
 }

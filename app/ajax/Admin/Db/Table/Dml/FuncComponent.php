@@ -100,12 +100,12 @@ abstract class FuncComponent extends BaseFuncComponent
      *
      * @return void
      */
-    protected function showQueryCodeForm(string $title, string $query, array $buttons = []): void
+    protected function showQueryCodeDialog(string $title, string $query, array $buttons = []): void
     {
         // Show the query in a modal dialog.
         $queryDivId = 'dbadmin-table-show-sql-query';
         $title = $this->trans()->lang($title);
-        $content = $this->editUi->sqlCodeForm($queryDivId, $query);
+        $content = $this->editUi->sqlCodeElement($queryDivId, $query);
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[

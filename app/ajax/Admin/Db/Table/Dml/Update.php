@@ -29,7 +29,7 @@ class Update extends FuncComponent
      *
      * @return void
      */
-    private function showQueryDataForm(int $editId, array $rowIds, array $fields): void
+    private function showQueryDataDialog(int $editId, array $rowIds, array $fields): void
     {
         $title = 'Edit row in table ' . $this->getTableName();
         $content = $this->editUi->rowDataForm($this->queryFormId, $fields);
@@ -45,7 +45,7 @@ class Update extends FuncComponent
             'class' => 'btn btn-primary',
             'click' => $this->rq()->showQueryCode($editId, $rowIds, $values),
         ], [
-            'title' => $this->trans()->lang('Save'),
+            'title' => $this->trans()->lang('Update'),
             'class' => 'btn btn-primary',
             'click' => $this->rq()->save($editId, $rowIds, $values)
                 ->confirm($this->trans()->lang('Save this item?')),
@@ -81,7 +81,7 @@ class Update extends FuncComponent
             return;
         }
 
-        $this->showQueryDataForm($editId, $rowIds, $updateData['fields']);
+        $this->showQueryDataDialog($editId, $rowIds, $updateData['fields']);
     }
 
     /**
@@ -158,7 +158,7 @@ class Update extends FuncComponent
         $this->modal()->hide();
 
         $fields = $this->getEditedFormValues($updateData['fields'], $formValues);
-        $this->showQueryDataForm($editId, $rowIds, $fields);
+        $this->showQueryDataDialog($editId, $rowIds, $fields);
     }
 
     /**
@@ -202,6 +202,6 @@ class Update extends FuncComponent
             'class' => 'btn btn-primary',
             'click' => $this->rq()->showQueryForm($editId, $rowIds, $formValues),
         ]];
-        $this->showQueryCodeForm('SQL query for update', $result['query'], $buttons);
+        $this->showQueryCodeDialog('SQL query for update', $result['query'], $buttons);
     }
 }
