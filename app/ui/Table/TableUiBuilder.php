@@ -229,7 +229,7 @@ class TableUiBuilder
                 $this->ui->when($this->support['columns'], fn() =>
                     $this->ui->button()
                         ->primary()->addIcon('plus')
-                        ->jxnClick(rq(Columns::class)->add($this->formValues()))
+                        ->jxnClick(rq(Column::class)->add($this->formValues()))
                 )
             )->width(1)
                 ->setClass('dbadmin-table-column-buttons-header')
