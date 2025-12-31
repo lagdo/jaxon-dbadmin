@@ -34,6 +34,7 @@ class Columns extends FuncComponent
         ]];
         $this->modal()->show($title, $content, $buttons);
 
+        // Display the current values in the form.
         $this->cl(Form\Columns::class)->show();
     }
 

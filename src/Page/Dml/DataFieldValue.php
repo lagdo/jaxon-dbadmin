@@ -78,7 +78,7 @@ class DataFieldValue
             return [$this->utils->trans->lang('Auto Increment')];
         }
 
-        $names = $field->null ? ['NULL', ''] : [''];
+        $names = $field->nullable ? ['NULL', ''] : [''];
         $functions = $this->driver->insertFunctions();
         $names = $this->addEditFunctions($names, $functions, $field);
 

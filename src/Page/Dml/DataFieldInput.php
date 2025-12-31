@@ -64,7 +64,7 @@ class DataFieldInput
         // From html.inc.php: function enum_input(string $type, string $attrs, array $field, $value, string $empty = "")
         $prefix = $editField->type === 'enum' ? 'val-' : '';
         $items = [];
-        if ($editField->field->null && $prefix) {
+        if ($editField->field->nullable && $prefix) {
             $items[] = [
                 'attrs' => [
                     ...$attrs,

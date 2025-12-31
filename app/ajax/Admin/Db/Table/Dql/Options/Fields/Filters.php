@@ -34,6 +34,7 @@ class Filters extends FuncComponent
         ]];
         $this->modal()->show($title, $content, $buttons);
 
+        // Display the current values in the form.
         $this->cl(Form\Filters::class)->show();
     }
 

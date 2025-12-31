@@ -213,7 +213,7 @@ class AppPage
     public function getTableFieldType(TableFieldEntity $field): string
     {
         $type = $this->utils->str->html($field->fullType);
-        if ($field->null) {
+        if ($field->nullable) {
             $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
         }
         if ($field->autoIncrement) {
