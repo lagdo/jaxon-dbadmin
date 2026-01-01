@@ -2,19 +2,18 @@
 
 namespace Lagdo\DbAdmin\Ui\Table;
 
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Columns;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function count;
 use function is_array;
 use function is_string;
 use function Jaxon\je;
-use function Jaxon\rq;
 use function strcasecmp;
 
 trait TableFieldTrait
 {
+    use FieldMetadataTrait;
+
     /**
      * @var array
      */
@@ -23,37 +22,7 @@ trait TableFieldTrait
     /**
      * @var array
      */
-    protected $support = [];
-
-    /**
-     * @var array
-     */
-    protected $engines = [];
-
-    /**
-     * @var array
-     */
-    protected $collations = [];
-
-    /**
-     * @var array
-     */
-    protected $unsigned = [];
-
-    /**
-     * @var array
-     */
-    protected $foreignKeys = [];
-
-    /**
-     * @var array
-     */
-    protected $options = [];
-
-    /**
-     * @var array
-     */
-    protected $fields = [];
+    protected $columns = [];
 
     /**
      * @var array
@@ -68,12 +37,23 @@ trait TableFieldTrait
     /**
      * @var string
      */
-    protected $editPrefix = '';
+    protected $formType = 'table';
 
     /**
      * @var BuilderInterface
      */
     protected BuilderInterface $ui;
+
+    /**
+     * @param string $formId
+     *
+     * @return self
+     */
+    public function formId(string $formId): self
+    {
+        $this->formId = $formId;
+        return $this;
+    }
 
     /**
      * @return array
@@ -132,262 +112,228 @@ trait TableFieldTrait
     }
 
     /**
-     * @param TableFieldEntity $field
+     * @param ColumnEntity $column
+     * @param string $fieldName
      *
      * @return mixed
      */
-    protected function getFieldNameCol(TableFieldEntity $field): mixed
+    protected function getColumnNameField(ColumnEntity $column, string $fieldName): mixed
     {
-        return $this->ui->col(
-            $this->ui->formInput(['class' => 'column-name'])
-                ->setName($this->editPrefix . '[name]')
-                ->setPlaceholder($this->trans->lang('Name'))
-                ->setValue($field->name ?? '')
-                ->setDataField('name')
-                ->setDataMaxlength('64')
-                ->setAutocapitalize('off')
-        );
+        return $this->ui->formInput(['class' => 'column-name'])
+            ->setName($fieldName)
+            ->setValue($column->values()->name)
+            ->setDataField('name')
+            ->setDataMaxlength('64')
+            ->setAutocapitalize('off');
     }
 
     /**
-     * @param TableFieldEntity $field
+     * @param ColumnEntity $column
+     * @param string $fieldName
      *
      * @return mixed
      */
-    protected function getAutoIncrementCol(TableFieldEntity $field): mixed
+    protected function getColumnAutoIncrementField(ColumnEntity $column, string $fieldName): mixed
     {
-        return $this->ui->col(
-            $this->ui->radio($field->autoIncrement)
-                ->setName('autoIncrementCol')
-                ->setValue($field->editPosition + 1),
-            $this->ui->span($this->ui->html('&nbsp;AI&nbsp;')),
-            $this->ui->checkbox($field->primary)
-                ->setName($this->editPrefix . '[primary]')
-        );
-    }
-
-    /**
-     * @param TableFieldEntity $field
-     *
-     * @return mixed
-     */
-    protected function getCollationCol(TableFieldEntity $field): mixed
-    {
-        return $this->ui->col(
-            $this->getCollationSelect($field->collation)
-                ->setName($this->editPrefix . '[collation]')
-                ->setDataField('collation')
-                ->when($field->collationHidden, fn($elt) => $elt->setReadonly('readonly'))
-        );
-    }
-
-    /**
-     * @param TableFieldEntity $field
-     *
-     * @return mixed
-     */
-    protected function getOnUpdateCol(TableFieldEntity $field): mixed
-    {
-        return $this->ui->col(
-            $this->ui->formSelect(
-                $this->ui->option('(' . $this->trans->lang('ON UPDATE') . ')')
-                    ->setValue('')->selected(false),
-                $this->ui->each($this->options['onUpdate'], fn($option, $value) =>
-                    $this->ui->option($option)
-                        ->selected($field->onUpdate === $option)
-                        ->setValue($value)
-                )
-            )->setName($this->editPrefix . '[onUpdate]')
-                ->setDataField('onUpdate')
-                ->when($field->onUpdateHidden, fn($elt) => $elt->setReadonly('readonly'))
-        );
-    }
-
-    /**
-     * @param TableFieldEntity $field
-     *
-     * @return mixed
-     */
-    protected function getCommentCol(TableFieldEntity $field): mixed
-    {
-        return $this->ui->col(
-            $this->ui->when(/*$support['comment']*/true, fn() =>
-                $this->ui->formInput()
-                    ->setType('text')
-                    ->setName($this->editPrefix . '[comment]')
-                    ->setValue($field->comment ?? '')
-                    ->setDataField('comment')
-                    ->setPlaceholder($this->trans->lang('Comment'))
-            )
-        );
-    }
-
-    /**
-     * @param TableFieldEntity $field
-     *
-     * @return mixed
-     */
-    protected function getTypeCol(TableFieldEntity $field): mixed
-    {
-        return $this->ui->col(
-            $this->ui->formSelect(
-                $this->ui->each($field->types, fn($_types, $group) =>
-                    $this->ui->optgroup(
-                        $this->ui->each($_types, fn($type) =>
-                            $this->ui->option($type)
-                                ->selected($field->type === $type)
-                        )
-                    )->setLabel($group)
-                )
-            )->setName($this->editPrefix . '[type]')
-                ->setDataField('type')
-        );
-    }
-
-    /**
-     * @param TableFieldEntity $field
-     *
-     * @return mixed
-     */
-    protected function getLengthCol(TableFieldEntity $field): mixed
-    {
-        return $this->ui->col(
-            $this->ui->formInput()
-                ->setStyle('width: 100%')
-                ->setName($this->editPrefix . '[length]')
-                ->setDataField('length')
-                ->setSize('3')
-                ->setPlaceholder($this->trans->lang('Length'))
-                ->setValue($field->length ?: '')
-                ->when($field->lengthRequired, fn($elt) => $elt->setRequired('required'))
-        );
-    }
-
-    /**
-     * @param TableFieldEntity $field
-     *
-     * @return mixed
-     */
-    protected function getNullableCol(TableFieldEntity $field): mixed
-    {
-        return $this->ui->col(
+        return $this->formType === 'table' ?
+            $this->ui->radio()
+                ->checked($column->values()->autoIncrement)
+                ->setName($fieldName) :
             $this->ui->checkbox()
-                ->checked($field->null)
-                ->setName($this->editPrefix . '[null]')
-                ->setDataField('null')
-                ->setValue('1'),
-            $this->ui->span($this->ui->html('&nbsp;Null'))
-        );
+                ->checked($column->values()->autoIncrement)
+                ->setName($fieldName)
+                ->setValue('1');
     }
 
     /**
-     * @param TableFieldEntity $field
+     * @param ColumnEntity $column
+     * @param string $fieldName
      *
      * @return mixed
      */
-    protected function getUnsignedCol(TableFieldEntity $field): mixed
+    protected function getColumnPrimaryField(ColumnEntity $column, string $fieldName): mixed
     {
-        return $this->ui->col(
-            $this->ui->formSelect(
-                $this->ui->option('(unsigned)')
-                    ->selected(false)
-                    ->setValue(''),
-                $this->ui->each($this->unsigned, fn($option) =>
-                    $this->ui->option($option)
-                        ->selected($field->unsigned === $option)
-                        ->setValue($option)
-                )
-            )->setName($this->editPrefix . '[unsigned]')
-                ->setDataField('unsigned')
-                ->when($field->unsignedHidden, fn($elt) => $elt->setReadonly('readonly'))
-        );
+        return $this->ui->checkbox()
+            ->checked($column->values()->primary)
+            ->setName($fieldName);
     }
 
     /**
-     * @param TableFieldEntity $field
+     * @param ColumnEntity $column
+     * @param string $fieldName
      *
      * @return mixed
      */
-    protected function getOnDeleteCol(TableFieldEntity $field): mixed
+    protected function getColumnCollationField(ColumnEntity $column, string $fieldName): mixed
     {
-        return $this->ui->col(
-            $this->ui->formSelect(
-                $this->ui->option('(' . $this->trans->lang('ON DELETE') . ')')
-                    ->setValue('')
-                    ->selected(false),
-                $this->ui->each($this->options['onDelete'], fn($option) =>
-                    $this->ui->option($option)
-                        ->setValue($option)
-                        ->selected($field->onDelete === $option)
-                )
-            )->setName($this->editPrefix . '[onDelete]')
-                ->setDataField('onDelete')
-                ->when($field->onDeleteHidden, fn($elt) => $elt->setReadonly('readonly'))
-        );
+        return $this->getCollationSelect($column->values()->collation)
+            ->setName($fieldName)
+            ->setDataField('collation')
+            ->when($column->field()->collationHidden, fn($elt) => $elt->setReadonly('readonly'));
     }
 
     /**
-     * @param TableFieldEntity $field
+     * @param ColumnEntity $column
+     * @param string $fieldName
      *
      * @return mixed
      */
-    protected function getDefaultCol(TableFieldEntity $field): mixed
+    protected function getColumnOnUpdateField(ColumnEntity $column, string $fieldName): mixed
     {
-        return $this->ui->col(
-            $this->ui->inputGroup(
-                $this->ui->checkbox()
-                    ->checked($field->hasDefault())
-                    ->setName($this->editPrefix . '[hasDefault]')
-                    ->setDataField('hasDefault'),
-                $this->ui->formInput()
-                    ->setName($this->editPrefix . '[default]')
-                    ->setDataField('default')
-                    ->setPlaceholder($this->trans->lang('Default value'))
-                    ->setValue($field->default ?? '')
+        return $this->ui->formSelect(
+            $this->ui->option('(' . $this->trans->lang('ON UPDATE') . ')')
+                ->setValue('')->selected(false),
+            $this->ui->each($this->options['onUpdate'], fn($option, $value) =>
+                $this->ui->option($option)
+                    ->selected($column->values()->onUpdate === $option)
+                    ->setValue($value)
             )
-        );
+        )->setName($fieldName)
+            ->setDataField('onUpdate')
+            ->when($column->field()->onUpdateHidden, fn($elt) => $elt->setReadonly('readonly'));
     }
 
     /**
-     * @param TableFieldEntity $field
+     * @param ColumnEntity $column
+     * @param string $fieldName
      *
      * @return mixed
      */
-    protected function getActionCol(TableFieldEntity $field): mixed
+    protected function getColumnCommentField(ColumnEntity $column, string $fieldName): mixed
     {
-        $notFirst = $field->editPosition > 0;
-        $notLast = $field->editPosition < count($this->fields) - 1;
-        $deleted = $field->editStatus === 'deleted';
-        $parameters = [$this->formValues(), $field->editPosition];
-        $rqColumns = rq(Columns::class);
+        // return $this->ui->when(/*$support['comment']*/true, fn() =>
+        //     $this->ui->formInput()
+        //         ->setType('text')
+        //         ->setName($fieldName)
+        //         ->setValue($column->values()->comment ?? '')
+        //         ->setDataField('comment')
+        // );
+        return $this->ui->formInput()
+            ->setType('text')
+            ->setName($fieldName)
+            ->setValue($column->values()->comment ?? '')
+            ->setDataField('comment');
+    }
 
-        return $this->ui->col(
-            $this->ui->dropdown(
-                $this->ui->dropdownItem()
-                    ->look('primary')/*->addCaret()*/,
-                $this->ui->dropdownMenu(
-                    $this->ui->when($notFirst && $this->support['move_col'], fn() =>
-                        $this->ui->dropdownMenuItem($this->ui->text('Up'))
-                            ->jxnClick($rqColumns->up(...$parameters))
-                    ),
-                    $this->ui->when($notLast && $this->support['move_col'], fn() =>
-                        $this->ui->dropdownMenuItem($this->ui->text('Down'))
-                            ->jxnClick($rqColumns->down(...$parameters))
-                    ),
-                    $this->ui->when($this->support['move_col'], fn() =>
-                        $this->ui->dropdownMenuItem($this->ui->text('Add'))
-                            ->jxnClick($rqColumns->add(...$parameters))
-                    ),
-                    $this->ui->when($this->support['drop_col'] && !$deleted, fn() =>
-                        $this->ui->dropdownMenuItem($this->ui->text('Remove'))
-                            ->jxnClick($rqColumns->del(...$parameters))
-                    ),
-                    $this->ui->when($this->support['drop_col'] && $deleted, fn() =>
-                        $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
-                            ->jxnClick($rqColumns->cancel(...$parameters))
+    /**
+     * @param ColumnEntity $column
+     * @param string $fieldName
+     *
+     * @return mixed
+     */
+    protected function getColumnTypeField(ColumnEntity $column, string $fieldName): mixed
+    {
+        return $this->ui->formSelect(
+            $this->ui->each($column->field()->types, fn($_types, $group) =>
+                $this->ui->optgroup(
+                    $this->ui->each($_types, fn($type) =>
+                        $this->ui->option($type)
+                            ->selected($column->values()->type === $type)
                     )
-                )
-            )->setClass('dbadmin-table-column-buttons')
+                )->setLabel($group)
+            )
+        )->setName($fieldName)
+            ->setDataField('type');
+    }
+
+    /**
+     * @param ColumnEntity $column
+     * @param string $fieldName
+     *
+     * @return mixed
+     */
+    protected function getColumnLengthField(ColumnEntity $column, string $fieldName): mixed
+    {
+        return $this->ui->formInput()
+            ->setStyle('width: 100%')
+            ->setName($fieldName)
+            ->setPlaceholder($this->trans->lang('Length'))
+            ->setDataField('length')
+            ->setSize('3')
+            ->setValue($column->values()->length ?: '')
+            ->when($column->field()->lengthRequired, fn($elt) => $elt->setRequired('required'));
+    }
+
+    /**
+     * @param ColumnEntity $column
+     * @param string $fieldName
+     *
+     * @return mixed
+     */
+    protected function getColumnNullableField(ColumnEntity $column, string $fieldName): mixed
+    {
+        return $this->ui->checkbox()
+            ->checked($column->values()->nullable)
+            ->setName($fieldName)
+            ->setDataField('null')
+            ->setValue('1');
+    }
+
+    /**
+     * @param ColumnEntity $column
+     * @param string $fieldName
+     *
+     * @return mixed
+     */
+    protected function getColumnUnsignedField(ColumnEntity $column, string $fieldName): mixed
+    {
+        return $this->ui->formSelect(
+            $this->ui->option('(unsigned)')
+                ->selected(false)
+                ->setValue(''),
+            $this->ui->each($this->unsigned, fn($option) =>
+                $this->ui->option($option)
+                    ->selected($column->values()->unsigned === $option)
+                    ->setValue($option)
+            )
+        )->setName($fieldName)
+            ->setDataField('unsigned')
+            ->when($column->field()->unsignedHidden, fn($elt) => $elt->setReadonly('readonly'));
+    }
+
+    /**
+     * @param ColumnEntity $column
+     * @param string $fieldName
+     *
+     * @return mixed
+     */
+    protected function getColumnOnDeleteField(ColumnEntity $column, string $fieldName): mixed
+    {
+        return $this->ui->formSelect(
+            $this->ui->option('(' . $this->trans->lang('ON DELETE') . ')')
+                ->setValue('')
+                ->selected(false),
+            $this->ui->each($this->options['onDelete'], fn($option) =>
+                $this->ui->option($option)
+                    ->setValue($option)
+                    ->selected($column->values()->onDelete === $option)
+            )
+        )->setName($fieldName)
+            ->setDataField('onDelete')
+            ->when($column->field()->onDeleteHidden, fn($elt) => $elt->setReadonly('readonly'));
+    }
+
+    /**
+     * @param ColumnEntity $column
+     * @param string $hasFieldName
+     * @param string $fieldName
+     * @param string $placeholder
+     *
+     * @return mixed
+     */
+    protected function getColumnDefaultField(ColumnEntity $column, string $hasFieldName,
+        string $fieldName, string $placeholder = ''): mixed
+    {
+        return $this->ui->inputGroup(
+            $this->ui->checkbox()
+                ->checked($column->values()->hasDefault)
+                ->setName($hasFieldName)
+                ->setDataField('hasDefault'),
+            $this->ui->formInput()
+                ->setName($fieldName)
+                ->setDataField('default')
+                ->when($placeholder !== '', fn($input) => $input->setPlaceholder($placeholder))
+                ->setValue($column->values()->default)
         );
     }
 }

@@ -3,18 +3,18 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl;
 
 use Jaxon\Attributes\Attribute\After;
-use Jaxon\Attributes\Attribute\Before;
 use Jaxon\Attributes\Attribute\Databag;
 use Jaxon\Attributes\Attribute\Export;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
+use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
-use function array_values;
+use function array_map;
 use function Jaxon\je;
 
 /**
- * Alter or drop a table
+ * Alter a table
  */
 #[Databag('dbadmin.table')]
 #[After('showBreadcrumbs')]
@@ -22,9 +22,11 @@ use function Jaxon\je;
 class Alter extends MainComponent
 {
     /**
-     * @var array
+     * The database table data.
+     *
+     * @var array|null
      */
-    private $tableData;
+    private $metadata = null;
 
     /**
      * @var string
@@ -32,42 +34,29 @@ class Alter extends MainComponent
     protected $formId = 'dbadmin-table-form';
 
     /**
-     * Default values for tables
-     *
-     * @var string[]
+     * @return array
      */
-    protected $defaults = ['autoIncrementCol' => '', 'engine' => '', 'collation' => ''];
+    protected function metadata(): array
+    {
+        return $this->metadata ??= $this->db()->getTableData($this->getTableName());
+    }
 
     /**
      * @inheritDoc
      */
     protected function before(): void
     {
-        $table = $this->getTableName();
-        $this->tableData = $this->db()->getTableData($table);
-
-        $fields = array_values($this->tableData['fields']);
-        $editPosition = 0;
-        foreach($fields as $field)
-        {
-            $field->editPosition = $editPosition++;
-        }
-
-        // Save the fields in the databag
-        $callback = fn(TableFieldEntity $field) => $field->toArray();
-        $this->bag('dbadmin.table')->set('fields', array_map($callback, $fields));
-        $this->stash()->set('table.fields', $fields);
-
         // Set main menu buttons
+        $table = $this->getTableName();
         $values = je($this->formId)->rd()->form();
         $actions = [
             'table-save' => [
                 'title' => $this->trans()->lang('Save'),
-                'handler' => $this->rq()->save($table, $values)
+                'handler' => $this->rq(TableFunc::class)->alter($table, $values)
                     ->confirm("Save changes on table $table?"),
             ],
-            'table-cancel' => [
-                'title' => $this->trans()->lang('Cancel'),
+            'table-back' => [
+                'title' => $this->trans()->lang('Back'),
                 'handler' => $this->rq(Table::class)->show($table),
             ],
         ];
@@ -79,23 +68,21 @@ class Alter extends MainComponent
      */
     public function html(): string
     {
+        $metadata = $this->metadata();
         $editedTable = [
-            'name' => $this->tableData['table']->name,
-            'engine' => $this->tableData['table']->engine,
-            'collation' => $this->tableData['table']->collation,
-            'comment' => $this->tableData['table']->comment,
+            'name' => $metadata['table']->name,
+            'engine' => $metadata['table']->engine,
+            'collation' => $metadata['table']->collation,
+            'comment' => $metadata['table']->comment,
         ];
+
         return $this->tableUi
             ->table($editedTable)
-            ->support($this->tableData['support'])
-            ->engines($this->tableData['engines'])
-            ->collations($this->tableData['collations'])
-            ->unsigned($this->tableData['unsigned'] ?? [])
-            ->foreignKeys($this->tableData['foreignKeys'])
-            ->options($this->tableData['options'])
-            // ->fields($this->tableData['fields'])
+            ->support($metadata['support'])
+            ->engines($metadata['engines'])
+            ->collations($metadata['collations'])
             ->formId($this->formId)
-            ->wrapper($this->rq(Columns::class));
+            ->wrapper();
     }
 
     /**
@@ -103,40 +90,17 @@ class Alter extends MainComponent
      */
     protected function after(): void
     {
-        $this->cl(Columns::class)->render();
-    }
+        $metadata = $this->metadata();
+        $columns = array_map(fn(TableFieldEntity $field) =>
+            new ColumnEntity($field), $metadata['fields']);
+        $position = 0;
+        foreach ($columns as $column) {
+            $column->position = $position++;
+        }
 
-    /**
-     * @param string $table      The table name
-     * @param array  $values      The table values
-     *
-     * @return void
-     */
-    #[Before('notYetAvailable')]
-    public function save(string $table, array $values): void
-    {
-        // $table = $this->getTableName();
+        $this->stash()->set('table.metadata', $metadata);
+        $this->stash()->set('table.columns', $columns);
 
-        // $values = array_merge($this->defaults, $values);
-
-        // $result = $this->db()->alterTable($table, $values);
-        // if(!$result['success'])
-        // {
-        //     $this->alert()->error($result['error']);
-        //     return;
-        // }
-
-        // $this->cl(Table::class)->render();
-        // $this->alert()->success($result['message']);
-    }
-
-    /**
-     * @param string $table      The table name
-     *
-     * @return void
-     */
-    #[Before('notYetAvailable')]
-    public function drop(string $table): void
-    {
+        $this->cl(Column\Table::class)->render();
     }
 }

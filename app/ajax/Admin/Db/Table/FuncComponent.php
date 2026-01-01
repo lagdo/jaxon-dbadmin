@@ -3,14 +3,14 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table;
 
 use Jaxon\Attributes\Attribute\Before;
-use Lagdo\DbAdmin\Ajax\FuncComponent as BaseFuncComponent;
+use Lagdo\DbAdmin\Ajax\FuncComponent as BaseComponent;
 use Lagdo\DbAdmin\Db\DbAdminPackage;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Table\TableUiBuilder;
 
 #[Before('checkDatabaseAccess')]
-abstract class FuncComponent extends BaseFuncComponent
+abstract class FuncComponent extends BaseComponent
 {
     use ComponentTrait;
 

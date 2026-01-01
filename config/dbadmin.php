@@ -236,6 +236,7 @@ return [
             Ui\Command\ExportUiBuilder::class,
             Ui\Table\TableUiBuilder::class,
             Ui\Table\ViewUiBuilder::class,
+            Ui\Table\ColumnUiBuilder::class,
         ],
         'alias' => [
             // The translator

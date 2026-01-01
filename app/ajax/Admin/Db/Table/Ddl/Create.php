@@ -3,8 +3,8 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl;
 
 use Jaxon\Attributes\Attribute\After;
-use Jaxon\Attributes\Attribute\Before;
 use Jaxon\Attributes\Attribute\Databag;
+use Jaxon\Attributes\Attribute\Export;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
@@ -16,12 +16,16 @@ use function Jaxon\jq;
  * Create a new table
  */
 #[Databag('dbadmin.table')]
+#[After('showBreadcrumbs')]
+#[Export(['render'])]
 class Create extends MainComponent
 {
     /**
-     * @var array
+     * The database table data.
+     *
+     * @var array|null
      */
-    private $tableData;
+    private $metadata = null;
 
     /**
      * @var string
@@ -29,11 +33,12 @@ class Create extends MainComponent
     protected $formId = 'dbadmin-table-form';
 
     /**
-     * Default values for tables
-     *
-     * @var string[]
+     * @return array
      */
-    protected $defaults = ['autoIncrementCol' => '', 'engine' => '', 'collation' => ''];
+    protected function metadata(): array
+    {
+        return $this->metadata ??= $this->db()->getTableData();
+    }
 
     /**
      * @inheritDoc
@@ -41,10 +46,9 @@ class Create extends MainComponent
     protected function before(): void
     {
         $this->bag('dbadmin')->set('db.table.name', '');
-        $this->bag('dbadmin.table')->set('fields', []);
-        $this->stash()->set('table.fields', []);
-
-        $this->tableData = $this->db()->getTableData();
+        $this->bag('dbadmin.table')->set('columns', []);
+        $this->stash()->set('table.columns', []);
+        $this->stash()->set('table.metadata', $this->metadata());
 
         // Set main menu buttons
         $values = je($this->formId)->rd()->form();
@@ -52,10 +56,10 @@ class Create extends MainComponent
         $actions = [
             'table-save' => [
                 'title' => $this->trans()->lang('Save'),
-                'handler' => $this->rq()->save($values)->ifgt($length, 0),
+                'handler' => $this->rq(TableFunc::class)->create($values)->ifgt($length, 0),
             ],
-            'table-cancel' => [
-                'title' => $this->trans()->lang('Cancel'),
+            'table-back' => [
+                'title' => $this->trans()->lang('Back'),
                 'handler' => $this->rq(Tables::class)->show(),
             ],
         ];
@@ -67,12 +71,14 @@ class Create extends MainComponent
      */
     public function html(): string
     {
+        $metadata = $this->metadata();
+
         return $this->tableUi
-            ->support($this->tableData['support'])
-            ->engines($this->tableData['engines'])
-            ->collations($this->tableData['collations'])
+            ->support($metadata['support'])
+            ->engines($metadata['engines'])
+            ->collations($metadata['collations'])
             ->formId($this->formId)
-            ->wrapper($this->rq(Columns::class));
+            ->wrapper();
     }
 
     /**
@@ -80,41 +86,6 @@ class Create extends MainComponent
      */
     protected function after(): void
     {
-        $this->cl(Columns::class)->render();
-    }
-
-    /**
-     * Show the create table page
-     *
-     * @return void
-     */
-    #[After('showBreadcrumbs')]
-    public function show(): void
-    {
-        $this->render();
-    }
-
-    /**
-     * Create a new table
-     *
-     * @param array  $values      The table values
-     *
-     * @return void
-     */
-    #[Before('notYetAvailable')]
-    public function save(array $values): void
-    {
-        // $fields = $this->bag('dbadmin.table')->get('fields');
-        // $values = array_merge($this->defaults, $values);
-
-        // $result = $this->db()->createTable($values);
-        // if(!$result['success'])
-        // {
-        //     $this->alert()->error($result['error']);
-        //     return;
-        // }
-
-        // $this->show($values['name']);
-        // $this->alert()->success($result['message']);
+        $this->cl(Column\Table::class)->render();
     }
 }

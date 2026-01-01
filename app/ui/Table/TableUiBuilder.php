@@ -2,13 +2,15 @@
 
 namespace Lagdo\DbAdmin\Ui\Table;
 
-use Jaxon\Script\Call\JxnClassCall;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Columns;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Jaxon\Script\Call\JxnCall;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
+use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\PageTrait;
 use Lagdo\UiBuilder\BuilderInterface;
 
+use function array_map;
+use function count;
 use function Jaxon\rq;
 use function sprintf;
 
@@ -19,11 +21,76 @@ class TableUiBuilder
     use TableFieldTrait;
 
     /**
+     * @var JxnCall
+     */
+    private $rqTable = null;
+
+    /**
+     * @var JxnCall
+     */
+    private $rqMove = null;
+
+    /**
+     * @var JxnCall
+     */
+    private $rqCreate = null;
+
+    /**
+     * @var JxnCall
+     */
+    private $rqUpdate = null;
+
+    /**
+     * @var JxnCall
+     */
+    private $rqDelete = null;
+
+    /**
      * @param Translator $trans
      * @param BuilderInterface $ui
      */
     public function __construct(protected Translator $trans, protected BuilderInterface $ui)
     {}
+
+    /**
+     * @var JxnCall
+     */
+    private function rqTable(): JxnCall
+    {
+        return $this->rqTable ??= rq(Column\Table::class);
+    }
+
+    /**
+     * @var JxnCall
+     */
+    private function rqMove(): JxnCall
+    {
+        return $this->rqMove ??= rq(Column\MoveFunc::class);
+    }
+
+    /**
+     * @var JxnCall
+     */
+    private function rqCreate(): JxnCall
+    {
+        return $this->rqCreate ??= rq(Column\CreateFunc::class);
+    }
+
+    /**
+     * @var JxnCall
+     */
+    private function rqUpdate(): JxnCall
+    {
+        return $this->rqUpdate ??= rq(Column\UpdateFunc::class);
+    }
+
+    /**
+     * @var JxnCall
+     */
+    private function rqDelete(): JxnCall
+    {
+        return $this->rqDelete ??= rq(Column\DeleteFunc::class);
+    }
 
     /**
      * @param array $table
@@ -37,79 +104,13 @@ class TableUiBuilder
     }
 
     /**
-     * @param array $support
+     * @param array $columns
      *
      * @return self
      */
-    public function support(array $support): self
+    public function columns(array $columns): self
     {
-        $this->support = $support;
-        return $this;
-    }
-
-    /**
-     * @param array $engines
-     *
-     * @return self
-     */
-    public function engines(array $engines): self
-    {
-        $this->engines = $engines;
-        return $this;
-    }
-
-    /**
-     * @param array $collations
-     *
-     * @return self
-     */
-    public function collations(array $collations): self
-    {
-        $this->collations = $collations;
-        return $this;
-    }
-
-    /**
-     * @param array $unsigned
-     *
-     * @return self
-     */
-    public function unsigned(array $unsigned): self
-    {
-        $this->unsigned = $unsigned;
-        return $this;
-    }
-
-    /**
-     * @param array $foreignKeys
-     *
-     * @return self
-     */
-    public function foreignKeys(array $foreignKeys): self
-    {
-        $this->foreignKeys = $foreignKeys;
-        return $this;
-    }
-
-    /**
-     * @param array $options
-     *
-     * @return self
-     */
-    public function options(array $options): self
-    {
-        $this->options = $options;
-        return $this;
-    }
-
-    /**
-     * @param array $fields
-     *
-     * @return self
-     */
-    public function fields(array $fields): self
-    {
-        $this->fields = $fields;
+        $this->columns = $columns;
         return $this;
     }
 
@@ -121,17 +122,6 @@ class TableUiBuilder
     public function handlers(array $handlers): self
     {
         $this->handlers = $handlers;
-        return $this;
-    }
-
-    /**
-     * @param string $formId
-     *
-     * @return self
-     */
-    public function formId(string $formId): self
-    {
-        $this->formId = $formId;
         return $this;
     }
 
@@ -154,6 +144,7 @@ class TableUiBuilder
     {
         $hasEngines = count($this->engines) > 0;
         $hasCollations = count($this->collations) > 0;
+
         return $this->ui->div(
             $this->ui->formRow(
                 $this->ui->formCol(
@@ -208,9 +199,8 @@ class TableUiBuilder
         return $this->ui->formRow(
             $this->ui->formCol(
                 $this->ui->label($this->ui->text($this->trans->lang('Column')))
-            )
-            ->width(4)
-            ->setClass('dbadmin-table-column-left'),
+            )->width(4)
+                ->setClass('dbadmin-table-column-left'),
             $this->ui->formCol(
                 $this->ui->radio()
                     ->checked(true)
@@ -228,8 +218,9 @@ class TableUiBuilder
             $this->ui->formCol(
                 $this->ui->when($this->support['columns'], fn() =>
                     $this->ui->button()
-                        ->primary()->addIcon('plus')
-                        ->jxnClick(rq(Column::class)->add($this->formValues()))
+                        ->primary()
+                        ->addIcon('plus')
+                        ->jxnClick($this->rqCreate()->add())
                 )
             )->width(1)
                 ->setClass('dbadmin-table-column-buttons-header')
@@ -237,11 +228,9 @@ class TableUiBuilder
     }
 
     /**
-     * @param JxnClassCall $xComponent
-     *
      * @return string
      */
-    public function wrapper(JxnClassCall $xComponent): string
+    public function wrapper(): string
     {
         return $this->ui->build(
             $this->ui->div(
@@ -249,7 +238,7 @@ class TableUiBuilder
                     $this->headerNameRow(),
                     $this->headerEditRow(),
                     $this->headerColumnRow(),
-                    $this->ui->div()->jxnBind($xComponent)
+                    $this->ui->div()->jxnBind($this->rqTable())
                 )->wrapped(false)->setId($this->formId)
             )->jxnEvent(array_map(fn($handler) => [
                 $handler['selector'],
@@ -260,78 +249,147 @@ class TableUiBuilder
     }
 
     /**
-     * @param TableFieldEntity $field
+     * @param ColumnEntity $column
      *
      * @return mixed
      */
-    private function getColumnBgColor(TableFieldEntity $field): string
+    protected function getColumnActionMenu(ColumnEntity $column): mixed
     {
-        $style = 'background-color: ';
-        return match($field->editStatus) {
-            'added' => "$style #e6ffe6;",
-            'deleted' => "$style #ffe6e6;",
-            default => "$style white;",
+        $movableUp = $this->support['move_col'] && $column->position > 0;
+        $movableDown = $this->support['move_col'] &&
+            $column->position < count($this->columns) - 1;
+        $cancellable = $column->status === 'edited' || $column->status === 'deleted';
+        $confirmCancel = 'Confirm the cancellation?';
+        $removable = $column->status === 'added' || $this->support['drop_col'];
+        $confirmRemove = $column->status === 'added' ? 'Remove this new colum?' :
+            "Remove the \"{$column->name}\" column?";
+
+        return $this->ui->dropdown(
+            $this->ui->dropdownItem()->look('primary')/*->addCaret()*/,
+            $this->ui->dropdownMenu(
+                $this->ui->when($column->status !== 'deleted', fn() =>
+                    $this->ui->list(
+                        $this->ui->when($movableUp, fn() =>
+                            $this->ui->dropdownMenuItem($this->ui->text('Up'))
+                                ->jxnClick($this->rqMove()->up($this->formValues(), $column->position))
+                        ),
+                        $this->ui->when($movableDown, fn() =>
+                            $this->ui->dropdownMenuItem($this->ui->text('Down'))
+                                ->jxnClick($this->rqMove()->down($this->formValues(), $column->position))
+                        ),
+                        $this->ui->dropdownMenuItem($this->ui->text('Add'))
+                            ->jxnClick($this->rqCreate()->add($column->position)),
+                        $this->ui->dropdownMenuItem($this->ui->text('Edit'))
+                            ->jxnClick($this->rqUpdate()->edit($column->name)),
+                        $this->ui->when($removable, fn() =>
+                            $this->ui->dropdownMenuItem($this->ui->text('Remove'))
+                                ->jxnClick($this->rqDelete()->exec($column->name)->confirm($confirmRemove))
+                        )
+                    )
+                ),
+                $this->ui->when($cancellable, fn() =>
+                    $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
+                        ->jxnClick($this->rqDelete()->cancel($column->name)->confirm($confirmCancel))
+                )
+            )
+        )->setClass('dbadmin-table-column-buttons');
+    }
+
+    /**
+     * @param ColumnEntity $column
+     *
+     * @return mixed
+     */
+    private function getColumnBgColor(ColumnEntity $column): string
+    {
+        return match($column->status) {
+            'added' => "background-color: #e6ffe6;",
+            'edited' => "background-color: #d9f1ffff;",
+            'deleted' => "background-color: #ffe6e6;",
+            default => "background-color: white;",
         };
     }
 
     /**
-     * @param TableFieldEntity $field
+     * @param ColumnEntity $column
      *
      * @return mixed
      */
-    protected function columnElement(TableFieldEntity $field): mixed
+    protected function columnElement(ColumnEntity $column): mixed
     {
-        $this->editPrefix = sprintf("fields[%d]", $field->editPosition);
+        $editPrefix = sprintf("fields[%d]", $column->position);
 
         return $this->ui->formRow(
-            $this->getFieldNameCol($field)
-                ->width(4)
+            // First line
+            $this->ui->col(
+                $this->getColumnNameField($column, "{$editPrefix}[name]")
+                    ->setPlaceholder($this->trans->lang('Name'))
+            )->width(4)
                 ->setClass('dbadmin-table-column-left'),
-            $this->getAutoIncrementCol($field)
-                ->width(1)
+            $this->ui->col(
+                $this->getColumnAutoIncrementField($column, 'autoIncrementCol')
+                    ->setValue($column->position + 1),
+                $this->ui->span($this->ui->html('&nbsp;AI&nbsp;')),
+                $this->getColumnPrimaryField($column, "{$editPrefix}[primary]")
+            )->width(1)
                 ->setClass('dbadmin-table-column-middle')
                 ->setStyle('padding-top: 7px'),
             $this->ui->formCol(
                 $this->ui->formRow(
-                    $this->getCommentCol($field)
-                        ->width(11)
+                    $this->ui->col(
+                            $this->getColumnCommentField($column, "{$editPrefix}[comment]")
+                                ->setPlaceholder($this->trans->lang('Comment'))
+                    )->width(11)
                         ->setClass('dbadmin-table-column-middle nested-col'),
-                    $this->getActionCol($field)
-                        ->width(1)
+                    $this->ui->col(
+                        $this->getColumnActionMenu($column)
+                    )->width(1)
                         ->setClass('dbadmin-table-column-buttons nested-col')
                 )->setClass('nested-row')
             )->width(7),
 
+            // Second line
             $this->ui->formCol(
                 $this->ui->formRow(
-                    $this->getTypeCol($field)
-                        ->width(8)
+                    $this->ui->col(
+                            $this->getColumnTypeField($column, "{$editPrefix}[type]")
+                    )->width(8)
                         ->setClass('dbadmin-table-column-left nested-col'),
-                    $this->getLengthCol($field)
-                        ->width(4)
+                    $this->ui->col(
+                        $this->getColumnLengthField($column, "{$editPrefix}[length]")
+                    )->width(4)
                         ->setClass('dbadmin-table-column-right nested-col'),
                 )->setClass('nested-row')
             )->width(4)
                 ->setClass('second-line'),
-            $this->getNullableCol($field)
-                ->width(1)
+            $this->ui->col(
+                $this->getColumnNullableField($column, "{$editPrefix}[null]"),
+                $this->ui->span($this->ui->html('&nbsp;Null'))
+            )->width(1)
                 ->setClass('dbadmin-table-column-middle second-line')
                 ->setStyle('padding-top: 7px'),
-            $this->getCollationCol($field)
-                ->width(4)
+            $this->ui->col(
+                $this->getColumnCollationField($column, "{$editPrefix}[collation]")
+            )->width(4)
                 ->setClass('dbadmin-table-column-middle second-line'),
-            $this->getOnUpdateCol($field)
-                ->width(3)
+            $this->ui->col(
+                $this->getColumnOnUpdateField($column, "{$editPrefix}[onUpdate]")
+            )->width(3)
                 ->setClass('dbadmin-table-column-right second-line'),
 
-            $this->getDefaultCol($field)
-                ->width(5)
+            // Third line
+            $this->ui->col(
+                $this->getColumnDefaultField($column, "{$editPrefix}[hasDefault]",
+                "{$editPrefix}[default]", $this->trans->lang('Default value'))
+            )->width(5)
                 ->setClass('dbadmin-table-column-left second-line'),
-            $this->getUnsignedCol($field)
-                ->width(4)
+            $this->ui->col(
+                $this->getColumnUnsignedField($column, "{$editPrefix}[unsigned]")
+            )->width(4)
                 ->setClass('dbadmin-table-column-middle second-line'),
-            $this->getOnDeleteCol($field)
-                ->width(3)
+            $this->ui->col(
+                $this->getColumnOnDeleteField($column, "{$editPrefix}[onDelete]")
+            )->width(3)
                 ->setClass('dbadmin-table-column-right second-line'),
         )->setClass("{$this->formId}-column");
     }
@@ -339,14 +397,16 @@ class TableUiBuilder
     /**
      * @return string
      */
-    public function columns(): string
+    public function showColumns(): string
     {
+        $this->formType = 'table';
+
         return $this->ui->build(
-            $this->ui->each($this->fields, fn($field) =>
+            $this->ui->each($this->columns, fn($column) =>
                 $this->ui->div(
-                    $this->columnElement($field)
+                    $this->columnElement($column)
                 )->setClass('dbadmin-table-edit-field')
-                    ->setStyle($this->getColumnBgColor($field))
+                    ->setStyle($this->getColumnBgColor($column))
             )
         );
     }

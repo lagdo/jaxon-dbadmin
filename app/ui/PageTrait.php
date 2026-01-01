@@ -39,7 +39,7 @@ trait PageTrait
             $element->setAttributes($content['props']);
         }
 
-        $element->children(
+        $element->contents(
             $this->ui->a($this->ui->text($content['label']))
                 ->setAttributes(['href' => 'javascript:void(0)'])
                 ->jxnClick($content['handler'])
