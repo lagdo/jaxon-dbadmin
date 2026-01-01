@@ -202,13 +202,7 @@ class TableUiBuilder
             )->width(4)
                 ->setClass('dbadmin-table-column-left'),
             $this->ui->formCol(
-                $this->ui->radio()
-                    ->checked(true)
-                    ->setName('autoIncrementCol')
-                    ->setValue('0')
-                    ->setStyle('margin-top: 5px'),
-                $this->ui->label($this->ui->html('&nbsp;AI-P'))
-                    ->setStyle('padding-top: 3px')
+                $this->ui->html('&nbsp;')
             )->width(1)
                 ->setClass('dbadmin-table-column-middle'),
             $this->ui->formCol(
@@ -327,10 +321,8 @@ class TableUiBuilder
             )->width(4)
                 ->setClass('dbadmin-table-column-left'),
             $this->ui->col(
-                $this->getColumnAutoIncrementField($column, 'autoIncrementCol')
-                    ->setValue($column->position + 1),
-                $this->ui->span($this->ui->html('&nbsp;AI&nbsp;')),
-                $this->getColumnPrimaryField($column, "{$editPrefix}[primary]")
+                $this->getColumnPrimaryField($column, "{$editPrefix}[primary]"),
+                $this->ui->span($this->ui->html('&nbsp;Primary'))
             )->width(1)
                 ->setClass('dbadmin-table-column-middle')
                 ->setStyle('padding-top: 7px'),
@@ -363,8 +355,10 @@ class TableUiBuilder
             )->width(4)
                 ->setClass('second-line'),
             $this->ui->col(
+                $this->getColumnAutoIncrementField($column, "{$editPrefix}[autoIncrement]"),
+                $this->ui->span($this->ui->html('&nbsp;AI&nbsp;')),
                 $this->getColumnNullableField($column, "{$editPrefix}[null]"),
-                $this->ui->span($this->ui->html('&nbsp;Null'))
+                $this->ui->span($this->ui->html('&nbsp;N'))
             )->width(1)
                 ->setClass('dbadmin-table-column-middle second-line')
                 ->setStyle('padding-top: 7px'),
@@ -399,7 +393,7 @@ class TableUiBuilder
      */
     public function showColumns(): string
     {
-        $this->formType = 'table';
+        $this->listMode = true;
 
         return $this->ui->build(
             $this->ui->each($this->columns, fn($column) =>

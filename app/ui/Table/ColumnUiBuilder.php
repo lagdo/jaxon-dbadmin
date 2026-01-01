@@ -24,7 +24,7 @@ class ColumnUiBuilder
      */
     public function column(ColumnEntity $column): string
     {
-        $this->formType = 'column';
+        $this->listMode = false;
 
         return $this->ui->build(
             $this->ui->form(

@@ -35,9 +35,9 @@ trait TableFieldTrait
     protected $formId = '';
 
     /**
-     * @var string
+     * @var bool
      */
-    protected $formType = 'table';
+    protected $listMode = true;
 
     /**
      * @var BuilderInterface
@@ -133,16 +133,12 @@ trait TableFieldTrait
      *
      * @return mixed
      */
-    protected function getColumnAutoIncrementField(ColumnEntity $column, string $fieldName): mixed
+    protected function getColumnPrimaryField(ColumnEntity $column, string $fieldName): mixed
     {
-        return $this->formType === 'table' ?
-            $this->ui->radio()
-                ->checked($column->values()->autoIncrement)
-                ->setName($fieldName) :
-            $this->ui->checkbox()
-                ->checked($column->values()->autoIncrement)
-                ->setName($fieldName)
-                ->setValue('1');
+        return $this->ui->checkbox()
+            ->checked($column->values()->primary)
+            ->setName($fieldName)
+            ->setValue('1');
     }
 
     /**
@@ -151,11 +147,12 @@ trait TableFieldTrait
      *
      * @return mixed
      */
-    protected function getColumnPrimaryField(ColumnEntity $column, string $fieldName): mixed
+    protected function getColumnAutoIncrementField(ColumnEntity $column, string $fieldName): mixed
     {
         return $this->ui->checkbox()
-            ->checked($column->values()->primary)
-            ->setName($fieldName);
+            ->checked($column->values()->autoIncrement)
+            ->setName($fieldName)
+            ->setValue('1');
     }
 
     /**
