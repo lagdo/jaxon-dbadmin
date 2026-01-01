@@ -9,10 +9,11 @@ use Exception;
 
 use function array_key_exists;
 use function array_map;
-use function array_merge;
 use function compact;
+use function count;
 use function implode;
 use function intval;
+use function in_array;
 use function ksort;
 use function preg_match;
 use function str_replace;
@@ -78,21 +79,26 @@ class TableFacade extends AbstractFacade
      * Get field types
      *
      * @param string $type  The type name
+     * @param array $extraTypes
      *
      * @return array
      */
-    public function getFieldTypes(string $type = ''): array
+    public function getFieldTypes(string $type = '', array $extraTypes = []): array
     {
         // From includes/editing.inc.php
-        $extraTypes = [];
-        if ($type && !$this->driver->typeExists($type) && !isset($this->foreignKeys[$type]) &&
-            !array_key_exists($this->utils->trans->lang('Current'), $extraTypes)) {
-            $extraTypes[$this->utils->trans->lang('Current')] = [$type];
+        if ($type !== '' && !$this->driver->typeExists($type) &&
+            !isset($this->foreignKeys[$type]) && !in_array($type, $extraTypes)) {
+            $extraTypes[] = $type;
         }
+
+        $structuredTypes = $this->driver->structuredTypes();
         if (!empty($this->foreignKeys)) {
-            $this->driver->setStructuredType($this->utils->trans->lang('Foreign keys'), $this->foreignKeys);
+            $structuredTypes[$this->utils->trans->lang('Foreign keys')] = $this->foreignKeys;
         }
-        return array_merge($extraTypes, $this->driver->structuredTypes());
+
+        // Change from Adminer:
+        // The $extraTypes are all kept in the first entry in the table.
+        return count($extraTypes) > 0 ? [$extraTypes, ...$structuredTypes] : $structuredTypes;
     }
 
     /**
@@ -104,10 +110,7 @@ class TableFacade extends AbstractFacade
      */
     protected function status(string $table)
     {
-        if (!$this->tableStatus) {
-            $this->tableStatus = $this->driver->tableStatusOrName($table, true);
-        }
-        return $this->tableStatus;
+        return $this->tableStatus ??= $this->driver->tableStatusOrName($table, true);
     }
 
     /**
@@ -272,21 +275,32 @@ class TableFacade extends AbstractFacade
             $this->utils->trans->lang('Type'),
             $this->utils->trans->lang('Collation'),
         ];
-        $hasComment = $this->driver->support('comment');
-        if ($hasComment) {
+        $commentSupported = $this->driver->support('comment');
+        if ($commentSupported) {
             $headers[] = $this->utils->trans->lang('Comment');
         }
+
+        $userTypes = $this->driver->structuredTypes()[$this->utils->trans->lang('User types')] ?? [];
+        $status = $this->status($table);
+        $tableCollation = $status?->collation ?? '';
 
         $details = [];
         foreach ($fields as $field) {
             $detail = [
                 'name' => $this->utils->str->html($field->name),
-                'type' => $this->page->getTableFieldType($field),
+                'type' => $this->page->getTableFieldType($field, $tableCollation),
                 'collation' => $this->utils->str->html($field->collation),
             ];
-            if ($hasComment) {
+
+            $fullType = $this->utils->str->html($field->fullType);
+            if (in_array($fullType, $userTypes)) {
+                $detail['references'] = $fullType;
+            }
+
+            if ($commentSupported) {
                 $detail['comment'] = $this->utils->str->html($field->comment);
             }
+
             $details[] = $detail;
         }
 
@@ -467,28 +481,27 @@ class TableFacade extends AbstractFacade
             $field->onUpdateHidden = !preg_match('~timestamp|datetime~', $type);
             $field->onDeleteHidden = !preg_match('~`~', $type);
         }
-        $options = [
-            'hasAutoIncrement' => $hasAutoIncrement,
-            'onUpdate' => ['CURRENT_TIMESTAMP' => 'CURRENT_TIMESTAMP'],
-            'onDelete' => $this->driver->onActions(),
-        ];
 
-        $collations = $this->driver->collations();
-        $engines = $this->driver->engines();
-        $support = [
-            'columns' => $this->driver->support('columns'),
-            'comment' => $this->driver->support('comment'),
-            'partitioning' => $this->driver->support('partitioning'),
-            'move_col' => $this->driver->support('move_col'),
-            'drop_col' => $this->driver->support('drop_col'),
+        return [
+            'table' => $status,
+            'foreignKeys' => $this->foreignKeys,
+            'fields' => $fields,
+            'options' => [
+                'hasAutoIncrement' => $hasAutoIncrement,
+                'onUpdate' => ['CURRENT_TIMESTAMP' => 'CURRENT_TIMESTAMP'],
+                'onDelete' => $this->driver->onActions(),
+            ],
+            'collations' => $this->driver->collations(),
+            'engines' => $this->driver->engines(),
+            'support' => [
+                'columns' => $this->driver->support('columns'),
+                'comment' => $this->driver->support('comment'),
+                'partitioning' => $this->driver->support('partitioning'),
+                'move_col' => $this->driver->support('move_col'),
+                'drop_col' => $this->driver->support('drop_col'),
+            ],
+            'unsigned' => $this->driver->unsigned(),
         ];
-
-        $foreignKeys = $this->foreignKeys;
-        $unsigned = $this->driver->unsigned();
-        // Give the var a better name
-        $table = $status;
-        return compact('table', 'foreignKeys', 'fields',
-            'options', 'collations', 'engines', 'support', 'unsigned');
     }
 
     /**

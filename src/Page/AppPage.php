@@ -10,6 +10,7 @@ use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use function file_get_contents;
 use function function_exists;
 use function iconv;
+use function implode;
 use function max;
 use function preg_match;
 use function strlen;
@@ -207,23 +208,29 @@ class AppPage
 
     /**
      * @param TableFieldEntity $field
+     * @param string $tableCollation
      *
      * @return string
      */
-    public function getTableFieldType(TableFieldEntity $field): string
+    public function getTableFieldType(TableFieldEntity $field, string $tableCollation = ''): string
     {
         $type = $this->utils->str->html($field->fullType);
+        $collation = $this->utils->str->html($field->collation);
+        if ($collation !== '' && $tableCollation !== '' && $collation != $tableCollation) {
+            $type .= " $collation";
+        }
+        $types = ["<span>$type</span>"];
         if ($field->nullable) {
-            $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
+            $types[] = '<i>nullable</i>'; // ' <i>NULL</i>';
         }
         if ($field->autoIncrement) {
-            $type .= ' <i>' . $this->utils->trans->lang('Auto Increment') . '</i>';
+            $types[] = '<i>' . $this->utils->trans->lang('Auto Increment') . '</i>';
         }
-        if ($field->default !== '') {
-            $type .= /*' ' . $this->utils->trans->lang('Default value') .*/ ' [<b>' .
+        if ($field->hasDefault()) {
+            $types[] = /*' ' . $this->utils->trans->lang('Default value') .*/ '[<b>' .
                 $this->utils->str->html($field->default) . '</b>]';
         }
-        return $type;
+        return implode(' ', $types);
     }
     /**
      * @param TableFieldEntity $field

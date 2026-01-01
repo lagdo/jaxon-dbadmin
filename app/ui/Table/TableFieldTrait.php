@@ -224,13 +224,17 @@ trait TableFieldTrait
     protected function getColumnTypeField(ColumnEntity $column, string $fieldName): mixed
     {
         return $this->ui->formSelect(
-            $this->ui->each($column->field()->types, fn($_types, $group) =>
-                $this->ui->optgroup(
-                    $this->ui->each($_types, fn($type) =>
+            $this->ui->each($column->field()->types, fn($groupTypes, $groupName) =>
+                is_numeric($groupName) ?
+                    $this->ui->each($groupTypes, fn($type) =>
                         $this->ui->option($type)
-                            ->selected($column->values()->type === $type)
-                    )
-                )->setLabel($group)
+                            ->selected($column->values()->type === $type)) :
+                    $this->ui->optgroup(
+                        $this->ui->each($groupTypes, fn($type) =>
+                            $this->ui->option($type)
+                                ->selected($column->values()->type === $type)
+                        )
+                    )->setLabel($groupName)
             )
         )->setName($fieldName)
             ->setDataField('type');
