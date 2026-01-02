@@ -42,10 +42,12 @@ class ColumnEntity
     public function __construct(private TableFieldEntity $field)
     {
         $this->name = $field->name;
-        // Make sure the boolean fields are booleans.
+        // Make sure the boolean fields have boolean values.
         $this->field->primary = (bool)$this->field->primary;
         $this->field->autoIncrement = (bool)$this->field->autoIncrement;
         $this->field->nullable = (bool)$this->field->nullable;
+        // Don't keep null in the comment value.
+        $this->field->comment ??= '';
     }
 
     /**
