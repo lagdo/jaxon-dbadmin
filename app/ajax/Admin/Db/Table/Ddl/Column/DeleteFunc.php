@@ -51,7 +51,7 @@ class DeleteFunc extends FuncComponent
 
         // Reset the column.
         $new = $this->getFieldColumn($fieldName);
-        $new->status = 'unchanged';
+        $new->status = $column->fieldEdited() ? 'edited' : 'unchanged';
         $new->position = $column->position;
         return $new;
     }
