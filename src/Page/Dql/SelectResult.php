@@ -37,50 +37,50 @@ class SelectResult
 
     /**
      * @param SelectEntity $selectEntity
-     * @param string $key
+     * @param string $column
      * @param int $position
      *
      * @return array
      */
-    private function getResultHeaderItem(SelectEntity $selectEntity, string $key, int $position): array
+    private function getResultHeaderItem(SelectEntity $selectEntity, string $column, int $position): array
     {
         $valueKey = key($selectEntity->select);
         $value = $selectEntity->queryOptions["columns"][$valueKey] ?? [];
 
         $fun = $value["fun"] ?? '';
-        $fieldKey = !$selectEntity->select ? $key :
+        $fieldKey = !$selectEntity->select ? $column :
             ($value["col"] ?? current($selectEntity->select));
         $field = $selectEntity->fields[$fieldKey];
-        $name = !$field ? ($fun ? "*" : $key) : $this->page->fieldName($field, $position);
+        $name = !$field ? ($fun ? "*" : $column) : $this->page->fieldName($field, $position);
 
         return [$fun, $name, $field];
     }
 
     /**
      * @param SelectEntity $selectEntity
-     * @param string $key
+     * @param string $column
      * @param int $position
      *
      * @return array
      */
-    private function getResultHeader(SelectEntity $selectEntity, string $key, int $position): array
+    private function getResultHeader(SelectEntity $selectEntity, string $column, int $position): array
     {
-        if (isset($selectEntity->unselected[$key])) {
+        if (isset($selectEntity->unselected[$column])) {
             return [];
         }
 
-        [$fun, $name, $field] = $this->getResultHeaderItem($selectEntity, $key, $position);
+        [$fun, $name, $field] = $this->getResultHeaderItem($selectEntity, $column, $position);
         $header = ['field' => $field, 'name' => $name];
         if ($name != "") {
-            $selectEntity->names[$key] = $name;
-            // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
+            $selectEntity->names[$column] = $name;
+            // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($column);
             // $desc = "&desc%5B0%5D=1";
-            $header['column'] = $this->driver->escapeId($key);
-            // $header['key'] = $this->utils->html($this->driver->bracketEscape($key));
+            $header['column'] = $this->driver->escapeId($column);
+            // $header['key'] = $this->utils->html($this->driver->bracketEscape($column));
             //! columns looking like functions
             $header['title'] = $this->page->applySqlFunction($fun, $name);
         }
-        // $functions[$key] = $fun;
+        // $functions[$column] = $fun;
         next($selectEntity->select);
 
         return $header;
@@ -103,8 +103,8 @@ class SelectResult
         reset($selectEntity->select);
 
         $position = 1;
-        foreach ($queryFields as $key) {
-            $header = $this->getResultHeader($selectEntity, $key, $position);
+        foreach ($queryFields as $column) {
+            $header = $this->getResultHeader($selectEntity, $column, $position);
             if ($header['name'] ?? '' !== '') {
                 $position++;
             }
@@ -125,9 +125,9 @@ class SelectResult
         {
             foreach($rows as $row)
             {
-                foreach($row as $key => $value)
+                foreach($row as $column => $value)
                 {
-                    $lengths[$key] = \max($lengths[$key], \min(40, strlen(\utf8_decode($value))));
+                    $lengths[$column] = \max($lengths[$column], \min(40, strlen(\utf8_decode($value))));
                 }
             }
         }
@@ -146,10 +146,10 @@ class SelectResult
         if (empty($uniqueIds)) {
             $pattern = '~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)' .
                 '|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~';
-            foreach ($row as $key => $value) {
-                if (!preg_match($pattern, $key)) {
+            foreach ($row as $column => $value) {
+                if (!preg_match($pattern, $column)) {
                     //! columns looking like functions
-                    $uniqueIds[$key] = $value;
+                    $uniqueIds[$column] = $value;
                 }
             }
         }
@@ -170,43 +170,46 @@ class SelectResult
     }
 
     /**
-     * @param string $key
+     * @param string $column
      * @param string $collation
      *
      * @return string
      */
-    private function getRowIdMd5Key(string $key, string $collation): string
+    private function getRowIdMd5Key(string $column, string $collation): string
     {
         return $this->driver->jush() !== 'sql' ||
-            preg_match("~^utf8~", $collation) ? $key :
-                "CONVERT($key USING " . $this->driver->charset() . ")";
+            preg_match("~^utf8~", $collation) ? $column :
+                "CONVERT($column USING " . $this->driver->charset() . ")";
     }
 
     /**
      * @param SelectEntity $selectEntity
-     * @param string $key
+     * @param string $column
      * @param mixed $value
      *
-     * @return array
+     * @return mixed
      */
-    private function getRowIdValue(SelectEntity $selectEntity, string $key, $value): array
+    private function getRowIdValue(SelectEntity $selectEntity, string $column, $value): mixed
     {
-        $key = trim($key);
         $type = '';
         $collation = '';
-        if (isset($selectEntity->fields[$key])) {
-            $type = $selectEntity->fields[$key]->type;
-            $collation = $selectEntity->fields[$key]->collation;
+        if (isset($selectEntity->fields[$column])) {
+            $type = $selectEntity->fields[$column]->type;
+            $collation = $selectEntity->fields[$column]->collation;
         }
         if ($this->shouldEncodeRowId($type, $value)) {
-            if (!strpos($key, '(')) {
+            if (!strpos($column, '(')) {
                 //! columns looking like functions
-                $key = $this->driver->escapeId($key);
+                $column = $this->driver->escapeId($column);
             }
-            $key = "MD5(" . $this->getRowIdMd5Key($key, $collation) . ")";
-            $value = md5($value);
+            // Set the value to an array to indicate that a function is applied to the column.
+            $expr = "MD5(" . $this->getRowIdMd5Key($column, $collation) . ")";
+            $value = [
+                'expr' => $this->driver->bracketEscape($expr),
+                'value' => md5($value),
+            ];
         }
-        return [$this->driver->bracketEscape($key), $value];
+        return $value;
     }
 
     /**
@@ -221,31 +224,33 @@ class SelectResult
         // Unique identifier to edit returned data.
         // $unique_idf = "";
         $rowIds = ['where' => [], 'null' => []];
-        foreach ($uniqueIds as $key => $value) {
-            [$key, $value] = $this->getRowIdValue($selectEntity, $key, $value);
+        foreach ($uniqueIds as $column => $value) {
+            $column = trim($column);
+            $value = $this->getRowIdValue($selectEntity, $column, $value);
+            $column = $this->driver->bracketEscape($column);
 
             // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" .
-            // $key . "]") . "=" .
-            // \urlencode($value) : \urlencode("null[]") . "=" . \urlencode($key));
+            // $column . "]") . "=" .
+            // \urlencode($value) : \urlencode("null[]") . "=" . \urlencode($column));
             if ($value === null) {
-                $rowIds['null'][] = $key;
+                $rowIds['null'][] = $column;
                 continue;
             }
-            $rowIds['where'][$key] = $value;
+            $rowIds['where'][$column] = $value;
         }
         return $rowIds;
     }
 
     /**
      * @param SelectEntity $selectEntity
-     * @param string $key
+     * @param string $column
      * @param mixed $value
      *
      * @return array
      */
-    private function getColumnValue(SelectEntity $selectEntity, string $key, $value): array
+    private function getColumnValue(SelectEntity $selectEntity, string $column, $value): array
     {
-        $field = $selectEntity->fields[$key] ?? new TableFieldEntity();
+        $field = $selectEntity->fields[$column] ?? new TableFieldEntity();
         $textLength = $selectEntity->textLength;
         $value = $this->driver->value($value, $field);
         return $this->page->getFieldValue($field, $textLength, $value);
@@ -260,9 +265,9 @@ class SelectResult
     private function getRowValues(SelectEntity $selectEntity, array $row): array
     {
         $cols = [];
-        foreach ($row as $key => $value) {
-            if (isset($selectEntity->names[$key])) {
-                $cols[] = $this->getColumnValue($selectEntity, $key, $value);
+        foreach ($row as $column => $value) {
+            if (isset($selectEntity->names[$column])) {
+                $cols[] = $this->getColumnValue($selectEntity, $column, $value);
             }
         }
         return $cols;
