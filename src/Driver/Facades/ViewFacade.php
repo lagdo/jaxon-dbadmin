@@ -100,14 +100,15 @@ class ViewFacade extends AbstractFacade
         $details = [];
         foreach ($fields as $field) {
             $type = $this->utils->str->html($field->fullType);
-            if ($field->null) {
+            if ($field->nullable) {
                 $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
             }
             if ($field->autoIncrement) {
                 $type .= ' <i>' . $this->utils->trans->lang('Auto Increment') . '</i>';
             }
             if ($field->hasDefault()) {
-                $type .= /*' ' . $this->utils->trans->lang('Default value') .*/ ' [<b>' . $this->utils->str->html($field->default) . '</b>]';
+                $type .= /*' ' . $this->utils->trans->lang('Default value') .*/ ' [<b>' .
+                    $this->utils->str->html($field->default) . '</b>]';
             }
             $detail = [
                 'name' => $this->utils->str->html($field->name),
