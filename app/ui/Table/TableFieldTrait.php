@@ -238,13 +238,15 @@ trait TableFieldTrait
         return $this->ui->formSelect(
             $this->ui->each($column->field()->types, fn($groupTypes, $groupName) =>
                 is_numeric($groupName) ?
-                    $this->ui->each($groupTypes, fn($type) =>
+                    $this->ui->each($groupTypes, fn($type, $key) =>
                         $this->ui->option($type)
-                            ->selected($column->values()->type === $type)) :
+                            ->selected($column->values()->type === $type)
+                            ->when(!is_numeric($key), fn($input) => $input->setValue($key))) :
                     $this->ui->optgroup(
-                        $this->ui->each($groupTypes, fn($type) =>
+                        $this->ui->each($groupTypes, fn($type, $key) =>
                             $this->ui->option($type)
                                 ->selected($column->values()->type === $type)
+                                ->when(!is_numeric($key), fn($input) => $input->setValue($key))
                         )
                     )->setLabel($groupName)
             )
