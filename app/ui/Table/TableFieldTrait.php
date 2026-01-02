@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Table;
 
 use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
 use Lagdo\UiBuilder\BuilderInterface;
-use Lagdo\UiBuilder\Component\Base\HtmlComponent;
+use Lagdo\UiBuilder\Component\HtmlComponent;
 
 use function is_array;
 use function is_string;

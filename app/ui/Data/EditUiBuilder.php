@@ -26,7 +26,7 @@ class EditUiBuilder
             $this->ui->each($input['items'], fn($item) =>
                 $this->ui->label(
                     $this->ui->radio($item['attrs'])
-                        ->setAttribute('value', $item['value'], false)
+                        ->setValue($item['value'], false)
                         ->when($item['checked'], fn($radio) =>
                             $radio->setAttribute('checked', 'checked'))
                         ->setStyle('margin-right:3px;'),
@@ -47,7 +47,7 @@ class EditUiBuilder
         return $this->ui->each($input['items'], fn($item) =>
             $this->ui->label(
                 $this->ui->checkbox($item['attrs'])
-                    ->setAttribute('value', $item['value'], false)
+                    ->setValue($item['value'], false)
                     ->when($item['checked'], fn($checkbox) =>
                         $checkbox->setAttribute('checked', 'checked'))
                     ->setStyle('margin-right:3px;'),
@@ -112,7 +112,7 @@ class EditUiBuilder
     protected function getDefaultValueInput(array $input): mixed
     {
         return $this->ui->formInput($input['attrs'])
-            ->setAttribute('value', $input['value'], false);
+            ->setValue($input['value'], false);
     }
 
     /**

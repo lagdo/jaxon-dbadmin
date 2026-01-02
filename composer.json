@@ -26,8 +26,8 @@
         "jaxon-php/jaxon-upload": "^2.1",
         "lagdo/dbadmin-driver": "0.20.*",
         "lagdo/facades": "^1.1",
-        "lagdo/jaxon-ui-builder": "0.3.*",
-        "lagdo/ui-builder": "0.4.*"
+        "lagdo/jaxon-ui-builder": "0.4.*",
+        "lagdo/ui-builder": "0.5.*"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
