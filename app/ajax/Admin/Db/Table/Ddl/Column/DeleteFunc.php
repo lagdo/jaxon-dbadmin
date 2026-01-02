@@ -38,25 +38,6 @@ class DeleteFunc extends FuncComponent
     }
 
     /**
-     * @param ColumnEntity $column
-     * @param string $fieldName
-     *
-     * @return ColumnEntity
-     */
-    private function resetColumn(ColumnEntity $column, string $fieldName): ColumnEntity
-    {
-        if ($column->name !== $fieldName) {
-            return $column;
-        }
-
-        // Reset the column.
-        $new = $this->getFieldColumn($fieldName);
-        $new->status = $column->fieldEdited() ? 'edited' : 'unchanged';
-        $new->position = $column->position;
-        return $new;
-    }
-
-    /**
      * @param string $fieldName
      *
      * @return void
@@ -72,12 +53,28 @@ class DeleteFunc extends FuncComponent
             return;
         }
 
-        $this->stash()->set('table.metadata', $this->metadata());
-
         $columns = $this->updateColumns($columns, $fieldName);
         $this->stash()->set('table.columns', $columns);
+        $this->stash()->set('table.metadata', $this->metadata());
 
         $this->cl(Table::class)->render();
+    }
+
+    /**
+     * @param ColumnEntity $column
+     * @param string $fieldName
+     *
+     * @return ColumnEntity
+     */
+    private function resetColumn(ColumnEntity $column, string $fieldName): ColumnEntity
+    {
+        if ($column->name !== $fieldName) {
+            return $column;
+        }
+
+        // Reset the column. Only the status needs to be updated.
+        $column->status = $column->fieldEdited() ? 'edited' : 'unchanged';
+        return $column;
     }
 
     /**
@@ -96,10 +93,9 @@ class DeleteFunc extends FuncComponent
             return;
         }
 
-        $this->stash()->set('table.metadata', $this->metadata());
-
         $columns = array_map(fn($c) => $this->resetColumn($c, $fieldName), $columns);
         $this->stash()->set('table.columns', $columns);
+        $this->stash()->set('table.metadata', $this->metadata());
 
         $this->cl(Table::class)->render();
     }

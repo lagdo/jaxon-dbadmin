@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
+use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
+
 class UpdateFunc extends FuncComponent
 {
     /**
@@ -72,6 +74,48 @@ class UpdateFunc extends FuncComponent
 
         $this->stash()->set('table.metadata', $this->metadata());
         $this->stash()->set('table.columns', $columns);
+
+        $this->cl(Table::class)->render();
+    }
+
+    /**
+     * @param ColumnEntity $column
+     * @param string $fieldName
+     *
+     * @return ColumnEntity
+     */
+    private function resetColumn(ColumnEntity $column, string $fieldName): ColumnEntity
+    {
+        if ($column->name !== $fieldName) {
+            return $column;
+        }
+
+        // Reset the column with values from the database.
+        $new = new ColumnEntity($this->metadata()['fields'][$fieldName]);
+        $new->status = 'unchanged';
+        $new->position = $column->position;
+        return $new;
+    }
+
+    /**
+     * @param string $fieldName
+     *
+     * @return void
+     */
+    public function cancel(string $fieldName): void
+    {
+        $columns = $this->getTableColumns();
+        if (!isset($columns[$fieldName])) {
+            $table = $this->getTableName();
+            $this->alert()
+                ->title($this->trans->lang('Error'))
+                ->error("Unable to find the field with '$fieldName' in table '$table'.");
+            return;
+        }
+
+        $columns = array_map(fn($c) => $this->resetColumn($c, $fieldName), $columns);
+        $this->stash()->set('table.columns', $columns);
+        $this->stash()->set('table.metadata', $this->metadata());
 
         $this->cl(Table::class)->render();
     }

@@ -252,7 +252,6 @@ class TableUiBuilder
         $movableUp = $this->support['move_col'] && $column->position > 0;
         $movableDown = $this->support['move_col'] &&
             $column->position < count($this->columns) - 1;
-        $cancellable = $column->status === 'edited' || $column->status === 'deleted';
         $confirmCancel = 'Confirm the cancellation?';
         $removable = $column->status === 'added' || $this->support['drop_col'];
         $confirmRemove = $column->status === 'added' ? 'Remove this new colum?' :
@@ -275,13 +274,17 @@ class TableUiBuilder
                             ->jxnClick($this->rqCreate()->add($column->position)),
                         $this->ui->dropdownMenuItem($this->ui->text('Edit'))
                             ->jxnClick($this->rqUpdate()->edit($column->name)),
+                        $this->ui->when($column->status === 'edited', fn() =>
+                            $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
+                                ->jxnClick($this->rqUpdate()->cancel($column->name)->confirm($confirmCancel))
+                        ),
                         $this->ui->when($removable, fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Remove'))
                                 ->jxnClick($this->rqDelete()->exec($column->name)->confirm($confirmRemove))
                         )
                     )
                 ),
-                $this->ui->when($cancellable, fn() =>
+                $this->ui->when($column->status === 'deleted', fn() =>
                     $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
                         ->jxnClick($this->rqDelete()->cancel($column->name)->confirm($confirmCancel))
                 )
