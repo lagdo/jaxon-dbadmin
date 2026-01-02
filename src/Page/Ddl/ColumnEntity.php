@@ -61,9 +61,9 @@ class ColumnEntity
     /**
      * @return object
      */
-    public function values(): object
+    public function fieldValues(): object
     {
-        return $this->values ??= (object)[
+        return (object)[
             'name' => $this->field->name,
             'primary' => $this->field->primary,
             'autoIncrement' => $this->field->autoIncrement,
@@ -78,6 +78,24 @@ class ColumnEntity
             'onDelete' => $this->field->onDelete,
             'comment' => $this->field->comment,
         ];
+    }
+
+    /**
+     * @return object
+     */
+    public function values(): object
+    {
+        return $this->values ??= $this->fieldValues();
+    }
+
+    /**
+     * @param array $values
+     *
+     * @return void
+     */
+    public function setValues(array $values): void
+    {
+        $this->values = (object)$values;
     }
 
     private function sameDefault(): bool
@@ -108,16 +126,6 @@ class ColumnEntity
     }
 
     /**
-     * @param array $values
-     *
-     * @return void
-     */
-    public function updateField(array $values): void
-    {
-        $this->values = (object)$values;
-    }
-
-    /**
      * @return array
      */
     public function toArray(): array
@@ -145,7 +153,7 @@ class ColumnEntity
         $column->name = $columnData['name'];
         $column->status = $columnData['status'];
         $column->position = $columnData['position'];
-        $column->updateField($columnData['field']);
+        $column->setValues($columnData['field']);
 
         return $column;
     }

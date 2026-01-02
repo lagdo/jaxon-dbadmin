@@ -206,8 +206,7 @@ class EditUiBuilder
             )
         )->wrapped(false)->setId($formId);
 
-        return $maxHeight === '' ?
-            $this->ui->build($form) :
+        return $maxHeight === '' ? $this->ui->build($form) :
             $this->ui->build(
                 $this->ui->div($form)
                     ->setStyle("max-height:$maxHeight; overflow-x:hidden; overflow-y:scroll;")

@@ -20,7 +20,8 @@ class CreateFunc extends FuncComponent
      */
     public function add(int $position = -1): void
     {
-        $title = 'New column in table ' . $this->getTableName();
+        $tableName = $this->getTableName();
+        $title = $tableName === '' ? 'New column' : "New column in table $tableName";
         $content = $this->columnUi
             ->metadata($this->metadata())
             ->formId($this->formId)
@@ -63,7 +64,7 @@ class CreateFunc extends FuncComponent
         $column->name = $this->addedColumnName($position);
         $column->status = 'added';
         $column->position = $position;
-        $column->updateField($this->getColumnValues($values));
+        $column->setValues($this->getColumnValues($values));
         // Append the new colum to the list, indexed by its name.
         $columns[$column->name] = $column;
 

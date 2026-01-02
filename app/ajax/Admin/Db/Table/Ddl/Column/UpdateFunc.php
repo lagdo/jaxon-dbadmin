@@ -63,7 +63,7 @@ class UpdateFunc extends FuncComponent
         }
 
         $column = $columns[$fieldName];
-        $column->updateField($this->getColumnValues($values));
+        $column->setValues($this->getColumnValues($values));
         if ($column->status === 'edited' || $column->status === 'unchanged') {
             $column->status = $column->fieldEdited() ? 'edited' : 'unchanged';
         }
