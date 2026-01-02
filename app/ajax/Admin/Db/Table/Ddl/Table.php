@@ -20,22 +20,6 @@ class Table extends MainComponent
     private $tableInfo;
 
     /**
-     * Show detailed info of a given table
-     *
-     * @param string $table       The table name
-     *
-     * @return void
-     */
-    #[After('showBreadcrumbs')]
-    public function show(string $table): void
-    {
-        // Save the table name in the databag.
-        $this->bag('dbadmin')->set('db.table.name', $table);
-
-        $this->render();
-    }
-
-    /**
      * Print links after select heading
      * Copied from selectLinks() in adminer.inc.php
      *
@@ -122,6 +106,20 @@ class Table extends MainComponent
     }
 
     /**
+     * Display the content of a tab
+     *
+     * @param array  $tableData The data to be displayed in the view
+     * @param string $tabId     The tab container id
+     *
+     * @return void
+     */
+    private function showTab(array $tableData, string $tabId): void
+    {
+        $content = $this->tableUi->pageContent(array_merge($this->tableInfo, $tableData));
+        $this->response->html($tabId, $content);
+    }
+
+    /**
      * @inheritDoc
      */
     protected function after(): void
@@ -155,16 +153,18 @@ class Table extends MainComponent
     }
 
     /**
-     * Display the content of a tab
+     * Show detailed info of a given table
      *
-     * @param array  $tableData The data to be displayed in the view
-     * @param string $tabId     The tab container id
+     * @param string $table       The table name
      *
      * @return void
      */
-    private function showTab(array $tableData, string $tabId): void
+    #[After('showBreadcrumbs')]
+    public function show(string $table): void
     {
-        $content = $this->tableUi->pageContent(array_merge($this->tableInfo, $tableData));
-        $this->response->html($tabId, $content);
+        // Save the table name in the databag.
+        $this->bag('dbadmin')->set('db.table.name', $table);
+
+        $this->render();
     }
 }

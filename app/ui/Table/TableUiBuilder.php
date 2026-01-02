@@ -318,10 +318,12 @@ class TableUiBuilder
             $this->ui->col(
                 $this->getColumnNameField($column, "{$editPrefix}[name]")
                     ->setPlaceholder($this->trans->lang('Name'))
+                    ->with(fn($input) => $this->disable($input))
             )->width(4)
                 ->setClass('dbadmin-table-column-left'),
             $this->ui->col(
-                $this->getColumnPrimaryField($column, "{$editPrefix}[primary]"),
+                $this->getColumnPrimaryField($column, "{$editPrefix}[primary]")
+                    ->with(fn($input) => $this->disable($input, false)),
                 $this->ui->span($this->ui->html('&nbsp;Primary'))
             )->width(1)
                 ->setClass('dbadmin-table-column-middle')
@@ -331,6 +333,7 @@ class TableUiBuilder
                     $this->ui->col(
                             $this->getColumnCommentField($column, "{$editPrefix}[comment]")
                                 ->setPlaceholder($this->trans->lang('Comment'))
+                                ->with(fn($input) => $this->disable($input))
                     )->width(11)
                         ->setClass('dbadmin-table-column-middle nested-col'),
                     $this->ui->col(
@@ -345,29 +348,35 @@ class TableUiBuilder
                 $this->ui->formRow(
                     $this->ui->col(
                             $this->getColumnTypeField($column, "{$editPrefix}[type]")
+                                ->with(fn($input) => $this->disable($input))
                     )->width(8)
                         ->setClass('dbadmin-table-column-left nested-col'),
                     $this->ui->col(
                         $this->getColumnLengthField($column, "{$editPrefix}[length]")
+                            ->with(fn($input) => $this->disable($input))
                     )->width(4)
                         ->setClass('dbadmin-table-column-right nested-col'),
                 )->setClass('nested-row')
             )->width(4)
                 ->setClass('second-line'),
             $this->ui->col(
-                $this->getColumnAutoIncrementField($column, "{$editPrefix}[autoIncrement]"),
+                $this->getColumnAutoIncrementField($column, "{$editPrefix}[autoIncrement]")
+                    ->with(fn($input) => $this->disable($input, false)),
                 $this->ui->span($this->ui->html('&nbsp;AI&nbsp;')),
-                $this->getColumnNullableField($column, "{$editPrefix}[null]"),
+                $this->getColumnNullableField($column, "{$editPrefix}[null]")
+                    ->with(fn($input) => $this->disable($input, false)),
                 $this->ui->span($this->ui->html('&nbsp;N'))
             )->width(1)
                 ->setClass('dbadmin-table-column-middle second-line')
                 ->setStyle('padding-top: 7px'),
             $this->ui->col(
                 $this->getColumnCollationField($column, "{$editPrefix}[collation]")
+                    ->with(fn($input) => $this->disable($input))
             )->width(4)
                 ->setClass('dbadmin-table-column-middle second-line'),
             $this->ui->col(
                 $this->getColumnOnUpdateField($column, "{$editPrefix}[onUpdate]")
+                    ->with(fn($input) => $this->disable($input))
             )->width(3)
                 ->setClass('dbadmin-table-column-right second-line'),
 
@@ -379,10 +388,12 @@ class TableUiBuilder
                 ->setClass('dbadmin-table-column-left second-line'),
             $this->ui->col(
                 $this->getColumnUnsignedField($column, "{$editPrefix}[unsigned]")
+                    ->with(fn($input) => $this->disable($input))
             )->width(4)
                 ->setClass('dbadmin-table-column-middle second-line'),
             $this->ui->col(
                 $this->getColumnOnDeleteField($column, "{$editPrefix}[onDelete]")
+                    ->with(fn($input) => $this->disable($input))
             )->width(3)
                 ->setClass('dbadmin-table-column-right second-line'),
         )->setClass("{$this->formId}-column");

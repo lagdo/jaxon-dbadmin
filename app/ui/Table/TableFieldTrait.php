@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Table;
 
 use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
 use Lagdo\UiBuilder\BuilderInterface;
+use Lagdo\UiBuilder\Component\Base\HtmlComponent;
 
 use function is_array;
 use function is_string;
@@ -61,6 +62,20 @@ trait TableFieldTrait
     protected function formValues(): array
     {
         return je($this->formId)->rd()->form();
+    }
+
+    /**
+     * @param HtmlComponent $component
+     * @param bool $changeBackground
+     *
+     * @return void
+     */
+    protected function disable(HtmlComponent $component, bool $changeBackground = true): void
+    {
+        $component->setDisabled('disabled');
+        if ($changeBackground) {
+            $component->setStyle('background-color: #f8f8f8;');
+        }
     }
 
     /**
@@ -166,7 +181,7 @@ trait TableFieldTrait
         return $this->getCollationSelect($column->values()->collation)
             ->setName($fieldName)
             ->setDataField('collation')
-            ->when($column->field()->collationHidden, fn($elt) => $elt->setReadonly('readonly'));
+            ->when($column->field()->collationHidden, fn($input) => $input->setReadonly('readonly'));
     }
 
     /**
@@ -187,7 +202,7 @@ trait TableFieldTrait
             )
         )->setName($fieldName)
             ->setDataField('onUpdate')
-            ->when($column->field()->onUpdateHidden, fn($elt) => $elt->setReadonly('readonly'));
+            ->when($column->field()->onUpdateHidden, fn($input) => $input->setReadonly('readonly'));
     }
 
     /**
@@ -252,7 +267,7 @@ trait TableFieldTrait
             ->setDataField('length')
             ->setSize('3')
             ->setValue($column->values()->length ?: '')
-            ->when($column->field()->lengthRequired, fn($elt) => $elt->setRequired('required'));
+            ->when($column->field()->lengthRequired, fn($input) => $input->setRequired('required'));
     }
 
     /**
@@ -289,7 +304,7 @@ trait TableFieldTrait
             )
         )->setName($fieldName)
             ->setDataField('unsigned')
-            ->when($column->field()->unsignedHidden, fn($elt) => $elt->setReadonly('readonly'));
+            ->when($column->field()->unsignedHidden, fn($input) => $input->setReadonly('readonly'));
     }
 
     /**
@@ -311,7 +326,7 @@ trait TableFieldTrait
             )
         )->setName($fieldName)
             ->setDataField('onDelete')
-            ->when($column->field()->onDeleteHidden, fn($elt) => $elt->setReadonly('readonly'));
+            ->when($column->field()->onDeleteHidden, fn($input) => $input->setReadonly('readonly'));
     }
 
     /**
@@ -329,12 +344,14 @@ trait TableFieldTrait
             $this->ui->checkbox()
                 ->checked($column->values()->hasDefault)
                 ->setName($hasFieldName)
-                ->setDataField('hasDefault'),
+                ->setDataField('hasDefault')
+                ->when($this->listMode, fn($input) => $this->disable($input, false)),
             $this->ui->formInput()
                 ->setName($fieldName)
                 ->setDataField('default')
                 ->when($placeholder !== '', fn($input) => $input->setPlaceholder($placeholder))
                 ->setValue($column->values()->default)
+                ->when($this->listMode, fn($input) => $this->disable($input))
         );
     }
 }
