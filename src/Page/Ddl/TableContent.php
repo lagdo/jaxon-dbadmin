@@ -167,12 +167,13 @@ class TableContent
                 $field->onUpdate = 'CURRENT_TIMESTAMP';
             }
 
-            $type = $field->type;
-            $field->lengthRequired = !$field->length && preg_match('~var(char|binary)$~', $type);
-            $field->collationHidden = !preg_match('~(char|text|enum|set)$~', $type);
-            $field->unsignedHidden = $type && !preg_match($this->driver->numberRegex(), $type);
-            $field->onUpdateHidden = !preg_match('~timestamp|datetime~', $type);
-            $field->onDeleteHidden = !preg_match('~`~', $type);
+            // Todo: check that these flags are set properly.
+            // $type = $field->type;
+            $field->lengthRequired = true; // !$field->length && preg_match('~var(char|binary)$~', $type);
+            $field->collationHidden = false; // !preg_match('~(char|text|enum|set)$~', $type);
+            $field->unsignedHidden = false; // $type && !preg_match($this->driver->numberRegex(), $type);
+            $field->onUpdateHidden = false; // !preg_match('~timestamp|datetime~', $type);
+            $field->onDeleteHidden = false; // !preg_match('~`~', $type);
 
             return $field;
         }, $fields);

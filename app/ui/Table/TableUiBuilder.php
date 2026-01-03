@@ -9,6 +9,7 @@ use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\PageTrait;
 use Lagdo\UiBuilder\BuilderInterface;
+use Lagdo\UiBuilder\Component\HtmlComponent;
 
 use function count;
 use function Jaxon\je;
@@ -289,6 +290,18 @@ class TableUiBuilder
     }
 
     /**
+     * @param string $label
+     *
+     * @return HtmlComponent
+     */
+    private function hiddenField(string $label): HtmlComponent
+    {
+        return $this->ui->div(
+            $this->ui->text($this->trans->lang('hidden') . " ($label)")
+        )->setStyle('padding-top:7px;padding-left:10px;');
+    }
+
+    /**
      * @param ColumnEntity $column
      *
      * @return mixed
@@ -315,9 +328,11 @@ class TableUiBuilder
             $this->ui->formCol(
                 $this->ui->formRow(
                     $this->ui->col(
+                        $this->ui->when(isset($this->support['comment']), fn() =>
                             $this->getColumnCommentField($column, "{$editPrefix}[comment]")
                                 ->setPlaceholder($this->trans->lang('Comment'))
                                 ->with(fn($input) => $this->disable($input))
+                        )
                     )->width(11)
                         ->setClass('dbadmin-table-column-middle nested-col'),
                     $this->ui->col(
@@ -331,13 +346,14 @@ class TableUiBuilder
             $this->ui->formCol(
                 $this->ui->formRow(
                     $this->ui->col(
-                            $this->getColumnTypeField($column, "{$editPrefix}[type]")
-                                ->with(fn($input) => $this->disable($input))
+                        $this->getColumnTypeField($column, "{$editPrefix}[type]")
+                            ->with(fn($input) => $this->disable($input))
                     )->width(8)
                         ->setClass('dbadmin-table-column-left nested-col'),
                     $this->ui->col(
-                        $this->getColumnLengthField($column, "{$editPrefix}[length]")
-                            ->with(fn($input) => $this->disable($input))
+                        $this->ui->when($column->field()->lengthRequired, fn() =>
+                            $this->getColumnLengthField($column, "{$editPrefix}[length]")
+                                ->with(fn($input) => $this->disable($input)))
                     )->width(4)
                         ->setClass('dbadmin-table-column-right nested-col'),
                 )->setClass('nested-row')
@@ -354,13 +370,17 @@ class TableUiBuilder
                 ->setClass('dbadmin-table-column-middle second-line')
                 ->setStyle('padding-top: 7px'),
             $this->ui->col(
-                $this->getColumnCollationField($column, "{$editPrefix}[collation]")
-                    ->with(fn($input) => $this->disable($input))
+                $column->field()->collationHidden ?
+                    $this->hiddenField('Collation') :
+                    $this->getColumnCollationField($column, "{$editPrefix}[collation]")
+                        ->with(fn($input) => $this->disable($input))
             )->width(4)
                 ->setClass('dbadmin-table-column-middle second-line'),
             $this->ui->col(
-                $this->getColumnOnUpdateField($column, "{$editPrefix}[onUpdate]")
-                    ->with(fn($input) => $this->disable($input))
+                $column->field()->onUpdateHidden ?
+                    $this->hiddenField('On update') :
+                    $this->getColumnOnUpdateField($column, "{$editPrefix}[onUpdate]")
+                        ->with(fn($input) => $this->disable($input))
             )->width(3)
                 ->setClass('dbadmin-table-column-right second-line'),
 
@@ -371,11 +391,15 @@ class TableUiBuilder
             )->width(5)
                 ->setClass('dbadmin-table-column-left second-line'),
             $this->ui->col(
-                $this->getColumnUnsignedField($column, "{$editPrefix}[unsigned]")
-                    ->with(fn($input) => $this->disable($input))
+                $column->field()->unsignedHidden ?
+                    $this->hiddenField('Unsigned') :
+                    $this->getColumnUnsignedField($column, "{$editPrefix}[unsigned]")
+                        ->with(fn($input) => $this->disable($input))
             )->width(4)
                 ->setClass('dbadmin-table-column-middle second-line'),
             $this->ui->col(
+                $column->field()->onDeleteHidden ?
+                $this->hiddenField('On delete') :
                 $this->getColumnOnDeleteField($column, "{$editPrefix}[onDelete]")
                     ->with(fn($input) => $this->disable($input))
             )->width(3)
