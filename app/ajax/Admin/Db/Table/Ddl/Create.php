@@ -47,8 +47,6 @@ class Create extends MainComponent
     {
         $this->bag('dbadmin')->set('db.table.name', '');
         $this->bag('dbadmin.table')->set('columns', []);
-        $this->stash()->set('table.columns', []);
-        $this->stash()->set('table.metadata', $this->metadata());
 
         // Set main menu buttons
         $values = je($this->formId)->rd()->form();
@@ -86,6 +84,6 @@ class Create extends MainComponent
      */
     protected function after(): void
     {
-        $this->cl(Column\Table::class)->render();
+        $this->cl(Column\Table::class)->show($this->metadata());
     }
 }

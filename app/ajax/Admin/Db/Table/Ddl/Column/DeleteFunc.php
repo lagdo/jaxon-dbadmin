@@ -10,7 +10,7 @@ use function array_map;
 class DeleteFunc extends FuncComponent
 {
     /**
-     * @param array $columns
+     * @param array<ColumnEntity> $columns
      * @param string $fieldName
      *
      * @return array
@@ -25,16 +25,7 @@ class DeleteFunc extends FuncComponent
         }
 
         // Remove the column.
-        $columns = array_filter($columns, fn($c) => $c->name !== $column->name);
-        // Reset the columns positions.
-        $position = 0;
-        foreach ($columns as $column) {
-            if ($column->status === 'added') {
-                $column->name = $this->addedColumnName($position);
-            }
-            $column->position = $position++;
-        }
-        return $columns;
+        return array_filter($columns, fn($c) => $c->name !== $column->name);
     }
 
     /**
@@ -54,27 +45,26 @@ class DeleteFunc extends FuncComponent
         }
 
         $columns = $this->updateColumns($columns, $fieldName);
-        $this->stash()->set('table.columns', $columns);
-        $this->stash()->set('table.metadata', $this->metadata());
-
-        $this->cl(Table::class)->render();
+        $this->cl(Table::class)->show($this->metadata(), $columns);
     }
 
     /**
-     * @param ColumnEntity $column
+     * @param array<ColumnEntity> $columns
      * @param string $fieldName
      *
-     * @return ColumnEntity
+     * @return array
      */
-    private function resetColumn(ColumnEntity $column, string $fieldName): ColumnEntity
+    private function resetColumn(array $columns, string $fieldName): array
     {
-        if ($column->name !== $fieldName) {
-            return $column;
-        }
+        return array_map(function(ColumnEntity $column) use($fieldName) {
+            if ($column->name !== $fieldName) {
+                return $column;
+            }
 
-        // Reset the column. Only the status needs to be updated.
-        $column->status = $column->fieldEdited() ? 'edited' : 'unchanged';
-        return $column;
+            // Reset the column. Only the status needs to be updated.
+            $column->status = $column->fieldEdited() ? 'edited' : 'unchanged';
+            return $column;
+        }, $columns);
     }
 
     /**
@@ -93,10 +83,7 @@ class DeleteFunc extends FuncComponent
             return;
         }
 
-        $columns = array_map(fn($c) => $this->resetColumn($c, $fieldName), $columns);
-        $this->stash()->set('table.columns', $columns);
-        $this->stash()->set('table.metadata', $this->metadata());
-
-        $this->cl(Table::class)->render();
+        $columns = $this->resetColumn($columns, $fieldName);
+        $this->cl(Table::class)->show($this->metadata(), $columns);
     }
 }

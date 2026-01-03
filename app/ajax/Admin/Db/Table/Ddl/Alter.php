@@ -7,10 +7,7 @@ use Jaxon\Attributes\Attribute\Databag;
 use Jaxon\Attributes\Attribute\Export;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
-use function array_map;
 use function Jaxon\je;
 
 /**
@@ -90,17 +87,6 @@ class Alter extends MainComponent
      */
     protected function after(): void
     {
-        $metadata = $this->metadata();
-        $columns = array_map(fn(TableFieldEntity $field) =>
-            new ColumnEntity($field), $metadata['fields']);
-        $position = 0;
-        foreach ($columns as $column) {
-            $column->position = $position++;
-        }
-
-        $this->stash()->set('table.metadata', $metadata);
-        $this->stash()->set('table.columns', $columns);
-
-        $this->cl(Column\Table::class)->render();
+        $this->cl(Column\Table::class)->load($this->metadata());
     }
 }

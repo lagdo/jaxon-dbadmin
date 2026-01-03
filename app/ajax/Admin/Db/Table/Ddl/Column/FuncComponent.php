@@ -116,14 +116,4 @@ abstract class FuncComponent extends BaseComponent
 
         return $formValues;
     }
-
-    /**
-     * @param int $position
-     *
-     * @return string
-     */
-    protected function addedColumnName(int $position): string
-    {
-        return "new_column_$position";
-    }
 }

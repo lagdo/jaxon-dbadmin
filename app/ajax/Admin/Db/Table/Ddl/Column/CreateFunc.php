@@ -49,30 +49,13 @@ class CreateFunc extends FuncComponent
      */
     public function save(array $values, int $position): void
     {
-        $columns = $this->getTableColumns();
-        // Reset the columns positions.
-        $position = 0;
-        foreach ($columns as $column) {
-            if ($column->status === 'added') {
-                $column->name = $this->addedColumnName($position);
-            }
-            $column->position = $position++;
-        }
-
         // Create an empty field and fill with the form data.
         $column = $this->getEmptyColumn();
-        $column->name = $this->addedColumnName($position);
         $column->status = 'added';
-        $column->position = $position;
         $column->setValues($this->getColumnValues($values));
-        // Append the new colum to the list, indexed by its name.
-        $columns[$column->name] = $column;
 
         $this->modal()->hide();
 
-        $this->stash()->set('table.metadata', $this->metadata());
-        $this->stash()->set('table.columns', $columns);
-
-        $this->cl(Table::class)->render();
+        $this->cl(Table::class)->show($this->metadata(), [...$this->getTableColumns(), $column]);
     }
 }

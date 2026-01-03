@@ -252,9 +252,11 @@ class TableUiBuilder
         $movableUp = $this->support['move_col'] && $column->position > 0;
         $movableDown = $this->support['move_col'] &&
             $column->position < count($this->columns) - 1;
-        $confirmCancel = 'Confirm the cancellation?';
-        $removable = $column->status === 'added' || $this->support['drop_col'];
-        $confirmRemove = $column->status === 'added' ? 'Remove this new colum?' :
+        $cancelQuestion = 'Confirm the cancellation?';
+        $isNew = $column->status === 'added';
+        $removable = $isNew || $this->support['drop_col'];
+        $removeText = $isNew ? 'Cancel' : 'Remove';
+        $removeQuestion = $isNew ? 'Remove this new colum?' :
             "Remove the \"{$column->name}\" column?";
 
         return $this->ui->dropdown(
@@ -276,17 +278,17 @@ class TableUiBuilder
                             ->jxnClick($this->rqUpdate()->edit($column->name)),
                         $this->ui->when($column->status === 'edited', fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
-                                ->jxnClick($this->rqUpdate()->cancel($column->name)->confirm($confirmCancel))
+                                ->jxnClick($this->rqUpdate()->cancel($column->name)->confirm($cancelQuestion))
                         ),
                         $this->ui->when($removable, fn() =>
-                            $this->ui->dropdownMenuItem($this->ui->text('Remove'))
-                                ->jxnClick($this->rqDelete()->exec($column->name)->confirm($confirmRemove))
+                            $this->ui->dropdownMenuItem($this->ui->text($removeText))
+                                ->jxnClick($this->rqDelete()->exec($column->name)->confirm($removeQuestion))
                         )
                     )
                 ),
                 $this->ui->when($column->status === 'deleted', fn() =>
                     $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
-                        ->jxnClick($this->rqDelete()->cancel($column->name)->confirm($confirmCancel))
+                        ->jxnClick($this->rqDelete()->cancel($column->name)->confirm($cancelQuestion))
                 )
             )
         )->setClass('dbadmin-table-column-buttons');

@@ -72,29 +72,27 @@ class UpdateFunc extends FuncComponent
 
         $this->modal()->hide();
 
-        $this->stash()->set('table.metadata', $this->metadata());
-        $this->stash()->set('table.columns', $columns);
-
-        $this->cl(Table::class)->render();
+        $this->cl(Table::class)->show($this->metadata(), $columns);
     }
 
     /**
-     * @param ColumnEntity $column
+     * @param array<ColumnEntity> $columns
      * @param string $fieldName
      *
-     * @return ColumnEntity
+     * @return array
      */
-    private function resetColumn(ColumnEntity $column, string $fieldName): ColumnEntity
+    private function resetColumn(array $columns, string $fieldName): array
     {
-        if ($column->name !== $fieldName) {
-            return $column;
-        }
+        return array_map(function(ColumnEntity $column) use($fieldName) {
+            if ($column->name !== $fieldName) {
+                return $column;
+            }
 
-        // Reset the column with values from the database.
-        $new = new ColumnEntity($this->metadata()['fields'][$fieldName]);
-        $new->status = 'unchanged';
-        $new->position = $column->position;
-        return $new;
+            // Reset the column with values from the database.
+            $column = new ColumnEntity($this->metadata()['fields'][$fieldName]);
+            $column->status = 'unchanged';
+            return $column;
+        }, $columns);
     }
 
     /**
@@ -113,10 +111,7 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $columns = array_map(fn($c) => $this->resetColumn($c, $fieldName), $columns);
-        $this->stash()->set('table.columns', $columns);
-        $this->stash()->set('table.metadata', $this->metadata());
-
-        $this->cl(Table::class)->render();
+        $columns = $this->resetColumn($columns, $fieldName);
+        $this->cl(Table::class)->show($this->metadata(), $columns);
     }
 }
