@@ -37,7 +37,7 @@ class Create extends MainComponent
      */
     protected function metadata(): array
     {
-        return $this->metadata ??= $this->db()->getTableData();
+        return $this->metadata ??= $this->db()->getTableMetadata();
     }
 
     /**

@@ -2,20 +2,18 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
+use Lagdo\DbAdmin\Db\Page\Ddl\TableContent;
+use Lagdo\DbAdmin\Db\Page\Ddl\TableHeader;
 use Lagdo\DbAdmin\Driver\Entity\ForeignKeyEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Exception;
 
-use function array_key_exists;
 use function array_map;
 use function compact;
 use function count;
-use function implode;
 use function intval;
 use function in_array;
-use function ksort;
-use function preg_match;
 use function str_replace;
 use function trim;
 
@@ -37,7 +35,7 @@ class TableFacade extends AbstractFacade
     protected $referencableTables = [];
 
     /**
-     * @var array
+     * @var array<string,string>
      */
     protected $foreignKeys = [];
 
@@ -55,6 +53,32 @@ class TableFacade extends AbstractFacade
      * @var TableEntity
      */
     private $attrs;
+
+    /**
+     * @var TableHeader|null
+     */
+    private TableHeader|null $tableHeader = null;
+
+    /**
+     * @var TableContent|null
+     */
+    private TableContent|null $tableContent = null;
+
+    /**
+     * @return TableHeader
+     */
+    private function header(): TableHeader
+    {
+        return $this->tableHeader ??= new TableHeader($this->page, $this->driver, $this->utils);
+    }
+
+    /**
+     * @return TableContent
+     */
+    private function content(): TableContent
+    {
+        return $this->tableContent ??= new TableContent($this->page, $this->driver, $this->utils);
+    }
 
     /**
      * Get foreign keys
@@ -202,38 +226,6 @@ class TableFacade extends AbstractFacade
     }
 
     /**
-     * @param TableEntity $status
-     *
-     * @return array<string, string>
-     */
-    private function getTabs(TableEntity $status): array
-    {
-        $tabs = [
-            'fields' => $this->utils->trans->lang('Columns'),
-            // 'indexes' => $this->utils->trans->lang('Indexes'),
-            // 'foreign-keys' => $this->utils->trans->lang('Foreign keys'),
-            // 'triggers' => $this->utils->trans->lang('Triggers'),
-        ];
-        if ($this->driver->isView($status)) {
-            if ($this->driver->support('view_trigger')) {
-                $tabs['triggers'] = $this->utils->trans->lang('Triggers');
-            }
-            return $tabs;
-        }
-
-        if ($this->driver->support('indexes')) {
-            $tabs['indexes'] = $this->utils->trans->lang('Indexes');
-        }
-        if ($this->driver->supportForeignKeys($status)) {
-            $tabs['foreign-keys'] = $this->utils->trans->lang('Foreign keys');
-        }
-        if ($this->driver->support('trigger')) {
-            $tabs['triggers'] = $this->utils->trans->lang('Triggers');
-        }
-        return $tabs;
-    }
-
-    /**
      * Get details about a table
      *
      * @param string $table     The table name
@@ -244,14 +236,8 @@ class TableFacade extends AbstractFacade
     {
         // From table.inc.php
         $status = $this->status($table);
-        $name = $this->page->tableName($status);
 
-        return [
-            'title' => $this->utils->trans->lang('Table') . ': ' .
-                ($name != '' ? $name : $this->utils->str->html($table)),
-            'comment' => $status->comment,
-            'tabs' => $this->getTabs($status),
-        ];
+        return $this->header()->infos($table, $status);
     }
 
     /**
@@ -270,41 +256,12 @@ class TableFacade extends AbstractFacade
             throw new Exception($this->driver->error());
         }
 
-        $headers = [
-            $this->utils->trans->lang('Name'),
-            $this->utils->trans->lang('Type'),
-            $this->utils->trans->lang('Collation'),
-        ];
-        $commentSupported = $this->driver->support('comment');
-        if ($commentSupported) {
-            $headers[] = $this->utils->trans->lang('Comment');
-        }
-
-        $userTypes = $this->driver->structuredTypes()[$this->utils->trans->lang('User types')] ?? [];
         $status = $this->status($table);
-        $tableCollation = $status?->collation ?? '';
 
-        $details = [];
-        foreach ($fields as $field) {
-            $detail = [
-                'name' => $this->utils->str->html($field->name),
-                'type' => $this->page->getTableFieldType($field, $tableCollation),
-                'collation' => $this->utils->str->html($field->collation),
-            ];
-
-            $fullType = $this->utils->str->html($field->fullType);
-            if (in_array($fullType, $userTypes)) {
-                $detail['references'] = $fullType;
-            }
-
-            if ($commentSupported) {
-                $detail['comment'] = $this->utils->str->html($field->comment);
-            }
-
-            $details[] = $detail;
-        }
-
-        return compact('headers', 'details');
+        return [
+            'headers' => $this->header()->fields(),
+            'details' => $this->content()->fields($fields, $status?->collation ?? ''),
+        ];
     }
 
     /**
@@ -323,35 +280,10 @@ class TableFacade extends AbstractFacade
         // From table.inc.php
         $indexes = $this->driver->indexes($table);
 
-        $headers = [
-            $this->utils->trans->lang('Name'),
-            $this->utils->trans->lang('Type'),
-            $this->utils->trans->lang('Column'),
+        return [
+            'headers' => $this->header()->indexes(),
+            'details' => $this->content()->indexes($indexes),
         ];
-
-        $details = [];
-        // From adminer.inc.php
-        foreach ($indexes as $name => $index) {
-            ksort($index->columns); // enforce correct columns order
-            $print = [];
-            foreach ($index->columns as $key => $val) {
-                $value = '<i>' . $this->utils->str->html($val) . '</i>';
-                if (array_key_exists($key, $index->lengths)) {
-                    $value .= '(' . $index->lengths[$key] . ')';
-                }
-                if (array_key_exists($key, $index->descs)) {
-                    $value .= ' DESC';
-                }
-                $print[] = $value;
-            }
-            $details[] = [
-                'name' => $this->utils->str->html($name),
-                'type' => $index->type,
-                'desc' => implode(', ', $print),
-            ];
-        }
-
-        return compact('headers', 'details');
     }
 
     /**
@@ -368,44 +300,12 @@ class TableFacade extends AbstractFacade
             return null;
         }
 
-        $headers = [
-            $this->utils->trans->lang('Name'),
-            $this->utils->trans->lang('Source'),
-            $this->utils->trans->lang('Target'),
-            $this->utils->trans->lang('ON DELETE'),
-            $this->utils->trans->lang('ON UPDATE'),
-        ];
-
         $foreignKeys = $this->driver->foreignKeys($table);
-        $details = [];
-        // From table.inc.php
-        foreach ($foreignKeys as $name => $foreignKey) {
-            $target = '';
-            if ($foreignKey->database != '') {
-                $target .= '<b>' . $this->utils->str->html($foreignKey->database) . '</b>.';
-            }
-            if ($foreignKey->schema != '') {
-                $target .= '<b>' . $this->utils->str->html($foreignKey->schema) . '</b>.';
-            }
-            $target = $this->utils->str->html($foreignKey->table) .
-                '(' . implode(', ', array_map(function ($key) {
-                    return $this->utils->str->html($key);
-                }, $foreignKey->target)) . ')';
-            $details[] = [
-                'name' => $this->utils->str->html($name),
-                'source' => '<i>' . implode(
-                    '</i>, <i>',
-                    array_map(function ($key) {
-                        return $this->utils->str->html($key);
-                    }, $foreignKey->source)
-                ) . '</i>',
-                'target' => $target,
-                'onDelete' => $this->utils->str->html($foreignKey->onDelete),
-                'onUpdate' => $this->utils->str->html($foreignKey->onUpdate),
-            ];
-        }
 
-        return compact('headers', 'details');
+        return [
+            'headers' => $this->header()->foreignKeys(),
+            'details' => $this->content()->foreignKeys($foreignKeys),
+        ];
     }
 
     /**
@@ -421,26 +321,13 @@ class TableFacade extends AbstractFacade
             return null;
         }
 
-        $headers = [
-            $this->utils->trans->lang('Name'),
-            '&nbsp;',
-            '&nbsp;',
-            '&nbsp;',
-        ];
-
-        $details = [];
         // From table.inc.php
         $triggers = $this->driver->triggers($table);
-        foreach ($triggers as $name => $trigger) {
-            $details[] = [
-                $this->utils->str->html($trigger->timing),
-                $this->utils->str->html($trigger->event),
-                $this->utils->str->html($name),
-                $this->utils->trans->lang('Alter'),
-            ];
-        }
 
-        return compact('headers', 'details');
+        return [
+            'headers' => $this->header()->triggers(),
+            'details' => $this->content()->triggers($triggers),
+        ];
     }
 
     /**
@@ -451,10 +338,10 @@ class TableFacade extends AbstractFacade
      * @return array
      * @throws Exception
      */
-    public function getTableData(string $table = ''): array
+    public function getTableMetadata(string $table = ''): array
     {
         // From create.inc.php
-        $status = [];
+        $status = null;
         $fields = [];
         if ($table !== '') {
             $status = $this->driver->tableStatus($table);
@@ -466,42 +353,12 @@ class TableFacade extends AbstractFacade
 
         $this->getForeignKeys($table);
 
-        $hasAutoIncrement = false;
-        foreach ($fields as &$field) {
-            $hasAutoIncrement = $hasAutoIncrement || $field->autoIncrement;
-            if (preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate)) {
-                $field->onUpdate = 'CURRENT_TIMESTAMP';
-            }
+        $fields = array_map(function($field) {
+            $field->types = $this->getFieldTypes($field->type);
+            return $field;
+        }, $fields);
 
-            $type = $field->type;
-            $field->types = $this->getFieldTypes($type);
-            $field->lengthRequired = !$field->length && preg_match('~var(char|binary)$~', $type);
-            $field->collationHidden = !preg_match('~(char|text|enum|set)$~', $type);
-            $field->unsignedHidden = !(!$type || preg_match($this->driver->numberRegex(), $type));
-            $field->onUpdateHidden = !preg_match('~timestamp|datetime~', $type);
-            $field->onDeleteHidden = !preg_match('~`~', $type);
-        }
-
-        return [
-            'table' => $status,
-            'foreignKeys' => $this->foreignKeys,
-            'fields' => $fields,
-            'options' => [
-                'hasAutoIncrement' => $hasAutoIncrement,
-                'onUpdate' => ['CURRENT_TIMESTAMP' => 'CURRENT_TIMESTAMP'],
-                'onDelete' => $this->driver->onActions(),
-            ],
-            'collations' => $this->driver->collations(),
-            'engines' => $this->driver->engines(),
-            'support' => [
-                'columns' => $this->driver->support('columns'),
-                'comment' => $this->driver->support('comment'),
-                'partitioning' => $this->driver->support('partitioning'),
-                'move_col' => $this->driver->support('move_col'),
-                'drop_col' => $this->driver->support('drop_col'),
-            ],
-            'unsigned' => $this->driver->unsigned(),
-        ];
+        return $this->content()->metadata($status, $fields, $this->foreignKeys);
     }
 
     /**

@@ -104,7 +104,7 @@ trait TableTrait
      * @return array
      * @throws Exception
      */
-    public function getTableData(string $table = ''): array
+    public function getTableMetadata(string $table = ''): array
     {
         $this->connectToSchema();
         $this->breadcrumbs(true)->item($this->utils->trans->lang('Tables'));
@@ -115,7 +115,7 @@ trait TableTrait
                 ->item($this->utils->trans->lang('Alter table'));
         }
         $this->utils->input->table = $table;
-        return $this->tableFacade()->getTableData($table);
+        return $this->tableFacade()->getTableMetadata($table);
     }
 
     /**

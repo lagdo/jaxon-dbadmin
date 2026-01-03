@@ -35,7 +35,7 @@ class Alter extends MainComponent
      */
     protected function metadata(): array
     {
-        return $this->metadata ??= $this->db()->getTableData($this->getTableName());
+        return $this->metadata ??= $this->db()->getTableMetadata($this->getTableName());
     }
 
     /**
