@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ui\Table;
 
 use Jaxon\Script\Call\JxnCall;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\AlterFunc;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
 use Lagdo\DbAdmin\Db\Translator;
@@ -10,6 +11,7 @@ use Lagdo\DbAdmin\Ui\PageTrait;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
+use function Jaxon\je;
 use function Jaxon\rq;
 use function sprintf;
 
@@ -20,29 +22,9 @@ class TableUiBuilder
     use TableFieldTrait;
 
     /**
-     * @var JxnCall
+     * @var array<JxnCall>
      */
-    private $rqTable = null;
-
-    /**
-     * @var JxnCall
-     */
-    private $rqMove = null;
-
-    /**
-     * @var JxnCall
-     */
-    private $rqCreate = null;
-
-    /**
-     * @var JxnCall
-     */
-    private $rqUpdate = null;
-
-    /**
-     * @var JxnCall
-     */
-    private $rqDelete = null;
+    private $rq = [];
 
     /**
      * @param Translator $trans
@@ -54,9 +36,17 @@ class TableUiBuilder
     /**
      * @var JxnCall
      */
+    private function rqAlter(): JxnCall
+    {
+        return $this->rq['alter'] ??= rq(AlterFunc::class);
+    }
+
+    /**
+     * @var JxnCall
+     */
     private function rqTable(): JxnCall
     {
-        return $this->rqTable ??= rq(Column\Table::class);
+        return $this->rq['table'] ??= rq(Column\Table::class);
     }
 
     /**
@@ -64,7 +54,7 @@ class TableUiBuilder
      */
     private function rqMove(): JxnCall
     {
-        return $this->rqMove ??= rq(Column\MoveFunc::class);
+        return $this->rq['move'] ??= rq(Column\MoveFunc::class);
     }
 
     /**
@@ -72,7 +62,7 @@ class TableUiBuilder
      */
     private function rqCreate(): JxnCall
     {
-        return $this->rqCreate ??= rq(Column\CreateFunc::class);
+        return $this->rq['create'] ??= rq(Column\CreateFunc::class);
     }
 
     /**
@@ -80,7 +70,7 @@ class TableUiBuilder
      */
     private function rqUpdate(): JxnCall
     {
-        return $this->rqUpdate ??= rq(Column\UpdateFunc::class);
+        return $this->rq['update'] ??= rq(Column\UpdateFunc::class);
     }
 
     /**
@@ -88,7 +78,7 @@ class TableUiBuilder
      */
     private function rqDelete(): JxnCall
     {
-        return $this->rqDelete ??= rq(Column\DeleteFunc::class);
+        return $this->rq['delete'] ??= rq(Column\DeleteFunc::class);
     }
 
     /**
@@ -121,6 +111,7 @@ class TableUiBuilder
         return $this->ui->formRow(
             $this->ui->formCol(
                 $this->ui->label($this->ui->text('Table'))
+                    ->setStyle('margin-left: 5px;')
             )->width(2)
         )->setClass('dbadmin-edit-table-header');
     }
@@ -187,25 +178,27 @@ class TableUiBuilder
         return $this->ui->formRow(
             $this->ui->formCol(
                 $this->ui->label($this->ui->text($this->trans->lang('Column')))
-            )->width(4)
-                ->setClass('dbadmin-table-column-left'),
+                    ->setStyle('margin-left: 5px;')
+            )->width(4),
             $this->ui->formCol(
                 $this->ui->html('&nbsp;')
-            )->width(1)
-                ->setClass('dbadmin-table-column-middle'),
+            )->width(1),
             $this->ui->formCol(
                 $this->ui->label($this->ui->text($this->trans->lang('Options')))
-            )->width(6)
-                ->setClass('dbadmin-table-column-middle'),
+                    ->setStyle('margin-left: -10px;')
+            )->width(4),
             $this->ui->formCol(
-                $this->ui->when($this->support['columns'], fn() =>
-                    $this->ui->button()
-                        ->primary()
-                        ->addIcon('plus')
-                        ->jxnClick($this->rqCreate()->add())
+                $this->ui->buttonGroup(
+                    $this->ui->when($this->support['columns'], fn() =>
+                        $this->ui->button($this->trans->lang('Add'))
+                            ->primary()
+                            ->jxnClick($this->rqCreate()->add())
+                    ),
+                    $this->ui->button($this->trans->lang('Changes'))
+                        ->secondary()
+                        ->jxnClick($this->rqAlter()->changes(je($this->formId)->rd()->form()))
                 )
-            )->width(1)
-                ->setClass('dbadmin-table-column-buttons-header')
+            )->width(3)
         )->setClass('dbadmin-table-column-header');
     }
 

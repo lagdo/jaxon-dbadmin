@@ -28,7 +28,7 @@ class Alter extends MainComponent
     /**
      * @var string
      */
-    protected $formId = 'dbadmin-table-form';
+    protected $formId = 'dbadmin-table-alter-form';
 
     /**
      * @return array

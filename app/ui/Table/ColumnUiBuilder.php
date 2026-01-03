@@ -116,4 +116,44 @@ class ColumnUiBuilder
             )
         );
     }
+
+    /**
+     * @param array<ColumnEntity> $columns
+     *
+     * @return string
+     */
+    public function changes(array $columns): string
+    {
+        return $this->ui->build(
+            $this->ui->each($columns, fn(ColumnEntity $column) =>
+                $this->ui->take([
+                    $column->status === 'deleted', fn() => $this->ui->row(
+                        $this->ui->col($this->ui->text($column->name))
+                            ->width(3),
+                        $this->ui->col($this->trans->lang('Drop'))
+                            ->width(8)
+                    )
+                ], [
+                    $column->status === 'edited', fn() => $this->ui->row(
+                        $this->ui->col($this->ui->text($column->name))
+                            ->width(3),
+                        $this->ui->col(
+                            $this->ui->div($this->trans->lang('Alter:')),
+                            $this->ui->each($column->changes(), fn($change, $attr) =>
+                                $this->ui->div(
+                                    $this->ui->html("- $attr => {$change['to']}")
+                                ))
+                        )->width(8)
+                    )
+                ], [
+                    $column->status === 'added', fn() => $this->ui->row(
+                        $this->ui->col($this->ui->text($column->newName()))
+                            ->width(3),
+                        $this->ui->col($this->trans->lang('Add'))
+                            ->width(8)
+                    )
+                ]
+            ))
+        ) ?: '&nbsp;';
+    }
 }

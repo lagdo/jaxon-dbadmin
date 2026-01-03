@@ -126,6 +126,76 @@ class ColumnEntity
     }
 
     /**
+     * @return string
+     */
+    public function newName(): string
+    {
+        return $this->values()->name ?: '(No name)';
+    }
+
+    /**
+     * @return bool
+     */
+    private function defaultValueChanged(): bool
+    {
+        $values = $this->values();
+        $fieldHasDefault = $this->field->hasDefault();
+        return $values->hasDefault && (!$fieldHasDefault || $values->default !== $this->field->default);
+    }
+
+    /**
+     * @return array
+     */
+    public function changes(): array
+    {
+        $changes = [];
+        $values = $this->values();
+
+        // The first attributes
+        foreach (['name', 'type', 'unsigned', 'length'] as $attr) {
+            if ($values->$attr !== $this->field->$attr) {
+                $changes[$attr] = [
+                    'from' => $this->field->$attr,
+                    'to' => $values->$attr,
+                ];
+            }
+        }
+        // The boolean attributes
+        foreach (['primary', 'autoIncrement', 'nullable'] as $attr) {
+            if ($values->$attr !== $this->field->$attr) {
+                $changes[$attr] = [
+                    'from' => $this->field->$attr ? 'true' : 'false',
+                    'to' => $values->$attr ? 'true' : 'false',
+                ];
+            }
+        }
+        // The default value
+        if ($values->hasDefault !== $this->field->hasDefault()) {
+            $changes['has default'] = [
+                'from' => $this->field->hasDefault() ? 'true' : 'false',
+                'to' => $values->hasDefault ? 'true' : 'false',
+            ];
+        }
+        if ($this->defaultValueChanged()) {
+            $changes['default'] = [
+                'from' => $this->field->default,
+                'to' => $values->default,
+            ];
+        }
+        // The other attributes
+        foreach (['collation', 'onUpdate', 'onDelete', 'comment'] as $attr) {
+            if ($values->$attr !== $this->field->$attr) {
+                $changes[$attr] = [
+                    'from' => $this->field->$attr,
+                    'to' => $values->$attr,
+                ];
+            }
+        }
+
+        return $changes;
+    }
+
+    /**
      * @return array
      */
     public function toArray(): array

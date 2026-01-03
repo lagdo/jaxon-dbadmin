@@ -37,7 +37,8 @@ class OptionsUiBuilder
                         ->primary()
                         ->addIcon('plus')
                         ->jxnClick($rqInput->add(je($formId)->rd()->form())),
-                    $this->ui->button()->danger()
+                    $this->ui->button()
+                        ->danger()
                         ->addIcon('remove')
                         ->jxnClick($rqInput->del(je($formId)->rd()->form()))
                 )
