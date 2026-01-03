@@ -9,7 +9,6 @@ use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\PageTrait;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function array_map;
 use function count;
 use function Jaxon\rq;
 use function sprintf;
@@ -111,17 +110,6 @@ class TableUiBuilder
     public function columns(array $columns): self
     {
         $this->columns = $columns;
-        return $this;
-    }
-
-    /**
-     * @param array $handlers
-     *
-     * @return self
-     */
-    public function handlers(array $handlers): self
-    {
-        $this->handlers = $handlers;
         return $this;
     }
 
@@ -231,14 +219,12 @@ class TableUiBuilder
                 $this->ui->form(
                     $this->headerNameRow(),
                     $this->headerEditRow(),
-                    $this->headerColumnRow(),
-                    $this->ui->div()->jxnBind($this->rqTable())
+                    $this->headerColumnRow()
                 )->wrapped(false)->setId($this->formId)
-            )->jxnEvent(array_map(fn($handler) => [
-                $handler['selector'],
-                $handler['event'] ?? 'click',
-                $handler['call']
-            ], $this->handlers))
+            ),
+            $this->ui->form(
+                $this->ui->div()->jxnBind($this->rqTable())
+            )->wrapped(false)
         );
     }
 

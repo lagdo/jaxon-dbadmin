@@ -26,11 +26,6 @@ trait TableFieldTrait
     protected $columns = [];
 
     /**
-     * @var array
-     */
-    protected $handlers = [];
-
-    /**
      * @var string
      */
     protected $formId = '';

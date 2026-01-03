@@ -56,6 +56,9 @@ class CreateFunc extends FuncComponent
 
         $this->modal()->hide();
 
-        $this->cl(Table::class)->show($this->metadata(), [...$this->getTableColumns(), $column]);
+        $this->cl(Table::class)->show($this->metadata(), [
+            ...$this->getTableColumns(),
+            $column,
+        ]);
     }
 }

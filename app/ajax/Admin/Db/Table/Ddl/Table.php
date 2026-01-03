@@ -9,7 +9,6 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dml\Insert;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 
-use function array_merge;
 use function is_array;
 
 class Table extends MainComponent
@@ -17,7 +16,7 @@ class Table extends MainComponent
     /**
      * @var array
      */
-    private $tableInfo;
+    private $metadata;
 
     /**
      * Print links after select heading
@@ -94,7 +93,7 @@ class Table extends MainComponent
         ];
         $this->cl(PageActions::class)->show($actions);
 
-        $this->tableInfo = $this->db()->getTableInfo($table);
+        $this->metadata = $this->db()->getTableInfo($table);
     }
 
     /**
@@ -102,7 +101,7 @@ class Table extends MainComponent
      */
     public function html(): string
     {
-        return $this->tableUi->mainDbTable($this->tableInfo['tabs']);
+        return $this->tableUi->mainDbTable($this->metadata['tabs']);
     }
 
     /**
@@ -115,7 +114,7 @@ class Table extends MainComponent
      */
     private function showTab(array $tableData, string $tabId): void
     {
-        $content = $this->tableUi->pageContent(array_merge($this->tableInfo, $tableData));
+        $content = $this->tableUi->pageContent([...$this->metadata, ...$tableData]);
         $this->response->html($tabId, $content);
     }
 
@@ -127,28 +126,28 @@ class Table extends MainComponent
         $table = $this->getTableName();
 
         // Show fields
-        $fieldsInfo = $this->db()->getTableFields($table);
-        $this->showTab($fieldsInfo, 'tab-content-fields');
+        $fields = $this->db()->getTableFields($table);
+        $this->showTab($fields, 'tab-content-fields');
 
         // Show indexes
-        $indexesInfo = $this->db()->getTableIndexes($table);
-        if(is_array($indexesInfo))
+        $indexes = $this->db()->getTableIndexes($table);
+        if(is_array($indexes))
         {
-            $this->showTab($indexesInfo, 'tab-content-indexes');
+            $this->showTab($indexes, 'tab-content-indexes');
         }
 
         // Show foreign keys
-        $foreignKeysInfo = $this->db()->getTableForeignKeys($table);
-        if(is_array($foreignKeysInfo))
+        $foreignKeys = $this->db()->getTableForeignKeys($table);
+        if(is_array($foreignKeys))
         {
-            $this->showTab($foreignKeysInfo, 'tab-content-foreign-keys');
+            $this->showTab($foreignKeys, 'tab-content-foreign-keys');
         }
 
         // Show triggers
-        $triggersInfo = $this->db()->getTableTriggers($table);
-        if(is_array($triggersInfo))
+        $triggers = $this->db()->getTableTriggers($table);
+        if(is_array($triggers))
         {
-            $this->showTab($triggersInfo, 'tab-content-triggers');
+            $this->showTab($triggers, 'tab-content-triggers');
         }
     }
 
