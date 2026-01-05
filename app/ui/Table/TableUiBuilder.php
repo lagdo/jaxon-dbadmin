@@ -109,8 +109,8 @@ class TableUiBuilder
      */
     protected function headerNameRow(): mixed
     {
-        return $this->ui->formRow(
-            $this->ui->formCol(
+        return $this->ui->row(
+            $this->ui->col(
                 $this->ui->label($this->ui->text('Table'))
                     ->setStyle('margin-left: 5px;')
             )->width(2)
@@ -126,40 +126,40 @@ class TableUiBuilder
         $hasCollations = count($this->collations) > 0;
 
         return $this->ui->div(
-            $this->ui->formRow(
-                $this->ui->formCol(
-                    $this->ui->formInput()
+            $this->ui->row(
+                $this->ui->col(
+                    $this->ui->input()
                         ->setType('text')->setName('name')
                         ->setValue($this->table['name'] ?? '')->setPlaceholder('Name')
                 )->width(4)
                     ->setClass('dbadmin-table-column-left'),
-                $this->ui->formCol(
+                $this->ui->col(
                     $this->ui->label($this->ui->html('&nbsp'))
                 )->width(1)
                     ->setClass('dbadmin-table-column-middle'),
                 $this->ui->when($hasCollations, fn() =>
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getCollationSelect($this->table['collation'] ?? '')
                             ->setName('collation')
                     )->width(4)
                         ->setClass('dbadmin-edit-table-collation')
                 ),
                 $this->ui->when($hasEngines, fn() =>
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getEngineSelect($this->table['engine'] ?? '')
                             ->setName('engine')
                     )->width(3)
                         ->setClass('dbadmin-edit-table-engine')
                 ),
                 $this->ui->when($hasEngines || $hasCollations, fn() =>
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->ui->label($this->ui->html('&nbsp'))
                     )->width(5)
                         ->setClass('dbadmin-table-column-middle')
                 ),
                 $this->ui->when(isset($this->support['comment']), fn() =>
-                    $this->ui->formCol(
-                        $this->ui->formInput()
+                    $this->ui->col(
+                        $this->ui->input()
                             ->setType('text')
                             ->setName('comment')
                             ->setValue($this->table['comment'] ?? '')
@@ -176,19 +176,19 @@ class TableUiBuilder
      */
     protected function headerColumnRow(): mixed
     {
-        return $this->ui->formRow(
-            $this->ui->formCol(
+        return $this->ui->row(
+            $this->ui->col(
                 $this->ui->label($this->ui->text($this->trans->lang('Column')))
                     ->setStyle('margin-left: 5px;')
             )->width(4),
-            $this->ui->formCol(
+            $this->ui->col(
                 $this->ui->html('&nbsp;')
             )->width(1),
-            $this->ui->formCol(
+            $this->ui->col(
                 $this->ui->label($this->ui->text($this->trans->lang('Options')))
                     ->setStyle('margin-left: -10px;')
             )->width(4),
-            $this->ui->formCol(
+            $this->ui->col(
                 $this->ui->buttonGroup(
                     $this->ui->when($this->support['columns'], fn() =>
                         $this->ui->button($this->trans->lang('Add'))
@@ -310,7 +310,7 @@ class TableUiBuilder
     {
         $editPrefix = sprintf("fields[%d]", $column->position);
 
-        return $this->ui->formRow(
+        return $this->ui->row(
             // First line
             $this->ui->col(
                 $this->getColumnNameField($column, "{$editPrefix}[name]")
@@ -325,8 +325,8 @@ class TableUiBuilder
             )->width(1)
                 ->setClass('dbadmin-table-column-middle')
                 ->setStyle('padding-top: 7px'),
-            $this->ui->formCol(
-                $this->ui->formRow(
+            $this->ui->col(
+                $this->ui->row(
                     $this->ui->col(
                         $this->ui->when(isset($this->support['comment']), fn() =>
                             $this->getColumnCommentField($column, "{$editPrefix}[comment]")
@@ -343,8 +343,8 @@ class TableUiBuilder
             )->width(7),
 
             // Second line
-            $this->ui->formCol(
-                $this->ui->formRow(
+            $this->ui->col(
+                $this->ui->row(
                     $this->ui->col(
                         $this->getColumnTypeField($column, "{$editPrefix}[type]")
                             ->with(fn($input) => $this->disable($input))
@@ -415,11 +415,13 @@ class TableUiBuilder
         $this->listMode = true;
 
         return $this->ui->build(
-            $this->ui->each($this->columns, fn($column) =>
-                $this->ui->div(
-                    $this->columnElement($column)
-                )->setClass('dbadmin-table-edit-field')
-                    ->setStyle($this->getColumnBgColor($column))
+            $this->ui->form(
+                $this->ui->each($this->columns, fn($column) =>
+                    $this->ui->div(
+                        $this->columnElement($column)
+                    )->setClass('dbadmin-table-edit-field')
+                        ->setStyle($this->getColumnBgColor($column))
+                )
             )
         );
     }

@@ -116,13 +116,13 @@ class AuditUiBuilder
         $formId = 'dbadmin-sidebar-audit-form';
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->formRow(
-                    $this->ui->formCol(
-                        $this->ui->formLabel($this->trans->lang('Category'))
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->trans->lang('Category'))
                             ->setFor('category')
                     )->width(12),
-                    $this->ui->formCol(
-                        $this->ui->formSelect(
+                    $this->ui->col(
+                        $this->ui->select(
                             $this->ui->option('')
                                 ->selected(false)->setValue(0),
                             $this->ui->each($categories, fn($category, $id) =>
@@ -132,50 +132,50 @@ class AuditUiBuilder
                         )->setName('category')
                     )->width(12)
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
-                        $this->ui->formLabel($this->trans->lang('User'))
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->trans->lang('User'))
                             ->setFor('username')
                     )->width(12),
-                    $this->ui->formCol(
-                        $this->ui->formInput()->setType('text')
+                    $this->ui->col(
+                        $this->ui->input()->setType('text')
                             ->setName('username')
                     )->width(12)
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
-                        $this->ui->formLabel($this->trans->lang('From'))
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->trans->lang('From'))
                             ->setFor('from_date')
                     )->width(12),
-                    $this->ui->formCol(
-                        $this->ui->formInput()
+                    $this->ui->col(
+                        $this->ui->input()
                             ->setType('date')->setName('from_date')
                     )->width(7)
                         ->setStyle('padding-right:1px'),
-                    $this->ui->formCol(
-                        $this->ui->formInput()
+                    $this->ui->col(
+                        $this->ui->input()
                             ->setType('time')->setName('from_time')
                     )->width(5)
                         ->setStyle('padding-left:1px')
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
-                        $this->ui->formLabel($this->trans->lang('To'))
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->trans->lang('To'))
                             ->setFor('to_date')
                     )->width(12),
-                    $this->ui->formCol(
-                        $this->ui->formInput()
+                    $this->ui->col(
+                        $this->ui->input()
                             ->setType('date')->setName('to_date')
                     )->width(7)
                         ->setStyle('padding-right:1px'),
-                    $this->ui->formCol(
-                        $this->ui->formInput()
+                    $this->ui->col(
+                        $this->ui->input()
                             ->setType('time')->setName('to_time')
                     )->width(5)
                         ->setStyle('padding-left:1px')
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
+                $this->ui->row(
+                    $this->ui->col(
                         $this->ui->button($this->trans->lang('Show'))
                             ->primary()
                             ->jxnClick(rq(Commands::class)

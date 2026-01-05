@@ -40,19 +40,21 @@ class UiBuilder
     private function getHostSelectCol(array $servers, string $default): mixed
     {
         return $this->ui->col(
-            $this->ui->inputGroup(
-                $this->ui->formSelect(
-                    $this->ui->each($servers, fn($server, $serverId) =>
-                        $this->ui->option($server['name'])
-                            ->selected($serverId === $default)
-                            ->setValue($serverId)
-                    )
-                )->setId('jaxon-dbadmin-dbhost-select'),
-                $this->ui->button($this->ui->text('Show'))
-                    ->primary()
-                    ->setClass('btn-select')
-                    ->jxnClick(rq(Admin::class)
-                        ->server(je('jaxon-dbadmin-dbhost-select')->rd()->select()))
+            $this->ui->form(
+                $this->ui->inputGroup(
+                    $this->ui->select(
+                        $this->ui->each($servers, fn($server, $serverId) =>
+                            $this->ui->option($server['name'])
+                                ->selected($serverId === $default)
+                                ->setValue($serverId)
+                        )
+                    )->setId('jaxon-dbadmin-dbhost-select'),
+                    $this->ui->button($this->ui->text('Show'))
+                        ->primary()
+                        ->setClass('btn-select')
+                        ->jxnClick(rq(Admin::class)
+                            ->server(je('jaxon-dbadmin-dbhost-select')->rd()->select()))
+                )
             )
         );
     }

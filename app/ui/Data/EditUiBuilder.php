@@ -80,7 +80,7 @@ class EditUiBuilder
      */
     protected function getFileValueInput(array $input): mixed
     {
-        return $this->ui->formInput($input['attrs'])
+        return $this->ui->input($input['attrs'])
             ->setType('file');
     }
 
@@ -91,7 +91,7 @@ class EditUiBuilder
      */
     protected function getJsonValueInput(array $input): mixed
     {
-        return $this->ui->formTextarea($input['value'], $input['attrs']);
+        return $this->ui->textarea($input['value'], $input['attrs']);
     }
 
     /**
@@ -101,7 +101,7 @@ class EditUiBuilder
      */
     protected function getTextValueInput(array $input): mixed
     {
-        return $this->ui->formTextarea($input['value'], $input['attrs']);
+        return $this->ui->textarea($input['value'], $input['attrs']);
     }
 
     /**
@@ -111,7 +111,7 @@ class EditUiBuilder
      */
     protected function getDefaultValueInput(array $input): mixed
     {
-        return $this->ui->formInput($input['attrs'])
+        return $this->ui->input($input['attrs'])
             ->setValue($input['value'], false);
     }
 
@@ -142,20 +142,20 @@ class EditUiBuilder
     private function getFieldFunction(FieldEditEntity $field): mixed
     {
         $input = $field->functionInput;
-        return $this->ui->take(
+        return $this->ui->pick(
             [isset($input['label']), fn() => $this->ui->span($input['label'])],
-            [isset($input['select']), fn() => $this->ui->formSelect(
+            [isset($input['select']), fn() => $this->ui->select(
                 $input['select']['attrs'],
                 $this->ui->each($input['select']['options'], fn($option) =>
                     $this->ui->option($option)
                         ->selected($option === $input['select']['value'])
                 )
             )],
-            [true, fn() => $this->ui->text('')],
+            [true, fn() => $this->ui->html('')],
         );
         // return $this->ui->list(match(true) {
         //     isset($input['label']) => $this->ui->span($input['label']),
-        //     isset($input['select']) => $this->ui->formSelect(
+        //     isset($input['select']) => $this->ui->select(
         //         $input['select']['attrs'],
         //         $this->ui->each($input['select']['options'], fn($option) =>
         //             $this->ui->option($option)
@@ -192,14 +192,14 @@ class EditUiBuilder
     {
         $form = $this->ui->form(
             $this->ui->each($fields, fn(FieldEditEntity $field) =>
-                $this->ui->formRow(
-                    $this->ui->formCol(
+                $this->ui->row(
+                    $this->ui->col(
                         $this->getFieldTitle($field)
                     )->width(3),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getFieldFunction($field)
                     )->width(2),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getFieldValue($field)
                     )->width(7)
                 )
@@ -222,8 +222,8 @@ class EditUiBuilder
     public function sqlCodeElement(string $queryDivId, string $queryText): string
     {
         return $this->ui->build(
-            $this->ui->formRow(
-                $this->ui->formCol(
+            $this->ui->row(
+                $this->ui->col(
                     $this->ui->panel(
                         $this->ui->panelBody(
                             $this->ui->div($queryText)

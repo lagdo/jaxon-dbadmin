@@ -62,7 +62,7 @@ class InputBuilder
      */
     protected function file(array $input): mixed
     {
-        return $this->ui->formInput($input['attrs'])->setType('file');
+        return $this->ui->input($input['attrs'])->setType('file');
     }
 
     /**
@@ -72,7 +72,7 @@ class InputBuilder
      */
     protected function input(array $input): mixed
     {
-        return $this->ui->formInput($input['attrs']);
+        return $this->ui->input($input['attrs']);
     }
 
     /**
@@ -101,7 +101,7 @@ class InputBuilder
      */
     protected function textarea(array $input): mixed
     {
-        return $this->ui->formTextarea($input['attrs'],
+        return $this->ui->textarea($input['attrs'],
             $this->ui->text($input['value']));
     }
 
@@ -126,7 +126,7 @@ class InputBuilder
     public function htmlSelect(array $options, string $optionClass, bool $useKeys = false): string
     {
         return $this->ui->build(
-            $this->ui->formSelect(
+            $this->ui->select(
                 $this->ui->each($options, fn($label, $key) =>
                     $this->ui->option($label)
                         ->selected(false)

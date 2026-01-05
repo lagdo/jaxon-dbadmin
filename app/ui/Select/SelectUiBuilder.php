@@ -61,17 +61,17 @@ class SelectUiBuilder
                 $this->ui->col(
                     $this->ui->form(
                         $this->ui->div(
-                            $this->ui->formRow(
-                                $this->ui->formCol()
+                            $this->ui->row(
+                                $this->ui->col()
                                     ->width(6)
                                     ->jxnBind(rq(Options\Fields::class)),
-                                $this->ui->formCol()
+                                $this->ui->col()
                                     ->width(6)
                                     ->jxnBind(rq(Options\Values::class))
                             )
                         ),
-                        $this->ui->formRow(
-                            $this->ui->formCol(
+                        $this->ui->row(
+                            $this->ui->col(
                                 $this->ui->panel(
                                     $this->ui->panelBody()
                                         ->setStyle('padding: 0 1px;')

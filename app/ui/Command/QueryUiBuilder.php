@@ -59,19 +59,19 @@ class QueryUiBuilder
     private function actions(int $defaultLimit, JxnCall $rqQuery): mixed
     {
         return $this->ui->form(
-            $this->ui->formRow(
-                $this->ui->formCol(
+            $this->ui->row(
+                $this->ui->col(
                     $this->ui->inputGroup(
                         $this->ui->label(
                             $this->ui->text($this->trans->lang('Limit rows'))
                         ),
-                        $this->ui->formInput()
+                        $this->ui->input()
                             ->setName('limit')
                             ->setType('number')
                             ->setValue($defaultLimit)
                     )
                 )->width(2),
-                $this->ui->formCol(
+                $this->ui->col(
                     $this->ui->inputGroup(
                         $this->ui->label(
                             $this->ui->text($this->trans->lang('Stop on error'))
@@ -80,7 +80,7 @@ class QueryUiBuilder
                             ->setName('error_stops')
                     )
                 )->width(3),
-                $this->ui->formCol(
+                $this->ui->col(
                     $this->ui->inputGroup(
                         $this->ui->label(
                             $this->ui->text($this->trans->lang('Show only errors'))
@@ -89,13 +89,13 @@ class QueryUiBuilder
                             ->setName('only_errors')
                     )
                 ) ->width(3),
-                $this->ui->formCol(
-                    $this->ui->formRow(
-                        $this->ui->formCol(
+                $this->ui->col(
+                    $this->ui->row(
+                        $this->ui->col(
                             $this->queryButtons($rqQuery)
                         )
                         ->width(8),
-                        $this->ui->formCol()
+                        $this->ui->col()
                             ->width(4)
                             ->jxnBind(rq(Duration::class))
                     )

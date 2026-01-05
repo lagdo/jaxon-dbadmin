@@ -28,40 +28,40 @@ class ServerUiBuilder
     {
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->formRow(
-                    $this->ui->formCol(
-                        $this->ui->formLabel($this->ui->text($user['host']['label']))
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->ui->text($user['host']['label']))
                             ->setFor('host')
                     )->width(3),
-                    $this->ui->formCol(
-                        $this->ui->formInput()
+                    $this->ui->col(
+                        $this->ui->input()
                             ->setType('text')->setName('host')
                             ->setDataMaxlength('60')->setValue($user['host']['value'])
                     )->width(6),
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
-                        $this->ui->formLabel($this->ui->text($user['name']['label']))
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->ui->text($user['name']['label']))
                             ->setFor('name')
                     )->width(3),
-                    $this->ui->formCol(
-                        $this->ui->formInput()
+                    $this->ui->col(
+                        $this->ui->input()
                             ->setType('text')->setName('name')
                             ->setDataMaxlength('80')->setValue($user['name']['value'])
                     )->width(6),
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
-                        $this->ui->formLabel($this->ui->text($user['pass']['label']))
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->ui->text($user['pass']['label']))
                             ->setFor('pass')
                     )->width(3),
-                    $this->ui->formCol(
-                        $this->ui->formInput()
+                    $this->ui->col(
+                        $this->ui->input()
                             ->setType('text')->setName('pass')
                             ->setAutocomplete('new-password')
                             ->setValue($user['pass']['value'])
                     )->width(6),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->ui->checkbox()
                             ->setName('hashed')->checked($user['hashed']['value']),
                         $this->ui->text($user['hashed']['label'])
@@ -83,24 +83,24 @@ class ServerUiBuilder
     {
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->formRow(
-                    $this->ui->formCol(
-                        $this->ui->formLabel($this->ui->text('Name'))
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->ui->text('Name'))
                                 ->setFor('name')
                     )->width(3),
-                    $this->ui->formCol(
-                        $this->ui->formInput()
+                    $this->ui->col(
+                        $this->ui->input()
                             ->setType('text')->setName('name')
                             ->setPlaceholder('Name')
                     )->width(6)
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
-                        $this->ui->formLabel($this->ui->text('Collation'))
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->ui->text('Collation'))
                             ->setFor('collation')
                     )->width(3),
-                    $this->ui->formCol(
-                        $this->ui->formSelect(
+                    $this->ui->col(
+                        $this->ui->select(
                             $this->ui->option('(collation)')->selected(true),
                             $this->ui->each($collations, fn($_collations, $group) =>
                                 $this->ui->list(

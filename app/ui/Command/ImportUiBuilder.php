@@ -40,23 +40,23 @@ class ImportUiBuilder
     {
         $sqlFilesInputId = 'dbadmin-import-sql-files-input';
         return $this->ui->col(
-            $this->ui->formRow(
-                $this->ui->formCol(
+            $this->ui->row(
+                $this->ui->col(
                     $this->ui->label($this->trans->lang('File upload'))
                 )
                 ->width(4),
                 $this->ui->when(isset($contents['upload']), fn() =>
-                    $this->ui->formCol($this->ui->html($contents['upload']))
+                    $this->ui->col($this->ui->html($contents['upload']))
                         ->width(8)
                 ),
                 $this->ui->when(!isset($contents['upload']), fn() =>
-                    $this->ui->formCol($this->ui->html($contents['upload_disabled']))
+                    $this->ui->col($this->ui->html($contents['upload_disabled']))
                         ->width(8)
                 ),
             ),
-            $this->ui->formRow(
+            $this->ui->row(
                 $this->ui->when(isset($contents['upload']), fn() =>
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->ui->inputGroup(
                             $this->ui->button($this->ui->html($this->trans->lang('Select') . '&hellip;'))
                                 ->primary()
@@ -67,7 +67,7 @@ class ImportUiBuilder
                                 ->setId($sqlFilesInputId)
                                 ->setMultiple('multiple')
                                 ->setStyle('display:none;'),
-                            $this->ui->formInput()
+                            $this->ui->input()
                                 ->setType('text')->setReadonly('readonly')
                         )
                         ->setId($this->sqlFilesDivId)
@@ -75,8 +75,8 @@ class ImportUiBuilder
                     ->width(12)
                 )
             ),
-            $this->ui->formRow(
-                $this->ui->formCol(
+            $this->ui->row(
+                $this->ui->col(
                     $this->ui->button($this->ui->text($this->trans->lang('Execute')))
                         ->fullWidth()->primary()
                         ->jxnClick($handler)
@@ -95,27 +95,27 @@ class ImportUiBuilder
     private function pathCol(array $contents, JsExpr $handler): mixed
     {
         return $this->ui->col(
-            $this->ui->formRow(
-                $this->ui->formCol(
+            $this->ui->row(
+                $this->ui->col(
                     $this->ui->label($this->trans->lang('From server'))
                 )
                 ->width(4),
-                $this->ui->formCol(
+                $this->ui->col(
                     $this->ui->span($this->ui->text($this->trans->lang('Webserver file %s', '')))
                 )
                 ->width(8)
             ),
-            $this->ui->formRow(
-                $this->ui->formCol(
-                    $this->ui->formInput()
+            $this->ui->row(
+                $this->ui->col(
+                    $this->ui->input()
                         ->setType('text')
                         ->setValue($contents['path'])
                         ->setReadonly('readonly')
                 )
                 ->width(12)
             ),
-            $this->ui->formRow(
-                $this->ui->formCol(
+            $this->ui->row(
+                $this->ui->col(
                     $this->ui->button($this->ui->text($this->trans->lang('Run file')))
                         ->fullWidth()->primary()
                         ->jxnClick($handler)
@@ -131,12 +131,12 @@ class ImportUiBuilder
     private function optionsCol(): mixed
     {
         return $this->ui->col(
-            $this->ui->formRow(
-                $this->ui->formCol(
+            $this->ui->row(
+                $this->ui->col(
                     // Actually an offset. TODO: a parameter for that.
                     $this->ui->html('&nbsp;')
                 )->width(3),
-                $this->ui->formCol(
+                $this->ui->col(
                     $this->ui->inputGroup(
                         $this->ui->label(
                             $this->ui->text($this->trans->lang('Stop on error'))
@@ -146,7 +146,7 @@ class ImportUiBuilder
                     )
                 )
                 ->width(3),
-                $this->ui->formCol(
+                $this->ui->col(
                     $this->ui->inputGroup(
                         $this->ui->label(
                             $this->ui->text($this->trans->lang('Show only errors'))

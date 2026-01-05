@@ -198,14 +198,14 @@ class AuditUiBuilder
     {
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->formLabel($this->ui->text('Title'))
+                $this->ui->label($this->ui->text('Title'))
                     ->setFor('title'),
-                $this->ui->formInput()
+                $this->ui->input()
                     ->setType('text')
                     ->setName('title'),
-                $this->ui->formLabel($this->ui->text('Query'))
+                $this->ui->label($this->ui->text('Query'))
                     ->setFor('query'),
-                $this->ui->formTextarea($query)
+                $this->ui->textarea($query)
                     ->setName('query')
                     ->setStyle('min-height:200px;')
             )->horizontal(false)
@@ -223,15 +223,15 @@ class AuditUiBuilder
     {
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->formLabel($this->ui->text('Title'))
+                $this->ui->label($this->ui->text('Title'))
                     ->setFor('title'),
-                $this->ui->formInput()
+                $this->ui->input()
                     ->setType('text')
                     ->setName('title')
                     ->setValue($query['title']),
-                $this->ui->formLabel($this->ui->text('Query'))
+                $this->ui->label($this->ui->text('Query'))
                     ->setFor('query'),
-                $this->ui->formTextarea($query['query'])
+                $this->ui->textarea($query['query'])
                     ->setName('query')
                     ->setStyle('min-height:200px;')
             )->horizontal(false)

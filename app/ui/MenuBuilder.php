@@ -91,21 +91,22 @@ class MenuBuilder
         $call = rq(Database::class)->select($database)->ifne($database, '');
 
         return $this->ui->build(
-            $this->ui->inputGroup(
-                $this->ui->formSelect(
-                    $this->ui->option($this->ui->text(''))
-                        ->selected(false),
-                    $this->ui->each($databases, fn($database) =>
-                        $this->ui->option($this->ui->text($database))
-                            ->selected(false)
-                    )
+            $this->ui->form(
+                $this->ui->inputGroup(
+                    $this->ui->select(
+                        $this->ui->option($this->ui->text(''))
+                            ->selected(false),
+                        $this->ui->each($databases, fn($database) =>
+                            $this->ui->option($this->ui->text($database))
+                                ->selected(false)
+                        )
+                    )->setId('jaxon-dbadmin-database-select'),
+                    $this->ui->button($this->ui->text('Show'))
+                        ->primary()
+                        ->setClass('btn-select')
+                        ->jxnClick($call)
                 )
-                ->setId('jaxon-dbadmin-database-select'),
-                $this->ui->button($this->ui->text('Show'))
-                    ->primary()
-                    ->setClass('btn-select')
-                    ->jxnClick($call)
-            ),
+            )
         );
     }
 
@@ -121,20 +122,21 @@ class MenuBuilder
         $call = rq(Database::class)->select($database, $schema);
 
         return $this->ui->build(
-            $this->ui->inputGroup(
-                $this->ui->formSelect(
-                    $this->ui->option($this->ui->text(''))
-                        ->selected(false),
-                    $this->ui->each($schemas, fn($schema) =>
-                        $this->ui->option($this->ui->text($schema))
-                            ->selected(false)
-                    )
+            $this->ui->form(
+                $this->ui->inputGroup(
+                    $this->ui->select(
+                        $this->ui->option($this->ui->text(''))
+                            ->selected(false),
+                        $this->ui->each($schemas, fn($schema) =>
+                            $this->ui->option($this->ui->text($schema))
+                                ->selected(false)
+                        )
+                    )->setId('jaxon-dbadmin-schema-select'),
+                    $this->ui->button($this->ui->text('Show'))
+                        ->primary()
+                        ->setClass('btn-select')
+                        ->jxnClick($call)
                 )
-                ->setId('jaxon-dbadmin-schema-select'),
-                $this->ui->button($this->ui->text('Show'))
-                    ->primary()
-                    ->setClass('btn-select')
-                    ->jxnClick($call)
             )
         );
     }

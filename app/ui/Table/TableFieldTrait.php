@@ -80,7 +80,7 @@ trait TableFieldTrait
      */
     protected function getEngineSelect(string $currentEngine): mixed
     {
-        return $this->ui->formSelect(
+        return $this->ui->select(
             $this->ui->option('(engine)')
                 ->selected(false)
                 ->setValue(''),
@@ -98,7 +98,7 @@ trait TableFieldTrait
      */
     protected function getCollationSelect(string $currentCollation): mixed
     {
-        return $this->ui->formSelect(
+        return $this->ui->select(
             $this->ui->option('(' . $this->trans->lang('collation') . ')')
                 ->selected(false)
                 ->setValue(''),
@@ -129,7 +129,7 @@ trait TableFieldTrait
      */
     protected function getColumnNameField(ColumnEntity $column, string $fieldName): mixed
     {
-        return $this->ui->formInput(['class' => 'column-name'])
+        return $this->ui->input(['class' => 'column-name'])
             ->setName($fieldName)
             ->setValue($column->values()->name)
             ->setDataField('name')
@@ -187,7 +187,7 @@ trait TableFieldTrait
      */
     protected function getColumnOnUpdateField(ColumnEntity $column, string $fieldName): mixed
     {
-        return $this->ui->formSelect(
+        return $this->ui->select(
             $this->ui->option('(' . $this->trans->lang('ON UPDATE') . ')')
                 ->setValue('')->selected(false),
             $this->ui->each($this->options['onUpdate'], fn($option, $value) =>
@@ -209,13 +209,13 @@ trait TableFieldTrait
     protected function getColumnCommentField(ColumnEntity $column, string $fieldName): mixed
     {
         // return $this->ui->when(/*$support['comment']*/true, fn() =>
-        //     $this->ui->formInput()
+        //     $this->ui->input()
         //         ->setType('text')
         //         ->setName($fieldName)
         //         ->setValue($column->values()->comment ?? '')
         //         ->setDataField('comment')
         // );
-        return $this->ui->formInput()
+        return $this->ui->input()
             ->setType('text')
             ->setName($fieldName)
             ->setValue($column->values()->comment ?? '')
@@ -230,7 +230,7 @@ trait TableFieldTrait
      */
     protected function getColumnTypeField(ColumnEntity $column, string $fieldName): mixed
     {
-        return $this->ui->formSelect(
+        return $this->ui->select(
             $this->ui->each($column->field()->types, fn($groupTypes, $groupName) =>
                 is_numeric($groupName) ?
                     $this->ui->each($groupTypes, fn($type, $key) =>
@@ -257,7 +257,7 @@ trait TableFieldTrait
      */
     protected function getColumnLengthField(ColumnEntity $column, string $fieldName): mixed
     {
-        return $this->ui->formInput()
+        return $this->ui->input()
             ->setStyle('width: 100%')
             ->setName($fieldName)
             ->setPlaceholder($this->trans->lang('Length'))
@@ -290,7 +290,7 @@ trait TableFieldTrait
      */
     protected function getColumnUnsignedField(ColumnEntity $column, string $fieldName): mixed
     {
-        return $this->ui->formSelect(
+        return $this->ui->select(
             $this->ui->option('(unsigned)')
                 ->selected(false)
                 ->setValue(''),
@@ -312,7 +312,7 @@ trait TableFieldTrait
      */
     protected function getColumnOnDeleteField(ColumnEntity $column, string $fieldName): mixed
     {
-        return $this->ui->formSelect(
+        return $this->ui->select(
             $this->ui->option('(' . $this->trans->lang('ON DELETE') . ')')
                 ->setValue('')
                 ->selected(false),
@@ -343,7 +343,7 @@ trait TableFieldTrait
                 ->setName($hasFieldName)
                 ->setDataField('hasDefault')
                 ->when($this->listMode, fn($input) => $this->disable($input, false)),
-            $this->ui->formInput()
+            $this->ui->input()
                 ->setName($fieldName)
                 ->setDataField('default')
                 ->when($placeholder !== '', fn($input) => $input->setPlaceholder($placeholder))

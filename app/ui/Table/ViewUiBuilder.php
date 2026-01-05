@@ -30,14 +30,14 @@ class ViewUiBuilder
         return $this->ui->build(
             $this->ui->col(
                 $this->ui->form(
-                    $this->ui->formRow(
-                        $this->ui->formCol(
-                            $this->ui->formInput()
+                    $this->ui->row(
+                        $this->ui->col(
+                            $this->ui->input()
                                 ->setType('text')->setPlaceholder('Name')
                                 ->setName('name')->setValue($view['name'] ?? '')
                         )->width(6),
                         $this->ui->when($materializedView, fn() =>
-                            $this->ui->formCol(
+                            $this->ui->col(
                                 $this->ui->inputGroup(
                                     $this->ui->checkbox()
                                         ->checked($view['materialized'] ?? false)

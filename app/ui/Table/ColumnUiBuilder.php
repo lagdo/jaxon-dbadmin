@@ -29,87 +29,87 @@ class ColumnUiBuilder
         return $this->ui->build(
             $this->ui->form(
                 ['id' => $this->formId],
-                $this->ui->formRow(
-                    $this->ui->formCol(
+                $this->ui->row(
+                    $this->ui->col(
                         $this->ui->text($this->trans->lang('Name'))
                     )->width(3),
-                    $this->ui->formCol(
-                        $this->getColumnNameField($column, 'name')
+                    $this->ui->col(
+                        $this->getColumnNameField($column, 'name')->required()
                     )->width(8)
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
+                $this->ui->row(
+                    $this->ui->col(
                         $this->getColumnPrimaryField($column, 'primary'),
                         $this->ui->span($this->ui->html('Primary'))
                             ->setStyle('margin-left:5px;')
                     )->width(3),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getColumnAutoIncrementField($column, 'autoIncrement'),
                         $this->ui->span($this->ui->html('Auto increment'))
                             ->setStyle('margin-left:5px;')
                     )->width(6),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getColumnNullableField($column, 'nullable'),
                         $this->ui->span($this->ui->html('Nullable'))
                             ->setStyle('margin-left:5px;')
                     )->width(3)
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
+                $this->ui->row(
+                    $this->ui->col(
                         $this->ui->text($this->trans->lang('Type'))
                     )->width(3),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getColumnTypeField($column, 'type')
                     )->width(6),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getColumnLengthField($column, 'length')
                     )->width(3)
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
+                $this->ui->row(
+                    $this->ui->col(
                         $this->ui->text($this->trans->lang('Unsigned'))
                     )->width(3),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getColumnUnsignedField($column, 'unsigned')
                     )->width(8)
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
+                $this->ui->row(
+                    $this->ui->col(
                         $this->ui->text($this->trans->lang('Default value'))
                     )->width(3),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getColumnDefaultField($column, 'hasDefault', 'default')
                     )->width(9)
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
+                $this->ui->row(
+                    $this->ui->col(
                         $this->ui->text($this->trans->lang('Collation'))
                     )->width(3),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getColumnCollationField($column, 'collation')
                     )->width(9)
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
+                $this->ui->row(
+                    $this->ui->col(
                         $this->ui->text($this->trans->lang('On Update'))
                     )->width(3),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getColumnOnUpdateField($column, 'onUpdate')
                     )->width(8)
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
+                $this->ui->row(
+                    $this->ui->col(
                         $this->ui->text($this->trans->lang('On Delete'))
                     )->width(3),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getColumnOnDeleteField($column, 'onDelete')
                     )->width(8)
                 ),
-                $this->ui->formRow(
-                    $this->ui->formCol(
+                $this->ui->row(
+                    $this->ui->col(
                         $this->ui->text($this->trans->lang('Comment'))
                     )->width(3),
-                    $this->ui->formCol(
+                    $this->ui->col(
                         $this->getColumnCommentField($column, 'comment')
                     )->width(9)
                 )
@@ -126,7 +126,7 @@ class ColumnUiBuilder
     {
         return $this->ui->build(
             $this->ui->each($columns, fn(ColumnEntity $column) =>
-                $this->ui->take([
+                $this->ui->pick([
                     $column->status === 'deleted', fn() => $this->ui->row(
                         $this->ui->col($this->ui->text($column->name))
                             ->width(3),

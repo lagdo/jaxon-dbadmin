@@ -28,10 +28,10 @@ class OptionsUiBuilder
      */
     private function editFormButtons(JxnCall $rqInput, string $formId): mixed
     {
-        return $this->ui->formRow(
-            $this->ui->formCol($this->ui->html('&nbsp;'))
+        return $this->ui->row(
+            $this->ui->col($this->ui->html('&nbsp;'))
                 ->width(9), // Offset
-            $this->ui->formCol(
+            $this->ui->col(
                 $this->ui->buttonGroup(
                     $this->ui->button()
                         ->primary()
@@ -64,9 +64,9 @@ class OptionsUiBuilder
                 continue;
             }
 
-            $formRows[] = $this->ui->formRow(
-                $this->ui->formCol(
-                    $this->ui->formSelect(
+            $formRows[] = $this->ui->row(
+                $this->ui->col(
+                    $this->ui->select(
                         $this->ui->option('')->selected(false),
                         $this->ui->optgroup(
                             $this->ui->each($options['functions'], fn($function) =>
@@ -83,15 +83,15 @@ class OptionsUiBuilder
                     )->setName("column[$newId][fun]")
                 )
                 ->width(6),
-                $this->ui->formCol(
-                    $this->ui->formSelect(
+                $this->ui->col(
+                    $this->ui->select(
                         $this->ui->each($options['columns'], fn($column) =>
                             $this->ui->option($column)
                                 ->selected($columns[$curId]['col'] == $column)
                         )
                     )->setName("column[$newId][col]")
                 )->width(5),
-                $this->ui->formCol(
+                $this->ui->col(
                     $this->ui->checkbox()
                         ->checked(false)
                         ->setName("del[$newId]")
@@ -100,7 +100,7 @@ class OptionsUiBuilder
             );
             $newId++;
         }
-        return $this->ui->build(...$formRows);
+        return $this->ui->build($this->ui->form(...$formRows));
     }
 
     /**
@@ -137,9 +137,9 @@ class OptionsUiBuilder
                 continue;
             }
 
-            $formRows[] = $this->ui->formRow(
-                $this->ui->formCol(
-                    $this->ui->formSelect(
+            $formRows[] = $this->ui->row(
+                $this->ui->col(
+                    $this->ui->select(
                         $this->ui->option('(' . $this->trans->lang('anywhere') . ')'),
                         $this->ui->each($options['columns'], fn($column) =>
                             $this->ui->option($column)
@@ -147,20 +147,20 @@ class OptionsUiBuilder
                         )
                     )->setName("where[$newId][col]")
                 )->width(4),
-                $this->ui->formCol(
-                    $this->ui->formSelect(
+                $this->ui->col(
+                    $this->ui->select(
                         $this->ui->each($options['operators'], fn($operator) =>
                             $this->ui->option($operator)
                                 ->selected($wheres[$curId]['op'] == $operator)
                         )
                     )->setName("where[$newId][op]")
                 )->width(3),
-                $this->ui->formCol(
-                    $this->ui->formInput()
+                $this->ui->col(
+                    $this->ui->input()
                         ->setName("where[$newId][val]")
                         ->setValue($wheres[$curId]['val'])
                 )->width(4),
-                $this->ui->formCol(
+                $this->ui->col(
                     $this->ui->checkbox()
                         ->checked(false)
                         ->setName("del[$newId]")
@@ -169,7 +169,7 @@ class OptionsUiBuilder
             );
             $newId++;
         }
-        return $this->ui->build(...$formRows);
+        return $this->ui->build($this->ui->form(...$formRows));
     }
 
     /**
@@ -207,16 +207,16 @@ class OptionsUiBuilder
                 continue;
             }
 
-            $formRows[] = $this->ui->formRow(
-                $this->ui->formCol(
-                    $this->ui->formSelect(
+            $formRows[] = $this->ui->row(
+                $this->ui->col(
+                    $this->ui->select(
                         $this->ui->each($options['columns'], fn($column) =>
                             $this->ui->option($column)
                                 ->selected($orders[$curId] == $column)
                         )
                     )->setName("order[]")
                 )->width(6),
-                $this->ui->formCol(
+                $this->ui->col(
                     $this->ui->inputGroup(
                         $this->ui->label(
                             $this->ui->text($this->trans->lang('descending'))
@@ -227,7 +227,7 @@ class OptionsUiBuilder
                             ->setValue('1')
                     )
                 )->width(5),
-                $this->ui->formCol(
+                $this->ui->col(
                     $this->ui->checkbox()
                         ->checked(false)
                         ->setName("del[$newId]")
@@ -236,7 +236,7 @@ class OptionsUiBuilder
             );
             $newId++;
         }
-        return $this->ui->build(...$formRows);
+        return $this->ui->build($this->ui->form(...$formRows));
     }
 
     /**
@@ -312,41 +312,43 @@ class OptionsUiBuilder
         $textLengthValue = je($optionsLengthId)->rd()->input()->toInt();
 
         return $this->ui->build(
-            $this->ui->formRow(
-                $this->ui->formCol(
-                    $this->ui->inputGroup(
-                        $this->ui->label(
-                            $this->ui->text($this->trans->lang('Limit'))
-                        ),
-                        $this->ui->formInput()
-                            ->setId($optionsLimitId)
-                            ->setType('number')
-                            ->setName('limit')
-                            ->setValue($options['limit']),
-                        $this->ui->button()
-                            ->outline()
-                            ->secondary()
-                            ->addIcon('ok')
-                            ->jxnClick($rqOptionsValues->saveSelectLimit($selectLimitValue))
-                    )
-                )->width(5),
-                $this->ui->formCol(
-                    $this->ui->inputGroup(
-                        $this->ui->label(
-                            $this->ui->text($this->trans->lang('Text length'))
-                        ),
-                        $this->ui->formInput()
-                            ->setId($optionsLengthId)
-                            ->setType('number')
-                            ->setName('text_length')
-                            ->setValue($options['length']),
-                        $this->ui->button()
-                            ->outline()
-                            ->secondary()
-                            ->addIcon('ok')
-                            ->jxnClick($rqOptionsValues->saveTextLength($textLengthValue))
-                    )
-                )->width(7)
+            $this->ui->form(
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->inputGroup(
+                            $this->ui->label(
+                                $this->ui->text($this->trans->lang('Limit'))
+                            ),
+                            $this->ui->input()
+                                ->setId($optionsLimitId)
+                                ->setType('number')
+                                ->setName('limit')
+                                ->setValue($options['limit']),
+                            $this->ui->button()
+                                ->outline()
+                                ->secondary()
+                                ->addIcon('ok')
+                                ->jxnClick($rqOptionsValues->saveSelectLimit($selectLimitValue))
+                        )
+                    )->width(5),
+                    $this->ui->col(
+                        $this->ui->inputGroup(
+                            $this->ui->label(
+                                $this->ui->text($this->trans->lang('Text length'))
+                            ),
+                            $this->ui->input()
+                                ->setId($optionsLengthId)
+                                ->setType('number')
+                                ->setName('text_length')
+                                ->setValue($options['length']),
+                            $this->ui->button()
+                                ->outline()
+                                ->secondary()
+                                ->addIcon('ok')
+                                ->jxnClick($rqOptionsValues->saveTextLength($textLengthValue))
+                        )
+                    )->width(7)
+                )
             )
         );
     }
