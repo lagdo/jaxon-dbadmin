@@ -119,7 +119,7 @@ class ExportFacade extends AbstractFacade
     {
         if ($this->options['format'] === 'sql' &&
             $this->options['data_style'] === 'TRUNCATE+INSERT') {
-            $this->queries[] = $this->driver->getTruncateTableQuery($table) . ";\n";
+            $this->queries[] = $this->driver->getTableTruncationQuery($table) . ";\n";
         }
     }
 
@@ -251,7 +251,7 @@ class ExportFacade extends AbstractFacade
     private function getCreateQuery(string $table, string $style, int $tableType): string
     {
         if ($tableType !== 2) {
-            return $this->driver->getCreateTableQuery($table,
+            return $this->driver->getTableDefinitionQueries($table,
                 $this->options['autoIncrement'], $style);
         }
 
@@ -323,7 +323,7 @@ class ExportFacade extends AbstractFacade
      */
     private function dumpTableTriggers(string $table): void
     {
-        if (($triggers = $this->driver->getCreateTriggerQuery($table)) !== '') {
+        if (($triggers = $this->driver->getTriggerCreationQuery($table)) !== '') {
             $this->queries[] = '';
             $this->queries[] = 'DELIMITER ;;';
             $this->queries[] = $triggers;
