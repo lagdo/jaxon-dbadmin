@@ -4,7 +4,10 @@ namespace Lagdo\DbAdmin\Db\Page\Ddl;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
-class ColumnEntity
+/**
+ * User inputs for a table column.
+ */
+class ColumnInputEntity
 {
     /**
      * The unchanged name of the table field
@@ -18,7 +21,7 @@ class ColumnEntity
      *
      * @var string
      */
-    public $status = 'unchanged';
+    private $action = 'none';
 
     /**
      * The field position in the edit form
@@ -51,6 +54,78 @@ class ColumnEntity
     }
 
     /**
+     * @return void
+     */
+    public function undo(): void
+    {
+        $this->action = 'none';
+    }
+
+    /**
+     * @return bool
+     */
+    public function unchanged(): bool
+    {
+        return $this->action === 'none';
+    }
+
+    /**
+     * @return bool
+     */
+    public function added(): bool
+    {
+        return $this->action === 'add';
+    }
+
+    /**
+     * @return void
+     */
+    public function add(): void
+    {
+        $this->action = 'add';
+    }
+
+    /**
+     * @return bool
+     */
+    public function changed(): bool
+    {
+        return $this->action === 'change';
+    }
+
+    /**
+     * @return void
+     */
+    public function change(): void
+    {
+        $this->action = 'change';
+    }
+
+    /**
+     * @return void
+     */
+    public function changeIf(): void
+    {
+        $this->action = $this->fieldEdited() ? 'change' : 'none';
+    }
+
+    /**
+     * @return bool
+     */
+    public function dropped(): bool
+    {
+        return $this->action === 'drop';
+    }
+
+    /**
+     * @return void
+     */
+    public function drop(): void
+    {
+        $this->action = 'drop';
+    }
+
+    /**
      * @return TableFieldEntity
      */
     public function field(): TableFieldEntity
@@ -69,7 +144,7 @@ class ColumnEntity
             'autoIncrement' => $this->field->autoIncrement,
             'type' => $this->field->type,
             'unsigned' => $this->field->unsigned,
-            'hasDefault' => $this->field->hasDefault(),
+            'generated' => $this->field->generated,
             'default' => $this->field->default ?? '',
             'length' => $this->field->length,
             'nullable' => $this->field->nullable,
@@ -96,13 +171,9 @@ class ColumnEntity
     public function setValues(array $values): void
     {
         $this->values = (object)$values;
-    }
-
-    private function sameDefault(): bool
-    {
-        $values = $this->values();
-        return !$this->field->hasDefault() ? !$values->hasDefault :
-            $values->hasDefault && $values->default === $this->field->default ?? '';
+        if ($this->values->generated === '') {
+            $this->values->default = '';
+        }
     }
 
     /**
@@ -111,14 +182,15 @@ class ColumnEntity
     public function fieldEdited(): bool
     {
         $values = $this->values();
-        return !$this->sameDefault() ||
-            $values->name !== $this->field->name ||
+        return $values->name !== $this->field->name ||
             $values->primary !== $this->field->primary ||
             $values->autoIncrement !== $this->field->autoIncrement ||
             $values->type !== $this->field->type ||
             $values->unsigned !== $this->field->unsigned ||
             $values->length !== $this->field->length ||
             $values->nullable !== $this->field->nullable ||
+            $values->generated !== $this->field->generated ||
+            $values->default !== ($this->field->default ?? '') ||
             $values->collation !== $this->field->collation ||
             $values->onUpdate !== $this->field->onUpdate ||
             $values->onDelete !== $this->field->onDelete ||
@@ -131,16 +203,6 @@ class ColumnEntity
     public function newName(): string
     {
         return $this->values()->name ?: '(No name)';
-    }
-
-    /**
-     * @return bool
-     */
-    private function defaultValueChanged(): bool
-    {
-        $values = $this->values();
-        $fieldHasDefault = $this->field->hasDefault();
-        return $values->hasDefault && (!$fieldHasDefault || $values->default !== $this->field->default);
     }
 
     /**
@@ -170,15 +232,16 @@ class ColumnEntity
             }
         }
         // The default value
-        if ($values->hasDefault !== $this->field->hasDefault()) {
-            $changes['has default'] = [
-                'from' => $this->field->hasDefault() ? 'true' : 'false',
-                'to' => $values->hasDefault ? 'true' : 'false',
+        if ($values->generated !== $this->field->generated) {
+            $changes['generated'] = [
+                'from' => $this->field->generated,
+                'to' => $values->generated,
             ];
         }
-        if ($this->defaultValueChanged()) {
+        $default = $this->field->default ?? '';
+        if ($values->default !== $default) {
             $changes['default'] = [
-                'from' => $this->field->default,
+                'from' => $default,
                 'to' => $values->default,
             ];
         }
@@ -202,29 +265,66 @@ class ColumnEntity
     {
         return [
             'name' => $this->name,
-            'status' => $this->status,
+            'action' => $this->action,
             'position' => $this->position,
             'field' => $this->values(),
         ];
     }
 
     /**
-     * Create an entity from js app data
+     * @return TableFieldEntity
+     */
+    public function inputField(): TableFieldEntity
+    {
+        $values = $this->values();
+        $field = new TableFieldEntity();
+
+        $field->name = $values->name;
+        $field->primary = $values->primary;
+        $field->autoIncrement = $values->autoIncrement;
+        $field->type = $values->type;
+        $field->unsigned = $values->unsigned;
+        $field->generated = $values->generated;
+        $field->default = $values->generated !== '' ? $values->default : null;
+        $field->length = $values->length;
+        $field->nullable = $values->nullable;
+        $field->collation = $values->collation;
+        $field->onUpdate = $values->onUpdate;
+        $field->onDelete = $values->onDelete;
+        $field->comment = $values->comment;
+
+        return $field;
+    }
+
+    /**
+     * Create an entity from user inputs
      *
      * @param TableFieldEntity $field
-     * @param array $columnData
+     * @param array $inputs
      *
-     * @return ColumnEntity
+     * @return ColumnInputEntity
      */
-    public static function make(TableFieldEntity $field, array $columnData): self
+    public static function newColumn(TableFieldEntity $field, array $inputs): self
     {
         // Pass the field to the constructor, so the origValues attr is set properly. 
         $column = new static($field);
-        $column->name = $columnData['name'];
-        $column->status = $columnData['status'];
-        $column->position = $columnData['position'];
-        $column->setValues($columnData['field']);
+        $column->name = $inputs['name'];
+        $column->action = $inputs['action'];
+        $column->position = $inputs['position'];
+        $column->setValues($inputs['field']);
 
         return $column;
+    }
+
+    /**
+     * Check the action in the column input.
+     *
+     * @param array $column
+     *
+     * @return bool
+     */
+    public static function columnIsAdded(array $column): bool
+    {
+        return $column['action'] === 'add';
     }
 }

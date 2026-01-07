@@ -113,4 +113,16 @@ trait ComponentTrait
     {
         $this->cl(Breadcrumbs::class)->render();
     }
+
+    /**
+     * @param string $queryDivId
+     *
+     * @return void
+     */
+    protected function setupSqlEditor(string $queryDivId): void
+    {
+        [$server, ] = $this->bag('dbadmin')->get('db');
+        $driver = $this->package->getServerDriver($server);
+        $this->response->jo('jaxon.dbadmin')->createSqlSelectEditor($queryDivId, $driver);
+    }
 }

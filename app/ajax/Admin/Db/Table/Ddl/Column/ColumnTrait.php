@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
+use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
 
 use function array_map;
 
@@ -39,37 +39,37 @@ trait ColumnTrait
     }
 
     /**
-     * @return ColumnEntity
+     * @return ColumnInputEntity
      */
-    protected function getEmptyColumn(): ColumnEntity
+    protected function getEmptyColumn(): ColumnInputEntity
     {
-        return new ColumnEntity($this->db()->getTableField());
+        return new ColumnInputEntity($this->db()->getTableField());
     }
 
     /**
      * @param string $fieldName
      *
-     * @return ColumnEntity|null
+     * @return ColumnInputEntity|null
      */
-    protected function getFieldColumn(string $fieldName): ColumnEntity|null
+    protected function getFieldColumn(string $fieldName): ColumnInputEntity|null
     {
         $column = $this->columns()[$fieldName] ?? null;
         if ($column === null) {
             return null;
         }
 
-        $field = $column['status'] === 'added' ?
-            // New column => empty field
+        $field = ColumnInputEntity::columnIsAdded($column) ?
+            // Added column => empty field
             $this->db()->getTableField() :
             // Existing column => check the metadata
             ($this->metadata()['fields'][$fieldName] ?? null);
 
         // Fill the data from the database with the data from the databag.
-        return $field === null ? null : ColumnEntity::make($field, $column);
+        return $field === null ? null : ColumnInputEntity::newColumn($field, $column);
     }
 
     /**
-     * @return array<ColumnEntity>
+     * @return array<ColumnInputEntity>
      */
     protected function getTableColumns(): array
     {

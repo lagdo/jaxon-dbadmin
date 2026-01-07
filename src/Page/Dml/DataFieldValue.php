@@ -145,7 +145,7 @@ class DataFieldValue
         $fieldValue = $rowData[$field->name] ?? null;
         return match(true) {
             $fieldValue !== '' && $this->driver->jush() === 'sql' &&
-                preg_match("~enum|set~", $field->type) &&
+                preg_match("~enum|set~", $field->type) > 0 &&
                 is_array($fieldValue) => implode(",", $fieldValue),
             is_bool($fieldValue) => +$fieldValue,
             default => $fieldValue,
@@ -164,17 +164,17 @@ class DataFieldValue
         $update = $this->operation === 'update';
         $function = match(true) {
             $this->action === 'save' => $formInput['function'][$field->name] ?? '',
-            $update && preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) => 'now',
+            $update && preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) > 0 => 'now',
             $value === false => null,
             $value !== null => '',
             default => 'NULL',
         };
         if ($this->action !== 'save' && !$update && $value === $field->default &&
-            preg_match('~^[\w.]+\(~', $value ?? '')) {
+            preg_match('~^[\w.]+\(~', $value ?? '') > 0) {
             $function = 'SQL';
         }
-        if (preg_match('~time~', $field->type) &&
-            preg_match('~^CURRENT_TIMESTAMP~i', $value ?? '')) {
+        if (preg_match('~time~', $field->type) > 0 &&
+            preg_match('~^CURRENT_TIMESTAMP~i', $value ?? '') > 0) {
             $value = "";
             $function = "now";
         }

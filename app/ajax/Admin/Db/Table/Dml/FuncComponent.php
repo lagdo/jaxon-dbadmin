@@ -120,8 +120,6 @@ abstract class FuncComponent extends BaseFuncComponent
 
         $this->modal()->show($title, $content, $buttons, $options);
 
-        [$server, ] = $this->bag('dbadmin')->get('db');
-        $driver = $this->package->getServerDriver($server);
-        $this->response->jo('jaxon.dbadmin')->createSqlSelectEditor($queryDivId, $driver);
+        $this->setupSqlEditor($queryDivId);
     }
 }

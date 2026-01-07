@@ -30,7 +30,7 @@ class Create extends MainComponent
     /**
      * @var string
      */
-    protected $formId = 'dbadmin-table-form';
+    protected $formId = 'dbadmin-table-data-form';
 
     /**
      * @return array
@@ -56,6 +56,14 @@ class Create extends MainComponent
                 'title' => $this->trans()->lang('Save'),
                 'handler' => $this->rq(TableFunc::class)->create($values)->ifgt($length, 0),
             ],
+            'table-changes' => [
+                'title' => $this->trans()->lang('Changes'),
+                'handler' => $this->rq(QueryFunc::class)->changes($values),
+            ],
+            'table-queries' => [
+                'title' => $this->trans()->lang('Queries'),
+                'handler' => $this->rq(QueryFunc::class)->createTable($values),
+            ],
             'table-back' => [
                 'title' => $this->trans()->lang('Back'),
                 'handler' => $this->rq(Tables::class)->show(),
@@ -72,9 +80,7 @@ class Create extends MainComponent
         $metadata = $this->metadata();
 
         return $this->tableUi
-            ->support($metadata['support'])
-            ->engines($metadata['engines'])
-            ->collations($metadata['collations'])
+            ->metadata($metadata)
             ->formId($this->formId)
             ->wrapper();
     }

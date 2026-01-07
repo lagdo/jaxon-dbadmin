@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
+use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
 
 class UpdateFunc extends FuncComponent
 {
@@ -27,7 +27,7 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $title = $column->status === 'added' ?
+        $title = $column->added() ?
             "Edit new column in table $table" :
             "Edit column $fieldName in table $table";
         $content = $this->columnUi
@@ -66,8 +66,8 @@ class UpdateFunc extends FuncComponent
 
         $column = $columns[$fieldName];
         $column->setValues($this->getUserFormValues($values));
-        if ($column->status === 'edited' || $column->status === 'unchanged') {
-            $column->status = $column->fieldEdited() ? 'edited' : 'unchanged';
+        if ($column->changed() || $column->unchanged()) {
+            $column->changeIf();
         }
 
         $this->modal()->hide();
@@ -76,21 +76,21 @@ class UpdateFunc extends FuncComponent
     }
 
     /**
-     * @param array<ColumnEntity> $columns
+     * @param array<ColumnInputEntity> $columns
      * @param string $fieldName
      *
      * @return array
      */
-    private function resetColumn(array $columns, string $fieldName): array
+    private function undoColumn(array $columns, string $fieldName): array
     {
-        return array_map(function(ColumnEntity $column) use($fieldName) {
+        return array_map(function(ColumnInputEntity $column) use($fieldName) {
             if ($column->name !== $fieldName) {
                 return $column;
             }
 
             // Reset the column with values from the database.
-            $column = new ColumnEntity($this->metadata()['fields'][$fieldName]);
-            $column->status = 'unchanged';
+            $column = new ColumnInputEntity($this->metadata()['fields'][$fieldName]);
+            $column->undo();
             return $column;
         }, $columns);
     }
@@ -111,7 +111,7 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $columns = $this->resetColumn($columns, $fieldName);
+        $columns = $this->undoColumn($columns, $fieldName);
         $this->cl(Table::class)->show($this->metadata(), $columns);
     }
 }

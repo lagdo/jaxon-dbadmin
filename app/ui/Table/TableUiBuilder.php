@@ -3,16 +3,14 @@
 namespace Lagdo\DbAdmin\Ui\Table;
 
 use Jaxon\Script\Call\JxnCall;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\AlterFunc;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
+use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\PageTrait;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
 use function count;
-use function Jaxon\je;
 use function Jaxon\rq;
 use function sprintf;
 
@@ -33,14 +31,6 @@ class TableUiBuilder
      */
     public function __construct(protected Translator $trans, protected BuilderInterface $ui)
     {}
-
-    /**
-     * @var JxnCall
-     */
-    private function rqAlter(): JxnCall
-    {
-        return $this->rq['alter'] ??= rq(AlterFunc::class);
-    }
 
     /**
      * @var JxnCall
@@ -107,7 +97,7 @@ class TableUiBuilder
     /**
      * @return mixed
      */
-    protected function headerNameRow(): mixed
+    protected function tableNameBlock(): mixed
     {
         return $this->ui->row(
             $this->ui->col(
@@ -120,53 +110,69 @@ class TableUiBuilder
     /**
      * @return mixed
      */
-    protected function headerEditRow(): mixed
+    protected function tablePropertiesForm(): mixed
     {
-        $hasEngines = count($this->engines) > 0;
-        $hasCollations = count($this->collations) > 0;
+        $hasEngines = count($this->engines()) > 0;
+        $hasCollations = count($this->collations()) > 0;
+        $hasAutoIncrement = $this->table['hasAutoIncrement'] ?? false;
+        $support = $this->support();
 
         return $this->ui->div(
             $this->ui->row(
                 $this->ui->col(
-                    $this->ui->input()
-                        ->setType('text')->setName('name')
-                        ->setValue($this->table['name'] ?? '')->setPlaceholder('Name')
-                )->width(4)
-                    ->setClass('dbadmin-table-column-left'),
+                    $this->ui->row(
+                        $this->ui->col(
+                            $this->ui->input()
+                                ->setType('text')
+                                ->setName('name')
+                                ->setValue($this->table['name'] ?? '')
+                                ->setPlaceholder('Name')
+                        )->width(12)
+                    ),
+                    $this->ui->row(
+                        $this->ui->col(
+                            $this->ui->inputGroup(
+                                $this->ui->checkbox()
+                                    ->checked($hasAutoIncrement)
+                                    ->setName('hasAutoIncrement'),
+                                $this->ui->input()
+                                    ->setName('autoIncrement')
+                                    ->setPlaceholder('Auto Increment')
+                                    ->setValue($hasAutoIncrement ? $this->table['autoIncrement'] : '')
+                            )
+                        )->width(7)
+                    )
+                )->width(4),
+                $this->ui->col($this->ui->html('&nbsp'))->width(1),
                 $this->ui->col(
-                    $this->ui->label($this->ui->html('&nbsp'))
-                )->width(1)
-                    ->setClass('dbadmin-table-column-middle'),
-                $this->ui->when($hasCollations, fn() =>
-                    $this->ui->col(
-                        $this->getCollationSelect($this->table['collation'] ?? '')
-                            ->setName('collation')
-                    )->width(4)
-                        ->setClass('dbadmin-edit-table-collation')
-                ),
-                $this->ui->when($hasEngines, fn() =>
-                    $this->ui->col(
-                        $this->getEngineSelect($this->table['engine'] ?? '')
-                            ->setName('engine')
-                    )->width(3)
-                        ->setClass('dbadmin-edit-table-engine')
-                ),
-                $this->ui->when($hasEngines || $hasCollations, fn() =>
-                    $this->ui->col(
-                        $this->ui->label($this->ui->html('&nbsp'))
-                    )->width(5)
-                        ->setClass('dbadmin-table-column-middle')
-                ),
-                $this->ui->when(isset($this->support['comment']), fn() =>
-                    $this->ui->col(
-                        $this->ui->input()
-                            ->setType('text')
-                            ->setName('comment')
-                            ->setValue($this->table['comment'] ?? '')
-                            ->setPlaceholder($this->trans->lang('Comment'))
-                    )->width(6)
-                        ->setClass('dbadmin-table-column-right')
-                )
+                    $this->ui->when($hasEngines || $hasCollations, fn() =>
+                        $this->ui->row(
+                            $this->ui->when($hasCollations, fn() =>
+                                $this->ui->col(
+                                    $this->getCollationSelect($this->table['collation'] ?? '')
+                                        ->setName('collation')
+                                )->width(6)
+                            ),
+                            $this->ui->when($hasEngines, fn() =>
+                                $this->ui->col(
+                                    $this->getEngineSelect($this->table['engine'] ?? '')
+                                        ->setName('engine')
+                                )->width(4)
+                            )
+                        )
+                    ),
+                    $this->ui->when(isset($support['comment']), fn() =>
+                        $this->ui->row(
+                            $this->ui->col(
+                                $this->ui->input()
+                                    ->setType('text')
+                                    ->setName('comment')
+                                    ->setValue($this->table['comment'] ?? '')
+                                    ->setPlaceholder($this->trans->lang('Comment'))
+                            )->width(11)
+                        )
+                    )
+                )->width(7)
             )->setClass('dbadmin-table-edit-field'),
         );
     }
@@ -174,8 +180,9 @@ class TableUiBuilder
     /**
      * @return mixed
      */
-    protected function headerColumnRow(): mixed
+    protected function columnsHeaderBlock(): mixed
     {
+        $support = $this->support();
         return $this->ui->row(
             $this->ui->col(
                 $this->ui->label($this->ui->text($this->trans->lang('Column')))
@@ -189,17 +196,14 @@ class TableUiBuilder
                     ->setStyle('margin-left: -10px;')
             )->width(4),
             $this->ui->col(
-                $this->ui->buttonGroup(
-                    $this->ui->when($this->support['columns'], fn() =>
-                        $this->ui->button($this->trans->lang('Add'))
-                            ->primary()
-                            ->jxnClick($this->rqCreate()->add())
-                    ),
-                    $this->ui->button($this->trans->lang('Changes'))
-                        ->secondary()
-                        ->jxnClick($this->rqAlter()->changes(je($this->formId)->rd()->form()))
+                $this->ui->when($support['columns'], fn() =>
+                    $this->ui->button($this->trans->lang('Add'))
+                        ->primary()
+                        ->jxnClick($this->rqCreate()->add())
                 )
             )->width(3)
+                ->setAlign('right')
+                ->setStyle('padding-right: 30px;')
         )->setClass('dbadmin-table-column-header');
     }
 
@@ -211,9 +215,9 @@ class TableUiBuilder
         return $this->ui->build(
             $this->ui->div(
                 $this->ui->form(
-                    $this->headerNameRow(),
-                    $this->headerEditRow(),
-                    $this->headerColumnRow()
+                    $this->tableNameBlock(),
+                    $this->tablePropertiesForm(),
+                    $this->columnsHeaderBlock()
                 )->wrapped(false)->setId($this->formId)
             ),
             $this->ui->form(
@@ -223,26 +227,27 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnEntity $column
+     * @param ColumnInputEntity $column
      *
      * @return mixed
      */
-    protected function getColumnActionMenu(ColumnEntity $column): mixed
+    protected function getColumnActionMenu(ColumnInputEntity $column): mixed
     {
-        $movableUp = $this->support['move_col'] && $column->position > 0;
-        $movableDown = $this->support['move_col'] &&
+        $support = $this->support();
+        $movableUp = $support['move_col'] && $column->position > 0;
+        $movableDown = $support['move_col'] &&
             $column->position < count($this->columns) - 1;
         $cancelQuestion = 'Confirm the cancellation?';
-        $isNew = $column->status === 'added';
-        $removable = $isNew || $this->support['drop_col'];
-        $removeText = $isNew ? 'Cancel' : 'Remove';
-        $removeQuestion = $isNew ? 'Remove this new colum?' :
+        $isAdded = $column->added();
+        $removable = $isAdded || $support['drop_col'];
+        $removeText = $isAdded ? 'Cancel' : 'Remove';
+        $removeQuestion = $isAdded ? 'Remove this new colum?' :
             "Remove the \"{$column->name}\" column?";
 
         return $this->ui->dropdown(
             $this->ui->dropdownItem()->look('primary')/*->addCaret()*/,
             $this->ui->dropdownMenu(
-                $this->ui->when($column->status !== 'deleted', fn() =>
+                $this->ui->when(!$column->dropped(), fn() =>
                     $this->ui->list(
                         $this->ui->when($movableUp, fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Up'))
@@ -256,7 +261,7 @@ class TableUiBuilder
                             ->jxnClick($this->rqCreate()->add($column->position)),
                         $this->ui->dropdownMenuItem($this->ui->text('Edit'))
                             ->jxnClick($this->rqUpdate()->edit($column->name)),
-                        $this->ui->when($column->status === 'edited', fn() =>
+                        $this->ui->when($column->changed(), fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
                                 ->jxnClick($this->rqUpdate()->cancel($column->name)->confirm($cancelQuestion))
                         ),
@@ -266,7 +271,7 @@ class TableUiBuilder
                         )
                     )
                 ),
-                $this->ui->when($column->status === 'deleted', fn() =>
+                $this->ui->when($column->dropped(), fn() =>
                     $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
                         ->jxnClick($this->rqDelete()->cancel($column->name)->confirm($cancelQuestion))
                 )
@@ -275,16 +280,16 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnEntity $column
+     * @param ColumnInputEntity $column
      *
      * @return mixed
      */
-    private function getColumnBgColor(ColumnEntity $column): string
+    private function getColumnBgColor(ColumnInputEntity $column): string
     {
-        return match($column->status) {
-            'added' => "background-color: #e6ffe6;",
-            'edited' => "background-color: #d9f1ffff;",
-            'deleted' => "background-color: #ffe6e6;",
+        return match(true) {
+            $column->added() => "background-color: #e6ffe6;",
+            $column->changed() => "background-color: #d9f1ffff;",
+            $column->dropped() => "background-color: #ffe6e6;",
             default => "background-color: white;",
         };
     }
@@ -302,13 +307,14 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnEntity $column
+     * @param ColumnInputEntity $column
      *
      * @return mixed
      */
-    protected function columnElement(ColumnEntity $column): mixed
+    protected function columnElement(ColumnInputEntity $column): mixed
     {
         $editPrefix = sprintf("fields[%d]", $column->position);
+        $support = $this->support();
 
         return $this->ui->row(
             // First line
@@ -328,7 +334,7 @@ class TableUiBuilder
             $this->ui->col(
                 $this->ui->row(
                     $this->ui->col(
-                        $this->ui->when(isset($this->support['comment']), fn() =>
+                        $this->ui->when(isset($support['comment']), fn() =>
                             $this->getColumnCommentField($column, "{$editPrefix}[comment]")
                                 ->setPlaceholder($this->trans->lang('Comment'))
                                 ->with(fn($input) => $this->disable($input))
@@ -386,7 +392,7 @@ class TableUiBuilder
 
             // Third line
             $this->ui->col(
-                $this->getColumnDefaultField($column, "{$editPrefix}[hasDefault]",
+                $this->getColumnDefaultField($column, "{$editPrefix}[generated]",
                 "{$editPrefix}[default]", $this->trans->lang('Default value'))
             )->width(5)
                 ->setClass('dbadmin-table-column-left second-line'),

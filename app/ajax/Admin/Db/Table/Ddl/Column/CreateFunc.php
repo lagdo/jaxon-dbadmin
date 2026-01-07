@@ -51,7 +51,7 @@ class CreateFunc extends FuncComponent
     {
         // Create an empty field and fill with the form data.
         $column = $this->getEmptyColumn();
-        $column->status = 'added';
+        $column->add();
         $column->setValues($this->getUserFormValues($values));
 
         $this->modal()->hide();

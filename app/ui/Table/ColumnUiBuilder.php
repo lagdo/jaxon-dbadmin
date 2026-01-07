@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Table;
 
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
+use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -18,11 +18,11 @@ class ColumnUiBuilder
     {}
 
     /**
-     * @param ColumnEntity $field
+     * @param ColumnInputEntity $field
      *
      * @return string
      */
-    public function column(ColumnEntity $column): string
+    public function column(ColumnInputEntity $column): string
     {
         $this->listMode = false;
 
@@ -78,7 +78,7 @@ class ColumnUiBuilder
                         $this->ui->text($this->trans->lang('Default value'))
                     )->width(3),
                     $this->ui->col(
-                        $this->getColumnDefaultField($column, 'hasDefault', 'default')
+                        $this->getColumnDefaultField($column, 'generated', 'default')
                     )->width(9)
                 ),
                 $this->ui->row(
@@ -118,23 +118,23 @@ class ColumnUiBuilder
     }
 
     /**
-     * @param array<ColumnEntity> $columns
+     * @param array<ColumnInputEntity> $columns
      *
      * @return string
      */
     public function changes(array $columns): string
     {
         return $this->ui->build(
-            $this->ui->each($columns, fn(ColumnEntity $column) =>
+            $this->ui->each($columns, fn(ColumnInputEntity $column) =>
                 $this->ui->pick([
-                    $column->status === 'deleted', fn() => $this->ui->row(
+                    $column->dropped(), fn() => $this->ui->row(
                         $this->ui->col($this->ui->text($column->name))
                             ->width(3),
                         $this->ui->col($this->trans->lang('Drop'))
                             ->width(8)
                     )
                 ], [
-                    $column->status === 'edited', fn() => $this->ui->row(
+                    $column->changed(), fn() => $this->ui->row(
                         $this->ui->col($this->ui->text($column->name))
                             ->width(3),
                         $this->ui->col(
@@ -146,7 +146,7 @@ class ColumnUiBuilder
                         )->width(8)
                     )
                 ], [
-                    $column->status === 'added', fn() => $this->ui->row(
+                    $column->added(), fn() => $this->ui->row(
                         $this->ui->col($this->ui->text($column->newName()))
                             ->width(3),
                         $this->ui->col($this->trans->lang('Add'))
@@ -155,5 +155,29 @@ class ColumnUiBuilder
                 ]
             ))
         ) ?: '&nbsp;';
+    }
+
+    /**
+     * @param string $queryDivId
+     * @param string $queryText
+     *
+     * @return string
+     */
+    public function sqlCodeElement(string $queryDivId, string $queryText): string
+    {
+        return $this->ui->build(
+            $this->ui->row(
+                $this->ui->col(
+                    $this->ui->panel(
+                        $this->ui->panelBody(
+                            $this->ui->div($queryText)
+                                ->setId($queryDivId)
+                                ->setStyle('height: 300px;')
+                        )->setStyle('padding: 0 1px;')
+                    )->look('default')
+                        ->setStyle('padding: 5px;')
+                )->width(12)
+            )
+        );
     }
 }

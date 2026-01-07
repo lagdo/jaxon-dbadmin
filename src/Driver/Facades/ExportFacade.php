@@ -449,7 +449,7 @@ class ExportFacade extends AbstractFacade
         $params = array_map(function($param) use($regex) {
             $inout = preg_match($regex, $param->inout) ? "{$param->inout} " : '';
             return $inout . $this->driver->escapeId($param->name) .
-                $this->driver->processType($param, 'CHARACTER SET');
+                $this->driver->getFieldType($param, 'CHARACTER SET');
         },$params);
         return implode(', ', $params);
     }
@@ -468,7 +468,7 @@ class ExportFacade extends AbstractFacade
         $routineName = $this->driver->escapeId(trim($routine->name));
         $routineParams = $this->getRoutineParams($routineInfo->params);
         $routineReturns = $routine->type !== 'FUNCTION' ? '' :
-            ' RETURNS' . $this->driver->processType($routineInfo->return, 'CHARACTER SET');
+            ' RETURNS' . $this->driver->getFieldType($routineInfo->return, 'CHARACTER SET');
         $routineLanguage = $routineInfo->language ? " LANGUAGE {$routineInfo->language}" : '';
         $definition = rtrim($routineInfo->definition, ';');
         $routineDefinition = $this->driver->jush() !== 'pgsql' ? "\n$definition;" :

@@ -9,6 +9,8 @@ use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Table\ColumnUiBuilder;
 
+use function trim;
+
 #[Databag('dbadmin.table')]
 abstract class FuncComponent extends BaseComponent
 {
@@ -38,8 +40,8 @@ abstract class FuncComponent extends BaseComponent
         $formValues['primary'] = isset($formValues['primary']);
         $formValues['autoIncrement'] = isset($formValues['autoIncrement']);
         $formValues['nullable'] = isset($formValues['nullable']);
-        $formValues['hasDefault'] = isset($formValues['hasDefault']);
-        if (!$formValues['hasDefault']) {
+        $formValues['generated'] = trim($formValues['generated']);
+        if ($formValues['generated'] === '') {
             $formValues['default'] = ''; // Erase the default value.
         }
 

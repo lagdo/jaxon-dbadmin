@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 use Jaxon\Attributes\Attribute\Databag;
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Component;
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
+use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
 use function array_map;
@@ -24,7 +24,7 @@ class Table extends Component
     private $metadata;
 
     /**
-     * @var array<ColumnEntity>
+     * @var array<ColumnInputEntity>
      */
     private $columns;
 
@@ -38,7 +38,7 @@ class Table extends Component
      */
     public function html(): string
     {
-        $columns = array_map(fn(ColumnEntity $column) => $column->toArray(), $this->columns);
+        $columns = array_map(fn(ColumnInputEntity $column) => $column->toArray(), $this->columns);
         $this->bag('dbadmin.table')->set('columns', $columns);
 
         return $this->tableUi
@@ -49,21 +49,20 @@ class Table extends Component
     }
 
     /**
-     * @param ColumnEntity|null $column
+     * @param ColumnInputEntity|null $column
      *
      * @return bool
      */
-    private function columnIsInvalid(ColumnEntity|null $column): bool
+    private function columnIsInvalid(ColumnInputEntity|null $column): bool
     {
         // Null values and columns not found in the database are discarded.
-        return $column === null ||
-            ($column->status !== 'added' &&
+        return $column === null || (!$column->added() &&
             !isset($this->metadata['fields'][$column->name]));
     }
 
     /**
      * @param array $metadata
-     * @param array<ColumnEntity> $columns
+     * @param array<ColumnInputEntity> $columns
      *
      * @return void
      */
@@ -78,7 +77,7 @@ class Table extends Component
                 continue;
             }
 
-            if ($column->status === 'added') {
+            if ($column->added()) {
                 $column->name = "new_column_$position";
             }
             $column->position = $position++;
@@ -97,7 +96,7 @@ class Table extends Component
     {
         $this->metadata = $metadata;
         $this->columns = array_map(fn(TableFieldEntity $field) =>
-            new ColumnEntity($field), $metadata['fields']);
+            new ColumnInputEntity($field), $metadata['fields']);
 
         $this->render();
     }

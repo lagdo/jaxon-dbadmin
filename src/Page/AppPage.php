@@ -132,12 +132,12 @@ class AppPage
     {
         return match(true) {
             $value === null => '<i>NULL</i>',
-            preg_match('~char|binary|boolean~', $type) &&
+            preg_match('~char|binary|boolean~', $type) > 0 &&
                 !preg_match('~var~', $type) => "<code>$value</code>",
-            preg_match('~blob|bytea|raw|file~', $type) &&
+            preg_match('~blob|bytea|raw|file~', $type) > 0 &&
                 !$this->utils->str->isUtf8($value) => '<i>' .
                     $this->utils->trans->lang('%d byte(s)', strlen($original)) . '</i>',
-            preg_match('~json~', $type) => "<code>$value</code>",
+            preg_match('~json~', $type) > 0 => "<code>$value</code>",
             $this->utils->isMail($value) => '<a href="' .
                 $this->utils->html("mailto:$value") . '">' . $value . '</a>',
             // IE 11 and all modern browsers hide referrer

@@ -189,6 +189,7 @@ class TableContent
             ],
             'collations' => $this->driver->collations(),
             'engines' => $this->driver->engines(),
+            'defaults' => $this->driver->fieldDefaults(),
             'support' => [
                 'columns' => $this->driver->support('columns'),
                 'comment' => $this->driver->support('comment'),

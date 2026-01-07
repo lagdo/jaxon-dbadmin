@@ -7,108 +7,62 @@ trait FieldMetadataTrait
     /**
      * @var array
      */
-    protected $support = [];
+    protected $metadata = [];
 
     /**
-     * @var array
-     */
-    protected $engines = [];
-
-    /**
-     * @var array
-     */
-    protected $collations = [];
-
-    /**
-     * @var array
-     */
-    protected $unsigned = [];
-
-    /**
-     * @var array
-     */
-    protected $foreignKeys = [];
-
-    /**
-     * @var array
-     */
-    protected $options = [];
-
-    /**
-     * @param array $support
-     *
      * @return self
      */
-    public function support(array $support): self
+    protected function support(): array
     {
-        $this->support = $support;
-        return $this;
+        return $this->metadata['support'] ?? [];
     }
 
     /**
-     * @param array $engines
-     *
      * @return self
      */
-    public function engines(array $engines): self
+    protected function engines(): array
     {
-        $this->engines = $engines;
-        return $this;
+        return $this->metadata['engines'] ?? [];
     }
 
     /**
-     * @param array $collations
-     *
      * @return self
      */
-    public function collations(array $collations): self
+    protected function collations(): array
     {
-        $this->collations = $collations;
-        return $this;
+        return $this->metadata['collations'] ?? [];
     }
 
     /**
-     * @param array $unsigned
-     *
      * @return self
      */
-    public function unsigned(array $unsigned): self
+    protected function unsigned(): array
     {
-        $this->unsigned = $unsigned;
-        return $this;
+        return $this->metadata['unsigned'] ?? [];
     }
 
     /**
-     * @param array $foreignKeys
-     *
      * @return self
      */
-    public function foreignKeys(array $foreignKeys): self
+    protected function foreignKeys(): array
     {
-        $this->foreignKeys = $foreignKeys;
-        return $this;
+        return $this->metadata['foreignKeys'] ?? [];
     }
 
     /**
-     * @param array $columns
-     *
-     * @return self
+     * @return array
      */
-    public function columns(array $columns): self
+    protected function options(): array
     {
-        $this->columns = $columns;
-        return $this;
+        return $this->metadata['options'] ?? [];
     }
 
     /**
-     * @param array $options
-     *
-     * @return self
+     * @return array
      */
-    public function options(array $options): self
+    protected function defaults(): array
     {
-        $this->options = $options;
-        return $this;
+        return $this->metadata['defaults'] ?? [];
     }
 
     /**
@@ -118,11 +72,7 @@ trait FieldMetadataTrait
      */
     public function metadata(array $metadata): self
     {
-        return $this->support($metadata['support'])
-            ->engines($metadata['engines'])
-            ->collations($metadata['collations'])
-            ->unsigned($metadata['unsigned'] ?? [])
-            ->foreignKeys($metadata['foreignKeys'])
-            ->options($metadata['options']);
+        $this->metadata = $metadata;
+        return $this;
     }
 }

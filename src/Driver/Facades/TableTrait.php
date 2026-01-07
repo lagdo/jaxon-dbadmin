@@ -2,6 +2,9 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
+use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
+use Lagdo\DbAdmin\Driver\Entity\TableAlterEntity;
+use Lagdo\DbAdmin\Driver\Entity\TableCreateEntity;
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 use Exception;
 
@@ -144,35 +147,62 @@ trait TableTrait
     }
 
     /**
+     * Get SQL commands to create a table
+     *
+     * @param array $options     The table options
+     * @param array<ColumnInputEntity> $columns
+     *
+     * @return array
+     */
+    public function getCreateTableQueries(array $options, array $columns): array
+    {
+        $this->connectToSchema();
+        return $this->tableFacade()->getCreateTableQueries($options, $columns);
+    }
+
+    /**
      * Create a table
      *
-     * @param array  $values    The table values
+     * @param array $options     The table options
+     * @param array<ColumnInputEntity> $columns
      *
      * @return array|null
      */
-    public function createTable(array $values): ?array
+    public function createTable(array $options, array $columns): ?array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $values['name'];
-        $this->utils->input->values = $values;
-        return $this->tableFacade()->createTable($values);
+        return $this->tableFacade()->createTable($options, $columns);
+    }
+
+    /**
+     * Get SQL command to alter a table
+     *
+     * @param string $name       The table name
+     * @param array $options     The table options
+     * @param array<ColumnInputEntity> $columns
+     *
+     * @return array
+     */
+    public function getAlterTableQueries(string $name, array $options, array $columns): array
+    {
+        $this->connectToSchema();
+        return $this->tableFacade()->getAlterTableQueries($name, $options, $columns);
     }
 
     /**
      * Alter a table
      *
-     * @param string $table The table name
-     * @param array $values The table values
+     * @param string $name       The table name
+     * @param array $options     The table options
+     * @param array<ColumnInputEntity> $columns
      *
      * @return array|null
      * @throws Exception
      */
-    public function alterTable(string $table, array $values): ?array
+    public function alterTable(string $name, array $options, array $columns): ?array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        $this->utils->input->values = $values;
-        return $this->tableFacade()->alterTable($table, $values);
+        return $this->tableFacade()->alterTable($name, $options, $columns);
     }
 
     /**

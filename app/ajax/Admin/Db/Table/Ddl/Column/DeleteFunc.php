@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnEntity;
+use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
 
 use function array_filter;
 use function array_map;
@@ -10,7 +10,7 @@ use function array_map;
 class DeleteFunc extends FuncComponent
 {
     /**
-     * @param array<ColumnEntity> $columns
+     * @param array<ColumnInputEntity> $columns
      * @param string $fieldName
      *
      * @return array
@@ -18,9 +18,9 @@ class DeleteFunc extends FuncComponent
     private function updateColumns(array $columns, string $fieldName): array
     {
         $column = $columns[$fieldName];
-        if ($column->status !== 'added') {
-            // An existing column is set to be deleted.
-            $column->status = 'deleted';
+        if (!$column->added()) {
+            // An existing column is set to be dropped.
+            $column->drop();
             return $columns;
         }
 
@@ -49,20 +49,20 @@ class DeleteFunc extends FuncComponent
     }
 
     /**
-     * @param array<ColumnEntity> $columns
+     * @param array<ColumnInputEntity> $columns
      * @param string $fieldName
      *
      * @return array
      */
-    private function resetColumn(array $columns, string $fieldName): array
+    private function undoColumn(array $columns, string $fieldName): array
     {
-        return array_map(function(ColumnEntity $column) use($fieldName) {
+        return array_map(function(ColumnInputEntity $column) use($fieldName) {
             if ($column->name !== $fieldName) {
                 return $column;
             }
 
             // Reset the column. Only the status needs to be updated.
-            $column->status = $column->fieldEdited() ? 'edited' : 'unchanged';
+            $column->changeIf();
             return $column;
         }, $columns);
     }
@@ -83,7 +83,7 @@ class DeleteFunc extends FuncComponent
             return;
         }
 
-        $columns = $this->resetColumn($columns, $fieldName);
+        $columns = $this->undoColumn($columns, $fieldName);
         $this->cl(Table::class)->show($this->metadata(), $columns);
     }
 }

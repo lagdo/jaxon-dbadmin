@@ -140,7 +140,7 @@ class SelectQuery
         $col = $value['col'];
 
         return match(true) {
-            preg_match('~IN$~', $op) => " $op " .
+            preg_match('~IN$~', $op) > 0 => " $op " .
                 (($in = $this->driver->processLength($val)) !== '' ? $in : '(NULL)'),
             $op === 'SQL' => " $val", // SQL injection
             $op === 'LIKE %%' => ' LIKE ' . $this->page

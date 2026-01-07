@@ -28,7 +28,7 @@ class Alter extends MainComponent
     /**
      * @var string
      */
-    protected $formId = 'dbadmin-table-alter-form';
+    protected $formId = 'dbadmin-table-data-form';
 
     /**
      * @return array
@@ -49,8 +49,16 @@ class Alter extends MainComponent
         $actions = [
             'table-save' => [
                 'title' => $this->trans()->lang('Save'),
-                'handler' => $this->rq(TableFunc::class)->alter($table, $values)
+                'handler' => $this->rq(TableFunc::class)->alter($values)
                     ->confirm("Save changes on table $table?"),
+            ],
+            'table-changes' => [
+                'title' => $this->trans()->lang('Changes'),
+                'handler' => $this->rq(QueryFunc::class)->changes($values),
+            ],
+            'table-queries' => [
+                'title' => $this->trans()->lang('Queries'),
+                'handler' => $this->rq(QueryFunc::class)->alterTable($values),
             ],
             'table-back' => [
                 'title' => $this->trans()->lang('Back'),
@@ -66,18 +74,19 @@ class Alter extends MainComponent
     public function html(): string
     {
         $metadata = $this->metadata();
+        $table = $metadata['table'];
         $editedTable = [
-            'name' => $metadata['table']->name,
-            'engine' => $metadata['table']->engine,
-            'collation' => $metadata['table']->collation,
-            'comment' => $metadata['table']->comment,
+            'name' => $table->name,
+            'engine' => $table->engine,
+            'collation' => $table->collation,
+            'comment' => $table->comment,
+            'hasAutoIncrement' => $table->hasAutoIncrement,
+            'autoIncrement' => $table->autoIncrement,
         ];
 
         return $this->tableUi
             ->table($editedTable)
-            ->support($metadata['support'])
-            ->engines($metadata['engines'])
-            ->collations($metadata['collations'])
+            ->metadata($metadata)
             ->formId($this->formId)
             ->wrapper();
     }
