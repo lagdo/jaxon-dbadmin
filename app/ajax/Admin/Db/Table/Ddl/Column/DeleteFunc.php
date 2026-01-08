@@ -4,86 +4,78 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
 use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
 
-use function array_filter;
-use function array_map;
-
 class DeleteFunc extends FuncComponent
 {
     /**
+     * @param string $columnId
      * @param array<ColumnInputEntity> $columns
-     * @param string $fieldName
      *
      * @return array
      */
-    private function updateColumns(array $columns, string $fieldName): array
+    private function updateColumns(string $columnId, array $columns): array
     {
-        $column = $columns[$fieldName];
-        if (!$column->added()) {
-            // An existing column is set to be dropped.
-            $column->drop();
+        $column = $columns[$columnId];
+        if ($column->added()) {
+            // Remove the column.
+            $columns[$columnId] = null;
             return $columns;
         }
 
-        // Remove the column.
-        return array_filter($columns, fn($c) => $c->name !== $column->name);
+        // An existing column is set to be dropped.
+        $column->drop();
+        return $columns;
     }
 
     /**
-     * @param string $fieldName
+     * @param string $columnId
      *
      * @return void
      */
-    public function exec(string $fieldName): void
+    public function exec(string $columnId): void
     {
         $columns = $this->getTableColumns();
-        if (!isset($columns[$fieldName])) {
+        if (!isset($columns[$columnId])) {
             $table = $this->getTableName();
             $this->alert()
                 ->title($this->trans->lang('Error'))
-                ->error("Unable to find the field with '$fieldName' in table '$table'.");
+                ->error("Unable to find the requested column in table '$table'.");
             return;
         }
 
-        $columns = $this->updateColumns($columns, $fieldName);
+        $columns = $this->updateColumns($columnId, $columns);
         $this->cl(Table::class)->show($this->metadata(), $columns);
     }
 
     /**
+     * @param string $columnId
      * @param array<ColumnInputEntity> $columns
-     * @param string $fieldName
      *
      * @return array
      */
-    private function undoColumn(array $columns, string $fieldName): array
+    private function undoColumn(string $columnId, array $columns): array
     {
-        return array_map(function(ColumnInputEntity $column) use($fieldName) {
-            if ($column->name !== $fieldName) {
-                return $column;
-            }
-
-            // Reset the column. Only the status needs to be updated.
-            $column->changeIf();
-            return $column;
-        }, $columns);
+        // Reset the column. Only the status needs to be updated.
+        $columns[$columnId]->changeIf();
+        return $columns;
     }
 
     /**
-     * @param string $fieldName
+     * @param string $columnId
      *
      * @return void
      */
-    public function cancel(string $fieldName): void
+    public function cancel(string $columnId): void
     {
         $columns = $this->getTableColumns();
-        if (!isset($columns[$fieldName])) {
+        if (!isset($columns[$columnId])) {
             $table = $this->getTableName();
             $this->alert()
                 ->title($this->trans->lang('Error'))
-                ->error("Unable to find the field with '$fieldName' in table '$table'.");
+                ->error("Unable to find the requested column in table '$table'.");
             return;
         }
 
-        $columns = $this->undoColumn($columns, $fieldName);
+        $columns = $this->undoColumn($columnId, $columns);
         $this->cl(Table::class)->show($this->metadata(), $columns);
     }
 }

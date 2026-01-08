@@ -4,8 +4,6 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
 use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
 
-use function array_map;
-
 trait ColumnTrait
 {
     /**
@@ -20,7 +18,7 @@ trait ColumnTrait
      *
      * @var array|null
      */
-    private array|null $columns = null;
+    private array|null $columnInputs = null;
 
     /**
      * @return array
@@ -33,9 +31,9 @@ trait ColumnTrait
     /**
      * @return array
      */
-    protected function columns(): array
+    protected function columnInputs(): array
     {
-        return $this->columns ??= $this->bag('dbadmin.table')->get('columns', []);
+        return $this->columnInputs ??= $this->bag('dbadmin.table')->get('columns', []);
     }
 
     /**
@@ -47,25 +45,24 @@ trait ColumnTrait
     }
 
     /**
-     * @param string $fieldName
+     * @param string $columnId
      *
      * @return ColumnInputEntity|null
      */
-    protected function getFieldColumn(string $fieldName): ColumnInputEntity|null
+    protected function getFieldColumn(string $columnId): ColumnInputEntity|null
     {
-        $column = $this->columns()[$fieldName] ?? null;
-        if ($column === null) {
+        $columnInput = $this->columnInputs()[$columnId] ?? null;
+        if ($columnInput === null) {
             return null;
         }
 
-        $field = ColumnInputEntity::columnIsAdded($column) ?
+        $field = ColumnInputEntity::columnIsAdded($columnInput) ?
             // Added column => empty field
             $this->db()->getTableField() :
             // Existing column => check the metadata
-            ($this->metadata()['fields'][$fieldName] ?? null);
-
+            ($this->metadata()['fields'][$columnInput['name']] ?? null);
         // Fill the data from the database with the data from the databag.
-        return $field === null ? null : ColumnInputEntity::newColumn($field, $column);
+        return $field === null ? null : ColumnInputEntity::newColumn($field, $columnInput);
     }
 
     /**
@@ -73,8 +70,10 @@ trait ColumnTrait
      */
     protected function getTableColumns(): array
     {
-        // Fill the data from the database with the data from the databag or the form values.
-        return array_map(fn(array $column) =>
-            $this->getFieldColumn($column['name']), $this->columns());
+        $columns = [];
+        foreach ($this->columnInputs() as $columnId => $_) {
+            $columns[$columnId] = $this->getFieldColumn($columnId);
+        }
+        return $columns;
     }
 }

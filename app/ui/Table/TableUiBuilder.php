@@ -228,10 +228,11 @@ class TableUiBuilder
 
     /**
      * @param ColumnInputEntity $column
+     * @param string $columnId
      *
      * @return mixed
      */
-    protected function getColumnActionMenu(ColumnInputEntity $column): mixed
+    protected function getColumnActionMenu(ColumnInputEntity $column, string $columnId): mixed
     {
         $support = $this->support();
         $movableUp = $support['move_col'] && $column->position > 0;
@@ -251,29 +252,29 @@ class TableUiBuilder
                     $this->ui->list(
                         $this->ui->when($movableUp, fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Up'))
-                                ->jxnClick($this->rqMove()->up($this->formValues(), $column->position))
+                                ->jxnClick($this->rqMove()->up($columnId, $this->formValues()))
                         ),
                         $this->ui->when($movableDown, fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Down'))
-                                ->jxnClick($this->rqMove()->down($this->formValues(), $column->position))
+                                ->jxnClick($this->rqMove()->down($columnId, $this->formValues()))
                         ),
                         $this->ui->dropdownMenuItem($this->ui->text('Add'))
-                            ->jxnClick($this->rqCreate()->add($column->position)),
+                            ->jxnClick($this->rqCreate()->add($columnId)),
                         $this->ui->dropdownMenuItem($this->ui->text('Edit'))
-                            ->jxnClick($this->rqUpdate()->edit($column->name)),
+                            ->jxnClick($this->rqUpdate()->edit($columnId)),
                         $this->ui->when($column->changed(), fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
-                                ->jxnClick($this->rqUpdate()->cancel($column->name)->confirm($cancelQuestion))
+                                ->jxnClick($this->rqUpdate()->cancel($columnId)->confirm($cancelQuestion))
                         ),
                         $this->ui->when($removable, fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text($removeText))
-                                ->jxnClick($this->rqDelete()->exec($column->name)->confirm($removeQuestion))
+                                ->jxnClick($this->rqDelete()->exec($columnId)->confirm($removeQuestion))
                         )
                     )
                 ),
                 $this->ui->when($column->dropped(), fn() =>
                     $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
-                        ->jxnClick($this->rqDelete()->cancel($column->name)->confirm($cancelQuestion))
+                        ->jxnClick($this->rqDelete()->cancel($columnId)->confirm($cancelQuestion))
                 )
             )
         )->setClass('dbadmin-table-column-buttons');
@@ -308,10 +309,11 @@ class TableUiBuilder
 
     /**
      * @param ColumnInputEntity $column
+     * @param string $columnId
      *
      * @return mixed
      */
-    protected function columnElement(ColumnInputEntity $column): mixed
+    protected function columnElement(ColumnInputEntity $column, string $columnId): mixed
     {
         $editPrefix = sprintf("fields[%d]", $column->position);
         $support = $this->support();
@@ -342,7 +344,7 @@ class TableUiBuilder
                     )->width(11)
                         ->setClass('dbadmin-table-column-middle nested-col'),
                     $this->ui->col(
-                        $this->getColumnActionMenu($column)
+                        $this->getColumnActionMenu($column, $columnId)
                     )->width(1)
                         ->setClass('dbadmin-table-column-buttons nested-col')
                 )->setClass('nested-row')
@@ -357,7 +359,7 @@ class TableUiBuilder
                     )->width(8)
                         ->setClass('dbadmin-table-column-left nested-col'),
                     $this->ui->col(
-                        $this->ui->when($column->field()->lengthRequired, fn() =>
+                        $this->ui->when($column->field->lengthRequired, fn() =>
                             $this->getColumnLengthField($column, "{$editPrefix}[length]")
                                 ->with(fn($input) => $this->disable($input)))
                     )->width(4)
@@ -376,14 +378,14 @@ class TableUiBuilder
                 ->setClass('dbadmin-table-column-middle second-line')
                 ->setStyle('padding-top: 7px'),
             $this->ui->col(
-                $column->field()->collationHidden ?
+                $column->field->collationHidden ?
                     $this->hiddenField('Collation') :
                     $this->getColumnCollationField($column, "{$editPrefix}[collation]")
                         ->with(fn($input) => $this->disable($input))
             )->width(4)
                 ->setClass('dbadmin-table-column-middle second-line'),
             $this->ui->col(
-                $column->field()->onUpdateHidden ?
+                $column->field->onUpdateHidden ?
                     $this->hiddenField('On update') :
                     $this->getColumnOnUpdateField($column, "{$editPrefix}[onUpdate]")
                         ->with(fn($input) => $this->disable($input))
@@ -397,14 +399,14 @@ class TableUiBuilder
             )->width(5)
                 ->setClass('dbadmin-table-column-left second-line'),
             $this->ui->col(
-                $column->field()->unsignedHidden ?
+                $column->field->unsignedHidden ?
                     $this->hiddenField('Unsigned') :
                     $this->getColumnUnsignedField($column, "{$editPrefix}[unsigned]")
                         ->with(fn($input) => $this->disable($input))
             )->width(4)
                 ->setClass('dbadmin-table-column-middle second-line'),
             $this->ui->col(
-                $column->field()->onDeleteHidden ?
+                $column->field->onDeleteHidden ?
                 $this->hiddenField('On delete') :
                 $this->getColumnOnDeleteField($column, "{$editPrefix}[onDelete]")
                     ->with(fn($input) => $this->disable($input))
@@ -422,9 +424,9 @@ class TableUiBuilder
 
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->each($this->columns, fn($column) =>
+                $this->ui->each($this->columns, fn($column, $columnId) =>
                     $this->ui->div(
-                        $this->columnElement($column)
+                        $this->columnElement($column, $columnId)
                     )->setClass('dbadmin-table-edit-field')
                         ->setStyle($this->getColumnBgColor($column))
                 )

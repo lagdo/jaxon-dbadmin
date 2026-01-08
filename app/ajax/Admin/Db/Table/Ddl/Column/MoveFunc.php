@@ -11,22 +11,22 @@ use Jaxon\Attributes\Attribute\Before;
 class MoveFunc extends FuncComponent
 {
     /**
+     * @param string $columnId
      * @param array  $values
-     * @param int    $position      The new column is moved before this position.
      *
      * @return void
      */
-    public function up(array $values, int $position): void
+    public function up(string $columnId, array $values): void
     {
     }
 
     /**
+     * @param string $columnId
      * @param array  $values
-     * @param int    $position      The new column is moved after this position.
      *
      * @return void
      */
-    public function down(array $values, int $position): void
+    public function down(string $columnId, array $values): void
     {
     }
 }

@@ -34,13 +34,31 @@ class Table extends Component
     protected $formId = 'dbadmin-table-form';
 
     /**
+     * @param array $columns
+     *
+     * @return void
+     */
+    private function setColumns(array $columns): void
+    {
+        $this->columns = [];
+
+        // Set the columns positions.
+        $position = 0;
+        foreach ($columns as $column) {
+            $column->position = $position++;
+            $this->columns["column_$position"] = $column;
+        }
+
+        // Save the columns in the databag.
+        $this->bag('dbadmin.table')->set('columns',
+            array_map(fn($column) => $column->toArray(), $this->columns));
+    }
+
+    /**
      * @inheritDoc
      */
     public function html(): string
     {
-        $columns = array_map(fn(ColumnInputEntity $column) => $column->toArray(), $this->columns);
-        $this->bag('dbadmin.table')->set('columns', $columns);
-
         return $this->tableUi
             ->formId($this->formId)
             ->metadata($this->metadata)
@@ -53,11 +71,11 @@ class Table extends Component
      *
      * @return bool
      */
-    private function columnIsInvalid(ColumnInputEntity|null $column): bool
+    private function columnIsValid(ColumnInputEntity|null $column): bool
     {
         // Null values and columns not found in the database are discarded.
-        return $column === null || (!$column->added() &&
-            !isset($this->metadata['fields'][$column->name]));
+        return $column !== null && ($column->added() ||
+            isset($this->metadata['fields'][$column->name]));
     }
 
     /**
@@ -69,20 +87,8 @@ class Table extends Component
     public function show(array $metadata, array $columns = []): void
     {
         $this->metadata = $metadata;
-        $this->columns = [];
-        // Reset the columns positions and names.
-        $position = 0;
-        foreach ($columns as $column) {
-            if ($this->columnIsInvalid($column)) {
-                continue;
-            }
-
-            if ($column->added()) {
-                $column->name = "new_column_$position";
-            }
-            $column->position = $position++;
-            $this->columns[$column->name] = $column;
-        }
+        $this->setColumns(array_filter($columns,
+            fn(ColumnInputEntity|null $column) => $this->columnIsValid($column)));
 
         $this->render();
     }
@@ -95,8 +101,8 @@ class Table extends Component
     public function load(array $metadata): void
     {
         $this->metadata = $metadata;
-        $this->columns = array_map(fn(TableFieldEntity $field) =>
-            new ColumnInputEntity($field), $metadata['fields']);
+        $this->setColumns(array_map(fn(TableFieldEntity $field) =>
+            new ColumnInputEntity($field), $metadata['fields']));
 
         $this->render();
     }

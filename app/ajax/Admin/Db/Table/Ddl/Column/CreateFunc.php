@@ -12,13 +12,13 @@ class CreateFunc extends FuncComponent
     protected $formId = 'dbadmin-table-column-create-form';
 
     /**
-     * Insert a new column at a given position
+     * Insert a new column after a given column
      *
-     * @param int    $position      The new column is added before this position. Set to -1 to add at the end.
+     * @param string $columnId
      *
      * @return void
      */
-    public function add(int $position = -1): void
+    public function add(string $columnId = ''): void
     {
         $tableName = $this->getTableName();
         $title = $tableName === '' ? 'New column' : "New column in table $tableName";
@@ -33,21 +33,21 @@ class CreateFunc extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(je($this->formId)->rd()->form(), $position),
+            'click' => $this->rq()->save($columnId, je($this->formId)->rd()->form()),
         ]];
 
         $this->modal()->show($title, $content, $buttons);
     }
 
     /**
-     * Update the column at a given position
+     * Insert a new column after a given column
      *
+     * @param string $columnId
      * @param array  $values
-     * @param int    $position
      *
      * @return void
      */
-    public function save(array $values, int $position): void
+    public function save(string $columnId, array $values): void
     {
         // Create an empty field and fill with the form data.
         $column = $this->getEmptyColumn();
