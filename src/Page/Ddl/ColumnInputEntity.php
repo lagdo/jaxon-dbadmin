@@ -14,7 +14,7 @@ class ColumnInputEntity
      *
      * @var string
      */
-    public $name = '';
+    public readonly string $name;
 
     /**
      * The field status when the table is edited
@@ -42,7 +42,7 @@ class ColumnInputEntity
      *
      * @param TableFieldEntity $field
      */
-    public function __construct(private TableFieldEntity $field)
+    public function __construct(public readonly TableFieldEntity $field)
     {
         $this->name = $field->name;
         // Make sure the boolean fields have boolean values.
@@ -123,14 +123,6 @@ class ColumnInputEntity
     public function drop(): void
     {
         $this->action = 'drop';
-    }
-
-    /**
-     * @return TableFieldEntity
-     */
-    public function field(): TableFieldEntity
-    {
-        return $this->field;
     }
 
     /**
@@ -297,7 +289,7 @@ class ColumnInputEntity
     }
 
     /**
-     * Create an entity from user inputs
+     * Create an entity from user inputs.
      *
      * @param TableFieldEntity $field
      * @param array $inputs
@@ -308,7 +300,6 @@ class ColumnInputEntity
     {
         // Pass the field to the constructor, so the origValues attr is set properly. 
         $column = new static($field);
-        $column->name = $inputs['name'];
         $column->action = $inputs['action'];
         $column->position = $inputs['position'];
         $column->setValues($inputs['field']);
@@ -317,7 +308,7 @@ class ColumnInputEntity
     }
 
     /**
-     * Check the action in the column input.
+     * Check the action in the user inputs.
      *
      * @param array $column
      *

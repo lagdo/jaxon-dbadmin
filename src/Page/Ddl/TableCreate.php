@@ -38,7 +38,7 @@ class TableCreate
         $this->getForeignKeys();
 
         // Auto increment
-        $aiCount = count(array_filter($columns, fn($column) => $column->field()->autoIncrement));
+        $aiCount = count(array_filter($columns, fn($column) => $column->field->autoIncrement));
         if ($aiCount > 1) {
             $table->error = $this->utils->trans->lang('Only one auto-increment field is allowed.');
             return $table;
