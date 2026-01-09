@@ -16,7 +16,7 @@
         "source": "https://github.com/lagdo/jaxon-dbadmin"
     },
     "require": {
-        "php": ">=8.0.0",
+        "php": ">=8.1.0",
         "ext-json": "*",
         "ext-iconv": "*",
         "jaxon-php/jaxon-core": "^5.3",

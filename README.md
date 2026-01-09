@@ -318,7 +318,7 @@ The callbacks can also save the file in different locations, depending for examp
 use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToReadFile;
 use League\Flysystem\UnableToWriteFile;
-use function Jaxon\Storage\storage;
+use function Jaxon\storage;
 
     'app' => [
         'storage' => [
