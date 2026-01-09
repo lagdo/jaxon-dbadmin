@@ -76,10 +76,15 @@ class ColumnInputEntity
         // Don't keep null in the comment value.
         $this->field->comment ??= '';
 
-        // Set the "DEFAULT" value for the "generated" field.
+        // Set the "DEFAULT" value for the "generated" attribute.
+        // Remove the null value from the "default" attribute.
         // From create.inc.php
-        if ($this->field->generated === '' && $this->field->default !== null) {
-            $this->field->generated = 'DEFAULT';
+        if ($this->field->generated === '') {
+            if ($this->field->default === null) {
+                $this->field->default = '';
+            } else {
+                $this->field->generated = 'DEFAULT';
+            }
         }
     }
 
