@@ -1,11 +1,11 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Dml;
+namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
-use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
-use Lagdo\DbAdmin\Driver\Entity\UserTypeEntity;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Dto\UserTypeDto;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 use function count;
@@ -22,7 +22,7 @@ use function substr;
 class DataRowReader
 {
     /**
-     * @var array<UserTypeEntity>
+     * @var array<UserTypeDto>
      */
     private array $userTypes;
 
@@ -43,12 +43,12 @@ class DataRowReader
      * Get the user input values for data save on insert and update
      * Function process_input() in html.inc.php.
      *
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      * @param array $values
      *
      * @return mixed
      */
-    private function getInputValue(TableFieldEntity $field, array $values): mixed
+    private function getInputValue(TableFieldDto $field, array $values): mixed
     {
         if ($field->isDisabled()) {
             return false;
@@ -110,7 +110,7 @@ class DataRowReader
     }
 
     /**
-     * @param array<TableFieldEntity> $fields The table fields
+     * @param array<TableFieldDto> $fields The table fields
      * @param array $inputs The user form inputs
      *
      * @return array

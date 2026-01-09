@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Table;
 
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
+use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -18,11 +18,11 @@ class ColumnUiBuilder
     {}
 
     /**
-     * @param ColumnInputEntity $field
+     * @param ColumnInputDto $field
      *
      * @return string
      */
-    public function column(ColumnInputEntity $column): string
+    public function column(ColumnInputDto $column): string
     {
         $this->listMode = false;
 
@@ -118,14 +118,14 @@ class ColumnUiBuilder
     }
 
     /**
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      *
      * @return string
      */
     public function changes(array $columns): string
     {
         return $this->ui->build(
-            $this->ui->each($columns, fn(ColumnInputEntity $column) =>
+            $this->ui->each($columns, fn(ColumnInputDto $column) =>
                 $this->ui->pick([
                     $column->dropped(), fn() => $this->ui->row(
                         $this->ui->col($this->ui->text($column->name))

@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Ddl;
+namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 
 use function str_replace;
 
@@ -21,7 +21,7 @@ trait ForeignKeyTrait
     /**
      * @param string $table
      *
-     * @return array<TableFieldEntity>
+     * @return array<TableFieldDto>
      */
     private function getReferencableFields(string $table): array
     {
@@ -47,7 +47,7 @@ trait ForeignKeyTrait
     /**
      * @param string $table
      *
-     * @return array<TableFieldEntity>
+     * @return array<TableFieldDto>
      */
     private function referencableFields(string $table = ''): array
     {

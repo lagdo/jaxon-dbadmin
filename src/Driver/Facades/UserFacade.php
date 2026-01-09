@@ -32,11 +32,11 @@ class UserFacade extends AbstractFacade
         $details = [];
         foreach ($this->driver->getUsers($database) as $user) {
             // Fetch user grants
-            $userEntity = $this->driver->getUserGrants($user["User"], $user["Host"]);
+            $userDto = $this->driver->getUserGrants($user["User"], $user["Host"]);
             $details[] = [
-                'user' => $this->utils->str->html($userEntity->name),
-                'host' => $this->utils->str->html($userEntity->host),
-                'grants' => \array_keys($userEntity->grants),
+                'user' => $this->utils->str->html($userDto->name),
+                'host' => $this->utils->str->html($userDto->host),
+                'grants' => \array_keys($userDto->grants),
             ];
         }
 
@@ -216,10 +216,10 @@ class UserFacade extends AbstractFacade
      */
     public function getUserPrivileges(string $user, string $host, string $database): array
     {
-        $userEntity = $this->driver->getUserGrants($user, $host);
+        $userDto = $this->driver->getUserGrants($user, $host);
         if ($database !== '') {
-            $userEntity->grants = isset($userEntity->grants[$database]) ?
-                [$database => $userEntity->grants[$database]] : [];
+            $userDto->grants = isset($userDto->grants[$database]) ?
+                [$database => $userDto->grants[$database]] : [];
         }
 
         $headers = [
@@ -227,7 +227,7 @@ class UserFacade extends AbstractFacade
             $this->utils->trans->lang('Privileges'),
         ];
         $i = 0;
-        foreach ($userEntity->grants as $object => $grant) {
+        foreach ($userDto->grants as $object => $grant) {
             //! separate db, table, columns, PROCEDURE|FUNCTION, routine
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
@@ -247,15 +247,15 @@ class UserFacade extends AbstractFacade
             ],
             'pass' => [
                 'label' => $this->utils->trans->lang('Password'),
-                'value' => $userEntity->password ,
+                'value' => $userDto->password ,
             ],
             'hashed' => [
                 'label' => $this->utils->trans->lang('Hashed'),
-                'value' => ($userEntity->password  !== ''),
+                'value' => ($userDto->password  !== ''),
             ],
         ];
 
-        $details = $this->_getUserPrivileges($userEntity->grants);
+        $details = $this->_getUserPrivileges($userDto->grants);
 
         return \compact('user', 'headers', 'details');
     }

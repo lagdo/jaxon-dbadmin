@@ -2,13 +2,13 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
+use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
 
 class DeleteFunc extends FuncComponent
 {
     /**
      * @param string $columnId
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      *
      * @return array
      */
@@ -48,7 +48,7 @@ class DeleteFunc extends FuncComponent
 
     /**
      * @param string $columnId
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      *
      * @return array
      */

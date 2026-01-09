@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Dml;
+namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
-use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
@@ -37,13 +37,13 @@ class DataFieldInput
     {}
 
     /**
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      * @param string $fieldValue
      * @param string|null $enumValue
      *
      * @return bool
      */
-    private function isChecked(FieldEditEntity $editField, string $fieldValue, string|null $enumValue): bool
+    private function isChecked(FieldEditDto $editField, string $fieldValue, string|null $enumValue): bool
     {
         return !is_array($editField->value) ? $editField->value === $enumValue :
             in_array($fieldValue, $editField->value);
@@ -52,9 +52,9 @@ class DataFieldInput
     /**
      * Get data for enum or set input field
      * 
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      */
-    private function getItemList(FieldEditEntity $editField, array $attrs, string $default = ""): array|null
+    private function getItemList(FieldEditDto $editField, array $attrs, string $default = ""): array|null
     {
         if ($editField->type !== 'enum' && $editField->type !== 'set' ) {
             // Only for enums and sets
@@ -95,12 +95,12 @@ class DataFieldInput
     }
 
     /**
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      * @param array $attrs
      *
      * @return array
      */
-    private function getEnumFieldInput(FieldEditEntity $editField, array $attrs): array
+    private function getEnumFieldInput(FieldEditDto $editField, array $attrs): array
     {
         // From adminer.inc.php: function editInput(?string $table, array $field, string $attrs, $value): string
         $items = $this->getItemList($editField, $attrs, 'NULL');
@@ -121,12 +121,12 @@ class DataFieldInput
     }
 
     /**
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      * @param array $attrs
      *
      * @return array
      */
-    private function getSetFieldInput(FieldEditEntity $editField, array $attrs): array
+    private function getSetFieldInput(FieldEditDto $editField, array $attrs): array
     {
         if (is_string($editField->value)) {
             $editField->value = explode(",", $editField->value);
@@ -139,12 +139,12 @@ class DataFieldInput
     }
 
     /**
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      * @param array $attrs
      *
      * @return array
      */
-    private function getBoolFieldInput(FieldEditEntity $editField, array $attrs): array
+    private function getBoolFieldInput(FieldEditDto $editField, array $attrs): array
     {
         return [
             'field' => 'bool',
@@ -164,22 +164,22 @@ class DataFieldInput
     }
 
     /**
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      *
      * @return bool
      */
-    private function isBlob(FieldEditEntity $editField): bool
+    private function isBlob(FieldEditDto $editField): bool
     {
         return $this->utils->isBlob($editField->field) && $this->utils->iniBool("file_uploads");
     }
 
     /**
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      * @param array $attrs
      *
      * @return array
      */
-    private function getFileFieldInput(FieldEditEntity $editField, array $attrs): array
+    private function getFileFieldInput(FieldEditDto $editField, array $attrs): array
     {
         return [
             'field' => 'file',
@@ -191,12 +191,12 @@ class DataFieldInput
     }
 
     /**
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      * @param array $attrs
      *
      * @return array
      */
-    private function getJsonFieldInput(FieldEditEntity $editField, array $attrs): array
+    private function getJsonFieldInput(FieldEditDto $editField, array $attrs): array
     {
         return [
             'field' => 'json',
@@ -211,22 +211,22 @@ class DataFieldInput
     }
 
     /**
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      *
      * @return bool
      */
-    private function textSizeIsFixed(FieldEditEntity $editField): bool
+    private function textSizeIsFixed(FieldEditDto $editField): bool
     {
         return ($editField->isText() && $this->driver->jush() !== 'sqlite') || $editField->isSearch();
     }
 
     /**
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      * @param array $attrs
      *
      * @return array
      */
-    private function getTextFieldInput(FieldEditEntity $editField, array $attrs): array
+    private function getTextFieldInput(FieldEditDto $editField, array $attrs): array
     {
         $fieldAttrs = $this->textSizeIsFixed($editField) ? [
             'cols' => '50',
@@ -246,11 +246,11 @@ class DataFieldInput
     }
 
     /**
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      *
      * @return int
      */
-    private function getInputFieldMaxLength(FieldEditEntity $editField): int
+    private function getInputFieldMaxLength(FieldEditDto $editField): int
     {
         $unsigned = $editField->field->unsigned;
         $length = $editField->field->length;
@@ -273,12 +273,12 @@ class DataFieldInput
     }
 
     /**
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      * @param array $attrs
      *
      * @return array
      */
-    private function getDefaultFieldInput(FieldEditEntity $editField, array $attrs): array
+    private function getDefaultFieldInput(FieldEditDto $editField, array $attrs): array
     {
         $maxlength = $this->getInputFieldMaxLength($editField);
         // type='date' and type='time' display localized value which may be confusing,
@@ -304,12 +304,12 @@ class DataFieldInput
     /**
      * Get the input field for value
      *
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      * @param bool|null $autofocus
      *
      * @return array
      */
-    private function getFieldValueInput(FieldEditEntity $editField, bool|null $autofocus): array
+    private function getFieldValueInput(FieldEditDto $editField, bool|null $autofocus): array
     {
         // From input(array $field, $value, ?string $function, ?bool $autofocus = false) in html.inc.php
         $attrs = [
@@ -342,11 +342,11 @@ class DataFieldInput
     /**
      * Get the input field for function
      *
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      *
      * @return array|null
      */
-    private function getFieldFunctionInput(FieldEditEntity $editField): array|null
+    private function getFieldFunctionInput(FieldEditDto $editField): array|null
     {
         // From html.inc.php: function input(array $field, $value, ?string $function, ?bool $autofocus = false)
         if ($editField->type === 'enum' || $editField->function === null) {
@@ -373,12 +373,12 @@ class DataFieldInput
     }
 
     /**
-     * @param FieldEditEntity $editField
+     * @param FieldEditDto $editField
      * @param bool|null $autofocus
      *
      * @return void
      */
-    public function setFieldInputValues(FieldEditEntity $editField, bool|null $autofocus): void
+    public function setFieldInputValues(FieldEditDto $editField, bool|null $autofocus): void
     {
         $editField->functionInput = $this->getFieldFunctionInput($editField);
         $editField->valueInput = $this->getFieldValueInput($editField, $autofocus);

@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Data;
 
-use Lagdo\DbAdmin\Db\Page\Dml\FieldEditEntity;
+use Lagdo\DbAdmin\Db\UiData\Dml\FieldEditDto;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -116,11 +116,11 @@ class EditUiBuilder
     }
 
     /**
-     * @param FieldEditEntity $field
+     * @param FieldEditDto $field
      *
      * @return mixed
      */
-    protected function getFieldValue(FieldEditEntity $field): mixed
+    protected function getFieldValue(FieldEditDto $field): mixed
     {
         $input = $field->valueInput;
         return match($input['field']) {
@@ -135,11 +135,11 @@ class EditUiBuilder
     }
 
     /**
-     * @param FieldEditEntity $field
+     * @param FieldEditDto $field
      *
      * @return mixed
      */
-    private function getFieldFunction(FieldEditEntity $field): mixed
+    private function getFieldFunction(FieldEditDto $field): mixed
     {
         $input = $field->functionInput;
         return $this->ui->pick(
@@ -167,11 +167,11 @@ class EditUiBuilder
     }
 
     /**
-     * @param FieldEditEntity $field
+     * @param FieldEditDto $field
      *
      * @return mixed
      */
-    public function getFieldTitle(FieldEditEntity $field): mixed
+    public function getFieldTitle(FieldEditDto $field): mixed
     {
         return isset($field->valueInput['attrs']['id']) ?
             $this->ui->label($field->name)
@@ -183,7 +183,7 @@ class EditUiBuilder
 
     /**
      * @param string $formId
-     * @param array<FieldEditEntity> $fields
+     * @param array<FieldEditDto> $fields
      * @param string $maxHeight
      *
      * @return string
@@ -191,7 +191,7 @@ class EditUiBuilder
     public function rowDataForm(string $formId, array $fields, string $maxHeight = ''): string
     {
         $form = $this->ui->form(
-            $this->ui->each($fields, fn(FieldEditEntity $field) =>
+            $this->ui->each($fields, fn(FieldEditDto $field) =>
                 $this->ui->row(
                     $this->ui->col(
                         $this->getFieldTitle($field)

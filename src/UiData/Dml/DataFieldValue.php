@@ -1,12 +1,12 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Dml;
+namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
-use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
-use Lagdo\DbAdmin\Driver\Entity\UserTypeEntity;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Dto\UserTypeDto;
 
 use function bin2hex;
 use function implode;
@@ -26,7 +26,7 @@ class DataFieldValue
     private bool $isUpdate = false;
 
     /**
-     * @var array<UserTypeEntity>
+     * @var array<UserTypeDto>
      */
     private array $userTypes;
 
@@ -50,11 +50,11 @@ class DataFieldValue
      * @param array $names
      * @param array $functions
      * @param bool $addSql
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      *
      * @return array
      */
-    private function addEditFunctions(array $names, array $functions, TableFieldEntity $field): array
+    private function addEditFunctions(array $names, array $functions, TableFieldDto $field): array
     {
         foreach ($functions as $pattern => $_functions) {
             if (!$pattern || preg_match("~$pattern~", $field->type)) {
@@ -68,11 +68,11 @@ class DataFieldValue
      * Functions displayed in edit form
      * function editFunctions() in adminer.inc.php
      *
-     * @param TableFieldEntity $field Single field from fields()
+     * @param TableFieldDto $field Single field from fields()
      *
      * @return array
      */
-    private function editFunctions(TableFieldEntity $field): array
+    private function editFunctions(TableFieldDto $field): array
     {
         if ($field->autoIncrement && !$this->isUpdate) {
             return [$this->utils->trans->lang('Auto Increment')];
@@ -115,12 +115,12 @@ class DataFieldValue
     }
 
     /**
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      * @param array|null $rowData
      *
      * @return mixed
      */
-    private function getInputValue(TableFieldEntity $field, array|null $rowData): mixed
+    private function getInputValue(TableFieldDto $field, array|null $rowData): mixed
     {
         $update = $this->operation === 'update';
         // $default = $options["set"][$this->driver->bracketEscape($name)] ?? null;
@@ -153,12 +153,12 @@ class DataFieldValue
     }
 
     /**
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      * @param mixed $value
      *
      * @return array
      */
-    private function getInputFunction(TableFieldEntity $field, mixed $value): array
+    private function getInputFunction(TableFieldDto $field, mixed $value): array
     {
         $formInput = []; // No user input available here.
         $update = $this->operation === 'update';
@@ -189,14 +189,14 @@ class DataFieldValue
     /**
      * Get data for an input field
      *
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      * @param array|null $rowData
      *
-     * @return FieldEditEntity
+     * @return FieldEditDto
      */
-    public function getFieldInputValues(TableFieldEntity $field, array|null $rowData): FieldEditEntity
+    public function getFieldInputValues(TableFieldDto $field, array|null $rowData): FieldEditDto
     {
-        $editField = new FieldEditEntity($field);
+        $editField = new FieldEditDto($field);
 
         // From html.inc.php: function edit_form(string $table, array $fields, $row, ?bool $update, string $error = '')
         $value = $this->getInputValue($field, $rowData);

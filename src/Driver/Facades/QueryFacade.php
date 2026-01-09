@@ -2,11 +2,11 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
-use Lagdo\DbAdmin\Db\Page\Dml\DataFieldInput;
-use Lagdo\DbAdmin\Db\Page\Dml\DataFieldValue;
-use Lagdo\DbAdmin\Db\Page\Dml\DataRowReader;
-use Lagdo\DbAdmin\Db\Page\Dml\DataRowWriter;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Db\UiData\Dml\DataFieldInput;
+use Lagdo\DbAdmin\Db\UiData\Dml\DataFieldValue;
+use Lagdo\DbAdmin\Db\UiData\Dml\DataRowReader;
+use Lagdo\DbAdmin\Db\UiData\Dml\DataRowWriter;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 
 use function count;
 
@@ -66,7 +66,7 @@ class QueryFacade extends AbstractFacade
         $where = $this->operation === 'insert' ? [] :
             $this->driver->where($options, $fields);
         // Remove fields without the required privilege, or that cannot be edited.
-        $fields = array_filter($fields, fn(TableFieldEntity $field) =>
+        $fields = array_filter($fields, fn(TableFieldDto $field) =>
             isset($field->privileges[$this->operation]) &&
             $this->page->fieldName($field) !== '' && !$field->generated);
 
@@ -100,7 +100,7 @@ class QueryFacade extends AbstractFacade
     }
 
     /**
-     * @param array<TableFieldEntity> $fields
+     * @param array<TableFieldDto> $fields
      *
      * @return array
      */

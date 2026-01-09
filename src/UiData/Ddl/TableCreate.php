@@ -1,11 +1,11 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Ddl;
+namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Entity\ForeignKeyEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableCreateEntity;
+use Lagdo\DbAdmin\Driver\Dto\ForeignKeyDto;
+use Lagdo\DbAdmin\Driver\Dto\TableCreateDto;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 use function array_filter;
@@ -27,12 +27,12 @@ class TableCreate
     {}
 
     /**
-     * @param TableCreateEntity $table
-     * @param array<ColumnInputEntity> $columns
+     * @param TableCreateDto $table
+     * @param array<ColumnInputDto> $columns
      * 
-     * @return TableCreateEntity
+     * @return TableCreateDto
      */
-    public function makeEntity(TableCreateEntity $table, array $columns): TableCreateEntity
+    public function makeDto(TableCreateDto $table, array $columns): TableCreateDto
     {
         // From create.inc.php
         $this->getForeignKeys();
@@ -58,7 +58,7 @@ class TableCreate
             // $input->after = $after;
 
             if ($foreignKey !== null) {
-                $fkField = new ForeignKeyEntity();
+                $fkField = new ForeignKeyDto();
                 $fkField->table = $foreignKey;
                 $fkField->source = [$inputField->name];
                 $fkField->target = [$typeField->name];

@@ -1,10 +1,10 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Ddl;
+namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Entity\TableEntity;
+use Lagdo\DbAdmin\Driver\Dto\TableDto;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 class TableHeader
@@ -21,11 +21,11 @@ class TableHeader
     {}
 
     /**
-     * @param TableEntity $status
+     * @param TableDto $status
      *
      * @return array<string, string>
      */
-    private function getTabs(TableEntity $status): array
+    private function getTabs(TableDto $status): array
     {
         $tabs = [
             'fields' => $this->utils->trans->lang('Columns'),
@@ -54,11 +54,11 @@ class TableHeader
 
     /**
      * @param string $table
-     * @param TableEntity $status
+     * @param TableDto $status
      *
      * @return array
      */
-    public function infos(string $table, TableEntity $status): array
+    public function infos(string $table, TableDto $status): array
     {
         $name = $this->page->tableName($status);
 

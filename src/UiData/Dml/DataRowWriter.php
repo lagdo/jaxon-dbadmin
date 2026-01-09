@@ -1,10 +1,10 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Dml;
+namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
-use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 /**
@@ -33,7 +33,7 @@ class DataRowWriter
 
     /**
      * @param array $result
-     * @param array<string, TableFieldEntity> $fields
+     * @param array<string, TableFieldDto> $fields
      * @param array $options
      *
      * @return array
@@ -51,10 +51,10 @@ class DataRowWriter
     }
 
     /**
-     * @param array<TableFieldEntity> $fields
+     * @param array<TableFieldDto> $fields
      * @param array|null $rowData
      *
-     * @return array<FieldEditEntity>
+     * @return array<FieldEditDto>
      */
     public function getInputValues(array $fields, array|null $rowData = null): array
     {

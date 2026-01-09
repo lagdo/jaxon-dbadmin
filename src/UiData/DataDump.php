@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page;
+namespace Lagdo\DbAdmin\Db\UiData;
 
 use function implode;
 use function strlen;

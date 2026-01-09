@@ -1,14 +1,14 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Ddl;
+namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Entity\ForeignKeyEntity;
-use Lagdo\DbAdmin\Driver\Entity\IndexEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
-use Lagdo\DbAdmin\Driver\Entity\TriggerEntity;
+use Lagdo\DbAdmin\Driver\Dto\ForeignKeyDto;
+use Lagdo\DbAdmin\Driver\Dto\IndexDto;
+use Lagdo\DbAdmin\Driver\Dto\TableDto;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Dto\TriggerDto;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 use function array_key_exists;
@@ -32,7 +32,7 @@ class TableContent
     {}
 
     /**
-     * @param array<TableFieldEntity> $fields
+     * @param array<TableFieldDto> $fields
      * @param string $tableCollation
      *
      * @return array
@@ -66,7 +66,7 @@ class TableContent
     }
 
     /**
-     * @param array<IndexEntity> $indexes
+     * @param array<IndexDto> $indexes
      *
      * @return array
      */
@@ -98,7 +98,7 @@ class TableContent
     }
 
     /**
-     * @param array<ForeignKeyEntity> $foreignKeys
+     * @param array<ForeignKeyDto> $foreignKeys
      *
      * @return array
      */
@@ -132,7 +132,7 @@ class TableContent
     }
 
     /**
-     * @param array<TriggerEntity> $triggers
+     * @param array<TriggerDto> $triggers
      *
      * @return array
      */
@@ -152,13 +152,13 @@ class TableContent
     }
 
     /**
-     * @param TableEntity|null $status
-     * @param array<TableFieldEntity> $fields
+     * @param TableDto|null $status
+     * @param array<TableFieldDto> $fields
      * @param array<string,string> $foreignKeys
      * 
      * @return array
      */
-    public function metadata(TableEntity|null $status, array $fields, array $foreignKeys): array
+    public function metadata(TableDto|null $status, array $fields, array $foreignKeys): array
     {
         $hasAutoIncrement = false;
         $fields = array_map(function($field) use(&$hasAutoIncrement) {

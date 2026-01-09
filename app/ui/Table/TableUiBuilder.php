@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Table;
 
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
+use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\PageTrait;
 use Lagdo\UiBuilder\BuilderInterface;
@@ -227,12 +227,12 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnInputEntity $column
+     * @param ColumnInputDto $column
      * @param string $columnId
      *
      * @return mixed
      */
-    protected function getColumnActionMenu(ColumnInputEntity $column, string $columnId): mixed
+    protected function getColumnActionMenu(ColumnInputDto $column, string $columnId): mixed
     {
         $support = $this->support();
         $movableUp = $support['move_col'] && $column->position > 0;
@@ -281,11 +281,11 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnInputEntity $column
+     * @param ColumnInputDto $column
      *
      * @return mixed
      */
-    private function getColumnBgColor(ColumnInputEntity $column): string
+    private function getColumnBgColor(ColumnInputDto $column): string
     {
         return match(true) {
             $column->added() => "background-color: #e6ffe6;",
@@ -308,12 +308,12 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnInputEntity $column
+     * @param ColumnInputDto $column
      * @param string $columnId
      *
      * @return mixed
      */
-    protected function columnElement(ColumnInputEntity $column, string $columnId): mixed
+    protected function columnElement(ColumnInputDto $column, string $columnId): mixed
     {
         $editPrefix = sprintf("fields[%d]", $column->position);
         $support = $this->support();

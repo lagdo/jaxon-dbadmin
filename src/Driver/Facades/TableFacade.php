@@ -2,16 +2,16 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
-use Lagdo\DbAdmin\Db\Page\Ddl\ForeignKeyTrait;
-use Lagdo\DbAdmin\Db\Page\Ddl\TableAlter;
-use Lagdo\DbAdmin\Db\Page\Ddl\TableContent;
-use Lagdo\DbAdmin\Db\Page\Ddl\TableCreate;
-use Lagdo\DbAdmin\Db\Page\Ddl\TableHeader;
-use Lagdo\DbAdmin\Driver\Entity\TableAlterEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableCreateEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
+use Lagdo\DbAdmin\Db\UiData\Ddl\ForeignKeyTrait;
+use Lagdo\DbAdmin\Db\UiData\Ddl\TableAlter;
+use Lagdo\DbAdmin\Db\UiData\Ddl\TableContent;
+use Lagdo\DbAdmin\Db\UiData\Ddl\TableCreate;
+use Lagdo\DbAdmin\Db\UiData\Ddl\TableHeader;
+use Lagdo\DbAdmin\Driver\Dto\TableAlterDto;
+use Lagdo\DbAdmin\Driver\Dto\TableCreateDto;
+use Lagdo\DbAdmin\Driver\Dto\TableDto;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 use Exception;
 
 use function array_map;
@@ -34,7 +34,7 @@ class TableFacade extends AbstractFacade
     protected $tableStatus = null;
 
     /**
-     * @var TableEntity
+     * @var TableDto
      */
     private $attrs;
 
@@ -267,12 +267,12 @@ class TableFacade extends AbstractFacade
     /**
      * Get fields for a new column
      *
-     * @return TableFieldEntity
+     * @return TableFieldDto
      */
-    public function getTableField(): TableFieldEntity
+    public function getTableField(): TableFieldDto
     {
         $this->getForeignKeys();
-        $field = new TableFieldEntity();
+        $field = new TableFieldDto();
         $field->types = $this->getFieldTypes();
         return $field;
     }
@@ -281,14 +281,14 @@ class TableFacade extends AbstractFacade
      * Get SQL command to create a table
      *
      * @param array $options     The table options
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      *
      * @return array
      */
     public function getCreateTableQueries(array $options, array $columns): array
     {
-        $table = new TableCreateEntity($options);
-        $table = $this->create()->makeEntity($table, $columns);
+        $table = new TableCreateDto($options);
+        $table = $this->create()->makeDto($table, $columns);
         if ($table->error !== null) {
             return[
                 'error' => $table->error,
@@ -304,7 +304,7 @@ class TableFacade extends AbstractFacade
      * Create a table
      *
      * @param array $options     The table options
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      *
      * @return array
      */
@@ -320,20 +320,20 @@ class TableFacade extends AbstractFacade
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      *
      * @return array
      */
     public function getAlterTableQueries(string $name, array $options, array $columns): array
     {
-        $table = new TableAlterEntity($options);
+        $table = new TableAlterDto($options);
         if (($table->current = $this->driver->tableStatus($name, true)) === null) {
             return[
                 'error' => $this->utils->trans->lang('Unable to find the table.'),
             ];
         }
 
-        $table = $this->alter()->makeEntity($table, $columns);
+        $table = $this->alter()->makeDto($table, $columns);
         if ($table->error !== null) {
             return[
                 'error' => $table->error,
@@ -350,7 +350,7 @@ class TableFacade extends AbstractFacade
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      *
      * @return array
      * @throws Exception

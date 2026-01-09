@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page;
+namespace Lagdo\DbAdmin\Db\UiData;
 
-use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Driver\DriverInterface;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 

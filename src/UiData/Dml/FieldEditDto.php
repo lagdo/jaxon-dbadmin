@@ -1,14 +1,14 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Dml;
+namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 
 use function implode;
 use function in_array;
 use function preg_match;
 
-class FieldEditEntity
+class FieldEditDto
 {
     /**
      * @var mixed
@@ -66,9 +66,9 @@ class FieldEditEntity
     public $isText = null;
 
     /**
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      */
-    public function __construct(public TableFieldEntity $field)
+    public function __construct(public TableFieldDto $field)
     {
         $this->type = $field->type;
         $this->comment = $field->comment;

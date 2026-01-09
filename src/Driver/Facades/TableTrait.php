@@ -2,10 +2,10 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableAlterEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableCreateEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
+use Lagdo\DbAdmin\Driver\Dto\TableAlterDto;
+use Lagdo\DbAdmin\Driver\Dto\TableCreateDto;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 use Exception;
 
 /**
@@ -124,9 +124,9 @@ trait TableTrait
     /**
      * Get fields for a new column
      *
-     * @return TableFieldEntity
+     * @return TableFieldDto
      */
-    public function getTableField(): TableFieldEntity
+    public function getTableField(): TableFieldDto
     {
         $this->connectToSchema();
         return $this->tableFacade()->getTableField();
@@ -150,7 +150,7 @@ trait TableTrait
      * Get SQL commands to create a table
      *
      * @param array $options     The table options
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      *
      * @return array
      */
@@ -164,7 +164,7 @@ trait TableTrait
      * Create a table
      *
      * @param array $options     The table options
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      *
      * @return array|null
      */
@@ -179,7 +179,7 @@ trait TableTrait
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      *
      * @return array
      */
@@ -194,7 +194,7 @@ trait TableTrait
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      *
      * @return array|null
      * @throws Exception

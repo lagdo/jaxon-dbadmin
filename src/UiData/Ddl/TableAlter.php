@@ -1,11 +1,11 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Ddl;
+namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Entity\ForeignKeyEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableAlterEntity;
+use Lagdo\DbAdmin\Driver\Dto\ForeignKeyDto;
+use Lagdo\DbAdmin\Driver\Dto\TableAlterDto;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 use function array_filter;
@@ -27,18 +27,18 @@ class TableAlter
     {}
 
     /**
-     * @param TableAlterEntity $table
-     * @param array<ColumnInputEntity> $columns
+     * @param TableAlterDto $table
+     * @param array<ColumnInputDto> $columns
      * 
-     * @return TableAlterEntity
+     * @return TableAlterDto
      */
-    public function makeEntity(TableAlterEntity $table, array $columns): TableAlterEntity
+    public function makeDto(TableAlterDto $table, array $columns): TableAlterDto
     {
         // From create.inc.php
         $this->getForeignKeys($table->name);
 
         // Auto increment
-        $aiCount = count(array_filter($columns, fn(ColumnInputEntity $column) =>
+        $aiCount = count(array_filter($columns, fn(ColumnInputDto $column) =>
             $column->field->autoIncrement));
         if ($aiCount > 1) {
             $table->error = $this->utils->trans->lang('Only one auto-increment field is allowed.');
@@ -69,7 +69,7 @@ class TableAlter
             // $input->after = $after;
 
             if ($foreignKey !== null) {
-                $fkField = new ForeignKeyEntity();
+                $fkField = new ForeignKeyDto();
                 $fkField->table = $foreignKey;
                 $fkField->source = [$inputField->name];
                 $fkField->target = [$typeField->name];

@@ -1,11 +1,11 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page;
+namespace Lagdo\DbAdmin\Db\UiData;
 
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Entity\TableEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Driver\Dto\TableDto;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 
 use function file_get_contents;
 use function function_exists;
@@ -61,11 +61,11 @@ class AppPage
     /**
      * Table caption used in navigation and headings
      *
-     * @param TableEntity $table
+     * @param TableDto $table
      *
      * @return string
      */
-    public function tableName(TableEntity $table): string
+    public function tableName(TableDto $table): string
     {
         return $this->utils->html($table->name);
     }
@@ -73,12 +73,12 @@ class AppPage
     /**
      * Field caption used in select and edit
      *
-     * @param TableFieldEntity $field Single field returned from fields()
+     * @param TableFieldDto $field Single field returned from fields()
      * @param int $order Order of column in select
      *
      * @return string
      */
-    public function fieldName(TableFieldEntity $field, /** @scrutinizer ignore-unused */ int $order = 0): string
+    public function fieldName(TableFieldDto $field, /** @scrutinizer ignore-unused */ int $order = 0): string
     {
         return '<span title="' . $this->utils->html($field->fullType) . '">' .
             $this->utils->html($field->name) . '</span>';
@@ -87,11 +87,11 @@ class AppPage
     /**
      * Check if field should be shortened
      *
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      *
      * @return bool
      */
-    public function isShortable(TableFieldEntity $field): bool
+    public function isShortable(TableFieldDto $field): bool
     {
         $pattern = '~char|text|json|lob|geometry|point|linestring|polygon|string|bytea~';
         return preg_match($pattern, $field->type) > 0;
@@ -150,13 +150,13 @@ class AppPage
     /**
      * Format value to use in select
      *
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      * @param int|string|null $textLength
      * @param mixed $value
      *
      * @return string
      */
-    public function selectValue(TableFieldEntity $field, $textLength, $value): string
+    public function selectValue(TableFieldDto $field, $textLength, $value): string
     {
         // if (\is_array($value)) {
         //     $expression = '';
@@ -186,13 +186,13 @@ class AppPage
     }
 
     /**
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      * @param int $textLength
      * @param mixed $value
      *
      * @return array
      */
-    public function getFieldValue(TableFieldEntity $field, int $textLength, mixed $value): array
+    public function getFieldValue(TableFieldDto $field, int $textLength, mixed $value): array
     {
         /*if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
             //! filled e-mails can be contained on other pages
@@ -207,12 +207,12 @@ class AppPage
     }
 
     /**
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      * @param string $tableCollation
      *
      * @return string
      */
-    public function getTableFieldType(TableFieldEntity $field, string $tableCollation = ''): string
+    public function getTableFieldType(TableFieldDto $field, string $tableCollation = ''): string
     {
         $type = $this->utils->str->html($field->fullType);
         $collation = $this->utils->str->html($field->collation);
@@ -233,13 +233,13 @@ class AppPage
         return implode(' ', $types);
     }
     /**
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      * @param string $value
      * @param string $function
      *
      * @return string
      */
-    private function getInputFieldExpression(TableFieldEntity $field,
+    private function getInputFieldExpression(TableFieldDto $field,
         string $value, string $function): string
     {
         $fieldName = $this->driver->escapeId($field->name);
@@ -269,13 +269,13 @@ class AppPage
     }
 
     /**
-     * @param TableFieldEntity $field Single field from fields()
+     * @param TableFieldDto $field Single field from fields()
      * @param string $value
      * @param string $function
      *
      * @return string
      */
-    public function getUnconvertedFieldValue(TableFieldEntity $field,
+    public function getUnconvertedFieldValue(TableFieldDto $field,
         string $value, string $function = ''): string
     {
         if ($function === 'SQL') {

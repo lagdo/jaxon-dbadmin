@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
 use Lagdo\DbAdmin\Driver\Db\AbstractConnection;
-use Lagdo\DbAdmin\Driver\Entity\QueryEntity;
+use Lagdo\DbAdmin\Driver\Dto\QueryDto;
 use Lagdo\DbAdmin\Db\Service\Admin\QueryLogger;
 use Lagdo\DbAdmin\Db\Service\TimerService;
 
@@ -171,11 +171,11 @@ class CommandFacade extends AbstractFacade
     }
 
     /**
-     * @param QueryEntity $queryEntity
+     * @param QueryDto $queryDto
      *
      * @return bool
      */
-    private function executeCommand(QueryEntity $queryEntity): bool
+    private function executeCommand(QueryDto $queryDto): bool
     {
         if ($this->queryLogger !== null) {
             $this->queryLogger->setCategoryToHistory();
@@ -183,10 +183,10 @@ class CommandFacade extends AbstractFacade
         $this->timer->start();
         //! Don't allow changing of character_set_results, convert encoding of displayed query
         $space = $this->utils->str->spaceRegex();
-        $succeeded = $this->driver->multiQuery($queryEntity->query);
+        $succeeded = $this->driver->multiQuery($queryDto->query);
         if ($succeeded && $this->connection !== null &&
-            preg_match("~^$space*+USE\\b~i", $queryEntity->query)) {
-            $this->connection->query($queryEntity->query);
+            preg_match("~^$space*+USE\\b~i", $queryDto->query)) {
+            $this->connection->query($queryDto->query);
         }
         $this->duration += $this->timer->duration();
 
@@ -198,14 +198,14 @@ class CommandFacade extends AbstractFacade
 
             if (!$statement || $this->driver->hasError()) {
                 $errors[] = $this->driver->errorMessage();
-            } elseif (!$queryEntity->onlyErrors) {
-                [$select, $messages] = $this->select($statement, $queryEntity->limit);
+            } elseif (!$queryDto->onlyErrors) {
+                [$select, $messages] = $this->select($statement, $queryDto->limit);
             }
 
             $result = compact('errors', 'messages', 'select');
-            $result['query'] = $queryEntity->query;
+            $result['query'] = $queryDto->query;
             $this->results[] = $result;
-            if ($this->driver->hasError() && $queryEntity->errorStops) {
+            if ($this->driver->hasError() && $queryDto->errorStops) {
                 return false;
             }
         } while ($this->driver->nextResult());
@@ -243,10 +243,10 @@ class CommandFacade extends AbstractFacade
         $this->duration = 0;
         $commands = 0;
         $errors = 0;
-        $queryEntity = new QueryEntity($queries, $limit, $errorStops, $onlyErrors);
-        while ($this->driver->parseQueries($queryEntity)) {
+        $queryDto = new QueryDto($queries, $limit, $errorStops, $onlyErrors);
+        while ($this->driver->parseQueries($queryDto)) {
             $commands++;
-            if (!$this->executeCommand($queryEntity)) {
+            if (!$this->executeCommand($queryDto)) {
                 $errors++;
                 if ($errorStops) {
                     break;

@@ -2,14 +2,14 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
-use Lagdo\DbAdmin\Db\Page\DataDump;
-use Lagdo\DbAdmin\Db\Page\TableExport;
+use Lagdo\DbAdmin\Db\UiData\DataDump;
+use Lagdo\DbAdmin\Db\UiData\TableExport;
 use Lagdo\DbAdmin\Driver\Db\StatementInterface;
-use Lagdo\DbAdmin\Driver\Entity\FieldType;
-use Lagdo\DbAdmin\Driver\Entity\RoutineEntity;
-use Lagdo\DbAdmin\Driver\Entity\RoutineInfoEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Driver\Dto\FieldType;
+use Lagdo\DbAdmin\Driver\Dto\RoutineDto;
+use Lagdo\DbAdmin\Driver\Dto\RoutineInfoDto;
+use Lagdo\DbAdmin\Driver\Dto\TableDto;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 use Exception;
 
 use function array_filter;
@@ -92,11 +92,11 @@ class ExportFacade extends AbstractFacade
      * Convert a value to string
      *
      * @param mixed  $value
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      *
      * @return string
      */
-    private function convertToString($value, TableFieldEntity $field): string
+    private function convertToString($value, TableFieldDto $field): string
     {
         // From functions.inc.php
         if ($value === null) {
@@ -332,13 +332,13 @@ class ExportFacade extends AbstractFacade
     }
 
     /**
-     * @param TableEntity $tableStatus
+     * @param TableDto $tableStatus
      * @param bool $dumpTable
      * @param bool $dumpData
      *
      * @return void
      */
-    private function dumpTable(TableEntity $tableStatus, bool $dumpTable, bool $dumpData): void
+    private function dumpTable(TableDto $tableStatus, bool $dumpTable, bool $dumpData): void
     {
         $style = $dumpTable ? $this->options['table_style'] : '';
         $tableType = $this->driver->isView($tableStatus) ? 2 : 1;
@@ -352,7 +352,7 @@ class ExportFacade extends AbstractFacade
     }
 
     /**
-     * @param array<TableEntity> $tableStatuses
+     * @param array<TableDto> $tableStatuses
      * @param array $tableOptions
      *
      * @return void
@@ -457,12 +457,12 @@ class ExportFacade extends AbstractFacade
     /**
      * Generate SQL query for creating routine
      *
-     * @param RoutineEntity $routine
-     * @param RoutineInfoEntity $routineInfo
+     * @param RoutineDto $routine
+     * @param RoutineInfoDto $routineInfo
      *
      * @return string
      */
-    private function getRoutineQuery(RoutineEntity $routine, RoutineInfoEntity $routineInfo): string
+    private function getRoutineQuery(RoutineDto $routine, RoutineInfoDto $routineInfo): string
     {
         // From dump.inc.php create_routine()
         $routineName = $this->driver->escapeId(trim($routine->name));

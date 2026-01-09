@@ -1,10 +1,10 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Dql;
+namespace Lagdo\DbAdmin\Db\UiData\Dql;
 
-use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 use function array_map;
@@ -36,43 +36,43 @@ class SelectResult
     {}
 
     /**
-     * @param SelectEntity $selectEntity
+     * @param SelectDto $selectDto
      * @param string $column
      * @param int $position
      *
      * @return array
      */
-    private function getResultHeaderItem(SelectEntity $selectEntity, string $column, int $position): array
+    private function getResultHeaderItem(SelectDto $selectDto, string $column, int $position): array
     {
-        $valueKey = key($selectEntity->select);
-        $value = $selectEntity->queryOptions["columns"][$valueKey] ?? [];
+        $valueKey = key($selectDto->select);
+        $value = $selectDto->queryOptions["columns"][$valueKey] ?? [];
 
         $fun = $value["fun"] ?? '';
-        $fieldKey = !$selectEntity->select ? $column :
-            ($value["col"] ?? current($selectEntity->select));
-        $field = $selectEntity->fields[$fieldKey];
+        $fieldKey = !$selectDto->select ? $column :
+            ($value["col"] ?? current($selectDto->select));
+        $field = $selectDto->fields[$fieldKey];
         $name = !$field ? ($fun ? "*" : $column) : $this->page->fieldName($field, $position);
 
         return [$fun, $name, $field];
     }
 
     /**
-     * @param SelectEntity $selectEntity
+     * @param SelectDto $selectDto
      * @param string $column
      * @param int $position
      *
      * @return array
      */
-    private function getResultHeader(SelectEntity $selectEntity, string $column, int $position): array
+    private function getResultHeader(SelectDto $selectDto, string $column, int $position): array
     {
-        if (isset($selectEntity->unselected[$column])) {
+        if (isset($selectDto->unselected[$column])) {
             return [];
         }
 
-        [$fun, $name, $field] = $this->getResultHeaderItem($selectEntity, $column, $position);
+        [$fun, $name, $field] = $this->getResultHeaderItem($selectDto, $column, $position);
         $header = ['field' => $field, 'name' => $name];
         if ($name != "") {
-            $selectEntity->names[$column] = $name;
+            $selectDto->names[$column] = $name;
             // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($column);
             // $desc = "&desc%5B0%5D=1";
             $header['column'] = $this->driver->escapeId($column);
@@ -81,7 +81,7 @@ class SelectResult
             $header['title'] = $this->page->applySqlFunction($fun, $name);
         }
         // $functions[$column] = $fun;
-        next($selectEntity->select);
+        next($selectDto->select);
 
         return $header;
     }
@@ -89,26 +89,26 @@ class SelectResult
     /**
      * Get the result headers from the first result row
      *
-     * @param SelectEntity $selectEntity
+     * @param SelectDto $selectDto
      * @param array $queryFields
      *
      * @return void
      */
-    public function setResultHeaders(SelectEntity $selectEntity, array $queryFields): void
+    public function setResultHeaders(SelectDto $selectDto, array $queryFields): void
     {
         // Results headers
-        $selectEntity->headers = [];
-        $selectEntity->names = [];
-        // $selectEntity->functions = [];
-        reset($selectEntity->select);
+        $selectDto->headers = [];
+        $selectDto->names = [];
+        // $selectDto->functions = [];
+        reset($selectDto->select);
 
         $position = 1;
         foreach ($queryFields as $column) {
-            $header = $this->getResultHeader($selectEntity, $column, $position);
+            $header = $this->getResultHeader($selectDto, $column, $position);
             if ($header['name'] ?? '' !== '') {
                 $position++;
             }
-            $selectEntity->headers[] = $header;
+            $selectDto->headers[] = $header;
         }
     }
 
@@ -135,14 +135,14 @@ class SelectResult
     }*/
 
     /**
-     * @param SelectEntity $selectEntity
+     * @param SelectDto $selectDto
      * @param array $row
      *
      * @return array
      */
-    private function getUniqueIds(SelectEntity $selectEntity, array $row): array
+    private function getUniqueIds(SelectDto $selectDto, array $row): array
     {
-        $uniqueIds = $this->utils->uniqueIds($row, $selectEntity->indexes);
+        $uniqueIds = $this->utils->uniqueIds($row, $selectDto->indexes);
         if (empty($uniqueIds)) {
             $pattern = '~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)' .
                 '|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~';
@@ -183,19 +183,19 @@ class SelectResult
     }
 
     /**
-     * @param SelectEntity $selectEntity
+     * @param SelectDto $selectDto
      * @param string $column
      * @param mixed $value
      *
      * @return mixed
      */
-    private function getRowIdValue(SelectEntity $selectEntity, string $column, $value): mixed
+    private function getRowIdValue(SelectDto $selectDto, string $column, $value): mixed
     {
         $type = '';
         $collation = '';
-        if (isset($selectEntity->fields[$column])) {
-            $type = $selectEntity->fields[$column]->type;
-            $collation = $selectEntity->fields[$column]->collation;
+        if (isset($selectDto->fields[$column])) {
+            $type = $selectDto->fields[$column]->type;
+            $collation = $selectDto->fields[$column]->collation;
         }
         if ($this->shouldEncodeRowId($type, $value)) {
             if (!strpos($column, '(')) {
@@ -213,20 +213,20 @@ class SelectResult
     }
 
     /**
-     * @param SelectEntity $selectEntity
+     * @param SelectDto $selectDto
      * @param array $row
      *
      * @return array
      */
-    public function getRowIds(SelectEntity $selectEntity, array $row): array
+    public function getRowIds(SelectDto $selectDto, array $row): array
     {
-        $uniqueIds = $this->getUniqueIds($selectEntity, $row);
+        $uniqueIds = $this->getUniqueIds($selectDto, $row);
         // Unique identifier to edit returned data.
         // $unique_idf = "";
         $rowIds = ['where' => [], 'null' => []];
         foreach ($uniqueIds as $column => $value) {
             $column = trim($column);
-            $value = $this->getRowIdValue($selectEntity, $column, $value);
+            $value = $this->getRowIdValue($selectDto, $column, $value);
             $column = $this->driver->bracketEscape($column);
 
             // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" .
@@ -242,48 +242,48 @@ class SelectResult
     }
 
     /**
-     * @param SelectEntity $selectEntity
+     * @param SelectDto $selectDto
      * @param string $column
      * @param mixed $value
      *
      * @return array
      */
-    private function getColumnValue(SelectEntity $selectEntity, string $column, $value): array
+    private function getColumnValue(SelectDto $selectDto, string $column, $value): array
     {
-        $field = $selectEntity->fields[$column] ?? new TableFieldEntity();
-        $textLength = $selectEntity->textLength;
+        $field = $selectDto->fields[$column] ?? new TableFieldDto();
+        $textLength = $selectDto->textLength;
         $value = $this->driver->value($value, $field);
         return $this->page->getFieldValue($field, $textLength, $value);
     }
 
     /**
-     * @param SelectEntity $selectEntity
+     * @param SelectDto $selectDto
      * @param array $row
      *
      * @return array
      */
-    private function getRowValues(SelectEntity $selectEntity, array $row): array
+    private function getRowValues(SelectDto $selectDto, array $row): array
     {
         $cols = [];
         foreach ($row as $column => $value) {
-            if (isset($selectEntity->names[$column])) {
-                $cols[] = $this->getColumnValue($selectEntity, $column, $value);
+            if (isset($selectDto->names[$column])) {
+                $cols[] = $this->getColumnValue($selectDto, $column, $value);
             }
         }
         return $cols;
     }
 
     /**
-     * @param SelectEntity $selectEntity
+     * @param SelectDto $selectDto
      *
      * @return array
      */
-    public function getRows(SelectEntity $selectEntity): array
+    public function getRows(SelectDto $selectDto): array
     {
         return array_map(fn($row) => [
             // The unique identifiers to edit the result rows.
-            'ids' => $this->getRowIds($selectEntity, $row),
-            'cols' => $this->getRowValues($selectEntity, $row),
-        ], $selectEntity->rows);
+            'ids' => $this->getRowIds($selectDto, $row),
+            'cols' => $this->getRowValues($selectDto, $row),
+        ], $selectDto->rows);
     }
 }

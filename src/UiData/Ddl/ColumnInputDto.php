@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Ddl;
+namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 
 use function array_combine;
 use function array_map;
@@ -10,7 +10,7 @@ use function array_map;
 /**
  * User inputs for a table column.
  */
-class ColumnInputEntity
+class ColumnInputDto
 {
     /**
      * The unchanged name of the table field
@@ -64,9 +64,9 @@ class ColumnInputEntity
     /**
      * The constructor
      *
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      */
-    public function __construct(public readonly TableFieldEntity $field)
+    public function __construct(public readonly TableFieldDto $field)
     {
         $this->name = $field->name;
         // Make sure the boolean fields have boolean values.
@@ -279,12 +279,12 @@ class ColumnInputEntity
     }
 
     /**
-     * @return TableFieldEntity
+     * @return TableFieldDto
      */
-    public function inputField(): TableFieldEntity
+    public function inputField(): TableFieldDto
     {
         $values = $this->values();
-        $field = new TableFieldEntity();
+        $field = new TableFieldDto();
 
         foreach (self::$attributes as $attr) {
             $field->$attr = $values->$attr;
@@ -299,12 +299,12 @@ class ColumnInputEntity
     /**
      * Create an entity from user inputs.
      *
-     * @param TableFieldEntity $field
+     * @param TableFieldDto $field
      * @param array $inputs
      *
-     * @return ColumnInputEntity
+     * @return ColumnInputDto
      */
-    public static function newColumn(TableFieldEntity $field, array $inputs): self
+    public static function newColumn(TableFieldDto $field, array $inputs): self
     {
         // Pass the field to the constructor, so the origValues attr is set properly. 
         $column = new static($field);

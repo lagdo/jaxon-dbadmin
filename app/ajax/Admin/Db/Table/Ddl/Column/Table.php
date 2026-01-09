@@ -5,8 +5,8 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 use Jaxon\Attributes\Attribute\Databag;
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Component;
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
+use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
+use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 
 use function array_map;
 
@@ -24,7 +24,7 @@ class Table extends Component
     private $metadata;
 
     /**
-     * @var array<ColumnInputEntity>
+     * @var array<ColumnInputDto>
      */
     private $columns;
 
@@ -67,11 +67,11 @@ class Table extends Component
     }
 
     /**
-     * @param ColumnInputEntity|null $column
+     * @param ColumnInputDto|null $column
      *
      * @return bool
      */
-    private function columnIsValid(ColumnInputEntity|null $column): bool
+    private function columnIsValid(ColumnInputDto|null $column): bool
     {
         // Null values and columns not found in the database are discarded.
         return $column !== null && ($column->added() ||
@@ -80,7 +80,7 @@ class Table extends Component
 
     /**
      * @param array $metadata
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      *
      * @return void
      */
@@ -88,7 +88,7 @@ class Table extends Component
     {
         $this->metadata = $metadata;
         $this->setColumns(array_filter($columns,
-            fn(ColumnInputEntity|null $column) => $this->columnIsValid($column)));
+            fn(ColumnInputDto|null $column) => $this->columnIsValid($column)));
 
         $this->render();
     }
@@ -101,8 +101,8 @@ class Table extends Component
     public function load(array $metadata): void
     {
         $this->metadata = $metadata;
-        $this->setColumns(array_map(fn(TableFieldEntity $field) =>
-            new ColumnInputEntity($field), $metadata['fields']));
+        $this->setColumns(array_map(fn(TableFieldDto $field) =>
+            new ColumnInputDto($field), $metadata['fields']));
 
         $this->render();
     }

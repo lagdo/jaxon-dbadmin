@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
 use Lagdo\DbAdmin\Db\Driver\AppDriver;
-use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 /**

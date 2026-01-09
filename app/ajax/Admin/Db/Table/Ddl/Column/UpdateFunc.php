@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
-use Lagdo\DbAdmin\Db\Page\Ddl\ColumnInputEntity;
+use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
 
 class UpdateFunc extends FuncComponent
 {
@@ -76,7 +76,7 @@ class UpdateFunc extends FuncComponent
     }
 
     /**
-     * @param array<ColumnInputEntity> $columns
+     * @param array<ColumnInputDto> $columns
      * @param string $columnId
      *
      * @return array
@@ -87,7 +87,7 @@ class UpdateFunc extends FuncComponent
         foreach ($columns as $_columnId => &$column) {
             if ($_columnId === $columnId && isset($fields[$column->name])) {
                 // Reset the column with values from the database.
-                $column = new ColumnInputEntity($fields[$column->name]);
+                $column = new ColumnInputDto($fields[$column->name]);
                 $column->undo();
                 break;
             }

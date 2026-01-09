@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
-use Lagdo\DbAdmin\Db\Page\Dql\SelectEntity;
+use Lagdo\DbAdmin\Db\UiData\Dql\SelectDto;
 use Exception;
 
 /**
@@ -28,10 +28,10 @@ trait SelectTrait
      * @param string $table The table name
      * @param array $queryOptions The query options
      *
-     * @return SelectEntity
+     * @return SelectDto
      * @throws Exception
      */
-    public function getSelectData(string $table, array $queryOptions = []): SelectEntity
+    public function getSelectData(string $table, array $queryOptions = []): SelectDto
     {
         $this->connectToSchema();
         $this->utils->input->table = $table;

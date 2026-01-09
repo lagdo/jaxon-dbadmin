@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
-use Lagdo\DbAdmin\Db\Page\Dql\SelectEntity;
-use Lagdo\DbAdmin\Db\Page\Dql\SelectQuery;
-use Lagdo\DbAdmin\Db\Page\Dql\SelectResult;
+use Lagdo\DbAdmin\Db\UiData\Dql\SelectDto;
+use Lagdo\DbAdmin\Db\UiData\Dql\SelectQuery;
+use Lagdo\DbAdmin\Db\UiData\Dql\SelectResult;
 use Lagdo\DbAdmin\Db\Service\TimerService;
 use Exception;
 
@@ -55,16 +55,16 @@ class SelectFacade extends AbstractFacade
      * @param string $table The table name
      * @param array $queryOptions The query options
      *
-     * @return SelectEntity
+     * @return SelectDto
      * @throws Exception
      */
-    private function prepareSelect(string $table, array $queryOptions = []): SelectEntity
+    private function prepareSelect(string $table, array $queryOptions = []): SelectDto
     {
         $tableStatus = $this->driver->tableStatusOrName($table);
         $tableName = $this->page->tableName($tableStatus);
-        $selectEntity = new SelectEntity($table, $tableName,
+        $selectDto = new SelectDto($table, $tableName,
             $tableStatus, $queryOptions);
-        return $this->query()->prepareSelect($selectEntity);
+        return $this->query()->prepareSelect($selectDto);
     }
 
     /**
@@ -73,10 +73,10 @@ class SelectFacade extends AbstractFacade
      * @param string $table The table name
      * @param array $queryOptions The query options
      *
-     * @return SelectEntity
+     * @return SelectDto
      * @throws Exception
      */
-    public function getSelectData(string $table, array $queryOptions = []): SelectEntity
+    public function getSelectData(string $table, array $queryOptions = []): SelectDto
     {
         return $this->prepareSelect($table, $queryOptions);
     }
@@ -91,12 +91,12 @@ class SelectFacade extends AbstractFacade
      */
     public function countSelect(string $table, array $queryOptions): int
     {
-        $selectEntity = $this->prepareSelect($table, $queryOptions);
-        $hasGroupsInFields = count($selectEntity->group) < count($selectEntity->select);
+        $selectDto = $this->prepareSelect($table, $queryOptions);
+        $hasGroupsInFields = count($selectDto->group) < count($selectDto->select);
 
         try {
-            $query = $this->driver->getRowCountQuery($table, $selectEntity->where,
-                $hasGroupsInFields, $selectEntity->group);
+            $query = $this->driver->getRowCountQuery($table, $selectDto->where,
+                $hasGroupsInFields, $selectDto->group);
             return (int)$this->driver->result($query);
         } catch(Exception) {
             return -1;
@@ -104,32 +104,32 @@ class SelectFacade extends AbstractFacade
     }
 
     /**
-     * @param SelectEntity $selectEntity
+     * @param SelectDto $selectDto
      *
      * @return void
      */
-    private function executeQuery(SelectEntity $selectEntity): void
+    private function executeQuery(SelectDto $selectDto): void
     {
         $this->timer->start();
 
         // From driver.inc.php
-        $statement = $this->driver->execute($selectEntity->query);
-        $selectEntity->duration = $this->timer->duration();
-        $selectEntity->rows = [];
+        $statement = $this->driver->execute($selectDto->query);
+        $selectDto->duration = $this->timer->duration();
+        $selectDto->rows = [];
 
         // From adminer.inc.php
         if (!$statement) {
-            $selectEntity->error = $this->driver->error();
+            $selectDto->error = $this->driver->error();
             return;
         }
 
         // From select.inc.php
-        $selectEntity->rows = [];
+        $selectDto->rows = [];
         while (($row = $statement->fetchAssoc())) {
-            if ($selectEntity->page && $this->driver->jush() === "oracle") {
+            if ($selectDto->page && $this->driver->jush() === "oracle") {
                 unset($row["RNUM"]);
             }
-            $selectEntity->rows[] = $row;
+            $selectDto->rows[] = $row;
         }
     }
 
@@ -144,32 +144,32 @@ class SelectFacade extends AbstractFacade
      */
     public function execSelect(string $table, array $queryOptions): array
     {
-        $selectEntity = $this->prepareSelect($table, $queryOptions);
-        $this->executeQuery($selectEntity);
+        $selectDto = $this->prepareSelect($table, $queryOptions);
+        $this->executeQuery($selectDto);
 
-        if ($selectEntity->error !== null) {
+        if ($selectDto->error !== null) {
             return [
-                'message' => $selectEntity->error,
+                'message' => $selectDto->error,
             ];
         }
-        if (count($selectEntity->rows) === 0) {
+        if (count($selectDto->rows) === 0) {
             return [
                 'message' => $this->utils->trans->lang('No rows.'),
             ];
         }
 
         // $backward_keys = $this->driver->backwardKeys($table, $tableName);
-        // lengths = $this->getValuesLengths($rows, $selectEntity->queryOptions);
+        // lengths = $this->getValuesLengths($rows, $selectDto->queryOptions);
 
-        $queryFields = array_keys($selectEntity->rows[0]);
-        $this->result()->setResultHeaders($selectEntity, $queryFields);
+        $queryFields = array_keys($selectDto->rows[0]);
+        $this->result()->setResultHeaders($selectDto, $queryFields);
 
         return [
-            'headers' => $selectEntity->headers,
-            'query' => $selectEntity->query,
-            'limit' => $selectEntity->limit,
-            'duration' => $selectEntity->duration,
-            'rows' => $this->result()->getRows($selectEntity),
+            'headers' => $selectDto->headers,
+            'query' => $selectDto->query,
+            'limit' => $selectDto->limit,
+            'duration' => $selectDto->duration,
+            'rows' => $this->result()->getRows($selectDto),
         ];
     }
 }

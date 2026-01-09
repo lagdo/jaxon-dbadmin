@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Db\Driver;
 use Jaxon\App\View\ViewRenderer;
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Db\Driver\Facades\AbstractFacade;
-use Lagdo\DbAdmin\Db\Page\AppPage;
+use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Db\Service\Breadcrumbs;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 

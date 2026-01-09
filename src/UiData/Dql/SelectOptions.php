@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Dql;
+namespace Lagdo\DbAdmin\Db\UiData\Dql;
 
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Driver\DriverInterface;
@@ -19,11 +19,11 @@ class SelectOptions
     {}
 
     /**
-     * @param SelectEntity $selectEntity
+     * @param SelectDto $selectDto
      *
      * @return void
      */
-    public function setDefaultOptions(SelectEntity $selectEntity): void
+    public function setDefaultOptions(SelectDto $selectDto): void
     {
         $defaultOptions = [
             'columns' => [],
@@ -39,16 +39,16 @@ class SelectOptions
             if (!isset($this->utils->input->values[$name])) {
                 $this->utils->input->values[$name] = $value;
             }
-            if (!isset($selectEntity->queryOptions[$name])) {
-                $selectEntity->queryOptions[$name] = $value;
+            if (!isset($selectDto->queryOptions[$name])) {
+                $selectDto->queryOptions[$name] = $value;
             }
         }
-        $page = intval($selectEntity->queryOptions['page']);
+        $page = intval($selectDto->queryOptions['page']);
         if ($page > 0) {
             $page -= 1; // Page numbers start at 0 here, instead of 1.
         }
-        $selectEntity->queryOptions['page'] = $page;
-        $selectEntity->page = $page;
+        $selectDto->queryOptions['page'] = $page;
+        $selectDto->page = $page;
     }
 
     /**
@@ -198,22 +198,22 @@ class SelectOptions
     // }
 
     /**
-     * @param SelectEntity $selectEntity
+     * @param SelectDto $selectDto
      *
      * @return void
      */
-    public function setSelectOptions(SelectEntity $selectEntity): void
+    public function setSelectOptions(SelectDto $selectDto): void
     {
-        $selectEntity->options = [
-            'columns' => $this->getColumnsOptions($selectEntity->select,
-                $selectEntity->columns, $selectEntity->queryOptions),
-            'filters' => $this->getFiltersOptions($selectEntity->columns,
-                $selectEntity->indexes, $selectEntity->queryOptions),
-            'sorting' => $this->getSortingOptions($selectEntity->columns,
-                $selectEntity->queryOptions),
-            'limit' => $this->getLimitOptions($selectEntity->limit),
-            'length' => $this->getLengthOptions($selectEntity->textLength),
-            // 'action' => $this->getActionOptions($selectEntity->indexes),
+        $selectDto->options = [
+            'columns' => $this->getColumnsOptions($selectDto->select,
+                $selectDto->columns, $selectDto->queryOptions),
+            'filters' => $this->getFiltersOptions($selectDto->columns,
+                $selectDto->indexes, $selectDto->queryOptions),
+            'sorting' => $this->getSortingOptions($selectDto->columns,
+                $selectDto->queryOptions),
+            'limit' => $this->getLimitOptions($selectDto->limit),
+            'length' => $this->getLengthOptions($selectDto->textLength),
+            // 'action' => $this->getActionOptions($selectDto->indexes),
         ];
     }
 }

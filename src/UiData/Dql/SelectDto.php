@@ -1,11 +1,11 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Page\Dql;
+namespace Lagdo\DbAdmin\Db\UiData\Dql;
 
-use Lagdo\DbAdmin\Driver\Entity\TableEntity;
-use Lagdo\DbAdmin\Driver\Entity\TableSelectEntity;
+use Lagdo\DbAdmin\Driver\Dto\TableDto;
+use Lagdo\DbAdmin\Driver\Dto\TableSelectDto;
 
-class SelectEntity
+class SelectDto
 {
     /**
      * @var array
@@ -108,17 +108,17 @@ class SelectEntity
     public string|null $error = null;
 
     /**
-     * @var TableSelectEntity
+     * @var TableSelectDto
      */
-    public TableSelectEntity $tableSelect;
+    public TableSelectDto $tableSelect;
 
     /**
      * @param string $table
      * @param string $tableName
-     * @param TableEntity $tableStatus
+     * @param TableDto $tableStatus
      * @param array $queryOptions
      */
     public function __construct(public string $table, public string $tableName,
-        public TableEntity $tableStatus, public array $queryOptions)
+        public TableDto $tableStatus, public array $queryOptions)
     {}
 }
