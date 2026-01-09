@@ -51,6 +51,12 @@ class ColumnInputEntity
         $this->field->nullable = (bool)$this->field->nullable;
         // Don't keep null in the comment value.
         $this->field->comment ??= '';
+
+        // Set the "DEFAULT" value for the "generated" field.
+        // From create.inc.php
+        if ($this->field->generated === '' && $this->field->default !== null) {
+            $this->field->generated = 'DEFAULT';
+        }
     }
 
     /**
@@ -126,11 +132,26 @@ class ColumnInputEntity
     }
 
     /**
+     * Convert the field values from array to object.
+     *
+     * @param array $values
+     *
+     * @return object
+     */
+    private function convertValues(array $values): object
+    {
+        if ($values['generated'] === '') {
+            $values['default'] = '';
+        }
+        return (object)$values;
+    }
+
+    /**
      * @return object
      */
     public function fieldValues(): object
     {
-        return (object)[
+        return $this->convertValues([
             'name' => $this->field->name,
             'primary' => $this->field->primary,
             'autoIncrement' => $this->field->autoIncrement,
@@ -144,7 +165,7 @@ class ColumnInputEntity
             'onUpdate' => $this->field->onUpdate,
             'onDelete' => $this->field->onDelete,
             'comment' => $this->field->comment,
-        ];
+        ]);
     }
 
     /**
@@ -162,10 +183,7 @@ class ColumnInputEntity
      */
     public function setValues(array $values): void
     {
-        $this->values = (object)$values;
-        if ($this->values->generated === '') {
-            $this->values->default = '';
-        }
+        $this->values = $this->convertValues($values);
     }
 
     /**
