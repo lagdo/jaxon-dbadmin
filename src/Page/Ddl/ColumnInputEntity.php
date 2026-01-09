@@ -4,6 +4,9 @@ namespace Lagdo\DbAdmin\Db\Page\Ddl;
 
 use Lagdo\DbAdmin\Driver\Entity\TableFieldEntity;
 
+use function array_combine;
+use function array_map;
+
 /**
  * User inputs for a table column.
  */
@@ -36,6 +39,27 @@ class ColumnInputEntity
      * @var object|null
      */
     private $values = null;
+
+    /**
+     * The attributes in the column values
+     *
+     * @var array
+     */
+    private static $attributes = [
+        'name',
+        'primary',
+        'autoIncrement',
+        'type',
+        'unsigned',
+        'generated',
+        'default',
+        'length',
+        'nullable',
+        'collation',
+        'onUpdate',
+        'onDelete',
+        'comment',
+    ];
 
     /**
      * The constructor
@@ -132,40 +156,12 @@ class ColumnInputEntity
     }
 
     /**
-     * Convert the field values from array to object.
-     *
-     * @param array $values
-     *
-     * @return object
+     * @return array
      */
-    private function convertValues(array $values): object
+    public function fieldValues(): array
     {
-        if ($values['generated'] === '') {
-            $values['default'] = '';
-        }
-        return (object)$values;
-    }
-
-    /**
-     * @return object
-     */
-    public function fieldValues(): object
-    {
-        return $this->convertValues([
-            'name' => $this->field->name,
-            'primary' => $this->field->primary,
-            'autoIncrement' => $this->field->autoIncrement,
-            'type' => $this->field->type,
-            'unsigned' => $this->field->unsigned,
-            'generated' => $this->field->generated,
-            'default' => $this->field->default ?? '',
-            'length' => $this->field->length,
-            'nullable' => $this->field->nullable,
-            'collation' => $this->field->collation,
-            'onUpdate' => $this->field->onUpdate,
-            'onDelete' => $this->field->onDelete,
-            'comment' => $this->field->comment,
-        ]);
+        return array_combine(self::$attributes, array_map(fn(string $attr) =>
+            $this->field->$attr, self::$attributes));
     }
 
     /**
@@ -173,7 +169,7 @@ class ColumnInputEntity
      */
     public function values(): object
     {
-        return $this->values ??= $this->fieldValues();
+        return $this->values ??= (object)$this->fieldValues();
     }
 
     /**
@@ -183,7 +179,10 @@ class ColumnInputEntity
      */
     public function setValues(array $values): void
     {
-        $this->values = $this->convertValues($values);
+        if ($values['generated'] === '') {
+            $values['default'] = '';
+        }
+        $this->values = (object)$values;
     }
 
     /**
@@ -192,19 +191,12 @@ class ColumnInputEntity
     public function fieldEdited(): bool
     {
         $values = $this->values();
-        return $values->name !== $this->field->name ||
-            $values->primary !== $this->field->primary ||
-            $values->autoIncrement !== $this->field->autoIncrement ||
-            $values->type !== $this->field->type ||
-            $values->unsigned !== $this->field->unsigned ||
-            $values->length !== $this->field->length ||
-            $values->nullable !== $this->field->nullable ||
-            $values->generated !== $this->field->generated ||
-            $values->default !== ($this->field->default ?? '') ||
-            $values->collation !== $this->field->collation ||
-            $values->onUpdate !== $this->field->onUpdate ||
-            $values->onDelete !== $this->field->onDelete ||
-            $values->comment !== $this->field->comment;
+        foreach (self::$attributes as $attr) {
+            if ($values->$attr !== $this->field->$attr) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -289,19 +281,12 @@ class ColumnInputEntity
         $values = $this->values();
         $field = new TableFieldEntity();
 
-        $field->name = $values->name;
-        $field->primary = $values->primary;
-        $field->autoIncrement = $values->autoIncrement;
-        $field->type = $values->type;
-        $field->unsigned = $values->unsigned;
-        $field->generated = $values->generated;
-        $field->default = $values->generated !== '' ? $values->default : null;
-        $field->length = $values->length;
-        $field->nullable = $values->nullable;
-        $field->collation = $values->collation;
-        $field->onUpdate = $values->onUpdate;
-        $field->onDelete = $values->onDelete;
-        $field->comment = $values->comment;
+        foreach (self::$attributes as $attr) {
+            $field->$attr = $values->$attr;
+        }
+        if ($values->generated === '') {
+            $field->default = null;
+        }
 
         return $field;
     }
