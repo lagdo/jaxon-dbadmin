@@ -22,9 +22,9 @@ class ColumnInputDto
     /**
      * The field status when the table is edited
      *
-     * @var string
+     * @var ColumnAction
      */
-    private $action = 'none';
+    private $action = ColumnAction::NONE;
 
     /**
      * The field position in the edit form
@@ -101,7 +101,7 @@ class ColumnInputDto
      */
     public function undo(): void
     {
-        $this->action = 'none';
+        $this->action = ColumnAction::NONE;
     }
 
     /**
@@ -109,7 +109,7 @@ class ColumnInputDto
      */
     public function unchanged(): bool
     {
-        return $this->action === 'none';
+        return $this->action === ColumnAction::NONE;
     }
 
     /**
@@ -117,7 +117,7 @@ class ColumnInputDto
      */
     public function added(): bool
     {
-        return $this->action === 'add';
+        return $this->action === ColumnAction::ADD;
     }
 
     /**
@@ -125,7 +125,7 @@ class ColumnInputDto
      */
     public function add(): void
     {
-        $this->action = 'add';
+        $this->action = ColumnAction::ADD;
     }
 
     /**
@@ -133,7 +133,7 @@ class ColumnInputDto
      */
     public function changed(): bool
     {
-        return $this->action === 'change';
+        return $this->action === ColumnAction::CHANGE;
     }
 
     /**
@@ -141,7 +141,7 @@ class ColumnInputDto
      */
     public function change(): void
     {
-        $this->action = 'change';
+        $this->action = ColumnAction::CHANGE;
     }
 
     /**
@@ -149,7 +149,7 @@ class ColumnInputDto
      */
     public function changeIf(): void
     {
-        $this->action = $this->fieldEdited() ? 'change' : 'none';
+        $this->action = $this->fieldEdited() ? ColumnAction::CHANGE : ColumnAction::NONE;
     }
 
     /**
@@ -157,7 +157,7 @@ class ColumnInputDto
      */
     public function dropped(): bool
     {
-        return $this->action === 'drop';
+        return $this->action === ColumnAction::DROP;
     }
 
     /**
@@ -165,7 +165,7 @@ class ColumnInputDto
      */
     public function drop(): void
     {
-        $this->action = 'drop';
+        $this->action = ColumnAction::DROP;
     }
 
     /**
@@ -293,7 +293,7 @@ class ColumnInputDto
     {
         // Pass the field to the constructor, so the origValues attr is set properly. 
         $column = new static($field);
-        $column->action = $inputs['action'];
+        $column->action = ColumnAction::tryFrom($inputs['action']) ?? ColumnAction::NONE;
         $column->position = $inputs['position'];
         $column->setValues($inputs['field']);
 
@@ -309,6 +309,6 @@ class ColumnInputDto
      */
     public static function columnIsAdded(array $column): bool
     {
-        return $column['action'] === 'add';
+        return $column['action'] === ColumnAction::ADD;
     }
 }
