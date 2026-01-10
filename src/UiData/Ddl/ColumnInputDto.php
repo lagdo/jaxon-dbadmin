@@ -34,7 +34,14 @@ class ColumnInputDto
     public $position = 0;
 
     /**
-     * The original or edited field values
+     * The original field values
+     *
+     * @var array
+     */
+    private $fieldValues;
+
+    /**
+     * The edited field values
      *
      * @var object|null
      */
@@ -69,21 +76,22 @@ class ColumnInputDto
     public function __construct(public readonly TableFieldDto $field)
     {
         $this->name = $field->name;
+        $this->fieldValues = array_combine(self::$attributes,
+            array_map(fn(string $attr) => $field->$attr, self::$attributes));
         // Make sure the boolean fields have boolean values.
-        $this->field->primary = (bool)$this->field->primary;
-        $this->field->autoIncrement = (bool)$this->field->autoIncrement;
-        $this->field->nullable = (bool)$this->field->nullable;
+        $this->fieldValues['primary'] = (bool)$this->fieldValues['primary'];
+        $this->fieldValues['autoIncrement'] = (bool)$this->fieldValues['autoIncrement'];
+        $this->fieldValues['nullable'] = (bool)$this->fieldValues['nullable'];
         // Don't keep null in the comment value.
-        $this->field->comment ??= '';
-
+        $this->fieldValues['comment'] ??= '';
         // Set the "DEFAULT" value for the "generated" attribute.
         // Remove the null value from the "default" attribute.
         // From create.inc.php
-        if ($this->field->generated === '') {
-            if ($this->field->default === null) {
-                $this->field->default = '';
+        if ($this->fieldValues['generated'] === '') {
+            if ($this->fieldValues['default'] === null) {
+                $this->fieldValues['default'] = '';
             } else {
-                $this->field->generated = 'DEFAULT';
+                $this->fieldValues['generated'] = 'DEFAULT';
             }
         }
     }
@@ -161,20 +169,11 @@ class ColumnInputDto
     }
 
     /**
-     * @return array
-     */
-    public function fieldValues(): array
-    {
-        return array_combine(self::$attributes, array_map(fn(string $attr) =>
-            $this->field->$attr, self::$attributes));
-    }
-
-    /**
      * @return object
      */
     public function values(): object
     {
-        return $this->values ??= (object)$this->fieldValues();
+        return $this->values ??= (object)$this->fieldValues;
     }
 
     /**
@@ -197,7 +196,7 @@ class ColumnInputDto
     {
         $values = $this->values();
         foreach (self::$attributes as $attr) {
-            if ($values->$attr !== $this->field->$attr) {
+            if ($values->$attr !== $this->fieldValues[$attr]) {
                 return true;
             }
         }
@@ -222,41 +221,27 @@ class ColumnInputDto
 
         // The first attributes
         foreach (['name', 'type', 'unsigned', 'length'] as $attr) {
-            if ($values->$attr !== $this->field->$attr) {
+            if ($values->$attr !== $this->fieldValues[$attr]) {
                 $changes[$attr] = [
-                    'from' => $this->field->$attr,
+                    'from' => $this->fieldValues[$attr],
                     'to' => $values->$attr,
                 ];
             }
         }
         // The boolean attributes
         foreach (['primary', 'autoIncrement', 'nullable'] as $attr) {
-            if ($values->$attr !== $this->field->$attr) {
+            if ($values->$attr !== $this->fieldValues[$attr]) {
                 $changes[$attr] = [
-                    'from' => $this->field->$attr ? 'true' : 'false',
+                    'from' => $this->fieldValues[$attr] ? 'true' : 'false',
                     'to' => $values->$attr ? 'true' : 'false',
                 ];
             }
         }
-        // The default value
-        if ($values->generated !== $this->field->generated) {
-            $changes['generated'] = [
-                'from' => $this->field->generated,
-                'to' => $values->generated,
-            ];
-        }
-        $default = $this->field->default ?? '';
-        if ($values->default !== $default) {
-            $changes['default'] = [
-                'from' => $default,
-                'to' => $values->default,
-            ];
-        }
         // The other attributes
-        foreach (['collation', 'onUpdate', 'onDelete', 'comment'] as $attr) {
-            if ($values->$attr !== $this->field->$attr) {
+        foreach (['generated', 'default', 'collation', 'onUpdate', 'onDelete', 'comment'] as $attr) {
+            if ($values->$attr !== $this->fieldValues[$attr]) {
                 $changes[$attr] = [
-                    'from' => $this->field->$attr,
+                    'from' => $this->fieldValues[$attr],
                     'to' => $values->$attr,
                 ];
             }
