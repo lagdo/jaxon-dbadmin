@@ -29,13 +29,16 @@ The following features are currently available:
 - Use a better editor for SQL queries.
 - Save and show the query history.
 - Save queries in user favorites.
-- Import or export data.
+- Import and export data.
 - Insert, modify or delete data in a table.
+- Create or alter a table (wip).
 
-The following features are either disabled or not yet implemented, and planned for future releases:
-- Navigate through related tables.
-- Create, alter or drop a database, table or view.
+The following features are not yet implemented, and planned for future releases:
+- Drop a table.
+- Create, alter or drop a view.
+- Create, alter or drop a database.
 - Code completion for table and field names in the SQL editor.
+- Navigate through related tables.
 - An advanced GUI-based query builder.
 
 Howtos
