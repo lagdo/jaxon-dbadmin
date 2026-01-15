@@ -15,8 +15,6 @@ abstract class PageComponent extends BaseComponent
     use ComponentTrait;
 
     /**
-     * The constructor
-     *
      * @param DbAdminPackage $package    The DbAdmin package
      * @param DbFacade       $db         The facade to database functions
      * @param UiBuilder      $ui         The HTML UI builder
@@ -36,10 +34,6 @@ abstract class PageComponent extends BaseComponent
     public function page(int $pageNumber = 0): void
     {
         // Get the paginator. This will also set the current page number value.
-        $paginator = $this->paginator($pageNumber);
-        // Render the page content.
-        $this->render();
-        // Render the pagination component.
-        $paginator->render($this->rq()->page());
+        $this->paginate($this->rq()->page(), $pageNumber);
     }
 }
