@@ -72,6 +72,6 @@ class Databases extends MainComponent
 
         // Set onclick handlers on table checkbox
         $checkbox = 'database';
-        $this->response->jo('jaxon.dbadmin')->selectTableCheckboxes($checkbox);
+        $this->response()->jo('jaxon.dbadmin')->selectTableCheckboxes($checkbox);
     }
 }

@@ -6,7 +6,7 @@ use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function Jaxon\je;
+use function Jaxon\form;
 
 class ExportUiBuilder
 {
@@ -182,7 +182,7 @@ class ExportUiBuilder
                     $this->ui->button($this->ui->text($this->trans->lang('Export')))
                         ->fullWidth()
                         ->primary()
-                        ->jxnClick($rqExport->export(je($this->formId)->rd()->form()))
+                        ->jxnClick($rqExport->export(form($this->formId)))
                 )->width(4)
             )
         );

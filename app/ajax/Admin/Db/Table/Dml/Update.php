@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultRow;
 
 use function count;
 use function is_array;
-use function Jaxon\je;
+use function Jaxon\form;
 
 /**
  * This class provides insert and update query features on tables.
@@ -33,7 +33,7 @@ class Update extends FuncComponent
     {
         $title = 'Edit row in table ' . $this->getTableName();
         $content = $this->editUi->rowDataForm($this->queryFormId, $fields);
-        $values = je($this->queryFormId)->rd()->form();
+        $values = form($this->queryFormId);
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[

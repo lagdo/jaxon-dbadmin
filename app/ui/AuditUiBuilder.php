@@ -10,7 +10,7 @@ use function array_filter;
 use function in_array;
 use function json_decode;
 use function json_encode;
-use function Jaxon\je;
+use function Jaxon\form;
 use function Jaxon\rq;
 
 class AuditUiBuilder
@@ -179,7 +179,7 @@ class AuditUiBuilder
                         $this->ui->button($this->trans->lang('Show'))
                             ->primary()
                             ->jxnClick(rq(Commands::class)
-                                ->show(je($formId)->rd()->form()))
+                                ->show(form($formId)))
                     )->width(12)
                 )->setStyle('padding-top: 10px; float:right;')
             )->setId($formId)->horizontal(false)->wrapped(true)

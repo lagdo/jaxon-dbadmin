@@ -16,7 +16,7 @@ use Lagdo\DbAdmin\Ui\Database\ServerUiBuilder;
 
 use function count;
 use function is_array;
-use function Jaxon\je;
+use function Jaxon\form;
 
 class Database extends FuncComponent
 {
@@ -93,7 +93,7 @@ class Database extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create(je($formId)->rd()->form()),
+            'click' => $this->rq()->create(form($formId)),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }

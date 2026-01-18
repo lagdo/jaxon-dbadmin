@@ -8,7 +8,7 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function Jaxon\je;
+use function Jaxon\form;
 use function Jaxon\jo;
 use function Jaxon\rq;
 
@@ -36,7 +36,7 @@ class QueryUiBuilder
     private function queryButtons(JxnCall $rqQuery): mixed
     {
         $sqlQuery = jo('jaxon.dbadmin')->getSqlQuery();
-        $queryValues = je($this->queryFormId)->rd()->form();
+        $queryValues = form($this->queryFormId);
 
         return $this->ui->buttonGroup(
         $this->ui->button(

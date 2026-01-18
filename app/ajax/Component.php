@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\Ajax;
 
 use Jaxon\App\Component as JaxonComponent;
-use Jaxon\App\Dialog\DialogTrait;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Sections;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
@@ -16,7 +15,6 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
 #[Databag('dbadmin')]
 abstract class Component extends JaxonComponent
 {
-    use DialogTrait;
     use ComponentTrait;
 
     /**

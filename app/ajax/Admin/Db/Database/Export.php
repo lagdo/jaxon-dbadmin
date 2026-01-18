@@ -46,9 +46,9 @@ class Export extends Component
      */
     protected function after(): void
     {
-        $this->response->jo('jaxon.dbadmin')
+        $this->response()->jo('jaxon.dbadmin')
             ->setExportEventHandlers($this->exportUi->tableNameId);
-        $this->response->jo('jaxon.dbadmin')
+        $this->response()->jo('jaxon.dbadmin')
             ->setExportEventHandlers($this->exportUi->tableDataId);
     }
 

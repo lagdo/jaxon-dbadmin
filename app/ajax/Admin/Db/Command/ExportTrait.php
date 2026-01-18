@@ -118,10 +118,10 @@ trait ExportTrait
         }
 
         if ($output === 'open') {
-            $this->response->jo()->open($exportUrl, '_blank')->focus();
+            $this->response()->jo()->open($exportUrl, '_blank')->focus();
             return;
         }
 
-        $this->response->jo('jaxon.dbadmin')->downloadFile($exportUrl, $filename);
+        $this->response()->jo('jaxon.dbadmin')->downloadFile($exportUrl, $filename);
     }
 }

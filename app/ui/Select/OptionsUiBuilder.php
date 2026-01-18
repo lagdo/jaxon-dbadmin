@@ -8,7 +8,8 @@ use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
-use function Jaxon\je;
+use function Jaxon\form;
+use function Jaxon\input;
 use function Jaxon\rq;
 
 class OptionsUiBuilder
@@ -36,11 +37,11 @@ class OptionsUiBuilder
                     $this->ui->button()
                         ->primary()
                         ->addIcon('plus')
-                        ->jxnClick($rqInput->add(je($formId)->rd()->form())),
+                        ->jxnClick($rqInput->add(form($formId))),
                     $this->ui->button()
                         ->danger()
                         ->addIcon('remove')
-                        ->jxnClick($rqInput->del(je($formId)->rd()->form()))
+                        ->jxnClick($rqInput->del(form($formId)))
                 )
             )->width(3)
         );
@@ -308,8 +309,8 @@ class OptionsUiBuilder
         $optionsLimitId = 'dbadmin-table-select-options-form-limit';
         $optionsLengthId = 'dbadmin-table-select-options-form-length';
         $rqOptionsValues = rq(Options\Values::class);
-        $selectLimitValue = je($optionsLimitId)->rd()->input()->toInt();
-        $textLengthValue = je($optionsLengthId)->rd()->input()->toInt();
+        $selectLimitValue = input($optionsLimitId)->toInt();
+        $textLengthValue = input($optionsLengthId)->toInt();
 
         return $this->ui->build(
             $this->ui->form(

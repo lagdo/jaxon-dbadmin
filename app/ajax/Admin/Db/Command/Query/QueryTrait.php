@@ -55,11 +55,11 @@ trait QueryTrait
         $this->cl(PageActions::class)->clear();
 
         [$server,] = $this->bag('dbadmin')->get('db');
-        $this->response->jo('jaxon.dbadmin')->createSqlQueryEditor($this->queryId,
+        $this->response()->jo('jaxon.dbadmin')->createSqlQueryEditor($this->queryId,
             $this->package->getServerDriver($server));
         if($this->query !== '')
         {
-            $this->response->jo('jaxon.dbadmin')->setSqlQuery($this->query);
+            $this->response()->jo('jaxon.dbadmin')->setSqlQuery($this->query);
         }
 
         if (!$this->package->hasAuditDatabase()) {

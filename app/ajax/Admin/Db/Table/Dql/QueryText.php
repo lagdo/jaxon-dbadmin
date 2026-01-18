@@ -52,7 +52,7 @@ class QueryText extends Component
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
         $driver = $this->package->getServerDriver($server);
-        $this->response->jo('jaxon.dbadmin')->createSqlSelectEditor($this->txtQueryId, $driver);
+        $this->response()->jo('jaxon.dbadmin')->createSqlSelectEditor($this->txtQueryId, $driver);
     }
 
     /**

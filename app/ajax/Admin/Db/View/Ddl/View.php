@@ -40,7 +40,7 @@ class View extends FuncComponent
      */
     protected function showTab(array $viewData, string $tabId): void
     {
-        $this->response->html($tabId, $this->viewUi->pageContent($viewData));
+        $this->response()->html($tabId, $this->viewUi->pageContent($viewData));
     }
 
     /**

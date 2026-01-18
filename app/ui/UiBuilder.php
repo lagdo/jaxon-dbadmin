@@ -17,7 +17,7 @@ use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
 use function array_shift;
-use function Jaxon\je;
+use function Jaxon\select;
 use function Jaxon\rq;
 
 class UiBuilder
@@ -53,7 +53,7 @@ class UiBuilder
                         ->primary()
                         ->setClass('btn-select')
                         ->jxnClick(rq(Admin::class)
-                            ->server(je('jaxon-dbadmin-dbhost-select')->rd()->select()))
+                            ->server(select('jaxon-dbadmin-dbhost-select')))
                 )
             )
         );

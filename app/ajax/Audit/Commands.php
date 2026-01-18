@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Ajax\Audit;
 
-use Jaxon\App\Dialog\DialogTrait;
 use Jaxon\App\PageComponent;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Db\Service\Audit\QueryLogger;
@@ -18,8 +17,6 @@ use function trim;
 #[Databag('dbadmin.audit')]
 class Commands extends PageComponent
 {
-    use DialogTrait;
-
     /**
      * @var array
      */

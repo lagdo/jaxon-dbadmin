@@ -8,7 +8,7 @@ use Lagdo\UiBuilder\Component\HtmlComponent;
 
 use function is_array;
 use function is_string;
-use function Jaxon\je;
+use function Jaxon\form;
 use function strcasecmp;
 
 trait TableFieldTrait
@@ -56,7 +56,7 @@ trait TableFieldTrait
      */
     protected function formValues(): array
     {
-        return je($this->formId)->rd()->form();
+        return form($this->formId);
     }
 
     /**

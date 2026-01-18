@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
-use function Jaxon\je;
+use function Jaxon\form;
 
 class CreateFunc extends FuncComponent
 {
@@ -33,7 +33,7 @@ class CreateFunc extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save($columnId, je($this->formId)->rd()->form()),
+            'click' => $this->rq()->save($columnId, form($this->formId)),
         ]];
 
         $this->modal()->show($title, $content, $buttons);

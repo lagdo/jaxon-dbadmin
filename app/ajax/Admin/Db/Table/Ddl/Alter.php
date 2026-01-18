@@ -8,7 +8,7 @@ use Jaxon\Attributes\Attribute\Export;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 
-use function Jaxon\je;
+use function Jaxon\form;
 
 /**
  * Alter a table
@@ -45,7 +45,7 @@ class Alter extends MainComponent
     {
         // Set main menu buttons
         $table = $this->getTableName();
-        $values = je($this->formId)->rd()->form();
+        $values = form($this->formId);
         $actions = [
             'table-save' => [
                 'title' => $this->trans()->lang('Save'),

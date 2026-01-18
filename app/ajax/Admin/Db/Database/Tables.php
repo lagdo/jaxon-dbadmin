@@ -47,6 +47,6 @@ class Tables extends MainComponent
 
         $this->showSection($tablesInfo, 'table');
         // Set onclick handlers on table checkbox
-        $this->response->jo('jaxon.dbadmin')->selectTableCheckboxes('table');
+        $this->response()->jo('jaxon.dbadmin')->selectTableCheckboxes('table');
     }
 }

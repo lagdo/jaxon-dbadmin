@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dml;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultSet;
 
-use function Jaxon\je;
+use function Jaxon\form;
 
 /**
  * This class provides insert and update query features on tables.
@@ -30,7 +30,7 @@ class Insert extends FuncComponent
     {
         $title = 'New item in table ' . $this->getTableName();
         $content = $this->editUi->rowDataForm($this->queryFormId, $fields);
-        $values = je($this->queryFormId)->rd()->form();
+        $values = form($this->queryFormId);
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[

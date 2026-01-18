@@ -6,7 +6,7 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options\Fields;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options\FuncComponent;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
 
-use function Jaxon\je;
+use function Jaxon\form;
 
 /**
  * This class provides select query features on tables.
@@ -30,7 +30,7 @@ class Columns extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(je($formId)->rd()->form()),
+            'click' => $this->rq()->save(form($formId)),
         ]];
         $this->modal()->show($title, $content, $buttons);
 

@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
-use function Jaxon\je;
+use function Jaxon\form;
 use function Jaxon\jo;
 use function Jaxon\jq;
 use function Jaxon\rq;
@@ -245,6 +245,6 @@ class AuditUiBuilder
      */
     public function favoriteFormValues(): mixed
     {
-        return je($this->favoriteFormId)->rd()->form();
+        return form($this->favoriteFormId);
     }
 }

@@ -9,7 +9,7 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 
-use function Jaxon\je;
+use function Jaxon\form;
 use function Jaxon\jq;
 
 /**
@@ -49,7 +49,7 @@ class Create extends MainComponent
         $this->bag('dbadmin.table')->set('columns', []);
 
         // Set main menu buttons
-        $values = je($this->formId)->rd()->form();
+        $values = form($this->formId);
         $length = jq(".{$this->formId}-column", "#{$this->formId}")->length;
         $actions = [
             'table-save' => [

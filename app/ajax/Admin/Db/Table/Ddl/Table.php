@@ -115,7 +115,7 @@ class Table extends MainComponent
     private function showTab(array $tableData, string $tabId): void
     {
         $content = $this->tableUi->pageContent([...$this->metadata, ...$tableData]);
-        $this->response->html($tabId, $content);
+        $this->response()->html($tabId, $content);
     }
 
     /**

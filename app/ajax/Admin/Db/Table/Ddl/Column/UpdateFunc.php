@@ -4,6 +4,8 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
 
+use function Jaxon\form;
+
 class UpdateFunc extends FuncComponent
 {
     /**
@@ -41,7 +43,7 @@ class UpdateFunc extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save($columnId, je($this->formId)->rd()->form()),
+            'click' => $this->rq()->save($columnId, form($this->formId)),
         ]];
 
         $this->modal()->show($title, $content, $buttons);

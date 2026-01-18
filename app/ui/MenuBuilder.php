@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ui;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Database;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function Jaxon\je;
+use function Jaxon\select;
 use function Jaxon\rq;
 
 class MenuBuilder
@@ -87,7 +87,7 @@ class MenuBuilder
      */
     public function databases(array $databases): string
     {
-        $database = je('jaxon-dbadmin-database-select')->rd()->select();
+        $database = select('jaxon-dbadmin-database-select');
         $call = rq(Database::class)->select($database)->ifne($database, '');
 
         return $this->ui->build(
@@ -118,7 +118,7 @@ class MenuBuilder
      */
     public function schemas(string $database, array $schemas): string
     {
-        $schema = je('jaxon-dbadmin-schema-select')->rd()->select();
+        $schema = select('jaxon-dbadmin-schema-select');
         $call = rq(Database::class)->select($database, $schema);
 
         return $this->ui->build(

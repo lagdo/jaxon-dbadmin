@@ -57,7 +57,7 @@ class Form extends Component
     protected function after(): void
     {
         [$server,] = $this->bag('dbadmin')->get('db');
-        $this->response->jo('jaxon.dbadmin')->createSqlQueryEditor($this->queryId,
+        $this->response()->jo('jaxon.dbadmin')->createSqlQueryEditor($this->queryId,
             $this->package->getServerDriver($server));
     }
 

@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Ajax;
 
-use Jaxon\App\Dialog\DialogTrait;
 use Jaxon\App\FuncComponent as JaxonFuncComponent;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Db\DbAdminPackage;
@@ -13,7 +12,6 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
 #[Databag('dbadmin')]
 class FuncComponent extends JaxonFuncComponent
 {
-    use DialogTrait;
     use ComponentTrait;
 
     /**
