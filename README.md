@@ -308,10 +308,11 @@ Databases can be exported to various types of files: SQL, CSV, and more.
 
 The export feature is configured with two callbacks.
 
-The `writer` callback saves the export data content in a file. It takes the content and the file name as parameters, and returns the URI to the exported file.
-It must return an empty string in case of error, and the web app must be configured to return the file content on a request to the URI.
+The `writer` callback saves the export data content in a file. It takes the content and the file name as parameters, and returns the URI to the created file.
+It must return an empty string in case of error.
 
 The `reader` callback takes an export file name as parameter, then reads and returns its content.
+The web app must be configured to call the `reader` callback and send back the returned content when an HTTP request hits the URI returned by the `writer` callback.
 
 Both callbacks can use the [Jaxon Storage](https://github.com/jaxon-php/jaxon-storage), as in the example below, to read and write the exported files, which can then be saved on different types of filesystems, thanks to the [Flysystem](https://flysystem.thephpleague.com) library.
 
@@ -325,9 +326,11 @@ use function Jaxon\storage;
 
     'app' => [
         'storage' => [
-            'exports' => [
-                'adapter' => 'local',
-                'dir' => "/path/to/exports",
+            'stores' => [
+                'exports' => [
+                    'adapter' => 'local',
+                    'dir' => "/path/to/exports",
+                ],
             ],
         ],
         'packages' => [
