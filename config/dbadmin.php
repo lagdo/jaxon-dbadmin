@@ -24,7 +24,8 @@ return [
             ...$container['set'],
             Config\ServerConfig::class => function(Container $di) {
                 $config = $di->getPackageConfig(Db\DbAdminPackage::class);
-                return new Config\ServerConfig($config);
+                $reader = $di->g($config->getOption('reader', Config\ConfigReader::class));
+                return new Config\ServerConfig($config, $reader);
             },
             // The database driver used in the application
             Db\Driver\AppDriver::class => function(Container $di) {

@@ -22,11 +22,6 @@ class ServerConfig
     /**
      * @var string
      */
-    private string $captureRegex = '/^env\((.*)\)$/';
-
-    /**
-     * @var string
-     */
     private string $compareRegex = '/^env\(.*\)$/';
 
     /**
@@ -35,9 +30,12 @@ class ServerConfig
     private array $configs = [];
 
     /**
+     * The constructor
+     *
      * @param Config $config
+     * @param ConfigReader $reader
      */
-    public function __construct(protected readonly Config $config)
+    public function __construct(protected readonly Config $config, private ConfigReader $reader)
     {}
 
     /**
@@ -48,7 +46,7 @@ class ServerConfig
      *
      * @return mixed
      */
-    final public function getOption(string $option, $default = null): mixed
+    public function getOption(string $option, $default = null): mixed
     {
         return $this->config->getOption($option, $default);
     }
@@ -141,115 +139,6 @@ class ServerConfig
     }
 
     /**
-     * @param string $prefix
-     * @param string $option
-     *
-     * @return mixed
-     */
-    protected function getOptionValue(string $prefix, string $option): mixed
-    {
-        $value = $this->getOption("$prefix.{$option}");
-        // We need to capture the matching string.
-        $match = preg_match($this->captureRegex, $value, $matches);
-        return $match === false || !isset($matches[1]) ? $value : env($matches[1]);
-    }
-
-    /**
-     * @param string $prefix
-     *
-     * @return bool
-     */
-    protected function hasDirectory(string $prefix): bool
-    {
-        return $this->config->hasOption("$prefix.directory");
-    }
-
-    /**
-     * @param string $prefix
-     *
-     * @return string
-     */
-    protected function getDirectory(string $prefix): string
-    {
-        return $this->getOptionValue($prefix, 'directory');
-    }
-
-    /**
-     * @param string $prefix
-     *
-     * @return string
-     */
-    protected function getHost(string $prefix): string
-    {
-        return $this->getOptionValue($prefix, 'host');
-    }
-
-    /**
-     * @param string $prefix
-     *
-     * @return int
-     */
-    protected function getPort(string $prefix): int
-    {
-        return $this->config->hasOption("$prefix.port") &&
-            is_string($this->getOption("$prefix.port")) ?
-            (int)$this->getOptionValue($prefix, 'port') : 0;
-    }
-
-    /**
-     * @param string $prefix
-     *
-     * @return string
-     */
-    protected function getUsername(string $prefix): string
-    {
-        return $this->getOptionValue($prefix, 'username');
-    }
-
-    /**
-     * @param string $prefix
-     *
-     * @return string
-     */
-    protected function getPassword(string $prefix): string
-    {
-        return $this->getOptionValue($prefix, 'password');
-    }
-
-    /**
-     * @param string $prefix
-     *
-     * @return array
-     */
-    public function readServerConfig(string $prefix): array
-    {
-        $options = [
-            'name' => $this->getOption("$prefix.name"),
-            'driver' => $this->getOption("$prefix.driver"),
-        ];
-        if ($options['driver'] === 'sqlite' &&
-            $this->config->hasOption("$prefix.directory")) {
-            $options['directory'] = $this->getDirectory($prefix);
-            return $options;
-        }
-
-        if(($host = $this->getHost($prefix)) !== '') {
-            $options['host'] = $host;
-        }
-        if ($this->config->hasOption("$prefix.port") &&
-            is_string($this->getOption("$prefix.port"))) {
-            $options['port'] = $this->getPort($prefix);
-        }
-        if(($username = $this->getUsername($prefix)) !== '') {
-            $options['username'] = $username;
-        }
-        if(($password = $this->getPassword($prefix)) !== '') {
-            $options['password'] = $password;
-        }
-        return $options;
-    }
-
-    /**
      * @param array $options
      *
      * @return bool
@@ -270,13 +159,13 @@ class ServerConfig
      *
      * @return array
      */
-    private function readConfig(string $prefix): array
+    private function _readConfig(string $prefix): array
     {
         if (!$this->hasDbServer($prefix)) {
             return [];
         }
 
-        $options = $this->readServerConfig($prefix);
+        $options = $this->reader->readServerConfig($this->config, $prefix);
         return $this->checkOptions($options) ? $options : [];
     }
 
@@ -285,9 +174,9 @@ class ServerConfig
      *
      * @return array
      */
-    private function config(string $prefix): array
+    private function readConfig(string $prefix): array
     {
-        return $this->configs[$prefix] ??= $this->readConfig($prefix);
+        return $this->configs[$prefix] ??= $this->_readConfig($prefix);
     }
 
     /**
@@ -297,7 +186,7 @@ class ServerConfig
      */
     public function getServers(): array
     {
-        return array_filter(array_map($this->config(...),
+        return array_filter(array_map($this->readConfig(...),
             $this->config->getOptionNames('servers')),
             fn(array $config) => count($config) > 0);
     }
@@ -309,7 +198,7 @@ class ServerConfig
      */
     public function getServerConfig(string $server): array
     {
-        return $this->config("servers.$server");
+        return $this->readConfig("servers.$server");
     }
 
     /**
@@ -325,7 +214,7 @@ class ServerConfig
      */
     public function getAuditDatabase(): array|null
     {
-        return $this->hasAuditDatabase() ? $this->config('audit.database') : null;
+        return $this->hasAuditDatabase() ? $this->readConfig('audit.database') : null;
     }
 
     /**

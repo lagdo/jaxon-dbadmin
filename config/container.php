@@ -88,6 +88,7 @@ return [
             $dbFacade = $di->g(Db\Driver\DbFacade::class);
             return new Facades\ViewFacade($dbFacade);
         },
+        Config\ConfigReader::class => fn() => new Config\ConfigReader(),
         Config\UserFileReader::class => fn(Container $di) =>
             new Config\UserFileReader(getAuth($di)),
     ],

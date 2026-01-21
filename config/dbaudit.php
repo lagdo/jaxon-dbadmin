@@ -24,9 +24,10 @@ return [
             ...$container['set'],
             Config\ServerConfig::class => function(Container $di) {
                 $config = $di->getPackageConfig(Db\DbAuditPackage::class);
+                $reader = $di->g($config->getOption('reader', Config\ConfigReader::class));
                 // Move the options under the "audit" key. Needed by the ServerConfig class.
                 $config = (new ConfigSetter())->newConfig(['audit' => $config->getValues()]);
-                return new Config\ServerConfig($config);
+                return new Config\ServerConfig($config, $reader);
             },
             // Connection to the audit database
             Service\Audit\ConnectionProxy::class => function(Container $di) {
