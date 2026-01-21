@@ -1,35 +1,16 @@
 <?php
 
+use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Db;
 use Lagdo\DbAdmin\Db\Config;
-use Lagdo\DbAdmin\Db\Driver\Exception;
-use Lagdo\DbAdmin\Db\Driver\Facades;
 use Lagdo\DbAdmin\Db\Service;
 use Lagdo\DbAdmin\Driver;
-use Lagdo\DbAdmin\Ui;
 
-use function Jaxon\jaxon;
-
-function getAuth($di): Config\AuthInterface
-{
-    return $di->h(Config\AuthInterface::class) ?
-        $di->g(Config\AuthInterface::class) :
-        new class implements Config\AuthInterface {
-            public function user(): string
-            {
-                return '';
-            }
-            public function role(): string
-            {
-                return '';
-            }
-        };
-}
+$base = require __DIR__ . '/base.php';
+$container = require __DIR__ . '/container.php';
 
 return [
-    'metadata' => [
-        'format' => 'attributes',
-    ],
+    ...$base,
     'directories' => [
         [
             'path' => __DIR__ . '/../app/ajax/Admin',
@@ -37,44 +18,16 @@ return [
             'autoload' => false,
         ],
     ],
-    'views' => [
-        'dbadmin::codes' => [
-            'directory' => __DIR__ . '/../templates/codes',
-            'extension' => '',
-            'renderer' => 'jaxon',
-        ],
-        'dbadmin::views' => [
-            'directory' => __DIR__ . '/../templates/views',
-            'extension' => '.php',
-            'renderer' => 'jaxon',
-        ],
-        'dbadmin::templates' => [
-            'directory' => __DIR__ . '/../templates/views',
-            'extension' => '.php',
-            'renderer' => 'jaxon',
-        ],
-        'pagination' => [
-            'directory' => __DIR__ . '/../templates/pagination',
-            'extension' => '.php',
-            'renderer' => 'jaxon',
-        ],
-    ],
     'container' => [
+        ...$container,
         'set' => [
-            // Selected database driver
-            Driver\DriverInterface::class => function($di) {
-                // Register a driver for each database server.
-                $package = $di->g(Db\DbAdminPackage::class);
-                foreach($package->getServers() as $server => $options) {
-                    $di->set("dbadmin_driver_$server", fn() =>
-                        Db\Driver\AppDriver::createDriver($options));
-                }
-
-                $server = $di->g('dbadmin_config_server');
-                return $di->g("dbadmin_driver_$server");
+            ...$container['set'],
+            Config\ServerConfig::class => function(Container $di) {
+                $config = $di->getPackageConfig(Db\DbAdminPackage::class);
+                return new Config\ServerConfig($config);
             },
             // The database driver used in the application
-            Db\Driver\AppDriver::class => function($di) {
+            Db\Driver\AppDriver::class => function(Container $di) {
                 // This class will "clone" the selected driver, and define the callbacks.
                 // By doing this, the driver classes will call the driver without the callbacks.
                 $driver = new Db\Driver\AppDriver($di->g(Driver\DriverInterface::class));
@@ -82,97 +35,34 @@ return [
                 $driver->addQueryCallback(fn() => $timer->stop());
                 $logger = $di->g(Service\Admin\QueryLogger::class);
                 if ($logger !== null) {
-                    $driver->addQueryCallback(fn(string $query) => $logger->saveCommand($query));
+                    $driver->addQueryCallback($logger->saveCommand(...));
                 }
                 return $driver;
             },
-            // Facades to the DB driver features
-            Facades\CommandFacade::class => function($di) {
-                $dbFacade = $di->g(Db\Driver\DbFacade::class);
-                $timer = $di->g(Service\TimerService::class);
-                $logger = $di->g(Service\Admin\QueryLogger::class);
-                return new Facades\CommandFacade($dbFacade, $timer, $logger);
-            },
-            Facades\DatabaseFacade::class => function($di) {
-                $dbFacade = $di->g(Db\Driver\DbFacade::class);
-                $server = $di->g('dbadmin_config_server');
-                $package = $di->g(Db\DbAdminPackage::class);
-                $options = $package->getServerOptions($server);
-                return new Facades\DatabaseFacade($dbFacade, $options);
-            },
-            Facades\ExportFacade::class => function($di) {
-                $dbFacade = $di->g(Db\Driver\DbFacade::class);
-                return new Facades\ExportFacade($dbFacade);
-            },
-            Facades\ImportFacade::class => function($di) {
-                $dbFacade = $di->g(Db\Driver\DbFacade::class);
-                $timer = $di->g(Service\TimerService::class);
-                $logger = $di->g(Service\Admin\QueryLogger::class);
-                return new Facades\ImportFacade($dbFacade, $timer, $logger);
-            },
-            Facades\QueryFacade::class => function($di) {
-                $dbFacade = $di->g(Db\Driver\DbFacade::class);
-                return new Facades\QueryFacade($dbFacade);
-            },
-            Facades\SelectFacade::class => function($di) {
-                $dbFacade = $di->g(Db\Driver\DbFacade::class);
-                $timer = $di->g(Service\TimerService::class);
-                return new Facades\SelectFacade($dbFacade, $timer);
-            },
-            Facades\ServerFacade::class => function($di) {
-                $dbFacade = $di->g(Db\Driver\DbFacade::class);
-                $server = $di->g('dbadmin_config_server');
-                $package = $di->g(Db\DbAdminPackage::class);
-                $options = $package->getServerOptions($server);
-                return new Facades\ServerFacade($dbFacade, $options);
-            },
-            Facades\TableFacade::class => function($di) {
-                $dbFacade = $di->g(Db\Driver\DbFacade::class);
-                return new Facades\TableFacade($dbFacade);
-            },
-            Facades\UserFacade::class => function($di) {
-                $dbFacade = $di->g(Db\Driver\DbFacade::class);
-                return new Facades\UserFacade($dbFacade);
-            },
-            Facades\ViewFacade::class => function($di) {
-                $dbFacade = $di->g(Db\Driver\DbFacade::class);
-                return new Facades\ViewFacade($dbFacade);
-            },
-            Config\UserFileReader::class => function($di) {
-                return new Config\UserFileReader(getAuth($di));
-            },
             // Database options for audit
-            'dbaudit_database_server' => function($di) {
-                $package = $di->g(Db\DbAdminPackage::class);
-                return !$package->hasAuditDatabase() ? null :
-                    $package->getOption('audit.database');
-            },
-            // Database driver for audit
-            'dbaudit_database_driver' => function($di) {
-                $options = $di->g('dbaudit_database_server');
-                return Db\Driver\AppDriver::createDriver($options);
+            'dbaudit_database_options' => function($di) {
+                $serverConfig = $di->g(Config\ServerConfig::class);
+                $database = $serverConfig->getAuditDatabase();
+                $options = $serverConfig->getAuditOptions();
+                return is_array($database) && is_array($options) &&
+                    $di->h(Config\AuthInterface::class) ? $options : null;
             },
             // Connection to the audit database
-            Service\Admin\ConnectionProxy::class => function($di) {
-                $driver = $di->g('dbaudit_database_driver');
-                $database = $di->g('dbaudit_database_server');
-                $reader = $di->g(Config\UserFileReader::class);
-                return new Service\Admin\ConnectionProxy(getAuth($di), $driver,
-                    $reader->getServerOptions($database));
+            Service\Admin\ConnectionProxy::class => function(Container $di) {
+                $serverConfig = $di->g(Config\ServerConfig::class);
+                $database = $serverConfig->getAuditDatabase();
+                $driver = Db\Driver\AppDriver::createDriver($database);
+                return new Service\Admin\ConnectionProxy(getAuth($di), $driver, $database);
             },
             // Query logger
-            Service\Admin\QueryLogger::class => function($di) {
-                $package = $di->g(Db\DbAdminPackage::class);
-                $options = $package->getOption('audit.options');
-                $database = $di->g('dbaudit_database_server');
-                if (!is_array($database) || !is_array($options) ||
-                    !$di->h(Config\AuthInterface::class)) {
+            Service\Admin\QueryLogger::class => function(Container $di) {
+                if (($options = $di->g('dbaudit_database_options')) === null) {
                     return null;
                 }
 
                 // User database, different from the audit database.
-                $server = $di->g('dbadmin_config_server');
-                $serverOptions = $package->getServerOptions($server);
+                $serverOptions = $di->g(Config\ServerConfig::class)
+                    ->getServerConfig($di->g('dbadmin_config_server'));
                 $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $options['database'] = $dbFacade->getDatabaseOptions($serverOptions);
 
@@ -180,12 +70,8 @@ return [
                 return new Service\Admin\QueryLogger($proxy, $options);
             },
             // Query history
-            Service\Admin\QueryHistory::class => function($di) {
-                $package = $di->g(Db\DbAdminPackage::class);
-                $options = $package->getOption('audit.options');
-                $database = $di->g('dbaudit_database_server');
-                if (!is_array($database) || !is_array($options) ||
-                    !$di->h(Config\AuthInterface::class)) {
+            Service\Admin\QueryHistory::class => function(Container $di) {
+                if (($options = $di->g('dbaudit_database_options')) === null) {
                     return null;
                 }
 
@@ -193,12 +79,8 @@ return [
                 return new Service\Admin\QueryHistory($proxy, $options);
             },
             // Query favorites
-            Service\Admin\QueryFavorite::class => function($di) {
-                $package = $di->g(Db\DbAdminPackage::class);
-                $options = $package->getOption('audit.options');
-                $database = $di->g('dbaudit_database_server');
-                if (!is_array($database) || !is_array($options) ||
-                    !$di->h(Config\AuthInterface::class)) {
+            Service\Admin\QueryFavorite::class => function(Container $di) {
+                if (($options = $di->g('dbaudit_database_options')) === null) {
                     return null;
                 }
 
@@ -206,48 +88,5 @@ return [
                 return new Service\Admin\QueryFavorite($proxy, $options);
             },
         ],
-        'auto' => [
-            // The translator
-            Db\Translator::class,
-            // The string manipulation class
-            Driver\Utils\Str::class,
-            // The user input
-            Driver\Utils\Input::class,
-            // The utils class
-            Driver\Utils\Utils::class,
-            // The db classes
-            Db\UiData\AppPage::class,
-            // The facade to the database features
-            Db\Driver\DbFacade::class,
-            // The Timer service
-            Service\TimerService::class,
-            // The UI builders
-            Ui\UiBuilder::class,
-            Ui\InputBuilder::class,
-            Ui\MenuBuilder::class,
-            Ui\Data\EditUiBuilder::class,
-            Ui\Select\OptionsUiBuilder::class,
-            Ui\Select\ResultUiBuilder::class,
-            Ui\Select\SelectUiBuilder::class,
-            Ui\Database\ServerUiBuilder::class,
-            Ui\Command\QueryUiBuilder::class,
-            Ui\Command\AuditUiBuilder::class,
-            Ui\Command\ImportUiBuilder::class,
-            Ui\Command\ExportUiBuilder::class,
-            Ui\Table\TableUiBuilder::class,
-            Ui\Table\ViewUiBuilder::class,
-            Ui\Table\ColumnUiBuilder::class,
-        ],
-        'alias' => [
-            // The translator
-            Driver\Utils\TranslatorInterface::class => Db\Translator::class,
-        ],
-    ],
-    'exceptions' => [
-        Exception\DbException::class => function(Exception\DbException $dbException) {
-            $response = jaxon()->getResponse();
-            $response->dialog->warning($dbException->getMessage());
-            return $response;
-        },
     ],
 ];

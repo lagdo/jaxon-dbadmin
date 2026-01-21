@@ -56,20 +56,19 @@ trait QueryTrait
 
         [$server,] = $this->bag('dbadmin')->get('db');
         $this->response()->jo('jaxon.dbadmin')->createSqlQueryEditor($this->queryId,
-            $this->package->getServerDriver($server));
+            $this->config()->getServerDriver($server));
         if($this->query !== '')
         {
             $this->response()->jo('jaxon.dbadmin')->setSqlQuery($this->query);
         }
 
-        if (!$this->package->hasAuditDatabase()) {
+        if (!$this->config()->hasAuditDatabase()) {
             return;
         }
-        $config = $this->package->getConfig();
-        if ($config->getOption('audit.options.history.enabled')) {
+        if ($this->config()->getOption('audit.options.history.enabled')) {
             $this->cl(History::class)->render();
         }
-        if ($config->getOption('audit.options.favorite.enabled')) {
+        if ($this->config()->getOption('audit.options.favorite.enabled')) {
             $this->cl(Favorite::class)->render();
         }
     }

@@ -7,7 +7,7 @@ use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Sections;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Server\Command as ServerCommand;
-use Lagdo\DbAdmin\Db\DbAdminPackage;
+use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
@@ -20,12 +20,12 @@ abstract class Component extends JaxonComponent
     /**
      * The constructor
      *
-     * @param DbAdminPackage $package    The DbAdmin package
+     * @param ServerConfig   $config     The package config reader
      * @param DbFacade       $db         The facade to database functions
      * @param UiBuilder      $ui         The HTML UI builder
      * @param Translator     $trans
      */
-    public function __construct(protected DbAdminPackage $package, protected DbFacade $db,
+    public function __construct(protected ServerConfig $config, protected DbFacade $db,
         protected UiBuilder $ui, protected Translator $trans)
     {}
 
@@ -39,7 +39,7 @@ abstract class Component extends JaxonComponent
         if ($server === null) {
             $server = $this->bag('dbadmin')->get('db')[0] ?? '';
         }
-        return $this->package()->getServerAccess($server);
+        return $this->config()->getServerAccess($server);
     }
 
     /**

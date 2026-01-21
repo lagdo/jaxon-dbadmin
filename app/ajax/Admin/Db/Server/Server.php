@@ -21,7 +21,7 @@ class Server extends FuncComponent
      */
     private function getDatabases(): array
     {
-        $systemAccess = $this->package()->getOption('access.system', false);
+        $systemAccess = $this->config()->getOption('access.system', false);
         return $this->db()->getDatabases($systemAccess)['databases'];
     }
 
@@ -51,7 +51,7 @@ class Server extends FuncComponent
         $databases = $this->getDatabases();
         $this->cl(MenuDatabases::class)->showDatabases($databases);
 
-        $hasServerAccess = $this->package()->getServerAccess($server);
+        $hasServerAccess = $this->config()->getServerAccess($server);
         if($hasServerAccess)
         {
             $this->cl(ServerCommand::class)->render();

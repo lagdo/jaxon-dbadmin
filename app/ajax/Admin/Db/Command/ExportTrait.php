@@ -74,7 +74,7 @@ trait ExportTrait
      */
     protected function exportDb(array $databases, array $formValues): void
     {
-        $writer = $this->package()->getOption('export.writer');
+        $writer = $this->config()->getOption('export.writer');
         if (!is_callable($writer)) {
             $this->alert()->title('Error')
                 ->error('The export feature is not setup.');

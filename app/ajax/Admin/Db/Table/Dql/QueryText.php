@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql;
 
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\Db\DbAdminPackage;
+use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Ui\Select\SelectUiBuilder;
@@ -23,11 +23,11 @@ class QueryText extends Component
      *
      * @param DbFacade        $db         The facade to database functions
      * @param Utils           $utils
-     * @param DbAdminPackage  $package    The DbAdmin package
+     * @param ServerConfig    $config     The package config
      * @param SelectUiBuilder $selectUi The HTML UI builder
      */
     public function __construct(protected DbFacade $db, protected Utils $utils,
-        protected DbAdminPackage $package, protected SelectUiBuilder $selectUi)
+        protected ServerConfig $config, protected SelectUiBuilder $selectUi)
     {}
 
     /**
@@ -51,7 +51,7 @@ class QueryText extends Component
     protected function after(): void
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
-        $driver = $this->package->getServerDriver($server);
+        $driver = $this->config()->getServerDriver($server);
         $this->response()->jo('jaxon.dbadmin')->createSqlSelectEditor($this->txtQueryId, $driver);
     }
 

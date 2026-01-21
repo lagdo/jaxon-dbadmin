@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ajax;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Ajax\Exception\AppException;
-use Lagdo\DbAdmin\Db\DbAdminPackage;
+use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
@@ -18,9 +18,9 @@ use Exception;
 trait ComponentTrait
 {
     /**
-     * @var DbAdminPackage
+     * @var ServerConfig
      */
-    protected DbAdminPackage $package;
+    protected ServerConfig $config;
 
     /**
      * @var DbFacade
@@ -38,11 +38,11 @@ trait ComponentTrait
     protected Translator $trans;
 
     /**
-     * @return DbAdminPackage
+     * @return ServerConfig
      */
-    protected function package(): DbAdminPackage
+    protected function config(): ServerConfig
     {
-        return $this->package;
+        return $this->config;
     }
 
     /**
@@ -96,7 +96,7 @@ trait ComponentTrait
     protected function setupSqlEditor(string $queryDivId): void
     {
         [$server, ] = $this->bag('dbadmin')->get('db');
-        $driver = $this->package->getServerDriver($server);
+        $driver = $this->config()->getServerDriver($server);
         $this->response()->jo('jaxon.dbadmin')->createSqlSelectEditor($queryDivId, $driver);
     }
 }

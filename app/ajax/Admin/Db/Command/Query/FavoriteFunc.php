@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 
 use Lagdo\DbAdmin\Ajax\Admin\Db\FuncComponent;
 use Lagdo\DbAdmin\Ajax\Exception\ValidationException;
-use Lagdo\DbAdmin\Db\DbAdminPackage;
+use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Service\Admin\QueryFavorite;
 use Lagdo\DbAdmin\Db\Translator;
@@ -19,13 +19,13 @@ class FavoriteFunc extends FuncComponent
 {
     /**
      * @param AuditUiBuilder $auditUi
-     * @param DbAdminPackage $package
+     * @param ServerConfig $config
      * @param DbFacade $db
      * @param Translator $trans
      * @param QueryFavorite|null $queryFavorite
      */
     public function __construct(private AuditUiBuilder $auditUi,
-        protected DbAdminPackage $package, protected DbFacade $db,
+        protected ServerConfig $config, protected DbFacade $db,
         protected Translator $trans, private QueryFavorite|null $queryFavorite)
     {}
 
@@ -103,7 +103,7 @@ class FavoriteFunc extends FuncComponent
 
         // Get the driver name from the package config options.
         $server = $this->db()->getServerName();
-        $values['driver'] = $this->package()->getServerDriver($server);
+        $values['driver'] = $this->config()->getServerDriver($server);
         $this->queryFavorite->createQuery($values);
 
         $this->modal()->hide();
@@ -163,7 +163,7 @@ class FavoriteFunc extends FuncComponent
 
         // Get the driver name from the package config options.
         $server = $this->db()->getServerName();
-        $values['driver'] = $this->package()->getServerDriver($server);
+        $values['driver'] = $this->config()->getServerDriver($server);
         $this->queryFavorite->updateQuery($queryId, $values);
 
         $this->modal()->hide();

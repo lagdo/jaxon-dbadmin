@@ -14,7 +14,7 @@ class Breadcrumbs extends Component
     public function html(): string
     {
         [$server,] = $this->bag('dbadmin')->get('db');
-        $serverName = $this->package->getServerName($server);
+        $serverName = $this->config()->getServerName($server);
         $breadcrumbs = [$serverName, ...$this->db->breadcrumbs()->items()];
         return $this->ui()->breadcrumbs($breadcrumbs);
     }

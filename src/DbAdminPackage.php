@@ -9,8 +9,6 @@ use Jaxon\Plugin\CssCodeGeneratorInterface;
 use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 
-use function in_array;
-use function is_array;
 use function realpath;
 use function Jaxon\cl;
 use function Jaxon\rq;
@@ -28,81 +26,6 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     public static function config(): string
     {
         return realpath(__DIR__ . '/../config/dbadmin.php');
-    }
-
-    /**
-     * Get the database servers
-     *
-     * @return array
-     */
-    public function getServers(): array
-    {
-        return $this->getOption('servers', []);
-    }
-
-    /**
-     * Get the name of a given server
-     *
-     * @param string $server    The server name in the configuration
-     *
-     * @return string
-     */
-    public function getServerName(string $server): string
-    {
-        return $this->getOption("servers.$server.name", '');
-    }
-
-    /**
-     * Get a given server options
-     *
-     * @param string $server    The server name in the configuration
-     *
-     * @return array
-     */
-    public function getServerOptions(string $server): array
-    {
-        return $this->getOption("servers.$server", []);
-    }
-
-    /**
-     * Get the driver of a given server
-     *
-     * @param string $server    The server name in the configuration
-     *
-     * @return string
-     */
-    public function getServerDriver(string $server): string
-    {
-        return $this->getOption("servers.$server.driver", '');
-    }
-
-    /**
-     * Check if the user has access to a server
-     *
-     * @param string $server      The database server
-     *
-     * return bool
-     */
-    public function getServerAccess(string $server): bool
-    {
-        // Check in server options
-        $serverAccess = $this->getOption("servers.$server.access.server", null);
-        if($serverAccess === true || $serverAccess === false)
-        {
-            return $serverAccess;
-        }
-        // Check in global options
-        return $this->getOption('access.server', true) === true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasAuditDatabase(): bool
-    {
-        $options = $this->getOption('audit.database');
-        return is_array($options) && isset($options['driver']) &&
-            in_array($options['driver'], ['pgsql', 'mysql', 'sqlite']);
     }
 
     /**
@@ -142,9 +65,8 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     public function getReadyScript(): string
     {
         $defaultServer = $this->getOption('default');
-        return !$defaultServer ||
-            !$this->getOption("servers.$defaultServer") ? '' :
-                rq(Admin::class)->server($defaultServer);
+        return !$defaultServer || !$this->getOption("servers.$defaultServer") ?
+            '' : rq(Admin::class)->server($defaultServer);
     }
 
     /**
