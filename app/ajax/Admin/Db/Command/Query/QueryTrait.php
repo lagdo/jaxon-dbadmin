@@ -65,10 +65,10 @@ trait QueryTrait
         if (!$this->config()->hasAuditDatabase()) {
             return;
         }
-        if ($this->config()->getOption('audit.options.history.enabled')) {
+        if ($this->config()->historyEnabled()) {
             $this->cl(History::class)->render();
         }
-        if ($this->config()->getOption('audit.options.favorite.enabled')) {
+        if ($this->config()->favoriteEnabled()) {
             $this->cl(Favorite::class)->render();
         }
     }

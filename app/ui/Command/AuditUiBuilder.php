@@ -27,17 +27,6 @@ class AuditUiBuilder
     {}
 
     /**
-     * @return string
-     */
-    public function queries(): string
-    {
-        return $this->ui->build(
-            $this->ui->div()->jxnBind(rq(Query\Favorite::class)),
-            $this->ui->div()->jxnBind(rq(Query\History::class))
-        );
-    }
-
-    /**
      * @return mixed
      */
     private function historyButtons(): mixed
@@ -64,12 +53,12 @@ class AuditUiBuilder
         $btnCopyHandler = jo('jaxon.dbadmin.history')->copySqlQuery(jq());
         $btnInsertHandler = jo('jaxon.dbadmin.history')->insertSqlQuery(jq());
         return $this->ui->build(
-            $this->ui->row(
-                $this->ui->col(
-                        $this->ui->h4($this->trans->lang('History'))
-                            ->setStyle('font-size:16px; font-weight:600;')
-                    )->width(12)
-            ),
+            // $this->ui->row(
+            //     $this->ui->col(
+            //             $this->ui->h4($this->trans->lang('History'))
+            //                 ->setStyle('font-size:16px; font-weight:600;')
+            //         )->width(12)
+            // ),
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->table(
@@ -105,10 +94,10 @@ class AuditUiBuilder
     {
         return $this->ui->build(
             $this->ui->row(
-                $this->ui->col(
-                    $this->ui->h4($this->trans->lang('Favorites'))
-                        ->setStyle('font-size:16px; font-weight:600;'))
-                    ->width(3),
+                // $this->ui->col(
+                //     $this->ui->h4($this->trans->lang('Favorites'))
+                //         ->setStyle('font-size:16px; font-weight:600;'))
+                //     ->width(3),
                 $this->ui->col(
                     $this->ui->nav()
                         ->jxnPagination(rq(Query\FavoritePage::class))

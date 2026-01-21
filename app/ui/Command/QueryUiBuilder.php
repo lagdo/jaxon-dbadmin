@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\Ui\Command;
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Duration;
+use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -24,8 +25,10 @@ class QueryUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param ServerConfig $config
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, protected ServerConfig $config)
     {}
 
     /**
@@ -101,7 +104,8 @@ class QueryUiBuilder
                     )
                 )->width(4)
             )
-        )->horizontal(true)->wrapped(true)
+        )->horizontal(true)
+            ->wrapped(true)
             ->setId($this->queryFormId);
     }
 
@@ -115,29 +119,59 @@ class QueryUiBuilder
     public function command(string $queryId, JxnCall $rqQuery, int $defaultLimit): string
     {
         return $this->ui->build(
-            $this->ui->col()->width(12)->setId('dbadmin-command-details'),
-            $this->ui->col(
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->panel(
-                            $this->ui->panelBody(
-                                $this->ui->div()->setId($queryId)
-                            )->setClass('sql-command-editor-panel')
-                                ->setStyle('padding: 0 1px;')
-                        )->look('default')
-                            ->setStyle('padding: 5px;')
-                    )->width(12)
+            $this->ui->tabNav(
+                $this->ui->tabNavItem($this->trans->lang('Editor'))
+                    ->target("tab-content-query-editor")
+                    ->jxnOn('click', jo('jaxon.dbadmin')->refreshContent())
+                    ->active(true),
+                $this->ui->when($this->config->favoriteEnabled(), fn() =>
+                    $this->ui->tabNavItem($this->trans->lang('History'))
+                        ->target("tab-content-query-history")
+                        ->active(false)
+                ),
+                $this->ui->when($this->config->historyEnabled(), fn() =>
+                    $this->ui->tabNavItem($this->trans->lang('Favorites'))
+                        ->target("tab-content-query-favorite")
+                        ->active(false)
                 )
-            )->width(12),
-            $this->ui->col(
-                $this->actions($defaultLimit, $rqQuery)
-            )->width(12),
-            $this->ui->col()
-                ->width(12)
-                ->jxnBind(rq(Query\Results::class)),
-            $this->ui->col($this->ui->jxnHtml(rq(Query\Queries::class)))
-                ->width(12)
-                ->jxnBind(rq(Query\Queries::class))
+            )->setStyle('margin-bottom: 5px;'),
+            $this->ui->tabContent(
+                $this->ui->tabContentItem(
+                    $this->ui->row(
+                        $this->ui->col()->width(12)->setId('dbadmin-command-details'),
+                        $this->ui->col(
+                            $this->ui->row(
+                                $this->ui->col(
+                                    $this->ui->panel(
+                                        $this->ui->panelBody(
+                                            $this->ui->div()->setId($queryId)
+                                        )->setClass('sql-command-editor-panel')
+                                            ->setStyle('padding: 0 1px;')
+                                    )->look('default')
+                                        ->setStyle('padding: 5px;')
+                                )->width(12)
+                            )
+                        )->width(12),
+                        $this->ui->col(
+                            $this->actions($defaultLimit, $rqQuery)
+                        )->width(12),
+                        $this->ui->col()
+                            ->width(12)
+                            ->jxnBind(rq(Query\Results::class))
+                    )
+                )->setId("tab-content-query-editor")
+                    ->active(true),
+                $this->ui->when($this->config->favoriteEnabled(), fn() =>
+                    $this->ui->tabContentItem()
+                        ->jxnBind(rq(Query\History::class))
+                        ->setId("tab-content-query-history")
+                        ->active(false)),
+                $this->ui->when($this->config->historyEnabled(), fn() =>
+                    $this->ui->tabContentItem()
+                        ->jxnBind(rq(Query\Favorite::class))
+                        ->setId("tab-content-query-favorite")
+                        ->active(false))
+            )
         );
     }
 }

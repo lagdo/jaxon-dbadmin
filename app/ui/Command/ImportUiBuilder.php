@@ -169,28 +169,27 @@ class ImportUiBuilder
     public function import(array $contents, array $handlers): string
     {
         return $this->ui->build(
-            $this->ui->col()->width(12)->setId('dbadmin-command-details'),
-            $this->ui->col(
-                $this->ui->form(
-                    $this->ui->row(
-                        $this->fileCol($contents, $handlers['sqlFilesBtn'])
-                            ->width(6),
-                        $this->ui->when(isset($contents['path']), fn() =>
-                            $this->pathCol($contents, $handlers['webFileBtn'])
-                                ->width(6)
+            $this->ui->row(
+                $this->ui->col()->width(12)->setId('dbadmin-command-details'),
+                $this->ui->col(
+                    $this->ui->form(
+                        $this->ui->row(
+                            $this->fileCol($contents, $handlers['sqlFilesBtn'])
+                                ->width(6),
+                            $this->ui->when(isset($contents['path']), fn() =>
+                                $this->pathCol($contents, $handlers['webFileBtn'])
+                                    ->width(6)
+                            ),
                         ),
-                    ),
-                    $this->ui->row(
-                        $this->optionsCol()->width(12)
-                    )
-                )->wrapped(false)->setId($this->formId)
-            )->width(12),
-            $this->ui->col()
-                ->width(12)
-                ->jxnBind(rq(Query\Results::class)),
-            $this->ui->col($this->ui->jxnHtml(rq(Query\Queries::class)))
-                ->width(12)
-                ->jxnBind(rq(Query\Queries::class))
+                        $this->ui->row(
+                            $this->optionsCol()->width(12)
+                        )
+                    )->wrapped(false)->setId($this->formId)
+                )->width(12),
+                $this->ui->col()
+                    ->width(12)
+                    ->jxnBind(rq(Query\Results::class))
+            )
         );
     }
 }

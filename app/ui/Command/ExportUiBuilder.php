@@ -301,23 +301,25 @@ class ExportUiBuilder
     public function export(JxnCall $rqExport, array $options): string
     {
         return $this->ui->build(
-            $this->ui->col(
-                $this->ui->form(
-                    $this->ui->row(
-                        $this->optionsCol($rqExport, $options['options'])
-                            ->width(6),
-                        $this->ui->when(isset($options['databases']), fn() =>
-                            $this->ui->col($this->databases($options['databases']))
-                                ->width(6)
-                        ),
-                        $this->ui->when(isset($options['tables']), fn() =>
-                            $this->ui->col($this->tables($options['tables']))
-                                ->width(6)
+            $this->ui->row(
+                $this->ui->col(
+                    $this->ui->form(
+                        $this->ui->row(
+                            $this->optionsCol($rqExport, $options['options'])
+                                ->width(6),
+                            $this->ui->when(isset($options['databases']), fn() =>
+                                $this->ui->col($this->databases($options['databases']))
+                                    ->width(6)
+                            ),
+                            $this->ui->when(isset($options['tables']), fn() =>
+                                $this->ui->col($this->tables($options['tables']))
+                                    ->width(6)
+                            )
                         )
-                    )
-                )->wrapped(false)->setId($this->formId)
-            )->width(12),
-            $this->ui->col()->width(12)->setId('dbadmin-export-results')
+                    )->wrapped(false)->setId($this->formId)
+                )->width(12),
+                $this->ui->col()->width(12)->setId('dbadmin-export-results')
+            )
         );
     }
 }

@@ -75,6 +75,14 @@
     self.setSqlQuery = (query) => editor.ace.session.setValue(query);
 
     /**
+     * When the editor content is changed when it is in a hidden tab, the visible content
+     * is not updated when the tab becomes visible. We need to force the refresh.
+     *
+     * @returns {void}
+     */
+    self.refreshContent = () => editor.ace.session.setValue(self.getSqlQuery());
+
+    /**
      * Read the data-query-id attribute in the parent with the given tag name
      *
      * @param {Element} node 

@@ -224,4 +224,20 @@ class ServerConfig
     {
         return $this->getOption('audit.options', []);
     }
+
+    /**
+     * @return bool
+     */
+    public function historyEnabled(): bool
+    {
+        return $this->getOption('audit.options.history.enabled', false);
+    }
+
+    /**
+     * @return bool
+     */
+    public function favoriteEnabled(): bool
+    {
+        return $this->getOption('audit.options.favorite.enabled', false);
+    }
 }
