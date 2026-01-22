@@ -83,9 +83,7 @@ class ConfigReader
      */
     protected function getPort(string $prefix): int
     {
-        return $this->config->hasOption("$prefix.port") &&
-            is_string($this->getOption("$prefix.port")) ?
-            (int)$this->getOptionValue($prefix, 'port') : 0;
+        return (int)$this->getOptionValue($prefix, 'port');
     }
 
     /**
@@ -132,8 +130,7 @@ class ConfigReader
         if(($host = $this->getHost($prefix)) !== '') {
             $options['host'] = $host;
         }
-        if ($this->config->hasOption("$prefix.port") &&
-            is_string($this->getOption("$prefix.port"))) {
+        if ($this->config->hasOption("$prefix.port")) {
             $options['port'] = $this->getPort($prefix);
         }
         if(($username = $this->getUsername($prefix)) !== '') {
