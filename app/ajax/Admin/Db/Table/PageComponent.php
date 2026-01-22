@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table;
 
 use Jaxon\Attributes\Attribute\Before;
-use Lagdo\DbAdmin\Ajax\PageComponent as BaseComponent;
+use Lagdo\DbAdmin\Ajax\Base\PageComponent as BaseComponent;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax;
+namespace Lagdo\DbAdmin\Ajax\Base;
 
 use Jaxon\App\Component;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;

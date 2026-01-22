@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin;
 
 use Jaxon\Attributes\Attribute\After;
-use Lagdo\DbAdmin\Ajax\Component;
+use Lagdo\DbAdmin\Ajax\Base\Component;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Server\Server;
 
 class Admin extends Component

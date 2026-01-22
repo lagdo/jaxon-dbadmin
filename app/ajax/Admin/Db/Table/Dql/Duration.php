@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql;
 
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\Ajax\Component;
+use Lagdo\DbAdmin\Ajax\Base\Component;
 use Lagdo\DbAdmin\Ui\Select\SelectUiBuilder;
 
 use function is_float;

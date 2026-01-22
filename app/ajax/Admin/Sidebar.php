@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin;
 
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\Ajax\Component;
+use Lagdo\DbAdmin\Ajax\Base\Component;
 
 #[Exclude]
 class Sidebar extends Component

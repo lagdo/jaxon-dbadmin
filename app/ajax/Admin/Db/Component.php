@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db;
 
 use Jaxon\Attributes\Attribute\Before;
-use Lagdo\DbAdmin\Ajax\Component as BaseComponent;
+use Lagdo\DbAdmin\Ajax\Base\Component as BaseComponent;
 
 use function count;
 

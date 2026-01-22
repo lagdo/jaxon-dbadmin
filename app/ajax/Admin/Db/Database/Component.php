@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Database;
 
 use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\Admin\Page\Content;
-use Lagdo\DbAdmin\Ajax\Component as BaseComponent;
+use Lagdo\DbAdmin\Ajax\Base\Component as BaseComponent;
 
 #[Before('checkDatabaseAccess')]
 abstract class Component extends BaseComponent

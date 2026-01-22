@@ -6,7 +6,7 @@ use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Server\Export;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Server\Import;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Server\Query;
-use Lagdo\DbAdmin\Ajax\MenuComponent;
+use Lagdo\DbAdmin\Ajax\Base\MenuComponent;
 
 use function Jaxon\rq;
 

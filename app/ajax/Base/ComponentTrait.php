@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Ajax;
+namespace Lagdo\DbAdmin\Ajax\Base;
 
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Admin\Page\Breadcrumbs;

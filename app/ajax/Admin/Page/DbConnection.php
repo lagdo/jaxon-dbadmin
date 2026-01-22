@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Page;
 
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\Ajax\MenuComponent;
+use Lagdo\DbAdmin\Ajax\Base\MenuComponent;
 
 class DbConnection extends MenuComponent
 {

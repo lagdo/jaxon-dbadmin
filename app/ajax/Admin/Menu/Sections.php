@@ -14,7 +14,7 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Server\Privileges;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Server\Processes;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Server\Status;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Server\Variables;
-use Lagdo\DbAdmin\Ajax\MenuComponent;
+use Lagdo\DbAdmin\Ajax\Base\MenuComponent;
 
 use function Jaxon\rq;
 

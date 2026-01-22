@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dml;
 use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Query;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\ComponentTrait;
-use Lagdo\DbAdmin\Ajax\FuncComponent as BaseFuncComponent;
+use Lagdo\DbAdmin\Ajax\Base\FuncComponent as BaseFuncComponent;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;

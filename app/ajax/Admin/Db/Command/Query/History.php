@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\Ajax\Component;
+use Lagdo\DbAdmin\Ajax\Base\Component;
 use Lagdo\DbAdmin\Db\Service\Admin\QueryHistory;
 use Lagdo\DbAdmin\Ui\Command\AuditUiBuilder;
 

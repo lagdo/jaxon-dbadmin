@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 
-use Lagdo\DbAdmin\Ajax\PageComponent;
+use Lagdo\DbAdmin\Ajax\Base\PageComponent;
 use Lagdo\DbAdmin\Db\Service\Admin\QueryFavorite;
 use Lagdo\DbAdmin\Ui\Command\AuditUiBuilder;
 
