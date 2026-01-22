@@ -100,7 +100,7 @@ class QueryUiBuilder
                         ->width(8),
                         $this->ui->col()
                             ->width(4)
-                            ->jxnBind(rq(Duration::class))
+                            ->tbnBind(rq(Duration::class))
                     )
                 )->width(4)
             )
@@ -157,18 +157,18 @@ class QueryUiBuilder
                         )->width(12),
                         $this->ui->col()
                             ->width(12)
-                            ->jxnBind(rq(Query\Results::class))
+                            ->tbnBind(rq(Query\Results::class))
                     )
                 )->setId("tab-content-query-editor")
                     ->active(true),
                 $this->ui->when($this->config->favoriteEnabled(), fn() =>
                     $this->ui->tabContentItem()
-                        ->jxnBind(rq(Query\History::class))
+                        ->tbnBind(rq(Query\History::class))
                         ->setId("tab-content-query-history")
                         ->active(false)),
                 $this->ui->when($this->config->historyEnabled(), fn() =>
                     $this->ui->tabContentItem()
-                        ->jxnBind(rq(Query\Favorite::class))
+                        ->tbnBind(rq(Query\Favorite::class))
                         ->setId("tab-content-query-favorite")
                         ->active(false))
             )

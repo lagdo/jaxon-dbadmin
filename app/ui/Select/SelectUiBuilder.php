@@ -10,6 +10,7 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
+use function Jaxon\cl;
 use function Jaxon\rq;
 use function sprintf;
 
@@ -64,10 +65,10 @@ class SelectUiBuilder
                             $this->ui->row(
                                 $this->ui->col()
                                     ->width(6)
-                                    ->jxnBind(rq(Options\Fields::class)),
+                                    ->tbnBind(rq(Options\Fields::class)),
                                 $this->ui->col()
                                     ->width(6)
-                                    ->jxnBind(rq(Options\Values::class))
+                                    ->tbnBind(rq(Options\Values::class))
                             )
                         ),
                         $this->ui->row(
@@ -75,7 +76,7 @@ class SelectUiBuilder
                                 $this->ui->panel(
                                     $this->ui->panelBody()
                                         ->setStyle('padding: 0 1px;')
-                                        ->jxnBind(rq(QueryText::class))
+                                        ->tbnBind(rq(QueryText::class))
                                 )->look('default')
                                     ->setStyle('padding: 5px;')
                             )->width(12)
@@ -98,19 +99,19 @@ class SelectUiBuilder
                     $this->ui->row(
                         $this->ui->col(
                             $this->ui->nav()
-                                ->jxnPagination(rq(ResultSet::class))
+                                ->jxnPagination(cl(ResultSet::class))
                         )->width(10)
                             ->setStyle('overflow:hidden'),
                         $this->ui->col()
                             ->width(2)
-                            ->jxnBind(rq(Duration::class))
+                            ->tbnBind(rq(Duration::class))
                     )
                 )->width(9),
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->jxnBind(rq(ResultSet::class))
+                    ->tbnBind(rq(ResultSet::class))
             )
         );
     }

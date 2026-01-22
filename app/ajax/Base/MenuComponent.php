@@ -9,6 +9,8 @@ use Lagdo\DbAdmin\Ui\MenuBuilder;
 
 abstract class MenuComponent extends Component
 {
+    use TabItemTrait;
+
     /**
      * @param MenuBuilder $ui
      * @param Translator $trans

@@ -115,7 +115,7 @@ class OptionsUiBuilder
         return $this->ui->build(
             $this->ui->form(
                 $this->editFormButtons($rqColumns, $formId),
-                $this->ui->div()->jxnBind($rqColumns)
+                $this->ui->div()->tbnBind($rqColumns)
             )->wrapped(false)->setId($formId)
         );
     }
@@ -185,7 +185,7 @@ class OptionsUiBuilder
             $this->ui->form(
                 $this->editFormButtons($rqFilters, $formId),
                 $this->ui->div()
-                    ->jxnBind($rqFilters)
+                    ->tbnBind($rqFilters)
             )->wrapped(false)->setId($formId)
         );
     }
@@ -252,7 +252,7 @@ class OptionsUiBuilder
             $this->ui->form(
                 $this->editFormButtons($rqSorting, $formId),
                 $this->ui->div()
-                    ->jxnBind($rqSorting)
+                    ->tbnBind($rqSorting)
             )->wrapped(false)
                 ->setId($formId)
         );

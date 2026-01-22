@@ -13,6 +13,7 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
 abstract class PageComponent extends BaseComponent
 {
     use ComponentTrait;
+    use TabItemTrait;
 
     /**
      * @param ServerConfig   $config     The package config reader

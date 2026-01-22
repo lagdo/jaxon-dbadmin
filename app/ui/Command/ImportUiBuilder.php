@@ -188,7 +188,7 @@ class ImportUiBuilder
                 )->width(12),
                 $this->ui->col()
                     ->width(12)
-                    ->jxnBind(rq(Query\Results::class))
+                    ->tbnBind(rq(Query\Results::class))
             )
         );
     }

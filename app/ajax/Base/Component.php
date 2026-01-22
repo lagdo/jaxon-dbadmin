@@ -16,6 +16,7 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
 abstract class Component extends JaxonComponent
 {
     use ComponentTrait;
+    use TabItemTrait;
 
     /**
      * The constructor

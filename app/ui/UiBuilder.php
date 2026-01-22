@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui;
 
+use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Ajax\Admin\Admin;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Sections as MenuSections;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
@@ -14,6 +15,7 @@ use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\Ajax\Admin\Page\DbConnection;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
+use Lagdo\UiBuilder\Component\HtmlComponent;
 
 use function count;
 use function array_shift;
@@ -77,28 +79,28 @@ class UiBuilder
                 $this->ui->row(
                     $this->ui->col()
                         ->width(12)
-                        ->jxnBind(rq(ServerCommand::class))
+                        ->tbnBind(rq(ServerCommand::class))
                 )
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->jxnBind(rq(MenuDatabases::class))
+                    ->tbnBind(rq(MenuDatabases::class))
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->jxnBind(rq(MenuSchemas::class))
+                    ->tbnBind(rq(MenuSchemas::class))
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->jxnBind(rq(DatabaseCommand::class))
+                    ->tbnBind(rq(DatabaseCommand::class))
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->jxnBind(rq(MenuSections::class))
+                    ->tbnBind(rq(MenuSections::class))
             )
         );
     }
@@ -162,19 +164,19 @@ class UiBuilder
     private function wrapperContent(): mixed
     {
         return $this->ui->list(
-            $this->ui->row()->jxnBind(rq(DbConnection::class)),
+            $this->ui->row()->tbnBind(rq(DbConnection::class)),
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->span(['style' => 'float:left'])
-                        ->jxnBind(rq(Breadcrumbs::class)),
+                        ->tbnBind(rq(Breadcrumbs::class)),
                     $this->ui->span(['style' => 'float:right'])
-                        ->jxnBind(rq(PageActions::class))
+                        ->tbnBind(rq(PageActions::class))
                 )->width(12)
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->jxnBind(rq(Content::class))
+                    ->tbnBind(rq(Content::class))
             )
         );
     }
@@ -232,5 +234,35 @@ class UiBuilder
                 )
             )
         );
+    }
+
+    /**
+     * Set the tab item id on the components.
+     *
+     * @param HtmlComponent $component
+     * @param JxnCall $xJsCall
+     * @param string $item
+     *
+     * @return HtmlComponent
+     */
+    private static function bind(HtmlComponent $component,
+        JxnCall $xJsCall, string $item = ''): HtmlComponent
+    {
+        $component->jxnBind($xJsCall, $item === '' ? 'app_tab_zero' : "app_tab_zero::$item");
+        return $component;
+    }
+
+    /**
+     * @param HtmlComponent $component
+     * @param string $tagName
+     * @param string $method
+     * @param array $arguments
+     *
+     * @return HtmlComponent
+     */
+    public static function helper(HtmlComponent $component,
+        string $tagName, string $method, array $arguments): HtmlComponent
+    {
+        return self::bind($component, ...$arguments);
     }
 }

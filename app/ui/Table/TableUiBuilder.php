@@ -221,7 +221,7 @@ class TableUiBuilder
                 )->wrapped(false)->setId($this->formId)
             ),
             $this->ui->form(
-                $this->ui->div()->jxnBind($this->rqTable())
+                $this->ui->div()->tbnBind($this->rqTable())
             )->wrapped(false)
         );
     }

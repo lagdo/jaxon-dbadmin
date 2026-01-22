@@ -7,6 +7,7 @@ use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
+use function Jaxon\cl;
 use function Jaxon\form;
 use function Jaxon\jo;
 use function Jaxon\jq;
@@ -100,14 +101,14 @@ class AuditUiBuilder
                 //     ->width(3),
                 $this->ui->col(
                     $this->ui->nav()
-                        ->jxnPagination(rq(Query\FavoritePage::class))
+                        ->jxnPagination(cl(Query\FavoritePage::class))
                         ->setStyle('float:right;'))
                     ->width(9)
             ),
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->div()
-                        ->jxnBind(rq(Query\FavoritePage::class))
+                        ->tbnBind(rq(Query\FavoritePage::class))
                 )->width(12),
             )
         );
