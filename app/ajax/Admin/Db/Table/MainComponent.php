@@ -17,7 +17,7 @@ abstract class MainComponent extends Component
     /**
      * @var string
      */
-    protected $overrides = Content::class;
+    protected string $overrides = Content::class;
 
     /**
      * The constructor

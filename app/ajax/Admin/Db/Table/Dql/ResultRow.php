@@ -18,7 +18,7 @@ class ResultRow extends MainComponent
     /**
      * @var string
      */
-    protected $overrides = '';
+    protected string $overrides = '';
 
     /**
      * @var array

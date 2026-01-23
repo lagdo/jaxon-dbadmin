@@ -13,7 +13,7 @@ abstract class MainComponent extends BaseComponent
     /**
      * @var string
      */
-    protected $overrides = Content::class;
+    protected string $overrides = Content::class;
 
     /**
      * Check if the user has access to a server
