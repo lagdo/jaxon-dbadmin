@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Table;
 
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
 use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 class ColumnUiBuilder
@@ -28,7 +29,6 @@ class ColumnUiBuilder
 
         return $this->ui->build(
             $this->ui->form(
-                ['id' => $this->formId],
                 $this->ui->row(
                     $this->ui->col(
                         $this->ui->text($this->trans->lang('Name'))
@@ -113,7 +113,7 @@ class ColumnUiBuilder
                         $this->getColumnCommentField($column, 'comment')
                     )->width(9)
                 )
-            )
+            )->setId($this->editFormId())
         );
     }
 
@@ -158,12 +158,19 @@ class ColumnUiBuilder
     }
 
     /**
-     * @param string $queryDivId
+     * @return string
+     */
+    public function getQueryDivId(): string
+    {
+        return Tab::id('dbadmin-table-show-sql-query');
+    }
+
+    /**
      * @param string $queryText
      *
      * @return string
      */
-    public function sqlCodeElement(string $queryDivId, string $queryText): string
+    public function sqlCodeElement(string $queryText): string
     {
         return $this->ui->build(
             $this->ui->row(
@@ -171,7 +178,7 @@ class ColumnUiBuilder
                     $this->ui->panel(
                         $this->ui->panelBody(
                             $this->ui->div($queryText)
-                                ->setId($queryDivId)
+                                ->setId($this->getQueryDivId())
                                 ->setStyle('height: 300px;')
                         )->setStyle('padding: 0 1px;')
                     )->look('default')

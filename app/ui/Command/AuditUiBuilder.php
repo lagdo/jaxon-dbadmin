@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Command;
 
 use Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
@@ -51,8 +52,9 @@ class AuditUiBuilder
      */
     public function history(array $queries): string
     {
-        $btnCopyHandler = jo('jaxon.dbadmin.history')->copySqlQuery(jq());
-        $btnInsertHandler = jo('jaxon.dbadmin.history')->insertSqlQuery(jq());
+        $prefix = Tab::id('dbadmin-history-query-');
+        $btnCopyHandler = jo('jaxon.dbadmin.history')->copySqlQuery(jq(), $prefix);
+        $btnInsertHandler = jo('jaxon.dbadmin.history')->insertSqlQuery(jq(), $prefix);
         return $this->ui->build(
             // $this->ui->row(
             //     $this->ui->col(
@@ -70,7 +72,7 @@ class AuditUiBuilder
                                         $this->ui->div("[{$query['driver']}]")
                                             ->setStyle('font-size:14px; font-style:italic;'),
                                         $this->ui->div($query['query'])
-                                            ->setId("dbadmin-history-query-$id")
+                                            ->setId("{$prefix}{$id}")
                                     ),
                                     $this->ui->td($this->historyButtons())
                                         ->setDataQueryId($id)
@@ -146,26 +148,28 @@ class AuditUiBuilder
             return '';
         }
 
+        $prefix = Tab::id('dbadmin-favorite-query-');
         $sqlQuery = jo('jaxon.dbadmin')->getSqlQuery();
         $queryId = jo('jaxon.dbadmin.favorite')->getQueryId(jq());
-        $btnCopyHandler = jo('jaxon.dbadmin.favorite')->copySqlQuery(jq());
-        $btnInsertHandler = jo('jaxon.dbadmin.favorite')->insertSqlQuery(jq());
+        $btnCopyHandler = jo('jaxon.dbadmin.favorite')->copySqlQuery(jq(), $prefix);
+        $btnInsertHandler = jo('jaxon.dbadmin.favorite')->insertSqlQuery(jq(), $prefix);
         $btnEditHandler = rq(Query\FavoriteFunc::class)->edit($queryId, $sqlQuery);
         $btnDeleteHandler = rq(Query\FavoriteFunc::class)->delete($queryId)
             ->confirm($this->trans->lang('Delete this query from the favorites?'));
+
         return $this->ui->build(
             $this->ui->table(
                 $this->ui->tbody(
-                    $this->ui->each($queries, fn($query) =>
+                    $this->ui->each($queries, fn($query, $id) =>
                         $this->ui->tr(
                             $this->ui->td(
                                 $this->ui->div("[{$query['driver']}] {$query['title']}")
                                     ->setStyle('font-size:14px; font-style:italic;'),
                                 $this->ui->div($query['query'])
-                                    ->setId('dbadmin-favorite-query-' . $query['id'])
+                                    ->setId("{$prefix}{$id}")
                             ),
                             $this->ui->td($this->favoriteButtons())
-                                ->setDataQueryId($query['id'])
+                                ->setDataQueryId($id)
                                 ->setStyle('width:50px;')
                         )
                     )
@@ -200,7 +204,7 @@ class AuditUiBuilder
                     ->setStyle('min-height:200px;')
             )->horizontal(false)
                 ->wrapped(true)
-                ->setId($this->favoriteFormId)
+                ->setId(Tab::id($this->favoriteFormId))
         );
     }
 
@@ -226,7 +230,7 @@ class AuditUiBuilder
                     ->setStyle('min-height:200px;')
             )->horizontal(false)
                 ->wrapped(true)
-                ->setId($this->favoriteFormId)
+                ->setId(Tab::id($this->favoriteFormId))
         );
     }
 
@@ -235,6 +239,6 @@ class AuditUiBuilder
      */
     public function favoriteFormValues(): mixed
     {
-        return form($this->favoriteFormId);
+        return form(Tab::id($this->favoriteFormId));
     }
 }

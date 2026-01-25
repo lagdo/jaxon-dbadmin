@@ -8,6 +8,7 @@ use Lagdo\DbAdmin\Ajax\Exception\AppException;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 use Exception;
 
@@ -89,13 +90,51 @@ trait ComponentTrait
     }
 
     /**
+     * @param array
+     *
+     * @return void
+     */
+    protected function setCurrentDb(array $currentDb): void
+    {
+        $this->bag('dbadmin')->set(Tab::current(), $currentDb);
+    }
+
+    /**
+     * @return array
+     */
+    protected function currentDb(): array
+    {
+        return $this->bag('dbadmin')->get(Tab::current(), []);
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return string
+     */
+    protected function tabId(string $id): string
+    {
+        return Tab::id($id);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return string
+     */
+    protected function tabKey(string $key): string
+    {
+        return Tab::current() . ".$key";
+    }
+
+    /**
      * @param string $queryDivId
      *
      * @return void
      */
     protected function setupSqlEditor(string $queryDivId): void
     {
-        [$server, ] = $this->bag('dbadmin')->get('db');
+        [$server, ] = $this->currentDb();
         $driver = $this->config()->getServerDriver($server);
         $this->response()->jo('jaxon.dbadmin')->createSqlSelectEditor($queryDivId, $driver);
     }

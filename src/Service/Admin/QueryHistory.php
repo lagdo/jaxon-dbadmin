@@ -61,8 +61,8 @@ class QueryHistory
         ];
         $statement = $this->proxy->executeQuery($query, $values);
         if ($statement !== false) {
-            $commands = [];
             $id = 1;
+            $commands = [];
             while (($row = $statement->fetchAssoc())) {
                 $commands[$id++] = $row;
             }

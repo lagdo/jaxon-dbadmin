@@ -14,7 +14,7 @@ trait TabItemTrait
      */
     private function itemTbnId(string $item = ''): string
     {
-        $tab = $this->bag('dbadmin')->get('tab', 'app_tab_zero');
+        $tab = $this->bag('dbadmin.tab')->get('current', 'app-tab-zero');
         return $item === '' ? $tab : "$tab::$item";
     }
 

@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Database;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\select;
@@ -87,7 +88,8 @@ class MenuBuilder
      */
     public function databases(array $databases): string
     {
-        $database = select('jaxon-dbadmin-database-select');
+        $dbSelectId = Tab::id('jaxon-dbadmin-database-select');
+        $database = select($dbSelectId);
         $call = rq(Database::class)->select($database)->ifne($database, '');
 
         return $this->ui->build(
@@ -100,7 +102,7 @@ class MenuBuilder
                             $this->ui->option($this->ui->text($database))
                                 ->selected(false)
                         )
-                    )->setId('jaxon-dbadmin-database-select'),
+                    )->setId($dbSelectId),
                     $this->ui->button($this->ui->text('Show'))
                         ->primary()
                         ->setClass('btn-select')
@@ -118,7 +120,8 @@ class MenuBuilder
      */
     public function schemas(string $database, array $schemas): string
     {
-        $schema = select('jaxon-dbadmin-schema-select');
+        $schemaSelectId = Tab::id('jaxon-dbadmin-schema-select');
+        $schema = select($schemaSelectId);
         $call = rq(Database::class)->select($database, $schema);
 
         return $this->ui->build(
@@ -131,7 +134,7 @@ class MenuBuilder
                             $this->ui->option($this->ui->text($schema))
                                 ->selected(false)
                         )
-                    )->setId('jaxon-dbadmin-schema-select'),
+                    )->setId($schemaSelectId),
                     $this->ui->button($this->ui->text('Show'))
                         ->primary()
                         ->setClass('btn-select')

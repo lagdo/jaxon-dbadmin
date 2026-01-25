@@ -2,62 +2,69 @@ jaxon.dbadmin = {};
 
 (function(self) {
     /**
+     * @param {string} checkboxClass
      * @param {string} checkboxId
      *
      * @returns {void}
      */
-    const countTableCheckboxes = (checkboxId) => $('#dbadmin-table-' + checkboxId + '-count')
-        .html($('.dbadmin-table-' + checkboxId + ':checked').length);
+    const countTableCheckboxes = (checkboxClass, checkboxId) => $(`#${checkboxId}-count`)
+        .html($(`.${checkboxClass}` + ':checked').length);
 
     /**
+     * @param {string} checkboxClass
      * @param {string} checkboxId
+     * @param {string} wrapperId
      *
      * @returns {void}
      */
-    self.selectTableCheckboxes = (checkboxId) => {
-        $('#dbadmin-table-' + checkboxId + '-all').change(function() {
-            $('.dbadmin-table-' + checkboxId, '#jaxon-dbadmin').prop('checked', this.checked);
-            countTableCheckboxes(checkboxId);
+    self.selectTableCheckboxes = (checkboxClass, checkboxId, wrapperId) => {
+        $(`#${checkboxId}-all`).change(function() {
+            $(`.${checkboxClass}`, `#${wrapperId}`).prop('checked', this.checked);
+            countTableCheckboxes(checkboxClass, checkboxId);
         });
-        $('.dbadmin-table-' + checkboxId).change(function() {
-            countTableCheckboxes(checkboxId);
+        $(`.${checkboxClass}`, `#${wrapperId}`).change(function() {
+            countTableCheckboxes(checkboxClass, checkboxId);
         });
     };
 
     /**
-     * @param {string} checkboxId
+     * @param {string} itemNameClass
+     * @param {string} itemNameId
+     * @param {string} itemDataClass
+     * @param {string} itemDataId
+     * @param {string} wrapperId
      *
      * @returns {void}
      */
-    self.setExportEventHandlers = (checkboxId) => {
-        // Select all
-        $('#' + checkboxId + '-all').change(function() {
-            $('.' + checkboxId, '#jaxon-dbadmin').prop('checked', this.checked);
+    self.setExportEventHandlers = (itemNameClass, itemNameId, itemDataClass, itemDataId, wrapperId) => {
+        $(`#${itemNameId}-all`).change(function() {
+            $(`.${itemNameClass}`, `#${wrapperId}`).prop('checked', this.checked);
         });
-        // Select database or table
-        const prefixLength = checkboxId.length - 5;
-        if (checkboxId.substring(prefixLength, checkboxId.length) === '-name') {
-            $('.' + checkboxId, '#jaxon-dbadmin').change(function() {
-                const dataCheckboxId = checkboxId.substring(0, prefixLength) +
-                    '-data-' + $(this).attr('data-pos');
-                $('#' + dataCheckboxId, '#jaxon-dbadmin').prop('checked', this.checked);
-            });
-        }
+        $(`#${itemDataId}-all`).change(function() {
+            $(`.${itemDataClass}`, `#${wrapperId}`).prop('checked', this.checked);
+        });
+        // Check or uncheck the data checkbox when the name is changed.
+        $(`.${itemNameClass}`, `#${wrapperId}`).change(function() {
+            const itemDataPos = $(this).attr('data-pos');
+            $(`#${itemDataId}-${itemDataPos}`, `#${wrapperId}`).prop('checked', this.checked);
+        });
     };
 
     /**
-     * @param {string} container
+     * @param {string} wrapperId
      *
      * @returns {void}
      */
-    self.setFileUpload = (container) => {
-        $(container).on('change', ':file', function() {
+    self.setFileUpload = (wrapperId) => {
+        $(`#${wrapperId}`).on('change', ':file', function() {
             const fileInput = $(this);
             const numFiles = fileInput.get(0).files ? fileInput.get(0).files.length : 1;
             const label = fileInput.val().replace(/\\/g, '/').replace(/.*\//, '');
-            const textInput = $(container).find(':text');
+            const textInput = $(`#${wrapperId}`).find(':text');
             const text = numFiles > 1 ? numFiles + ' files selected' : label;
-            textInput.length > 0 && textInput.val(text);
+            if (textInput.length > 0) {
+                textInput.val(text);
+            }
         });
     };
 
@@ -74,6 +81,47 @@ jaxon.dbadmin = {};
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
+    };
+
+    /**
+     * Convert an HTML text to a DOM node. Only the first child is returned.
+     *
+     * @param {string} htmlText
+     *
+     * @returns {string}
+     */
+    const makeHtmlNode = (htmlText) => {
+        const node = document.createElement('div');
+        node.innerHTML = htmlText;
+        // Parse the custom Jaxon attributes in the node.
+        // Todo: automate this with the Jaxon library.
+        if (node.firstChild !== null) {
+            jaxon.parser.attr.process(node.firstChild);
+        }
+        return node.firstChild;
+    };
+
+    /**
+     * @param {string} tabNavHtml
+     * @param {string} tabContentHtml
+     *
+     * @returns {void}
+     */
+    self.addTab = (tabNavHtml, tabContentHtml) => {
+        const tabNav = document.getElementById('dbadmin-server-tab-nav');
+        tabNav.appendChild(makeHtmlNode(tabNavHtml));
+        const tabContent = document.getElementById('dbadmin-server-tab-content');
+        tabContent.appendChild(makeHtmlNode(tabContentHtml));
+    };
+
+    /**
+     * @param {string} tabId
+     *
+     * @returns {void}
+     */
+    self.setCurrentTab = (tabId) => {
+        // Todo: merge this value into the "dbadmin" databag?
+        jaxon.ajax.parameters.setBag('dbadmin.tab', { current: tabId });
     };
 })(jaxon.dbadmin);
 

@@ -2,8 +2,9 @@
 
 namespace Lagdo\DbAdmin\Ui;
 
-use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Ajax\Admin\Admin;
+use Lagdo\DbAdmin\Ajax\Admin\Sidebar as AdminSidebar;
+use Lagdo\DbAdmin\Ajax\Admin\Wrapper as AdminWrapper;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Sections as MenuSections;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Database\Schemas as MenuSchemas;
@@ -13,14 +14,19 @@ use Lagdo\DbAdmin\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Ajax\Admin\Page\Content;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\Ajax\Admin\Page\DbConnection;
+use Lagdo\DbAdmin\Ajax\Audit\Sidebar as AuditSidebar;
+use Lagdo\DbAdmin\Ajax\Audit\Wrapper as AuditWrapper;
 use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
 use function count;
 use function array_shift;
-use function Jaxon\select;
+use function Jaxon\cl;
+use function Jaxon\jo;
 use function Jaxon\rq;
+use function Jaxon\select;
 
 class UiBuilder
 {
@@ -32,6 +38,28 @@ class UiBuilder
      */
     public function __construct(protected Translator $trans, protected BuilderInterface $ui)
     {}
+
+    /**
+     * @return string
+     */
+    public static function hostSelectId(): string
+    {
+        return Tab::id('jaxon-dbadmin-dbhost-select');
+    }
+
+    /**
+     * @param string $contentType
+     *
+     * @return array<string>
+     */
+    public function contentIds(string $contentType): array
+    {
+        return [
+            "dbadmin-table-$contentType",
+            Tab::id("dbadmin-table-$contentType"),
+            Tab::wrapperId(),
+        ];
+    }
 
     /**
      * @param array $servers
@@ -50,12 +78,12 @@ class UiBuilder
                                 ->selected($serverId === $default)
                                 ->setValue($serverId)
                         )
-                    )->setId('jaxon-dbadmin-dbhost-select'),
+                    )->setId(self::hostSelectId()),
                     $this->ui->button($this->ui->text('Show'))
                         ->primary()
                         ->setClass('btn-select')
                         ->jxnClick(rq(Admin::class)
-                            ->server(select('jaxon-dbadmin-dbhost-select')))
+                            ->server(select(self::hostSelectId())))
                 )
             )
         );
@@ -66,11 +94,11 @@ class UiBuilder
      * @param bool $serverAccess
      * @param string $default
      *
-     * @return mixed
+     * @return string
      */
-    private function sidebarContent(array $servers, bool $serverAccess, string $default): mixed
+    public function sidebar(array $servers, bool $serverAccess, string $default): string
     {
-        return $this->ui->list(
+        return $this->ui->build(
             $this->ui->row(
                 $this->getHostSelectCol($servers, $default)
                     ->width(12)
@@ -102,20 +130,6 @@ class UiBuilder
                     ->width(12)
                     ->tbnBind(rq(MenuSections::class))
             )
-        );
-    }
-
-    /**
-     * @param array $servers
-     * @param bool $serverAccess
-     * @param string $default
-     *
-     * @return string
-     */
-    public function sidebar(array $servers, bool $serverAccess, string $default): string
-    {
-        return $this->ui->build(
-            $this->sidebarContent($servers, $serverAccess, $default)
         );
     }
 
@@ -159,11 +173,11 @@ class UiBuilder
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    private function wrapperContent(): mixed
+    public function wrapper(): string
     {
-        return $this->ui->list(
+        return $this->ui->build(
             $this->ui->row()->tbnBind(rq(DbConnection::class)),
             $this->ui->row(
                 $this->ui->col(
@@ -178,37 +192,6 @@ class UiBuilder
                     ->width(12)
                     ->tbnBind(rq(Content::class))
             )
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function wrapper(): string
-    {
-        return $this->ui->build(
-            $this->wrapperContent()
-        );
-    }
-
-    /**
-     * @param array $servers
-     * @param bool $serverAccess
-     * @param string $default
-     *
-     * @return string
-     */
-    public function home(array $servers, bool $serverAccess, string $default): string
-    {
-        return $this->ui->build(
-            $this->ui->row(
-                $this->ui->col(
-                    $this->sidebarContent($servers, $serverAccess, $default)
-                )->width(3),
-                $this->ui->col(
-                    $this->wrapperContent()
-                )->width(9)
-            )->setId('jaxon-dbadmin')
         );
     }
 
@@ -237,32 +220,115 @@ class UiBuilder
     }
 
     /**
-     * Set the tab item id on the components.
-     *
-     * @param HtmlComponent $component
-     * @param JxnCall $xJsCall
-     * @param string $item
+     * @param string $title
+     * @param bool $active
      *
      * @return HtmlComponent
      */
-    private static function bind(HtmlComponent $component,
-        JxnCall $xJsCall, string $item = ''): HtmlComponent
+    private function tabNavItem(string $title, bool $active): HtmlComponent
     {
-        $component->jxnBind($xJsCall, $item === '' ? 'app_tab_zero' : "app_tab_zero::$item");
-        return $component;
+        return $this->ui->tabNavItem($title)
+            ->target(Tab::wrapperId())
+            ->active($active)
+            ->jxnClick(jo('jaxon.dbadmin')->setCurrentTab(Tab::current()));
     }
 
     /**
-     * @param HtmlComponent $component
-     * @param string $tagName
-     * @param string $method
-     * @param array $arguments
+     * @param string $title
+     *
+     * @return string
+     */
+    public function tabNavItemHtml(string $title): string
+    {
+        return $this->ui->build(
+            $this->tabNavItem($title, false)
+        );
+    }
+
+    /**
+     * @param bool $active
      *
      * @return HtmlComponent
      */
-    public static function helper(HtmlComponent $component,
-        string $tagName, string $method, array $arguments): HtmlComponent
+    private function tabContentItem(bool $active): HtmlComponent
     {
-        return self::bind($component, ...$arguments);
+        return $this->ui->tabContentItem(
+            $this->ui->div(
+                $this->ui->div(
+                    $this->ui->div(
+                        cl(AdminSidebar::class)->html()
+                    )->tbnBind(rq(AdminSidebar::class))
+                )->setClass('jaxon-dbadmin-layout_sidebar'),
+                $this->ui->div(
+                    $this->ui->div(
+                        cl(AdminWrapper::class)->html()
+                    )->tbnBind(rq(AdminWrapper::class))
+                )->setClass('jaxon-dbadmin-layout_wrapper')
+            )->setClass('jaxon-dbadmin-layout')
+        )->setId(Tab::wrapperId())
+            ->active($active);
+    }
+
+    /**
+     * @return string
+     */
+    public function tabContentItemHtml(): string
+    {
+        return $this->ui->build(
+            $this->tabContentItem( false)
+        );
+    }
+
+    /**
+     * The DbAdmin layout
+     *
+     * @return string
+     */
+    public function admin(): string
+    {
+        return $this->ui->build(
+            $this->ui->div(
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->button($this->ui->html('<i class="fa fa-plus"></i>'))
+                            ->primary()
+                            ->setStyle('float:right;')
+                            ->jxnClick(rq(Admin::class)->addTab()),
+                    )->width(1)->setStyle('padding-top:17px;'),
+                    $this->ui->col(
+                        $this->ui->tabNav(
+                            $this->tabNavItem('Database tab zero', true)
+                        )->setStyle('margin-top: 15px;margin-bottom: 5px;')
+                            ->setId('dbadmin-server-tab-nav')
+                    )->width(11),
+                ),
+                $this->ui->tabContent(
+                    $this->tabContentItem(true)
+                )->setId('dbadmin-server-tab-content')
+            )->setId('jaxon-dbadmin')
+        );
+    }
+
+    /**
+     * The DbAudit layout
+     *
+     * @return string
+     */
+    public function audit(): string
+    {
+        return $this->ui->build(
+            $this->ui->div(
+                $this->ui->div(
+                    $this->ui->div(
+                        cl(AuditSidebar::class)->html()
+                    )->jxnBind(rq(AuditSidebar::class))
+                )->setClass('jaxon-dbadmin-layout_sidebar'),
+                $this->ui->div(
+                    $this->ui->div(
+                        cl(AuditWrapper::class)->html()
+                    )->jxnBind(rq(AuditWrapper::class))
+                )->setClass('jaxon-dbadmin-layout_wrapper')
+            )->setClass('jaxon-dbadmin-layout')
+        );
     }
 }

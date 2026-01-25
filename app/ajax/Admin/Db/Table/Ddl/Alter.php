@@ -3,17 +3,13 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl;
 
 use Jaxon\Attributes\Attribute\After;
-use Jaxon\Attributes\Attribute\Databag;
 use Jaxon\Attributes\Attribute\Export;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 
-use function Jaxon\form;
-
 /**
  * Alter a table
  */
-#[Databag('dbadmin.table')]
 #[After('showBreadcrumbs')]
 #[Export(['render'])]
 class Alter extends MainComponent
@@ -24,11 +20,6 @@ class Alter extends MainComponent
      * @var array|null
      */
     private $metadata = null;
-
-    /**
-     * @var string
-     */
-    protected $formId = 'dbadmin-table-data-form';
 
     /**
      * @return array
@@ -45,7 +36,7 @@ class Alter extends MainComponent
     {
         // Set main menu buttons
         $table = $this->getTableName();
-        $values = form($this->formId);
+        $values = $this->tableUi->listFormValues();
         $actions = [
             'table-save' => [
                 'title' => $this->trans()->lang('Save'),
@@ -87,7 +78,6 @@ class Alter extends MainComponent
         return $this->tableUi
             ->table($editedTable)
             ->metadata($metadata)
-            ->formId($this->formId)
             ->wrapper();
     }
 

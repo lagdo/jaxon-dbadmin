@@ -26,11 +26,6 @@ trait QueryTrait
     private $query = '';
 
     /**
-     * @var string
-     */
-    private $queryId = 'dbadmin-main-command-query';
-
-    /**
      * @return string
      */
     public function html(): string
@@ -41,7 +36,7 @@ trait QueryTrait
         $this->db()->prepareCommand();
 
         $defaultLimit = 20;
-        return $this->queryUi->command($this->queryId, $this->rq(), $defaultLimit);
+        return $this->queryUi->command($this->rq(), $defaultLimit);
     }
 
     /**
@@ -54,9 +49,10 @@ trait QueryTrait
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 
-        [$server,] = $this->bag('dbadmin')->get('db');
-        $this->response()->jo('jaxon.dbadmin')->createSqlQueryEditor($this->queryId,
-            $this->config()->getServerDriver($server));
+        [$server,] = $this->currentDb();
+        $driver = $this->config()->getServerDriver($server);
+        $this->response()->jo('jaxon.dbadmin')
+            ->createSqlQueryEditor($this->queryUi->commandEditorId(), $driver);
         if($this->query !== '')
         {
             $this->response()->jo('jaxon.dbadmin')->setSqlQuery($this->query);

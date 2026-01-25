@@ -4,12 +4,18 @@ namespace Lagdo\DbAdmin\Ui\Table;
 
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\PageTrait;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 class ViewUiBuilder
 {
     use PageTrait;
     use TableTrait;
+
+    /**
+     * @var string
+     */
+    private const QUERY_FORM_CLASS = 'dbadmin-views-edit-view';
 
     /**
      * @param Translator $trans
@@ -19,13 +25,20 @@ class ViewUiBuilder
     {}
 
     /**
-     * @param string $queryId
+     * @return string
+     */
+    public function queryFormId(): string
+    {
+        return Tab::id(self::QUERY_FORM_CLASS);
+    }
+
+    /**
      * @param bool $materializedView
      * @param array $view
      *
      * @return string
      */
-    public function form(string $queryId, bool $materializedView, array $view = []): string
+    public function form(bool $materializedView, array $view = []): string
     {
         return $this->ui->build(
             $this->ui->col(
@@ -56,16 +69,14 @@ class ViewUiBuilder
                         $this->ui->panel(
                             $this->ui->panelBody(
                                 $this->ui->div(
-                                        $this->ui->html($view['select'] ?? '')
-                                    )->setId($queryId)
-                            )
-                            ->setClass('sql-command-editor-panel')
-                            ->setStyle('padding: 0 1px;')
-                        )
-                        ->look('default')
-                        ->setStyle('padding: 5px;')
-                    )
-                    ->width(12)
+                                    $this->ui->html($view['select'] ?? '')
+                                )->setClass(self::QUERY_FORM_CLASS)
+                                    ->setId($this->queryFormId())
+                            )->setClass('sql-command-editor-panel')
+                                ->setStyle('padding: 0 1px;')
+                        )->look('default')
+                            ->setStyle('padding: 5px;')
+                    )->width(12)
                 )
             )->width(12)
         );

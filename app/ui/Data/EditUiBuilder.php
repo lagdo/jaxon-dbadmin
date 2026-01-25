@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Data;
 
 use Lagdo\DbAdmin\Db\UiData\Dml\FieldEditDto;
 use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 class EditUiBuilder
@@ -31,7 +32,7 @@ class EditUiBuilder
                             $radio->setAttribute('checked', 'checked'))
                         ->setStyle('margin-right:3px;'),
                     $this->ui->span($item['label'])
-                )->setFor($item['attrs']['id'])
+                )->setFor(Tab::id($item['attrs']['id']))
                     ->setStyle('margin-right:7px;')
             )
         );
@@ -52,7 +53,7 @@ class EditUiBuilder
                         $checkbox->setAttribute('checked', 'checked'))
                     ->setStyle('margin-right:3px;'),
                 $this->ui->span($item['label'])
-            )->setFor($item['attrs']['id'])
+            )->setFor(Tab::id($item['attrs']['id']))
                 ->setStyle('margin-right:7px;')
         );
     }
@@ -175,7 +176,7 @@ class EditUiBuilder
     {
         return isset($field->valueInput['attrs']['id']) ?
             $this->ui->label($field->name)
-                ->setFor($field->valueInput['attrs']['id'])
+                ->setFor(Tab::id($field->valueInput['attrs']['id']))
                 ->setTitle($field->type) :
             $this->ui->span($field->name)
                 ->setTitle($field->type);
@@ -204,7 +205,7 @@ class EditUiBuilder
                     )->width(7)
                 )
             )
-        )->wrapped(false)->setId($formId);
+        )->wrapped(false)->setId(Tab::id($formId));
 
         return $maxHeight === '' ? $this->ui->build($form) :
             $this->ui->build(
@@ -227,7 +228,7 @@ class EditUiBuilder
                     $this->ui->panel(
                         $this->ui->panelBody(
                             $this->ui->div($queryText)
-                                ->setId($queryDivId)
+                                ->setId(Tab::id($queryDivId))
                                 ->setStyle('height: 300px;')
                         )->setStyle('padding: 0 1px;')
                     )->look('default')

@@ -8,6 +8,7 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\cl;
@@ -17,6 +18,11 @@ use function sprintf;
 class SelectUiBuilder
 {
     /**
+     * @var string
+     */
+    private const QUERY_TEXT_CLASS = 'dbadmin-table-select-query';
+
+    /**
      * @param Translator $trans
      * @param BuilderInterface $ui
      */
@@ -24,15 +30,24 @@ class SelectUiBuilder
     {}
 
     /**
-     * @param string $queryDivId
+     * @return string
+     */
+    public function querytextId(): string
+    {
+        return Tab::id(self::QUERY_TEXT_CLASS);
+    }
+
+    /**
      * @param string $queryText
      *
      * @return string
      */
-    public function queryText(string $queryDivId, string $queryText): string
+    public function queryText(string $queryText): string
     {
         return $this->ui->build(
-            $this->ui->div($queryText)->setId($queryDivId)
+            $this->ui->div($queryText)
+                ->setClass(self::QUERY_TEXT_CLASS)
+                ->setId($this->querytextId())
         );
     }
 
@@ -81,7 +96,7 @@ class SelectUiBuilder
                                     ->setStyle('padding: 5px;')
                             )->width(12)
                         ),
-                    )->wrapped(true)->setId($formId)
+                    )->wrapped(true)->setId(Tab::id($formId))
                 )->width(12)
             ),
             $this->ui->row(

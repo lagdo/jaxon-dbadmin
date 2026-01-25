@@ -35,10 +35,9 @@ class Privilege extends FuncComponent
     {
         $userInfo = $this->db()->newUserPrivileges();
 
-        $formId = 'user-form';
         $title = 'Add user privileges';
         $privileges = $this->serverUi->pageContent($userInfo);
-        $content = $this->serverUi->addUserForm($formId, $userInfo['user'], $privileges);
+        $content = $this->serverUi->addUserForm($userInfo['user'], $privileges);
 
         $buttons = [[
             'title' => 'Cancel',
@@ -47,7 +46,7 @@ class Privilege extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create(form($formId)),
+            'click' => $this->rq()->create(form($this->serverUi->userFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }
@@ -79,10 +78,9 @@ class Privilege extends FuncComponent
     {
         $userInfo = $this->db()->getUserPrivileges($username, $hostname, $database);
 
-        $formId = 'user-form';
         $title = 'Edit user privileges';
         $privileges = $this->serverUi->pageContent($userInfo);
-        $content = $this->serverUi->addUserForm($formId, $userInfo['user'], $privileges);
+        $content = $this->serverUi->addUserForm($userInfo['user'], $privileges);
 
         $buttons = [[
             'title' => 'Cancel',
@@ -91,7 +89,7 @@ class Privilege extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->update(form($formId)),
+            'click' => $this->rq()->update(form($this->serverUi->userFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }

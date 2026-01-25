@@ -22,8 +22,7 @@ class QueryFunc extends Column\FuncComponent
     public function changes(array $values): void
     {
         $title = 'Changes in table ' . $this->getTableName();
-        $content = $this->columnUi->formId($this->formId)
-            ->changes($this->getTableColumns());
+        $content = $this->columnUi->changes($this->getTableColumns());
         $buttons = [[
             'title' => 'Close',
             'class' => 'btn btn-tertiary',
@@ -65,9 +64,8 @@ class QueryFunc extends Column\FuncComponent
         }
 
         $queryText = implode(";\n\n", $result['queries']) . ";\n";
-        $queryDivId = 'dbadmin-table-show-sql-query';
         $title = $this->trans()->lang('Queries to create a new table');
-        $content = $this->columnUi->sqlCodeElement($queryDivId, $queryText);
+        $content = $this->columnUi->sqlCodeElement($queryText);
         $buttons = [[
             'title' => 'Close',
             'class' => 'btn btn-tertiary',
@@ -80,7 +78,7 @@ class QueryFunc extends Column\FuncComponent
 
         $this->modal()->show($title, $content, $buttons);
 
-        $this->setupSqlEditor($queryDivId);
+        $this->setupSqlEditor($this->columnUi->getQueryDivId());
     }
 
     /**
@@ -105,9 +103,8 @@ class QueryFunc extends Column\FuncComponent
         }
 
         $queryText = implode(";\n\n", $result['queries']) . ";\n";
-        $queryDivId = 'dbadmin-table-show-sql-query';
         $title = $this->trans()->lang('Queries to create a new table');
-        $content = $this->columnUi->sqlCodeElement($queryDivId, $queryText);
+        $content = $this->columnUi->sqlCodeElement($queryText);
         $buttons = [[
             'title' => 'Close',
             'class' => 'btn btn-tertiary',
@@ -120,6 +117,6 @@ class QueryFunc extends Column\FuncComponent
 
         $this->modal()->show($title, $content, $buttons);
 
-        $this->setupSqlEditor($queryDivId);
+        $this->setupSqlEditor($this->columnUi->getQueryDivId());
     }
 }

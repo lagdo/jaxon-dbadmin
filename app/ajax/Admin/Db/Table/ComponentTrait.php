@@ -11,7 +11,7 @@ trait ComponentTrait
      */
     protected function checkDatabaseAccess(): void
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
+        [$server, $database, $schema] = $this->currentDb();
         $this->db()->selectDatabase($server, $database, $schema);
     }
 
@@ -22,6 +22,6 @@ trait ComponentTrait
      */
     protected function getTableName(): string
     {
-        return $this->bag('dbadmin')->get('db.table.name');
+        return $this->bag('dbadmin.table')->get($this->tabKey('name'), '');
     }
 }

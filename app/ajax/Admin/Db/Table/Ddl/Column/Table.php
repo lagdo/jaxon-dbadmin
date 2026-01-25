@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
-use Jaxon\Attributes\Attribute\Databag;
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Component;
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
@@ -14,7 +13,6 @@ use function array_map;
  * When creating or modifying a table, this component displays its columns.
  * It does not persist data. It only updates the UI.
  */
-#[Databag('dbadmin.table')]
 #[Exclude]
 class Table extends Component
 {
@@ -27,11 +25,6 @@ class Table extends Component
      * @var array<ColumnInputDto>
      */
     private $columns;
-
-    /**
-     * @var string
-     */
-    protected $formId = 'dbadmin-table-form';
 
     /**
      * @param array $columns
@@ -50,7 +43,7 @@ class Table extends Component
         }
 
         // Save the columns in the databag.
-        $this->bag('dbadmin.table')->set('columns',
+        $this->bag('dbadmin.table')->set($this->tabKey('columns'),
             array_map(fn($column) => $column->toArray(), $this->columns));
     }
 
@@ -60,7 +53,6 @@ class Table extends Component
     public function html(): string
     {
         return $this->tableUi
-            ->formId($this->formId)
             ->metadata($this->metadata)
             ->columns($this->columns)
             ->showColumns();

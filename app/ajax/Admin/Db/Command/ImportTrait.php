@@ -10,7 +10,6 @@ use Lagdo\DbAdmin\Ui\Command\ImportUiBuilder;
 
 use function array_map;
 use function implode;
-use function Jaxon\form;
 
 trait ImportTrait
 {
@@ -25,10 +24,9 @@ trait ImportTrait
     public function html(): string
     {
         $importOptions = $this->db()->getImportOptions();
-        $formValues = form($this->importUi->formId);
         $handlers = [
             'webFileBtn' => $this->rq()->executeWebFile(),
-            'sqlFilesBtn' => $this->rq()->executeSqlFiles($formValues),
+            'sqlFilesBtn' => $this->rq()->executeSqlFiles($this->importUi->formValues()),
         ];
 
         // Set main menu buttons
@@ -42,7 +40,7 @@ trait ImportTrait
      */
     protected function after(): void
     {
-        $this->response()->jo('jaxon.dbadmin')->setFileUpload("#{$this->importUi->sqlFilesDivId}");
+        $this->response()->jo('jaxon.dbadmin')->setFileUpload($this->importUi->filesDivId());
     }
 
     /**

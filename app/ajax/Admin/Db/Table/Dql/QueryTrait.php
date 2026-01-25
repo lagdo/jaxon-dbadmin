@@ -11,9 +11,9 @@ trait QueryTrait
      */
     protected function savePageNumber(int $page): void
     {
-        $queryOptions = $this->bag('dbadmin.select')->get('options', []);
+        $queryOptions = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
         $queryOptions['page'] = $page;
-        $this->bag('dbadmin.select')->set('options', $queryOptions);
+        $this->bag('dbadmin.select')->set($this->tabKey('options'), $queryOptions);
     }
 
     /**
@@ -27,21 +27,21 @@ trait QueryTrait
         $options = $this->bag('dbadmin.select')->get('options');
 
         // Columns options
-        $columns = $this->bag('dbadmin.select')->get('columns', []);
+        $columns = $this->bag('dbadmin.select')->get($this->tabKey('columns'), []);
         $options['columns'] = $columns['column'] ?? [];
 
         // Filter options
-        $filters = $this->bag('dbadmin.select')->get('filters', []);
+        $filters = $this->bag('dbadmin.select')->get($this->tabKey('filters'), []);
         $options['where'] = $filters['where'] ?? [];
 
         // Sorting options
-        $sorting = $this->bag('dbadmin.select')->get('sorting', []);
+        $sorting = $this->bag('dbadmin.select')->get($this->tabKey('sorting'), []);
         $options['order'] = $sorting['order'] ?? [];
         $options['desc'] = $sorting['desc'] ?? [];
 
         // Pagination options
         if ($withPage) {
-            $queryOptions = $this->bag('dbadmin.select')->get('options', []);
+            $queryOptions = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
             $page = $queryOptions['page'] ?? -1;
             if ($page >= 0) {
                 $options['page'] = $page;

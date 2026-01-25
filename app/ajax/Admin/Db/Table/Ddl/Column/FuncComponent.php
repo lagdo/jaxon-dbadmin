@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
-use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\FuncComponent as BaseComponent;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
@@ -11,7 +10,6 @@ use Lagdo\DbAdmin\Ui\Table\ColumnUiBuilder;
 
 use function trim;
 
-#[Databag('dbadmin.table')]
 abstract class FuncComponent extends BaseComponent
 {
     use ColumnTrait;

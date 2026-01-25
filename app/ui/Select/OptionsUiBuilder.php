@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\Ui\Select;
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options;
 use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
@@ -105,18 +106,24 @@ class OptionsUiBuilder
     }
 
     /**
-     * @param string $formId
-     *
      * @return string
      */
-    public function editColumns(string $formId): string
+    public function columnFormId(): string
+    {
+        return Tab::id('dbadmin-table-select-columns-form');
+    }
+
+    /**
+     * @return string
+     */
+    public function editColumns(): string
     {
         $rqColumns = rq(Options\Fields\Form\Columns::class);
         return $this->ui->build(
             $this->ui->form(
-                $this->editFormButtons($rqColumns, $formId),
+                $this->editFormButtons($rqColumns, $this->columnFormId()),
                 $this->ui->div()->tbnBind($rqColumns)
-            )->wrapped(false)->setId($formId)
+            )->wrapped(false)->setId($this->columnFormId())
         );
     }
 
@@ -174,19 +181,25 @@ class OptionsUiBuilder
     }
 
     /**
-     * @param string $formId
-     *
      * @return string
      */
-    public function editFilters(string $formId): string
+    public function filterFormId(): string
+    {
+        return Tab::id('dbadmin-table-select-filters-form');
+    }
+
+    /**
+     * @return string
+     */
+    public function editFilters(): string
     {
         $rqFilters = rq(Options\Fields\Form\Filters::class);
         return $this->ui->build(
             $this->ui->form(
-                $this->editFormButtons($rqFilters, $formId),
+                $this->editFormButtons($rqFilters, $this->filterFormId()),
                 $this->ui->div()
                     ->tbnBind($rqFilters)
-            )->wrapped(false)->setId($formId)
+            )->wrapped(false)->setId($this->filterFormId())
         );
     }
 
@@ -241,20 +254,26 @@ class OptionsUiBuilder
     }
 
     /**
-     * @param string $formId
-     *
      * @return string
      */
-    public function editSorting(string $formId): string
+    public function sortingFormId(): string
+    {
+        return Tab::id('dbadmin-table-select-sorting-form');
+    }
+
+    /**
+     * @return string
+     */
+    public function editSorting(): string
     {
         $rqSorting = rq(Options\Fields\Form\Sorting::class);
         return $this->ui->build(
             $this->ui->form(
-                $this->editFormButtons($rqSorting, $formId),
+                $this->editFormButtons($rqSorting, $this->sortingFormId()),
                 $this->ui->div()
                     ->tbnBind($rqSorting)
             )->wrapped(false)
-                ->setId($formId)
+                ->setId($this->sortingFormId())
         );
     }
 
@@ -321,7 +340,7 @@ class OptionsUiBuilder
                                 $this->ui->text($this->trans->lang('Limit'))
                             ),
                             $this->ui->input()
-                                ->setId($optionsLimitId)
+                                ->setId(Tab::id($optionsLimitId))
                                 ->setType('number')
                                 ->setName('limit')
                                 ->setValue($options['limit']),
@@ -338,7 +357,7 @@ class OptionsUiBuilder
                                 $this->ui->text($this->trans->lang('Text length'))
                             ),
                             $this->ui->input()
-                                ->setId($optionsLengthId)
+                                ->setId(Tab::id($optionsLengthId))
                                 ->setType('number')
                                 ->setName('text_length')
                                 ->setValue($options['length']),

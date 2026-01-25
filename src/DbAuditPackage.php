@@ -8,10 +8,9 @@ use Jaxon\Plugin\CssCodeGeneratorInterface;
 use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\Ajax\Audit\Commands;
-use Lagdo\DbAdmin\Ajax\Audit\Wrapper;
+use Lagdo\DbAdmin\Ui\UiBuilder;
 
 use function realpath;
-use function Jaxon\cl;
 use function Jaxon\rq;
 
 /**
@@ -19,6 +18,12 @@ use function Jaxon\rq;
  */
 class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterface, JsCodeGeneratorInterface
 {
+    /**
+     * @param UiBuilder $ui
+     */
+    public function __construct(private UiBuilder $ui)
+    {}
+
     /**
      * Get the path to the config file
      *
@@ -57,6 +62,7 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $code = "/* Spinner CSS code. */\n" .
             $this->view()->render('dbadmin::codes::spin.css') .
             "\n/* DbAdmin CSS code. */\n" .
+            $this->view()->render('dbadmin::codes::layout.css') .
             $this->view()->render('dbadmin::codes::styles.css');
 
         return new CssCode($code);
@@ -92,8 +98,8 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      *
      * @return string
      */
-    public function getHtml(): string
+    public function layout(): string
     {
-        return cl(Wrapper::class)->html();
+        return $this->ui->audit();
     }
 }

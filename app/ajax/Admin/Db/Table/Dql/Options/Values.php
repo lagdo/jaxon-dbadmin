@@ -14,7 +14,7 @@ class Values extends Component
      */
     public function html(): string
     {
-        $options = $this->bag('dbadmin.select')->get('options', []);
+        $options = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
         return $this->optionsUi->optionsValues($options);
     }
 
@@ -30,7 +30,7 @@ class Values extends Component
         // Select options
         $options = $this->bag('dbadmin.select')->get('options');
         $options['limit'] = $limit;
-        $this->bag('dbadmin.select')->set('options', $options);
+        $this->bag('dbadmin.select')->set($this->tabKey('options'), $options);
 
         // Display the new query
         $this->cl(QueryText::class)->refresh();
@@ -48,7 +48,7 @@ class Values extends Component
         // Select options
         $options = $this->bag('dbadmin.select')->get('options');
         $options['text_length'] = $length;
-        $this->bag('dbadmin.select')->set('options', $options);
+        $this->bag('dbadmin.select')->set($this->tabKey('options'), $options);
 
         // Display the new query
         $this->cl(QueryText::class)->refresh();

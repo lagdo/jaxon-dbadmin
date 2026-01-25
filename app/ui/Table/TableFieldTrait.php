@@ -2,18 +2,26 @@
 
 namespace Lagdo\DbAdmin\Ui\Table;
 
+use Jaxon\Script\JsExpr;
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
 use function is_array;
 use function is_string;
 use function Jaxon\form;
+use function Jaxon\jq;
 use function strcasecmp;
 
 trait TableFieldTrait
 {
     use FieldMetadataTrait;
+
+    /**
+     * @var string
+     */
+    protected string $formColumnClass = 'dbadmin-table-columns-form-column';
 
     /**
      * @var array
@@ -26,11 +34,6 @@ trait TableFieldTrait
     protected $columns = [];
 
     /**
-     * @var string
-     */
-    protected $formId = '';
-
-    /**
      * @var bool
      */
     protected $listMode = true;
@@ -41,22 +44,44 @@ trait TableFieldTrait
     protected BuilderInterface $ui;
 
     /**
-     * @param string $formId
-     *
-     * @return self
+     * @return string
      */
-    public function formId(string $formId): self
+    protected function listFormId(): string
     {
-        $this->formId = $formId;
-        return $this;
+        return Tab::id('dbadmin-table-columns-form');
     }
 
     /**
      * @return array
      */
-    protected function formValues(): array
+    public function listFormValues(): array
     {
-        return form($this->formId);
+        return form($this->listFormId());
+    }
+
+    /**
+     * @return JsExpr
+     */
+    public function listFormColumnCount(): JsExpr
+    {
+        $formId = $this->listFormId();
+        return jq(".{$this->formColumnClass}", "#{$formId}")->length;
+    }
+
+    /**
+     * @return string
+     */
+    protected function editFormId(): string
+    {
+        return Tab::id('dbadmin-table-column-edit-form');
+    }
+
+    /**
+     * @return array
+     */
+    public function editFormValues(): array
+    {
+        return form($this->editFormId());
     }
 
     /**

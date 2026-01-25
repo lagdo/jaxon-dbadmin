@@ -20,17 +20,16 @@ class Filters extends FuncComponent
      */
     public function edit(): void
     {
-        $formId = 'dbadmin-table-select-filters-form';
         $title = 'Edit filters';
-        $content = $this->optionsUi->editFilters($formId);
+        $content = $this->optionsUi->editFilters();
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
             'click' => 'close',
-        ],[
+        ], [
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(form($formId)),
+            'click' => $this->rq()->save(form($this->optionsUi->filterFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
 
@@ -48,7 +47,7 @@ class Filters extends FuncComponent
     public function save(array $values): void
     {
         // Save the new values in the databag.
-        $this->bag('dbadmin.select')->set('filters', $values);
+        $this->bag('dbadmin.select')->set($this->tabKey('filters'), $values);
 
         // Hide the dialog
         $this->modal()->hide();

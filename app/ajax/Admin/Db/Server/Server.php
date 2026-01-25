@@ -37,7 +37,7 @@ class Server extends FuncComponent
     public function connect(string $server): void
     {
         // Save the selected server in the databag
-        $this->bag('dbadmin')->set('db', [$server, '', '']);
+        $this->setCurrentDb([$server, '', '']);
 
         $serverInfo = $this->db()->getServerInfo();
 

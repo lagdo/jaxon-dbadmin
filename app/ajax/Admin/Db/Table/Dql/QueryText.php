@@ -31,18 +31,13 @@ class QueryText extends Component
     {}
 
     /**
-     * @var string
-     */
-    private $txtQueryId = 'dbadmin-table-select-query';
-
-    /**
      * @inheritDoc
      */
     public function html(): string
     {
         $query = $this->utils->html($this->stash()->get('select.query'));
         $query = html_entity_decode($query, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        return $this->selectUi->queryText($this->txtQueryId, $query);
+        return $this->selectUi->queryText($query);
     }
 
     /**
@@ -50,9 +45,10 @@ class QueryText extends Component
      */
     protected function after(): void
     {
-        [$server, ] = $this->bag('dbadmin')->get('db');
+        [$server, ] = $this->currentDb();
         $driver = $this->config()->getServerDriver($server);
-        $this->response()->jo('jaxon.dbadmin')->createSqlSelectEditor($this->txtQueryId, $driver);
+        $this->response()->jo('jaxon.dbadmin')
+            ->createSqlSelectEditor($this->selectUi->querytextId(), $driver);
     }
 
     /**

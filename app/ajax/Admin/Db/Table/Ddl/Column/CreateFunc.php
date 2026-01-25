@@ -2,15 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
-use function Jaxon\form;
-
 class CreateFunc extends FuncComponent
 {
-    /**
-     * The form id
-     */
-    protected $formId = 'dbadmin-table-column-create-form';
-
     /**
      * Insert a new column after a given column
      *
@@ -24,7 +17,6 @@ class CreateFunc extends FuncComponent
         $title = $tableName === '' ? 'New column' : "New column in table $tableName";
         $content = $this->columnUi
             ->metadata($this->metadata())
-            ->formId($this->formId)
             ->column($this->getEmptyColumn());
         $buttons = [[
             'title' => 'Cancel',
@@ -33,7 +25,7 @@ class CreateFunc extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save($columnId, form($this->formId)),
+            'click' => $this->rq()->save($columnId, $this->columnUi->editFormValues()),
         ]];
 
         $this->modal()->show($title, $content, $buttons);

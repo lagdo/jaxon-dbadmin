@@ -29,7 +29,7 @@ class Export extends Component
 
     protected function setDatabase(): void
     {
-        [, $database] = $this->bag('dbadmin')->get('db');
+        [, $database] = $this->currentDb();
         $this->db()->setCurrentDbName($database);
     }
 
@@ -47,9 +47,7 @@ class Export extends Component
     protected function after(): void
     {
         $this->response()->jo('jaxon.dbadmin')
-            ->setExportEventHandlers($this->exportUi->tableNameId);
-        $this->response()->jo('jaxon.dbadmin')
-            ->setExportEventHandlers($this->exportUi->tableDataId);
+            ->setExportEventHandlers(...$this->exportUi->tableIds());
     }
 
     /**
@@ -72,7 +70,7 @@ class Export extends Component
      */
     public function export(array $formValues): void
     {
-        [, $database] = $this->bag('dbadmin')->get('db');
+        [, $database] = $this->currentDb();
         $databases = [
             $database =>  [],
         ];

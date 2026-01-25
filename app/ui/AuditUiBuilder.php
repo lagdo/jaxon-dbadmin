@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\DbAdmin\Ajax\Audit\Commands;
 use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function array_filter;
@@ -41,7 +42,7 @@ class AuditUiBuilder
             ),
             $this->ui->row(
                 $this->ui->col()
-                    ->tbnBind(rq(Commands::class))
+                    ->jxnBind(rq(Commands::class))
                     ->width(12)
             )
         );
@@ -180,10 +181,10 @@ class AuditUiBuilder
                         $this->ui->button($this->trans->lang('Show'))
                             ->primary()
                             ->jxnClick(rq(Commands::class)
-                                ->show(form($formId)))
+                                ->show(form(Tab::id($formId))))
                     )->width(12)
                 )->setStyle('padding-top: 10px; float:right;')
-            )->setId($formId)->horizontal(false)->wrapped(true)
+            )->setId(Tab::id($formId))->horizontal(false)->wrapped(true)
                 ->setStyle('margin-top:16px;margin-right:12px;')
         );
     }

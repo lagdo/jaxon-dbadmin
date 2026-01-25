@@ -33,7 +33,7 @@ abstract class PageComponent extends BaseComponent
      */
     protected function limit(): int
     {
-        $options = $this->bag('dbadmin.select')->get('options', []);
+        $options = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
         return $options['limit'] ?? 50;
     }
 }

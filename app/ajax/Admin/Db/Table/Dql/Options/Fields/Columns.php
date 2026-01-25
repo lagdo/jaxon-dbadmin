@@ -20,9 +20,8 @@ class Columns extends FuncComponent
      */
     public function edit(): void
     {
-        $formId = 'dbadmin-table-select-columns-form';
         $title = 'Edit columns';
-        $content = $this->optionsUi->editColumns($formId);
+        $content = $this->optionsUi->editColumns();
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -30,7 +29,7 @@ class Columns extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(form($formId)),
+            'click' => $this->rq()->save(form($this->optionsUi->columnFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
 
@@ -48,7 +47,7 @@ class Columns extends FuncComponent
     public function save(array $values): void
     {
         // Save the new values in the databag.
-        $this->bag('dbadmin.select')->set('columns', $values);
+        $this->bag('dbadmin.select')->set($this->tabKey('columns'), $values);
 
         // Hide the dialog
         $this->modal()->hide();

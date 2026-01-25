@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Command;
 
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\form;
@@ -12,13 +13,13 @@ class ExportUiBuilder
 {
     private string $formId = 'dbadmin-main-export-form';
 
-    public string $databaseNameId = 'dbadmin-export-database-name';
+    private string $databaseNameClass = 'dbadmin-export-database-name';
 
-    public string $databaseDataId = 'dbadmin-export-database-data';
+    private string $databaseDataClass = 'dbadmin-export-database-data';
 
-    public string $tableNameId = 'dbadmin-export-table-name';
+    private string $tableNameClass = 'dbadmin-export-table-name';
 
-    public string $tableDataId = 'dbadmin-export-table-data';
+    private string $tableDataClass = 'dbadmin-export-table-data';
 
     /**
      * @param Translator $trans
@@ -182,10 +183,40 @@ class ExportUiBuilder
                     $this->ui->button($this->ui->text($this->trans->lang('Export')))
                         ->fullWidth()
                         ->primary()
-                        ->jxnClick($rqExport->export(form($this->formId)))
+                        ->jxnClick($rqExport->export(form(Tab::id($this->formId))))
                 )->width(4)
             )
         );
+    }
+
+    /**
+     * @return string
+     */
+    private function databaseNameId(): string
+    {
+        return Tab::id($this->databaseNameClass);
+    }
+
+    /**
+     * @return string
+     */
+    private function databaseDataId(): string
+    {
+        return Tab::id($this->databaseDataClass);
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function databaseIds(): array
+    {
+        return [
+            $this->databaseNameClass,
+            $this->databaseNameId(),
+            $this->databaseDataClass,
+            $this->databaseDataId(),
+            Tab::wrapperId(),
+        ];
     }
 
     /**
@@ -202,13 +233,13 @@ class ExportUiBuilder
                         $this->ui->th(
                             $this->ui->checkbox()
                                 ->checked(true)
-                                ->setId($this->databaseNameId . '-all'),
+                                ->setId($this->databaseNameId() . '-all'),
                             $this->ui->html('&nbsp;' . $databases['headers'][0])
                         ),
                         $this->ui->th(
                             $this->ui->checkbox()
                                 ->checked(true)
-                                ->setId($this->databaseDataId . '-all'),
+                                ->setId($this->databaseDataId() . '-all'),
                             $this->ui->html('&nbsp;' . $databases['headers'][1])
                         )
                     )
@@ -220,7 +251,7 @@ class ExportUiBuilder
                                 $this->ui->checkbox()
                                     ->checked(true)
                                     ->setName('database_list[]')
-                                    ->setClass($this->databaseNameId)
+                                    ->setClass($this->databaseNameClass)
                                     ->setValue($database['name'])
                                     ->setDataPos($pos),
                                 $this->ui->html('&nbsp;' . $database['name'])
@@ -229,8 +260,8 @@ class ExportUiBuilder
                                 $this->ui->checkbox()
                                     ->checked(true)
                                     ->setName('database_data[]')
-                                    ->setId("{$this->databaseDataId}-$pos")
-                                    ->setClass($this->databaseDataId)
+                                    ->setId(Tab::id("{$this->databaseDataClass}-$pos"))
+                                    ->setClass($this->databaseDataClass)
                                     ->setValue($database['name'])
                             )
                         )
@@ -238,6 +269,36 @@ class ExportUiBuilder
                 )
             )->responsive(true)->look('bordered')
         )->setStyle('max-height: 450px; overflow: scroll;');
+    }
+
+    /**
+     * @return string
+     */
+    private function tableNameId(): string
+    {
+        return Tab::id($this->tableNameClass);
+    }
+
+    /**
+     * @return string
+     */
+    private function tableDataId(): string
+    {
+        return Tab::id($this->tableDataClass);
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function tableIds(): array
+    {
+        return [
+            $this->tableNameClass,
+            $this->tableNameId(),
+            $this->tableDataClass,
+            $this->tableDataId(),
+            Tab::wrapperId(),
+        ];
     }
 
     /**
@@ -254,13 +315,13 @@ class ExportUiBuilder
                         $this->ui->th(
                             $this->ui->checkbox()
                                 ->checked(true)
-                                ->setId($this->tableNameId . '-all'),
+                                ->setId($this->tableNameId() . '-all'),
                             $this->ui->html('&nbsp;' . $tables['headers'][0])
                         ),
                         $this->ui->th(
                             $this->ui->checkbox()
                                 ->checked(true)
-                                ->setId($this->tableDataId . '-all'),
+                                ->setId($this->tableDataId() . '-all'),
                             $this->ui->html('&nbsp;' . $tables['headers'][1])
                         )
                     )
@@ -272,7 +333,7 @@ class ExportUiBuilder
                                 $this->ui->checkbox()
                                     ->checked(true)
                                     ->setName('table_list[]')
-                                    ->setClass($this->tableNameId)
+                                    ->setClass($this->tableNameClass)
                                     ->setValue($table['name'])
                                     ->setDataPos($pos),
                                 $this->ui->html('&nbsp;' . $table['name'])
@@ -281,8 +342,8 @@ class ExportUiBuilder
                                 $this->ui->checkbox()
                                     ->checked(true)
                                     ->setName('table_data[]')
-                                    ->setId("{$this->tableDataId}-$pos")
-                                    ->setClass($this->tableDataId)
+                                    ->setId($this->tableDataId() . "-$pos")
+                                    ->setClass($this->tableDataClass)
                                     ->setValue($table['name'])
                             )
                         )
@@ -316,9 +377,9 @@ class ExportUiBuilder
                                     ->width(6)
                             )
                         )
-                    )->wrapped(false)->setId($this->formId)
+                    )->wrapped(false)->setId(Tab::id($this->formId))
                 )->width(12),
-                $this->ui->col()->width(12)->setId('dbadmin-export-results')
+                $this->ui->col()->width(12)->setId(Tab::id('dbadmin-export-results'))
             )
         );
     }

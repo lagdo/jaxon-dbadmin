@@ -103,7 +103,7 @@ class Update extends FuncComponent
         }
 
         // Add the select options, which are used to format the modified data
-        $rowIds['select'] = $this->bag('dbadmin.select')->get('options', []);
+        $rowIds['select'] = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
         $result = $this->db()->updateItem($this->getTableName(), $rowIds, $formValues);
         // Show the error
         if(isset($result['error']))
@@ -182,7 +182,7 @@ class Update extends FuncComponent
         }
 
         // Add the select options, which are used to format the modified data
-        $rowIds['select'] = $this->bag('dbadmin.select')->get('options', []);
+        $rowIds['select'] = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
         $tableName = $this->getTableName();
         $result = $this->db()->getUpdateQuery($tableName, $rowIds, $formValues);
         // Show the error

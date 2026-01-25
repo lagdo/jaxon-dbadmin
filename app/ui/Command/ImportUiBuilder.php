@@ -5,23 +5,15 @@ namespace Lagdo\DbAdmin\Ui\Command;
 use Jaxon\Script\JsExpr;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 use Lagdo\DbAdmin\Db\Translator;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
+use function Jaxon\form;
 use function Jaxon\jq;
 
 class ImportUiBuilder
 {
     use QueryResultsTrait;
-
-    /**
-     * @var string
-     */
-    public string $formId = 'dbadmin-import-form';
-
-    /**
-     * @var string
-     */
-    public string $sqlFilesDivId = 'dbadmin-import-sql-files-wrapper';
 
     /**
      * @param Translator $trans
@@ -31,6 +23,30 @@ class ImportUiBuilder
     {}
 
     /**
+     * @return string
+     */
+    private function formId(): string
+    {
+        return Tab::id('dbadmin-import-form');
+    }
+
+    /**
+     * @return string
+     */
+    public function filesDivId(): string
+    {
+        return Tab::id('dbadmin-import-sql-files-wrapper');
+    }
+
+    /**
+     * @return array
+     */
+    public function formValues(): array
+    {
+        return form($this->formId());
+    }
+
+    /**
      * @param array $contents
      * @param JsExpr $handler
      *
@@ -38,7 +54,7 @@ class ImportUiBuilder
      */
     private function fileCol(array $contents, JsExpr $handler): mixed
     {
-        $sqlFilesInputId = 'dbadmin-import-sql-files-input';
+        $sqlFilesInputId = Tab::id('dbadmin-import-sql-files-input');
         return $this->ui->col(
             $this->ui->row(
                 $this->ui->col(
@@ -70,7 +86,7 @@ class ImportUiBuilder
                             $this->ui->input()
                                 ->setType('text')->setReadonly('readonly')
                         )
-                        ->setId($this->sqlFilesDivId)
+                        ->setId($this->filesDivId())
                     )
                     ->width(12)
                 )
@@ -170,7 +186,7 @@ class ImportUiBuilder
     {
         return $this->ui->build(
             $this->ui->row(
-                $this->ui->col()->width(12)->setId('dbadmin-command-details'),
+                $this->ui->col()->width(12)->setId(Tab::id('dbadmin-command-details')),
                 $this->ui->col(
                     $this->ui->form(
                         $this->ui->row(
@@ -184,7 +200,7 @@ class ImportUiBuilder
                         $this->ui->row(
                             $this->optionsCol()->width(12)
                         )
-                    )->wrapped(false)->setId($this->formId)
+                    )->wrapped(false)->setId($this->formId())
                 )->width(12),
                 $this->ui->col()
                     ->width(12)

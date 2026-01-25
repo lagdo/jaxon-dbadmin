@@ -46,7 +46,7 @@ class Query extends Component
         // The request might come from a modal dialog.
         $this->modal()->hide();
 
-        [, $this->database] = $this->bag('dbadmin')->get('db');
+        [, $this->database] = $this->currentDb();
         $this->query = $query;
         $this->render();
     }

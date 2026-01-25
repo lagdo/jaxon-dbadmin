@@ -43,7 +43,7 @@ class Database extends FuncComponent
     #[After('showBreadcrumbs')]
     public function select(string $database, string $schema = ''): void
     {
-        [$server,] = $this->bag('dbadmin')->get('db');
+        [$server,] = $this->currentDb();
         // Set the selected server
         $this->db()->selectDatabase($server, $database);
 
@@ -67,7 +67,7 @@ class Database extends FuncComponent
         $this->db()->selectDatabase($server, $database, $schema);
 
         // Save the selection in the databag
-        $this->bag('dbadmin')->set('db', [$server, $database, $schema]);
+        $this->setCurrentDb([$server, $database, $schema]);
 
         // Show the database tables
         $this->cl(Tables::class)->show();
@@ -83,9 +83,8 @@ class Database extends FuncComponent
     {
         $collations = $this->db()->getCollations();
 
-        $formId = 'database-form';
         $title = 'Create a database';
-        $content = $this->serverUi->addDbForm($formId, $collations);
+        $content = $this->serverUi->addDbForm($collations);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -93,7 +92,7 @@ class Database extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create(form($formId)),
+            'click' => $this->rq()->create(form($this->serverUi->dbFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }

@@ -29,11 +29,11 @@ class Select extends MainComponent
     protected function before(): void
     {
         // The columns, filters and sorting values are reset.
-        $this->bag('dbadmin.select')->set('columns', []);
-        $this->bag('dbadmin.select')->set('filters', []);
-        $this->bag('dbadmin.select')->set('sorting', []);
+        $this->bag('dbadmin.select')->set($this->tabKey('columns'), []);
+        $this->bag('dbadmin.select')->set($this->tabKey('filters'), []);
+        $this->bag('dbadmin.select')->set($this->tabKey('sorting'), []);
         // While the options values are kept.
-        $options = $this->bag('dbadmin.select')->get('options', []);
+        $options = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
 
         $table = $this->getTableName();
         // Set the breadcrumbs
@@ -44,7 +44,7 @@ class Select extends MainComponent
 
         // Save select queries options
         $selectData = $this->db()->getSelectData($table, $options);
-        $this->bag('dbadmin.select')->set('options', [
+        $this->bag('dbadmin.select')->set($this->tabKey('options'), [
             'limit' => (int)($selectData->options['limit']['value'] ?? 0),
             'length' => (int)($selectData->options['length']['value'] ?? 0),
         ]);
@@ -99,7 +99,7 @@ class Select extends MainComponent
     public function show(string $table): void
     {
         // Save the table name in the databag.
-        $this->bag('dbadmin')->set('db.table.name', $table);
+        $this->bag('dbadmin.table')->set($this->tabKey('name'), $table);
         // Save the current page in the databag
         $this->savePageNumber(1);
 

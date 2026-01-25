@@ -21,7 +21,7 @@ class FuncComponent extends BaseComponent
     protected function selectDatabase(): void
     {
         $server = $database = $schema = '';
-        $db = $this->bag('dbadmin')->get('db', []);
+        $db = $this->currentDb();
         if(count($db) > 0)
         {
             $server = $db[0];

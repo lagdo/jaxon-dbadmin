@@ -4,15 +4,8 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
 
-use function Jaxon\form;
-
 class UpdateFunc extends FuncComponent
 {
-    /**
-     * The form id
-     */
-    protected $formId = 'dbadmin-table-column-update-form';
-
     /**
      * @param string $columnId
      *
@@ -34,7 +27,6 @@ class UpdateFunc extends FuncComponent
             "Edit column {$column->name} in table $table";
         $content = $this->columnUi
             ->metadata($this->metadata())
-            ->formId($this->formId)
             ->column($column);
         $buttons = [[
             'title' => 'Cancel',
@@ -43,7 +35,7 @@ class UpdateFunc extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save($columnId, form($this->formId)),
+            'click' => $this->rq()->save($columnId, $this->columnUi->editFormValues()),
         ]];
 
         $this->modal()->show($title, $content, $buttons);

@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl;
 
 use Jaxon\Attributes\Attribute\After;
-use Jaxon\Attributes\Attribute\Databag;
 use Jaxon\Attributes\Attribute\Export;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\MainComponent;
@@ -15,7 +14,6 @@ use function Jaxon\jq;
 /**
  * Create a new table
  */
-#[Databag('dbadmin.table')]
 #[After('showBreadcrumbs')]
 #[Export(['render'])]
 class Create extends MainComponent
@@ -45,16 +43,16 @@ class Create extends MainComponent
      */
     protected function before(): void
     {
-        $this->bag('dbadmin')->set('db.table.name', '');
-        $this->bag('dbadmin.table')->set('columns', []);
+        $this->bag('dbadmin.table')->set($this->tabKey('name'), '');
+        $this->bag('dbadmin.table')->set($this->tabKey('columns'), []);
 
         // Set main menu buttons
-        $values = form($this->formId);
-        $length = jq(".{$this->formId}-column", "#{$this->formId}")->length;
+        $values = $this->tableUi->listFormValues();
+        $count = $this->tableUi->listFormColumnCount();
         $actions = [
             'table-save' => [
                 'title' => $this->trans()->lang('Save'),
-                'handler' => $this->rq(TableFunc::class)->create($values)->ifgt($length, 0),
+                'handler' => $this->rq(TableFunc::class)->create($values)->ifgt($count, 0),
             ],
             'table-changes' => [
                 'title' => $this->trans()->lang('Changes'),
@@ -77,11 +75,8 @@ class Create extends MainComponent
      */
     public function html(): string
     {
-        $metadata = $this->metadata();
-
         return $this->tableUi
-            ->metadata($metadata)
-            ->formId($this->formId)
+            ->metadata($this->metadata())
             ->wrapper();
     }
 

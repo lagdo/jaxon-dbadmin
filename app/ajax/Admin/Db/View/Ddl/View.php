@@ -115,13 +115,13 @@ class View extends FuncComponent
 
         // Show fields
         $fieldsInfo = $this->db()->getViewFields($view);
-        $this->showTab($fieldsInfo, 'tab-content-fields');
+        $this->showTab($fieldsInfo, $this->tabId('tab-content-fields'));
 
         // Show triggers
         $triggersInfo = $this->db()->getViewTriggers($view);
         if(is_array($triggersInfo))
         {
-            $this->showTab($triggersInfo, 'tab-content-triggers');
+            $this->showTab($triggersInfo, $this->tabId('tab-content-triggers'));
         }
     }
 

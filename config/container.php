@@ -7,8 +7,6 @@ use Lagdo\DbAdmin\Db\Driver\Facades;
 use Lagdo\DbAdmin\Db\Service;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Ui;
-use Lagdo\UiBuilder\Builder;
-use Lagdo\UiBuilder\BuilderInterface;
 
 function getAuth(Container $di): Config\AuthInterface
 {
@@ -130,12 +128,5 @@ return [
     'alias' => [
         // The translator
         Driver\Utils\TranslatorInterface::class => Db\Translator::class,
-    ],
-    'extend' => [
-        BuilderInterface::class => function(BuilderInterface $builder): BuilderInterface {
-            $helper = Ui\UiBuilder::helper(...);
-            $builder->registerHelper('tbn', Builder::TARGET_COMPONENT, $helper);
-            return $builder;
-        },
     ],
 ];

@@ -21,7 +21,7 @@ abstract class Component extends BaseComponent
      */
     protected function checkDatabaseAccess(): void
     {
-        [$server, $database, $schema] = $this->bag('dbadmin')->get('db');
+        [$server, $database, $schema] = $this->currentDb();
         $this->db()->selectDatabase($server, $database, $schema);
     }
 }

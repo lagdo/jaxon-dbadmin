@@ -85,7 +85,7 @@
     /**
      * Read the data-query-id attribute in the parent with the given tag name
      *
-     * @param {Element} node 
+     * @param {Element} node
      * @param {string} tag
      *
      * @returns {string}
@@ -101,55 +101,61 @@
     };
 
     /**
-     * @param {Element} node 
+     * @param {Element} node
+     * @param {string} prefix
      *
      * @returns {string}
      */
-    const getHistoryQuery = (node) => $('#dbadmin-history-query-' + getQueryId(node, 'td')).text();
+    const getHistoryQuery = (node, prefix) => $(`#${prefix}` + getQueryId(node, 'td')).text();
 
     /**
-     * @param {Element} node 
+     * @param {Element} node
+     * @param {string} prefix
      *
      * @returns {string}
      */
-    const getFavoriteQuery = (node) => $('#dbadmin-favorite-query-' + getQueryId(node, 'td')).text();
+    const getFavoriteQuery = (node, prefix) => $(`#${prefix}` + getQueryId(node, 'td')).text();
 
     self.history =  {
         /**
-         * @param {Element} node 
+         * @param {Element} node
+         * @param {string} prefix
          *
          * @returns {void}
          */
-        copySqlQuery: (node) => self.setSqlQuery(getHistoryQuery(node)),
+        copySqlQuery: (node, prefix) => self.setSqlQuery(getHistoryQuery(node, prefix)),
 
         /**
-         * @param {Element} node 
+         * @param {Element} node
+         * @param {string} prefix
          *
          * @returns {void}
          */
-        insertSqlQuery: (node) => editor.ace.insert(getHistoryQuery(node)),
+        insertSqlQuery: (node, prefix) => editor.ace.insert(getHistoryQuery(node, prefix)),
     };
 
     self.favorite = {
         /**
-         * @param {Element} node 
+         * @param {Element} node
          *
          * @returns {string}
          */
         getQueryId: (node) => getQueryId(node, 'td'),
 
         /**
-         * @param {Element} node 
+         * @param {Element} node
+         * @param {string} prefix
          *
          * @returns {void}
          */
-        copySqlQuery: (node) => self.setSqlQuery(getFavoriteQuery(node)),
+        copySqlQuery: (node, prefix) => self.setSqlQuery(getFavoriteQuery(node, prefix)),
 
         /**
-         * @param {Element} node 
+         * @param {Element} node
+         * @param {string} prefix
          *
          * @returns {void}
          */
-        insertSqlQuery: (node) => editor.ace.insert(getFavoriteQuery(node)),
+        insertSqlQuery: (node, prefix) => editor.ace.insert(getFavoriteQuery(node, prefix)),
     };
 })(jaxon.dbadmin);

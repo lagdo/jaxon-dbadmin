@@ -8,12 +8,11 @@ use Jaxon\Plugin\CssCodeGeneratorInterface;
 use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\Ajax\Admin\Admin;
-use Lagdo\DbAdmin\Ajax\Admin\Sidebar;
-use Lagdo\DbAdmin\Ajax\Admin\Wrapper;
-use Lagdo\UiBuilder\BuilderInterface;
+use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\UiBuilder;
 
 use function realpath;
-use function Jaxon\cl;
+use function Jaxon\jaxon;
 use function Jaxon\rq;
 
 /**
@@ -22,9 +21,9 @@ use function Jaxon\rq;
 class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterface, JsCodeGeneratorInterface
 {
     /**
-     * @param BuilderInterface $ui
+     * @param UiBuilder $ui
      */
-    public function __construct(private BuilderInterface $ui)
+    public function __construct(private UiBuilder $ui)
     {}
 
     /**
@@ -32,6 +31,11 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public static function config(): string
     {
+        jaxon()->callback()->boot(function() {
+            Tab::$stash = jaxon()->di()->getStash();
+            // Copy the current tab from the databag to the stash.
+            Tab::setCurrent(jaxon()->getResponse());
+        });
         return realpath(__DIR__ . '/../config/dbadmin.php');
     }
 
@@ -43,6 +47,7 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $sCode = "/* Spinner CSS code. */\n" .
             $this->view()->render('dbadmin::codes::spin.css') .
             "\n/* DbAdmin CSS code. */\n" .
+            $this->view()->render('dbadmin::codes::layout.css') .
             $this->view()->render('dbadmin::codes::styles.css');
 
         return new CssCode($sCode);
@@ -81,37 +86,8 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      *
      * @return string
      */
-    public function getHtml(): string
+    public function layout(): string
     {
-        return cl(Admin::class)->html();
-    }
-
-    /**
-     * Get the HTML code of the package home page
-     *
-     * @return string
-     */
-    public function sidebar(): string
-    {
-        return $this->ui->build(
-            $this->ui->div(
-                cl(Sidebar::class)->html()
-            )->tbnBind(rq(Sidebar::class))
-        );
-    }
-
-    /**
-     * Get the HTML code of the package home page
-     *
-     * @return string
-     */
-    public function wrapper(): string
-    {
-        return $this->ui->build(
-            $this->ui->div(
-                cl(Wrapper::class)->html()
-            )->tbnBind(rq(Wrapper::class))
-                ->setId('jaxon-dbadmin')
-        );
+        return $this->ui->admin();
     }
 }

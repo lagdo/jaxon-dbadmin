@@ -13,6 +13,7 @@ use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
 #[Databag('dbadmin')]
+#[Databag('dbadmin.tab')]
 abstract class Component extends JaxonComponent
 {
     use ComponentTrait;
@@ -38,7 +39,7 @@ abstract class Component extends JaxonComponent
     protected function hasServerAccess(string|null $server = null): bool
     {
         if ($server === null) {
-            $server = $this->bag('dbadmin')->get('db')[0] ?? '';
+            $server = $this->currentDb()[0] ?? '';
         }
         return $this->config()->getServerAccess($server);
     }
@@ -57,7 +58,7 @@ abstract class Component extends JaxonComponent
         $this->cl(Sections::class)->server($activeItem);
         $this->cl(ServerCommand::class)->server();
         // Reset the database command menu only if there is an active database
-        [, $database] = $this->bag('dbadmin')->get('db');
+        [, $database] = $this->currentDb();
         if($database !== '')
         {
             $this->cl(DatabaseCommand::class)->database();
@@ -78,7 +79,7 @@ abstract class Component extends JaxonComponent
         $this->cl(Sections::class)->server();
         $this->cl(ServerCommand::class)->server($activeItem);
         // Reset the database command menu only if there is an active database
-        [, $database] = $this->bag('dbadmin')->get('db');
+        [, $database] = $this->currentDb();
         if($database !== '')
         {
             $this->cl(DatabaseCommand::class)->database();

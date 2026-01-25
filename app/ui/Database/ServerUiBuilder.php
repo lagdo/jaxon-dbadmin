@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Database;
 
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\PageTrait;
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 class ServerUiBuilder
@@ -18,13 +19,28 @@ class ServerUiBuilder
     {}
 
     /**
-     * @param string $formId
+     * @return string
+     */
+    public function userFormId(): string
+    {
+        return Tab::id('user-form');
+    }
+
+    /**
+     * @return string
+     */
+    public function dbFormId(): string
+    {
+        return Tab::id('database-form');
+    }
+
+    /**
      * @param array $user
      * @param string $privileges
      *
      * @return string
      */
-    public function addUserForm(string $formId, array $user, string $privileges): string
+    public function addUserForm(array $user, string $privileges): string
     {
         return $this->ui->build(
             $this->ui->form(
@@ -69,7 +85,7 @@ class ServerUiBuilder
                         ->setClass('checkbox')
                 ),
                 $this->ui->div($this->ui->html($privileges))
-            )->wrapped(true)->setId($formId)
+            )->wrapped(true)->setId($this->userFormId())
         );
     }
 
@@ -79,7 +95,7 @@ class ServerUiBuilder
      *
      * @return string
      */
-    public function addDbForm(string $formId, array $collations): string
+    public function addDbForm(array $collations): string
     {
         return $this->ui->build(
             $this->ui->form(
@@ -113,7 +129,7 @@ class ServerUiBuilder
                         )->setName('collation')
                     )->width(6)
                 )
-            )->wrapped(true)->setId($formId)
+            )->wrapped(true)->setId($this->dbFormId())
         );
     }
 }

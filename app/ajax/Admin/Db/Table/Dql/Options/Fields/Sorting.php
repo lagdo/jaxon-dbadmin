@@ -20,9 +20,8 @@ class Sorting extends FuncComponent
      */
     public function edit(): void
     {
-        $formId = 'dbadmin-table-select-sorting-form';
         $title = 'Edit order';
-        $content = $this->optionsUi->editSorting($formId);
+        $content = $this->optionsUi->editSorting();
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -30,7 +29,7 @@ class Sorting extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(form($formId)),
+            'click' => $this->rq()->save(form($this->optionsUi->sortingFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
 
@@ -48,7 +47,7 @@ class Sorting extends FuncComponent
     public function save(array $values): void
     {
         // Save the new values in the databag.
-        $this->bag('dbadmin.select')->set('sorting', $values);
+        $this->bag('dbadmin.select')->set($this->tabKey('sorting'), $values);
 
         // Hide the dialog
         $this->modal()->hide();

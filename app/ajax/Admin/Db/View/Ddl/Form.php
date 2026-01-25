@@ -21,11 +21,6 @@ class Form extends Component
     protected string $overrides = Content::class;
 
     /**
-     * @var string
-     */
-    private $queryId = 'dbadmin-views-edit-view';
-
-    /**
      * @var array
      */
     private $data = [];
@@ -47,8 +42,7 @@ class Form extends Component
      */
     public function html(): string
     {
-        return $this->viewUi->form($this->queryId,
-            $this->data['materialized'], $this->data['view'] ?? []);
+        return $this->viewUi->form($this->data['materialized'], $this->data['view'] ?? []);
     }
 
     /**
@@ -56,9 +50,10 @@ class Form extends Component
      */
     protected function after(): void
     {
-        [$server,] = $this->bag('dbadmin')->get('db');
-        $this->response()->jo('jaxon.dbadmin')->createSqlQueryEditor($this->queryId,
-            $this->config()->getServerDriver($server));
+        [$server,] = $this->currentDb();
+        $driver = $this->config()->getServerDriver($server);
+        $this->response()->jo('jaxon.dbadmin')
+            ->createSqlQueryEditor($this->viewUi->queryFormId(), $driver);
     }
 
     /**

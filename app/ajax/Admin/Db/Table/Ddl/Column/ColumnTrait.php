@@ -33,7 +33,7 @@ trait ColumnTrait
      */
     protected function columnInputs(): array
     {
-        return $this->columnInputs ??= $this->bag('dbadmin.table')->get('columns', []);
+        return $this->columnInputs ??= $this->bag('dbadmin.table')->get($this->tabKey('columns'), []);
     }
 
     /**

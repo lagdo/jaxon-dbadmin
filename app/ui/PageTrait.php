@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui;
 
+use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function is_array;
@@ -49,20 +50,20 @@ trait PageTrait
 
     /**
      * @param array $content
-     * @param string $counterId
+     * @param string $contentType
      *
      * @return mixed
      */
-    private function makeTable(array $content, string $counterId): mixed
+    private function makeTable(array $content, string $contentType): mixed
     {
         $headers = $content['headers'] ?: [];
         $details = $content['details'] ?? [];
         return $this->ui->table(
             $this->ui->thead(
-                $this->ui->when($counterId !== '', fn() =>
+                $this->ui->when($contentType !== '', fn() =>
                     $this->ui->th(
                         $this->ui->checkbox()
-                            ->setId("dbadmin-table-$counterId-all")
+                            ->setId(Tab::id("dbadmin-table-$contentType-all"))
                     )->addClass('dbadmin-table-checkbox')
                 ),
                 $this->ui->each($headers, fn($header) =>
@@ -72,11 +73,11 @@ trait PageTrait
             $this->ui->body(
                 $this->ui->each($details, fn($detailGroup) =>
                     $this->ui->tr(
-                        $this->ui->when($counterId !== '', fn() =>
+                        $this->ui->when($contentType !== '', fn() =>
                             $this->ui->td(
                                 $this->ui->checkbox()
-                                    ->addClass("dbadmin-table-$counterId")
-                                    ->setName("{$counterId}[]")
+                                    ->addClass("dbadmin-table-$contentType")
+                                    ->setName("{$contentType}[]")
                             )->addClass('dbadmin-table-checkbox')
                         ),
                         $this->ui->each($detailGroup, fn($detail, $title) =>
@@ -90,16 +91,17 @@ trait PageTrait
 
     /**
      * @param array $pageContent
-     * @param string $counterId
+     * @param string $contentType
      *
      * @return string
      */
-    public function pageContent(array $pageContent, string $counterId = ''): string
+    public function pageContent(array $pageContent, string $contentType = ''): string
     {
+        $countId = Tab::id("dbadmin-table-{$contentType}-count");
         return $this->ui->build(
-            $this->makeTable($pageContent, $counterId),
-            $this->ui->when($counterId !== '', function() use($counterId) {
-                $message = "Selected (<span id=\"dbadmin-table-{$counterId}-count\">0</span>)";
+            $this->makeTable($pageContent, $contentType),
+            $this->ui->when($contentType !== '', function() use($countId) {
+                $message = "Selected (<span id=\"{$countId}\">0</span>)";
                 return $this->ui->panel(
                     $this->ui->panelBody($this->ui->html($message))
                 );

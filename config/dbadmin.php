@@ -5,6 +5,9 @@ use Lagdo\DbAdmin\Db;
 use Lagdo\DbAdmin\Db\Config;
 use Lagdo\DbAdmin\Db\Service;
 use Lagdo\DbAdmin\Driver;
+use Lagdo\DbAdmin\Ui;
+use Lagdo\UiBuilder\Builder;
+use Lagdo\UiBuilder\BuilderInterface;
 
 $base = require __DIR__ . '/base.php';
 $container = require __DIR__ . '/container.php';
@@ -87,6 +90,12 @@ return [
 
                 $proxy = $di->g(Service\Admin\ConnectionProxy::class);
                 return new Service\Admin\QueryFavorite($proxy, $options);
+            },
+        ],
+        'extend' => [
+            BuilderInterface::class => function(BuilderInterface $builder): BuilderInterface {
+                $builder->registerHelper('tbn', Builder::TARGET_COMPONENT, Ui\Tab::helper(...));
+                return $builder;
             },
         ],
     ],

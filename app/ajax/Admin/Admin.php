@@ -3,22 +3,11 @@
 namespace Lagdo\DbAdmin\Ajax\Admin;
 
 use Jaxon\Attributes\Attribute\After;
-use Lagdo\DbAdmin\Ajax\Base\Component;
+use Lagdo\DbAdmin\Ajax\Base\FuncComponent;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Server\Server;
 
-class Admin extends Component
+class Admin extends FuncComponent
 {
-    /**
-     * @inheritDoc
-     */
-    public function html(): string
-    {
-        $servers = $this->config()->getOption('servers', []);
-        $serverAccess = $this->config()->getOption('access.server', false);
-        $default = $this->config()->getOption('default', '');
-        return $this->ui()->home($servers, $serverAccess, $default);
-    }
-
     /**
      * Connect to a database server.
      *
@@ -35,5 +24,23 @@ class Admin extends Component
         $this->db()->selectDatabase($server);
 
         $this->cl(Server::class)->connect($server);
+    }
+
+    public function addTab(): void
+    {
+        // Get the last connected server.
+        [$server, ] = $this->currentDb();
+
+        $name = 'app-tab-one';
+        $this->bag('dbadmin.tab')->set('current', $name);
+        $this->stash()->set('tab.current', $name);
+        $this->setupComponent();
+
+        $nav = $this->ui()->tabNavItemHtml('Database tab one');
+        $content = $this->ui()->tabContentItemHtml();
+        $this->response()->jo('jaxon.dbadmin')->addTab($nav, $content);
+
+        // Connect the new tab to the same last connected server.
+        $this->server($server);
     }
 }

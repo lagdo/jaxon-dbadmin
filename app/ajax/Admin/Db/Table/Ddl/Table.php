@@ -127,27 +127,27 @@ class Table extends MainComponent
 
         // Show fields
         $fields = $this->db()->getTableFields($table);
-        $this->showTab($fields, 'tab-content-fields');
+        $this->showTab($fields, $this->tabId('tab-content-fields'));
 
         // Show indexes
         $indexes = $this->db()->getTableIndexes($table);
         if(is_array($indexes))
         {
-            $this->showTab($indexes, 'tab-content-indexes');
+            $this->showTab($indexes, $this->tabId('tab-content-indexes'));
         }
 
         // Show foreign keys
         $foreignKeys = $this->db()->getTableForeignKeys($table);
         if(is_array($foreignKeys))
         {
-            $this->showTab($foreignKeys, 'tab-content-foreign-keys');
+            $this->showTab($foreignKeys, $this->tabId('tab-content-foreign-keys'));
         }
 
         // Show triggers
         $triggers = $this->db()->getTableTriggers($table);
         if(is_array($triggers))
         {
-            $this->showTab($triggers, 'tab-content-triggers');
+            $this->showTab($triggers, $this->tabId('tab-content-triggers'));
         }
     }
 
@@ -162,7 +162,7 @@ class Table extends MainComponent
     public function show(string $table): void
     {
         // Save the table name in the databag.
-        $this->bag('dbadmin')->set('db.table.name', $table);
+        $this->bag('dbadmin.table')->set($this->tabKey('name'), $table);
 
         $this->render();
     }

@@ -45,10 +45,10 @@ class Views extends MainComponent
             ]]);
         }
 
-        $checkbox = 'view';
-        $this->showSection($viewsInfo, $checkbox);
+        $this->showSection($viewsInfo, 'view');
 
         // Set onclick handlers on view checkbox
-        $this->response()->jo('jaxon.dbadmin')->selectTableCheckboxes($checkbox);
+        $this->response()->jo('jaxon.dbadmin')
+            ->selectTableCheckboxes(...$this->ui()->contentIds('view'));
     }
 }

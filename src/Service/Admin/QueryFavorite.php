@@ -191,9 +191,10 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND owner_id=:owner_i
 ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";
         $statement = $this->proxy->executeQuery($sql, $values);
         if ($statement !== false) {
+            $id = 1;
             $commands = [];
             while (($row = $statement->fetchAssoc())) {
-                $commands[] = $row;
+                $commands[$id++] = $row;
             }
             return $commands;
         }

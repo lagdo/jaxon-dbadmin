@@ -36,7 +36,7 @@ class Columns extends Component
     public function show(): void
     {
         // Render the component with the values from the databag.
-        $values = $this->bag('dbadmin.select')->get('columns', []);
+        $values = $this->bag('dbadmin.select')->get($this->tabKey('columns'), []);
 
         $this->stash()->set('values', $values);
         $this->render();

@@ -218,7 +218,7 @@ class TableUiBuilder
                     $this->tableNameBlock(),
                     $this->tablePropertiesForm(),
                     $this->columnsHeaderBlock()
-                )->wrapped(false)->setId($this->formId)
+                )->wrapped(false)->setId($this->listFormId())
             ),
             $this->ui->form(
                 $this->ui->div()->tbnBind($this->rqTable())
@@ -252,11 +252,11 @@ class TableUiBuilder
                     $this->ui->list(
                         $this->ui->when($movableUp, fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Up'))
-                                ->jxnClick($this->rqMove()->up($columnId, $this->formValues()))
+                                ->jxnClick($this->rqMove()->up($columnId, $this->listFormValues()))
                         ),
                         $this->ui->when($movableDown, fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Down'))
-                                ->jxnClick($this->rqMove()->down($columnId, $this->formValues()))
+                                ->jxnClick($this->rqMove()->down($columnId, $this->listFormValues()))
                         ),
                         $this->ui->dropdownMenuItem($this->ui->text('Add'))
                             ->jxnClick($this->rqCreate()->add($columnId)),
@@ -412,7 +412,7 @@ class TableUiBuilder
                     ->with(fn($input) => $this->disable($input))
             )->width(3)
                 ->setClass('dbadmin-table-column-right second-line'),
-        )->setClass("{$this->formId}-column");
+        )->setClass($this->formColumnClass);
     }
 
     /**
