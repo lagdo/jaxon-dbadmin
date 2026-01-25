@@ -11,10 +11,10 @@ use function array_map;
 
 /**
  * When creating or modifying a table, this component displays its columns.
- * It does not persist data. It only updates the UI.
+ * It does not persist data. It keeps data in the databag and only updates the UI.
  */
 #[Exclude]
-class Table extends Component
+class Wrapper extends Component
 {
     /**
      * @var array
@@ -43,8 +43,8 @@ class Table extends Component
         }
 
         // Save the columns in the databag.
-        $this->bag('dbadmin.table')->set($this->tabKey('columns'),
-            array_map(fn($column) => $column->toArray(), $this->columns));
+        $callback = fn($column) => $column->toArray();
+        $this->setTableBag('columns', array_map($callback, $this->columns));
     }
 
     /**
@@ -66,8 +66,8 @@ class Table extends Component
     private function columnIsValid(ColumnInputDto|null $column): bool
     {
         // Null values and columns not found in the database are discarded.
-        return $column !== null && ($column->added() ||
-            isset($this->metadata['fields'][$column->name]));
+        return $column !== null &&
+            ($column->added() || isset($this->metadata['fields'][$column->name]));
     }
 
     /**
@@ -79,8 +79,7 @@ class Table extends Component
     public function show(array $metadata, array $columns = []): void
     {
         $this->metadata = $metadata;
-        $this->setColumns(array_filter($columns,
-            fn(ColumnInputDto|null $column) => $this->columnIsValid($column)));
+        $this->setColumns(array_filter($columns, $this->columnIsValid(...)));
 
         $this->render();
     }
@@ -93,8 +92,8 @@ class Table extends Component
     public function load(array $metadata): void
     {
         $this->metadata = $metadata;
-        $this->setColumns(array_map(fn(TableFieldDto $field) =>
-            new ColumnInputDto($field), $metadata['fields']));
+        $callback = fn(TableFieldDto $field) => new ColumnInputDto($field);
+        $this->setColumns(array_map($callback, $metadata['fields']));
 
         $this->render();
     }

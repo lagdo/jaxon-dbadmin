@@ -8,9 +8,6 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\MainComponent;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 
-use function Jaxon\form;
-use function Jaxon\jq;
-
 /**
  * Create a new table
  */
@@ -85,6 +82,6 @@ class Create extends MainComponent
      */
     protected function after(): void
     {
-        $this->cl(Column\Table::class)->show($this->metadata());
+        $this->cl(Column\Wrapper::class)->show($this->metadata());
     }
 }

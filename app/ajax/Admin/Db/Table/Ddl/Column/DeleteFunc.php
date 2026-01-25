@@ -43,7 +43,7 @@ class DeleteFunc extends FuncComponent
         }
 
         $columns = $this->updateColumns($columnId, $columns);
-        $this->cl(Table::class)->show($this->metadata(), $columns);
+        $this->cl(Wrapper::class)->show($this->metadata(), $columns);
     }
 
     /**
@@ -76,6 +76,6 @@ class DeleteFunc extends FuncComponent
         }
 
         $columns = $this->undoColumn($columnId, $columns);
-        $this->cl(Table::class)->show($this->metadata(), $columns);
+        $this->cl(Wrapper::class)->show($this->metadata(), $columns);
     }
 }

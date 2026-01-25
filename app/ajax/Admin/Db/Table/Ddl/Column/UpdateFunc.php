@@ -66,7 +66,7 @@ class UpdateFunc extends FuncComponent
 
         $this->modal()->hide();
 
-        $this->cl(Table::class)->show($this->metadata(), $columns);
+        $this->cl(Wrapper::class)->show($this->metadata(), $columns);
     }
 
     /**
@@ -106,6 +106,6 @@ class UpdateFunc extends FuncComponent
         }
 
         $columns = $this->undoColumn($columns, $columnId);
-        $this->cl(Table::class)->show($this->metadata(), $columns);
+        $this->cl(Wrapper::class)->show($this->metadata(), $columns);
     }
 }

@@ -86,6 +86,6 @@ class Alter extends MainComponent
      */
     protected function after(): void
     {
-        $this->cl(Column\Table::class)->load($this->metadata());
+        $this->cl(Column\Wrapper::class)->load($this->metadata());
     }
 }

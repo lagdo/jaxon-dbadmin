@@ -35,9 +35,9 @@ class TableUiBuilder
     /**
      * @var JxnCall
      */
-    private function rqTable(): JxnCall
+    private function rqWrapper(): JxnCall
     {
-        return $this->rq['table'] ??= rq(Column\Table::class);
+        return $this->rq['wrapper'] ??= rq(Column\Wrapper::class);
     }
 
     /**
@@ -221,7 +221,7 @@ class TableUiBuilder
                 )->wrapped(false)->setId($this->listFormId())
             ),
             $this->ui->form(
-                $this->ui->div()->tbnBind($this->rqTable())
+                $this->ui->div()->tbnBind($this->rqWrapper())
             )->wrapped(false)
         );
     }
