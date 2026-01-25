@@ -1,9 +1,6 @@
 #bootbox-container .modal-header {
     display: block !important;
 }
-#jaxon-dbadmin {
-    margin: 20px 0 0 0;
-}
 #jaxon-dbadmin .panel-heading {
     padding: 10px 15px;
     border-bottom: 1px solid transparent;

@@ -258,13 +258,13 @@ class UiBuilder
                     $this->ui->div(
                         cl(AdminSidebar::class)->html()
                     )->tbnBind(rq(AdminSidebar::class))
-                )->setClass('jaxon-dbadmin-layout_sidebar'),
+                )->setClass('jaxon-dbadmin-content-layout_sidebar'),
                 $this->ui->div(
                     $this->ui->div(
                         cl(AdminWrapper::class)->html()
                     )->tbnBind(rq(AdminWrapper::class))
-                )->setClass('jaxon-dbadmin-layout_wrapper')
-            )->setClass('jaxon-dbadmin-layout')
+                )->setClass('jaxon-dbadmin-content-layout_wrapper')
+            )->setClass('jaxon-dbadmin-content-layout')
         )->setId(Tab::wrapperId())
             ->active($active);
     }
@@ -288,20 +288,19 @@ class UiBuilder
     {
         return $this->ui->build(
             $this->ui->div(
-                $this->ui->row(
-                    $this->ui->col(
+                $this->ui->div(
+                    $this->ui->div(
                         $this->ui->button($this->ui->html('<i class="fa fa-plus"></i>'))
                             ->primary()
                             ->setStyle('float:right;')
                             ->jxnClick(rq(Admin::class)->addTab()),
-                    )->width(1)->setStyle('padding-top:17px;'),
+                    )->setClass('jaxon-dbadmin-tabs-layout_button'),
                     $this->ui->col(
                         $this->ui->tabNav(
                             $this->tabNavItem('Database tab zero', true)
-                        )->setStyle('margin-top: 15px;margin-bottom: 5px;')
-                            ->setId('dbadmin-server-tab-nav')
-                    )->width(11),
-                ),
+                        )->setId('dbadmin-server-tab-nav')
+                    )->setClass('jaxon-dbadmin-tabs-layout_header')
+                )->setClass('jaxon-dbadmin-tabs-layout'),
                 $this->ui->tabContent(
                     $this->tabContentItem(true)
                 )->setId('dbadmin-server-tab-content')
@@ -320,15 +319,17 @@ class UiBuilder
             $this->ui->div(
                 $this->ui->div(
                     $this->ui->div(
-                        cl(AuditSidebar::class)->html()
-                    )->jxnBind(rq(AuditSidebar::class))
-                )->setClass('jaxon-dbadmin-layout_sidebar'),
-                $this->ui->div(
+                        $this->ui->div(
+                            cl(AuditSidebar::class)->html()
+                        )->jxnBind(rq(AuditSidebar::class))
+                    )->setClass('jaxon-dbadmin-content-layout_sidebar'),
                     $this->ui->div(
-                        cl(AuditWrapper::class)->html()
-                    )->jxnBind(rq(AuditWrapper::class))
-                )->setClass('jaxon-dbadmin-layout_wrapper')
-            )->setClass('jaxon-dbadmin-layout')
+                        $this->ui->div(
+                            cl(AuditWrapper::class)->html()
+                        )->jxnBind(rq(AuditWrapper::class))
+                    )->setClass('jaxon-dbadmin-content-layout_wrapper')
+                )->setClass('jaxon-dbadmin-content-layout')
+            )->setId('jaxon-dbadmin')
         );
     }
 }

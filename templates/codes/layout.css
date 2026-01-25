@@ -1,0 +1,29 @@
+#jaxon-dbadmin .jaxon-dbadmin-content-layout {
+  overflow: hidden;
+  padding: 5px 0;
+}
+#jaxon-dbadmin .jaxon-dbadmin-content-layout .jaxon-dbadmin-content-layout_sidebar {
+  width: 295px;
+  float: left;   
+  padding-right: 10px;
+}
+#jaxon-dbadmin .jaxon-dbadmin-content-layout .jaxon-dbadmin-content-layout_wrapper {
+  width: calc(100% - 295px);
+  float: left;
+  padding-left: 10px;
+}
+
+#jaxon-dbadmin .jaxon-dbadmin-tabs-layout {
+  overflow: hidden;
+  padding: 5px 0;
+}
+#jaxon-dbadmin .jaxon-dbadmin-tabs-layout .jaxon-dbadmin-tabs-layout_button {
+  width: 45px;
+  float: right;   
+  padding-right: 10px;
+}
+#jaxon-dbadmin .jaxon-dbadmin-tabs-layout .jaxon-dbadmin-tabs-layout_header {
+  width: calc(100% - 45px);
+  float: right;
+  padding-left: 10px;
+}
