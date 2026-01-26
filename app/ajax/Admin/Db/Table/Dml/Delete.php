@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dml;
 
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultSet;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\SelectBagTrait;
 
 use function count;
 use function is_array;
@@ -14,6 +15,8 @@ use function is_array;
 #[Databag('dbadmin.select')]
 class Delete extends FuncComponent
 {
+    use SelectBagTrait;
+
     /**
      * Execute the delete query
      *
@@ -33,7 +36,7 @@ class Delete extends FuncComponent
             return;
         }
 
-        $result = $this->db()->deleteItem($this->getTableName(), $rowIds);
+        $result = $this->db()->deleteItem($this->getCurrentTable(), $rowIds);
         // Show the error
         if(isset($result['error']))
         {
@@ -71,7 +74,7 @@ class Delete extends FuncComponent
             return;
         }
 
-        $result = $this->db()->getDeleteQuery($this->getTableName(), $rowIds);
+        $result = $this->db()->getDeleteQuery($this->getCurrentTable(), $rowIds);
         // Show the error
         if(isset($result['error']))
         {

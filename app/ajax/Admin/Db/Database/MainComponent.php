@@ -33,7 +33,7 @@ abstract class MainComponent extends BaseComponent
      */
     protected function checkDatabaseAccess(): void
     {
-        [$server, $database, $schema] = $this->currentDb();
+        [$server, $database, $schema] = $this->getCurrentDb();
         $this->db()->selectDatabase($server, $database, $schema);
     }
 

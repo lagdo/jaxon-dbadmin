@@ -50,7 +50,7 @@ class Form extends Component
      */
     protected function after(): void
     {
-        [$server,] = $this->currentDb();
+        [$server,] = $this->getCurrentDb();
         $driver = $this->config()->getServerDriver($server);
         $this->response()->jo('jaxon.dbadmin')
             ->createSqlQueryEditor($this->viewUi->queryFormId(), $driver);

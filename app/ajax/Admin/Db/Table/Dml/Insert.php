@@ -14,13 +14,6 @@ use function Jaxon\form;
 class Insert extends FuncComponent
 {
     /**
-     * The query form div id
-     *
-     * @var string
-     */
-    private $queryFormId = 'dbadmin-table-query-form';
-
-    /**
      * @param bool $fromSelect
      * @param array $fields
      *
@@ -28,9 +21,9 @@ class Insert extends FuncComponent
      */
     private function showQueryDataDialog(bool $fromSelect, array $fields): void
     {
-        $title = 'New item in table ' . $this->getTableName();
-        $content = $this->editUi->rowDataForm($this->queryFormId, $fields);
-        $values = form($this->queryFormId);
+        $title = 'New item in table ' . $this->getCurrentTable();
+        $content = $this->editUi->rowDataForm($fields);
+        $values = form($this->editUi->queryFormId());
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[
@@ -58,7 +51,7 @@ class Insert extends FuncComponent
      */
     public function show(bool $fromSelect): void
     {
-        $insertData = $this->db()->getInsertData($this->getTableName());
+        $insertData = $this->db()->getInsertData($this->getCurrentTable());
         // Show the error
         if(isset($insertData['error']))
         {
@@ -82,7 +75,7 @@ class Insert extends FuncComponent
     public function save(bool $fromSelect, array $formValues): void
     {
         // No specific options for inserts.
-        $result = $this->db()->insertItem($this->getTableName(), [], $formValues);
+        $result = $this->db()->insertItem($this->getCurrentTable(), [], $formValues);
         // Show the error
         if(isset($result['error']))
         {
@@ -114,7 +107,7 @@ class Insert extends FuncComponent
     public function showQueryForm(bool $fromSelect, array $formValues): void
     {
         // We need the table fields to be able to go back to the update form.
-        $insertData = $this->db()->getInsertData($this->getTableName());
+        $insertData = $this->db()->getInsertData($this->getCurrentTable());
         // Show the error
         if(isset($insertData['error']))
         {
@@ -142,7 +135,7 @@ class Insert extends FuncComponent
     public function showQueryCode(bool $fromSelect, array $formValues): void
     {
         // No specific options for inserts.
-        $result = $this->db()->getInsertQuery($this->getTableName(), [], $formValues);
+        $result = $this->db()->getInsertQuery($this->getCurrentTable(), [], $formValues);
         // Show the error
         if(isset($result['error']))
         {

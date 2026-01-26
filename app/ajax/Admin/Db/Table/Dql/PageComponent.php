@@ -15,6 +15,7 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
 abstract class PageComponent extends BaseComponent
 {
     use ComponentTrait;
+    use SelectBagTrait;
 
     /**
      * The constructor
@@ -33,7 +34,6 @@ abstract class PageComponent extends BaseComponent
      */
     protected function limit(): int
     {
-        $options = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
-        return $options['limit'] ?? 50;
+        return $this->getSelectBag('options', [])['limit'] ?? 50;
     }
 }

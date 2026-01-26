@@ -11,9 +11,9 @@ trait QueryTrait
      */
     protected function savePageNumber(int $page): void
     {
-        $queryOptions = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
+        $queryOptions = $this->getSelectBag('options', []);
         $queryOptions['page'] = $page;
-        $this->bag('dbadmin.select')->set($this->tabKey('options'), $queryOptions);
+        $this->setSelectBag('options', $queryOptions);
     }
 
     /**
@@ -24,24 +24,24 @@ trait QueryTrait
     protected function getOptions(bool $withPage): array
     {
         // Default select options
-        $options = $this->bag('dbadmin.select')->get('options');
+        $options = $this->getSelectBag('options');
 
         // Columns options
-        $columns = $this->bag('dbadmin.select')->get($this->tabKey('columns'), []);
+        $columns = $this->getSelectBag('columns', []);
         $options['columns'] = $columns['column'] ?? [];
 
         // Filter options
-        $filters = $this->bag('dbadmin.select')->get($this->tabKey('filters'), []);
+        $filters = $this->getSelectBag('filters', []);
         $options['where'] = $filters['where'] ?? [];
 
         // Sorting options
-        $sorting = $this->bag('dbadmin.select')->get($this->tabKey('sorting'), []);
+        $sorting = $this->getSelectBag('sorting', []);
         $options['order'] = $sorting['order'] ?? [];
         $options['desc'] = $sorting['desc'] ?? [];
 
         // Pagination options
         if ($withPage) {
-            $queryOptions = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
+            $queryOptions = $this->getSelectBag('options', []);
             $page = $queryOptions['page'] ?? -1;
             if ($page >= 0) {
                 $options['page'] = $page;
@@ -56,7 +56,7 @@ trait QueryTrait
      */
     protected function getSelectQuery(): string
     {
-        $table = $this->getTableName();
+        $table = $this->getCurrentTable();
         $options = $this->getOptions(true);
         $select = $this->db()->getSelectData($table, $options);
         return $select->query;

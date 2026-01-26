@@ -11,14 +11,24 @@ use function Jaxon\form;
 
 class ExportUiBuilder
 {
-    private string $formId = 'dbadmin-main-export-form';
-
+    /**
+     * @var string
+     */
     private string $databaseNameClass = 'dbadmin-export-database-name';
 
+    /**
+     * @var string
+     */
     private string $databaseDataClass = 'dbadmin-export-database-data';
 
+    /**
+     * @var string
+     */
     private string $tableNameClass = 'dbadmin-export-table-name';
 
+    /**
+     * @var string
+     */
     private string $tableDataClass = 'dbadmin-export-table-data';
 
     /**
@@ -27,6 +37,82 @@ class ExportUiBuilder
      */
     public function __construct(protected Translator $trans, protected BuilderInterface $ui)
     {}
+
+    /**
+     * @return string
+     */
+    private function formId(): string
+    {
+        return Tab::id('dbadmin-main-export-form');
+    }
+
+    /**
+     * @return string
+     */
+    private function exportResultsId(): string
+    {
+        return Tab::id('dbadmin-export-results');
+    }
+
+    /**
+     * @return string
+     */
+    private function databaseNameId(): string
+    {
+        return Tab::id($this->databaseNameClass);
+    }
+
+    /**
+     * @return string
+     */
+    private function databaseDataId(): string
+    {
+        return Tab::id($this->databaseDataClass);
+    }
+
+    /**
+     * @return string
+     */
+    private function tableNameId(): string
+    {
+        return Tab::id($this->tableNameClass);
+    }
+
+    /**
+     * @return string
+     */
+    private function tableDataId(): string
+    {
+        return Tab::id($this->tableDataClass);
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function databaseIds(): array
+    {
+        return [
+            $this->databaseNameClass,
+            $this->databaseNameId(),
+            $this->databaseDataClass,
+            $this->databaseDataId(),
+            Tab::wrapperId(),
+        ];
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function tableIds(): array
+    {
+        return [
+            $this->tableNameClass,
+            $this->tableNameId(),
+            $this->tableDataClass,
+            $this->tableDataId(),
+            Tab::wrapperId(),
+        ];
+    }
 
     /**
      * @param JxnCall $rqExport
@@ -183,40 +269,10 @@ class ExportUiBuilder
                     $this->ui->button($this->ui->text($this->trans->lang('Export')))
                         ->fullWidth()
                         ->primary()
-                        ->jxnClick($rqExport->export(form(Tab::id($this->formId))))
+                        ->jxnClick($rqExport->export(form($this->formId())))
                 )->width(4)
             )
         );
-    }
-
-    /**
-     * @return string
-     */
-    private function databaseNameId(): string
-    {
-        return Tab::id($this->databaseNameClass);
-    }
-
-    /**
-     * @return string
-     */
-    private function databaseDataId(): string
-    {
-        return Tab::id($this->databaseDataClass);
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function databaseIds(): array
-    {
-        return [
-            $this->databaseNameClass,
-            $this->databaseNameId(),
-            $this->databaseDataClass,
-            $this->databaseDataId(),
-            Tab::wrapperId(),
-        ];
     }
 
     /**
@@ -267,38 +323,9 @@ class ExportUiBuilder
                         )
                     )
                 )
-            )->responsive(true)->look('bordered')
+            )->responsive(true)
+                ->look('bordered')
         )->setStyle('max-height: 450px; overflow: scroll;');
-    }
-
-    /**
-     * @return string
-     */
-    private function tableNameId(): string
-    {
-        return Tab::id($this->tableNameClass);
-    }
-
-    /**
-     * @return string
-     */
-    private function tableDataId(): string
-    {
-        return Tab::id($this->tableDataClass);
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function tableIds(): array
-    {
-        return [
-            $this->tableNameClass,
-            $this->tableNameId(),
-            $this->tableDataClass,
-            $this->tableDataId(),
-            Tab::wrapperId(),
-        ];
     }
 
     /**
@@ -349,7 +376,8 @@ class ExportUiBuilder
                         )
                     )
                 )
-            )->responsive(true)->look('bordered')
+            )->responsive(true)
+                ->look('bordered')
         )->setStyle('max-height: 450px; overflow: scroll;');
     }
 
@@ -377,9 +405,12 @@ class ExportUiBuilder
                                     ->width(6)
                             )
                         )
-                    )->wrapped(false)->setId(Tab::id($this->formId))
+                    )->wrapped(false)
+                        ->setId($this->formId())
                 )->width(12),
-                $this->ui->col()->width(12)->setId(Tab::id('dbadmin-export-results'))
+                $this->ui->col()
+                    ->width(12)
+                    ->setId($this->exportResultsId())
             )
         );
     }

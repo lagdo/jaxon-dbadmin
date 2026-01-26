@@ -13,7 +13,7 @@ class Breadcrumbs extends Component
      */
     public function html(): string
     {
-        [$server,] = $this->currentDb();
+        [$server,] = $this->getCurrentDb();
         $serverName = $this->config()->getServerName($server);
         $breadcrumbs = [$serverName, ...$this->db->breadcrumbs()->items()];
         return $this->ui()->breadcrumbs($breadcrumbs);

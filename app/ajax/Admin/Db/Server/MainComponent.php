@@ -22,7 +22,7 @@ abstract class MainComponent extends BaseComponent
      */
     protected function checkServerAccess(): void
     {
-        [$server, ] = $this->currentDb();
+        [$server, ] = $this->getCurrentDb();
         if(!$this->hasServerAccess($server))
         {
             throw new DbException('Access to server data is not allowed.');

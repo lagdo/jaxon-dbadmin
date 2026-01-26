@@ -21,8 +21,8 @@ class Columns extends Component
         $options = ['functions' => [], 'grouping' => [], 'columns' => []];
         if(count($values) > 0)
         {
-            $options = $this->bag('dbadmin.select')->get('options');
-            $selectData = $this->db()->getSelectData($this->getTableName(), $options);
+            $options = $this->getSelectBag('options');
+            $selectData = $this->db()->getSelectData($this->getCurrentTable(), $options);
             $options = [
                 'functions' => $selectData->options['columns']['functions'] ?? [],
                 'grouping' => $selectData->options['columns']['grouping'] ?? [],
@@ -36,7 +36,7 @@ class Columns extends Component
     public function show(): void
     {
         // Render the component with the values from the databag.
-        $values = $this->bag('dbadmin.select')->get($this->tabKey('columns'), []);
+        $values = $this->getSelectBag('columns', []);
 
         $this->stash()->set('values', $values);
         $this->render();

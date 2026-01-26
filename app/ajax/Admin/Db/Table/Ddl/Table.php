@@ -50,7 +50,7 @@ class Table extends MainComponent
      */
     protected function before(): void
     {
-        $table = $this->getTableName();
+        $table = $this->getCurrentTable();
 
         // Set main menu buttons
         // $actions = $this->getTableLinks();
@@ -123,7 +123,7 @@ class Table extends MainComponent
      */
     protected function after(): void
     {
-        $table = $this->getTableName();
+        $table = $this->getCurrentTable();
 
         // Show fields
         $fields = $this->db()->getTableFields($table);
@@ -162,7 +162,7 @@ class Table extends MainComponent
     public function show(string $table): void
     {
         // Save the table name in the databag.
-        $this->bag('dbadmin.table')->set($this->tabKey('name'), $table);
+        $this->setCurrentTable($table);
 
         $this->render();
     }

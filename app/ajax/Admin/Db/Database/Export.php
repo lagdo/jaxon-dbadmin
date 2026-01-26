@@ -29,7 +29,7 @@ class Export extends Component
 
     protected function setDatabase(): void
     {
-        [, $database] = $this->currentDb();
+        [, $database] = $this->getCurrentDb();
         $this->db()->setCurrentDbName($database);
     }
 
@@ -70,7 +70,7 @@ class Export extends Component
      */
     public function export(array $formValues): void
     {
-        [, $database] = $this->currentDb();
+        [, $database] = $this->getCurrentDb();
         $databases = [
             $database =>  [],
         ];

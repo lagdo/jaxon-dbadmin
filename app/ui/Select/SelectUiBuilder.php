@@ -66,11 +66,17 @@ class SelectUiBuilder
     }
 
     /**
-     * @param string $formId
-     *
      * @return string
      */
-    public function home(string $formId): string
+    public function formId(): string
+    {
+        return Tab::id('dbadmin-table-select-options-form');
+    }
+
+    /**
+     * @return string
+     */
+    public function home(): string
     {
         return $this->ui->build(
             $this->ui->row(
@@ -96,7 +102,8 @@ class SelectUiBuilder
                                     ->setStyle('padding: 5px;')
                             )->width(12)
                         ),
-                    )->wrapped(true)->setId(Tab::id($formId))
+                    )->wrapped(true)
+                        ->setId($this->formId())
                 )->width(12)
             ),
             $this->ui->row(

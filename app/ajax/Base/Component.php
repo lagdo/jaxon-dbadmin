@@ -39,7 +39,7 @@ abstract class Component extends JaxonComponent
     protected function hasServerAccess(string|null $server = null): bool
     {
         if ($server === null) {
-            $server = $this->currentDb()[0] ?? '';
+            $server = $this->getCurrentDb()[0] ?? '';
         }
         return $this->config()->getServerAccess($server);
     }
@@ -58,7 +58,7 @@ abstract class Component extends JaxonComponent
         $this->cl(Sections::class)->server($activeItem);
         $this->cl(ServerCommand::class)->server();
         // Reset the database command menu only if there is an active database
-        [, $database] = $this->currentDb();
+        [, $database] = $this->getCurrentDb();
         if($database !== '')
         {
             $this->cl(DatabaseCommand::class)->database();
@@ -79,7 +79,7 @@ abstract class Component extends JaxonComponent
         $this->cl(Sections::class)->server();
         $this->cl(ServerCommand::class)->server($activeItem);
         // Reset the database command menu only if there is an active database
-        [, $database] = $this->currentDb();
+        [, $database] = $this->getCurrentDb();
         if($database !== '')
         {
             $this->cl(DatabaseCommand::class)->database();

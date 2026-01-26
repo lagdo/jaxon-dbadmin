@@ -13,9 +13,9 @@ class Fields extends Component
     public function html(): string
     {
         return $this->optionsUi->optionsFields([
-            'columns' => $this->bag('dbadmin.select')->get($this->tabKey('columns'), []),
-            'filters' => $this->bag('dbadmin.select')->get($this->tabKey('filters'), []),
-            'sorting' => $this->bag('dbadmin.select')->get($this->tabKey('sorting'), []),
+            'columns' => $this->getSelectBag('columns', []),
+            'filters' => $this->getSelectBag('filters', []),
+            'sorting' => $this->getSelectBag('sorting', []),
         ]);
     }
 }

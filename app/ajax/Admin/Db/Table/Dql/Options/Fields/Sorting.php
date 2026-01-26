@@ -47,7 +47,7 @@ class Sorting extends FuncComponent
     public function save(array $values): void
     {
         // Save the new values in the databag.
-        $this->bag('dbadmin.select')->set($this->tabKey('sorting'), $values);
+        $this->setSelectBag('sorting', $values);
 
         // Hide the dialog
         $this->modal()->hide();

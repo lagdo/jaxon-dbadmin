@@ -14,6 +14,7 @@ use Lagdo\DbAdmin\Ui\Select\SelectUiBuilder;
 abstract class FuncComponent extends BaseFuncComponent
 {
     use ComponentTrait;
+    use SelectBagTrait;
 
     /**
      * The constructor

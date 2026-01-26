@@ -25,7 +25,7 @@ trait ColumnTrait
      */
     protected function metadata(): array
     {
-        return $this->metadata ??= $this->db()->getTableMetadata($this->getTableName());
+        return $this->metadata ??= $this->db()->getTableMetadata($this->getCurrentTable());
     }
 
     /**
@@ -33,7 +33,7 @@ trait ColumnTrait
      */
     protected function columnInputs(): array
     {
-        return $this->columnInputs ??= $this->bag('dbadmin.table')->get($this->tabKey('columns'), []);
+        return $this->columnInputs ??= $this->getTableBag('columns', []);
     }
 
     /**

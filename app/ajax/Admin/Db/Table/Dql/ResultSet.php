@@ -40,7 +40,7 @@ class ResultSet extends PageComponent
      */
     protected function count(): int
     {
-        $table = $this->getTableName();
+        $table = $this->getCurrentTable();
         $options = $this->getOptions(false); // Do not take the page.
         return $this->db()->countSelect($table, $options);
     }
@@ -72,7 +72,7 @@ class ResultSet extends PageComponent
             return $row;
         }, $results['rows']);
 
-        $this->bag('dbadmin.row.edit')->set('row.ids', $editIds);
+        $this->bag('dbadmin.edit')->set($this->tabKey('row.ids'), $editIds);
 
         return $rows;
     }
@@ -87,7 +87,7 @@ class ResultSet extends PageComponent
 
         // Select options
         $options = $this->getOptions(true);
-        $results = $this->db()->execSelect($this->getTableName(), $options);
+        $results = $this->db()->execSelect($this->getCurrentTable(), $options);
 
         // The 'message' key is set when an error occurs, or when the query returns no data.
         $this->noResult = isset($results['message']);

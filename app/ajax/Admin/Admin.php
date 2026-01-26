@@ -29,7 +29,7 @@ class Admin extends FuncComponent
     public function addTab(): void
     {
         // Get the last connected server.
-        [$server, ] = $this->currentDb();
+        [$server, ] = $this->getCurrentDb();
 
         $name = 'app-tab-one';
         $this->bag('dbadmin.tab')->set('current', $name);

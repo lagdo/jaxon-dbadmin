@@ -21,8 +21,8 @@ class Sorting extends Component
         $options = ['columns' => []];
         if(count($values) > 0)
         {
-            $options = $this->bag('dbadmin.select')->get('options');
-            $selectData = $this->db()->getSelectData($this->getTableName(), $options);
+            $options = $this->getSelectBag('options');
+            $selectData = $this->db()->getSelectData($this->getCurrentTable(), $options);
             $options = [
                 'columns' => $selectData->options['sorting']['columns'] ?? [],
             ];
@@ -34,7 +34,7 @@ class Sorting extends Component
     public function show(): void
     {
         // Render the component with the values from the databag.
-        $values = $this->bag('dbadmin.select')->get($this->tabKey('sorting'), []);
+        $values = $this->getSelectBag('sorting', []);
 
         $this->stash()->set('values', $values);
         $this->render();

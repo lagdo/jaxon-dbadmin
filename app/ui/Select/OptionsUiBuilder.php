@@ -325,8 +325,8 @@ class OptionsUiBuilder
      */
     public function optionsValues(array $options): string
     {
-        $optionsLimitId = 'dbadmin-table-select-options-form-limit';
-        $optionsLengthId = 'dbadmin-table-select-options-form-length';
+        $optionsLimitId = Tab::id('dbadmin-table-select-options-form-limit');
+        $optionsLengthId = Tab::id('dbadmin-table-select-options-form-length');
         $rqOptionsValues = rq(Options\Values::class);
         $selectLimitValue = input($optionsLimitId)->toInt();
         $textLengthValue = input($optionsLengthId)->toInt();
@@ -340,7 +340,7 @@ class OptionsUiBuilder
                                 $this->ui->text($this->trans->lang('Limit'))
                             ),
                             $this->ui->input()
-                                ->setId(Tab::id($optionsLimitId))
+                                ->setId($optionsLimitId)
                                 ->setType('number')
                                 ->setName('limit')
                                 ->setValue($options['limit']),
@@ -357,7 +357,7 @@ class OptionsUiBuilder
                                 $this->ui->text($this->trans->lang('Text length'))
                             ),
                             $this->ui->input()
-                                ->setId(Tab::id($optionsLengthId))
+                                ->setId($optionsLengthId)
                                 ->setType('number')
                                 ->setName('text_length')
                                 ->setValue($options['length']),

@@ -11,8 +11,42 @@ trait ComponentTrait
      */
     protected function checkDatabaseAccess(): void
     {
-        [$server, $database, $schema] = $this->currentDb();
+        [$server, $database, $schema] = $this->getCurrentDb();
         $this->db()->selectDatabase($server, $database, $schema);
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return void
+     */
+    protected function setTableBag(string $key, $value): void
+    {
+        $this->setBag('dbadmin.table', $key, $value);
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    protected function getTableBag(string $key, $value = null): mixed
+    {
+        return $this->getBag('dbadmin.table', $key, $value);
+    }
+
+    /**
+     * Set the current table name
+     *
+     * @param string $table
+     *
+     * @return void
+     */
+    protected function setCurrentTable(string $table): void
+    {
+        $this->setTableBag('current', $table);
     }
 
     /**
@@ -20,8 +54,8 @@ trait ComponentTrait
      *
      * @return string
      */
-    protected function getTableName(): string
+    protected function getCurrentTable(): string
     {
-        return $this->bag('dbadmin.table')->get($this->tabKey('name'), '');
+        return $this->getTableBag('current', '');
     }
 }

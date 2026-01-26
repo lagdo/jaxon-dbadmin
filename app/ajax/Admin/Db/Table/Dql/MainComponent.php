@@ -12,6 +12,8 @@ use Lagdo\DbAdmin\Ui\UiBuilder;
 #[Databag('dbadmin.select')]
 abstract class MainComponent extends BaseComponent
 {
+    use SelectBagTrait;
+
     /**
      * The constructor
      *

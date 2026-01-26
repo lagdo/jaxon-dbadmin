@@ -26,7 +26,7 @@ class Alter extends MainComponent
      */
     protected function metadata(): array
     {
-        return $this->metadata ??= $this->db()->getTableMetadata($this->getTableName());
+        return $this->metadata ??= $this->db()->getTableMetadata($this->getCurrentTable());
     }
 
     /**
@@ -35,7 +35,7 @@ class Alter extends MainComponent
     protected function before(): void
     {
         // Set main menu buttons
-        $table = $this->getTableName();
+        $table = $this->getCurrentTable();
         $values = $this->tableUi->listFormValues();
         $actions = [
             'table-save' => [

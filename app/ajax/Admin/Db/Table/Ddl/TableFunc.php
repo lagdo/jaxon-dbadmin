@@ -22,7 +22,7 @@ class TableFunc extends FuncComponent
      */
     public function create(array $values): void
     {
-        // $fields = $this->bag('dbadmin.table')->get($this->tabKey('fields'));
+        // $fields = $this->getTableBag('fields');
         // $values = array_merge($this->defaults, $values);
 
         // $result = $this->db()->createTable($values);
@@ -44,7 +44,7 @@ class TableFunc extends FuncComponent
      */
     public function alter(string $table, array $values): void
     {
-        // $table = $this->getTableName();
+        // $table = $this->getCurrentTable();
         // $values = array_merge($this->defaults, $values);
 
         // $result = $this->db()->alterTable($table, $values);

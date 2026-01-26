@@ -47,7 +47,7 @@ class Filters extends FuncComponent
     public function save(array $values): void
     {
         // Save the new values in the databag.
-        $this->bag('dbadmin.select')->set($this->tabKey('filters'), $values);
+        $this->setSelectBag('filters', $values);
 
         // Hide the dialog
         $this->modal()->hide();

@@ -10,18 +10,13 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Query;
 class QueryFunc extends Column\FuncComponent
 {
     /**
-     * @var string
-     */
-    protected $formId = 'dbadmin-table-data-form';
-
-    /**
      * @param array  $values      The table values
      *
      * @return void
      */
     public function changes(array $values): void
     {
-        $title = 'Changes in table ' . $this->getTableName();
+        $title = 'Changes in table ' . $this->getCurrentTable();
         $content = $this->columnUi->changes($this->getTableColumns());
         $buttons = [[
             'title' => 'Close',
@@ -90,7 +85,7 @@ class QueryFunc extends Column\FuncComponent
      */
     public function alterTable(array $formValues): void
     {
-        $table = $this->getTableName();
+        $table = $this->getCurrentTable();
         $options = $this->options($formValues);
         $result = $this->db()->getAlterTableQueries($table, $options, $this->getTableColumns());
         // Show the error

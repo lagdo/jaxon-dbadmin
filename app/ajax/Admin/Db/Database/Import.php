@@ -29,7 +29,7 @@ class Import extends Component
 
     protected function setDatabase(): void
     {
-        [, $database] = $this->currentDb();
+        [, $database] = $this->getCurrentDb();
         $this->db()->setCurrentDbName($database);
     }
 

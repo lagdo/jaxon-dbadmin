@@ -2,10 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dml;
 
-use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Query;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\ComponentTrait;
-use Lagdo\DbAdmin\Ajax\Base\FuncComponent as BaseFuncComponent;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\FuncComponent as BaseComponent;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;
@@ -14,11 +12,8 @@ use Lagdo\DbAdmin\Ui\Data\EditUiBuilder;
 use function in_array;
 use function is_array;
 
-#[Before('checkDatabaseAccess')]
-abstract class FuncComponent extends BaseFuncComponent
+abstract class FuncComponent extends BaseComponent
 {
-    use ComponentTrait;
-
     /**
      * The constructor
      *
@@ -103,9 +98,8 @@ abstract class FuncComponent extends BaseFuncComponent
     protected function showQueryCodeDialog(string $title, string $query, array $buttons = []): void
     {
         // Show the query in a modal dialog.
-        $queryDivId = 'dbadmin-table-show-sql-query';
         $title = $this->trans()->lang($title);
-        $content = $this->editUi->sqlCodeElement($queryDivId, $query);
+        $content = $this->editUi->sqlCodeElement($query);
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[
@@ -120,6 +114,6 @@ abstract class FuncComponent extends BaseFuncComponent
 
         $this->modal()->show($title, $content, $buttons, $options);
 
-        $this->setupSqlEditor($queryDivId);
+        $this->setupSqlEditor($this->editUi->queryDivId());
     }
 }

@@ -43,7 +43,7 @@ class Database extends FuncComponent
     #[After('showBreadcrumbs')]
     public function select(string $database, string $schema = ''): void
     {
-        [$server,] = $this->currentDb();
+        [$server,] = $this->getCurrentDb();
         // Set the selected server
         $this->db()->selectDatabase($server, $database);
 

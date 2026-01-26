@@ -22,25 +22,18 @@ class Select extends MainComponent
     use QueryTrait;
 
     /**
-     * The select form div id
-     *
-     * @var string
-     */
-    private $formOptionsId = 'dbadmin-table-select-options-form';
-
-    /**
      * @inheritDoc
      */
     protected function before(): void
     {
         // The columns, filters and sorting values are reset.
-        $this->bag('dbadmin.select')->set($this->tabKey('columns'), []);
-        $this->bag('dbadmin.select')->set($this->tabKey('filters'), []);
-        $this->bag('dbadmin.select')->set($this->tabKey('sorting'), []);
+        $this->setSelectBag('columns', []);
+        $this->setSelectBag('filters', []);
+        $this->setSelectBag('sorting', []);
         // While the options values are kept.
-        $options = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
+        $options = $this->getSelectBag('options', []);
 
-        $table = $this->getTableName();
+        $table = $this->getCurrentTable();
         // Set the breadcrumbs
         $this->db->breadcrumbs(true)
             ->item($this->trans()->lang('Views'))
@@ -49,7 +42,7 @@ class Select extends MainComponent
 
         // Save select queries options
         $selectData = $this->db()->getSelectData($table, $options);
-        $this->bag('dbadmin.select')->set($this->tabKey('options'), [
+        $this->setSelectBag('options', [
             'limit' => (int)($selectData->options['limit']['value'] ?? 0),
             'length' => (int)($selectData->options['length']['value'] ?? 0),
         ]);
@@ -78,7 +71,7 @@ class Select extends MainComponent
      */
     public function html(): string
     {
-        return $this->selectUi->home($this->formOptionsId);
+        return $this->selectUi->home();
     }
 
     /**
@@ -104,7 +97,7 @@ class Select extends MainComponent
     public function show(string $table): void
     {
         // Save the table name in the databag.
-        $this->bag('dbadmin.table')->set($this->tabKey('name'), $table);
+        $this->setCurrentTable($table);
         // Save the current page in the databag
         $this->savePageNumber(1);
 

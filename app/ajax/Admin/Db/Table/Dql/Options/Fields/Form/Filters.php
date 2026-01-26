@@ -21,8 +21,8 @@ class Filters extends Component
         $options = ['columns' => [], 'operators' => []];
         if(count($values) > 0)
         {
-            $options = $this->bag('dbadmin.select')->get('options');
-            $selectData = $this->db()->getSelectData($this->getTableName(), $options);
+            $options = $this->getSelectBag('options');
+            $selectData = $this->db()->getSelectData($this->getCurrentTable(), $options);
             $options = [
                 'columns' => $selectData->options['filters']['columns'] ?? [],
                 'operators' => $selectData->options['filters']['operators'] ?? [],
@@ -35,7 +35,7 @@ class Filters extends Component
     public function show(): void
     {
         // Render the component with the values from the databag.
-        $values = $this->bag('dbadmin.select')->get($this->tabKey('filters'), []);
+        $values = $this->getSelectBag('filters', []);
 
         $this->stash()->set('values', $values);
         $this->render();

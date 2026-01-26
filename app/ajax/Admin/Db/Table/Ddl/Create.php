@@ -23,11 +23,6 @@ class Create extends MainComponent
     private $metadata = null;
 
     /**
-     * @var string
-     */
-    protected $formId = 'dbadmin-table-data-form';
-
-    /**
      * @return array
      */
     protected function metadata(): array
@@ -40,8 +35,8 @@ class Create extends MainComponent
      */
     protected function before(): void
     {
-        $this->bag('dbadmin.table')->set($this->tabKey('name'), '');
-        $this->bag('dbadmin.table')->set($this->tabKey('columns'), []);
+        $this->setCurrentTable('');
+        $this->setTableBag('columns', []);
 
         // Set main menu buttons
         $values = $this->tableUi->listFormValues();

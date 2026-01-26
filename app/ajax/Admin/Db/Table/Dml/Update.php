@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dml;
 
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultRow;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\SelectBagTrait;
 
 use function count;
 use function is_array;
@@ -15,12 +16,7 @@ use function Jaxon\form;
 #[Databag('dbadmin.select')]
 class Update extends FuncComponent
 {
-    /**
-     * The query form div id
-     *
-     * @var string
-     */
-    private $queryFormId = 'dbadmin-table-query-form';
+    use SelectBagTrait;
 
     /**
      * @param int $editId
@@ -31,9 +27,9 @@ class Update extends FuncComponent
      */
     private function showQueryDataDialog(int $editId, array $rowIds, array $fields): void
     {
-        $title = 'Edit row in table ' . $this->getTableName();
-        $content = $this->editUi->rowDataForm($this->queryFormId, $fields);
-        $values = form($this->queryFormId);
+        $title = 'Edit row in table ' . $this->getCurrentTable();
+        $content = $this->editUi->rowDataForm($fields);
+        $values = form($this->editUi->queryFormId());
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[
@@ -71,7 +67,7 @@ class Update extends FuncComponent
             return;
         }
 
-        $updateData = $this->db()->getUpdateData($this->getTableName(),  $rowIds);
+        $updateData = $this->db()->getUpdateData($this->getCurrentTable(),  $rowIds);
         // Show the error
         if(isset($updateData['error']))
         {
@@ -103,8 +99,8 @@ class Update extends FuncComponent
         }
 
         // Add the select options, which are used to format the modified data
-        $rowIds['select'] = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
-        $result = $this->db()->updateItem($this->getTableName(), $rowIds, $formValues);
+        $rowIds['select'] = $this->getSelectBag('options', []);
+        $result = $this->db()->updateItem($this->getCurrentTable(), $rowIds, $formValues);
         // Show the error
         if(isset($result['error']))
         {
@@ -142,7 +138,7 @@ class Update extends FuncComponent
      */
     public function showQueryForm(int $editId, array $rowIds, array $formValues): void
     {
-        $tableName = $this->getTableName();
+        $tableName = $this->getCurrentTable();
         // We need the table fields to be able to go back to the update form.
         $updateData = $this->db()->getUpdateData($tableName,  $rowIds);
         // Show the error
@@ -182,8 +178,8 @@ class Update extends FuncComponent
         }
 
         // Add the select options, which are used to format the modified data
-        $rowIds['select'] = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
-        $tableName = $this->getTableName();
+        $rowIds['select'] = $this->getSelectBag('options', []);
+        $tableName = $this->getCurrentTable();
         $result = $this->db()->getUpdateQuery($tableName, $rowIds, $formValues);
         // Show the error
         if(isset($result['error']))

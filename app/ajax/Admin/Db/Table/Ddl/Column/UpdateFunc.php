@@ -13,7 +13,7 @@ class UpdateFunc extends FuncComponent
      */
     public function edit(string $columnId): void
     {
-        $table = $this->getTableName();
+        $table = $this->getCurrentTable();
         $column = $this->getFieldColumn($columnId);
         if ($column === null) {
             $this->alert()
@@ -51,7 +51,7 @@ class UpdateFunc extends FuncComponent
     {
         $columns = $this->getTableColumns();
         if (!isset($columns[$columnId])) {
-            $table = $this->getTableName();
+            $table = $this->getCurrentTable();
             $this->alert()
                 ->title($this->trans->lang('Error'))
                 ->error("Unable to find the requested column in table '$table'.");
@@ -98,7 +98,7 @@ class UpdateFunc extends FuncComponent
     {
         $columns = $this->getTableColumns();
         if (!isset($columns[$columnId])) {
-            $table = $this->getTableName();
+            $table = $this->getCurrentTable();
             $this->alert()
                 ->title($this->trans->lang('Error'))
                 ->error("Unable to find the requested column in table '$table'.");

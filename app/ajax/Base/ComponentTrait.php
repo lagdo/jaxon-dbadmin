@@ -90,21 +90,51 @@ trait ComponentTrait
     }
 
     /**
+     * @param string $bag
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return void
+     */
+    protected function setBag(string $bag, string $key, $value): void
+    {
+        $currentTab = Tab::current();
+        $currentValue = $this->bag($bag)->get($currentTab, []);
+        $this->bag($bag)->set($currentTab, [
+            ...$currentValue,
+            $key => $value,
+        ]);
+    }
+
+    /**
+     * @param string $bag
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    protected function getBag(string $bag, string $key, $value = null): mixed
+    {
+        $currentValue = $this->bag($bag)->get(Tab::current(), []);
+        return $currentValue[$key] ?? $value;
+    }
+
+    /**
      * @param array
      *
      * @return void
      */
     protected function setCurrentDb(array $currentDb): void
     {
-        $this->bag('dbadmin')->set(Tab::current(), $currentDb);
+        $this->setBag('dbadmin', 'db', $currentDb);
     }
 
     /**
      * @return array
      */
-    protected function currentDb(): array
+    protected function getCurrentDb(): array
     {
-        return $this->bag('dbadmin')->get(Tab::current(), []);
+        return $this->getBag('dbadmin', 'db', []);
     }
 
     /**
@@ -134,7 +164,7 @@ trait ComponentTrait
      */
     protected function setupSqlEditor(string $queryDivId): void
     {
-        [$server, ] = $this->currentDb();
+        [$server, ] = $this->getCurrentDb();
         $driver = $this->config()->getServerDriver($server);
         $this->response()->jo('jaxon.dbadmin')->createSqlSelectEditor($queryDivId, $driver);
     }

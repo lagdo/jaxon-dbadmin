@@ -14,7 +14,7 @@ class Values extends Component
      */
     public function html(): string
     {
-        $options = $this->bag('dbadmin.select')->get($this->tabKey('options'), []);
+        $options = $this->getSelectBag('options', []);
         return $this->optionsUi->optionsValues($options);
     }
 
@@ -28,9 +28,9 @@ class Values extends Component
     public function saveSelectLimit(int $limit): void
     {
         // Select options
-        $options = $this->bag('dbadmin.select')->get('options');
+        $options = $this->getSelectBag('options');
         $options['limit'] = $limit;
-        $this->bag('dbadmin.select')->set($this->tabKey('options'), $options);
+        $this->setSelectBag('options', $options);
 
         // Display the new query
         $this->cl(QueryText::class)->refresh();
@@ -46,9 +46,9 @@ class Values extends Component
     public function saveTextLength(int $length): void
     {
         // Select options
-        $options = $this->bag('dbadmin.select')->get('options');
+        $options = $this->getSelectBag('options');
         $options['text_length'] = $length;
-        $this->bag('dbadmin.select')->set($this->tabKey('options'), $options);
+        $this->setSelectBag('options', $options);
 
         // Display the new query
         $this->cl(QueryText::class)->refresh();

@@ -183,13 +183,20 @@ class EditUiBuilder
     }
 
     /**
-     * @param string $formId
+     * @return string
+     */
+    public function queryFormId(): string
+    {
+        return Tab::id('dbadmin-table-query-form');
+    }
+
+    /**
      * @param array<FieldEditDto> $fields
      * @param string $maxHeight
      *
      * @return string
      */
-    public function rowDataForm(string $formId, array $fields, string $maxHeight = ''): string
+    public function rowDataForm(array $fields, string $maxHeight = ''): string
     {
         $form = $this->ui->form(
             $this->ui->each($fields, fn(FieldEditDto $field) =>
@@ -205,7 +212,7 @@ class EditUiBuilder
                     )->width(7)
                 )
             )
-        )->wrapped(false)->setId(Tab::id($formId));
+        )->wrapped(false)->setId($this->queryFormId());
 
         return $maxHeight === '' ? $this->ui->build($form) :
             $this->ui->build(
@@ -215,12 +222,19 @@ class EditUiBuilder
     }
 
     /**
-     * @param string $queryDivId
+     * @return string
+     */
+    public function queryDivId(): string
+    {
+        return Tab::id('dbadmin-table-show-sql-query');
+    }
+
+    /**
      * @param string $queryText
      *
      * @return string
      */
-    public function sqlCodeElement(string $queryDivId, string $queryText): string
+    public function sqlCodeElement(string $queryText): string
     {
         return $this->ui->build(
             $this->ui->row(
@@ -228,7 +242,7 @@ class EditUiBuilder
                     $this->ui->panel(
                         $this->ui->panelBody(
                             $this->ui->div($queryText)
-                                ->setId(Tab::id($queryDivId))
+                                ->setId($this->queryDivId())
                                 ->setStyle('height: 300px;')
                         )->setStyle('padding: 0 1px;')
                     )->look('default')

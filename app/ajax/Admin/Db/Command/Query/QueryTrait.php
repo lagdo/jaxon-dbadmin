@@ -49,7 +49,7 @@ trait QueryTrait
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 
-        [$server,] = $this->currentDb();
+        [$server,] = $this->getCurrentDb();
         $driver = $this->config()->getServerDriver($server);
         $this->response()->jo('jaxon.dbadmin')
             ->createSqlQueryEditor($this->queryUi->commandEditorId(), $driver);
