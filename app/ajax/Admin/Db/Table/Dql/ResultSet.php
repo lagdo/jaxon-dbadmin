@@ -72,7 +72,7 @@ class ResultSet extends PageComponent
             return $row;
         }, $results['rows']);
 
-        $this->bag('dbadmin.edit')->set($this->tabKey('row.ids'), $editIds);
+        $this->bag($this->tabBag('dbadmin.edit'))->set('row.ids', $editIds);
 
         return $rows;
     }

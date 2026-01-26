@@ -152,9 +152,9 @@ trait ComponentTrait
      *
      * @return string
      */
-    protected function tabKey(string $key): string
+    protected function tabBag(string $key): string
     {
-        return Tab::current() . ".$key";
+        return "{$key}." . Tab::current();
     }
 
     /**
