@@ -6,6 +6,8 @@ use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\Ajax\Base\FuncComponent;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Server\Server;
 
+use function uniqid;
+
 class Admin extends FuncComponent
 {
     /**
@@ -31,12 +33,12 @@ class Admin extends FuncComponent
         // Get the last connected server.
         [$server, ] = $this->getCurrentDb();
 
-        $name = 'app-tab-one';
+        $name = 'app-tab-' . uniqid();
         $this->bag('dbadmin.tab')->set('current', $name);
         $this->stash()->set('tab.current', $name);
         $this->setupComponent();
 
-        $nav = $this->ui()->tabNavItemHtml('Database tab one');
+        $nav = $this->ui()->tabNavItemHtml($this->trans()->lang('(No title)'));
         $content = $this->ui()->tabContentItemHtml();
         $this->response()->jo('jaxon.dbadmin')->addTab($nav, $content);
 

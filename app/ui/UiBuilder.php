@@ -297,7 +297,7 @@ class UiBuilder
                     )->setClass('jaxon-dbadmin-tabs-layout_button'),
                     $this->ui->col(
                         $this->ui->tabNav(
-                            $this->tabNavItem('Database tab zero', true)
+                            $this->tabNavItem($this->trans->lang('(No title)'), true)
                         )->setId('dbadmin-server-tab-nav')
                     )->setClass('jaxon-dbadmin-tabs-layout_header')
                 )->setClass('jaxon-dbadmin-tabs-layout'),
