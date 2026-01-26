@@ -230,6 +230,10 @@ class UiBuilder
         ], [
             'label' => $this->trans->lang('Title'),
             'handler' => rq(TabFunc::class)->editTitle(),
+        ], [
+            'label' => $this->trans->lang('Delete'),
+            'handler' => rq(TabFunc::class)->del()
+                ->confirm($this->trans->lang('Delete the current tab?')),
         ]];
         return $this->ui->build(
             $this->ui->div(

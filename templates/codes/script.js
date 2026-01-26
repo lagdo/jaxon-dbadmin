@@ -102,19 +102,6 @@ jaxon.dbadmin = {};
     };
 
     /**
-     * @param {string} tabNavHtml
-     * @param {string} tabContentHtml
-     *
-     * @returns {void}
-     */
-    self.addTab = (tabNavHtml, tabContentHtml) => {
-        const tabNav = document.getElementById('dbadmin-server-tab-nav');
-        tabNav.appendChild(makeHtmlNode(tabNavHtml));
-        const tabContent = document.getElementById('dbadmin-server-tab-content');
-        tabContent.appendChild(makeHtmlNode(tabContentHtml));
-    };
-
-    /**
      * @param {string} tabId
      *
      * @returns {void}
@@ -122,6 +109,44 @@ jaxon.dbadmin = {};
     self.setCurrentTab = (tabId) => {
         // Todo: merge this value into the "dbadmin" databag?
         jaxon.ajax.parameters.setBag('dbadmin.tab', { current: tabId });
+    };
+
+    /**
+     * @param {string} titleId 
+     *
+     * @returns {void}
+     */
+    const activateTab = (titleId) => document.getElementById(titleId)?.click(new Event('click'));
+
+    /**
+     * @param {string} tabNavHtml
+     * @param {string} tabContentHtml
+     * @param {string} titleId 
+     *
+     * @returns {void}
+     */
+    self.addTab = (tabNavHtml, tabContentHtml, titleId) => {
+        const tabNav = document.getElementById('dbadmin-server-tab-nav');
+        tabNav.appendChild(makeHtmlNode(tabNavHtml));
+        const tabContent = document.getElementById('dbadmin-server-tab-content');
+        tabContent.appendChild(makeHtmlNode(tabContentHtml));
+        // Activate the new tab.
+        activateTab(titleId);
+    };
+
+    /**
+     * @param {string} titleId 
+     * @param {string} wrapperId 
+     * @param {string} activeTab 
+     *
+     * @returns {void}
+     */
+    self.deleteTab = (titleId, wrapperId, activeTab) => {
+        // The title is the child of a parent element.
+        document.getElementById(titleId)?.parentElement?.remove();
+        document.getElementById(wrapperId)?.remove();
+        // Activate another tab, so the screen is not left blank.
+        activateTab(activeTab);
     };
 })(jaxon.dbadmin);
 

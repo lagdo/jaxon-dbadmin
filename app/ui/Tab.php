@@ -7,6 +7,8 @@ use Jaxon\Response\AjaxResponse;
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
+use function uniqid;
+
 class Tab
 {
     /**
@@ -17,9 +19,25 @@ class Tab
     /**
      * @return string
      */
+    public static function zero(): string
+    {
+        return 'app-tab-zero';
+    }
+
+    /**
+     * @return string
+     */
+    public static function newId(): string
+    {
+        return 'app-tab-' . uniqid();
+    }
+
+    /**
+     * @return string
+     */
     public static function current(): string
     {
-        return self::$stash->get('tab.current', 'app-tab-zero');
+        return self::$stash->get('tab.current', self::zero());
     }
 
     /**
@@ -30,7 +48,15 @@ class Tab
     public static function setCurrent(AjaxResponse $response): void
     {
         self::$stash->set('tab.current', $response->bag('dbadmin.tab')
-            ->get('current', 'app-tab-zero'));
+            ->get('current', self::zero()));
+    }
+
+    /**
+     * @return string
+     */
+    public static function zeroTitleId(): string
+    {
+        return 'app-tab-zero_jaxon-dbadmin-tab-title';
     }
 
     /**
@@ -73,8 +99,7 @@ class Tab
     private static function bind(HtmlComponent $component,
         JxnCall $xJsCall, string $item = ''): HtmlComponent
     {
-        $currentTab = self::$stash->get('tab.current', 'app-tab-zero');
-        $component->jxnBind($xJsCall, $item === '' ? $currentTab : "$currentTab::$item");
+        $component->jxnBind($xJsCall, $item === '' ? self::current() : self::current() . "::$item");
         return $component;
     }
 
