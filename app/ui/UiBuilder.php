@@ -3,8 +3,7 @@
 namespace Lagdo\DbAdmin\Ui;
 
 use Lagdo\DbAdmin\Ajax\Admin\Admin;
-use Lagdo\DbAdmin\Ajax\Admin\Sidebar as AdminSidebar;
-use Lagdo\DbAdmin\Ajax\Admin\Wrapper as AdminWrapper;
+use Lagdo\DbAdmin\Ajax\Admin\TabFunc;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Sections as MenuSections;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Database\Schemas as MenuSchemas;
@@ -19,18 +18,17 @@ use Lagdo\DbAdmin\Ajax\Audit\Wrapper as AuditWrapper;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
-use Lagdo\UiBuilder\Component\HtmlComponent;
 
 use function count;
 use function array_shift;
 use function Jaxon\cl;
-use function Jaxon\jo;
 use function Jaxon\rq;
 use function Jaxon\select;
 
 class UiBuilder
 {
     use PageTrait;
+    use UiTabTrait;
 
     /**
      * @param Translator $trans
@@ -214,68 +212,8 @@ class UiBuilder
                         $this->ui->dropdownMenuItem($menu['label'])
                             ->jxnClick($menu['handler'])
                     )
-                )
+                )->setStyle('position:relative;')
             )
-        );
-    }
-
-    /**
-     * @param string $title
-     * @param bool $active
-     *
-     * @return HtmlComponent
-     */
-    private function tabNavItem(string $title, bool $active): HtmlComponent
-    {
-        return $this->ui->tabNavItem($title)
-            ->target(Tab::wrapperId())
-            ->active($active)
-            ->jxnClick(jo('jaxon.dbadmin')->setCurrentTab(Tab::current()));
-    }
-
-    /**
-     * @param string $title
-     *
-     * @return string
-     */
-    public function tabNavItemHtml(string $title): string
-    {
-        return $this->ui->build(
-            $this->tabNavItem($title, false)
-        );
-    }
-
-    /**
-     * @param bool $active
-     *
-     * @return HtmlComponent
-     */
-    private function tabContentItem(bool $active): HtmlComponent
-    {
-        return $this->ui->tabContentItem(
-            $this->ui->div(
-                $this->ui->div(
-                    $this->ui->div(
-                        cl(AdminSidebar::class)->html()
-                    )->tbnBind(rq(AdminSidebar::class))
-                )->setClass('jaxon-dbadmin-content-layout_sidebar'),
-                $this->ui->div(
-                    $this->ui->div(
-                        cl(AdminWrapper::class)->html()
-                    )->tbnBind(rq(AdminWrapper::class))
-                )->setClass('jaxon-dbadmin-content-layout_wrapper')
-            )->setClass('jaxon-dbadmin-content-layout')
-        )->setId(Tab::wrapperId())
-            ->active($active);
-    }
-
-    /**
-     * @return string
-     */
-    public function tabContentItemHtml(): string
-    {
-        return $this->ui->build(
-            $this->tabContentItem( false)
         );
     }
 
@@ -286,14 +224,18 @@ class UiBuilder
      */
     public function admin(): string
     {
+        $menuEntries = [[
+            'label' => '<i class="fa fa-plus"></i>',
+            'handler' => rq(TabFunc::class)->add(),
+        ], [
+            'label' => $this->trans->lang('Title'),
+            'handler' => rq(TabFunc::class)->editTitle(),
+        ]];
         return $this->ui->build(
             $this->ui->div(
                 $this->ui->div(
                     $this->ui->div(
-                        $this->ui->button($this->ui->html('<i class="fa fa-plus"></i>'))
-                            ->primary()
-                            ->setStyle('float:right;')
-                            ->jxnClick(rq(Admin::class)->addTab()),
+                        $this->tableMenu($menuEntries),
                     )->setClass('jaxon-dbadmin-tabs-layout_button'),
                     $this->ui->col(
                         $this->ui->tabNav(

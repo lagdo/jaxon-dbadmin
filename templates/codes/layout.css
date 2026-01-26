@@ -1,5 +1,4 @@
 #jaxon-dbadmin .jaxon-dbadmin-content-layout {
-  overflow: hidden;
   padding: 5px 0;
 }
 #jaxon-dbadmin .jaxon-dbadmin-content-layout .jaxon-dbadmin-content-layout_sidebar {
@@ -8,22 +7,19 @@
   padding-right: 10px;
 }
 #jaxon-dbadmin .jaxon-dbadmin-content-layout .jaxon-dbadmin-content-layout_wrapper {
-  width: calc(100% - 295px);
-  float: left;
+  margin-left: 295px;
   padding-left: 10px;
 }
 
 #jaxon-dbadmin .jaxon-dbadmin-tabs-layout {
-  overflow: hidden;
   padding: 5px 0;
 }
 #jaxon-dbadmin .jaxon-dbadmin-tabs-layout .jaxon-dbadmin-tabs-layout_button {
-  width: 45px;
+  width: 75px;
   float: right;   
   padding-right: 10px;
 }
 #jaxon-dbadmin .jaxon-dbadmin-tabs-layout .jaxon-dbadmin-tabs-layout_header {
-  width: calc(100% - 45px);
-  float: right;
+  margin-right: 75px;
   padding-left: 10px;
 }

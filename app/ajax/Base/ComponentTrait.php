@@ -120,7 +120,7 @@ trait ComponentTrait
     }
 
     /**
-     * @param array
+     * @param array $currentDb
      *
      * @return void
      */
@@ -135,6 +135,24 @@ trait ComponentTrait
     protected function getCurrentDb(): array
     {
         return $this->getBag('dbadmin', 'db', []);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCurrentTitle(): string
+    {
+        return $this->getBag('dbadmin', 'title', '');
+    }
+
+    /**
+     * @param string $currentTitle
+     *
+     * @return void
+     */
+    protected function setCurrentTitle(string $currentTitle): void
+    {
+        $this->setBag('dbadmin', 'title', $currentTitle);
     }
 
     /**

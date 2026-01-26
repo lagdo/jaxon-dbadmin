@@ -48,6 +48,14 @@ class Tab
     /**
      * @return string
      */
+    public static function titleId(): string
+    {
+        return self::id('jaxon-dbadmin-tab-title');
+    }
+
+    /**
+     * @return string
+     */
     public static function wrapperId(): string
     {
         return self::id('jaxon-dbadmin-tab-content');
