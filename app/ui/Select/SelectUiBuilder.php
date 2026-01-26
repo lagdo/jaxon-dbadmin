@@ -32,7 +32,7 @@ class SelectUiBuilder
     /**
      * @return string
      */
-    public function querytextId(): string
+    public function queryTextId(): string
     {
         return Tab::id(self::QUERY_TEXT_CLASS);
     }
@@ -47,7 +47,7 @@ class SelectUiBuilder
         return $this->ui->build(
             $this->ui->div($queryText)
                 ->setClass(self::QUERY_TEXT_CLASS)
-                ->setId($this->querytextId())
+                ->setId($this->queryTextId())
         );
     }
 
@@ -122,6 +122,7 @@ class SelectUiBuilder
                         $this->ui->col(
                             $this->ui->nav()
                                 ->jxnPagination(cl(ResultSet::class))
+                                ->setId(Tab::id('jaxon-dbadmin-resulset-pagination'))
                         )->width(10)
                             ->setStyle('overflow:hidden'),
                         $this->ui->col()

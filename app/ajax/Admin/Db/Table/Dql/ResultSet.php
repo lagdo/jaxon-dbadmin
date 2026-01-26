@@ -40,8 +40,13 @@ class ResultSet extends PageComponent
      */
     protected function count(): int
     {
+        $options = $this->getOptions();
+        if (!($options['total'] ?? true)) {
+            // Do not query the total number of items.
+            return -1;
+        }
+
         $table = $this->getCurrentTable();
-        $options = $this->getOptions(false); // Do not take the page.
         return $this->db()->countSelect($table, $options);
     }
 
@@ -86,7 +91,7 @@ class ResultSet extends PageComponent
         $this->savePageNumber($this->currentPage());
 
         // Select options
-        $options = $this->getOptions(true);
+        $options = $this->getOptions();
         $results = $this->db()->execSelect($this->getCurrentTable(), $options);
 
         // The 'message' key is set when an error occurs, or when the query returns no data.

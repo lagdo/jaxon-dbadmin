@@ -21,7 +21,7 @@ trait ComponentTrait
         $defaults = $this->bag('dbadmin.select')->get($currentTab, []);
 
         // Do not change the values if they are already set.
-        $defaults['options'] ??= ['limit' => 50, 'text_length' => 100];
+        $defaults['options'] ??= ['limit' => 50, 'total' => true, 'length' => 100];
         $defaults['columns'] ??= [];
         $defaults['filters'] ??= [];
         $defaults['sorting'] ??= [];

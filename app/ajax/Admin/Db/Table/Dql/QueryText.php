@@ -48,7 +48,7 @@ class QueryText extends Component
         [$server, ] = $this->getCurrentDb();
         $driver = $this->config()->getServerDriver($server);
         $this->response()->jo('jaxon.dbadmin')
-            ->createSqlSelectEditor($this->selectUi->querytextId(), $driver);
+            ->createSqlSelectEditor($this->selectUi->queryTextId(), $driver);
     }
 
     /**

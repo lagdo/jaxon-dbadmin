@@ -32,16 +32,12 @@ class SelectOptions
             'desc' => [],
             'fulltext' => [],
             'limit' => '50',
-            'text_length' => '100',
+            'length' => '100',
             'page' => '1',
         ];
         foreach ($defaultOptions as $name => $value) {
-            if (!isset($this->utils->input->values[$name])) {
-                $this->utils->input->values[$name] = $value;
-            }
-            if (!isset($selectDto->queryOptions[$name])) {
-                $selectDto->queryOptions[$name] = $value;
-            }
+            $this->utils->input->values[$name] ??= $value;
+            $selectDto->queryOptions[$name] ??= $value;
         }
         $page = intval($selectDto->queryOptions['page']);
         if ($page > 0) {

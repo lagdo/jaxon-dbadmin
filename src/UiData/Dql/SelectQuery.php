@@ -288,7 +288,7 @@ class SelectQuery
      */
     private function setSelectTextLength(SelectDto $selectDto): void
     {
-        $selectDto->textLength = intval($this->utils->input->values['text_length'] ?? 100);
+        $selectDto->textLength = intval($this->utils->input->values['length'] ?? 100);
     }
 
     /**

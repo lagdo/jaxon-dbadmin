@@ -17,11 +17,9 @@ trait QueryTrait
     }
 
     /**
-     * @param bool $withPage
-     *
      * @return array
      */
-    protected function getOptions(bool $withPage): array
+    protected function getOptions(): array
     {
         // Default select options
         $options = $this->getSelectBag('options');
@@ -40,12 +38,8 @@ trait QueryTrait
         $options['desc'] = $sorting['desc'] ?? [];
 
         // Pagination options
-        if ($withPage) {
-            $queryOptions = $this->getSelectBag('options', []);
-            $page = $queryOptions['page'] ?? -1;
-            if ($page >= 0) {
-                $options['page'] = $page;
-            }
+        if (($options['page'] ?? 0) < 0) {
+            $options['page'] = 0;
         }
 
         return $options;
@@ -57,7 +51,7 @@ trait QueryTrait
     protected function getSelectQuery(): string
     {
         $table = $this->getCurrentTable();
-        $options = $this->getOptions(true);
+        $options = $this->getOptions();
         $select = $this->db()->getSelectData($table, $options);
         return $select->query;
     }

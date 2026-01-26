@@ -9,6 +9,7 @@ use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
+use function Jaxon\checked;
 use function Jaxon\form;
 use function Jaxon\input;
 use function Jaxon\rq;
@@ -326,22 +327,24 @@ class OptionsUiBuilder
     public function optionsValues(array $options): string
     {
         $optionsLimitId = Tab::id('dbadmin-table-select-options-form-limit');
+        $optionsTotalId = Tab::id('dbadmin-table-select-options-form-total');
         $optionsLengthId = Tab::id('dbadmin-table-select-options-form-length');
         $rqOptionsValues = rq(Options\Values::class);
         $selectLimitValue = input($optionsLimitId)->toInt();
+        $selectTotalValue = checked($optionsTotalId);
         $textLengthValue = input($optionsLengthId)->toInt();
 
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->row(
-                    $this->ui->col(
+                $this->ui->div(
+                    $this->ui->div(
                         $this->ui->inputGroup(
                             $this->ui->label(
                                 $this->ui->text($this->trans->lang('Limit'))
                             ),
                             $this->ui->input()
                                 ->setId($optionsLimitId)
-                                ->setType('number')
+                                // ->setType('number')
                                 ->setName('limit')
                                 ->setValue($options['limit']),
                             $this->ui->button()
@@ -350,16 +353,33 @@ class OptionsUiBuilder
                                 ->addIcon('ok')
                                 ->jxnClick($rqOptionsValues->saveSelectLimit($selectLimitValue))
                         )
-                    )->width(5),
-                    $this->ui->col(
+                    )->setStyle('width:30%;'),
+                    $this->ui->div(
+                        $this->ui->inputGroup(
+                            $this->ui->label(
+                                $this->ui->text($this->trans->lang('Total'))
+                            ),
+                            $this->ui->checkbox()
+                                ->setId($optionsTotalId)
+                                ->setName('total')
+                                ->checked($options['total'])
+                                ->setValue('1'),
+                            $this->ui->button()
+                                ->outline()
+                                ->secondary()
+                                ->addIcon('ok')
+                                ->jxnClick($rqOptionsValues->saveSelectTotal($selectTotalValue))
+                        )
+                    )->setStyle('width:auto; margin:auto;'),
+                    $this->ui->div(
                         $this->ui->inputGroup(
                             $this->ui->label(
                                 $this->ui->text($this->trans->lang('Text length'))
                             ),
                             $this->ui->input()
                                 ->setId($optionsLengthId)
-                                ->setType('number')
-                                ->setName('text_length')
+                                // ->setType('number')
+                                ->setName('length')
                                 ->setValue($options['length']),
                             $this->ui->button()
                                 ->outline()
@@ -367,8 +387,8 @@ class OptionsUiBuilder
                                 ->addIcon('ok')
                                 ->jxnClick($rqOptionsValues->saveTextLength($textLengthValue))
                         )
-                    )->width(7)
-                )
+                    )->setStyle('width:40%;')
+                )->setStyle('display:flex; flex-direction:row; align-items:flex-start;')
             )
         );
     }
