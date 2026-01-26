@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin;
 
 use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Base\FuncComponent;
 use Lagdo\DbAdmin\Ui\Tab;
 
@@ -12,6 +13,7 @@ use function in_array;
 use function strlen;
 use function trim;
 
+#[Databag('dbadmin.tabs')]
 class TabFunc extends FuncComponent
 {
     /**
@@ -29,8 +31,8 @@ class TabFunc extends FuncComponent
 
         // The "names" array cannot be stored in the "dbadmin.tab" bacause
         // its values are overwritten each time the current tab is changed.
-        $names = $this->bag('dbadmin')->get('tabs', []);
-        $this->bag('dbadmin')->set('tabs', [...$names, $name]);
+        $names = $this->bag('dbadmin.tabs')->get('names', []);
+        $this->bag('dbadmin.tabs')->set('names', [...$names, $name]);
 
         $nav = $this->ui()->tabNavItemHtml($this->trans()->lang('(No title)'));
         $content = $this->ui()->tabContentItemHtml();
@@ -45,8 +47,8 @@ class TabFunc extends FuncComponent
      */
     public function del(): void
     {
+        $names = $this->bag('dbadmin.tabs')->get('names', []);
         $current = $this->bag('dbadmin.tab')->get('current', '');
-        $names = $this->bag('dbadmin')->get('tabs', []);
         if ($current === Tab::zero() || count($names) === 0) {
             $this->alert()->title('Error')->error('Cannot delete the current tab.');
             return;
@@ -56,16 +58,34 @@ class TabFunc extends FuncComponent
             return;
         }
 
-        // Delete the current tab, and activate the first tab, so the screen is not left blank.
+        // Delete the current tab. This script also activates the first tab.
         $this->response()->jo('jaxon.dbadmin')
             ->deleteTab(Tab::titleId(), Tab::wrapperId(), Tab::zeroTitleId());
 
         // Update the databag contents.
-        $this->bag('dbadmin')->set('tabs',
+        $this->bag('dbadmin.tabs')->set('names',
             array_filter($names, fn(string $name) => $name !== $current));
-        // The js code also sets the current tab. But the new value set there is overriden by
+        // The js code also sets the current tab. But the new value set there is overwritten by
         // the one coming from this response. So we also need to set it here.
         $this->bag('dbadmin.tab')->set('current', Tab::zero());
+    }
+
+    /**
+     * @return string
+     */
+    private function getCurrentTitle(): string
+    {
+        return $this->getBag('dbadmin', 'title', '');
+    }
+
+    /**
+     * @param string $currentTitle
+     *
+     * @return void
+     */
+    private function setCurrentTitle(string $currentTitle): void
+    {
+        $this->setBag('dbadmin', 'title', $currentTitle);
     }
 
     /**

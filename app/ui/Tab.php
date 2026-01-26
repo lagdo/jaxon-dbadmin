@@ -33,33 +33,6 @@ class Tab
     }
 
     /**
-     * @return string
-     */
-    public static function current(): string
-    {
-        return self::$stash->get('tab.current', self::zero());
-    }
-
-    /**
-     * @param AjaxResponse $response
-     *
-     * @return void
-     */
-    public static function setCurrent(AjaxResponse $response): void
-    {
-        self::$stash->set('tab.current', $response->bag('dbadmin.tab')
-            ->get('current', self::zero()));
-    }
-
-    /**
-     * @return string
-     */
-    public static function zeroTitleId(): string
-    {
-        return 'app-tab-zero_jaxon-dbadmin-tab-title';
-    }
-
-    /**
      * Prefix the element id with the active tab id
      *
      * @param string $id
@@ -69,6 +42,14 @@ class Tab
     public static function id(string $id): string
     {
         return self::current() . "_$id";
+    }
+
+    /**
+     * @return string
+     */
+    public static function zeroTitleId(): string
+    {
+        return self::zero() . '_jaxon-dbadmin-tab-title';
     }
 
     /**
@@ -85,6 +66,25 @@ class Tab
     public static function wrapperId(): string
     {
         return self::id('jaxon-dbadmin-tab-content');
+    }
+
+    /**
+     * @return string
+     */
+    public static function current(): string
+    {
+        return self::$stash->get('tab.current', self::zero());
+    }
+
+    /**
+     * @param AjaxResponse $response
+     *
+     * @return void
+     */
+    public static function setCurrent(AjaxResponse $response): void
+    {
+        self::$stash->set('tab.current', $response->bag('dbadmin.tab')
+            ->get('current', self::zero()));
     }
 
     /**
