@@ -293,7 +293,7 @@ class ColumnInputDto
     {
         // Pass the field to the constructor, so the origValues attr is set properly. 
         $column = new static($field);
-        $column->action = ColumnAction::tryFrom($inputs['action']) ?? ColumnAction::NONE;
+        $column->action = ColumnAction::convert($inputs['action']);
         $column->position = $inputs['position'];
         $column->setValues($inputs['field']);
 
@@ -309,6 +309,6 @@ class ColumnInputDto
      */
     public static function columnIsAdded(array $column): bool
     {
-        return $column['action'] === ColumnAction::ADD;
+        return ColumnAction::equalsAdd($column['action']);
     }
 }

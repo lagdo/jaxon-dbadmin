@@ -10,7 +10,6 @@ use Lagdo\DbAdmin\Db\UiData\Ddl\TableCreate;
 use Lagdo\DbAdmin\Db\UiData\Ddl\TableHeader;
 use Lagdo\DbAdmin\Driver\Dto\TableAlterDto;
 use Lagdo\DbAdmin\Driver\Dto\TableCreateDto;
-use Lagdo\DbAdmin\Driver\Dto\TableDto;
 use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 use Exception;
 
@@ -32,11 +31,6 @@ class TableFacade extends AbstractFacade
      * @var mixed
      */
     protected $tableStatus = null;
-
-    /**
-     * @var TableDto
-     */
-    private $attrs;
 
     /**
      * @var TableHeader|null
