@@ -128,7 +128,6 @@ class Database extends FuncComponent
      *
      * @return void
      */
-    #[Before('notYetAvailable')]
     public function drop(string $database): void
     {
         if(!$this->db()->dropDatabase($database))
