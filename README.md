@@ -8,9 +8,11 @@
 A database admin dashboard based on Jaxon and Adminer
 =====================================================
 
-This package inserts a database admin dashboard into an existing PHP application.
+Jaxon DbAdmin is a complete rewrite of [Adminer](https://github.com/vrana/adminer), the popular database admin dashboard.
+
+It inserts a database admin dashboard into an existing PHP application.
 Thanks to the [Jaxon library](https://www.jaxon-php.org), it installs and runs in a page of the application.
-All its operations are performed with Ajax requests, so the user never leaves the page.
+All its operations are performed with Ajax requests.
 
 The database access code (and thus the provided features) originates from [Adminer](https://github.com/vrana/adminer). The original code was refactored to take advantage of the latest PHP features (namespaces, interfaces, DI, and so on), and separated into multiple Composer packages.
 
@@ -29,17 +31,19 @@ The following features are currently available:
 - Use a better editor for SQL queries.
 - Save and show the query history.
 - Save queries in user favorites.
-- Import and export data.
+- Import or export data.
 - Insert, modify or delete data in a table.
-- Create or alter a table (wip).
+- Create or drop a database.
+- Create or alter a table or view.
+- Drop a table or view.
+- Browse servers and databases in multiple tabs.
 
 The following features are not yet implemented, and planned for future releases:
-- Drop a table.
-- Create, alter or drop a view.
-- Create, alter or drop a database.
-- Code completion for table and field names in the SQL editor.
+- Save the current tabs in user preferences.
 - Navigate through related tables.
+- Code completion for table and field names in the SQL editor.
 - An advanced GUI-based query builder.
+- Automated tests.
 
 Howtos
 ------
@@ -48,11 +52,13 @@ This blog post on the `Jaxon` website explains how to install `Jaxon DbAdmin` on
 
 ### The Jaxon DbAdmin application
 
-The [https://github.com/lagdo/dbadmin-app](https://github.com/lagdo/dbadmin-app) repo provides a ready-to-use `Jaxon DbAdmin` application built with `Laravel`.
+The [https://github.com/lagdo/dbadmin-app](https://github.com/lagdo/dbadmin-app) repo provides a ready-to-use application, made with the [Laravel](https://laravel.com/) framework, and `Jaxon DbAdmin`.
+<!-- The [https://github.com/lagdo/dbadmin-voyager](https://github.com/lagdo/dbadmin-voyager) repo provides a ready-to-use application, made with the [Voyager Admin](https://voyager.devdojo.com/) dashboard, and `Jaxon DbAdmin`. -->
 
 The driver packages for [PostgreSQL](https://github.com/lagdo/dbadmin-driver-mysql), [MySQL](https://github.com/lagdo/dbadmin-driver-mysql) and [SQLite](https://github.com/lagdo/dbadmin-driver-sqlite) are included, so the user just need to add its databases in the config file.
 
 A [Docker image](https://hub.docker.com/r/lagdo/jaxon-dbadmin) is also provided to get started easily.
+It runs the [Laravel based DbAdmin application](https://github.com/lagdo/dbadmin-app).
 
 Documentation
 -------------
@@ -70,7 +76,8 @@ The following drivers are available:
 - MySQL: [https://github.com/lagdo/dbadmin-driver-mysql](https://github.com/lagdo/dbadmin-driver-mysql)
 - Sqlite: [https://github.com/lagdo/dbadmin-driver-sqlite](https://github.com/lagdo/dbadmin-driver-sqlite)
 
-Declare the package and the database servers in the `app.packages` section of the [Jaxon configuration file](https://www.jaxon-php.org/docs/v5x/about/configuration.html).
+Declare the package and the database servers in the `app.packages` section of the Jaxon configuration.
+See the [Jaxon packages documentation](https://www.jaxon-php.org/docs/v5x/extensions/packages.html).
 
 See the corresponding database driver package for specific database server options.
 
@@ -118,12 +125,12 @@ The following builders are available:
 - Bootstrap 4: [https://github.com/lagdo/ui-builder-bootstrap4](https://github.com/lagdo/ui-builder-bootstrap4)
 - Bootstrap 3: [https://github.com/lagdo/ui-builder-bootstrap3](https://github.com/lagdo/ui-builder-bootstrap3)
 
-In the above example, the UI will be built with Bootstrap3 components.
+In the above example, the UI will be built with Bootstrap5 components.
 
 ```php
     'app' => [
         'ui' => [
-            'template' => 'bootstrap3',
+            'template' => 'bootstrap5',
         ],
     ],
 ```
