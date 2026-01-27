@@ -70,26 +70,6 @@ class UpdateFunc extends FuncComponent
     }
 
     /**
-     * @param array<ColumnInputDto> $columns
-     * @param string $columnId
-     *
-     * @return array
-     */
-    private function undoColumn(array $columns, string $columnId): array
-    {
-        $fields = $this->metadata()['fields'];
-        foreach ($columns as $_columnId => &$column) {
-            if ($_columnId === $columnId && isset($fields[$column->name])) {
-                // Reset the column with values from the database.
-                $column = new ColumnInputDto($fields[$column->name]);
-                $column->undo();
-                break;
-            }
-        }
-        return $columns;
-    }
-
-    /**
      * @param string $columnId
      *
      * @return void
@@ -105,7 +85,15 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $columns = $this->undoColumn($columns, $columnId);
+        $fields = $this->metadata()['fields'];
+        $column = $columns[$columnId];
+        if (isset($fields[$column->name])) {
+            // Reset the column with values from the database.
+            $column = new ColumnInputDto($fields[$column->name]);
+            $column->undo();
+            $columns[$columnId] = $column;
+        }
+
         $this->cl(Wrapper::class)->show($this->metadata(), $columns);
     }
 }

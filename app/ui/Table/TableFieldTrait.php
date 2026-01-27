@@ -126,20 +126,26 @@ trait TableFieldTrait
     {
         return $this->ui->select(
             $this->ui->option('(' . $this->trans->lang('collation') . ')')
-                ->selected(false)
-                ->setValue(''),
+                ->setValue('')
+                ->selected(false),
             $this->ui->each($this->collations(), fn($_collations, $group) =>
                 $this->ui->list(
                     $this->ui->when(is_string($_collations), fn() =>
                         $this->ui->option($_collations)
                             ->selected($currentCollation === $_collations)
                     ),
-                    $this->ui->when(is_array($_collations), fn() =>
+                    $this->ui->when(is_array($_collations) && $group === '', fn() =>
+                        $this->ui->each($_collations, fn($collation) =>
+                            $this->ui->option($collation)
+                                ->selected($currentCollation === $collation)
+                        )
+                    ),
+                    $this->ui->when(is_array($_collations) && $group !== '', fn() =>
                         $this->ui->optgroup(
                             $this->ui->each($_collations, fn($collation) =>
                                 $this->ui->option($collation)
                                     ->selected($currentCollation === $collation)
-                            )
+                            ),
                         )->setLabel($group)
                     )
                 )

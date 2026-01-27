@@ -7,6 +7,8 @@ use Lagdo\DbAdmin\Ui\PageTrait;
 use Lagdo\DbAdmin\Ui\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
+use function count;
+
 class ServerUiBuilder
 {
     use PageTrait;
@@ -23,7 +25,7 @@ class ServerUiBuilder
      */
     public function userFormId(): string
     {
-        return Tab::id('user-form');
+        return Tab::id('jaxon-dbadmin-user-form');
     }
 
     /**
@@ -31,7 +33,7 @@ class ServerUiBuilder
      */
     public function dbFormId(): string
     {
-        return Tab::id('database-form');
+        return Tab::id('jaxon-dbadmin-database-form');
     }
 
     /**
@@ -110,24 +112,41 @@ class ServerUiBuilder
                             ->setPlaceholder('Name')
                     )->width(6)
                 ),
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->label($this->ui->text('Collation'))
-                            ->setFor('collation')
-                    )->width(3),
-                    $this->ui->col(
-                        $this->ui->select(
-                            $this->ui->option('(collation)')->selected(true),
-                            $this->ui->each($collations, fn($_collations, $group) =>
-                                $this->ui->list(
-                                    $this->ui->optgroup()->setLabel($group),
-                                    $this->ui->each($_collations, fn($collation) =>
-                                        $this->ui->option($collation)
+                $this->ui->when(count($collations) === 0, fn() =>
+                    $this->ui->input()
+                        ->setType('hidden')
+                        ->setName('collation')
+                        ->setValue('')),
+                $this->ui->when(count($collations) > 0, fn() =>
+                    $this->ui->row(
+                        $this->ui->col(
+                            $this->ui->label($this->ui->text('Collation'))
+                                ->setFor('collation')
+                        )->width(3),
+                        $this->ui->col(
+                            $this->ui->select(
+                                $this->ui->option('(collation)')
+                                    ->setValue('')
+                                    ->selected(true),
+                                $this->ui->each($collations, fn($_collations, $group) =>
+                                    $this->ui->list(
+                                        $this->ui->when($group !== '', fn() =>
+                                            $this->ui->optgroup(
+                                                $this->ui->each($_collations, fn($collation) =>
+                                                    $this->ui->option($collation)
+                                                )
+                                            )->setLabel($group)
+                                        ),
+                                        $this->ui->when($group === '', fn() =>
+                                            $this->ui->each($_collations, fn($collation) =>
+                                                $this->ui->option($collation)
+                                            )
+                                        )
                                     )
                                 )
-                            )
-                        )->setName('collation')
-                    )->width(6)
+                            )->setName('collation')
+                        )->width(6)
+                    )
                 )
             )->wrapped(true)->setId($this->dbFormId())
         );

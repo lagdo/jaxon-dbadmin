@@ -78,7 +78,6 @@ class Database extends FuncComponent
      *
      * @return void
      */
-    #[Before('notYetAvailable')]
     public function add(): void
     {
         $collations = $this->db()->getCollations();
@@ -104,7 +103,6 @@ class Database extends FuncComponent
      *
      * @return void
      */
-    #[Before('notYetAvailable')]
     public function create(array $formValues): void
     {
         $database = $formValues['name'];
