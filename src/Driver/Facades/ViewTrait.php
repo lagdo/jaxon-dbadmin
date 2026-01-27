@@ -124,7 +124,6 @@ trait ViewTrait
     public function dropView(string $view): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $view;
         return $this->viewFacade()->dropView($view);
     }
 }

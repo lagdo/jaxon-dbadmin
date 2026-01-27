@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Database;
 
 use Lagdo\DbAdmin\Ajax\Admin\Db\View\Ddl\Form;
 use Lagdo\DbAdmin\Ajax\Admin\Db\View\Ddl\View;
+use Lagdo\DbAdmin\Ajax\Admin\Db\View\Ddl\ViewFunc;
 use Lagdo\DbAdmin\Ajax\Admin\Db\View\Dql\Select;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 
@@ -42,6 +43,10 @@ class Views extends MainComponent
             ], [
                 'label' => $this->trans->lang('Select'),
                 'handler' => $this->rq(Select::class)->show($viewName),
+            ], [
+                'label' => $this->trans->lang('Drop'),
+                'handler' => $this->rq(ViewFunc::class)->drop($viewName)
+                    ->confirm($this->trans->lang('Drop view %s?', $viewName)),
             ]]);
         }
 

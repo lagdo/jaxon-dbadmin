@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Database;
 
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Create;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Table;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\TableFunc;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 
@@ -42,6 +43,10 @@ class Tables extends MainComponent
             ], [
                 'label' => $this->trans->lang('Select'),
                 'handler' => $this->rq(Select::class)->show($tableName),
+            ], [
+                'label' => $this->trans->lang('Drop'),
+                'handler' => $this->rq(TableFunc::class)->drop($tableName)
+                    ->confirm($this->trans->lang('Drop table %s?', $tableName)),
             ]]);
         }
 

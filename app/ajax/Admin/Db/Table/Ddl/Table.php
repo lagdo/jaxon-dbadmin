@@ -84,7 +84,7 @@ class Table extends MainComponent
             'drop-table' => [
                 'title' => $this->trans()->lang('Drop table'),
                 'handler' => $this->rq(TableFunc::class)->drop($table)
-                    ->confirm("Drop table $table?"),
+                    ->confirm($this->trans->lang('Drop table %s?', $table)),
             ],
             'tables-back' => [
                 'title' => $this->trans()->lang('Back'),

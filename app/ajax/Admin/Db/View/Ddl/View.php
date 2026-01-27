@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\View\Ddl;
 
 use Jaxon\Attributes\Attribute\After;
-use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Views;
 use Lagdo\DbAdmin\Ajax\Admin\Db\FuncComponent;
 use Lagdo\DbAdmin\Ajax\Admin\Db\View\Dql\Select;
@@ -101,7 +100,8 @@ class View extends FuncComponent
             ],
             'drop-view' => [
                 'title' => $this->trans()->lang('Drop view'),
-                'handler' => $this->rq()->drop($view)->confirm("Drop view $view?"),
+                'handler' => $this->rq(ViewFunc::class)->drop($view)
+                    ->confirm($this->trans->lang('Drop view %s?', $view)),
             ],
             'back-views' => [
                 'title' => $this->trans()->lang('Back'),
@@ -123,73 +123,5 @@ class View extends FuncComponent
         {
             $this->showTab($triggersInfo, $this->tabId('tab-content-triggers'));
         }
-    }
-
-    /**
-     * Create a new view
-     *
-     * @param array $values      The view values
-     *
-     * @return void
-     */
-    #[Before('notYetAvailable')]
-    public function create(array $values): void
-    {
-        $values['materialized'] = isset($values['materialized']);
-
-        $result = $this->db()->createView($values);
-        if(!$result['success'])
-        {
-            $this->alert()->error($result['error']);
-            return;
-        }
-
-        $this->cl(Views::class)->show();
-        $this->alert()->success($result['message']);
-    }
-
-    /**
-     * Update a given view
-     *
-     * @param string $view        The view name
-     * @param array $values      The view values
-     *
-     * @return void
-     */
-    #[Before('notYetAvailable')]
-    public function update(string $view, array $values): void
-    {
-        $values['materialized'] = isset($values['materialized']);
-
-        $result = $this->db()->updateView($view, $values);
-        if(!$result['success'])
-        {
-            $this->alert()->error($result['error']);
-            return;
-        }
-
-        $this->show($view);
-        $this->alert()->success($result['message']);
-    }
-
-    /**
-     * Drop a given view
-     *
-     * @param string $view        The view name
-     *
-     * @return void
-     */
-    #[Before('notYetAvailable')]
-    public function drop(string $view): void
-    {
-        $result = $this->db()->dropView($view);
-        if(!$result['success'])
-        {
-            $this->alert()->error($result['error']);
-            return;
-        }
-
-        $this->cl(Views::class)->show();
-        $this->alert()->success($result['message']);
     }
 }

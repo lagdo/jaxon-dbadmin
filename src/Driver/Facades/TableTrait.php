@@ -3,8 +3,6 @@
 namespace Lagdo\DbAdmin\Db\Driver\Facades;
 
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
-use Lagdo\DbAdmin\Driver\Dto\TableAlterDto;
-use Lagdo\DbAdmin\Driver\Dto\TableCreateDto;
 use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
 use Exception;
 
@@ -210,12 +208,11 @@ trait TableTrait
      *
      * @param string $table     The table name
      *
-     * @return array|null
+     * @return array
      */
-    public function dropTable(string $table): ?array
+    public function dropTable(string $table): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
         return $this->tableFacade()->dropTable($table);
     }
 }

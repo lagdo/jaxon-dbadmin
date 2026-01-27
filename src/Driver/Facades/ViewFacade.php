@@ -228,10 +228,20 @@ class ViewFacade extends AbstractFacade
      */
     public function dropView(string $view): array
     {
-        $success = $this->driver->dropView($view);
-        $message = $this->utils->trans->lang('View has been dropped.');
-        $error = $this->driver->error();
+        if ($this->driver->tableStatus($view) === null) {
+            return [
+                'error' => $this->utils->trans->lang('Invalid view %s.', $view),
+            ];
+        }
 
-        return compact('success', 'message', 'error');
+        if (!$this->driver->dropView($view)) {
+            return [
+                'error' => $this->driver->error(),
+            ];
+        }
+
+        return [
+            'message' => $this->utils->trans->lang('View has been dropped.'),
+        ];
     }
 }

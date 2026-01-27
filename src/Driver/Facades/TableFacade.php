@@ -365,10 +365,20 @@ class TableFacade extends AbstractFacade
      */
     public function dropTable(string $table): array
     {
-        $success = $this->driver->dropTables([$table]);
-        $error = $this->driver->error();
-        $message = $this->utils->trans->lang('Table has been dropped.');
+        if ($this->driver->tableStatus($table) === null) {
+            return [
+                'error' => $this->utils->trans->lang('Invalid table %s.', $table),
+            ];
+        }
 
-        return compact('success', 'message', 'error');
+        if (!$this->driver->dropTables([$table])) {
+            return [
+                'error' => $this->driver->error(),
+            ];
+        }
+
+        return [
+            'message' => $this->utils->trans->lang('Table has been dropped.'),
+        ];
     }
 }

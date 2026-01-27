@@ -102,7 +102,8 @@ class Form extends Component
             ],
             'drop-view' => [
                 'title' => $this->trans()->lang('Drop view'),
-                'handler' => $this->rq()->drop($view)->confirm("Drop view $view?"),
+                'handler' => $this->rq(ViewFunc::class)->drop($view)
+                    ->confirm($this->trans->lang('Drop view %s?', $view)),
             ],
             'back-views' => [
                 'title' => $this->trans()->lang('Back'),
@@ -110,6 +111,7 @@ class Form extends Component
             ],
         ];
         $this->cl(PageActions::class)->show($actions);
+
         $this->render();
     }
 }
