@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Db\Config;
 
 use Jaxon\Config\Config;
 
-use function is_string;
 use function preg_match;
 
 class ConfigReader
@@ -121,9 +120,10 @@ class ConfigReader
             'name' => $this->getOption("$prefix.name"),
             'driver' => $this->getOption("$prefix.driver"),
         ];
-        if ($options['driver'] === 'sqlite' &&
-            $this->config->hasOption("$prefix.directory")) {
-            $options['directory'] = $this->getDirectory($prefix);
+        if ($options['driver'] === 'sqlite') {
+            if ($this->config->hasOption("$prefix.directory")) {
+                $options['directory'] = $this->getDirectory($prefix);
+            }
             return $options;
         }
 
