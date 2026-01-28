@@ -53,10 +53,11 @@ return [
             },
             // Connection to the audit database
             Service\Admin\ConnectionProxy::class => function(Container $di) {
+                $auth = $di->g('dbadmin_auth_service');
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getAuditDatabase();
                 $driver = Db\Driver\AppDriver::createDriver($database);
-                return new Service\Admin\ConnectionProxy(getAuth($di), $driver, $database);
+                return new Service\Admin\ConnectionProxy($auth, $driver, $database);
             },
             // Query logger
             Service\Admin\QueryLogger::class => function(Container $di) {

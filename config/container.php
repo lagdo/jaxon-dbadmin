@@ -8,22 +8,6 @@ use Lagdo\DbAdmin\Db\Service;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Ui;
 
-function getAuth(Container $di): Config\AuthInterface
-{
-    return $di->h(Config\AuthInterface::class) ?
-        $di->g(Config\AuthInterface::class) :
-        new class implements Config\AuthInterface {
-            public function user(): string
-            {
-                return '';
-            }
-            public function role(): string
-            {
-                return '';
-            }
-        };
-}
-
 return [
     'set' => [
         // Selected database driver
@@ -88,9 +72,24 @@ return [
             $dbFacade = $di->g(Db\Driver\DbFacade::class);
             return new Facades\ViewFacade($dbFacade);
         },
+        'dbadmin_auth_service' => fn(Container $di) =>
+            $di->h(Config\AuthInterface::class) ?
+                // Custom auth service defined.
+                $di->g(Config\AuthInterface::class) :
+                // Default auth service when none is defined.
+                new class implements Config\AuthInterface {
+                    public function user(): string
+                    {
+                        return '';
+                    }
+                    public function role(): string
+                    {
+                        return '';
+                    }
+                },
         Config\ConfigReader::class => fn() => new Config\ConfigReader(),
         Config\UserFileReader::class => fn(Container $di) =>
-            new Config\UserFileReader(getAuth($di)),
+            new Config\UserFileReader($di->g('dbadmin_auth_service')),
     ],
     'auto' => [
         // The translator
