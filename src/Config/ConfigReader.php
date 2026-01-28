@@ -39,7 +39,7 @@ class ConfigReader
      */
     protected function getOptionValue(string $prefix, string $option): mixed
     {
-        $value = $this->getOption("$prefix.{$option}");
+        $value = $this->getOption("$prefix.{$option}", '');
         // We need to capture the matching string.
         $match = preg_match($this->captureRegex, $value, $matches);
         return $match === false || !isset($matches[1]) ? $value : env($matches[1]);

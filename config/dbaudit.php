@@ -24,7 +24,8 @@ return [
             ...$container['set'],
             Config\ServerConfig::class => function(Container $di) {
                 $config = $di->getPackageConfig(Db\DbAuditPackage::class);
-                $reader = $di->g($config->getOption('reader', Config\ConfigReader::class));
+                $reader = $di->g($config->getOption('config.reader',
+                    Config\ConfigReader::class));
                 // Move the options under the "audit" key. Needed by the ServerConfig class.
                 $config = (new ConfigSetter())->newConfig(['audit' => $config->getValues()]);
                 return new Config\ServerConfig($config, $reader);
