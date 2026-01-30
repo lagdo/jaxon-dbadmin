@@ -5,8 +5,8 @@ namespace Lagdo\DbAdmin\Db\Config;
 use Jaxon\Config\Config;
 
 use function array_filter;
+use function array_keys;
 use function array_map;
-use function count;
 use function in_array;
 use function is_numeric;
 use function is_string;
@@ -139,6 +139,37 @@ class ServerConfig
     }
 
     /**
+     * @return array
+     */
+    private function getValidServers(): array
+    {
+        $names = $this->config->getOptionNames('servers');
+        // Filter the names with valid driver and name options.
+        return array_filter($names, $this->hasDbServer(...));
+    }
+
+    /**
+     * Get the database server names
+     *
+     * @return array
+     */
+    public function getServerIds(): array
+    {
+        return array_keys($this->getValidServers());
+    }
+
+    /**
+     * Get the database servers
+     *
+     * @return array<string>
+     */
+    public function getServerNames(): array
+    {
+        $callback = fn($prefix) => $this->config->getOption("$prefix.name");
+        return array_map($callback, $this->getValidServers());
+    }
+
+    /**
      * @param array $options
      *
      * @return bool
@@ -177,18 +208,6 @@ class ServerConfig
     private function readConfig(string $prefix): array
     {
         return $this->configs[$prefix] ??= $this->_readConfig($prefix);
-    }
-
-    /**
-     * Get the database servers
-     *
-     * @return array
-     */
-    public function getServers(): array
-    {
-        return array_filter(array_map($this->readConfig(...),
-            $this->config->getOptionNames('servers')),
-            fn(array $config) => count($config) > 0);
     }
 
     /**

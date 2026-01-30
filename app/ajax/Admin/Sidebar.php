@@ -14,7 +14,7 @@ class Sidebar extends Component
      */
     public function html(): string
     {
-        $servers = $this->config()->getServers();
+        $servers = $this->config()->getServerNames();
         $serverAccess = $this->config()->getOption('access.server', false);
         $default = $this->config()->getOption('default', '');
         return $this->ui()->sidebar($servers, $serverAccess, $default);

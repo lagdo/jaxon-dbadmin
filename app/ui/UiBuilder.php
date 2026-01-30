@@ -60,7 +60,7 @@ class UiBuilder
     }
 
     /**
-     * @param array $servers
+     * @param array<string> $servers
      * @param string $default
      *
      * @return mixed
@@ -71,8 +71,8 @@ class UiBuilder
             $this->ui->form(
                 $this->ui->inputGroup(
                     $this->ui->select(
-                        $this->ui->each($servers, fn($server, $serverId) =>
-                            $this->ui->option($server['name'])
+                        $this->ui->each($servers, fn($serverName, $serverId) =>
+                            $this->ui->option($serverName)
                                 ->selected($serverId === $default)
                                 ->setValue($serverId)
                         )
@@ -88,7 +88,7 @@ class UiBuilder
     }
 
     /**
-     * @param array $servers
+     * @param array<string> $servers
      * @param bool $serverAccess
      * @param string $default
      *
