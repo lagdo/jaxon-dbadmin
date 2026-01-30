@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Driver;
 
+use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Driver\AbstractDriver;
 use Lagdo\DbAdmin\Driver\Db\AbstractConnection;
 use Lagdo\DbAdmin\Driver\Db\StatementInterface;
@@ -12,8 +13,6 @@ use Lagdo\DbAdmin\Driver\Driver\QueryInterface;
 use Lagdo\DbAdmin\Driver\Driver\ServerInterface;
 use Lagdo\DbAdmin\Driver\Driver\TableInterface;
 use Closure;
-
-use function Jaxon\jaxon;
 
 /**
  * Add callbacks to the driver features.
@@ -171,15 +170,16 @@ class AppDriver extends AbstractDriver
     }
 
     /**
+     * @param Container $di
      * @param array $options
      *
      * @return DriverInterface|null
      */
-    public static function createDriver(array $options): ?DriverInterface
+    public static function createDriver(Container $di, array $options): DriverInterface|null
     {
         $drivers = AbstractDriver::drivers();
         $driver = $options['driver'];
         $closure = $drivers[$driver] ?? null;
-        return !$closure ? null : $closure(jaxon()->di(), $options);
+        return !$closure ? null : $closure($di, $options);
     }
 }

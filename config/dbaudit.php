@@ -38,7 +38,7 @@ return [
                 /** @var Config\ServerConfig */
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getAuditDatabase();
-                $driver = Db\Driver\AppDriver::createDriver($database);
+                $driver = Db\Driver\AppDriver::createDriver($di, $database);
                 return new Service\Audit\ConnectionProxy($driver, $database);
             },
             // Query audit
@@ -46,11 +46,11 @@ return [
                 /** @var Config\ServerConfig */
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getAuditDatabase();
-                $options = $serverConfig->getAuditOptions();
                 if ($database === null) {
                     return null;
                 }
 
+                $options = $serverConfig->getAuditOptions();
                 $proxy = $di->g(Service\Audit\ConnectionProxy::class);
                 return new Service\Audit\QueryLogger($proxy, $options);
             },

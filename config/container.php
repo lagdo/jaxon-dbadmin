@@ -14,12 +14,12 @@ jaxon()->callback()->boot(function() {
     $serverConfig = $di->g(Config\ServerConfig::class);
     foreach($serverConfig->getServerIds() as $server) {
         // The driver options
-        $di->set("dbadmin_driver_options_$server", fn() =>
+        $di->set("dbadmin_server_options_$server", fn() =>
             $serverConfig->getServerConfig($server));
         // The driver itself
-        $di->set("dbadmin_driver_$server", function() use($di, $server) {
-            $options = $di->g("dbadmin_driver_options_$server");
-            return Db\Driver\AppDriver::createDriver($options);
+        $di->set("dbadmin_server_$server", function() use($di, $server) {
+            $options = $di->g("dbadmin_server_options_$server");
+            return Db\Driver\AppDriver::createDriver($di, $options);
         });
     }
 });
@@ -27,14 +27,14 @@ jaxon()->callback()->boot(function() {
 return [
     'set' => [
         // Selected database driver options
-        'dbadmin_driver_options' => function(Container $di) {
+        'dbadmin_server_options' => function(Container $di) {
             $server = $di->g('dbadmin_config_server');
-            return $di->g("dbadmin_driver_options_$server");
+            return $di->g("dbadmin_server_options_$server");
         },
         // Selected database driver
         Driver\DriverInterface::class => function(Container $di) {
             $server = $di->g('dbadmin_config_server');
-            return $di->g("dbadmin_driver_$server");
+            return $di->g("dbadmin_server_$server");
         },
         // Facades to the DB driver features
         Facades\CommandFacade::class => function(Container $di) {
@@ -45,7 +45,7 @@ return [
         },
         Facades\DatabaseFacade::class => function(Container $di) {
             $dbFacade = $di->g(Db\Driver\DbFacade::class);
-            $options = $di->g('dbadmin_driver_options');
+            $options = $di->g('dbadmin_server_options');
             return new Facades\DatabaseFacade($dbFacade, $options);
         },
         Facades\ExportFacade::class => function(Container $di) {
@@ -69,7 +69,7 @@ return [
         },
         Facades\ServerFacade::class => function(Container $di) {
             $dbFacade = $di->g(Db\Driver\DbFacade::class);
-            $options = $di->g('dbadmin_driver_options');
+            $options = $di->g('dbadmin_server_options');
             return new Facades\ServerFacade($dbFacade, $options);
         },
         Facades\TableFacade::class => function(Container $di) {

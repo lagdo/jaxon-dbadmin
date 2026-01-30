@@ -36,12 +36,18 @@ return [
                 // This class will "clone" the selected driver, and define the callbacks.
                 // By doing this, the driver classes will call the driver without the callbacks.
                 $driver = new Db\Driver\AppDriver($di->g(Driver\DriverInterface::class));
-                $timer = $di->g(Service\TimerService::class);
-                $driver->addQueryCallback(fn() => $timer->stop());
-                $logger = $di->g(Service\Admin\QueryLogger::class);
-                if ($logger !== null) {
-                    $driver->addQueryCallback($logger->saveCommand(...));
-                }
+                $timerCallback = function() use($di) {
+                    $timer = $di->g(Service\TimerService::class);
+                    $timer->stop();
+                };
+                $loggerCallback = function() use($di, $driver) {
+                    $logger = $di->g(Service\Admin\QueryLogger::class);
+                    if ($logger !== null) {
+                        $driver->addQueryCallback($logger->saveCommand(...));
+                    }
+                };
+                $driver->addQueryCallback($timerCallback);
+                $driver->addQueryCallback($loggerCallback);
                 return $driver;
             },
             // Database options for audit
@@ -49,7 +55,7 @@ return [
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getAuditDatabase();
                 $options = $serverConfig->getAuditOptions();
-                return is_array($database) && is_array($options) &&
+                return is_array($database) &&
                     $di->h(Config\AuthInterface::class) ? $options : null;
             },
             // Connection to the audit database
@@ -57,7 +63,7 @@ return [
                 $auth = $di->g('dbadmin_auth_service');
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getAuditDatabase();
-                $driver = Db\Driver\AppDriver::createDriver($database);
+                $driver = Db\Driver\AppDriver::createDriver($di, $database);
                 return new Service\Admin\ConnectionProxy($auth, $driver, $database);
             },
             // Query logger
