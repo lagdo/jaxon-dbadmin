@@ -73,7 +73,7 @@ return [
                 }
 
                 // User database, different from the audit database.
-                $serverOptions = $di->g('dbadmin_driver_options');
+                $serverOptions = $di->g('dbadmin_server_options');
                 $dbFacade = $di->g(Db\Driver\DbFacade::class);
                 $options['database'] = $dbFacade->getDatabaseOptions($serverOptions);
 
