@@ -27,7 +27,7 @@ return [
             ...$container['set'],
             Config\ServerConfig::class => function(Container $di) {
                 $config = $di->getPackageConfig(Db\DbAdminPackage::class);
-                $reader = $di->g($config->getOption('config.reader',
+                $reader = $di->get($config->getOption('config.reader',
                     Config\ConfigReader::class));
                 return new Config\ServerConfig($config, $reader);
             },
