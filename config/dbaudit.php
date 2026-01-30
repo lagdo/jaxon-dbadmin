@@ -27,11 +27,15 @@ return [
                 $reader = $di->g($config->getOption('config.reader',
                     Config\ConfigReader::class));
                 // Move the options under the "audit" key. Needed by the ServerConfig class.
-                $config = (new ConfigSetter())->newConfig(['audit' => $config->getValues()]);
+                $config = (new ConfigSetter())->newConfig([
+                    'database' => $config->getOption('database'),
+                    'options' => $config->getOption('options', []),
+                ], 'audit');
                 return new Config\ServerConfig($config, $reader);
             },
             // Connection to the audit database
             Service\Audit\ConnectionProxy::class => function(Container $di) {
+                /** @var Config\ServerConfig */
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getAuditDatabase();
                 $driver = Db\Driver\AppDriver::createDriver($database);
@@ -39,10 +43,11 @@ return [
             },
             // Query audit
             Service\Audit\QueryLogger::class => function(Container $di) {
-                $config = $di->getPackageConfig(Db\DbAuditPackage::class);
-                $database = $config->getOption('database');
-                $options = $config->getOption('options', []);
-                if (!is_array($database) || !is_array($options)) {
+                /** @var Config\ServerConfig */
+                $serverConfig = $di->g(Config\ServerConfig::class);
+                $database = $serverConfig->getAuditDatabase();
+                $options = $serverConfig->getAuditOptions();
+                if ($database === null) {
                     return null;
                 }
 
