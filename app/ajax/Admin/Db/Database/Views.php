@@ -38,11 +38,11 @@ class Views extends MainComponent
         foreach($viewsInfo['details'] as &$detail) {
             $viewName = $detail['name'];
             $detail['menu'] = $this->ui()->tableMenu([[
-                'label' => $this->trans->lang('Show'),
-                'handler' => $this->rq(View::class)->show($viewName),
-            ], [
                 'label' => $this->trans->lang('Select'),
                 'handler' => $this->rq(Select::class)->show($viewName),
+            ], [
+                'label' => $this->trans->lang('Show'),
+                'handler' => $this->rq(View::class)->show($viewName),
             ], [
                 'label' => $this->trans->lang('Drop'),
                 'handler' => $this->rq(ViewFunc::class)->drop($viewName)

@@ -38,11 +38,11 @@ class Tables extends MainComponent
         foreach($tablesInfo['details'] as &$detail) {
             $tableName = $detail['name'];
             $detail['menu'] = $this->ui()->tableMenu([[
-                'label' => $this->trans->lang('Show'),
-                'handler' => $this->rq(Table::class)->show($tableName),
-            ], [
                 'label' => $this->trans->lang('Select'),
                 'handler' => $this->rq(Select::class)->show($tableName),
+            ], [
+                'label' => $this->trans->lang('Show'),
+                'handler' => $this->rq(Table::class)->show($tableName),
             ], [
                 'label' => $this->trans->lang('Drop'),
                 'handler' => $this->rq(TableFunc::class)->drop($tableName)
