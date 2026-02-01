@@ -112,6 +112,9 @@
 #jaxon-dbadmin .dbadmin-main-action-group {
     padding: 10px;
 }
+.jaxon-dbadmin-sql-query-wrapper { 
+    min-height: 180px !important;
+}
 #jaxon-dbadmin .dbadmin-main-command-query { 
     height: 200px;
     min-height: 120px;

@@ -84,8 +84,9 @@ class AuditUiBuilder
                                 ['.dbadmin-history-query-copy', 'click', $btnCopyHandler],
                                 ['.dbadmin-history-query-insert', 'click', $btnInsertHandler],
                             ])
-                    )->responsive(true)->look('bordered'),
+                    )->look('bordered'),
                 )->width(12)
+                    ->setClass('jaxon-dbadmin-sql-query-wrapper')
             ),
         );
     }
@@ -158,28 +159,30 @@ class AuditUiBuilder
             ->confirm($this->trans->lang('Delete this query from the favorites?'));
 
         return $this->ui->build(
-            $this->ui->table(
-                $this->ui->tbody(
-                    $this->ui->each($queries, fn($query, $id) =>
-                        $this->ui->tr(
-                            $this->ui->td(
-                                $this->ui->div("[{$query['driver']}] {$query['title']}")
-                                    ->setStyle('font-size:14px; font-style:italic;'),
-                                $this->ui->div($query['query'])
-                                    ->setId("{$prefix}{$id}")
-                            ),
-                            $this->ui->td($this->favoriteButtons())
-                                ->setDataQueryId($id)
-                                ->setStyle('width:50px;')
+            $this->ui->div(
+                $this->ui->table(
+                    $this->ui->tbody(
+                        $this->ui->each($queries, fn($query, $id) =>
+                            $this->ui->tr(
+                                $this->ui->td(
+                                    $this->ui->div("[{$query['driver']}] {$query['title']}")
+                                        ->setStyle('font-size:14px; font-style:italic;'),
+                                    $this->ui->div($query['query'])
+                                        ->setId("{$prefix}{$id}")
+                                ),
+                                $this->ui->td($this->favoriteButtons())
+                                    ->setDataQueryId($id)
+                                    ->setStyle('width:50px;')
+                            )
                         )
-                    )
-                )->jxnEvent([
-                    ['.dbadmin-favorite-query-copy', 'click', $btnCopyHandler],
-                    ['.dbadmin-favorite-query-insert', 'click', $btnInsertHandler],
-                    ['.dbadmin-favorite-query-edit', 'click', $btnEditHandler],
-                    ['.dbadmin-favorite-query-delete', 'click', $btnDeleteHandler],
-                ])
-            )->responsive(true)->look('bordered'),
+                    )->jxnEvent([
+                        ['.dbadmin-favorite-query-copy', 'click', $btnCopyHandler],
+                        ['.dbadmin-favorite-query-insert', 'click', $btnInsertHandler],
+                        ['.dbadmin-favorite-query-edit', 'click', $btnEditHandler],
+                        ['.dbadmin-favorite-query-delete', 'click', $btnDeleteHandler],
+                    ])
+                )->look('bordered')
+            )->setClass('jaxon-dbadmin-sql-query-wrapper')
         );
     }
 
@@ -201,7 +204,7 @@ class AuditUiBuilder
                     ->setFor('query'),
                 $this->ui->textarea($query)
                     ->setName('query')
-                    ->setStyle('min-height:200px;')
+                    ->setClass('jaxon-dbadmin-sql-query-wrapper')
             )->horizontal(false)
                 ->wrapped(true)
                 ->setId(Tab::id($this->favoriteFormId))
@@ -227,7 +230,7 @@ class AuditUiBuilder
                     ->setFor('query'),
                 $this->ui->textarea($query['query'])
                     ->setName('query')
-                    ->setStyle('min-height:200px;')
+                    ->setClass('jaxon-dbadmin-sql-query-wrapper')
             )->horizontal(false)
                 ->wrapped(true)
                 ->setId(Tab::id($this->favoriteFormId))
