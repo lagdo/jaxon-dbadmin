@@ -26,7 +26,7 @@ trait RowMenuTrait
      */
     protected function getRowMenu(int $editId): string
     {
-        $bagEntryValue = jo('jaxon')->bag($this->tabBag('dbadmin.edit'),
+        $bagEntryValue = jo('jaxon.bag')->get($this->tabBag('dbadmin.edit'),
             'row.ids', $this->bagEntryName($editId), null);
         return $this->ui()->tableMenu([[
             'label' => $this->trans->lang('Edit'),
