@@ -146,6 +146,14 @@
          * @param {Element} node
          * @param {string} prefix
          *
+         * @returns {string}
+         */
+        getSqlQuery: (node, prefix) => getFavoriteQuery(node, prefix),
+
+        /**
+         * @param {Element} node
+         * @param {string} prefix
+         *
          * @returns {void}
          */
         copySqlQuery: (node, prefix) => self.setSqlQuery(getFavoriteQuery(node, prefix)),
