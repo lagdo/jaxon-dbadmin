@@ -13,7 +13,6 @@ use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
 #[Databag('dbadmin')]
-#[Databag('dbadmin.tab')]
 abstract class Component extends JaxonComponent
 {
     use ComponentTrait;

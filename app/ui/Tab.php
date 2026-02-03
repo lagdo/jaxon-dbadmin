@@ -83,8 +83,8 @@ class Tab
      */
     public static function setCurrent(AjaxResponse $response): void
     {
-        self::$stash->set('tab.current', $response->bag('dbadmin.tab')
-            ->get('current', self::zero()));
+        self::$stash->set('tab.current', $response->bag('dbadmin')
+            ->get('tab.current', self::zero()));
     }
 
     /**

@@ -26,7 +26,7 @@ trait UiTabTrait
             ->target(Tab::wrapperId())
             ->active($active)
             ->setId(Tab::titleId())
-            ->jxnClick(jo('jaxon.dbadmin')->setCurrentTab(Tab::current()));
+            ->jxnClick(jo('jaxon.bag')->setEntry('dbadmin', 'tab.current', Tab::current()));
     }
 
     /**

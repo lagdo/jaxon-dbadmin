@@ -13,7 +13,7 @@ use function in_array;
 use function strlen;
 use function trim;
 
-#[Databag('dbadmin.tabs')]
+#[Databag('dbadmin.tab')]
 class TabFunc extends FuncComponent
 {
     /**
@@ -26,13 +26,13 @@ class TabFunc extends FuncComponent
         [$server, ] = $this->getCurrentDb();
 
         $name = Tab::newId();
-        $this->bag('dbadmin.tab')->set('current', $name);
+        $this->bag('dbadmin')->set('tab.current', $name);
         $this->stash()->set('tab.current', $name);
 
         // The "names" array cannot be stored in the "dbadmin.tab" bacause
         // its values are overwritten each time the current tab is changed.
-        $names = $this->bag('dbadmin.tabs')->get('names', []);
-        $this->bag('dbadmin.tabs')->set('names', [...$names, $name]);
+        $names = $this->bag('dbadmin.tab')->get('names', []);
+        $this->bag('dbadmin.tab')->set('names', [...$names, $name]);
 
         $nav = $this->ui()->tabNavItemHtml($this->trans()->lang('(No title)'));
         $content = $this->ui()->tabContentItemHtml();
@@ -47,8 +47,8 @@ class TabFunc extends FuncComponent
      */
     public function del(): void
     {
-        $names = $this->bag('dbadmin.tabs')->get('names', []);
-        $current = $this->bag('dbadmin.tab')->get('current', '');
+        $names = $this->bag('dbadmin.tab')->get('names', []);
+        $current = $this->bag('dbadmin')->get('tab.current', '');
         if ($current === Tab::zero() || count($names) === 0) {
             $this->alert()->title('Error')->error('Cannot delete the current tab.');
             return;
@@ -63,11 +63,11 @@ class TabFunc extends FuncComponent
             ->deleteTab(Tab::titleId(), Tab::wrapperId(), Tab::zeroTitleId());
 
         // Update the databag contents.
-        $this->bag('dbadmin.tabs')->set('names',
+        $this->bag('dbadmin.tab')->set('names',
             array_filter($names, fn(string $name) => $name !== $current));
         // The js code also sets the current tab. But the new value set there is overwritten by
         // the one coming from this response. So we also need to set it here.
-        $this->bag('dbadmin.tab')->set('current', Tab::zero());
+        $this->bag('dbadmin')->set('tab.current', Tab::zero());
     }
 
     /**

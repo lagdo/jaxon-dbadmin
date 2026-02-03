@@ -102,16 +102,6 @@ jaxon.dbadmin = {};
     };
 
     /**
-     * @param {string} tabId
-     *
-     * @returns {void}
-     */
-    self.setCurrentTab = (tabId) => {
-        // Todo: merge this value into the "dbadmin" databag?
-        jaxon.ajax.parameters.setBag('dbadmin.tab', { current: tabId });
-    };
-
-    /**
      * @param {string} titleId 
      *
      * @returns {void}
