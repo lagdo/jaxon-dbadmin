@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ui\Select;
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options;
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
@@ -111,7 +111,7 @@ class OptionsUiBuilder
      */
     public function columnFormId(): string
     {
-        return Tab::id('dbadmin-table-select-columns-form');
+        return TabApp::id('dbadmin-table-select-columns-form');
     }
 
     /**
@@ -123,7 +123,7 @@ class OptionsUiBuilder
         return $this->ui->build(
             $this->ui->form(
                 $this->editFormButtons($rqColumns, $this->columnFormId()),
-                $this->ui->div()->tbnBind($rqColumns)
+                $this->ui->div()->tbnBindApp($rqColumns)
             )->wrapped(false)->setId($this->columnFormId())
         );
     }
@@ -186,7 +186,7 @@ class OptionsUiBuilder
      */
     public function filterFormId(): string
     {
-        return Tab::id('dbadmin-table-select-filters-form');
+        return TabApp::id('dbadmin-table-select-filters-form');
     }
 
     /**
@@ -199,7 +199,7 @@ class OptionsUiBuilder
             $this->ui->form(
                 $this->editFormButtons($rqFilters, $this->filterFormId()),
                 $this->ui->div()
-                    ->tbnBind($rqFilters)
+                    ->tbnBindApp($rqFilters)
             )->wrapped(false)->setId($this->filterFormId())
         );
     }
@@ -259,7 +259,7 @@ class OptionsUiBuilder
      */
     public function sortingFormId(): string
     {
-        return Tab::id('dbadmin-table-select-sorting-form');
+        return TabApp::id('dbadmin-table-select-sorting-form');
     }
 
     /**
@@ -272,7 +272,7 @@ class OptionsUiBuilder
             $this->ui->form(
                 $this->editFormButtons($rqSorting, $this->sortingFormId()),
                 $this->ui->div()
-                    ->tbnBind($rqSorting)
+                    ->tbnBindApp($rqSorting)
             )->wrapped(false)
                 ->setId($this->sortingFormId())
         );
@@ -326,9 +326,9 @@ class OptionsUiBuilder
      */
     public function optionsValues(array $options): string
     {
-        $optionsLimitId = Tab::id('dbadmin-table-select-options-form-limit');
-        $optionsTotalId = Tab::id('dbadmin-table-select-options-form-total');
-        $optionsLengthId = Tab::id('dbadmin-table-select-options-form-length');
+        $optionsLimitId = TabApp::id('dbadmin-table-select-options-form-limit');
+        $optionsTotalId = TabApp::id('dbadmin-table-select-options-form-total');
+        $optionsLengthId = TabApp::id('dbadmin-table-select-options-form-length');
         $rqOptionsValues = rq(Options\Values::class);
         $selectLimitValue = input($optionsLimitId)->toInt();
         $selectTotalValue = checked($optionsTotalId);

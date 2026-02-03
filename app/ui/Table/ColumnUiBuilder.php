@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Table;
 
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 class ColumnUiBuilder
@@ -162,7 +162,7 @@ class ColumnUiBuilder
      */
     public function getQueryDivId(): string
     {
-        return Tab::id('dbadmin-table-show-sql-query');
+        return TabApp::id('dbadmin-table-show-sql-query');
     }
 
     /**

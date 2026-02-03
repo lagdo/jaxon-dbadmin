@@ -221,7 +221,7 @@ class TableUiBuilder
                 )->wrapped(false)->setId($this->listFormId())
             ),
             $this->ui->form(
-                $this->ui->div()->tbnBind($this->rqWrapper())
+                $this->ui->div()->tbnBindApp($this->rqWrapper())
             )->wrapped(false)
         );
     }

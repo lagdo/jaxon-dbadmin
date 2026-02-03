@@ -8,7 +8,7 @@ use Lagdo\DbAdmin\Ajax\Exception\AppException;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 use Exception;
 
@@ -98,7 +98,7 @@ trait ComponentTrait
      */
     protected function setBag(string $bag, string $key, $value): void
     {
-        $currentTab = Tab::current();
+        $currentTab = TabApp::current();
         $currentValue = $this->bag($bag)->get($currentTab, []);
         $this->bag($bag)->set($currentTab, [
             ...$currentValue,
@@ -115,7 +115,7 @@ trait ComponentTrait
      */
     protected function getBag(string $bag, string $key, $value = null): mixed
     {
-        $currentValue = $this->bag($bag)->get(Tab::current(), []);
+        $currentValue = $this->bag($bag)->get(TabApp::current(), []);
         return $currentValue[$key] ?? $value;
     }
 
@@ -144,7 +144,7 @@ trait ComponentTrait
      */
     protected function tabId(string $id): string
     {
-        return Tab::id($id);
+        return TabApp::id($id);
     }
 
     /**
@@ -154,7 +154,7 @@ trait ComponentTrait
      */
     protected function tabBag(string $key): string
     {
-        return "{$key}." . Tab::current();
+        return "{$key}." . TabApp::current();
     }
 
     /**

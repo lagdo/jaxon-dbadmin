@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Database;
 
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\PageTrait;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
@@ -25,7 +25,7 @@ class ServerUiBuilder
      */
     public function userFormId(): string
     {
-        return Tab::id('jaxon-dbadmin-user-form');
+        return TabApp::id('jaxon-dbadmin-user-form');
     }
 
     /**
@@ -33,7 +33,7 @@ class ServerUiBuilder
      */
     public function dbFormId(): string
     {
-        return Tab::id('jaxon-dbadmin-database-form');
+        return TabApp::id('jaxon-dbadmin-database-form');
     }
 
     /**

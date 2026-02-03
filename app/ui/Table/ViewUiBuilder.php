@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Table;
 
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\PageTrait;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 class ViewUiBuilder
@@ -29,7 +29,7 @@ class ViewUiBuilder
      */
     public function queryFormId(): string
     {
-        return Tab::id(self::QUERY_FORM_CLASS);
+        return TabApp::id(self::QUERY_FORM_CLASS);
     }
 
     /**

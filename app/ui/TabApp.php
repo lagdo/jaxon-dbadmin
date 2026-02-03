@@ -9,7 +9,7 @@ use Lagdo\UiBuilder\Component\HtmlComponent;
 
 use function uniqid;
 
-class Tab
+class TabApp
 {
     /**
      * @var Stash

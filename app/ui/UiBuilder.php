@@ -16,7 +16,7 @@ use Lagdo\DbAdmin\Ajax\Admin\Page\DbConnection;
 use Lagdo\DbAdmin\Ajax\Audit\Sidebar as AuditSidebar;
 use Lagdo\DbAdmin\Ajax\Audit\Wrapper as AuditWrapper;
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
@@ -42,7 +42,7 @@ class UiBuilder
      */
     public static function hostSelectId(): string
     {
-        return Tab::id('jaxon-dbadmin-dbhost-select');
+        return TabApp::id('jaxon-dbadmin-dbhost-select');
     }
 
     /**
@@ -54,8 +54,8 @@ class UiBuilder
     {
         return [
             "dbadmin-table-$contentType",
-            Tab::id("dbadmin-table-$contentType"),
-            Tab::wrapperId(),
+            TabApp::id("dbadmin-table-$contentType"),
+            TabApp::wrapperId(),
         ];
     }
 
@@ -105,28 +105,28 @@ class UiBuilder
                 $this->ui->row(
                     $this->ui->col()
                         ->width(12)
-                        ->tbnBind(rq(ServerCommand::class))
+                        ->tbnBindApp(rq(ServerCommand::class))
                 )
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->tbnBind(rq(MenuDatabases::class))
+                    ->tbnBindApp(rq(MenuDatabases::class))
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->tbnBind(rq(MenuSchemas::class))
+                    ->tbnBindApp(rq(MenuSchemas::class))
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->tbnBind(rq(DatabaseCommand::class))
+                    ->tbnBindApp(rq(DatabaseCommand::class))
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->tbnBind(rq(MenuSections::class))
+                    ->tbnBindApp(rq(MenuSections::class))
             )
         );
     }
@@ -176,19 +176,19 @@ class UiBuilder
     public function wrapper(): string
     {
         return $this->ui->build(
-            $this->ui->row()->tbnBind(rq(DbConnection::class)),
+            $this->ui->row()->tbnBindApp(rq(DbConnection::class)),
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->span(['style' => 'float:left'])
-                        ->tbnBind(rq(Breadcrumbs::class)),
+                        ->tbnBindApp(rq(Breadcrumbs::class)),
                     $this->ui->span(['style' => 'float:right'])
-                        ->tbnBind(rq(PageActions::class))
+                        ->tbnBindApp(rq(PageActions::class))
                 )->width(12)
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->tbnBind(rq(Content::class))
+                    ->tbnBindApp(rq(Content::class))
             )
         );
     }

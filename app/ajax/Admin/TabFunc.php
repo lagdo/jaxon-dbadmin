@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ajax\Admin;
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Base\FuncComponent;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 
 use function array_filter;
 use function count;
@@ -25,7 +25,7 @@ class TabFunc extends FuncComponent
         // Get the last connected server.
         [$server, ] = $this->getCurrentDb();
 
-        $name = Tab::newId();
+        $name = TabApp::newId();
         $this->bag('dbadmin')->set('tab.current', $name);
         $this->stash()->set('tab.current', $name);
 
@@ -36,7 +36,7 @@ class TabFunc extends FuncComponent
 
         $nav = $this->ui()->tabNavItemHtml($this->trans()->lang('(No title)'));
         $content = $this->ui()->tabContentItemHtml();
-        $this->response()->jo('jaxon.dbadmin')->addTab($nav, $content, Tab::titleId());
+        $this->response()->jo('jaxon.dbadmin')->addTab($nav, $content, TabApp::titleId());
 
         // Connect the new tab to the same last connected server.
         $this->cl(Admin::class)->server($server);
@@ -49,7 +49,7 @@ class TabFunc extends FuncComponent
     {
         $names = $this->bag('dbadmin.tab')->get('names', []);
         $current = $this->bag('dbadmin')->get('tab.current', '');
-        if ($current === Tab::zero() || count($names) === 0) {
+        if ($current === TabApp::zero() || count($names) === 0) {
             $this->alert()->title('Error')->error('Cannot delete the current tab.');
             return;
         }
@@ -60,14 +60,14 @@ class TabFunc extends FuncComponent
 
         // Delete the current tab. This script also activates the first tab.
         $this->response()->jo('jaxon.dbadmin')
-            ->deleteTab(Tab::titleId(), Tab::wrapperId(), Tab::zeroTitleId());
+            ->deleteTab(TabApp::titleId(), TabApp::wrapperId(), TabApp::zeroTitleId());
 
         // Update the databag contents.
         $this->bag('dbadmin.tab')->set('names',
             array_filter($names, fn(string $name) => $name !== $current));
         // The js code also sets the current tab. But the new value set there is overwritten by
         // the one coming from this response. So we also need to set it here.
-        $this->bag('dbadmin')->set('tab.current', Tab::zero());
+        $this->bag('dbadmin')->set('tab.current', TabApp::zero());
     }
 
     /**
@@ -122,7 +122,7 @@ class TabFunc extends FuncComponent
 
         // Change the tab title, and save the title in the databag.
         $this->setCurrentTitle($title);
-        $this->response()->html(Tab::titleId(), $title);
+        $this->response()->html(TabApp::titleId(), $title);
 
         $this->modal()->hide();
     }

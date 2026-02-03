@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\form;
@@ -37,7 +37,7 @@ class QueryUiBuilder
      */
     private function queryFormId(): string
     {
-        return Tab::id('dbadmin-main-command-form');
+        return TabApp::id('dbadmin-main-command-form');
     }
 
     /**
@@ -109,7 +109,7 @@ class QueryUiBuilder
                         ->width(8),
                         $this->ui->col()
                             ->width(4)
-                            ->tbnBind(rq(Duration::class))
+                            ->tbnBindApp(rq(Duration::class))
                     )
                 )->width(4)
             )
@@ -123,7 +123,7 @@ class QueryUiBuilder
      */
     public function commandDetailsId(): string
     {
-        return Tab::id('dbadmin-main-command-details');
+        return TabApp::id('dbadmin-main-command-details');
     }
 
     /**
@@ -131,7 +131,7 @@ class QueryUiBuilder
      */
     public function commandEditorId(): string
     {
-        return Tab::id(self::QUERY_TEXT_CLASS);
+        return TabApp::id(self::QUERY_TEXT_CLASS);
     }
 
     /**
@@ -145,17 +145,17 @@ class QueryUiBuilder
         return $this->ui->build(
             $this->ui->tabNav(
                 $this->ui->tabNavItem($this->trans->lang('Editor'))
-                    ->target(Tab::id("tab-content-query-editor"))
+                    ->target(TabApp::id("tab-content-query-editor"))
                     ->jxnOn('click', jo('jaxon.dbadmin')->refreshContent())
                     ->active(true),
                 $this->ui->when($this->config->favoriteEnabled(), fn() =>
                     $this->ui->tabNavItem($this->trans->lang('History'))
-                        ->target(Tab::id("tab-content-query-history"))
+                        ->target(TabApp::id("tab-content-query-history"))
                         ->active(false)
                 ),
                 $this->ui->when($this->config->historyEnabled(), fn() =>
                     $this->ui->tabNavItem($this->trans->lang('Favorites'))
-                        ->target(Tab::id("tab-content-query-favorite"))
+                        ->target(TabApp::id("tab-content-query-favorite"))
                         ->active(false)
                 )
             )->setStyle('margin-bottom: 5px;'),
@@ -183,19 +183,19 @@ class QueryUiBuilder
                         )->width(12),
                         $this->ui->col()
                             ->width(12)
-                            ->tbnBind(rq(Query\Results::class))
+                            ->tbnBindApp(rq(Query\Results::class))
                     )
-                )->setId(Tab::id("tab-content-query-editor"))
+                )->setId(TabApp::id("tab-content-query-editor"))
                     ->active(true),
                 $this->ui->when($this->config->favoriteEnabled(), fn() =>
                     $this->ui->tabContentItem()
-                        ->tbnBind(rq(Query\History::class))
-                        ->setId(Tab::id("tab-content-query-history"))
+                        ->tbnBindApp(rq(Query\History::class))
+                        ->setId(TabApp::id("tab-content-query-history"))
                         ->active(false)),
                 $this->ui->when($this->config->historyEnabled(), fn() =>
                     $this->ui->tabContentItem()
-                        ->tbnBind(rq(Query\Favorite::class))
-                        ->setId(Tab::id("tab-content-query-favorite"))
+                        ->tbnBindApp(rq(Query\Favorite::class))
+                        ->setId(TabApp::id("tab-content-query-favorite"))
                         ->active(false))
             )
         );

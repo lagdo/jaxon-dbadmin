@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Command;
 
 use Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
@@ -53,7 +53,7 @@ class AuditUiBuilder
     public function history(array $queries): string
     {
         $jsThis = jq();
-        $prefix = Tab::id('dbadmin-history-query-');
+        $prefix = TabApp::id('dbadmin-history-query-');
         $btnCopyHandler = jo('jaxon.dbadmin.history')->copySqlQuery($jsThis, $prefix);
         $btnInsertHandler = jo('jaxon.dbadmin.history')->insertSqlQuery($jsThis, $prefix);
         return $this->ui->build(
@@ -112,7 +112,7 @@ class AuditUiBuilder
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->div()
-                        ->tbnBind(rq(Query\FavoritePage::class))
+                        ->tbnBindApp(rq(Query\FavoritePage::class))
                 )->width(12),
             )
         );
@@ -151,7 +151,7 @@ class AuditUiBuilder
         }
 
         $jsThis = jq();
-        $prefix = Tab::id('dbadmin-favorite-query-');
+        $prefix = TabApp::id('dbadmin-favorite-query-');
         $queryId = jo('jaxon.dbadmin.favorite')->getQueryId($jsThis);
         $sqlQuery = jo('jaxon.dbadmin.favorite')->getSqlQuery($jsThis, $prefix);
         $btnCopyHandler = jo('jaxon.dbadmin.favorite')->copySqlQuery($jsThis, $prefix);
@@ -209,7 +209,7 @@ class AuditUiBuilder
                     ->setClass('jaxon-dbadmin-sql-query-wrapper')
             )->horizontal(false)
                 ->wrapped(true)
-                ->setId(Tab::id($this->favoriteFormId))
+                ->setId(TabApp::id($this->favoriteFormId))
         );
     }
 
@@ -235,7 +235,7 @@ class AuditUiBuilder
                     ->setClass('jaxon-dbadmin-sql-query-wrapper')
             )->horizontal(false)
                 ->wrapped(true)
-                ->setId(Tab::id($this->favoriteFormId))
+                ->setId(TabApp::id($this->favoriteFormId))
         );
     }
 
@@ -244,6 +244,6 @@ class AuditUiBuilder
      */
     public function favoriteFormValues(): mixed
     {
-        return form(Tab::id($this->favoriteFormId));
+        return form(TabApp::id($this->favoriteFormId));
     }
 }

@@ -66,7 +66,7 @@ class ResultUiBuilder
                     $this->ui->each($rows, fn(array $row) =>
                         $this->ui->tr($this->_resultRowContent($row))
                             ->when($row['editId'] > 0, fn($tr) =>
-                                $tr->tbnBind($rqResultRow, $row['editItemId'])))
+                                $tr->tbnBindApp($rqResultRow, $row['editItemId'])))
                 )
             )->responsive(true)->look('bordered')
         );

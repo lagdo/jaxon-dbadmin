@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ui\Command;
 use Jaxon\Script\JsExpr;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\form;
@@ -27,7 +27,7 @@ class ImportUiBuilder
      */
     private function formId(): string
     {
-        return Tab::id('dbadmin-import-form');
+        return TabApp::id('dbadmin-import-form');
     }
 
     /**
@@ -35,7 +35,7 @@ class ImportUiBuilder
      */
     public function filesDivId(): string
     {
-        return Tab::id('dbadmin-import-sql-files-wrapper');
+        return TabApp::id('dbadmin-import-sql-files-wrapper');
     }
 
     /**
@@ -54,7 +54,7 @@ class ImportUiBuilder
      */
     private function fileCol(array $contents, JsExpr $handler): mixed
     {
-        $sqlFilesInputId = Tab::id('dbadmin-import-sql-files-input');
+        $sqlFilesInputId = TabApp::id('dbadmin-import-sql-files-input');
         return $this->ui->col(
             $this->ui->row(
                 $this->ui->col(
@@ -186,7 +186,7 @@ class ImportUiBuilder
     {
         return $this->ui->build(
             $this->ui->row(
-                $this->ui->col()->width(12)->setId(Tab::id('dbadmin-command-details')),
+                $this->ui->col()->width(12)->setId(TabApp::id('dbadmin-command-details')),
                 $this->ui->col(
                     $this->ui->form(
                         $this->ui->row(
@@ -204,7 +204,7 @@ class ImportUiBuilder
                 )->width(12),
                 $this->ui->col()
                     ->width(12)
-                    ->tbnBind(rq(Query\Results::class))
+                    ->tbnBindApp(rq(Query\Results::class))
             )
         );
     }

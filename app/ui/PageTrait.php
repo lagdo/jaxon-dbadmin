@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui;
 
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function is_array;
@@ -63,12 +63,12 @@ trait PageTrait
                 $this->ui->when($contentType !== '', fn() =>
                     $this->ui->th(
                         $this->ui->checkbox()
-                            ->setId(Tab::id("dbadmin-table-$contentType-all"))
+                            ->setId(TabApp::id("dbadmin-table-$contentType-all"))
                     )->addClass('dbadmin-table-checkbox')
                 ),
                 $this->ui->each($headers, fn($header) =>
                     $this->ui->th($this->ui->html($header))
-                ),
+                )
             ),
             $this->ui->body(
                 $this->ui->each($details, fn($detailGroup) =>
@@ -84,8 +84,8 @@ trait PageTrait
                             $this->getTableCell($title, $detail ?? '')
                         )
                     )
-                ),
-            ),
+                )
+            )
         )->responsive()->look('bordered');
     }
 
@@ -97,7 +97,7 @@ trait PageTrait
      */
     public function pageContent(array $pageContent, string $contentType = ''): string
     {
-        $countId = Tab::id("dbadmin-table-{$contentType}-count");
+        $countId = TabApp::id("dbadmin-table-{$contentType}-count");
         return $this->ui->build(
             $this->makeTable($pageContent, $contentType),
             $this->ui->when($contentType !== '', function() use($countId) {

@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Data;
 
 use Lagdo\DbAdmin\Db\UiData\Dml\FieldEditDto;
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 class EditUiBuilder
@@ -32,7 +32,7 @@ class EditUiBuilder
                             $radio->setAttribute('checked', 'checked'))
                         ->setStyle('margin-right:3px;'),
                     $this->ui->span($item['label'])
-                )->setFor(Tab::id($item['attrs']['id']))
+                )->setFor(TabApp::id($item['attrs']['id']))
                     ->setStyle('margin-right:7px;')
             )
         );
@@ -53,7 +53,7 @@ class EditUiBuilder
                         $checkbox->setAttribute('checked', 'checked'))
                     ->setStyle('margin-right:3px;'),
                 $this->ui->span($item['label'])
-            )->setFor(Tab::id($item['attrs']['id']))
+            )->setFor(TabApp::id($item['attrs']['id']))
                 ->setStyle('margin-right:7px;')
         );
     }
@@ -176,7 +176,7 @@ class EditUiBuilder
     {
         return isset($field->valueInput['attrs']['id']) ?
             $this->ui->label($field->name)
-                ->setFor(Tab::id($field->valueInput['attrs']['id']))
+                ->setFor(TabApp::id($field->valueInput['attrs']['id']))
                 ->setTitle($field->type) :
             $this->ui->span($field->name)
                 ->setTitle($field->type);
@@ -187,7 +187,7 @@ class EditUiBuilder
      */
     public function queryFormId(): string
     {
-        return Tab::id('dbadmin-table-query-form');
+        return TabApp::id('dbadmin-table-query-form');
     }
 
     /**
@@ -226,7 +226,7 @@ class EditUiBuilder
      */
     public function queryDivId(): string
     {
-        return Tab::id('dbadmin-table-show-sql-query');
+        return TabApp::id('dbadmin-table-show-sql-query');
     }
 
     /**

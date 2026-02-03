@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Table;
 
 use Jaxon\Script\JsExpr;
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
@@ -48,7 +48,7 @@ trait TableFieldTrait
      */
     protected function listFormId(): string
     {
-        return Tab::id('dbadmin-table-columns-form');
+        return TabApp::id('dbadmin-table-columns-form');
     }
 
     /**
@@ -73,7 +73,7 @@ trait TableFieldTrait
      */
     protected function editFormId(): string
     {
-        return Tab::id('dbadmin-table-column-edit-form');
+        return TabApp::id('dbadmin-table-column-edit-form');
     }
 
     /**

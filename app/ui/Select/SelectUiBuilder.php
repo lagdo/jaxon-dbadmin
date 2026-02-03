@@ -8,7 +8,7 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\Tab;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\cl;
@@ -34,7 +34,7 @@ class SelectUiBuilder
      */
     public function queryTextId(): string
     {
-        return Tab::id(self::QUERY_TEXT_CLASS);
+        return TabApp::id(self::QUERY_TEXT_CLASS);
     }
 
     /**
@@ -70,7 +70,7 @@ class SelectUiBuilder
      */
     public function formId(): string
     {
-        return Tab::id('dbadmin-table-select-options-form');
+        return TabApp::id('dbadmin-table-select-options-form');
     }
 
     /**
@@ -86,10 +86,10 @@ class SelectUiBuilder
                             $this->ui->row(
                                 $this->ui->col()
                                     ->width(6)
-                                    ->tbnBind(rq(Options\Fields::class)),
+                                    ->tbnBindApp(rq(Options\Fields::class)),
                                 $this->ui->col()
                                     ->width(6)
-                                    ->tbnBind(rq(Options\Values::class))
+                                    ->tbnBindApp(rq(Options\Values::class))
                             )
                         ),
                         $this->ui->row(
@@ -97,7 +97,7 @@ class SelectUiBuilder
                                 $this->ui->panel(
                                     $this->ui->panelBody()
                                         ->setStyle('padding: 0 1px;')
-                                        ->tbnBind(rq(QueryText::class))
+                                        ->tbnBindApp(rq(QueryText::class))
                                 )->look('default')
                                     ->setStyle('padding: 5px;')
                             )->width(12)
@@ -122,19 +122,19 @@ class SelectUiBuilder
                         $this->ui->col(
                             $this->ui->nav()
                                 ->jxnPagination(cl(ResultSet::class))
-                                ->setId(Tab::id('jaxon-dbadmin-resulset-pagination'))
+                                ->setId(TabApp::id('jaxon-dbadmin-resulset-pagination'))
                         )->width(10)
                             ->setStyle('overflow:hidden'),
                         $this->ui->col()
                             ->width(2)
-                            ->tbnBind(rq(Duration::class))
+                            ->tbnBindApp(rq(Duration::class))
                     )
                 )->width(9),
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
-                    ->tbnBind(rq(ResultSet::class))
+                    ->tbnBindApp(rq(ResultSet::class))
             )
         );
     }

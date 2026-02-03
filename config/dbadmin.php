@@ -101,7 +101,7 @@ return [
         ],
         'extend' => [
             BuilderInterface::class => function(BuilderInterface $builder): BuilderInterface {
-                $builder->registerHelper('tbn', Builder::TARGET_COMPONENT, Ui\Tab::helper(...));
+                $builder->registerHelper('tbn', Builder::TARGET_COMPONENT, Ui\TabApp::helper(...));
                 return $builder;
             },
         ],
