@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql;
 
 use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Query as QueryEdit;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Table;
@@ -106,6 +107,7 @@ class Select extends MainComponent
      * @return void
      */
     #[After('showBreadcrumbs')]
+    #[Databag('dbadmin.tab')]
     public function edit(): void
     {
         $this->cl(QueryEdit::class)->database($this->getSelectQuery());

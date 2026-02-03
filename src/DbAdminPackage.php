@@ -7,8 +7,10 @@ use Jaxon\Plugin\CssCode;
 use Jaxon\Plugin\CssCodeGeneratorInterface;
 use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
+use Jaxon\Plugin\Response\Databag\DatabagPlugin;
 use Lagdo\DbAdmin\Ajax\Admin\Admin;
 use Lagdo\DbAdmin\Ui\TabApp;
+use Lagdo\DbAdmin\Ui\TabEditor;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
 use function realpath;
@@ -32,9 +34,9 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     public static function config(): string
     {
         jaxon()->callback()->boot(function() {
-            TabApp::$stash = jaxon()->di()->getStash();
-            // Copy the current tab from the databag to the stash.
-            TabApp::setCurrent(jaxon()->getResponse());
+            $databag = jaxon()->di()->g(DatabagPlugin::class);
+            TabApp::$databag = $databag;
+            TabEditor::$databag = $databag;
         });
         return realpath(__DIR__ . '/../config/dbadmin.php');
     }

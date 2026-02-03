@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\Ui;
 use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
+use function array_shift;
 use function is_array;
 
 trait PageTrait
@@ -13,6 +14,30 @@ trait PageTrait
      * @var BuilderInterface
      */
     protected BuilderInterface $ui;
+
+    /**
+     * @param array $menus
+     *
+     * @return string
+     */
+    public function tableMenu(array $menus): string
+    {
+        $menu = array_shift($menus);
+        return $this->ui->build(
+            $this->ui->buttonGroup(
+                $this->ui->button($menu['label'])
+                    ->primary()
+                    ->jxnClick($menu['handler']),
+                $this->ui->dropdownItem()->look('primary'),
+                $this->ui->dropdownMenu(
+                    $this->ui->each($menus, fn($menu) =>
+                        $this->ui->dropdownMenuItem($menu['label'])
+                            ->jxnClick($menu['handler'])
+                    )
+                )->setStyle('position:relative;')
+            )
+        );
+    }
 
     /**
      * @param string $title

@@ -102,41 +102,47 @@ jaxon.dbadmin = {};
     };
 
     /**
-     * @param {string} titleId 
+     * @param {string} tabNavId 
      *
      * @returns {void}
      */
-    const activateTab = (titleId) => document.getElementById(titleId)?.click(new Event('click'));
+    self.activateTab = (tabNavId) => document.getElementById(tabNavId)?.click(new Event('click'));
 
     /**
+     * @param {string} tabNavWrapper
      * @param {string} tabNavHtml
+     * @param {string} tabContentWrapper
      * @param {string} tabContentHtml
-     * @param {string} titleId 
-     *
-     * @returns {void}
-     */
-    self.addTab = (tabNavHtml, tabContentHtml, titleId) => {
-        const tabNav = document.getElementById('dbadmin-server-tab-nav');
-        tabNav.appendChild(makeHtmlNode(tabNavHtml));
-        const tabContent = document.getElementById('dbadmin-server-tab-content');
-        tabContent.appendChild(makeHtmlNode(tabContentHtml));
-        // Activate the new tab.
-        activateTab(titleId);
-    };
-
-    /**
-     * @param {string} titleId 
-     * @param {string} wrapperId 
      * @param {string} activeTab 
      *
      * @returns {void}
      */
-    self.deleteTab = (titleId, wrapperId, activeTab) => {
+    self.addTab = (tabNavWrapper, tabNavHtml, tabContentWrapper, tabContentHtml, activeTab) => {
+        const tabNav = document.getElementById(tabNavWrapper);
+        tabNav.appendChild(makeHtmlNode(tabNavHtml));
+        const tabContent = document.getElementById(tabContentWrapper);
+        tabContent.appendChild(makeHtmlNode(tabContentHtml));
+        // Activate the new tab.
+        if (activeTab !== undefined) {
+            self.activateTab(activeTab);
+        }
+    };
+
+    /**
+     * @param {string} tabNavId 
+     * @param {string} tabContentId 
+     * @param {string} activeTab 
+     *
+     * @returns {void}
+     */
+    self.delTab = (tabNavId, tabContentId, activeTab) => {
         // The title is the child of a parent element.
-        document.getElementById(titleId)?.parentElement?.remove();
-        document.getElementById(wrapperId)?.remove();
+        document.getElementById(tabNavId)?.parentElement?.remove();
+        document.getElementById(tabContentId)?.remove();
         // Activate another tab, so the screen is not left blank.
-        activateTab(activeTab);
+        if (activeTab !== undefined) {
+            self.activateTab(activeTab);
+        }
     };
 })(jaxon.dbadmin);
 

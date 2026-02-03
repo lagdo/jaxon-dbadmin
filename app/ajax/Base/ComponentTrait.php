@@ -12,6 +12,8 @@ use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 use Exception;
 
+use function array_filter;
+
 /**
  * Common functions for component classes
  */
@@ -94,16 +96,12 @@ trait ComponentTrait
      * @param string $key
      * @param mixed $value
      *
-     * @return void
+     * @return mixed
      */
-    protected function setBag(string $bag, string $key, $value): void
+    protected function getBag(string $bag, string $key, mixed $value = null): mixed
     {
-        $currentTab = TabApp::current();
-        $currentValue = $this->bag($bag)->get($currentTab, []);
-        $this->bag($bag)->set($currentTab, [
-            ...$currentValue,
-            $key => $value,
-        ]);
+        $currentValues = $this->bag($bag)->get($key, []);
+        return $currentValues[TabApp::current()] ?? $value;
     }
 
     /**
@@ -111,12 +109,29 @@ trait ComponentTrait
      * @param string $key
      * @param mixed $value
      *
-     * @return mixed
+     * @return void
      */
-    protected function getBag(string $bag, string $key, $value = null): mixed
+    protected function setBag(string $bag, string $key, mixed $value): void
     {
-        $currentValue = $this->bag($bag)->get(TabApp::current(), []);
-        return $currentValue[$key] ?? $value;
+        $currentValues = $this->bag($bag)->get($key, []);
+        $this->bag($bag)->set($key, [
+            ...$currentValues,
+            TabApp::current() => $value,
+        ]);
+    }
+
+    /**
+     * @param string $bag
+     * @param string $key
+     *
+     * @return void
+     */
+    protected function unsetBag(string $bag, string $key): void
+    {
+        $currentTab = TabApp::current();
+        $nextValues = array_filter($this->bag($bag)->get($key, []),
+            fn(string $tab) => $tab !== $currentTab, ARRAY_FILTER_USE_KEY);
+        $this->bag($bag)->set($key, $nextValues);
     }
 
     /**
@@ -135,6 +150,14 @@ trait ComponentTrait
     protected function getCurrentDb(): array
     {
         return $this->getBag('dbadmin', 'db', []);
+    }
+
+    /**
+     * @return void
+     */
+    protected function unsetCurrentDb(): void
+    {
+        $this->unsetBag('dbadmin', 'db');
     }
 
     /**
@@ -166,6 +189,6 @@ trait ComponentTrait
     {
         [$server, ] = $this->getCurrentDb();
         $driver = $this->config()->getServerDriver($server);
-        $this->response()->jo('jaxon.dbadmin')->createSqlSelectEditor($queryDivId, $driver);
+        $this->response()->jo('jaxon.dbadmin')->createSelectEditor($queryDivId, $driver);
     }
 }

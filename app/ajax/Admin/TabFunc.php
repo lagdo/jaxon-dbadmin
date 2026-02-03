@@ -26,20 +26,20 @@ class TabFunc extends FuncComponent
         [$server, ] = $this->getCurrentDb();
 
         $name = TabApp::newId();
-        $this->bag('dbadmin')->set('tab.current', $name);
-        $this->stash()->set('tab.current', $name);
+        $this->bag('dbadmin')->set('tab.app', $name);
 
-        // The "names" array cannot be stored in the "dbadmin.tab" bacause
-        // its values are overwritten each time the current tab is changed.
-        $names = $this->bag('dbadmin.tab')->get('names', []);
-        $this->bag('dbadmin.tab')->set('names', [...$names, $name]);
+        $names = $this->bag('dbadmin.tab')->get('app.names', []);
+        $this->bag('dbadmin.tab')->set('app.names', [...$names, $name]);
+        $this->setBag('dbadmin.tab', 'editor.names.sv', []);
+        $this->setBag('dbadmin.tab', 'editor.names.db', []);
 
         $nav = $this->ui()->tabNavItemHtml($this->trans()->lang('(No title)'));
         $content = $this->ui()->tabContentItemHtml();
-        $this->response()->jo('jaxon.dbadmin')->addTab($nav, $content, TabApp::titleId());
+        $this->response()->jo('jaxon.dbadmin')->addTab('dbadmin-server-tab-nav',
+            $nav, 'dbadmin-server-tab-content', $content, TabApp::titleId());
 
         // Connect the new tab to the same last connected server.
-        $this->cl(Admin::class)->server($server);
+        $this->cl(Admin::class)->connect($server);
     }
 
     /**
@@ -47,8 +47,8 @@ class TabFunc extends FuncComponent
      */
     public function del(): void
     {
-        $names = $this->bag('dbadmin.tab')->get('names', []);
-        $current = $this->bag('dbadmin')->get('tab.current', '');
+        $names = $this->bag('dbadmin.tab')->get('app.names', []);
+        $current = $this->bag('dbadmin')->get('tab.app', '');
         if ($current === TabApp::zero() || count($names) === 0) {
             $this->alert()->title('Error')->error('Cannot delete the current tab.');
             return;
@@ -60,14 +60,14 @@ class TabFunc extends FuncComponent
 
         // Delete the current tab. This script also activates the first tab.
         $this->response()->jo('jaxon.dbadmin')
-            ->deleteTab(TabApp::titleId(), TabApp::wrapperId(), TabApp::zeroTitleId());
+            ->delTab(TabApp::titleId(), TabApp::wrapperId(), TabApp::zeroTitleId());
 
         // Update the databag contents.
-        $this->bag('dbadmin.tab')->set('names',
+        $this->bag('dbadmin.tab')->set('app.names',
             array_filter($names, fn(string $name) => $name !== $current));
-        // The js code also sets the current tab. But the new value set there is overwritten by
-        // the one coming from this response. So we also need to set it here.
-        $this->bag('dbadmin')->set('tab.current', TabApp::zero());
+        $this->unsetCurrentDb();
+        $this->unsetBag('dbadmin.tab', 'editor.names.sv');
+        $this->unsetBag('dbadmin.tab', 'editor.names.db');
     }
 
     /**

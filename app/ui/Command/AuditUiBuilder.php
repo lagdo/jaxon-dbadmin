@@ -54,8 +54,8 @@ class AuditUiBuilder
     {
         $jsThis = jq();
         $prefix = TabApp::id('dbadmin-history-query-');
-        $btnCopyHandler = jo('jaxon.dbadmin.history')->copySqlQuery($jsThis, $prefix);
-        $btnInsertHandler = jo('jaxon.dbadmin.history')->insertSqlQuery($jsThis, $prefix);
+        $btnCopyHandler = jo('jaxon.dbadmin.history')->copyQueryText($jsThis, $prefix);
+        $btnInsertHandler = jo('jaxon.dbadmin.history')->insertQuerytext($jsThis, $prefix);
         return $this->ui->build(
             // $this->ui->row(
             //     $this->ui->col(
@@ -153,9 +153,9 @@ class AuditUiBuilder
         $jsThis = jq();
         $prefix = TabApp::id('dbadmin-favorite-query-');
         $queryId = jo('jaxon.dbadmin.favorite')->getQueryId($jsThis);
-        $sqlQuery = jo('jaxon.dbadmin.favorite')->getSqlQuery($jsThis, $prefix);
-        $btnCopyHandler = jo('jaxon.dbadmin.favorite')->copySqlQuery($jsThis, $prefix);
-        $btnInsertHandler = jo('jaxon.dbadmin.favorite')->insertSqlQuery($jsThis, $prefix);
+        $sqlQuery = jo('jaxon.dbadmin.favorite')->getQueryText($jsThis, $prefix);
+        $btnCopyHandler = jo('jaxon.dbadmin.favorite')->copyQueryText($jsThis, $prefix);
+        $btnInsertHandler = jo('jaxon.dbadmin.favorite')->insertQuerytext($jsThis, $prefix);
         $btnEditHandler = rq(Query\FavoriteFunc::class)->edit($queryId, $sqlQuery);
         $btnDeleteHandler = rq(Query\FavoriteFunc::class)->delete($queryId)
             ->confirm($this->trans->lang('Delete this query from the favorites?'));

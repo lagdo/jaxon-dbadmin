@@ -52,8 +52,8 @@ class Form extends Component
     {
         [$server,] = $this->getCurrentDb();
         $driver = $this->config()->getServerDriver($server);
-        $this->response()->jo('jaxon.dbadmin')
-            ->createSqlQueryEditor($this->viewUi->queryFormId(), $driver);
+        $this->response()->jo('jaxon.dbadmin')->createQueryEditor('',
+            $this->viewUi->queryFormId(), $driver);
     }
 
     /**

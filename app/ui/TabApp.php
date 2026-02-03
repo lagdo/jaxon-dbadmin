@@ -2,8 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui;
 
-use Jaxon\App\Stash\Stash;
-use Jaxon\Response\AjaxResponse;
+use Jaxon\Plugin\Response\Databag\DatabagPlugin;
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
@@ -12,80 +11,9 @@ use function uniqid;
 class TabApp
 {
     /**
-     * @var Stash
+     * @var DatabagPlugin
      */
-    public static Stash $stash;
-
-    /**
-     * @return string
-     */
-    public static function zero(): string
-    {
-        return 'app-tab-zero';
-    }
-
-    /**
-     * @return string
-     */
-    public static function newId(): string
-    {
-        return 'app-tab-' . uniqid();
-    }
-
-    /**
-     * Prefix the element id with the active tab id
-     *
-     * @param string $id
-     *
-     * @return string
-     */
-    public static function id(string $id): string
-    {
-        return self::current() . "_$id";
-    }
-
-    /**
-     * @return string
-     */
-    public static function zeroTitleId(): string
-    {
-        return self::zero() . '_jaxon-dbadmin-tab-title';
-    }
-
-    /**
-     * @return string
-     */
-    public static function titleId(): string
-    {
-        return self::id('jaxon-dbadmin-tab-title');
-    }
-
-    /**
-     * @return string
-     */
-    public static function wrapperId(): string
-    {
-        return self::id('jaxon-dbadmin-tab-content');
-    }
-
-    /**
-     * @return string
-     */
-    public static function current(): string
-    {
-        return self::$stash->get('tab.current', self::zero());
-    }
-
-    /**
-     * @param AjaxResponse $response
-     *
-     * @return void
-     */
-    public static function setCurrent(AjaxResponse $response): void
-    {
-        self::$stash->set('tab.current', $response->bag('dbadmin')
-            ->get('tab.current', self::zero()));
-    }
+    public static DatabagPlugin $databag;
 
     /**
      * Set the tab item id on the components.
@@ -115,5 +43,65 @@ class TabApp
         string $tagName, string $method, array $arguments): HtmlComponent
     {
         return self::bind($component, ...$arguments);
+    }
+
+    /**
+     * @return string
+     */
+    public static function zero(): string
+    {
+        return 'app-tab-zero';
+    }
+
+    /**
+     * @return string
+     */
+    public static function newId(): string
+    {
+        return 'app-tab-' . uniqid();
+    }
+
+    /**
+     * @return string
+     */
+    public static function current(): string
+    {
+        return self::$databag->bag('dbadmin')->get('tab.app', self::zero());
+    }
+
+    /**
+     * Prefix the element id with the active tab id
+     *
+     * @param string $id
+     *
+     * @return string
+     */
+    public static function id(string $id): string
+    {
+        return self::current() . "_$id";
+    }
+
+    /**
+     * @return string
+     */
+    public static function zeroTitleId(): string
+    {
+        return self::zero() . '_dbadmin-app-tab-title';
+    }
+
+    /**
+     * @return string
+     */
+    public static function titleId(): string
+    {
+        return self::id('dbadmin-app-tab-title');
+    }
+
+    /**
+     * @return string
+     */
+    public static function wrapperId(): string
+    {
+        return self::id('dbadmin-app-tab-content');
     }
 }

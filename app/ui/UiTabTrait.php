@@ -24,9 +24,9 @@ trait UiTabTrait
     {
         return $this->ui->tabNavItem($title)
             ->target(TabApp::wrapperId())
-            ->active($active)
             ->setId(TabApp::titleId())
-            ->jxnClick(jo('jaxon.bag')->setEntry('dbadmin', 'tab.current', TabApp::current()));
+            ->active($active)
+            ->jxnClick(jo('jaxon.dbadmin')->onAppTabClick(TabApp::current()));
     }
 
     /**

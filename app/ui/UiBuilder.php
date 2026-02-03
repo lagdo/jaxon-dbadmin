@@ -20,7 +20,6 @@ use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
-use function array_shift;
 use function Jaxon\cl;
 use function Jaxon\rq;
 use function Jaxon\select;
@@ -189,30 +188,6 @@ class UiBuilder
                 $this->ui->col()
                     ->width(12)
                     ->tbnBindApp(rq(Content::class))
-            )
-        );
-    }
-
-    /**
-     * @param array $menus
-     *
-     * @return string
-     */
-    public function tableMenu(array $menus): string
-    {
-        $menu = array_shift($menus);
-        return $this->ui->build(
-            $this->ui->buttonGroup(
-                $this->ui->button($menu['label'])
-                    ->primary()
-                    ->jxnClick($menu['handler']),
-                $this->ui->dropdownItem()->look('primary'),
-                $this->ui->dropdownMenu(
-                    $this->ui->each($menus, fn($menu) =>
-                        $this->ui->dropdownMenuItem($menu['label'])
-                            ->jxnClick($menu['handler'])
-                    )
-                )->setStyle('position:relative;')
             )
         );
     }
