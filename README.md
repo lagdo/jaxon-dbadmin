@@ -37,6 +37,7 @@ The following features are currently available:
 - Create or alter a table or view.
 - Drop a table or view.
 - Browse servers and databases in multiple tabs.
+- Open the query editor in multiple tabs, with query text retention.
 
 The following features are not yet implemented, and planned for future releases:
 - Save the current tabs in user preferences.
