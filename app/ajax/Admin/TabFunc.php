@@ -61,6 +61,8 @@ class TabFunc extends FuncComponent
         // Delete the current tab. This script also activates the first tab.
         $this->response()->jo('jaxon.dbadmin')
             ->delTab(TabApp::titleId(), TabApp::wrapperId(), TabApp::zeroTitleId());
+        // Delete the query editors created in the tab;
+        $this->response()->jo('jaxon.dbadmin')->delAppEditors(TabApp::current());
 
         // Update the databag contents.
         $this->bag('dbadmin.tab')->set('app.names',
@@ -68,6 +70,9 @@ class TabFunc extends FuncComponent
         $this->unsetCurrentDb();
         $this->unsetBag('dbadmin.tab', 'editor.names.sv');
         $this->unsetBag('dbadmin.tab', 'editor.names.db');
+
+        // Set the first tab as the current.
+        $this->bag('dbadmin')->set('tab.app', TabApp::zero());
     }
 
     /**

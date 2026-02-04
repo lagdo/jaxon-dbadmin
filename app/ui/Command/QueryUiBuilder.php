@@ -152,7 +152,8 @@ class QueryUiBuilder
             ->target(TabEditor::wrapperId())
             ->setId(TabEditor::titleId())
             ->active($active)
-            ->jxnOn('click', jo('jaxon.dbadmin')->onEditorTabClick(TabEditor::current()));
+            ->jxnOn('click', jo('jaxon.dbadmin')
+                ->onEditorTabClick(TabApp::current(), TabEditor::current()));
     }
 
     /**

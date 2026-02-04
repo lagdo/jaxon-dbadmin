@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
+use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\DbAdmin\Ui\TabEditor;
 
 use function array_filter;
@@ -59,9 +60,9 @@ trait QueryTrait
         [$server,] = $this->getCurrentDb();
         $driver = $this->config()->getServerDriver($server);
         // Create the SQL editor in the new tab.
-        $currentTab = TabEditor::current();
-        $this->response()->jo('jaxon.dbadmin')->createQueryEditor($currentTab,
-            $this->queryUi->commandEditorId(), $driver);
+        $this->response()->jo('jaxon.dbadmin')
+            ->createQueryEditor($this->queryUi->commandEditorId(), $driver,
+                TabApp::current(), TabEditor::current());
     }
 
     /**
@@ -195,7 +196,8 @@ trait QueryTrait
         // Delete the current tab. This script also activates the first tab.
         $this->response()->jo('jaxon.dbadmin')
             ->delTab(TabEditor::titleId(), TabEditor::wrapperId(), TabEditor::zeroTitleId());
-        $this->response()->jo('jaxon.dbadmin')->deleteQueryEditor(TabEditor::current());
+        $this->response()->jo('jaxon.dbadmin')
+            ->deleteQueryEditor(TabApp::current(), TabEditor::current());
 
         // Update the databag contents.
         $this->setBag('dbadmin.tab', $bagNamesKey,

@@ -32,27 +32,83 @@
     self.setSqlQuery = (query) => editor.query?.session.setValue(query);
 
     /**
-     * @param {string} tabId
+     * @param {string} appTabId
      *
      * @returns {void}
      */
-    self.onAppTabClick = (tabId) => {
-        // Save the current app tab name.
-        jaxon.bag.setEntry('dbadmin', 'tab.app', tabId);
+    self.onAppTabClick = (appTabId) => jaxon.bag.setEntry('dbadmin', 'tab.app', appTabId);
+
+    /**
+     * @param {string} appTabId
+     * @param {string} editorTabId
+     * @param {object} newEditor
+     *
+     * @returns {bool}
+     */
+    const addTabEditor = (appTabId, editorTabId, newEditor) => {
+        const appEditors = editor.tabs[appTabId] ?? {};
+        editor.tabs[appTabId] = {
+            ...appEditors,
+            [editorTabId]: newEditor,
+        };
     };
 
     /**
-     * @param {string} tabId
+     * @param {string} appTabId
+     * @param {string} editorTabId
+     *
+     * @returns {bool}
+     */
+    const hasTabEditor = (appTabId, editorTabId) => !editor.tabs[appTabId] ?
+        false : editor.tabs[appTabId][editorTabId] !== undefined;
+
+    /**
+     * @param {string} appTabId
+     * @param {string} editorTabId
+     *
+     * @returns {object|null}
+     */
+    const getTabEditor = (appTabId, editorTabId) => !editor.tabs[appTabId] ?
+        null : editor.tabs[appTabId][editorTabId] ?? null;
+
+    /**
+     * @param {string} appTabId
+     * @param {string} editorTabId
+     *
+     * @returns {mixed}
+     */
+    const delTabEditor = (appTabId, editorTabId) => {
+        delete editor.tabs[appTabId][editorTabId];
+        editor.tabs[appTabId][editorTabId] = undefined;
+    };
+
+    /**
+     * @param {string} appTabId
+     *
+     * @returns {mixed}
+     */
+    self.delAppEditors = (appTabId) => {
+        const appEditors = editor.tabs[appTabId] ?? null;
+        if (appEditors !== null) {
+            Object.keys(appEditors).forEach(editorTabId => delTabEditor(appTabId, editorTabId));
+            delete editor.tabs[appTabId];
+            editor.tabs[appTabId] = undefined;
+        }
+    };
+
+    /**
+     * @param {string} appTabId
+     * @param {string} editorTabId
      *
      * @returns {void}
      */
-    self.onEditorTabClick = (tabId) => {
-        editor.query = editor.tabs[tabId];
+    self.onEditorTabClick = (appTabId, editorTabId) => {
+        editor.query = getTabEditor(appTabId, editorTabId);
         // When the editor content is changed when it is in a hidden tab, the visible content
         // is not updated when the tab becomes visible. We need to force the refresh.
         editor.query?.session.setValue(self.getQueryText());
         // Save the current editor tab name.
-        jaxon.bag.setEntry('dbadmin', 'tab.editor', tabId);
+        jaxon.bag.setEntry('dbadmin', 'tab.editor', editorTabId);
     };
 
     /**
@@ -78,39 +134,42 @@
     };
 
     /**
-     * @param {string} tabId
      * @param {string} containerId
      * @param {string} driver
+     * @param {string} appTabId
+     * @param {string} editorTabId
      *
      * @returns {void}
      */
-    self.createQueryEditor = function(tabId, containerId, driver) {
+    self.createQueryEditor = function(containerId, driver, appTabId, editorTabId) {
         createQueryEditor(containerId, driver);
-        if (tabId === '') {
+        if (!editorTabId || !appTabId) {
             return;
         }
 
-        if (editor.tabs[tabId] !== undefined) {
+        const prevEditor = getTabEditor(appTabId, editorTabId);
+        if (prevEditor !== null) {
             // Copy the query text of the previous editor instance in the tab.
-            editor.query.session.setValue(editor.tabs[tabId].getValue());
-            delete editor.tabs[tabId];
+            editor.query.session.setValue(prevEditor.getValue());
+            delTabEditor(appTabId, editorTabId);
         }
 
+        // Save the current editor tab name.
+        jaxon.bag.setEntry('dbadmin', 'tab.editor', editorTabId);
         // Save the tab editor.
-        editor.tabs[tabId] = editor.query;
-        // Set the click handler on the tab nav.
-        self.onEditorTabClick(tabId);
+        addTabEditor(appTabId, editorTabId, editor.query);
     };
 
     /**
-     * @param {string} tabId 
+     * @param {string} appTabId
+     * @param {string} editorTabId
      *
      * @returns {void}
      */
-    self.deleteQueryEditor = (tabId) => {
+    self.deleteQueryEditor = (appTabId, editorTabId) => {
         // Delete the deleted tab editor instance
-        if (editor.tabs[tabId] !== undefined) {
-            delete editor.tabs[tabId];
+        if (hasTabEditor(appTabId, editorTabId)) {
+            delTabEditor(appTabId, editorTabId);
         }
     };
 

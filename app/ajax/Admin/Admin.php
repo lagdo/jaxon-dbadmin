@@ -7,6 +7,7 @@ use Jaxon\Attributes\Attribute\Databag;
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\Base\FuncComponent;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Server\Server;
+use Lagdo\DbAdmin\Ui\TabApp;
 
 #[Databag('dbadmin.tab')]
 class Admin extends FuncComponent
@@ -40,6 +41,9 @@ class Admin extends FuncComponent
     {
         $this->connect($server);
 
+        if (!$this->bag('dbadmin')->get('tab.app')) {
+            $this->bag('dbadmin')->set('tab.app', TabApp::current());
+        }
         // Initially clear all the tabs.
         $this->setBag('dbadmin.tab', 'editor.names.sv', []);
         $this->setBag('dbadmin.tab', 'editor.names.db', []);
