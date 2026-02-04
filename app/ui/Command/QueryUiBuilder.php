@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Ui\Command;
 
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
-use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\PageTrait;
@@ -117,7 +116,7 @@ class QueryUiBuilder
                         ->width(8),
                         $this->ui->col()
                             ->width(4)
-                            ->tbnBindEditor(rq(Duration::class))
+                            ->tbnBindEditor(rq(Query\Duration::class))
                     )
                 )->width(4)
             )
@@ -271,12 +270,12 @@ class QueryUiBuilder
             $this->ui->tabContent(
                 $this->ui->when($this->config->favoriteEnabled(), fn() =>
                     $this->ui->tabContentItem()
-                        ->tbnBindEditor(rq(Query\History::class))
+                        ->tbnBindApp(rq(Query\History::class))
                         ->setId(TabEditor::id("tab-content-query-history"))
                         ->active(false)),
                 $this->ui->when($this->config->historyEnabled(), fn() =>
                     $this->ui->tabContentItem()
-                        ->tbnBindEditor(rq(Query\Favorite::class))
+                        ->tbnBindApp(rq(Query\Favorite::class))
                         ->setId(TabEditor::id("tab-content-query-favorite"))
                         ->active(false)),
                 $this->editorTabContent($rqQuery, true)

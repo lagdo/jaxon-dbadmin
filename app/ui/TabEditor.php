@@ -3,6 +3,8 @@
 namespace Lagdo\DbAdmin\Ui;
 
 use Jaxon\Plugin\Response\Databag\DatabagPlugin;
+use Jaxon\Script\Call\JxnCall;
+use Lagdo\UiBuilder\Component\HtmlComponent;
 
 use function uniqid;
 
@@ -17,6 +19,32 @@ class TabEditor
      * @var string
      */
     public static string $page = '';
+
+    /**
+     * @param string $item
+     *
+     * @return string
+     */
+    public static function item(string $item = ''): string
+    {
+        return $item === '' ? self::id('', '') : self::id($item, '::');
+    }
+
+    /**
+     * Set the tab item id on the components.
+     *
+     * @param HtmlComponent $component
+     * @param JxnCall $xJsCall
+     * @param string $item
+     *
+     * @return HtmlComponent
+     */
+    public static function bind(HtmlComponent $component,
+        JxnCall $xJsCall, string $item = ''): HtmlComponent
+    {
+        $component->jxnBind($xJsCall, self::item($item));
+        return $component;
+    }
 
     /**
      * @return string
@@ -47,12 +75,13 @@ class TabEditor
      * Prefix the element id with the active tab id
      *
      * @param string $id
+     * @param string $sep
      *
      * @return string
      */
-    public static function id(string $id): string
+    public static function id(string $id, string $sep = '_'): string
     {
-        return TabApp::id(self::current() . "_$id");
+        return TabApp::id(self::current() . "$sep$id");
     }
 
     /**

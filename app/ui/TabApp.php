@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\Ui;
 use Jaxon\Plugin\Response\Databag\DatabagPlugin;
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\UiBuilder\Component\HtmlComponent;
+use LogicException;
 
 use function uniqid;
 
@@ -14,6 +15,16 @@ class TabApp
      * @var DatabagPlugin
      */
     public static DatabagPlugin $databag;
+
+    /**
+     * @param string $item
+     *
+     * @return string
+     */
+    public static function item(string $item = ''): string
+    {
+        return $item === '' ? self::current() : self::current() . "::$item";
+    }
 
     /**
      * Set the tab item id on the components.
@@ -27,7 +38,7 @@ class TabApp
     private static function bind(HtmlComponent $component,
         JxnCall $xJsCall, string $item = ''): HtmlComponent
     {
-        $component->jxnBind($xJsCall, $item === '' ? self::current() : self::current() . "::$item");
+        $component->jxnBind($xJsCall, self::item($item));
         return $component;
     }
 
@@ -42,7 +53,14 @@ class TabApp
     public static function helper(HtmlComponent $component,
         string $tagName, string $method, array $arguments): HtmlComponent
     {
-        return self::bind($component, ...$arguments);
+        if ($method === 'tbnBindApp') {
+            return self::bind($component, ...$arguments);
+        }
+        if ($method === 'tbnBindEditor') {
+            return TabEditor::bind($component, ...$arguments);
+        }
+
+        throw new LogicException("Call to undefined method \"{$method}()\" in the TabApp helper.");
     }
 
     /**
