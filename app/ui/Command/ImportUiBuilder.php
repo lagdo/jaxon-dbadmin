@@ -204,7 +204,7 @@ class ImportUiBuilder
                 )->width(12),
                 $this->ui->col()
                     ->width(12)
-                    ->tbnBindApp(rq(Query\Results::class))
+                    ->tbnBindApp(rq(Query\ResultSet::class))
             )
         );
     }

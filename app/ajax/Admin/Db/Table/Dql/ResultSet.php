@@ -19,9 +19,9 @@ class ResultSet extends PageComponent
     use RowMenuTrait;
 
     /**
-     * @var bool
+     * @var float|null
      */
-    private bool $noResult = false;
+    private float|null $duration;
 
     /**
      * The constructor
@@ -95,12 +95,12 @@ class ResultSet extends PageComponent
         $results = $this->db()->execSelect($this->getCurrentTable(), $options);
 
         // The 'message' key is set when an error occurs, or when the query returns no data.
-        $this->noResult = isset($results['message']);
-        if ($this->noResult) {
+        if (isset($results['message'])) {
+            $this->duration = null;
             return $results['message'];
         }
 
-        $this->stash()->set('select.duration', $results['duration']);
+        $this->duration = $results['duration'];
 
         return $this->resultUi->resultSet($results['headers'], $this->rows($results));
     }
@@ -111,7 +111,6 @@ class ResultSet extends PageComponent
     protected function after(): void
     {
         $this->cl(QueryText::class)->refresh();
-        $this->noResult ? $this->cl(Duration::class)->clear() :
-            $this->cl(Duration::class)->render();
+        $this->cl(Duration::class)->update($this->duration);
     }
 }

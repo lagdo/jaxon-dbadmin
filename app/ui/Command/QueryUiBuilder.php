@@ -197,7 +197,7 @@ class QueryUiBuilder
                         )->width(12),
                         $this->ui->col()
                             ->width(12)
-                            ->tbnBindEditor(rq(Query\Results::class))
+                            ->tbnBindEditor(rq(Query\ResultSet::class))
                     )
                 )->setId(TabEditor::wrapperId())
                     ->active($active);

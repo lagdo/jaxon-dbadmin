@@ -10,8 +10,13 @@ use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 use Lagdo\DbAdmin\Ui\TabEditor;
 
 #[Exclude]
-class Results extends Component
+class ResultSet extends Component
 {
+    /**
+     * @var array
+     */
+    private array $results;
+
     /**
      * The constructor
      *
@@ -40,8 +45,7 @@ class Results extends Component
      */
     public function html(): string
     {
-        $results = $this->stash()->get('results');
-        return $this->queryUi->results($results);
+        return $this->queryUi->results($this->results);
     }
 
     /**
@@ -53,11 +57,10 @@ class Results extends Component
      */
     public function renderResults(array $results): void
     {
-        $this->stash()->set('results', $results['results']);
+        $this->results = $results['results'];
         $this->render();
 
-        $this->stash()->set('query.duration', $results['duration']);
-        $this->cl(Duration::class)->render();
         $this->cl(History::class)->render();
+        $this->cl(Duration::class)->update($results['duration']);
     }
 }

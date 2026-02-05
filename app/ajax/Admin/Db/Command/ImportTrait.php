@@ -84,6 +84,6 @@ trait ImportTrait
         $onlyErrors = $formValues['only_errors'] ?? false;
         $results = $this->db()->executeSqlFiles($files, $errorStops, $onlyErrors);
 
-        $this->cl(Query\Results::class)->renderResults($results);
+        $this->cl(Query\ResultSet::class)->renderResults($results);
     }
 }
