@@ -56,6 +56,6 @@ class ResultRow extends MainComponent
         $row['menu'] = $this->getRowMenu($editId);
         $this->row = $row;
 
-        $this->item($this->bagEntryName($editId))->render();
+        $this->item($this->bagValueKey($editId))->render();
     }
 }

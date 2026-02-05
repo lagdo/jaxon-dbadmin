@@ -14,7 +14,7 @@ trait RowMenuTrait
      *
      * @return string
      */
-    protected function bagEntryName(int $editId): string
+    protected function bagValueKey(int $editId): string
     {
         return "row$editId";
     }
@@ -26,8 +26,8 @@ trait RowMenuTrait
      */
     protected function getRowMenu(int $editId): string
     {
-        $bagEntryValue = jo('jaxon.bag')->get($this->tabBag('dbadmin.edit'),
-            'row.ids', $this->bagEntryName($editId), null);
+        $bagEntryValue = jo('jaxon.bag')->getValue($this->tabBag('dbadmin.edit'),
+            'row.ids', $this->bagValueKey($editId), null);
         return $this->ui()->tableMenu([[
             'label' => $this->trans->lang('Edit'),
             'handler' => $this->rq(Update::class)->edit($editId, $bagEntryValue),

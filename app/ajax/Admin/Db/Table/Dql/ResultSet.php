@@ -61,7 +61,7 @@ class ResultSet extends PageComponent
         $editIds = [];
         $rows = array_map(function($row) use(&$editId, &$editIds): array {
             $editId++; // The edit ids start from 1.
-            $editItemId = $this->bagEntryName($editId);
+            $editItemId = $this->bagValueKey($editId);
 
             $editIds[$editItemId] = $row['ids'];
 
