@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Base;
 
 use Jaxon\Attributes\Attribute\Databag;
+use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Ajax\Exception\AppException;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
@@ -20,6 +21,30 @@ use function array_filter;
 #[Databag('dbadmin')]
 trait ComponentTrait
 {
+    /**
+     * @var ServerConfig
+     */
+    #[Inject]
+    protected ServerConfig $config;
+
+    /**
+     * @var DbFacade
+     */
+    #[Inject]
+    protected DbFacade $db;
+
+    /**
+     * @var Translator
+     */
+    #[Inject]
+    protected Translator $trans;
+
+    /**
+     * @var UiBuilder
+     */
+    #[Inject]
+    protected UiBuilder $ui;
+
     /**
      * @return ServerConfig
      */

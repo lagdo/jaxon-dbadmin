@@ -4,44 +4,15 @@ namespace Lagdo\DbAdmin\Ajax\Base;
 
 use Jaxon\App\Component as JaxonComponent;
 use Jaxon\Attributes\Attribute\Databag;
-use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Sections;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Server\Command as ServerCommand;
-use Lagdo\DbAdmin\Db\Config\ServerConfig;
-use Lagdo\DbAdmin\Db\Driver\DbFacade;
-use Lagdo\DbAdmin\Db\Translator;
-use Lagdo\DbAdmin\Ui\UiBuilder;
 
 #[Databag('dbadmin')]
 abstract class Component extends JaxonComponent
 {
     use ComponentTrait;
     use TabItemTrait;
-
-    /**
-     * @var ServerConfig
-     */
-    #[Inject]
-    protected ServerConfig $config;
-
-    /**
-     * @var DbFacade
-     */
-    #[Inject]
-    protected DbFacade $db;
-
-    /**
-     * @var Translator
-     */
-    #[Inject]
-    protected Translator $trans;
-
-    /**
-     * @var UiBuilder
-     */
-    #[Inject]
-    protected UiBuilder $ui;
 
     /**
      * @param string $activeItem
