@@ -233,17 +233,18 @@ class QueryUiBuilder
 
     /**
      * @param JxnCall $rqQuery
+     * @param JxnCall $rqEditor
      *
      * @return string
      */
-    public function command(JxnCall $rqQuery): string
+    public function command(JxnCall $rqQuery, JxnCall $rqEditor): string
     {
         $menuEntries = [[
             'label' => '<i class="fa fa-plus"></i>',
-            'handler' => $rqQuery->addTab(),
+            'handler' => $rqEditor->addTab(),
         ], [
             'label' => $this->trans->lang('Delete'),
-            'handler' => $rqQuery->delTab()
+            'handler' => $rqEditor->delTab()
                 ->confirm($this->trans->lang('Delete this tab?')),
         ]];
         return $this->ui->build(

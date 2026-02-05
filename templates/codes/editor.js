@@ -29,7 +29,7 @@
      *
      * @returns {void}
      */
-    self.setSqlQuery = (query) => editor.query?.session.setValue(query);
+    self.setQueryText = (query) => editor.query?.session.setValue(query);
 
     /**
      * @param {string} appTabId
@@ -237,7 +237,7 @@
          *
          * @returns {void}
          */
-        copyQueryText: (node, prefix) => self.setSqlQuery(getHistoryQuery(node, prefix)),
+        copyQueryText: (node, prefix) => self.setQueryText(getHistoryQuery(node, prefix)),
 
         /**
          * @param {Element} node
@@ -270,7 +270,7 @@
          *
          * @returns {void}
          */
-        copyQueryText: (node, prefix) => self.setSqlQuery(getFavoriteQuery(node, prefix)),
+        copyQueryText: (node, prefix) => self.setQueryText(getFavoriteQuery(node, prefix)),
 
         /**
          * @param {Element} node

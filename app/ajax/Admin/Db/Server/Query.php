@@ -16,6 +16,11 @@ class Query extends Component
     use QueryTrait;
 
     /**
+     * @var string
+     */
+    private string $query = '';
+
+    /**
      * The constructor
      *
      * @param ServerConfig   $config     The package config reader
@@ -28,19 +33,22 @@ class Query extends Component
     {}
 
     /**
-     * @return string
-     */
-    private function queryPage(): string
-    {
-        return 'sv';
-    }
-
-    /**
      * @inheritDoc
      */
     protected function before(): void
     {
         $this->activateServerCommandMenu('server-query');
+
+        $this->editorClass = EditorFunc::class;
+        $this->cl(EditorFunc::class)->initTab();
+    }
+
+    /**
+     * @return void
+     */
+    private function showEditorTabs(): void
+    {
+        $this->cl(EditorFunc::class)->showTabs($this->query);
     }
 
     /**

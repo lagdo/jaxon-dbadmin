@@ -82,6 +82,19 @@ trait ComponentTrait
     }
 
     /**
+     * @param string|null $server
+     *
+     * @return bool
+     */
+    protected function hasServerAccess(string|null $server = null): bool
+    {
+        if ($server === null) {
+            $server = $this->getCurrentDb()[0] ?? '';
+        }
+        return $this->config()->getServerAccess($server);
+    }
+
+    /**
      * Show breadcrumbs
      *
      * @return void

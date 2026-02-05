@@ -31,19 +31,6 @@ abstract class Component extends JaxonComponent
     {}
 
     /**
-     * @param string|null $server
-     *
-     * @return bool
-     */
-    protected function hasServerAccess(string|null $server = null): bool
-    {
-        if ($server === null) {
-            $server = $this->getCurrentDb()[0] ?? '';
-        }
-        return $this->config()->getServerAccess($server);
-    }
-
-    /**
      * @param string $activeItem
      *
      * @return void
