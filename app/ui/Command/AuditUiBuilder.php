@@ -131,7 +131,7 @@ class AuditUiBuilder
             $this->ui->dropdownMenu(
                 $this->ui->dropdownMenuItem($this->trans->lang('Insert'))
                     ->setClass('dbadmin-favorite-query-insert'),
-                $this->ui->dropdownMenuItem($this->trans->lang('Update'))
+                $this->ui->dropdownMenuItem($this->trans->lang('Edit'))
                     ->setClass('dbadmin-favorite-query-edit'),
                 $this->ui->dropdownMenuItem($this->trans->lang('Delete'))
                     ->setClass('dbadmin-favorite-query-delete')

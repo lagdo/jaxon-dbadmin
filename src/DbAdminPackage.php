@@ -66,6 +66,13 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
             $this->view()->render('dbadmin::codes::script.js') . "\n\n" .
             $this->view()->render('dbadmin::codes::editor.js');
 
+        // Toast library for the SQL editor.
+        $config = $this->getConfig();
+        if ($config->hasOption('toast.lib')) {
+            $lib = $config->getOption('toast.lib');
+            $code .= "\n\njaxon.dom.ready(() => jaxon.dbadmin.setToastLib('$lib'));";
+        }
+
         return new JsCode(sCode: $code, sHtml: $html);
     }
 

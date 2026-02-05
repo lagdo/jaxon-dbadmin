@@ -244,6 +244,35 @@
      */
     const getFavoriteQuery = (node, prefix) => $(`#${prefix}` + getQueryId(node, 'td')).text();
 
+    /**
+     * @var {object}
+     */
+    const toast = {
+        lib: '',
+        messages: {
+            copied: 'Copied!',
+            inserted: 'Inserted!',
+        },
+    };
+
+    /**
+     * @param {string}
+     *
+     * @returns {void}
+     */
+    self.setToastLib = (lib) => toast.lib = lib;
+
+    /**
+     * @param {string}
+     *
+     * @returns {void}
+     */
+    const showInfoMessage = (message) => {
+        if (toast.lib !== '') {
+            jaxon.dialog.alert(toast.lib, { type: 'info', text: message });
+        }
+    };
+
     self.history =  {
         /**
          * @param {Element} node
@@ -251,7 +280,10 @@
          *
          * @returns {void}
          */
-        copyQueryText: (node, prefix) => self.setQueryText(getHistoryQuery(node, prefix)),
+        copyQueryText: (node, prefix) => {
+            self.setQueryText(getHistoryQuery(node, prefix));
+            showInfoMessage(toast.messages.copied);
+        },
 
         /**
          * @param {Element} node
@@ -259,7 +291,10 @@
          *
          * @returns {void}
          */
-        insertQuerytext: (node, prefix) => editor.query.insert(getHistoryQuery(node, prefix)),
+        insertQuerytext: (node, prefix) => {
+            editor.query.insert(getHistoryQuery(node, prefix));
+            showInfoMessage(toast.messages.inserted);
+        },
     };
 
     self.favorite = {
@@ -284,7 +319,10 @@
          *
          * @returns {void}
          */
-        copyQueryText: (node, prefix) => self.setQueryText(getFavoriteQuery(node, prefix)),
+        copyQueryText: (node, prefix) => {
+            self.setQueryText(getFavoriteQuery(node, prefix));
+            showInfoMessage(toast.messages.copied);
+        },
 
         /**
          * @param {Element} node
@@ -292,6 +330,9 @@
          *
          * @returns {void}
          */
-        insertQuerytext: (node, prefix) => editor.query.insert(getFavoriteQuery(node, prefix)),
+        insertQuerytext: (node, prefix) => {
+            editor.query.insert(getFavoriteQuery(node, prefix));
+            showInfoMessage(toast.messages.inserted);
+        },
     };
 })(jaxon.dbadmin);
