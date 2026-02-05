@@ -8,9 +8,6 @@ use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Views;
 use Lagdo\DbAdmin\Ajax\Admin\Db\View\Dql\Select;
 use Lagdo\DbAdmin\Ajax\Admin\Page\Content;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
-use Lagdo\DbAdmin\Db\Config\ServerConfig;
-use Lagdo\DbAdmin\Db\Driver\DbFacade;
-use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Table\ViewUiBuilder;
 
 class Form extends Component
@@ -28,13 +25,9 @@ class Form extends Component
     /**
      * The constructor
      *
-     * @param ServerConfig   $config     The package config reader
-     * @param DbFacade       $db         The facade to database functions
      * @param ViewUiBuilder  $viewUi     The HTML UI builder
-     * @param Translator     $trans
      */
-    public function __construct(protected ServerConfig $config, protected DbFacade $db,
-        protected ViewUiBuilder $viewUi, protected Translator $trans)
+    public function __construct(protected ViewUiBuilder $viewUi)
     {}
 
     /**

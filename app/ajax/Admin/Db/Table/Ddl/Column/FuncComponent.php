@@ -3,9 +3,6 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\FuncComponent as BaseComponent;
-use Lagdo\DbAdmin\Db\Config\ServerConfig;
-use Lagdo\DbAdmin\Db\Driver\DbFacade;
-use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Table\ColumnUiBuilder;
 
 use function trim;
@@ -17,13 +14,9 @@ abstract class FuncComponent extends BaseComponent
     /**
      * The constructor
      *
-     * @param ServerConfig      $config     The package config
-     * @param DbFacade          $db         The facade to database functions
      * @param ColumnUiBuilder   $columnUi   The HTML UI builder
-     * @param Translator        $trans
      */
-    public function __construct(protected ServerConfig $config, protected DbFacade $db,
-        protected ColumnUiBuilder $columnUi, protected Translator $trans)
+    public function __construct(protected ColumnUiBuilder $columnUi)
     {}
 
     /**

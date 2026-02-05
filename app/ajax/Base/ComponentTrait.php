@@ -21,26 +21,6 @@ use function array_filter;
 trait ComponentTrait
 {
     /**
-     * @var ServerConfig
-     */
-    protected ServerConfig $config;
-
-    /**
-     * @var DbFacade
-     */
-    protected DbFacade $db;
-
-    /**
-     * @var UiBuilder
-     */
-    protected UiBuilder $ui;
-
-    /**
-     * @var Translator
-     */
-    protected Translator $trans;
-
-    /**
      * @return ServerConfig
      */
     protected function config(): ServerConfig

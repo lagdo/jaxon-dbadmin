@@ -5,9 +5,6 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\View\Ddl;
 use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Database\Views;
 use Lagdo\DbAdmin\Ajax\Admin\Db\FuncComponent;
-use Lagdo\DbAdmin\Db\Config\ServerConfig;
-use Lagdo\DbAdmin\Db\Driver\DbFacade;
-use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Table\ViewUiBuilder;
 
 class ViewFunc extends FuncComponent
@@ -15,13 +12,9 @@ class ViewFunc extends FuncComponent
     /**
      * The constructor
      *
-     * @param ServerConfig   $config     The package config reader
-     * @param DbFacade       $db         The facade to database functions
      * @param ViewUiBuilder  $viewUi     The HTML UI builder
-     * @param Translator     $trans
      */
-    public function __construct(protected ServerConfig $config, protected DbFacade $db,
-        protected ViewUiBuilder $viewUi, protected Translator $trans)
+    public function __construct(protected ViewUiBuilder $viewUi)
     {}
 
     /**

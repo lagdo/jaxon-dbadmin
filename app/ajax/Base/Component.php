@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\Base;
 
 use Jaxon\App\Component as JaxonComponent;
 use Jaxon\Attributes\Attribute\Databag;
+use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Sections;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\Ajax\Admin\Menu\Server\Command as ServerCommand;
@@ -19,16 +20,28 @@ abstract class Component extends JaxonComponent
     use TabItemTrait;
 
     /**
-     * The constructor
-     *
-     * @param ServerConfig   $config     The package config reader
-     * @param DbFacade       $db         The facade to database functions
-     * @param UiBuilder      $ui         The HTML UI builder
-     * @param Translator     $trans
+     * @var ServerConfig
      */
-    public function __construct(protected ServerConfig $config, protected DbFacade $db,
-        protected UiBuilder $ui, protected Translator $trans)
-    {}
+    #[Inject]
+    protected ServerConfig $config;
+
+    /**
+     * @var DbFacade
+     */
+    #[Inject]
+    protected DbFacade $db;
+
+    /**
+     * @var Translator
+     */
+    #[Inject]
+    protected Translator $trans;
+
+    /**
+     * @var UiBuilder
+     */
+    #[Inject]
+    protected UiBuilder $ui;
 
     /**
      * @param string $activeItem

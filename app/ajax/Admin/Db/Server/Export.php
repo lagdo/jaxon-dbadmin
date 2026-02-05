@@ -4,9 +4,6 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Server;
 
 use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Command\ExportTrait;
-use Lagdo\DbAdmin\Db\Config\ServerConfig;
-use Lagdo\DbAdmin\Db\Driver\DbFacade;
-use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Command\ExportUiBuilder;
 
 class Export extends Component
@@ -16,13 +13,9 @@ class Export extends Component
     /**
      * The constructor
      *
-     * @param ServerConfig    $config     The package config
-     * @param DbFacade        $db         The facade to database functions
      * @param ExportUiBuilder $exportUi The HTML UI builder
-     * @param Translator      $trans
      */
-    public function __construct(protected ServerConfig $config, protected DbFacade $db,
-        protected ExportUiBuilder $exportUi, protected Translator $trans)
+    public function __construct(protected ExportUiBuilder $exportUi)
     {}
 
     /**

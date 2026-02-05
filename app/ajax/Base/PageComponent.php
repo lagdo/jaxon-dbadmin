@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ajax\Base;
 
 use Jaxon\App\PageComponent as BaseComponent;
 use Jaxon\Attributes\Attribute\Databag;
+use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;
@@ -16,14 +17,28 @@ abstract class PageComponent extends BaseComponent
     use TabItemTrait;
 
     /**
-     * @param ServerConfig   $config     The package config reader
-     * @param DbFacade       $db         The facade to database functions
-     * @param UiBuilder      $ui         The HTML UI builder
-     * @param Translator     $trans
+     * @var ServerConfig
      */
-    public function __construct(protected ServerConfig $config, protected DbFacade $db,
-        protected UiBuilder $ui, protected Translator $trans)
-    {}
+    #[Inject]
+    protected ServerConfig $config;
+
+    /**
+     * @var DbFacade
+     */
+    #[Inject]
+    protected DbFacade $db;
+
+    /**
+     * @var Translator
+     */
+    #[Inject]
+    protected Translator $trans;
+
+    /**
+     * @var UiBuilder
+     */
+    #[Inject]
+    protected UiBuilder $ui;
 
     /**
      * Render the page and pagination components

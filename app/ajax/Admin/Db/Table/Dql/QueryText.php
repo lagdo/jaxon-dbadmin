@@ -3,8 +3,6 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql;
 
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\Db\Config\ServerConfig;
-use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Lagdo\DbAdmin\Ui\Select\SelectUiBuilder;
 
@@ -21,13 +19,10 @@ class QueryText extends Component
     /**
      * The constructor
      *
-     * @param DbFacade        $db         The facade to database functions
      * @param Utils           $utils
-     * @param ServerConfig    $config     The package config
      * @param SelectUiBuilder $selectUi The HTML UI builder
      */
-    public function __construct(protected DbFacade $db, protected Utils $utils,
-        protected ServerConfig $config, protected SelectUiBuilder $selectUi)
+    public function __construct(protected Utils $utils, protected SelectUiBuilder $selectUi)
     {}
 
     /**
