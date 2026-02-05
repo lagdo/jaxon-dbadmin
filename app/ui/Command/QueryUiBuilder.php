@@ -243,6 +243,9 @@ class QueryUiBuilder
             'label' => '<i class="fa fa-plus"></i>',
             'handler' => $rqEditor->addTab(),
         ], [
+            'label' => $this->trans->lang('Clone'),
+            'handler' => $rqEditor->cloneTab(),
+        ], [
             'label' => $this->trans->lang('Delete'),
             'handler' => $rqEditor->delTab()
                 ->confirm($this->trans->lang('Delete this tab?')),

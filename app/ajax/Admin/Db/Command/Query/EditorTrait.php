@@ -94,12 +94,12 @@ trait EditorTrait
      */
     public function addTab(): void
     {
-        $bagNamesKey = TabEditor::names();
         $name = TabEditor::newId();
         $this->addEditorTab($name);
         // The addEditorTab() function dos not activate the created tab.
         $this->response()->jo('jaxon.dbadmin')->activateTab(TabEditor::titleId());
 
+        $bagNamesKey = TabEditor::names();
         $names = $this->getBag('dbadmin.tab', $bagNamesKey, []);
         $this->setBag('dbadmin.tab', $bagNamesKey, [...$names, $name]);
 
@@ -108,13 +108,40 @@ trait EditorTrait
     }
 
     /**
+     * @return array
+     */
+    private function currentTabs(): array
+    {
+        $bagNamesKey = TabEditor::names();
+        return [
+            $this->getBag('dbadmin.tab', $bagNamesKey, []),
+            $this->bag('dbadmin')->get('tab.editor', ''),
+        ];
+    }
+
+    /**
+     * @return void
+     */
+    public function cloneTab(): void
+    {
+        [$names, $current] = $this->currentTabs();
+        if ($current !== TabEditor::zero() && !in_array($current, $names)) {
+            $this->alert()->title('Error')->error('Cannot find the tab to clone.');
+            return;
+        }
+
+        $this->addTab();
+
+        // Copy the query text from the previous current tab to the new tab.
+        $this->response()->jo('jaxon.dbadmin')->copyQueryText(TabApp::current(), $current);
+    }
+
+    /**
      * @return void
      */
     public function delTab(): void
     {
-        $bagNamesKey = TabEditor::names();
-        $names = $this->getBag('dbadmin.tab', $bagNamesKey, []);
-        $current = $this->bag('dbadmin')->get('tab.editor', '');
+        [$names, $current] = $this->currentTabs();
         if ($current === TabEditor::zero() || count($names) === 0) {
             $this->alert()->title('Error')->error('Cannot delete the current tab.');
             return;
@@ -131,7 +158,7 @@ trait EditorTrait
             ->deleteQueryEditor(TabApp::current(), TabEditor::current());
 
         // Update the databag contents.
-        $this->setBag('dbadmin.tab', $bagNamesKey, array_filter($names,
+        $this->setBag('dbadmin.tab', TabEditor::names(), array_filter($names,
             fn(string $name) => $name !== $current));
     }
 }

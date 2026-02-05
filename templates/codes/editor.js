@@ -174,6 +174,20 @@
     };
 
     /**
+     * @param {string} appTabId
+     * @param {string} sourceTabId
+     *
+     * @returns {void}
+     */
+    self.copyQueryText = (appTabId, sourceTabId) => {
+        const sourceEditor = getTabEditor(appTabId, sourceTabId);
+        if (sourceEditor !== null) {
+            // Copy the query text from the source editor.
+            editor.query.session.setValue(sourceEditor.getValue());
+        }
+    };
+
+    /**
      * @param {string} containerId
      * @param {string} driver
      *
