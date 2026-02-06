@@ -90,6 +90,6 @@ trait QueryTrait
         $onlyErrors = $values['only_errors'] ?? false;
         $results = $this->db()->executeCommands($query, $limit, $errorStops, $onlyErrors);
 
-        $this->cl(ResultSet::class)->renderResults($results);
+        $this->cl(ResultSet::class)->results($results)->render();
     }
 }

@@ -4,8 +4,6 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\Base\Component;
-use Lagdo\DbAdmin\Db\Driver\DbFacade;
-use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 use Lagdo\DbAdmin\Ui\TabEditor;
 
@@ -20,12 +18,9 @@ class ResultSet extends Component
     /**
      * The constructor
      *
-     * @param DbFacade      $db         The facade to database functions
      * @param QueryUiBuilder $queryUi   The HTML UI builder
-     * @param Translator    $trans
      */
-    public function __construct(protected DbFacade $db,
-        protected QueryUiBuilder $queryUi, protected Translator $trans)
+    public function __construct(protected QueryUiBuilder $queryUi)
     {}
 
     /**
@@ -45,22 +40,28 @@ class ResultSet extends Component
      */
     public function html(): string
     {
-        return $this->queryUi->results($this->results);
+        return $this->queryUi->results($this->results['results']);
     }
 
     /**
-     * Display the query results
+     * @inheritDoc
+     */
+    protected function after(): void
+    {
+        $this->cl(History::class)->render();
+        $this->cl(Duration::class)->update($this->results['duration']);
+    }
+
+    /**
+     * Set the query results
      *
      * @param array $results
      *
-     * @return void
+     * @return self
      */
-    public function renderResults(array $results): void
+    public function results(array $results): self
     {
-        $this->results = $results['results'];
-        $this->render();
-
-        $this->cl(History::class)->render();
-        $this->cl(Duration::class)->update($results['duration']);
+        $this->results = $results;
+        return $this;
     }
 }
