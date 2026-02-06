@@ -28,5 +28,6 @@ class EditorFunc extends FuncComponent
     protected function setEditorPage(): void
     {
         TabEditor::$page = 'sv';
+        $this->queryClass = Query::class;
     }
 }

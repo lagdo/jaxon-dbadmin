@@ -19,6 +19,11 @@ trait EditorTrait
     protected QueryUiBuilder $queryUi;
 
     /**
+     * @var string
+     */
+    private string $queryClass;
+
+    /**
      * @return void
      */
     abstract protected function setEditorPage(): void;
@@ -59,7 +64,7 @@ trait EditorTrait
         $navId = $this->queryUi->editorTabNavWrapperId();
         $nav = $this->queryUi->editorTabNavHtml();
         $contentId = $this->queryUi->editorTabContentWrapperId();
-        $content = $this->queryUi->editorTabContentHtml($this->rq());
+        $content = $this->queryUi->editorTabContentHtml($this->rq($this->queryClass));
         $this->response()->jo('jaxon.dbadmin')->addTab($navId, $nav, $contentId, $content);
 
         $this->setupNewTab();
