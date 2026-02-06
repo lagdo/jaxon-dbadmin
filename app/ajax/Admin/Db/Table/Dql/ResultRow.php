@@ -3,9 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql;
 
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\Select\ResultUiBuilder;
-use Lagdo\DbAdmin\Ui\UiBuilder;
 
 /**
  * This class displays a row of a select query resultset.
@@ -28,12 +26,9 @@ class ResultRow extends MainComponent
     /**
      * The constructor
      *
-     * @param UiBuilder         $ui         The HTML UI builder
      * @param ResultUiBuilder   $resultUi   The HTML UI builder
-     * @param Translator        $trans
      */
-    public function __construct(protected UiBuilder $ui,
-        protected ResultUiBuilder $resultUi, protected Translator $trans)
+    public function __construct(protected ResultUiBuilder $resultUi)
     {}
 
     /**

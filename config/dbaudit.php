@@ -31,7 +31,8 @@ return [
                     'database' => $config->getOption('database'),
                     'options' => $config->getOption('options', []),
                 ], 'audit');
-                return new Config\ServerConfig($config, $reader);
+                $authSetup = $di->has(Config\AuthInterface::class);
+                return new Config\ServerConfig($config, $reader, $authSetup);
             },
             // Connection to the audit database
             Service\Audit\ConnectionProxy::class => function(Container $di) {
