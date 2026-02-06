@@ -90,7 +90,7 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getReadyScript(): string
     {
-        return rq(Commands::class)->page() . ';';
+        return '{' . rq(Commands::class)->page() . '}';
     }
 
     /**

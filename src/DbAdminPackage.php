@@ -13,6 +13,7 @@ use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\DbAdmin\Ui\TabEditor;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
+use function implode;
 use function realpath;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
@@ -66,13 +67,6 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
             $this->view()->render('dbadmin::codes::script.js') . "\n\n" .
             $this->view()->render('dbadmin::codes::editor.js');
 
-        // Toast library for the SQL editor.
-        $config = $this->getConfig();
-        if ($config->hasOption('toast.lib')) {
-            $lib = $config->getOption('toast.lib');
-            $code .= "\n\njaxon.dom.ready(() => jaxon.dbadmin.setToastLib('$lib'));";
-        }
-
         return new JsCode(sCode: $code, sHtml: $html);
     }
 
@@ -85,9 +79,22 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getReadyScript(): string
     {
-        $defaultServer = $this->getOption('default');
-        return !$defaultServer || !$this->getOption("servers.$defaultServer") ?
-            '' : rq(Admin::class)->server($defaultServer) . ';';
+        $codes = [];
+        // Toast library for the SQL editor.
+        $config = $this->getConfig();
+        if ($config->hasOption('toast.lib')) {
+            $lib = $config->getOption('toast.lib');
+            $codes[] = "jaxon.dbadmin.setToastLib('$lib')";
+        }
+
+        if ($config->hasOption('default')) {
+            $server = $this->getOption('default');
+            if ($config->hasOption("servers.$server")) {
+                $codes[] = rq(Admin::class)->server($server);
+            }
+        }
+
+        return '{' . implode('; ', $codes) . '}';
     }
 
     /**
