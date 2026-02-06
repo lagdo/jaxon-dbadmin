@@ -85,9 +85,9 @@ return [
             return new Facades\ViewFacade($dbFacade);
         },
         'dbadmin_auth_service' => fn(Container $di) =>
-            $di->h(Config\AuthInterface::class) ?
+            $di->has(Config\AuthInterface::class) ?
                 // Custom auth service defined.
-                $di->g(Config\AuthInterface::class) :
+                $di->get(Config\AuthInterface::class) :
                 // Default auth service when none is defined.
                 new class implements Config\AuthInterface {
                     public function user(): string

@@ -87,7 +87,7 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     {
         $defaultServer = $this->getOption('default');
         return !$defaultServer || !$this->getOption("servers.$defaultServer") ?
-            '' : rq(Admin::class)->server($defaultServer);
+            '' : rq(Admin::class)->server($defaultServer) . ';';
     }
 
     /**
