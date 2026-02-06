@@ -34,9 +34,19 @@ class ServerConfig
      *
      * @param Config $config
      * @param ConfigReader $reader
+     * @param bool $authSetup
      */
-    public function __construct(protected readonly Config $config, private ConfigReader $reader)
+    public function __construct(protected readonly Config $config,
+        private ConfigReader $reader, private bool $authSetup)
     {}
+
+    /**
+     * @return bool
+     */
+    public function canSaveQuery(): bool
+    {
+        return $this->authSetup && $this->getAuditDatabase() !== null && $this->historyEnabled();
+    }
 
     /**
      * Get the value of a given package option

@@ -64,7 +64,10 @@ trait EditorTrait
         $navId = $this->queryUi->editorTabNavWrapperId();
         $nav = $this->queryUi->editorTabNavHtml();
         $contentId = $this->queryUi->editorTabContentWrapperId();
-        $content = $this->queryUi->editorTabContentHtml($this->rq($this->queryClass));
+
+        $content = $this->queryUi->canSaveQuery($this->config()->canSaveQuery())
+            ->editorTabContentHtml($this->rq($this->queryClass));
+
         $this->response()->jo('jaxon.dbadmin')->addTab($navId, $nav, $contentId, $content);
 
         $this->setupNewTab();

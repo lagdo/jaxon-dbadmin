@@ -34,7 +34,8 @@ trait QueryTrait
         $this->db()->setCurrentDbName($this->database);
         $this->db()->prepareCommand();
 
-        return $this->queryUi->command($this->rq(), $this->rq($this->editorClass));
+        return $this->queryUi->canSaveQuery($this->config()->canSaveQuery())
+            ->command($this->rq(), $this->rq($this->editorClass));
     }
 
     /**

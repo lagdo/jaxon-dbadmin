@@ -30,7 +30,8 @@ return [
                 $config = $di->getPackageConfig(Db\DbAdminPackage::class);
                 $reader = $di->get($config->getOption('config.reader',
                     Config\ConfigReader::class));
-                return new Config\ServerConfig($config, $reader);
+                $authSetup = $di->has(Config\AuthInterface::class);
+                return new Config\ServerConfig($config, $reader, $authSetup);
             },
             // The database driver used in the application
             Db\Driver\AppDriver::class => function(Container $di) {
@@ -59,8 +60,7 @@ return [
                 }
 
                 $serverConfig = $di->g(Config\ServerConfig::class);
-                $database = $serverConfig->getAuditDatabase();
-                if (!is_array($database)) {
+                if (!is_array($serverConfig->getAuditDatabase())) {
                     Logger::warning('Unable to connect to the audit database: no config options provided.');
                     return null;
                 }

@@ -27,6 +27,11 @@ class QueryUiBuilder
     private int $defaultLimit = 20;
 
     /**
+     * @var bool
+     */
+    private bool $canSaveQuery = false;
+
+    /**
      * @var string
      */
     private const QUERY_TEXT_CLASS = 'dbadmin-main-command-query';
@@ -39,6 +44,17 @@ class QueryUiBuilder
     public function __construct(protected Translator $trans,
         protected BuilderInterface $ui, protected ServerConfig $config)
     {}
+
+    /**
+     * @param bool $canSaveQuery
+     *
+     * @return self
+     */
+    public function canSaveQuery(bool $canSaveQuery): self
+    {
+        $this->canSaveQuery = $canSaveQuery;
+        return $this;
+    }
 
     /**
      * @return string
@@ -63,10 +79,12 @@ class QueryUiBuilder
                 $this->ui->text($this->trans->lang('Execute'))
             )->primary()
                 ->jxnClick($rqQuery->exec($queryText, $queryValues)),
-            $this->ui->button(
-                $this->ui->text($this->trans->lang('Save'))
-            )->secondary()
-                ->jxnClick(rq(Query\FavoriteFunc::class)->add($queryText))
+            $this->ui->when($this->canSaveQuery, fn() =>
+                $this->ui->button(
+                    $this->ui->text($this->trans->lang('Save'))
+                )->secondary()
+                    ->jxnClick(rq(Query\FavoriteFunc::class)->add($queryText))
+            )
         )->fullWidth();
     }
 
