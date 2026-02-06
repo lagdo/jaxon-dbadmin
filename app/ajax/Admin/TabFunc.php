@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin;
 
-use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\Ajax\Base\FuncComponent;
 use Lagdo\DbAdmin\Ui\TabApp;
@@ -19,11 +18,10 @@ class TabFunc extends FuncComponent
     /**
      * @return void
      */
-    #[After('showBreadcrumbs')]
     public function add(): void
     {
         // Get the last connected server.
-        [$server, ] = $this->getCurrentDb();
+        $server = $this->getCurrentDb()[0] ?? '';
 
         $name = TabApp::newId();
         $this->bag('dbadmin')->set('tab.app', $name);
@@ -39,7 +37,10 @@ class TabFunc extends FuncComponent
             $nav, 'dbadmin-server-tab-content', $content, TabApp::titleId());
 
         // Connect the new tab to the same last connected server.
-        $this->cl(Admin::class)->connect($server);
+        if ($server !== '') {
+            $this->cl(Admin::class)->connect($server);
+            $this->showBreadcrumbs();
+        }
     }
 
     /**
