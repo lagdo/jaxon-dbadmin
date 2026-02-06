@@ -6,6 +6,7 @@ use Lagdo\DbAdmin\Db\Config;
 use Lagdo\DbAdmin\Db\Service;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Ui;
+use Lagdo\Facades\Logger;
 use Lagdo\UiBuilder\Builder;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -52,11 +53,19 @@ return [
             },
             // Database options for audit
             'dbaudit_database_options' => function($di) {
+                if (!$di->has(Config\AuthInterface::class)) {
+                    Logger::warning('Unable to connect to the audit database: no auth interface provided.');
+                    return null;
+                }
+
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getAuditDatabase();
-                $options = $serverConfig->getAuditOptions();
-                return is_array($database) &&
-                    $di->h(Config\AuthInterface::class) ? $options : null;
+                if (!is_array($database)) {
+                    Logger::warning('Unable to connect to the audit database: no config options provided.');
+                    return null;
+                }
+
+                return $serverConfig->getAuditOptions();
             },
             // Connection to the audit database
             Service\Admin\ConnectionProxy::class => function(Container $di) {
@@ -101,7 +110,8 @@ return [
         ],
         'extend' => [
             BuilderInterface::class => function(BuilderInterface $builder): BuilderInterface {
-                $builder->registerHelper('tbn', Builder::TARGET_COMPONENT, Ui\TabApp::helper(...));
+                $builder->registerHelper('tbn', Builder::TARGET_COMPONENT,
+                    Ui\TabApp::helper(...));
                 return $builder;
             },
         ],

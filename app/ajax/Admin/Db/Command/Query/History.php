@@ -23,7 +23,7 @@ class History extends Component
      */
     public function html(): string
     {
-        $queries = !$this->queryHistory ? [] : $this->queryHistory->getQueries();
+        $queries = $this->queryHistory?->getQueries() ?? [];
         return $this->auditUi->history($queries);
     }
 }

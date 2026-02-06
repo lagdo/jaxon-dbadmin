@@ -21,7 +21,7 @@ class FavoritePage extends PageComponent
      */
     protected function limit(): int
     {
-        return $this->queryFavorite->getLimit();
+        return $this->queryFavorite?->getLimit() ?? 10;
     }
 
     /**
@@ -29,7 +29,7 @@ class FavoritePage extends PageComponent
      */
     protected function count(): int
     {
-        return $this->queryFavorite->getQueryCount([]);
+        return $this->queryFavorite?->getQueryCount([]) ?? 0;
     }
 
     /**
@@ -37,7 +37,7 @@ class FavoritePage extends PageComponent
      */
     public function html(): string
     {
-        $queries = $this->queryFavorite->getQueries([], $this->currentPage());
+        $queries = $this->queryFavorite?->getQueries([], $this->currentPage()) ?? [];
         return $this->auditUi->favorites($queries);
     }
 }
