@@ -15,12 +15,28 @@ use function is_string;
 class UserFileReader
 {
     /**
+     * @var string
+     */
+    private string $configFile;
+
+    /**
      * The constructor
      *
      * @param AuthInterface $auth
      */
     public function __construct(private AuthInterface $auth)
     {}
+
+    /**
+     * @param string $configFile
+     *
+     * @return self
+     */
+    public function config(string $configFile): self
+    {
+        $this->configFile = $configFile;
+        return $this;
+    }
 
     /**
      * @param array $options
@@ -80,15 +96,14 @@ class UserFileReader
     /**
      * Get the options for the authenticated user.
      *
-     * @param string $configFile
      * @param array $defaultOptions
      *
      * @return array
      */
-    public function getOptions(string $configFile, array $defaultOptions = []): array
+    public function getOptions(array $defaultOptions = []): array
     {
         // If the config file doesn't exists, return an empty array.
-        if (!is_file($configFile)) {
+        if (!is_file($this->configFile)) {
             return [];
         }
 
@@ -101,7 +116,7 @@ class UserFileReader
         $reader = new ConfigReader($setter);
         $userConfig = $setter->newConfig([$userKey => $defaultOptions]);
 
-        $config = $reader->load($setter->newConfig(), $configFile);
+        $config = $reader->load($setter->newConfig(), $this->configFile);
         $commonOptions = $config->getOption('common', null);
         if (is_array($commonOptions)) {
             $userConfig = $setter->setOptions($userConfig, $commonOptions, $userKey);
