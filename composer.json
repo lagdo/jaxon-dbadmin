@@ -27,7 +27,8 @@
         "lagdo/dbadmin-driver": "0.22.*",
         "lagdo/facades": "^1.1",
         "lagdo/jaxon-ui-builder": "0.6.*",
-        "lagdo/ui-builder": "0.6.*"
+        "lagdo/ui-builder": "0.6.*",
+        "infisical/php-sdk": "^0.0.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
@@ -48,6 +49,6 @@
             "Lagdo\\DbAdmin\\Tests\\": "tests/"
         }
     },
-    "minimum-stability": "stable",
-    "prefer-stable": false
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

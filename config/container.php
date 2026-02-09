@@ -1,5 +1,6 @@
 <?php
 
+use Infisical\SDK\InfisicalSDK;
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Db;
 use Lagdo\DbAdmin\Db\Config;
@@ -102,6 +103,23 @@ return [
         Config\ConfigReader::class => fn() => new Config\ConfigReader(),
         Config\UserFileReader::class => fn(Container $di) =>
             new Config\UserFileReader($di->g('dbadmin_auth_service')),
+        Config\InfisicalConfigReader::class => function(Container $di) {
+            $auth = $di->get(Config\AuthInterface::class);
+
+            $infisicalSdk = new InfisicalSDK(env('INFISICAL_SERVER_URL'));
+            $clientId = env('INFISICAL_MACHINE_CLIENT_ID');
+            $clientSecret = env('INFISICAL_MACHINE_CLIENT_SECRET');
+            // Authenticate on the Infisical server.
+            $infisicalSdk->auth()->universalAuth()->login($clientId, $clientSecret);
+            // Create the Infisical secrets service.
+            $secrets = $infisicalSdk->secrets();
+            $projectId = env('INFISICAL_PROJECT_ID');
+            $projectEnv = env('INFISICAL_PROJECT_ENV', 'dev');
+            $secretPath = env('INFISICAL_SECRET_PATH', '');
+
+            return new Config\InfisicalConfigReader($auth, $secrets,
+                $projectId, $projectEnv, $secretPath);
+        },
     ],
     'auto' => [
         // The translator
