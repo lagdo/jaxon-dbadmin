@@ -1,4 +1,4 @@
-create table dbadmin_owners (
+create table dbadmin_users (
     id serial primary key,
     username varchar(150) not null,
     unique(username)
@@ -11,8 +11,8 @@ create table dbadmin_runned_commands (
     options json not null,
     category smallint not null,
     last_update timestamp not null,
-    owner_id integer not null,
-    foreign key(owner_id) references dbadmin_owners(id)
+    user_id integer not null,
+    foreign key(user_id) references dbadmin_users(id)
 );
 
 create table dbadmin_stored_commands (
@@ -21,16 +21,16 @@ create table dbadmin_stored_commands (
     query text not null,
     driver varchar(30) not null,
     last_update timestamp not null,
-    owner_id integer not null,
-    foreign key(owner_id) references dbadmin_owners(id)
+    user_id integer not null,
+    foreign key(user_id) references dbadmin_users(id)
 );
 
 create table dbadmin_tags (
     id serial primary key,
     title varchar(150) not null,
-    owner_id integer not null,
-    unique(title, owner_id),
-    foreign key(owner_id) references dbadmin_owners(id)
+    user_id integer not null,
+    unique(title, user_id),
+    foreign key(user_id) references dbadmin_users(id)
 );
 
 create table dbadmin_command_tag (

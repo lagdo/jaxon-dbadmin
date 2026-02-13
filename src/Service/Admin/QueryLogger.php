@@ -59,7 +59,7 @@ class QueryLogger
     private function enduserDisabled(): bool
     {
         return (!$this->enduserEnabled && !$this->historyEnabled) ||
-            !$this->proxy->getOwnerId(true);
+            !$this->proxy->getUserId(true);
     }
 
     /**
@@ -95,12 +95,12 @@ class QueryLogger
             'options' => json_encode($this->userDatabase) ?? '{}',
             'category' => $category,
             'last_update' => $this->proxy->currentTime(),
-            'owner_id' => $this->proxy->getOwnerId(),
+            'user_id' => $this->proxy->getUserId(),
         ];
         // Duplicates on query are checked on client side, not here.
         $query = "INSERT INTO dbadmin_runned_commands
-(query,driver,options,category,last_update,owner_id)
-VALUES (:query,:driver,:options,:category,:last_update,:owner_id)";
+(query,driver,options,category,last_update,user_id)
+VALUES (:query,:driver,:options,:category,:last_update,:user_id)";
         $statement = $this->proxy->executeQuery($query, $values);
         if ($statement !== false) {
             return true;

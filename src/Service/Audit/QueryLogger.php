@@ -54,7 +54,7 @@ class QueryLogger
     {
         $clauses = [];
         if (isset($filters['username'])) {
-            $clauses[] = "o.username like '%{$filters['username']}%'";
+            $clauses[] = "u.username like '%{$filters['username']}%'";
         }
         if (isset($filters['category'])) {
             $clauses[] = "c.category={$filters['category']}";
@@ -79,7 +79,7 @@ class QueryLogger
     {
         $whereClause = $this->getWhereClause($filters);
         $statement = "SELECT count(*) AS c FROM dbadmin_runned_commands c
-INNER JOIN dbadmin_owners o ON c.owner_id=o.id $whereClause";
+INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause";
         $statement = $this->proxy->executeQuery($statement);
         return !$statement || !($row = $statement->fetchAssoc()) ? 0 : $row['c'];
     }
@@ -96,8 +96,8 @@ INNER JOIN dbadmin_owners o ON c.owner_id=o.id $whereClause";
         $offsetClause = $page > 1 ? 'OFFSET ' . ($page - 1) * $this->limit : '';
         // PostgreSQL doesn't allow the use of distinct and order by
         // a field not in the select clause in the same SQL query.
-        $statement = "SELECT c.*, o.username FROM dbadmin_runned_commands c
-INNER JOIN dbadmin_owners o ON c.owner_id=o.id $whereClause
+        $statement = "SELECT c.*, u.username FROM dbadmin_runned_commands c
+INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause
 ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";
         $statement = $this->proxy->executeQuery($statement);
         if ($statement !== false) {

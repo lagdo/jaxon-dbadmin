@@ -16,7 +16,7 @@ class ConnectionProxy extends Audit\ConnectionProxy
     /**
      * @var int|null
      */
-    private int|null $ownerId = null;
+    private int|null $userId = null;
 
     /**
      * The constructor
@@ -44,9 +44,9 @@ class ConnectionProxy extends Audit\ConnectionProxy
      *
      * @return int
      */
-    private function readOwnerId(string $username): int
+    private function readUserId(string $username): int
     {
-        $query = "SELECT id FROM dbadmin_owners WHERE username=:username LIMIT 1";
+        $query = "SELECT id FROM dbadmin_users WHERE username=:username LIMIT 1";
         $statement = $this->executeQuery($query, ['username' => $username]);
         return !$statement || !($row = $statement->fetchAssoc()) ? 0 : (int)$row['id'];
     }
@@ -56,16 +56,16 @@ class ConnectionProxy extends Audit\ConnectionProxy
      *
      * @return int
      */
-    private function newOwnerId(string $username): int
+    private function newUserId(string $username): int
     {
         // Try to save the user and return his id.
-        $query = "INSERT INTO dbadmin_owners(username) VALUES (:username)";
+        $query = "INSERT INTO dbadmin_users(username) VALUES (:username)";
         $statement = $this->executeQuery($query, ['username' => $username]);
         if ($statement !== false) {
-            return $this->readOwnerId($username);
+            return $this->readUserId($username);
         }
 
-        $this->logWarning('Unable to save new owner in the query audit database.');
+        $this->logWarning('Unable to save new user in the query audit database.');
         return 0;
     }
 
@@ -74,18 +74,18 @@ class ConnectionProxy extends Audit\ConnectionProxy
      *
      * @return int
      */
-    public function getOwnerId(bool $canCreate = true): int
+    public function getUserId(bool $canCreate = true): int
     {
         $user = $this->auth->user();
         if (!$this->connected() || !$user) {
             return 0;
         }
 
-        if ($this->ownerId !== null || ($this->ownerId = $this->readOwnerId($user)) > 0) {
-            return $this->ownerId;
+        if ($this->userId !== null || ($this->userId = $this->readUserId($user)) > 0) {
+            return $this->userId;
         }
 
-        // Try to create a new owner entry for the user.
-        return !$canCreate ? 0 : ($this->ownerId = $this->newOwnerId($user));
+        // Try to create a new user entry for the user.
+        return !$canCreate ? 0 : ($this->userId = $this->newUserId($user));
     }
 }

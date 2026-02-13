@@ -43,7 +43,7 @@ class QueryHistory
     public function getQueries(): array
     {
         if (!$this->historyEnabled ||
-            ($ownerId = $this->proxy->getOwnerId(false)) === 0) {
+            ($userId = $this->proxy->getUserId(false)) === 0) {
             return [];
         }
 
@@ -53,10 +53,10 @@ class QueryHistory
         $select = $this->historyDistinct && $this->proxy->jush() !== 'pgsql' ?
             'SELECT DISTINCT' : 'SELECT';
         $query = "$select driver,query FROM dbadmin_runned_commands c " .
-            "WHERE c.owner_id=:owner_id AND c.category=:category " .
+            "WHERE c.user_id=:user_id AND c.category=:category " .
             "ORDER BY c.last_update DESC LIMIT {$this->historyLimit}";
         $values = [
-            'owner_id' => $ownerId,
+            'user_id' => $userId,
             'category' => $category,
         ];
         $statement = $this->proxy->executeQuery($query, $values);

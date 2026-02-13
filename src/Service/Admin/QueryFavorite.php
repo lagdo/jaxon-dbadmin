@@ -47,10 +47,10 @@ class QueryFavorite
             'query' => $values['query'],
             'driver' => $values['driver'],
             'last_update' => $this->proxy->currentTime(),
-            'owner_id' => $this->proxy->getOwnerId(),
+            'user_id' => $this->proxy->getUserId(),
         ];
-        $sql = "INSERT INTO dbadmin_stored_commands (title,query,driver,last_update,owner_id)
-VALUES (:title,:query,:driver,:last_update,:owner_id)";
+        $sql = "INSERT INTO dbadmin_stored_commands (title,query,driver,last_update,user_id)
+VALUES (:title,:query,:driver,:last_update,:user_id)";
         $statement = $this->proxy->executeQuery($sql, $values);
         if ($statement !== false) {
             return true;
@@ -77,11 +77,11 @@ VALUES (:title,:query,:driver,:last_update,:owner_id)";
             'query' => $values['query'],
             'driver' => $values['driver'],
             'last_update' => $this->proxy->currentTime(),
-            'owner_id' => $this->proxy->getOwnerId(),
+            'user_id' => $this->proxy->getUserId(),
             'query_id' => $queryId,
         ];
         $sql = "UPDATE dbadmin_stored_commands SET title=:title,query=:query,
-driver=:driver,last_update=:last_update WHERE id=:query_id AND owner_id=:owner_id";
+driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id";
         $statement = $this->proxy->executeQuery($sql, $values);
         if ($statement !== false) {
             return true;
@@ -103,10 +103,10 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND owner_id=:owner_i
         }
 
         $values = [
-            'owner_id' => $this->proxy->getOwnerId(),
+            'user_id' => $this->proxy->getUserId(),
             'query_id' => $queryId,
         ];
-        $sql = "DELETE FROM dbadmin_stored_commands WHERE id=:query_id AND owner_id=:owner_id";
+        $sql = "DELETE FROM dbadmin_stored_commands WHERE id=:query_id AND user_id=:user_id";
         $statement = $this->proxy->executeQuery($sql, $values);
         if ($statement !== false) {
             return true;
@@ -132,9 +132,9 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND owner_id=:owner_i
     private function getWhereClause(array $filters): array
     {
         $values = [
-            'owner_id' => $this->proxy->getOwnerId(),
+            'user_id' => $this->proxy->getUserId(),
         ];
-        $clauses = ['c.owner_id=:owner_id'];
+        $clauses = ['c.user_id=:user_id'];
         if (isset($filters['title'])) {
             $values['title'] = "%{$filters['title']}%";
             $clauses[] = "c.title like :title";
@@ -215,9 +215,9 @@ ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";
 
         $values = [
             'query_id' => $queryId,
-            'owner_id' => $this->proxy->getOwnerId(),
+            'user_id' => $this->proxy->getUserId(),
         ];
-        $sql = "SELECT c.* FROM dbadmin_stored_commands c WHERE id=:query_id AND owner_id=:owner_id";
+        $sql = "SELECT c.* FROM dbadmin_stored_commands c WHERE id=:query_id AND user_id=:user_id";
         $statement = $this->proxy->executeQuery($sql, $values);
         return !$statement ? null : $statement->fetchAssoc();
     }
