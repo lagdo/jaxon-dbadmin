@@ -23,21 +23,22 @@ Here's the monorepo where the packages are developed: [https://github.com/lagdo/
 This application and the related packages are still being actively developed, and the provided features are still basic and need improvements.
 
 The following features are currently available:
-- Browse servers and databases.
+- Browse servers and databases in multiple tabs.
+- Open the query editor in multiple tabs, with query text retention.
+- Save and show the query history.
+- Save queries in user favorites.
+- Read database credentials with an extensible config reader.
+- Read database credentials from an [Infisical](https://infisical.com/) server.
 - Show tables and views details.
 - Query a table.
 - Query a view.
 - Execute queries in the query editor.
 - Use a better editor for SQL queries.
-- Save and show the query history.
-- Save queries in user favorites.
 - Import or export data.
 - Insert, modify or delete data in a table.
 - Create or drop a database.
 - Create or alter a table or view.
 - Drop a table or view.
-- Browse servers and databases in multiple tabs.
-- Open the query editor in multiple tabs, with query text retention.
 
 The following features are not yet implemented, and planned for future releases:
 - Save the current tabs in user preferences.
@@ -261,7 +262,7 @@ $dbAdminOptionsGetter = function(array $config) {
     ],
 ```
 
-### Audit queries
+### Audit logs
 
 Starting from version `0.17`, the queries executed by the users can be saved in a provided database.
 
@@ -277,7 +278,7 @@ The required options are provided under the `audit` key.
                 'audit' => [
                     'options' => [
                         'library' => [
-                            'enabled' =>false,
+                            'enabled' => false,
                         ],
                         'enduser' => [
                             'enabled' => true,
@@ -309,6 +310,111 @@ Depending on the database server, one of the scripts in the `migrations/pgsql`, 
 The `audit.options.enduser.enabled` option enables the audit on all the user queries, while the `audit.options.history.enabled` option enables the audit only for the queries executed in the query editor.
 
 The `audit.options.history.limit` option is the number of queries in the history, which defaults to `15`, and when the `audit.options.history.distinct` option is set to true, the history displays only distinct queries.
+
+### The DbAudit package
+
+Jaxon DbAdmin includes a second package which can be use to display the audit logs in another web page.
+The `Lagdo\DbAdmin\Db\DbAuditPackage` needs to be provided with the audit database connection parameters.
+
+```php
+    'app' => [
+        // Other config options
+        // ...
+        'packages' => [
+            Lagdo\DbAdmin\Db\DbAuditPackage::class => [
+                // ...
+                'database' => [
+                    // Same as the "servers" items, but "name" is the database name.
+                    'driver' => 'pgsql',
+                    'host' => '',
+                    'port' => 0,
+                    'username' => '',
+                    'password' => '',
+                    'name' => 'auditdb', // The database name
+                    'schema' => '', // Optionnally, the schema name
+                ],
+            ],
+        ],
+    ],
+```
+
+Generally, the access to the audit logs page will be reserved for a selected list of users.
+While the corresponding options can also be set here, their usage is out of the scope of the package.
+
+### The database config readers
+
+Jaxon DbAdmin uses an extensible `config reader` to read the database credentials.
+By default, the database credentials are stored in a `json`, `yaml` or `php` config file.
+Jaxon DbAdmin provides a [default `config reader`](https://github.com/lagdo/jaxon-dbadmin/blob/main/src/Config/ConfigReader.php) which is able to read these values, either from the config file content, or from environment variables.
+
+An alternative `config reader` can be specified in the package config options.
+Let say for example the `CustomConfigReader` class inherits from the default `config reader` and redefines some functions.
+The `DbAdminPackage` and `DbAuditPackage` can be configured to use it as their `config reader`.
+
+```php
+    'app' => [
+        // ...
+        'packages' => [
+            Lagdo\DbAdmin\Db\DbAdminPackage::class => [
+                // Read the database credentials with the custom config reader.
+                'config' => [
+                    'reader' => CustomConfigReader::class,
+                ],
+                // ...
+            ],
+            Lagdo\DbAdmin\Db\DbAuditPackage::class => [
+                // Read the database credentials with the custom config reader.
+                'config' => [
+                    'reader' => CustomConfigReader::class,
+                ],
+                // ...
+            ],
+        ],
+    ],
+```
+
+Jaxon DbAdmin includes a `config reader` for reading database credentials from an [Infisical server](https://infisical.com).
+The setup of the required `Secrets Management` project in the Infisical server is described here: [https://www.jaxon-php.org/blog/2026/01/secure-the-jaxon-dbadmin-database-credentials-with-infisical.html](https://www.jaxon-php.org/blog/2026/01/secure-the-jaxon-dbadmin-database-credentials-with-infisical.html).
+
+The Infisical `config reader` needs to be provided with a closure which returns the key where to find each secret in the server.
+
+```php
+use Lagdo\DbAdmin\Db\Config\AuthInterface;
+use Lagdo\DbAdmin\Db\Config\InfisicalConfigReader;
+
+$secretKetBuilder = function(string $prefix, string $option, AuthInterface $auth) {
+    // Select a secret key based on the authenticated user, and the option prefix and name.
+    return $secretKey;
+};
+$reader = jaxon()->di()->g(InfisicalConfigReader::class);
+$reader->setSecretKeyBuilder($secretKeyBuilder);
+```
+
+The packages can then be configured to use the Infisical `config reader`.
+
+```php
+use Lagdo\DbAdmin\Db\Config\InfisicalConfigReader;
+
+    'app' => [
+        // ...
+        'packages' => [
+            Lagdo\DbAdmin\Db\DbAdminPackage::class => [
+                // Read the database credentials with the custom config reader.
+                'config' => [
+                    'reader' => InfisicalConfigReader::class,
+                ],
+                // ...
+            ],
+            Lagdo\DbAdmin\Db\DbAuditPackage::class => [
+                // Read the database credentials with the custom config reader.
+                'config' => [
+                    'reader' => InfisicalConfigReader::class,
+                ],
+                // ...
+            ],
+        ],
+    ],
+```
 
 ### Data export
 
@@ -381,9 +487,11 @@ SQL files can be uploaded and executed on a server. This feature is implemented 
 ```php
     'app' => [
         'storage' => [
-            'uploads' => [
-                'adapter' => 'local',
-                'dir' => '/path/to/the/upload/dir',
+            'stores' => [
+                'uploads' => [
+                    'adapter' => 'local',
+                    'dir' => '/path/to/the/upload/dir',
+                ],
             ],
         ],
         'upload' => [
