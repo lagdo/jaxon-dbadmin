@@ -29,33 +29,33 @@ class InfisicalConfigReader extends ConfigReader
     /**
      * @param Closure $secretKeyBuilder
      *
-     * @return void
+     * @return self
      */
-    public function setSecretKeyBuilder(Closure $secretKeyBuilder): void
+    public function setSecretKeyBuilder(Closure $secretKeyBuilder): self
     {
         $this->secretKeyBuilder = $secretKeyBuilder;
+        return $this;
     }
 
     /**
+     * Query the Infisical server for a secret.
+     *
      * @param string $secretKey
      *
      * @return Secret
      */
     private function getSecret(string $secretKey): Secret
     {
-        $params = $this->secretPath === '' ?
-            new GetSecretParameters(
-                secretKey: $secretKey,
-                environment: $this->environment,
-                projectId: $this->projectId
-            ) :
-            new GetSecretParameters(
-                secretKey: $secretKey,
-                environment: $this->environment,
-                secretPath: $this->secretPath,
-                projectId: $this->projectId
-            );
-        return $this->secrets->get($params);
+        $params = [
+            'secretKey' => $secretKey,
+            'environment' => $this->environment,
+            'projectId' => $this->projectId,
+        ];
+        // Add the secretPath only if one is provided.
+        if ($this->secretPath !== '') {
+            $params['secretPath'] = $this->secretPath;
+        }
+        return $this->secrets->get(new GetSecretParameters(...$params));
     }
 
     /**
