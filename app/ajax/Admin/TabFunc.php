@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin;
 
 use Jaxon\Attributes\Attribute\Databag;
+use Jaxon\Attributes\Attribute\Exclude;
 use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\Ajax\Base\FuncComponent;
 use Lagdo\DbAdmin\Db\Service\Admin\Preference;
@@ -25,11 +26,9 @@ class TabFunc extends FuncComponent
     /**
      * @return void
      */
-    public function add(): void
+    #[Exclude]
+    public function createTab(string $title): void
     {
-        // Get the last connected server.
-        $server = $this->getCurrentDb()[0] ?? '';
-
         $name = TabApp::newId();
         $this->bag('dbadmin')->set('tab.app', $name);
 
@@ -38,12 +37,24 @@ class TabFunc extends FuncComponent
         $this->setBag('dbadmin.tab', 'editor.names.sv', []);
         $this->setBag('dbadmin.tab', 'editor.names.db', []);
 
-        $nav = $this->ui()->tabNavItemHtml($this->trans()->lang('(No title)'));
+        $nav = $this->ui()->tabNavItemHtml($title);
         $content = $this->ui()->tabContentItemHtml();
         $this->response()->jo('jaxon.dbadmin')->addTab('dbadmin-server-tab-nav',
             $nav, 'dbadmin-server-tab-content', $content, TabApp::titleId());
+    }
 
-        // Connect the new tab to the same last connected server.
+    /**
+     * @return void
+     */
+    public function add(): void
+    {
+        // Get the last connected server.
+        $server = $this->getCurrentDb()[0] ?? '';
+        $title = $this->trans()->lang('(No title)');
+
+        $this->createTab($title);
+
+        // Connect the new tab to the provided server.
         if ($server !== '') {
             $this->cl(Admin::class)->connect($server);
             $this->showBreadcrumbs();
@@ -81,24 +92,6 @@ class TabFunc extends FuncComponent
 
         // Set the first tab as the current.
         $this->bag('dbadmin')->set('tab.app', TabApp::zero());
-    }
-
-    /**
-     * @return string
-     */
-    private function getCurrentTitle(): string
-    {
-        return $this->getBag('dbadmin', 'title', '');
-    }
-
-    /**
-     * @param string $currentTitle
-     *
-     * @return void
-     */
-    private function setCurrentTitle(string $currentTitle): void
-    {
-        $this->setBag('dbadmin', 'title', $currentTitle);
     }
 
     /**
@@ -154,7 +147,7 @@ class TabFunc extends FuncComponent
                 'server' => $tab[0],
                 'database' => $tab[1] ?? '',
                 'schema' => $tab[2] ?? '',
-                'title' => $titles[$name] ?? $name,
+                'title' => $titles[$name] ?? '',
             ];
         }
 

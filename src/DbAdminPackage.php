@@ -13,7 +13,6 @@ use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\DbAdmin\Ui\TabEditor;
 use Lagdo\DbAdmin\Ui\UiBuilder;
 
-use function implode;
 use function realpath;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
@@ -34,11 +33,10 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public static function config(): string
     {
-        jaxon()->callback()->boot(function() {
-            $databag = jaxon()->di()->g(DatabagPlugin::class);
-            TabApp::$databag = $databag;
-            TabEditor::$databag = $databag;
-        });
+        $databag = jaxon()->di()->g(DatabagPlugin::class);
+        TabApp::$databag = $databag;
+        TabEditor::$databag = $databag;
+
         return realpath(__DIR__ . '/../config/dbadmin.php');
     }
 
@@ -79,22 +77,7 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getReadyScript(): string
     {
-        $codes = [];
-        // Toast library for the SQL editor.
-        $config = $this->getConfig();
-        if ($config->hasOption('toast.lib')) {
-            $lib = $config->getOption('toast.lib');
-            $codes[] = "jaxon.dbadmin.setToastLib('$lib')";
-        }
-
-        if ($config->hasOption('default')) {
-            $server = $this->getOption('default');
-            if ($config->hasOption("servers.$server")) {
-                $codes[] = rq(Admin::class)->server($server);
-            }
-        }
-
-        return '{' . implode('; ', $codes) . '}';
+        return '{' . rq(Admin::class)->start() . '}';
     }
 
     /**
@@ -104,8 +87,8 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function layout(): string
     {
-        $name = 'audit.user.preferences.enabled';
-        $preferencesEnabled = $this->getConfig()->getOption($name, false);
+        $preferencesEnabled = $this->getConfig()
+            ->getOption('audit.user.preferences.enabled', false);
         return $this->ui->admin((bool)$preferencesEnabled);
     }
 }

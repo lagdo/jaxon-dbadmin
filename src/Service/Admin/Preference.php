@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Service\Admin;
 
+use function array_values;
 use function count;
 use function json_encode;
 use function json_decode;
@@ -146,7 +147,7 @@ VALUES ('{}', :category, :last_update, :profile_id)";
         }
 
         $preference = $this->getAppPreference();
-        return $preference['content']['tabs'] ?? [];
+        return array_values($preference['content']['tabs'] ?? []);
     }
 
     /**

@@ -49,6 +49,18 @@ class ServerConfig
     }
 
     /**
+     * Check if a given package option is defined
+     *
+     * @param string $option    The option name
+     *
+     * @return bool
+     */
+    public function hasOption(string $option, $default = null): bool
+    {
+        return $this->config->hasOption($option);
+    }
+
+    /**
      * Get the value of a given package option
      *
      * @param string $option    The option name

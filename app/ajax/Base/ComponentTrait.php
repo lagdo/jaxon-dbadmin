@@ -179,6 +179,24 @@ trait ComponentTrait
     }
 
     /**
+     * @return string
+     */
+    protected function getCurrentTitle(): string
+    {
+        return $this->getBag('dbadmin', 'title', '');
+    }
+
+    /**
+     * @param string $currentTitle
+     *
+     * @return void
+     */
+    protected function setCurrentTitle(string $currentTitle): void
+    {
+        $this->setBag('dbadmin', 'title', $currentTitle);
+    }
+
+    /**
      * @param string $id
      *
      * @return string
