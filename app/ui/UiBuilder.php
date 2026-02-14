@@ -195,21 +195,32 @@ class UiBuilder
     /**
      * The DbAdmin layout
      *
+     * @param bool $preferencesEnabled
+     *
      * @return string
      */
-    public function admin(): string
+    public function admin(bool $preferencesEnabled): string
     {
+        $rqTab = rq(TabFunc::class);
         $menuEntries = [[
             'label' => '<i class="fa fa-plus"></i>',
-            'handler' => rq(TabFunc::class)->add(),
+            'handler' => $rqTab->add(),
         ], [
             'label' => $this->trans->lang('Title'),
-            'handler' => rq(TabFunc::class)->editTitle(),
+            'handler' => $rqTab->editTitle(),
         ], [
             'label' => $this->trans->lang('Delete'),
-            'handler' => rq(TabFunc::class)->del()
+            'handler' => $rqTab->del()
                 ->confirm($this->trans->lang('Delete the current tab?')),
         ]];
+        if ($preferencesEnabled) {
+            $menuEntries[] =  [
+                'label' => $this->trans->lang('Save tabs'),
+                'handler' => $rqTab->saveAppTabs()
+                    ->confirm($this->trans->lang('Save the current tabs in your preferences?')),
+            ];
+        }
+
         return $this->ui->build(
             $this->ui->div(
                 $this->ui->div(

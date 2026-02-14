@@ -3,7 +3,9 @@
 namespace Lagdo\DbAdmin\Ajax\Admin;
 
 use Jaxon\Attributes\Attribute\Databag;
+use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\Ajax\Base\FuncComponent;
+use Lagdo\DbAdmin\Db\Service\Admin\Preference;
 use Lagdo\DbAdmin\Ui\TabApp;
 
 use function array_filter;
@@ -15,6 +17,11 @@ use function trim;
 #[Databag('dbadmin.tab')]
 class TabFunc extends FuncComponent
 {
+    /**
+     * @var Preference
+     */
+    protected Preference $preference;
+
     /**
      * @return void
      */
@@ -131,5 +138,30 @@ class TabFunc extends FuncComponent
         $this->response()->html(TabApp::titleId(), $title);
 
         $this->modal()->hide();
+    }
+
+    /**
+     * @return void
+     */
+    #[Inject(attr: 'preference')]
+    public function saveAppTabs(): void
+    {
+        $dbadminBag = $this->bag('dbadmin');
+        $titles = $dbadminBag->get('title', []);
+        $tabs = [];
+        foreach ($dbadminBag->get('db', []) as $name => $tab) {
+            $tabs[$name] = [
+                'server' => $tab[0],
+                'database' => $tab[1] ?? '',
+                'schema' => $tab[2] ?? '',
+                'title' => $titles[$name] ?? $name,
+            ];
+        }
+
+        !$this->preference->saveAppTabs($tabs) ?
+            $this->alert()->title('Error')
+                ->error("Unable to save tabs in user preferences.") :
+            $this->alert()->title('Success')
+                ->success("The tabs are saved in user preferences.");
     }
 }

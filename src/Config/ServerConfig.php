@@ -269,4 +269,12 @@ class ServerConfig
     {
         return $this->getOption('audit.options.favorite.enabled', false);
     }
+
+    /**
+     * @return array
+     */
+    public function getUserOptions(): array
+    {
+        return $this->getOption('audit.user', []);
+    }
 }

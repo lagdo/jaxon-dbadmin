@@ -53,7 +53,7 @@ return [
                 return $driver;
             },
             // Database options for audit
-            'dbaudit_database_options' => function($di) {
+            'dbaudit_database_options' => function(Container $di) {
                 if (!$di->has(Config\AuthInterface::class)) {
                     Logger::warning('Unable to connect to the audit database: no auth interface provided.');
                     return null;
@@ -61,11 +61,25 @@ return [
 
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 if (!is_array($serverConfig->getAuditDatabase())) {
-                    Logger::warning('Unable to connect to the audit database: no config options provided.');
+                    Logger::warning('Unable to connect to the audit database: no database connection options provided.');
                     return null;
                 }
 
                 return $serverConfig->getAuditOptions();
+            },
+            'dbaudit_user_options' => function(Container $di) {
+                if (!$di->has(Config\AuthInterface::class)) {
+                    Logger::warning('Unable to get user preferences: no auth interface provided.');
+                    return null;
+                }
+
+                $serverConfig = $di->g(Config\ServerConfig::class);
+                if (!is_array($serverConfig->getAuditDatabase())) {
+                    Logger::warning('Unable to get user preferences: no database connection options provided.');
+                    return null;
+                }
+
+                return $serverConfig->getUserOptions();
             },
             // Connection to the audit database
             Service\Admin\ConnectionProxy::class => function(Container $di) {
@@ -106,6 +120,15 @@ return [
 
                 $proxy = $di->g(Service\Admin\ConnectionProxy::class);
                 return new Service\Admin\QueryFavorite($proxy, $options);
+            },
+            // User preferences
+            Service\Admin\Preference::class => function(Container $di) {
+                if (($options = $di->g('dbaudit_user_options')) === null) {
+                    return null;
+                }
+
+                $proxy = $di->g(Service\Admin\ConnectionProxy::class);
+                return new Service\Admin\Preference($proxy, $options);
             },
         ],
         'extend' => [
