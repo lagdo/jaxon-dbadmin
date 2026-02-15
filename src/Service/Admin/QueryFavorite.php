@@ -12,12 +12,12 @@ class QueryFavorite
     /**
      * @var bool
      */
-    private bool $enabled;
+    private bool $showFavorite;
 
     /**
      * @var int
      */
-    private int $limit;
+    private int $favoriteLimit;
 
     /**
      * The constructor
@@ -27,8 +27,8 @@ class QueryFavorite
      */
     public function __construct(private ConnectionProxy $proxy, array $options)
     {
-        $this->enabled = (bool)($options['enduser']['enabled'] ?? false);
-        $this->limit = (int)($options['enduser']['limit'] ?? 15);
+        $this->showFavorite = (bool)($options['favorite']['show'] ?? false);
+        $this->favoriteLimit = (int)($options['favorite']['limit'] ?? 15);
     }
 
     /**
@@ -38,7 +38,7 @@ class QueryFavorite
      */
     public function createQuery(array $values): bool
     {
-        if (!$this->enabled) {
+        if (!$this->showFavorite) {
             return false;
         }
 
@@ -68,7 +68,7 @@ VALUES (:title,:query,:driver,:last_update,:user_id)";
      */
     public function updateQuery(int $queryId, array $values): bool
     {
-        if (!$this->enabled) {
+        if (!$this->showFavorite) {
             return false;
         }
 
@@ -98,7 +98,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
      */
     public function deleteQuery(int $queryId): bool
     {
-        if (!$this->enabled) {
+        if (!$this->showFavorite) {
             return false;
         }
 
@@ -121,7 +121,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
      */
     public function getLimit(): int
     {
-        return $this->limit;
+        return $this->favoriteLimit;
     }
 
     /**
@@ -161,7 +161,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
      */
     public function getQueryCount(array $filters): int
     {
-        if (!$this->enabled) {
+        if (!$this->showFavorite) {
             return 0;
         }
 
@@ -179,16 +179,16 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
      */
     public function getQueries(array $filters, int $page): array
     {
-        if (!$this->enabled) {
+        if (!$this->showFavorite) {
             return [];
         }
 
         [$values, $whereClause] = $this->getWhereClause($filters);
-        $offsetClause = $page > 1 ? 'OFFSET ' . ($page - 1) * $this->limit : '';
+        $offsetClause = $page > 1 ? 'OFFSET ' . ($page - 1) * $this->favoriteLimit : '';
         // PostgreSQL doesn't allow the use of distinct and order by
         // a field not in the select clause in the same SQL query.
         $sql = "SELECT c.* FROM dbadmin_stored_commands c $whereClause
-ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";
+ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->favoriteLimit} $offsetClause";
         $statement = $this->proxy->executeQuery($sql, $values);
         if ($statement !== false) {
             $commands = [];
@@ -209,7 +209,7 @@ ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";
      */
     public function getQuery(int $queryId): ?array
     {
-        if (!$this->enabled) {
+        if (!$this->showFavorite) {
             return null;
         }
 

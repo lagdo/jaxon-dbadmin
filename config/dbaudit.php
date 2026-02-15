@@ -30,7 +30,7 @@ return [
                 $config = (new ConfigSetter())->newConfig([
                     'database' => $config->getOption('database'),
                     'options' => $config->getOption('options', []),
-                ], 'audit');
+                ], 'queries');
                 $authSetup = $di->has(Config\AuthInterface::class);
                 return new Config\ServerConfig($config, $reader, $authSetup);
             },
@@ -38,7 +38,7 @@ return [
             Service\Audit\ConnectionProxy::class => function(Container $di) {
                 /** @var Config\ServerConfig */
                 $serverConfig = $di->g(Config\ServerConfig::class);
-                $database = $serverConfig->getAuditDatabase();
+                $database = $serverConfig->getQueryDatabaseOptions();
                 $driver = Db\Driver\AppDriver::createDriver($di, $database);
                 return new Service\Audit\ConnectionProxy($driver, $database);
             },
@@ -46,12 +46,12 @@ return [
             Service\Audit\QueryLogger::class => function(Container $di) {
                 /** @var Config\ServerConfig */
                 $serverConfig = $di->g(Config\ServerConfig::class);
-                $database = $serverConfig->getAuditDatabase();
+                $database = $serverConfig->getQueryDatabaseOptions();
                 if ($database === null) {
                     return null;
                 }
 
-                $options = $serverConfig->getAuditOptions();
+                $options = $serverConfig->getQueryAuditOptions();
                 $proxy = $di->g(Service\Audit\ConnectionProxy::class);
                 return new Service\Audit\QueryLogger($proxy, $options);
             },

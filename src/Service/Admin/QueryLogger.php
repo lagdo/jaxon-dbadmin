@@ -12,54 +12,38 @@ use function json_encode;
 class QueryLogger
 {
     /**
-     * @var bool
+     * @var array<bool>
      */
-    private bool $enduserEnabled;
-
-    /**
-     * @var bool
-     */
-    private bool $historyEnabled;
-
-    /**
-     * @var array
-     */
-    private array $userDatabase;
+    private array $record;
 
     /**
      * @var int
      */
-    private int $category;
+    private int $category = Options::CAT_BUILDER;
 
     /**
      * The constructor
      *
      * @param ConnectionProxy $proxy
      * @param array $options
+     * @param array $database
      */
-    public function __construct(private ConnectionProxy $proxy, array $options)
+    public function __construct(private ConnectionProxy $proxy,
+        array $options, private array $database)
     {
-        $this->enduserEnabled = (bool)($options['enduser']['enabled'] ?? false);
-        $this->historyEnabled = (bool)($options['history']['enabled'] ?? false);
-        $this->category = Options::CAT_BUILDER;
-        $this->userDatabase = $options['database'];
+        $this->record = [
+            Options::CAT_LIBRARY => false, // (bool)($options['library']['enabled'] ?? false),
+            Options::CAT_BUILDER => (bool)($options['builder']['enabled'] ?? false),
+            Options::CAT_EDITOR => (bool)($options['editor']['enabled'] ?? false),
+        ];
     }
 
     /**
      * @return void
      */
-    public function setCategoryToHistory(): void
+    public function setCategoryToEditor(): void
     {
         $this->category = Options::CAT_EDITOR;
-    }
-
-    /**
-     * @return bool
-     */
-    private function enduserDisabled(): bool
-    {
-        return (!$this->enduserEnabled && !$this->historyEnabled) ||
-            !$this->proxy->getUserId(true);
     }
 
     /**
@@ -69,8 +53,7 @@ class QueryLogger
      */
     private function categoryDisabled(int $category): bool
     {
-        return (!$this->enduserEnabled && $category === Options::CAT_BUILDER) ||
-            ($category < Options::CAT_BUILDER || $category > Options::CAT_EDITOR);
+        return !($this->record[$category] ?? false);
     }
 
     /**
@@ -85,14 +68,14 @@ class QueryLogger
             return false;
         }
 
-        if (isset($this->userDatabase['password'])) {
+        if (isset($this->database['password'])) {
             // Hide the password.
-            $this->userDatabase['password'] = '';
+            $this->database['password'] = '';
         }
         $values = [
             'query' => $query,
-            'driver' => $this->userDatabase['driver'],
-            'options' => json_encode($this->userDatabase) ?? '{}',
+            'driver' => $this->database['driver'],
+            'options' => json_encode($this->database) ?? '{}',
             'category' => $category,
             'last_update' => $this->proxy->currentTime(),
             'user_id' => $this->proxy->getUserId(),
@@ -121,7 +104,6 @@ VALUES (:query,:driver,:options,:category,:last_update,:user_id)";
         // Reset to the default category.
         $this->category = Options::CAT_BUILDER;
 
-        return $this->enduserDisabled() ? false :
-            $this->saveRunnedCommand($query, $category);
+        return $this->saveRunnedCommand($query, $category);
     }
 }

@@ -12,7 +12,7 @@ class QueryHistory
     /**
      * @var bool
      */
-    private bool $historyEnabled;
+    private bool $showHistory;
 
     /**
      * @var bool
@@ -32,7 +32,7 @@ class QueryHistory
      */
     public function __construct(private ConnectionProxy $proxy, array $options)
     {
-        $this->historyEnabled = (bool)($options['history']['enabled'] ?? false);
+        $this->showHistory = (bool)($options['history']['show'] ?? false);
         $this->historyDistinct = (bool)($options['history']['distinct'] ?? false);
         $this->historyLimit = (int)($options['history']['limit'] ?? 15);
     }
@@ -42,8 +42,7 @@ class QueryHistory
      */
     public function getQueries(): array
     {
-        if (!$this->historyEnabled ||
-            ($userId = $this->proxy->getUserId(false)) === 0) {
+        if (!$this->showHistory || ($userId = $this->proxy->getUserId(false)) === 0) {
             return [];
         }
 

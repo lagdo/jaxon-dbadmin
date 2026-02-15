@@ -25,6 +25,7 @@ This application and the related packages are still being actively developed, an
 The following features are currently available:
 - Browse servers and databases in multiple tabs.
 - Open the query editor in multiple tabs, with query text retention.
+- Save the current tabs in user preferences.
 - Save and show the query history.
 - Save queries in user favorites.
 - Read database credentials with an extensible config reader.
@@ -41,7 +42,6 @@ The following features are currently available:
 - Drop a table or view.
 
 The following features are not yet implemented, and planned for future releases:
-- Save the current tabs in user preferences.
 - Navigate through related tables.
 - Code completion for table and field names in the SQL editor.
 - An advanced GUI-based query builder.
@@ -264,9 +264,9 @@ $dbConfigProvider = function(array $config) {
 
 ### Audit logs
 
-Starting from version `0.17`, the queries executed by the users can be saved in a provided database.
+The queries executed by the users can be saved in a provided database.
 
-The required options are provided under the `audit` key.
+The required options are provided under the `queries` key.
 
 ```php
     'app' => [
@@ -275,16 +275,23 @@ The required options are provided under the `audit` key.
         'packages' => [
             Lagdo\DbAdmin\Db\DbAdminPackage::class => [
                 // ...
-                'audit' => [
-                    'options' => [
-                        'library' => [
-                            'enabled' => false,
-                        ],
-                        'enduser' => [
+                'queries' => [
+                    'record' => [
+                        'builder' => [
                             'enabled' => true,
                         ],
+                        'editor' => [
+                            'enabled' => true,
+                        ],
+                    ],
+                    'admin' => [
                         'history' => [
-                            'enabled' => true,
+                            'show' => true,
+                            'distinct' => true,
+                            'limit' => 10,
+                        ],
+                        'favorite' => [
+                            'show' => true,
                             'limit' => 10,
                         ],
                     ],
@@ -304,12 +311,14 @@ The required options are provided under the `audit` key.
     ],
 ```
 
-The `audit.database` options identify the database where the queries are saved.
+The `queries.database` options identify the database where the queries are saved.
 Depending on the database server, one of the scripts in the `migrations/pgsql`, `migrations/mysql` or `migrations/sqlite` directories in this repository must be used to create the audit database.
 
-The `audit.options.enduser.enabled` option enables the audit on all the user queries, while the `audit.options.history.enabled` option enables the audit only for the queries executed in the query editor.
+The `queries.record` options indicate which queries are saved.
+Recording the queries executed in the query `builder` or the query `editor` can be enabled or disabled here.
 
-The `audit.options.history.limit` option is the number of queries in the history, which defaults to `15`, and when the `audit.options.history.distinct` option is set to true, the history displays only distinct queries.
+When the `queries.admin.history.show` and `queries.admin.favorite.show` options are set to true, the `History` and `Favorites`   tabs are displayed in the query editor page.
+When the query history is enabled, the `queries.admin.history.distinct` option enables the removal of duplicates in the listed queries, while the `queries.admin.history.limit` option sets the max number of queries for pagination.
 
 ### The DbAudit package
 
@@ -323,6 +332,9 @@ The `Lagdo\DbAdmin\Db\DbAuditPackage` needs to be provided with the audit databa
         'packages' => [
             Lagdo\DbAdmin\Db\DbAuditPackage::class => [
                 // ...
+                'audit' => [
+                    'enabled' => true,
+                ],
                 'database' => [
                     // Same as the "servers" items, but "name" is the database name.
                     'driver' => 'pgsql',

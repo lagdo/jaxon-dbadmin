@@ -15,7 +15,7 @@ class Preference
     /**
      * @var bool
      */
-    private bool $enabled;
+    private bool $preferencesEnabled;
 
     /**
      * The constructor
@@ -25,7 +25,7 @@ class Preference
      */
     public function __construct(private ConnectionProxy $proxy, array $options)
     {
-        $this->enabled = (bool)($options['preferences']['enabled'] ?? false);
+        $this->preferencesEnabled = (bool)($options['preferences']['enabled'] ?? false);
     }
 
     /**
@@ -142,7 +142,7 @@ VALUES ('{}', :category, :last_update, :profile_id)";
      */
     public function getAppTabs(): array
     {
-        if (!$this->enabled) {
+        if (!$this->preferencesEnabled) {
             return [];
         }
 
@@ -157,7 +157,7 @@ VALUES ('{}', :category, :last_update, :profile_id)";
      */
     public function saveAppTabs(array $tabs): bool
     {
-        if (!$this->enabled) {
+        if (!$this->preferencesEnabled) {
             return false;
         }
 

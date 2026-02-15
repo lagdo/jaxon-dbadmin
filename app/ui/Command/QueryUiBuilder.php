@@ -274,12 +274,12 @@ class QueryUiBuilder
                 )->setClass('jaxon-dbadmin-tabs-layout_button'),
                 $this->ui->col(
                     $this->ui->tabNav(
-                        $this->ui->when($this->config->favoriteEnabled(), fn() =>
+                        $this->ui->when($this->config->queryFavoriteEnabled(), fn() =>
                             $this->ui->tabNavItem($this->trans->lang('History'))
                                 ->target(TabEditor::id("tab-content-query-history"))
                                 ->active(false)
                         ),
-                        $this->ui->when($this->config->historyEnabled(), fn() =>
+                        $this->ui->when($this->config->queryHistoryEnabled(), fn() =>
                             $this->ui->tabNavItem($this->trans->lang('Favorites'))
                                 ->target(TabEditor::id("tab-content-query-favorite"))
                                 ->active(false)
@@ -290,12 +290,12 @@ class QueryUiBuilder
                 )->setClass('jaxon-dbadmin-tabs-layout_header')
             )->setClass('jaxon-dbadmin-tabs-layout'),
             $this->ui->tabContent(
-                $this->ui->when($this->config->favoriteEnabled(), fn() =>
+                $this->ui->when($this->config->queryFavoriteEnabled(), fn() =>
                     $this->ui->tabContentItem()
                         ->tbnBindApp(rq(Query\History::class))
                         ->setId(TabEditor::id("tab-content-query-history"))
                         ->active(false)),
-                $this->ui->when($this->config->historyEnabled(), fn() =>
+                $this->ui->when($this->config->queryHistoryEnabled(), fn() =>
                     $this->ui->tabContentItem()
                         ->tbnBindApp(rq(Query\Favorite::class))
                         ->setId(TabEditor::id("tab-content-query-favorite"))

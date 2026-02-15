@@ -175,7 +175,7 @@ class CommandFacade extends AbstractFacade
     private function executeCommand(QueryDto $queryDto): bool
     {
         if ($this->queryLogger !== null) {
-            $this->queryLogger->setCategoryToHistory();
+            $this->queryLogger->setCategoryToEditor();
         }
         $this->timer->start();
         //! Don't allow changing of character_set_results, convert encoding of displayed query

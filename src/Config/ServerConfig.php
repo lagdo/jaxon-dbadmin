@@ -43,9 +43,20 @@ class ServerConfig
     /**
      * @return bool
      */
+    public function queryRecordEnabled(): bool
+    {
+        return $this->getOption('queries.record.editor.enabled', false) ||
+            $this->getOption('queries.record.builder.enabled', false)/* ||
+            $this->getOption('queries.record.library.enabled', false)*/;
+    }
+
+    /**
+     * @return bool
+     */
     public function canSaveQuery(): bool
     {
-        return $this->authSetup && $this->getAuditDatabase() !== null && $this->historyEnabled();
+        return $this->authSetup && $this->queryRecordEnabled() &&
+            $this->getQueryDatabaseOptions() !== null;
     }
 
     /**
@@ -55,7 +66,7 @@ class ServerConfig
      *
      * @return bool
      */
-    public function hasOption(string $option, $default = null): bool
+    public function hasOption(string $option): bool
     {
         return $this->config->hasOption($option);
     }
@@ -245,48 +256,56 @@ class ServerConfig
     /**
      * @return bool
      */
-    public function hasAuditDatabase(): bool
+    public function hasQueryDatabaseOptions(): bool
     {
-        return $this->hasDbServer('audit.database');
+        return $this->hasDbServer('queries.database');
     }
 
     /**
      * @return array|null
      */
-    public function getAuditDatabase(): array|null
+    public function getQueryDatabaseOptions(): array|null
     {
-        return $this->hasAuditDatabase() ? $this->readConfig('audit.database') : null;
+        return $this->hasQueryDatabaseOptions() ? $this->readConfig('queries.database') : null;
     }
 
     /**
      * @return array
      */
-    public function getAuditOptions(): array
+    public function getQueryRecordOptions(): array
     {
-        return $this->getOption('audit.options', []);
-    }
-
-    /**
-     * @return bool
-     */
-    public function historyEnabled(): bool
-    {
-        return $this->getOption('audit.options.history.enabled', false);
-    }
-
-    /**
-     * @return bool
-     */
-    public function favoriteEnabled(): bool
-    {
-        return $this->getOption('audit.options.favorite.enabled', false);
+        return $this->getOption('queries.record', []);
     }
 
     /**
      * @return array
      */
-    public function getUserOptions(): array
+    public function getQueryAuditOptions(): array
     {
-        return $this->getOption('audit.user', []);
+        return $this->getOption('queries.audit', []);
+    }
+
+    /**
+     * @return array
+     */
+    public function getQueryAdminOptions(): array
+    {
+        return $this->getOption('queries.admin', []);
+    }
+
+    /**
+     * @return bool
+     */
+    public function queryHistoryEnabled(): bool
+    {
+        return $this->getOption('queries.admin.history.show', false);
+    }
+
+    /**
+     * @return bool
+     */
+    public function queryFavoriteEnabled(): bool
+    {
+        return $this->getOption('queries.admin.favorite.show', false);
     }
 }

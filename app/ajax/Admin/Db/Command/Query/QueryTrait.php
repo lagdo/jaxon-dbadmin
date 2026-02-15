@@ -53,11 +53,11 @@ trait QueryTrait
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 
-        if ($this->config()->hasAuditDatabase()) {
-            if ($this->config()->historyEnabled()) {
+        if ($this->config()->hasQueryDatabaseOptions()) {
+            if ($this->config()->queryHistoryEnabled()) {
                 $this->cl(History::class)->render();
             }
-            if ($this->config()->favoriteEnabled()) {
+            if ($this->config()->queryFavoriteEnabled()) {
                 $this->cl(Favorite::class)->render();
             }
         }
