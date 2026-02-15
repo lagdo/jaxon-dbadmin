@@ -100,9 +100,9 @@ return [
                         return '';
                     }
                 },
+        Config\ConfigProvider::class => fn(Container $di) =>
+            new Config\ConfigProvider($di->g('dbadmin_auth_service')),
         Config\ConfigReader::class => fn() => new Config\ConfigReader(),
-        Config\UserFileReader::class => fn(Container $di) =>
-            new Config\UserFileReader($di->g('dbadmin_auth_service')),
         Config\InfisicalConfigReader::class => function(Container $di) {
             $auth = $di->get(Config\AuthInterface::class);
 

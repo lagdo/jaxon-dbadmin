@@ -223,7 +223,7 @@ In this case, the `provider` option can be used to define a callable that return
 The defined options are passed to the callable, so it can be used as a basis to build the customized config.
 
 ```php
-$dbAdminOptionsGetter = function(array $config) {
+$dbConfigProvider = function(array $config) {
     $config['servers']['server_mysql'] = [
         'driver' => 'mysql',
         'name' => '',     // The name to be displayed in the dashboard UI.
@@ -251,7 +251,7 @@ $dbAdminOptionsGetter = function(array $config) {
         'packages' => [
             Lagdo\DbAdmin\Db\DbAdminPackage::class => [
                 // A callable that return the access options.
-                'provider' => $dbAdminOptionsGetter,
+                'provider' => $dbConfigProvider,
                 'servers' => [],
                 'default' => 'server_mysql',
                 'access' => [

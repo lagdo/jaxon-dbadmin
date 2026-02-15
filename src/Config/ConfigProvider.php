@@ -12,7 +12,7 @@ use function is_array;
 use function is_file;
 use function is_string;
 
-class UserFileReader
+class ConfigProvider
 {
     /**
      * @var string
