@@ -80,18 +80,15 @@ class CommandFacade extends AbstractFacade
         $values = [];
         foreach ($row as $key => $value) {
             // $link = $this->editLink($val);
-            if ($value === null) {
-                $value = '<i>NULL</i>';
-            } elseif (isset($blobs[$key]) && $blobs[$key] && !$this->utils->str->isUtf8($value)) {
+            $values[$key] = match(true) {
+                $value === null => '<i>NULL</i>',
                 //! link to download
-                $value = '<i>' . $this->utils->trans->lang('%d byte(s)', strlen($value)) . '</i>';
-            } else {
-                $value = $this->utils->str->html($value);
-                if (isset($types[$key]) && $types[$key] == 254) { // 254 - char
-                    $value = "<code>$value</code>";
-                }
-            }
-            $values[$key] = $value;
+                isset($blobs[$key]) && $blobs[$key] && !$this->utils->str->isUtf8($value) =>
+                    '<i>' . $this->utils->trans->lang('%d byte(s)', strlen($value)) . '</i>',
+                isset($types[$key]) && $types[$key] == 254 =>
+                    '<code>' . $this->utils->str->html($value) . '</code>',
+                default => $this->utils->str->html($value),
+            };
         }
         return $values;
     }
@@ -254,16 +251,19 @@ class CommandFacade extends AbstractFacade
             }
         }
 
-        $messages = [];
-        if ($commands === 0) {
-            $messages[] = $this->utils->trans->lang('No commands to execute.');
-        } elseif ($onlyErrors) {
-            $messages[] =  $this->utils->trans->lang('%d query(s) executed OK.', $commands - $errors);
-        }
+        $messages = match(true) {
+            $commands === 0 => [
+                'message' => $this->utils->trans->lang('No commands to execute.'),
+            ],
+            $onlyErrors => [
+                'message' => $this->utils->trans->lang('%d query(s) executed OK.', $commands - $errors),
+            ],
+            default => [],
+        };
         return [
-            'results' => $this->results,
-            'messages' => $messages,
+            ...$messages,
             'duration' => $this->duration,
+            'results' => $this->results,
         ];
     }
 }

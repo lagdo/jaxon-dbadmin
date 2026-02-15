@@ -2,9 +2,10 @@
 
 namespace Lagdo\DbAdmin\Ui\Command;
 
+use function array_slice;
 use function count;
 
-trait QueryResultsTrait
+trait QueryResultTrait
 {
     /**
      * @param array $results
@@ -13,13 +14,32 @@ trait QueryResultsTrait
      */
     public function results(array $results): string
     {
+        $truncatedResults = $results['results'];
+        $truncatedMessage = $this->trans->lang('Showing the %d first entries in the results.', 20);
+        $resultsAreTruncated = false;
+        if (count($results['results']) > 12) {
+            $truncatedResults = array_slice($results['results'], 0, 10);
+            $resultsAreTruncated = true;
+        }
+
         return $this->ui->build(
-            $this->ui->each($results, function($result) {
+            $this->ui->when(isset($results['message']), fn() =>
+                $this->ui->panel(
+                    $this->ui->panelBody($this->ui->span($results['message']))
+                        ->setStyle('padding:5px 15px')
+                )->look('info')
+            ),
+            $this->ui->when($resultsAreTruncated, fn() =>
+                $this->ui->panel(
+                    $this->ui->panelBody($this->ui->span($truncatedMessage))
+                        ->setStyle('padding:5px 15px')
+                )->look('info')
+            ),
+            $this->ui->each($truncatedResults, function($result) {
                 $query = $result['query'];
                 $messages = $result['messages'];
                 $errors = $result['errors'];
-                // Data returned by select queries.
-                $select = $result['select'] ?? [];
+                $select = $result['select'] ?? []; // Data returned by select queries.
 
                 return $this->ui->row(
                     $this->ui->col(
@@ -27,9 +47,7 @@ trait QueryResultsTrait
                             $this->ui->panel(
                                 $this->ui->panelHeader($this->ui->text($query)),
                                 $this->ui->panelBody(
-                                    $this->ui->each($errors, fn($error) =>
-                                        $this->ui->span($error)
-                                    )
+                                    $this->ui->each($errors, $this->ui->span(...))
                                 )->setStyle('padding:5px 15px')
                             )->look('danger')
                         ),
@@ -37,9 +55,7 @@ trait QueryResultsTrait
                             $this->ui->panel(
                                 $this->ui->panelHeader($this->ui->text($query)),
                                 $this->ui->panelBody(
-                                    $this->ui->each($messages, fn($message) =>
-                                        $this->ui->span($message)
-                                    )
+                                    $this->ui->each($messages, $this->ui->span(...))
                                 )->setStyle('padding:5px 15px')
                             )->look('success')
                         ),

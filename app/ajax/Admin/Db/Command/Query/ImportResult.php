@@ -4,16 +4,16 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query;
 
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\Base\Component;
+use Lagdo\DbAdmin\Ajax\Base\Duration;
 use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
-use Lagdo\DbAdmin\Ui\TabEditor;
 
 #[Exclude]
-class ResultSet extends Component
+class ImportResult extends Component
 {
     /**
      * @var array
      */
-    private array $results;
+    protected array $results;
 
     /**
      * The constructor
@@ -24,15 +24,11 @@ class ResultSet extends Component
     {}
 
     /**
-     * @inheritDoc
+     * @return Duration
      */
-    protected function setupComponent(): void
+    protected function duration(): Duration
     {
-        // Customize the item ids.
-        $this->helper()->extend('item', TabEditor::item(...));
-        // By default, set an id for the component.
-        // This will trigger a call to the above extension.
-        $this->item('');
+        return $this->cl(ImportDuration::class)->item('upload');
     }
 
     /**
@@ -40,7 +36,7 @@ class ResultSet extends Component
      */
     public function html(): string
     {
-        return $this->queryUi->results($this->results['results']);
+        return $this->queryUi->results($this->results);
     }
 
     /**
@@ -49,7 +45,7 @@ class ResultSet extends Component
     protected function after(): void
     {
         $this->cl(History::class)->render();
-        $this->cl(Duration::class)->update($this->results['duration']);
+        $this->duration()->update($this->results['duration']);
     }
 
     /**
@@ -57,11 +53,11 @@ class ResultSet extends Component
      *
      * @param array $results
      *
-     * @return self
+     * @return void
      */
-    public function results(array $results): self
+    public function results(array $results): void
     {
         $this->results = $results;
-        return $this;
+        $this->render();
     }
 }

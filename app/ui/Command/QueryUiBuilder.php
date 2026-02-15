@@ -19,7 +19,7 @@ use function Jaxon\rq;
 class QueryUiBuilder
 {
     use PageTrait;
-    use QueryResultsTrait;
+    use QueryResultTrait;
 
     /**
      * @var int
@@ -125,16 +125,15 @@ class QueryUiBuilder
                         $this->ui->checkbox()
                             ->setName('only_errors')
                     )
-                ) ->width(3),
+                )->width(3),
                 $this->ui->col(
                     $this->ui->row(
                         $this->ui->col(
                             $this->queryButtons($rqQuery)
-                        )
-                        ->width(8),
+                        )->width(8),
                         $this->ui->col()
                             ->width(4)
-                            ->tbnBindEditor(rq(Query\Duration::class))
+                            ->tbnBindEditor(rq(Query\QueryDuration::class))
                     )
                 )->width(4)
             )
@@ -215,7 +214,7 @@ class QueryUiBuilder
                         )->width(12),
                         $this->ui->col()
                             ->width(12)
-                            ->tbnBindEditor(rq(Query\ResultSet::class))
+                            ->tbnBindEditor(rq(Query\QueryResult::class))
                     )
                 )->setId(TabEditor::wrapperId())
                     ->active($active);

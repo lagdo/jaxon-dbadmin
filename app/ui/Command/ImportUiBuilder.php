@@ -13,7 +13,7 @@ use function Jaxon\jq;
 
 class ImportUiBuilder
 {
-    use QueryResultsTrait;
+    use QueryResultTrait;
 
     /**
      * @param Translator $trans
@@ -85,10 +85,8 @@ class ImportUiBuilder
                                 ->setStyle('display:none;'),
                             $this->ui->input()
                                 ->setType('text')->setReadonly('readonly')
-                        )
-                        ->setId($this->filesDivId())
-                    )
-                    ->width(12)
+                        )->setId($this->filesDivId())
+                    )->width(12)
                 )
             ),
             $this->ui->row(
@@ -96,8 +94,10 @@ class ImportUiBuilder
                     $this->ui->button($this->ui->text($this->trans->lang('Execute')))
                         ->fullWidth()->primary()
                         ->jxnClick($handler)
-                )
-                ->width(4)
+                )->width(4),
+                $this->ui->col()
+                    ->width(4)
+                    ->tbnBindApp(rq(Query\ImportDuration::class), 'upload')
             ),
         );
     }
@@ -114,12 +114,10 @@ class ImportUiBuilder
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->label($this->trans->lang('From server'))
-                )
-                ->width(4),
+                )->width(4),
                 $this->ui->col(
                     $this->ui->span($this->ui->text($this->trans->lang('Webserver file %s', '')))
-                )
-                ->width(8)
+                )->width(8)
             ),
             $this->ui->row(
                 $this->ui->col(
@@ -127,16 +125,17 @@ class ImportUiBuilder
                         ->setType('text')
                         ->setValue($contents['path'])
                         ->setReadonly('readonly')
-                )
-                ->width(12)
+                )->width(12)
             ),
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->button($this->ui->text($this->trans->lang('Run file')))
                         ->fullWidth()->primary()
                         ->jxnClick($handler)
-                )
-                ->width(4)
+                )->width(4),
+                $this->ui->col()
+                    ->width(4)
+                    ->tbnBindApp(rq(Query\ImportDuration::class), 'server')
             ),
         );
     }
@@ -160,8 +159,7 @@ class ImportUiBuilder
                         $this->ui->checkbox()
                             ->setName('error_stops')
                     )
-                )
-                ->width(3),
+                )->width(3),
                 $this->ui->col(
                     $this->ui->inputGroup(
                         $this->ui->label(
@@ -170,8 +168,7 @@ class ImportUiBuilder
                         $this->ui->checkbox()
                             ->setName('only_errors')
                     )
-                )
-                ->width(3),
+                )->width(3),
             )
         );
     }
@@ -204,7 +201,7 @@ class ImportUiBuilder
                 )->width(12),
                 $this->ui->col()
                     ->width(12)
-                    ->tbnBindApp(rq(Query\ResultSet::class))
+                    ->tbnBindApp(rq(Query\ImportResult::class))
             )
         );
     }
