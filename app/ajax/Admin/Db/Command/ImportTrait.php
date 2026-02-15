@@ -3,13 +3,10 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Command;
 
 use Jaxon\Attributes\Attribute\Before;
+use Jaxon\Attributes\Attribute\Callback;
 use Jaxon\Attributes\Attribute\Upload;
-use Jaxon\Request\Upload\FileInterface;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\Ui\Command\ImportUiBuilder;
-
-use function array_map;
-use function implode;
 
 trait ImportTrait
 {
@@ -53,24 +50,13 @@ trait ImportTrait
     {}
 
     /**
-     * @param array<FileInterface> $files
-     * @param bool $decompress
-     *
-     * @return string
-     */
-    private function readQueries(array $files, bool $decompress = false): string
-    {
-        $cbReadFile = fn($file) => $file->filesystem()->read($file->path());
-        return implode("\n\n", array_map($cbReadFile, $files));
-    }
-
-    /**
      * Run a webfile
      *
      * @param array $formValues
      *
      * @return void
      */
+    #[Callback('jaxon.dbadmin.upload')]
     #[Upload('dbadmin-import-sql-files-input')]
     public function executeSqlFiles(array $formValues): void
     {

@@ -570,7 +570,7 @@ class ExportFacade extends AbstractFacade
      */
     private function dumpUseDatabaseQuery(string $database): void
     {
-        $style = $this->options['db_style'];
+        $style = $this->options['db_style'] ?? '';
         if ($style === '' || !preg_match('~sql~', $this->options['format'])) {
             return;
         }

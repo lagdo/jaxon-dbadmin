@@ -29,9 +29,6 @@ class TableHeader
     {
         $tabs = [
             'fields' => $this->utils->trans->lang('Columns'),
-            // 'indexes' => $this->utils->trans->lang('Indexes'),
-            // 'foreign-keys' => $this->utils->trans->lang('Foreign keys'),
-            // 'triggers' => $this->utils->trans->lang('Triggers'),
         ];
         if ($this->driver->isView($status)) {
             if ($this->driver->support('view_trigger')) {

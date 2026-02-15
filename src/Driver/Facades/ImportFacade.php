@@ -64,7 +64,7 @@ class ImportFacade extends CommandFacade
      */
     public function executeSqlFiles(array $files, bool $errorStops, bool $onlyErrors): array
     {
-        $queries = array_map(fn($file) => $this->readFile($file), $files);
+        $queries = array_map($this->readFile(...), $files);
         $queries = implode("\n\n", $queries);
         return $this->executeCommands($queries, 0, $errorStops, $onlyErrors);
     }

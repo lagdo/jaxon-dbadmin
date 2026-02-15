@@ -186,19 +186,20 @@ class SelectQuery
         $col = $value['col'];
         $prefix = '';
         if ($op === 'FIND_IN_SET') {
-            $prefix = $op .'(' . $this->driver->quote($value['val']) . ', ';
+            $quotedValue = $this->driver->quote($value['val']);
+            $prefix = "{$op}({$quotedValue}, ";
         }
         $condition = $this->getWhereCondition($value, $fields);
         if ($col !== '') {
             return $prefix . $this->driver->convertSearch($this->driver->escapeId($col),
-                    $value, $fields[$col]) . $condition;
+                $value, $fields[$col]) . $condition;
         }
         // find anywhere
         $clauses = [];
         foreach ($fields as $name => $field) {
             if ($this->selectFieldIsValid($field, $value)) {
                 $clauses[] = $prefix . $this->driver->convertSearch($this->driver->escapeId($name),
-                        $value, $field) . $condition;
+                    $value, $field) . $condition;
             }
         }
 
@@ -213,16 +214,15 @@ class SelectQuery
      */
     private function getMatchExpression(IndexDto $index, int $i): string
     {
-        $columns = array_map(function ($column) {
-            return $this->driver->escapeId($column);
-        }, $index->columns);
+        $columns = array_map($this->driver->escapeId(...), $index->columns);
         $fulltext = $this->utils->input->values['fulltext'][$i] ?? '';
         $match = $this->driver->quote($fulltext);
         if (isset($this->utils->input->values['boolean'][$i])) {
             $match .= ' IN BOOLEAN MODE';
         }
 
-        return 'MATCH (' . implode(', ', $columns) . ') AGAINST (' . $match . ')';
+        $columns = implode(', ', $columns);
+        return "MATCH ($columns) AGAINST ($match)";
     }
 
     /**
