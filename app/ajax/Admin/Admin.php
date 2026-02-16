@@ -18,9 +18,9 @@ use function count;
 class Admin extends FuncComponent
 {
     /**
-     * @var Preference
+     * @var Preference|null
      */
-    protected Preference $preference;
+    protected Preference|null $preference;
 
     /**
      * Connect to a database server.
@@ -84,8 +84,10 @@ class Admin extends FuncComponent
      */
     private function getSavedAppTabs(): array
     {
-        return array_filter($this->preference->getAppTabs(), fn(array $tab) =>
-            $this->config->hasOption('servers.' . $tab['server']));
+        // The preference service can be null.
+        return !$this->preference ? [] :
+            array_filter($this->preference->getAppTabs(), fn(array $tab) =>
+                $this->config->hasOption('servers.' . $tab['server']));
     }
 
     /**
