@@ -26,10 +26,10 @@ return [
                 $config = $di->getPackageConfig(Db\DbAuditPackage::class);
                 $reader = $di->get($config->getOption('config.reader',
                     Config\ConfigReader::class));
-                // Move the options under the "audit" key. Needed by the ServerConfig class.
+                // Move the options under the "queries" key. Needed by the ServerConfig class.
                 $config = (new ConfigSetter())->newConfig([
                     'database' => $config->getOption('database'),
-                    'options' => $config->getOption('options', []),
+                    'audit' => $config->getOption('audit', []),
                 ], 'queries');
                 $authSetup = $di->has(Config\AuthInterface::class);
                 return new Config\ServerConfig($config, $reader, $authSetup);
