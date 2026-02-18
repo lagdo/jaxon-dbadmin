@@ -11,11 +11,6 @@ use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
 class Databases extends MainComponent
 {
     /**
-     * @var array
-     */
-    private $pageContent;
-
-    /**
      * @inheritDoc
      */
     protected function before(): void
@@ -38,7 +33,7 @@ class Databases extends MainComponent
     public function html(): string
     {
         // Add checkboxes to database table
-        return $this->ui()->pageContent($this->pageContent, 'database');
+        return $this->ui()->pageContent($this->get('content'), 'database');
     }
 
     /**
@@ -51,12 +46,14 @@ class Databases extends MainComponent
     {
         // Access to servers is forbidden. Show the first database.
         $systemAccess = $this->config()->getOption('access.system', false);
-        $this->pageContent = $this->db()->getDatabases($systemAccess);
+        $pageContent = $this->db()->getDatabases($systemAccess);
         // Set the database dropdown list
-        $this->cl(MenuDatabases::class)->showDatabases($this->pageContent['databases']);
+        $this->cl(MenuDatabases::class)
+            ->set('databases', $pageContent['databases'])
+            ->render();
 
         // Add links, classes and data values to database names.
-        foreach($this->pageContent['details'] as &$detail) {
+        foreach($pageContent['details'] as &$detail) {
             $databaseName = $detail['name'];
             $detail['menu'] = $this->ui()->tableMenu([[
                 'label' => $this->trans->lang('Show'),
@@ -68,6 +65,7 @@ class Databases extends MainComponent
             ]]);
         }
 
+        $this->set('content', $pageContent);
         $this->render();
 
         // Set onclick handlers on table checkbox

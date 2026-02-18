@@ -16,11 +16,6 @@ class ResultSet extends PageComponent
     use RowMenuTrait;
 
     /**
-     * @var float|null
-     */
-    private float|null $duration;
-
-    /**
      * The constructor
      *
      * @param ResultUiBuilder   $resultUi   The HTML UI builder
@@ -89,11 +84,11 @@ class ResultSet extends PageComponent
 
         // The 'message' key is set when an error occurs, or when the query returns no data.
         if (isset($results['message'])) {
-            $this->duration = null;
+            $this->set('duration', null);
             return $results['message'];
         }
 
-        $this->duration = $results['duration'];
+        $this->set('duration', $results['duration']);
 
         return $this->resultUi->resultSet($results['headers'], $this->rows($results));
     }
@@ -104,6 +99,6 @@ class ResultSet extends PageComponent
     protected function after(): void
     {
         $this->cl(QueryText::class)->refresh();
-        $this->cl(Duration::class)->update($this->duration);
+        $this->cl(Duration::class)->update($this->get('duration'));
     }
 }

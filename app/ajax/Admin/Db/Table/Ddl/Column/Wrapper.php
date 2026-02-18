@@ -17,11 +17,6 @@ use function array_map;
 class Wrapper extends Component
 {
     /**
-     * @var array
-     */
-    private $metadata;
-
-    /**
      * @var array<ColumnInputDto>
      */
     private $columns;
@@ -53,7 +48,7 @@ class Wrapper extends Component
     public function html(): string
     {
         return $this->tableUi
-            ->metadata($this->metadata)
+            ->metadata($this->get('metadata'))
             ->columns($this->columns)
             ->showColumns();
     }
@@ -65,9 +60,9 @@ class Wrapper extends Component
      */
     private function columnIsValid(ColumnInputDto|null $column): bool
     {
+        $metadata = $this->get('metadata');
         // Null values and columns not found in the database are discarded.
-        return $column !== null &&
-            ($column->added() || isset($this->metadata['fields'][$column->name]));
+        return $column !== null && ($column->added() || isset($metadata['fields'][$column->name]));
     }
 
     /**
@@ -78,7 +73,7 @@ class Wrapper extends Component
      */
     public function show(array $metadata, array $columns = []): void
     {
-        $this->metadata = $metadata;
+        $this->set('metadata', $metadata);
         $this->setColumns(array_filter($columns, $this->columnIsValid(...)));
 
         $this->render();
@@ -91,7 +86,7 @@ class Wrapper extends Component
      */
     public function load(array $metadata): void
     {
-        $this->metadata = $metadata;
+        $this->set('metadata', $metadata);
         $callback = fn(TableFieldDto $field) => new ColumnInputDto($field);
         $this->setColumns(array_map($callback, $metadata['fields']));
 

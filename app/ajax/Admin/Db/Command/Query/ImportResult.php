@@ -11,11 +11,6 @@ use Lagdo\DbAdmin\Ui\Command\QueryUiBuilder;
 class ImportResult extends Component
 {
     /**
-     * @var array
-     */
-    protected array $results;
-
-    /**
      * The constructor
      *
      * @param QueryUiBuilder $queryUi   The HTML UI builder
@@ -36,7 +31,7 @@ class ImportResult extends Component
      */
     public function html(): string
     {
-        return $this->queryUi->results($this->results);
+        return $this->queryUi->results($this->get('results'));
     }
 
     /**
@@ -45,19 +40,6 @@ class ImportResult extends Component
     protected function after(): void
     {
         $this->cl(History::class)->render();
-        $this->duration()->update($this->results['duration']);
-    }
-
-    /**
-     * Set the query results
-     *
-     * @param array $results
-     *
-     * @return void
-     */
-    public function results(array $results): void
-    {
-        $this->results = $results;
-        $this->render();
+        $this->duration()->update($this->get('results')['duration']);
     }
 }

@@ -104,7 +104,7 @@ class View extends FuncComponent
         $this->cl(PageActions::class)->show($actions);
 
         $content = $this->viewUi->mainDbTable($viewInfo['tabs']);
-        $this->cl(Content::class)->showHtml($content);
+        $this->cl(Content::class)->set('html', $content)->render();
 
         // Show fields
         $fieldsInfo = $this->db()->getViewFields($view);

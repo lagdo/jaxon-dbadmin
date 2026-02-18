@@ -9,26 +9,10 @@ use Lagdo\DbAdmin\Ajax\Base\Component;
 class Content extends Component
 {
     /**
-     * @var string
-     */
-    private $html;
-
-    /**
      * @inheritDoc
      */
     public function html(): string
     {
-        return $this->html;
-    }
-
-    /**
-     * @param string $html
-     *
-     * @return void
-     */
-    public function showHtml(string $html): void
-    {
-        $this->html = $html;
-        $this->render();
+        return $this->get('html');
     }
 }

@@ -10,11 +10,6 @@ use Lagdo\DbAdmin\Ui\Select\SelectUiBuilder;
 class Duration extends Component
 {
     /**
-     * @var float
-     */
-    private float $duration;
-
-    /**
      * @param SelectUiBuilder $selectUi The HTML UI builder
      */
     public function __construct(protected SelectUiBuilder $selectUi)
@@ -25,7 +20,7 @@ class Duration extends Component
      */
     public function html(): string
     {
-        return $this->selectUi->duration($this->duration);
+        return $this->selectUi->duration($this->get('duration'));
     }
 
     /**
@@ -40,7 +35,7 @@ class Duration extends Component
             return;
         }
 
-        $this->duration = $duration;
+        $this->set('duration', $duration);
         $this->render();
     }
 }

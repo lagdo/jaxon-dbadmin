@@ -53,7 +53,10 @@ class Database extends FuncComponent
         {
             $schema = $schemas[0]; // Select the first schema
 
-            $this->cl(MenuSchemas::class)->showDbSchemas($database, $schemas);
+            $this->cl(MenuSchemas::class)
+                ->set('database', $database)
+                ->set('schemas', $schemas)
+                ->render();
         }
 
         $this->db()->selectDatabase($server, $database, $schema);

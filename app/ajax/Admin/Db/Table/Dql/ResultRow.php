@@ -19,11 +19,6 @@ class ResultRow extends MainComponent
     protected string $overrides = '';
 
     /**
-     * @var array
-     */
-    private $row = [];
-
-    /**
      * The constructor
      *
      * @param ResultUiBuilder   $resultUi   The HTML UI builder
@@ -36,7 +31,7 @@ class ResultRow extends MainComponent
      */
     public function html(): string
     {
-        return $this->resultUi->resultRowContent($this->row);
+        return $this->resultUi->resultRowContent($this->get('row'));
     }
 
     /**
@@ -49,7 +44,7 @@ class ResultRow extends MainComponent
     {
         $row['editId'] = $editId;
         $row['menu'] = $this->getRowMenu($editId);
-        $this->row = $row;
+        $this->set('row', $row);
 
         $this->item($this->bagValueKey($editId))->render();
     }

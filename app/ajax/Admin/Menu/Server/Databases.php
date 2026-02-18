@@ -8,28 +8,11 @@ use Lagdo\DbAdmin\Ajax\Base\MenuComponent;
 class Databases extends MenuComponent
 {
     /**
-     * @var array
-     */
-    private $databases = [];
-
-    /**
      * @inheritDoc
      */
     public function html(): string
     {
-        return $this->ui()->databases($this->databases);
-    }
-
-    /**
-     * @param array $databases
-     *
-     * @return void
-     */
-    #[Exclude]
-    public function showDatabases(array $databases): void
-    {
-        $this->databases = $databases;
-        $this->render();
+        return $this->ui()->databases($this->get('databases'));
     }
 
     /**

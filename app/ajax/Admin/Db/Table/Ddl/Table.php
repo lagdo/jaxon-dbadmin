@@ -14,11 +14,6 @@ use function is_array;
 class Table extends MainComponent
 {
     /**
-     * @var array
-     */
-    private $metadata;
-
-    /**
      * Print links after select heading
      * Copied from selectLinks() in adminer.inc.php
      *
@@ -93,7 +88,7 @@ class Table extends MainComponent
         ];
         $this->cl(PageActions::class)->show($actions);
 
-        $this->metadata = $this->db()->getTableInfo($table);
+        $this->set('metadata', $this->db()->getTableInfo($table));
     }
 
     /**
@@ -101,7 +96,8 @@ class Table extends MainComponent
      */
     public function html(): string
     {
-        return $this->tableUi->mainDbTable($this->metadata['tabs']);
+        $metadata = $this->get('metadata');
+        return $this->tableUi->mainDbTable($metadata['tabs']);
     }
 
     /**
@@ -114,7 +110,8 @@ class Table extends MainComponent
      */
     private function showTab(array $tableData, string $tabId): void
     {
-        $content = $this->tableUi->pageContent([...$this->metadata, ...$tableData]);
+        $metadata = $this->get('metadata');
+        $content = $this->tableUi->pageContent([...$metadata, ...$tableData]);
         $this->response()->html($tabId, $content);
     }
 

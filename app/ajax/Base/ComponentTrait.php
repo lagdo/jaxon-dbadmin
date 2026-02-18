@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ajax\Base;
 
+use Jaxon\App\ComponentDataTrait;
 use Jaxon\Attributes\Attribute\Databag;
 use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\Ajax\Admin\Page\Breadcrumbs;
@@ -21,6 +22,8 @@ use function array_filter;
 #[Databag('dbadmin')]
 trait ComponentTrait
 {
+    use ComponentDataTrait;
+
     /**
      * @var ServerConfig
      */

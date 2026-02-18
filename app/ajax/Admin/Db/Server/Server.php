@@ -49,7 +49,7 @@ class Server extends FuncComponent
 
         // Always show the database list.
         $databases = $this->getDatabases();
-        $this->cl(MenuDatabases::class)->showDatabases($databases);
+        $this->cl(MenuDatabases::class)->set('databases', $databases)->render();
 
         $hasServerAccess = $this->config()->getServerAccess($server);
         if($hasServerAccess)

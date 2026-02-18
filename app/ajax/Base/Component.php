@@ -26,12 +26,12 @@ abstract class Component extends JaxonComponent
         }
 
         $this->cl(Sections::class)->server($activeItem);
-        $this->cl(ServerCommand::class)->server();
+        $this->cl(ServerCommand::class)->set('active', '')->render();
         // Reset the database command menu only if there is an active database
         [, $database] = $this->getCurrentDb();
         if($database !== '')
         {
-            $this->cl(DatabaseCommand::class)->database();
+            $this->cl(DatabaseCommand::class)->set('active', '')->render();
         }
     }
 
@@ -47,12 +47,12 @@ abstract class Component extends JaxonComponent
         }
 
         $this->cl(Sections::class)->server();
-        $this->cl(ServerCommand::class)->server($activeItem);
+        $this->cl(ServerCommand::class)->set('active', $activeItem)->render();
         // Reset the database command menu only if there is an active database
         [, $database] = $this->getCurrentDb();
         if($database !== '')
         {
-            $this->cl(DatabaseCommand::class)->database();
+            $this->cl(DatabaseCommand::class)->set('active', '')->render();
         }
     }
 
@@ -64,8 +64,10 @@ abstract class Component extends JaxonComponent
     protected function activateDatabaseSectionMenu(string $activeItem): void
     {
         $this->cl(Sections::class)->database($activeItem);
-        $this->hasServerAccess() && $this->cl(ServerCommand::class)->server();
-        $this->cl(DatabaseCommand::class)->database();
+        if ($this->hasServerAccess()) {
+            $this->cl(ServerCommand::class)->set('active', '')->render();
+        }
+        $this->cl(DatabaseCommand::class)->set('active', '')->render();
     }
 
     /**
@@ -76,7 +78,9 @@ abstract class Component extends JaxonComponent
     protected function activateDatabaseCommandMenu(string $activeItem): void
     {
         $this->cl(Sections::class)->database();
-        $this->hasServerAccess() && $this->cl(ServerCommand::class)->server();
-        $this->cl(DatabaseCommand::class)->database($activeItem);
+        if ($this->hasServerAccess()) {
+            $this->cl(ServerCommand::class)->set('active', '')->render();
+        }
+        $this->cl(DatabaseCommand::class)->set('active', $activeItem)->render();
     }
 }

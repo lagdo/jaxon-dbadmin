@@ -18,11 +18,6 @@ class Form extends Component
     protected string $overrides = Content::class;
 
     /**
-     * @var array
-     */
-    private $data = [];
-
-    /**
      * The constructor
      *
      * @param ViewUiBuilder  $viewUi     The HTML UI builder
@@ -35,7 +30,8 @@ class Form extends Component
      */
     public function html(): string
     {
-        return $this->viewUi->form($this->data['materialized'], $this->data['view'] ?? []);
+        $data = $this->get('data');
+        return $this->viewUi->form($data['materialized'], $data['view'] ?? []);
     }
 
     /**
@@ -55,7 +51,7 @@ class Form extends Component
     #[After('showBreadcrumbs')]
     public function add(): void
     {
-        $this->data = ['materialized' => $this->db()->support('materializedview')];
+        $this->set('data', ['materialized' => $this->db()->support('materializedview')]);
         $this->db()->breadcrumbs(true)
             ->item($this->trans->lang('Views'))
             ->item($this->trans->lang('Create view'));
@@ -78,7 +74,7 @@ class Form extends Component
     #[After('showBreadcrumbs')]
     public function edit(string $view): void
     {
-        $this->data = $this->db()->getView($view);
+        $this->set('data', $this->db()->getView($view));
         $this->db()->breadcrumbs(true)
             ->item($this->trans->lang('Views'))
             ->item("<i><b>$view</b></i>")

@@ -17,16 +17,6 @@ abstract class MainComponent extends BaseComponent
     protected string $overrides = Content::class;
 
     /**
-     * @var array
-     */
-    private array $pageContent;
-
-    /**
-     * @var string
-     */
-    private string $counterId;
-
-    /**
      * Check if the user has access to a server
      *
      * @return void
@@ -42,7 +32,9 @@ abstract class MainComponent extends BaseComponent
      */
     public function html(): string
     {
-        return $this->ui()->pageContent($this->pageContent, $this->counterId);
+        $pageContent = $this->get('content');
+        $counterId = $this->get('counterId');
+        return $this->ui()->pageContent($pageContent, $counterId);
     }
 
     /**
@@ -55,8 +47,8 @@ abstract class MainComponent extends BaseComponent
      */
     protected function showSection(array $viewData, string $checkbox = ''): void
     {
-        $this->pageContent = $viewData;
-        $this->counterId = $checkbox;
+        $this->set('content', $viewData);
+        $this->set('counterId', $checkbox);
 
         $this->render();
     }

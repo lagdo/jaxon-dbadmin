@@ -131,7 +131,7 @@ class Admin extends FuncComponent
         // This request can't actually load the tabs contents because the databags
         // values are not yet set. So it will just run another requests.
         $names = $this->bag('dbadmin.tab')->get('app.names', []);
-        $this->response()->exec($this->rq(Admin::class)->tabs($names));
+        $this->response()->rq(Admin::class)->tabs($names);
     }
 
     /**
@@ -151,7 +151,7 @@ class Admin extends FuncComponent
         for ($index = 0; $index < $count; $index++) {
             // Load the tabs contents with an ajax request.
             $this->response()->jo('jaxon.dbadmin')->onAppTabClick($names[$index]);
-            $this->response()->exec($this->rq(Admin::class)->server($tabs[$index]['server']));
+            $this->response()->rq(Admin::class)->server($tabs[$index]['server']);
         }
     }
 }

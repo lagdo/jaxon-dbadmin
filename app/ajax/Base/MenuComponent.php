@@ -3,12 +3,14 @@
 namespace Lagdo\DbAdmin\Ajax\Base;
 
 use Jaxon\App\Component;
+use Jaxon\App\ComponentDataTrait;
 use Lagdo\DbAdmin\Db\Driver\DbFacade;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\MenuBuilder;
 
 abstract class MenuComponent extends Component
 {
+    use ComponentDataTrait;
     use TabItemTrait;
 
     /**
