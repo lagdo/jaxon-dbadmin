@@ -48,8 +48,8 @@ trait EditorTrait
         $driver = $this->config()->getServerDriver($server);
         // Create the SQL editor in the new tab.
         $this->response()->jo('jaxon.dbadmin')
-            ->createQueryEditor($this->queryUi->commandEditorId(),
-                $driver, TabApp::current(), TabEditor::$page, TabEditor::current());
+            ->createQueryEditor($this->queryUi->commandEditorId(), $driver,
+                TabApp::current(), TabEditor::$page, TabEditor::current());
     }
 
     /**
@@ -74,6 +74,45 @@ trait EditorTrait
     }
 
     /**
+     * @return array
+     */
+    abstract protected function getSavedTabs(): array;
+
+    /**
+     * @return int
+     */
+    private function _showTabs(): int
+    {
+        // The saved tabs are fetched only on the first access to the query editor.
+        if ($this->getBag('dbadmin.tab', TabEditor::saved(), true)) {
+            $this->setBag('dbadmin.tab', TabEditor::saved(), false);
+
+            $savedTabs = $this->getSavedTabs();
+            if (($count = count($savedTabs)) > 0) {
+                // Recreate the saved tabs.
+                $firstTab = true;
+                foreach ($savedTabs as $query) {
+                    // The first tab is already created. Just need to set the query text.
+                    if (!$firstTab) {
+                        $this->addTab();
+                    }
+                    $this->response()->jo('jaxon.dbadmin')->setQueryText($query);
+                    $firstTab = false;
+                }
+                return $count;
+            }
+        }
+
+        // Show the other opened tabs. The addEditorTab() function is used
+        // here because the tabs are already saved in the databag.
+        $names = $this->getBag('dbadmin.tab', TabEditor::names(), []);
+        foreach ($names as $name) {
+            $this->addEditorTab($name);
+        }
+        return count($names);
+    }
+
+    /**
      * @param string $query
      *
      * @return void
@@ -83,18 +122,16 @@ trait EditorTrait
     {
         // Create the SQL editor for the first tab.
         $this->setupNewTab();
+
+        $count = $this->_showTabs();
         if($query !== '')
         {
+            // Create a new tab for the query if other tabs ware already created.
+            if ($count > 0) {
+                $this->addTab();
+            }
             $this->response()->jo('jaxon.dbadmin')->setQueryText($query);
         }
-
-        // Show the other opened tabs.
-        $names = $this->getBag('dbadmin.tab', TabEditor::names(), []);
-        foreach ($names as $name) {
-            $this->addEditorTab($name);
-        }
-        // Reset the tab zero as active. The addEditorTab() function changes it.
-        $this->bag('dbadmin')->set('tab.editor', TabEditor::zero());
     }
 
     /**

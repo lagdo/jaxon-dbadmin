@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\Db\Service\Admin;
 
-use Lagdo\Facades\Logger;
-
 use function array_filter;
 use function array_values;
 use function count;
@@ -236,7 +234,7 @@ SET content=:content,last_update=:last_update WHERE id=:preference_id";
         }
 
         $content = $preference['content'] ?? [];
-        $tabsToKeep = array_filter(array_values($preference['content']['tabs'] ?? []),
+        $tabsToKeep = array_filter(array_values($content['tabs'] ?? []),
             fn(array $tab) => $tab['server'] !== $server);
         $content['tabs'] = [
             [
@@ -287,7 +285,7 @@ SET content=:content,last_update=:last_update WHERE id=:preference_id";
         }
 
         $content = $preference['content'] ?? [];
-        $tabsToKeep = array_filter(array_values($preference['content']['tabs'] ?? []),
+        $tabsToKeep = array_filter(array_values($content['tabs'] ?? []),
             fn(array $tab) => $tab['server'] !== $server || $tab['database'] !== $database);
         $content['tabs'] = [
             [
@@ -297,7 +295,6 @@ SET content=:content,last_update=:last_update WHERE id=:preference_id";
             ],
             ...$tabsToKeep,
         ];
-        Logger::info('New database tabs', compact('content'));
         return $this->savePreferenceContent($preference['id'], $content);
     }
 }

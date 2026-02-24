@@ -57,6 +57,8 @@ class Admin extends FuncComponent
         // Initially clear all the tabs.
         $this->setBag('dbadmin.tab', 'editor.names.sv', []);
         $this->setBag('dbadmin.tab', 'editor.names.db', []);
+        $this->setBag('dbadmin.tab', 'editor.saved.sv', true);
+        $this->setBag('dbadmin.tab', 'editor.saved.db', true);
     }
 
     /**

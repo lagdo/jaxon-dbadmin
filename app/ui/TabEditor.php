@@ -74,6 +74,14 @@ class TabEditor
     /**
      * @return string
      */
+    public static function saved(): string
+    {
+        return 'editor.saved.' . self::$page;
+    }
+
+    /**
+     * @return string
+     */
     public static function current(): string
     {
         return self::$databag->bag('dbadmin')->get('tab.editor', self::zero());

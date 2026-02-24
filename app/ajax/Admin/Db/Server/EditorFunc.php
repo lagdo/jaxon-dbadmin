@@ -35,6 +35,15 @@ class EditorFunc extends FuncComponent
     }
 
     /**
+     * @return array
+     */
+    protected function getSavedTabs(): array
+    {
+        [$server, ] = $this->getCurrentDb();
+        return $this->preference?->getServerTabs($server) ?? [];
+    }
+
+    /**
      * @param array $tabs
      *
      * @return void
@@ -42,7 +51,7 @@ class EditorFunc extends FuncComponent
     public function saveTabs(array $tabs): void
     {
         [$server, ] = $this->getCurrentDb();
-        !$this->preference->saveServerTabs($server, $tabs) ?
+        !$this->preference?->saveServerTabs($server, $tabs) ?
             $this->alert()->title('Error')
                 ->error("Unable to save server tabs in user preferences.") :
             $this->alert()->title('Success')
