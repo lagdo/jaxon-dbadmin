@@ -1,7 +1,7 @@
 (function(self) {
-    const editor = {
-        select: null,
-        query: null,
+    const appEditors = {
+        select: null, // Editor for the select SQL text
+        query: null, // Editor for the query SQL text
         tabs: {},
         page: '',
         fontSize: '13px',
@@ -14,12 +14,26 @@
     };
 
     /**
+     * @param {string} appTabId
+     * @param {string} appPage
+     *
+     * @returns {array}
+     */
+    self.getQueries = (appTabId, appPage) => {
+        const queries = {};
+        const tabEditors = appEditors.tabs[appTabId] ?? {};
+        Object.values(tabEditors).filter(({ page } = {}) => page === appPage)
+            .forEach(({ id, editor }) => queries[id] = editor.getValue() ?? '');
+        return queries;
+    };
+
+    /**
      * @returns {string}
      */
     self.getQueryText = () => {
         // Try to get the selected text first.
-        const selectedText = editor.query?.getSelectedText();
-        return selectedText ? selectedText : editor.query?.getValue() ?? '';
+        const selectedText = appEditors.query?.getSelectedText();
+        return selectedText ? selectedText : appEditors.query?.getValue() ?? '';
     };
 
     /**
@@ -29,7 +43,7 @@
      *
      * @returns {void}
      */
-    self.setQueryText = (query) => editor.query?.session.setValue(query);
+    self.setQueryText = (query) => appEditors.query?.session.setValue(query);
 
     /**
      * @param {string} appTabId
@@ -40,16 +54,21 @@
 
     /**
      * @param {string} appTabId
+     * @param {string} appPage
      * @param {string} editorTabId
      * @param {object} newEditor
      *
      * @returns {bool}
      */
-    const addTabEditor = (appTabId, editorTabId, newEditor) => {
-        const appEditors = editor.tabs[appTabId] ?? {};
-        editor.tabs[appTabId] = {
-            ...appEditors,
-            [editorTabId]: newEditor,
+    const addTabEditor = (appTabId, appPage, editorTabId, newEditor) => {
+        const tabEditors = appEditors.tabs[appTabId] ?? {};
+        appEditors.tabs[appTabId] = {
+            ...tabEditors,
+            [editorTabId]: {
+                id: editorTabId,
+                page: appPage,
+                editor: newEditor,
+            },
         };
     };
 
@@ -59,8 +78,8 @@
      *
      * @returns {bool}
      */
-    const hasTabEditor = (appTabId, editorTabId) => !editor.tabs[appTabId] ?
-        false : editor.tabs[appTabId][editorTabId] !== undefined;
+    const hasTabEditor = (appTabId, editorTabId) => !appEditors.tabs[appTabId] ?
+        false : appEditors.tabs[appTabId][editorTabId] !== undefined;
 
     /**
      * @param {string} appTabId
@@ -68,8 +87,9 @@
      *
      * @returns {object|null}
      */
-    const getTabEditor = (appTabId, editorTabId) => !editor.tabs[appTabId] ?
-        null : editor.tabs[appTabId][editorTabId] ?? null;
+    const getTabEditor = (appTabId, editorTabId) => !appEditors.tabs[appTabId] ?
+        null : (!appEditors.tabs[appTabId][editorTabId] ? null :
+            appEditors.tabs[appTabId][editorTabId]['editor'] ?? null);
 
     /**
      * @param {string} appTabId
@@ -78,8 +98,8 @@
      * @returns {mixed}
      */
     const delTabEditor = (appTabId, editorTabId) => {
-        delete editor.tabs[appTabId][editorTabId];
-        editor.tabs[appTabId][editorTabId] = undefined;
+        delete appEditors.tabs[appTabId][editorTabId];
+        appEditors.tabs[appTabId][editorTabId] = undefined;
     };
 
     /**
@@ -88,11 +108,11 @@
      * @returns {mixed}
      */
     self.delAppEditors = (appTabId) => {
-        const appEditors = editor.tabs[appTabId] ?? null;
-        if (appEditors !== null) {
-            Object.keys(appEditors).forEach(editorTabId => delTabEditor(appTabId, editorTabId));
-            delete editor.tabs[appTabId];
-            editor.tabs[appTabId] = undefined;
+        const tabEditors = appEditors.tabs[appTabId] ?? null;
+        if (tabEditors !== null) {
+            Object.keys(tabEditors).forEach(editorTabId => delTabEditor(appTabId, editorTabId));
+            delete appEditors.tabs[appTabId];
+            appEditors.tabs[appTabId] = undefined;
         }
     };
 
@@ -103,10 +123,10 @@
      * @returns {void}
      */
     self.onEditorTabClick = (appTabId, editorTabId) => {
-        editor.query = getTabEditor(appTabId, editorTabId);
+        appEditors.query = getTabEditor(appTabId, editorTabId);
         // When the editor content is changed when it is in a hidden tab, the visible content
         // is not updated when the tab becomes visible. We need to force the refresh.
-        editor.query?.session.setValue(self.getQueryText());
+        appEditors.query?.session.setValue(self.getQueryText());
         // Save the current editor tab name.
         jaxon.bag.setEntry('dbadmin', 'tab.editor', editorTabId);
     };
@@ -118,8 +138,8 @@
      * @returns {void}
      */
     const createQueryEditor = function(containerId, driver) {
-        editor.query = ace.edit(containerId, {
-            mode: editor.modes[driver] ?? editor.modes.sql,
+        appEditors.query = ace.edit(containerId, {
+            mode: appEditors.modes[driver] ?? appEditors.modes.sql,
             selectionStyle: "text",
             dragEnabled: false,
             useWorker: false,
@@ -128,20 +148,21 @@
             enableLiveAutocompletion: true,
             showPrintMargin: false,
         });
-        editor.query.setTheme(editor.theme);
-        editor.query.session.setUseWrapMode(true);
-        document.getElementById(containerId).style.fontSize = editor.fontSize;
+        appEditors.query.setTheme(appEditors.theme);
+        appEditors.query.session.setUseWrapMode(true);
+        document.getElementById(containerId).style.fontSize = appEditors.fontSize;
     };
 
     /**
      * @param {string} containerId
      * @param {string} driver
      * @param {string} appTabId
+     * @param {string} appPage
      * @param {string} editorTabId
      *
      * @returns {void}
      */
-    self.createQueryEditor = function(containerId, driver, appTabId, editorTabId) {
+    self.createQueryEditor = function(containerId, driver, appTabId, appPage, editorTabId) {
         createQueryEditor(containerId, driver);
         if (!editorTabId || !appTabId) {
             return;
@@ -150,14 +171,14 @@
         const prevEditor = getTabEditor(appTabId, editorTabId);
         if (prevEditor !== null) {
             // Copy the query text of the previous editor instance in the tab.
-            editor.query.session.setValue(prevEditor.getValue());
+            appEditors.query.session.setValue(prevEditor.getValue());
             delTabEditor(appTabId, editorTabId);
         }
 
         // Save the current editor tab name.
         jaxon.bag.setEntry('dbadmin', 'tab.editor', editorTabId);
         // Save the tab editor.
-        addTabEditor(appTabId, editorTabId, editor.query);
+        addTabEditor(appTabId, appPage, editorTabId, appEditors.query);
     };
 
     /**
@@ -183,7 +204,7 @@
         const sourceEditor = getTabEditor(appTabId, sourceTabId);
         if (sourceEditor !== null) {
             // Copy the query text from the source editor.
-            editor.query.session.setValue(sourceEditor.getValue());
+            appEditors.query.session.setValue(sourceEditor.getValue());
         }
     };
 
@@ -194,8 +215,8 @@
      * @returns {void}
      */
     self.createSelectEditor = (containerId, driver) => {
-        editor.select = ace.edit(containerId, {
-            mode: editor.modes[driver] ?? editor.modes.sql,
+        appEditors.select = ace.edit(containerId, {
+            mode: appEditors.modes[driver] ?? appEditors.modes.sql,
             selectionStyle: "text",
             dragEnabled: false,
             useWorker: false,
@@ -204,10 +225,10 @@
             showGutter: false, // Also hide the line number "column".
             readOnly: true,
         });
-        editor.select.setTheme(editor.theme);
-        editor.select.session.setUseWrapMode(true);
-        editor.select.resize();
-        document.getElementById(containerId).style.fontSize = editor.fontSize;
+        appEditors.select.setTheme(appEditors.theme);
+        appEditors.select.session.setUseWrapMode(true);
+        appEditors.select.resize();
+        document.getElementById(containerId).style.fontSize = appEditors.fontSize;
     };
 
     /**
@@ -292,7 +313,7 @@
          * @returns {void}
          */
         insertQuerytext: (node, prefix) => {
-            editor.query.insert(getHistoryQuery(node, prefix));
+            appEditors.query.insert(getHistoryQuery(node, prefix));
             showInfoMessage(toast.messages.inserted);
         },
     };
@@ -331,7 +352,7 @@
          * @returns {void}
          */
         insertQuerytext: (node, prefix) => {
-            editor.query.insert(getFavoriteQuery(node, prefix));
+            appEditors.query.insert(getFavoriteQuery(node, prefix));
             showInfoMessage(toast.messages.inserted);
         },
     };

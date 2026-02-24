@@ -2,6 +2,9 @@
 
 namespace Lagdo\DbAdmin\Db\Service\Admin;
 
+use Lagdo\Facades\Logger;
+
+use function array_filter;
 use function array_values;
 use function count;
 use function json_encode;
@@ -108,9 +111,11 @@ VALUES ('{}', :category, :last_update, :profile_id)";
     }
 
     /**
+     * @param int $category
+     *
      * @return array
      */
-    private function getAppPreference(): array
+    private function getPreferenceContent(int $category): array
     {
         if (($userId = $this->proxy->getUserId()) <= 0) {
             return [];
@@ -118,7 +123,6 @@ VALUES ('{}', :category, :last_update, :profile_id)";
         if (($profileId = $this->getDefaultProfileId($userId)) <= 0) {
             return [];
         }
-        $category = 1; // The category for the app preferences.
         if (($preferenceId = $this->getPreferenceId($profileId, $category)) <= 0) {
             return [];
         }
@@ -138,6 +142,29 @@ VALUES ('{}', :category, :last_update, :profile_id)";
     }
 
     /**
+     * @param int $preferenceId
+     * @param array $content
+     *
+     * @return bool
+     */
+    private function savePreferenceContent(int $preferenceId, array $content): bool
+    {
+        $sql = "UPDATE dbadmin_preferences
+SET content=:content,last_update=:last_update WHERE id=:preference_id";
+        $statement = $this->proxy->executeQuery($sql, [
+            'content' => json_encode($content),
+            'last_update' => $this->proxy->currentTime(),
+            'preference_id' => $preferenceId,
+        ]);
+        if ($statement !== false) {
+            return true;
+        }
+
+        $this->proxy->logWarning('Unable to save tabs in the user preferences.');
+        return false;
+    }
+
+    /**
      * @return array
      */
     public function getAppTabs(): array
@@ -146,7 +173,8 @@ VALUES ('{}', :category, :last_update, :profile_id)";
             return [];
         }
 
-        $preference = $this->getAppPreference();
+        $category = 1; // The category for the app preferences.
+        $preference = $this->getPreferenceContent($category);
         return array_values($preference['content']['tabs'] ?? []);
     }
 
@@ -161,23 +189,115 @@ VALUES ('{}', :category, :last_update, :profile_id)";
             return false;
         }
 
-        $preference = $this->getAppPreference();
+        $category = 1; // The category for the app preferences.
+        $preference = $this->getPreferenceContent($category);
         if (count($preference) === 0) {
             return false;
         }
 
-        $sql = "UPDATE dbadmin_preferences
-SET content=:content,last_update=:last_update WHERE id=:preference_id";
-        $statement = $this->proxy->executeQuery($sql, [
-            'content' => json_encode(['tabs' => $tabs]),
-            'last_update' => $this->proxy->currentTime(),
-            'preference_id' => $preference['id'],
-        ]);
-        if ($statement !== false) {
-            return true;
+        $content = ['tabs' => $tabs];
+        return $this->savePreferenceContent($preference['id'], $content);
+    }
+
+    /**
+     * @param string $server
+     *
+     * @return array
+     */
+    public function getServerTabs(string $server): array
+    {
+        if (!$this->preferencesEnabled) {
+            return [];
         }
 
-        $this->proxy->logWarning('Unable to save tabs in the user preferences.');
-        return false;
+        $category = 2; // The category for the server preferences.
+        $preference = $this->getPreferenceContent($category);
+        $tabs = array_filter(array_values($preference['content']['tabs'] ?? []),
+            fn(array $tab) => $tab['server'] === $server);
+        return $tabs[0]['values'] ?? [];
+    }
+
+    /**
+     * @param string $server
+     * @param array $tabs
+     *
+     * @return bool
+     */
+    public function saveServerTabs(string $server, array $tabs): bool
+    {
+        if (!$this->preferencesEnabled) {
+            return false;
+        }
+
+        $category = 2; // The category for the server preferences.
+        $preference = $this->getPreferenceContent($category);
+        if (count($preference) === 0) {
+            return false;
+        }
+
+        $content = $preference['content'] ?? [];
+        $tabsToKeep = array_filter(array_values($preference['content']['tabs'] ?? []),
+            fn(array $tab) => $tab['server'] !== $server);
+        $content['tabs'] = [
+            [
+                'server' => $server,
+                'values' => $tabs,
+            ],
+            ...$tabsToKeep,
+        ];
+        return $this->savePreferenceContent($preference['id'], $content);
+    }
+
+    /**
+     * @param string $server
+     * @param string $database
+     *
+     * @return array
+     */
+    public function getDatabaseTabs(string $server, string $database): array
+    {
+        if (!$this->preferencesEnabled) {
+            return [];
+        }
+
+        $category = 3; // The category for the database preferences.
+        $preference = $this->getPreferenceContent($category);
+        $tabs = array_filter(array_values($preference['content']['tabs'] ?? []),
+            fn(array $tab) => $tab['server'] === $server && $tab['database'] === $database);
+        return $tabs[0]['values'] ?? [];
+    }
+
+    /**
+     * @param string $server
+     * @param string $database
+     * @param array $tabs
+     *
+     * @return bool
+     */
+    public function saveDatabaseTabs(string $server, string $database, array $tabs): bool
+    {
+        if (!$this->preferencesEnabled) {
+            return false;
+        }
+
+        $category = 3; // The category for the database preferences.
+        $preference = $this->getPreferenceContent($category);
+        if (count($preference) === 0) {
+            return false;
+        }
+
+        $content = $preference['content'] ?? [];
+        $tabsToKeep = array_filter(array_values($preference['content']['tabs'] ?? []),
+            fn(array $tab) => $tab['server'] !== $server || $tab['database'] !== $database);
+        $content['tabs'] = [
+            [
+                'server' => $server,
+                'database' => $database,
+                'values' => $tabs,
+            ],
+            ...$tabsToKeep,
+        ];
+        Logger::info('New database tabs', compact('content'));
+        return $this->savePreferenceContent($preference['id'], $content);
     }
 }

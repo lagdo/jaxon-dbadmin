@@ -34,6 +34,10 @@ class Query extends Component
 
         $this->editorClass = EditorFunc::class;
         $this->cl(EditorFunc::class)->initTab();
+
+        // Set the current database, but do not update the databag.
+        $this->db()->setCurrentDbName('');
+        $this->db()->prepareCommand();
     }
 
     /**

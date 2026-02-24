@@ -267,6 +267,15 @@ class QueryUiBuilder
             'handler' => $rqEditor->delTab()
                 ->confirm($this->trans->lang('Delete this tab?')),
         ]];
+        if ($this->canSaveQuery) {
+            $tabQueries = jo('jaxon.dbadmin')->getQueries(TabApp::current(), TabEditor::$page);
+            $menuEntries[] = [
+                'label' => $this->trans->lang('Save tabs'),
+                'handler' => $rqEditor->saveTabs($tabQueries)
+                    ->confirm($this->trans->lang('Save this tabs in your preferences?')),
+            ];
+        }
+
         return $this->ui->build(
             $this->ui->div(
                 $this->ui->div(

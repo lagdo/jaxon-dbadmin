@@ -49,7 +49,7 @@ trait EditorTrait
         // Create the SQL editor in the new tab.
         $this->response()->jo('jaxon.dbadmin')
             ->createQueryEditor($this->queryUi->commandEditorId(),
-                $driver, TabApp::current(), TabEditor::current());
+                $driver, TabApp::current(), TabEditor::$page, TabEditor::current());
     }
 
     /**

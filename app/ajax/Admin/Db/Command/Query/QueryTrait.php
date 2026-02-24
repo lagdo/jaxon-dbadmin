@@ -18,11 +18,6 @@ trait QueryTrait
     /**
      * @var string
      */
-    private string $database = '';
-
-    /**
-     * @var string
-     */
     private string $editorClass;
 
     /**
@@ -30,10 +25,6 @@ trait QueryTrait
      */
     public function html(): string
     {
-        // Set the current database, but do not update the databag.
-        $this->db()->setCurrentDbName($this->database);
-        $this->db()->prepareCommand();
-
         return $this->queryUi->canSaveQuery($this->config()->canSaveQuery())
             ->command($this->rq(), $this->rq($this->editorClass));
     }

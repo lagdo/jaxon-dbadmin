@@ -34,6 +34,11 @@ class Query extends Component
 
         $this->editorClass = EditorFunc::class;
         $this->cl(EditorFunc::class)->initTab();
+
+        // Set the current database, but do not update the databag.
+        [, $database] = $this->getCurrentDb();
+        $this->db()->setCurrentDbName($database);
+        $this->db()->prepareCommand();
     }
 
     /**
@@ -56,8 +61,6 @@ class Query extends Component
     {
         // The request might come from a modal dialog.
         $this->modal()->hide();
-
-        [, $this->database] = $this->getCurrentDb();
         $this->query = $query;
         $this->render();
     }
