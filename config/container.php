@@ -4,9 +4,9 @@ use Infisical\SDK\InfisicalSDK;
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Db;
 use Lagdo\DbAdmin\Db\Config;
-use Lagdo\DbAdmin\Db\Driver\Facades;
+use Lagdo\DbAdmin\Db\Driver\Proxy;
 use Lagdo\DbAdmin\Db\Service;
-use Lagdo\DbAdmin\Driver;
+use Lagdo\DbAdmin\Support;
 use Lagdo\DbAdmin\Ui;
 
 jaxon()->callback()->boot(function() {
@@ -33,57 +33,57 @@ return [
             return $di->g("dbadmin_server_options_$server");
         },
         // Selected database driver
-        Driver\DriverInterface::class => function(Container $di) {
+        Support\DriverInterface::class => function(Container $di) {
             $server = $di->g('dbadmin_config_server');
             return $di->g("dbadmin_server_$server");
         },
-        // Facades to the DB driver features
-        Facades\CommandFacade::class => function(Container $di) {
-            $dbFacade = $di->g(Db\Driver\DbFacade::class);
+        // Proxies to the DB driver features
+        Proxy\CommandProxy::class => function(Container $di) {
+            $dbProxy = $di->g(Db\Driver\DbProxy::class);
             $timer = $di->g(Service\TimerService::class);
             $logger = $di->g(Service\Admin\QueryLogger::class);
-            return new Facades\CommandFacade($dbFacade, $timer, $logger);
+            return new Proxy\CommandProxy($dbProxy, $timer, $logger);
         },
-        Facades\DatabaseFacade::class => function(Container $di) {
-            $dbFacade = $di->g(Db\Driver\DbFacade::class);
+        Proxy\DatabaseProxy::class => function(Container $di) {
+            $dbProxy = $di->g(Db\Driver\DbProxy::class);
             $options = $di->g('dbadmin_server_options');
-            return new Facades\DatabaseFacade($dbFacade, $options);
+            return new Proxy\DatabaseProxy($dbProxy, $options);
         },
-        Facades\ExportFacade::class => function(Container $di) {
-            $dbFacade = $di->g(Db\Driver\DbFacade::class);
-            return new Facades\ExportFacade($dbFacade);
+        Proxy\ExportProxy::class => function(Container $di) {
+            $dbProxy = $di->g(Db\Driver\DbProxy::class);
+            return new Proxy\ExportProxy($dbProxy);
         },
-        Facades\ImportFacade::class => function(Container $di) {
-            $dbFacade = $di->g(Db\Driver\DbFacade::class);
+        Proxy\ImportProxy::class => function(Container $di) {
+            $dbProxy = $di->g(Db\Driver\DbProxy::class);
             $timer = $di->g(Service\TimerService::class);
             $logger = $di->g(Service\Admin\QueryLogger::class);
-            return new Facades\ImportFacade($dbFacade, $timer, $logger);
+            return new Proxy\ImportProxy($dbProxy, $timer, $logger);
         },
-        Facades\QueryFacade::class => function(Container $di) {
-            $dbFacade = $di->g(Db\Driver\DbFacade::class);
-            return new Facades\QueryFacade($dbFacade);
+        Proxy\QueryProxy::class => function(Container $di) {
+            $dbProxy = $di->g(Db\Driver\DbProxy::class);
+            return new Proxy\QueryProxy($dbProxy);
         },
-        Facades\SelectFacade::class => function(Container $di) {
-            $dbFacade = $di->g(Db\Driver\DbFacade::class);
+        Proxy\SelectProxy::class => function(Container $di) {
+            $dbProxy = $di->g(Db\Driver\DbProxy::class);
             $timer = $di->g(Service\TimerService::class);
-            return new Facades\SelectFacade($dbFacade, $timer);
+            return new Proxy\SelectProxy($dbProxy, $timer);
         },
-        Facades\ServerFacade::class => function(Container $di) {
-            $dbFacade = $di->g(Db\Driver\DbFacade::class);
+        Proxy\ServerProxy::class => function(Container $di) {
+            $dbProxy = $di->g(Db\Driver\DbProxy::class);
             $options = $di->g('dbadmin_server_options');
-            return new Facades\ServerFacade($dbFacade, $options);
+            return new Proxy\ServerProxy($dbProxy, $options);
         },
-        Facades\TableFacade::class => function(Container $di) {
-            $dbFacade = $di->g(Db\Driver\DbFacade::class);
-            return new Facades\TableFacade($dbFacade);
+        Proxy\TableProxy::class => function(Container $di) {
+            $dbProxy = $di->g(Db\Driver\DbProxy::class);
+            return new Proxy\TableProxy($dbProxy);
         },
-        Facades\UserFacade::class => function(Container $di) {
-            $dbFacade = $di->g(Db\Driver\DbFacade::class);
-            return new Facades\UserFacade($dbFacade);
+        Proxy\UserProxy::class => function(Container $di) {
+            $dbProxy = $di->g(Db\Driver\DbProxy::class);
+            return new Proxy\UserProxy($dbProxy);
         },
-        Facades\ViewFacade::class => function(Container $di) {
-            $dbFacade = $di->g(Db\Driver\DbFacade::class);
-            return new Facades\ViewFacade($dbFacade);
+        Proxy\ViewProxy::class => function(Container $di) {
+            $dbProxy = $di->g(Db\Driver\DbProxy::class);
+            return new Proxy\ViewProxy($dbProxy);
         },
         'dbadmin_auth_service' => fn(Container $di) =>
             $di->has(Config\AuthInterface::class) ?
@@ -125,15 +125,15 @@ return [
         // The translator
         Db\Translator::class,
         // The string manipulation class
-        Driver\Utils\Str::class,
+        Support\Utils\Str::class,
         // The user input
-        Driver\Utils\Input::class,
+        Support\Utils\Input::class,
         // The utils class
-        Driver\Utils\Utils::class,
+        Support\Utils\Utils::class,
         // The db classes
         Db\UiData\AppPage::class,
-        // The facade to the database features
-        Db\Driver\DbFacade::class,
+        // The proxy to the database features
+        Db\Driver\DbProxy::class,
         // The Timer service
         Service\TimerService::class,
         // The UI builders
@@ -156,6 +156,6 @@ return [
     ],
     'alias' => [
         // The translator
-        Driver\Utils\TranslatorInterface::class => Db\Translator::class,
+        Support\Utils\TranslatorInterface::class => Db\Translator::class,
     ],
 ];

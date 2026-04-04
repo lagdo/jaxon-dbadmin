@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
 
 use function str_replace;
 
@@ -27,9 +27,9 @@ trait ForeignKeyTrait
     {
         // From editing.inc.php, function referencable_primary()
         $fields = []; // table_name => field
-        foreach ($this->driver->tableStatuses(true) as $tableName => $tableStatus) {
-            if ($tableName != $table && $this->driver->supportForeignKeys($tableStatus)) {
-                $tableFields = $this->driver->fields($tableName);
+        foreach ($this->driver()->tableStatuses(true) as $tableName => $tableStatus) {
+            if ($tableName != $table && $this->driver()->supportForeignKeys($tableStatus)) {
+                $tableFields = $this->driver()->fields($tableName);
                 foreach ($tableFields as $field) {
                     if ($field->primary) {
                         if (isset($fields[$tableName])) { // multi column primary key

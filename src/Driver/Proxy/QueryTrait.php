@@ -1,22 +1,22 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 /**
- * Facade to table query functions
+ * Proxy to table query functions
  */
 trait QueryTrait
 {
     use AbstractTrait;
 
     /**
-     * Get the facade
+     * Get the proxy
      *
-     * @return QueryFacade
+     * @return QueryProxy
      */
-    protected function queryFacade(): QueryFacade
+    protected function queryProxy(): QueryProxy
     {
-        return $this->di()->g(QueryFacade::class);
+        return $this->di()->g(QueryProxy::class);
     }
 
     /**
@@ -30,9 +30,9 @@ trait QueryTrait
     public function getInsertData(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        $this->utils->input->values = $queryOptions;
-        return $this->queryFacade()->getInsertData($table, $queryOptions);
+        $this->utils()->input->table = $table;
+        $this->utils()->input->values = $queryOptions;
+        return $this->queryProxy()->getInsertData($table, $queryOptions);
     }
 
     /**
@@ -44,12 +44,12 @@ trait QueryTrait
      *
      * @return array
      */
-    public function getInsertQuery(string $table, array $queryOptions, array $values): array
+    public function getRowInsertQuery(string $table, array $queryOptions, array $values): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        $this->utils->input->values = $values;
-        return $this->queryFacade()->getInsertQuery($table, $queryOptions, $values);
+        $this->utils()->input->table = $table;
+        $this->utils()->input->values = $values;
+        return $this->queryProxy()->getRowInsertQuery($table, $queryOptions, $values);
     }
 
     /**
@@ -64,9 +64,9 @@ trait QueryTrait
     public function insertItem(string $table, array $queryOptions, array $values): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        $this->utils->input->values = $values;
-        return $this->queryFacade()->insertItem($table, $queryOptions, $values);
+        $this->utils()->input->table = $table;
+        $this->utils()->input->values = $values;
+        return $this->queryProxy()->insertItem($table, $queryOptions, $values);
     }
 
     /**
@@ -80,9 +80,9 @@ trait QueryTrait
     public function getUpdateData(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        $this->utils->input->values = $queryOptions;
-        return $this->queryFacade()->getUpdateData($table, $queryOptions);
+        $this->utils()->input->table = $table;
+        $this->utils()->input->values = $queryOptions;
+        return $this->queryProxy()->getUpdateData($table, $queryOptions);
     }
 
     /**
@@ -94,12 +94,12 @@ trait QueryTrait
      *
      * @return array
      */
-    public function getUpdateQuery(string $table, array $queryOptions, array $values): array
+    public function getRowUpdateQuery(string $table, array $queryOptions, array $values): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        $this->utils->input->values = $values;
-        return $this->queryFacade()->getUpdateQuery($table, $queryOptions, $values);
+        $this->utils()->input->table = $table;
+        $this->utils()->input->values = $values;
+        return $this->queryProxy()->getRowUpdateQuery($table, $queryOptions, $values);
     }
 
     /**
@@ -114,9 +114,9 @@ trait QueryTrait
     public function updateItem(string $table, array $queryOptions, array $values): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        $this->utils->input->values = $values;
-        return $this->queryFacade()->updateItem($table, $queryOptions, $values);
+        $this->utils()->input->table = $table;
+        $this->utils()->input->values = $values;
+        return $this->queryProxy()->updateItem($table, $queryOptions, $values);
     }
 
     /**
@@ -127,12 +127,12 @@ trait QueryTrait
      *
      * @return array
      */
-    public function getDeleteQuery(string $table, array $queryOptions): array
+    public function getRowDeleteQuery(string $table, array $queryOptions): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        $this->utils->input->values = $queryOptions;
-        return $this->queryFacade()->getDeleteQuery($table, $queryOptions);
+        $this->utils()->input->table = $table;
+        $this->utils()->input->values = $queryOptions;
+        return $this->queryProxy()->getRowDeleteQuery($table, $queryOptions);
     }
 
     /**
@@ -146,8 +146,8 @@ trait QueryTrait
     public function deleteItem(string $table, array $queryOptions): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        $this->utils->input->values = $queryOptions;
-        return $this->queryFacade()->deleteItem($table, $queryOptions);
+        $this->utils()->input->table = $table;
+        $this->utils()->input->values = $queryOptions;
+        return $this->queryProxy()->deleteItem($table, $queryOptions);
     }
 }

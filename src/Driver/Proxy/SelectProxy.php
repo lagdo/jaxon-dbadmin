@@ -1,7 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\UiData\Dql\SelectDto;
 use Lagdo\DbAdmin\Db\UiData\Dql\SelectQuery;
 use Lagdo\DbAdmin\Db\UiData\Dql\SelectResult;
@@ -12,9 +13,9 @@ use function array_keys;
 use function count;
 
 /**
- * Facade to table select functions
+ * Proxy to table select functions
  */
-class SelectFacade extends AbstractFacade
+class SelectProxy extends AbstractProxy
 {
     /**
      * @var SelectQuery|null
@@ -27,12 +28,12 @@ class SelectFacade extends AbstractFacade
     private SelectResult|null $selectResult = null;
 
     /**
-     * @param AbstractFacade $dbFacade
+     * @param AbstractProxy $dbProxy
      * @param TimerService $timer
      */
-    public function __construct(AbstractFacade $dbFacade, protected TimerService $timer)
+    public function __construct(AbstractProxy $dbProxy, protected TimerService $timer)
     {
-        parent::__construct($dbFacade);
+        parent::__construct($dbProxy->driver(), $dbProxy->page(), $dbProxy->utils());
     }
 
     /**
@@ -40,7 +41,7 @@ class SelectFacade extends AbstractFacade
      */
     private function query(): SelectQuery
     {
-        return $this->selectQuery ??= new SelectQuery($this->page, $this->driver, $this->utils);
+        return $this->selectQuery ??= new SelectQuery($this->driver(), $this->page(), $this->utils());
     }
 
     /**
@@ -48,7 +49,7 @@ class SelectFacade extends AbstractFacade
      */
     private function result(): SelectResult
     {
-        return $this->selectResult ??= new SelectResult($this->page, $this->driver, $this->utils);
+        return $this->selectResult ??= new SelectResult($this->driver(), $this->page(), $this->utils());
     }
 
     /**
@@ -60,8 +61,8 @@ class SelectFacade extends AbstractFacade
      */
     private function prepareSelect(string $table, array $queryOptions = []): SelectDto
     {
-        $tableStatus = $this->driver->tableStatusOrName($table);
-        $tableName = $this->page->tableName($tableStatus);
+        $tableStatus = $this->driver()->tableStatusOrName($table);
+        $tableName = $this->page()->tableName($tableStatus);
         $selectDto = new SelectDto($table, $tableName,
             $tableStatus, $queryOptions);
         return $this->query()->prepareSelect($selectDto);
@@ -95,9 +96,9 @@ class SelectFacade extends AbstractFacade
         $hasGroupsInFields = count($selectDto->group) < count($selectDto->select);
 
         try {
-            $query = $this->driver->getRowCountQuery($table, $selectDto->where,
+            $query = $this->grammar()->getRowCountQuery($table, $selectDto->where,
                 $hasGroupsInFields, $selectDto->group);
-            return (int)$this->driver->result($query);
+            return (int)$this->driver()->result($query);
         } catch(Exception) {
             return -1;
         }
@@ -113,20 +114,20 @@ class SelectFacade extends AbstractFacade
         $this->timer->start();
 
         // From driver.inc.php
-        $statement = $this->driver->execute($selectDto->query);
+        $statement = $this->driver()->execute($selectDto->query);
         $selectDto->duration = $this->timer->duration();
         $selectDto->rows = [];
 
         // From adminer.inc.php
         if (!$statement) {
-            $selectDto->error = $this->driver->error();
+            $selectDto->error = $this->driver()->error();
             return;
         }
 
         // From select.inc.php
         $selectDto->rows = [];
         while (($row = $statement->fetchAssoc())) {
-            if ($selectDto->page && $this->driver->jush() === "oracle") {
+            if ($selectDto->page && $this->driver()->jush() === "oracle") {
                 unset($row["RNUM"]);
             }
             $selectDto->rows[] = $row;
@@ -154,11 +155,11 @@ class SelectFacade extends AbstractFacade
         }
         if (count($selectDto->rows) === 0) {
             return [
-                'message' => $this->utils->trans->lang('No rows.'),
+                'message' => $this->utils()->lang('No rows.'),
             ];
         }
 
-        // $backward_keys = $this->driver->backwardKeys($table, $tableName);
+        // $backward_keys = $this->driver()->backwardKeys($table, $tableName);
         // lengths = $this->getValuesLengths($rows, $selectDto->queryOptions);
 
         $queryFields = array_keys($selectDto->rows[0]);

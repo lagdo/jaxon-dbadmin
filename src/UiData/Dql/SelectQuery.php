@@ -2,12 +2,10 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dql;
 
-use Lagdo\DbAdmin\Db\UiData\AppPage;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Dto\IndexDto;
-use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
-use Lagdo\DbAdmin\Driver\Dto\TableSelectDto;
-use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
+use Lagdo\DbAdmin\Support\Dto\IndexDto;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Support\Dto\TableSelectDto;
 use Exception;
 
 use function count;
@@ -20,24 +18,19 @@ use function str_replace;
 /**
  * Prepare a select query using the user provided options.
  */
-class SelectQuery
+class SelectQuery extends AbstractProxy
 {
     /**
-     * @var SelectOptions
+     * @var SelectOptions|null
      */
-    private $selectOptions;
+    private SelectOptions|null $selectOptions = null;
 
     /**
-     * The constructor
-     *
-     * @param AppPage $page
-     * @param DriverInterface $driver
-     * @param Utils $utils
+     * @return SelectOptions
      */
-    public function __construct(private AppPage $page,
-        private DriverInterface $driver, private Utils $utils)
+    private function options(): SelectOptions
     {
-        $this->selectOptions = new SelectOptions($this->driver, $this->utils);
+        return $this->selectOptions ??= new SelectOptions($this->driver(), $this->page(), $this->utils());
     }
 
     /**
@@ -51,10 +44,10 @@ class SelectQuery
         $selectDto->columns = []; // selectable columns
         $selectDto->textLength = 0;
         foreach ($selectDto->fields as $key => $field) {
-            $name = $this->page->fieldName($field);
+            $name = $this->page()->fieldName($field);
             if (isset($field->privileges["select"]) && $name != "") {
                 $selectDto->columns[$key] = html_entity_decode(strip_tags($name), ENT_QUOTES);
-                if ($this->page->isShortable($field)) {
+                if ($this->page()->isShortable($field)) {
                     $this->setSelectTextLength($selectDto);
                 }
             }
@@ -72,7 +65,7 @@ class SelectQuery
     private function setForeignKeys(SelectDto $selectDto): void
     {
         $selectDto->foreignKeys = [];
-        foreach ($this->driver->foreignKeys($selectDto->table) as $foreignKey) {
+        foreach ($this->driver()->foreignKeys($selectDto->table) as $foreignKey) {
             foreach ($foreignKey->source as $val) {
                 $selectDto->foreignKeys[$val][] = $foreignKey;
             }
@@ -88,8 +81,8 @@ class SelectQuery
     {
         return $value['fun'] === 'count' ||
             ($value['col'] !== '' && (!$value['fun'] ||
-                in_array($value['fun'], $this->driver->functions()) ||
-                in_array($value['fun'], $this->driver->grouping())));
+                in_array($value['fun'], $this->driver()->functions()) ||
+                in_array($value['fun'], $this->driver()->grouping())));
     }
 
     /**
@@ -112,15 +105,15 @@ class SelectQuery
     {
         $selectDto->select = []; // select expressions, empty for *
         $selectDto->group = []; // expressions without aggregation - will be used for GROUP BY if an aggregation function is used
-        $values = $this->utils->input->values;
+        $values = $this->utils()->input->values;
         foreach ($values['columns'] as $key => $value) {
             if ($this->colHasValidValue($value)) {
                 $column = '*';
                 if ($value['col'] !== '') {
-                    $column = $this->driver->escapeId($value['col']);
+                    $column = $this->grammar()->escapeId($value['col']);
                 }
-                $selectDto->select[$key] = $this->page->applySqlFunction($value['fun'], $column);
-                if (!in_array($value['fun'], $this->driver->grouping())) {
+                $selectDto->select[$key] = $this->page()->applySqlFunction($value['fun'], $column);
+                if (!in_array($value['fun'], $this->driver()->grouping())) {
                     $selectDto->group[] = $selectDto->select[$key];
                 }
             }
@@ -141,15 +134,15 @@ class SelectQuery
 
         return match(true) {
             preg_match('~IN$~', $op) > 0 => " $op " .
-                (($in = $this->driver->processLength($val)) !== '' ? $in : '(NULL)'),
+                (($in = $this->grammar()->processLength($val)) !== '' ? $in : '(NULL)'),
             $op === 'SQL' => " $val", // SQL injection
-            $op === 'LIKE %%' => ' LIKE ' . $this->page
+            $op === 'LIKE %%' => ' LIKE ' . $this->page()
                 ->getUnconvertedFieldValue($fields[$col], "%$val%"),
-            $op === 'ILIKE %%' => ' ILIKE ' . $this->page
+            $op === 'ILIKE %%' => ' ILIKE ' . $this->page()
                 ->getUnconvertedFieldValue($fields[$col], "%$val%"),
             $op === 'FIND_IN_SET' => ')',
             !preg_match('~NULL$~', $op) => " $op " .
-                $this->page->getUnconvertedFieldValue($fields[$col], $val),
+                $this->page()->getUnconvertedFieldValue($fields[$col], $val),
             default => " $op",
         };
     }
@@ -167,7 +160,7 @@ class SelectQuery
         $in = preg_match('~IN$~', $op) ? ',' : '';
 
         return (preg_match('~^[-\d.' . $in . ']+$~', $val) ||
-                !preg_match('~' . $this->driver->numberRegex() . '|bit~', $field->type)) &&
+                !preg_match('~' . $this->driver()->numberRegex() . '|bit~', $field->type)) &&
             (!preg_match("~[\x80-\xFF]~", $val) ||
                 preg_match('~char|text|enum|set~', $field->type)) &&
             (!preg_match('~date|timestamp~', $field->type) ||
@@ -186,19 +179,19 @@ class SelectQuery
         $col = $value['col'];
         $prefix = '';
         if ($op === 'FIND_IN_SET') {
-            $quotedValue = $this->driver->quote($value['val']);
+            $quotedValue = $this->driver()->quote($value['val']);
             $prefix = "{$op}({$quotedValue}, ";
         }
         $condition = $this->getWhereCondition($value, $fields);
         if ($col !== '') {
-            return $prefix . $this->driver->convertSearch($this->driver->escapeId($col),
+            return $prefix . $this->driver()->convertSearch($this->grammar()->escapeId($col),
                 $value, $fields[$col]) . $condition;
         }
         // find anywhere
         $clauses = [];
         foreach ($fields as $name => $field) {
             if ($this->selectFieldIsValid($field, $value)) {
-                $clauses[] = $prefix . $this->driver->convertSearch($this->driver->escapeId($name),
+                $clauses[] = $prefix . $this->driver()->convertSearch($this->grammar()->escapeId($name),
                     $value, $field) . $condition;
             }
         }
@@ -214,10 +207,10 @@ class SelectQuery
      */
     private function getMatchExpression(IndexDto $index, int $i): string
     {
-        $columns = array_map($this->driver->escapeId(...), $index->columns);
-        $fulltext = $this->utils->input->values['fulltext'][$i] ?? '';
-        $match = $this->driver->quote($fulltext);
-        if (isset($this->utils->input->values['boolean'][$i])) {
+        $columns = array_map($this->grammar()->escapeId(...), $index->columns);
+        $fulltext = $this->utils()->input->values['fulltext'][$i] ?? '';
+        $match = $this->driver()->quote($fulltext);
+        if (isset($this->utils()->input->values['boolean'][$i])) {
             $match .= ' IN BOOLEAN MODE';
         }
 
@@ -234,14 +227,14 @@ class SelectQuery
     {
         $selectDto->where = [];
         foreach ($selectDto->indexes as $i => $index) {
-            $fulltext = $this->utils->input->values['fulltext'][$i] ?? '';
+            $fulltext = $this->utils()->input->values['fulltext'][$i] ?? '';
             if ($index->type === 'FULLTEXT' && $fulltext !== '') {
                 $selectDto->where[] = $this->getMatchExpression($index, $i);
             }
         }
-        foreach ((array) $this->utils->input->values['where'] as $value) {
+        foreach ((array) $this->utils()->input->values['where'] as $value) {
             if (($value['col'] !== '' ||  $value['val'] !== '') &&
-                in_array($value['op'], $this->driver->operators())) {
+                in_array($value['op'], $this->driver()->operators())) {
                 $selectDto->where[] = $this
                     ->getSelectExpression($value, $selectDto->fields);
             }
@@ -255,13 +248,13 @@ class SelectQuery
      */
     private function setSelectOrder(SelectDto $selectDto): void
     {
-        $values = $this->utils->input->values;
+        $values = $this->utils()->input->values;
         $selectDto->order = [];
         foreach ($values['order'] as $key => $value) {
             if ($value !== '') {
                 $regexp = '~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~';
                 if (preg_match($regexp, $value) !== false) {
-                    $value = $this->driver->escapeId($value);
+                    $value = $this->grammar()->escapeId($value);
                 }
                 if (isset($values['desc'][$key]) && intval($values['desc'][$key]) !== 0) {
                     $value .= ' DESC';
@@ -278,7 +271,7 @@ class SelectQuery
      */
     private function setSelectLimit(SelectDto $selectDto): void
     {
-        $selectDto->limit = intval($this->utils->input->values['limit'] ?? 50);
+        $selectDto->limit = intval($this->utils()->input->values['limit'] ?? 50);
     }
 
     /**
@@ -288,7 +281,7 @@ class SelectQuery
      */
     private function setSelectTextLength(SelectDto $selectDto): void
     {
-        $selectDto->textLength = intval($this->utils->input->values['length'] ?? 100);
+        $selectDto->textLength = intval($this->utils()->input->values['length'] ?? 100);
     }
 
     /**
@@ -305,7 +298,7 @@ class SelectQuery
                 $primary = array_flip($index->columns);
                 $selectDto->unselected = ($selectDto->select ? $primary : []);
                 foreach ($selectDto->unselected as $key => $val) {
-                    if (in_array($this->driver->escapeId($key), $selectDto->select)) {
+                    if (in_array($this->grammar()->escapeId($key), $selectDto->select)) {
                         unset($selectDto->unselected[$key]);
                     }
                 }
@@ -335,24 +328,24 @@ class SelectQuery
         $group2 = $selectDto->group;
         if (empty($select2)) {
             $select2[] = "*";
-            $convert_fields = $this->driver->convertFields($selectDto->columns,
+            $convert_fields = $this->grammar()->convertFields($selectDto->columns,
                 $selectDto->fields, $selectDto->select);
             if ($convert_fields) {
                 $select2[] = substr($convert_fields, 2);
             }
         }
         foreach ($selectDto->select as $key => $val) {
-            $field = $fields[$this->driver->unescapeId($val)] ?? null;
-            if ($field && ($as = $this->driver->convertField($field))) {
+            $field = $fields[$this->grammar()->unescapeId($val)] ?? null;
+            if ($field && ($as = $this->grammar()->convertField($field))) {
                 $select2[$key] = "$as AS $val";
             }
         }
         $isGroup = count($selectDto->group) < count($selectDto->select);
         if (!$isGroup && !empty($unselected)) {
             foreach ($unselected as $key => $val) {
-                $select2[] = $this->driver->escapeId($key);
+                $select2[] = $this->grammar()->escapeId($key);
                 if (!empty($group2)) {
-                    $group2[] = $this->driver->escapeId($key);
+                    $group2[] = $this->grammar()->escapeId($key);
                 }
             }
         }
@@ -373,17 +366,17 @@ class SelectQuery
      */
     public function prepareSelect(SelectDto $selectDto): SelectDto
     {
-        $this->selectOptions->setDefaultOptions($selectDto);
+        $this->options()->setDefaultOptions($selectDto);
 
         // From select.inc.php
-        $selectDto->fields = $this->driver->fields($selectDto->table);
+        $selectDto->fields = $this->driver()->fields($selectDto->table);
         $this->setFieldsOptions($selectDto);
-        if (!$selectDto->columns && $this->driver->support("table")) {
-            throw new Exception($this->utils->trans->lang('Unable to select the table') .
-                ($selectDto->fields ? "." : ": " . $this->driver->error()));
+        if (!$selectDto->columns && $this->driver()->support("table")) {
+            throw new Exception($this->utils()->lang('Unable to select the table') .
+                ($selectDto->fields ? "." : ": " . $this->driver()->error()));
         }
 
-        $selectDto->indexes = $this->driver->indexes($selectDto->table);
+        $selectDto->indexes = $this->driver()->indexes($selectDto->table);
         $this->setForeignKeys($selectDto);
         $this->setSelectColumns($selectDto);
 
@@ -399,23 +392,23 @@ class SelectQuery
         //         if($foreignKeys[$val["col"]] && count($foreignKeys[$val["col"]]) == 1 && ($val["op"] == "="
         //             || (!$val["op"] && !preg_match('~[_%]~', $val["val"])) // LIKE in Editor
         //         )) {
-        //             $set .= "&set" . urlencode("[" . $this->driver->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
+        //             $set .= "&set" . urlencode("[" . $this->grammar()->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
         //         }
         //     }
         // }
-        // $this->page->selectLinks($tableStatus, $set);
+        // $this->page()->selectLinks($tableStatus, $set);
 
         // if($page == "last")
         // {
         //     $isGroup = count($group) < count($select);
-        //     $found_rows = $this->driver->result($this->driver->getRowCountQuery($table, $where, $isGroup, $group));
+        //     $found_rows = $this->driver()->result($this->grammar()->getRowCountQuery($table, $where, $isGroup, $group));
         //     $page = \floor(\max(0, $found_rows - 1) / $limit);
         // }
 
-        $this->selectOptions->setSelectOptions($selectDto);
+        $this->options()->setSelectOptions($selectDto);
         $this->setSelectDto($selectDto);
 
-        $query = $this->driver->buildSelectQuery($selectDto->tableSelect);
+        $query = $this->grammar()->getTableSelectQuery($selectDto->tableSelect);
         // From adminer.inc.php
         $selectDto->query = str_replace("\n", " ", $query);
 

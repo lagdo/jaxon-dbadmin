@@ -1,22 +1,22 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 /**
- * Facade to import functions
+ * Proxy to import functions
  */
 trait ImportTrait
 {
     use AbstractTrait;
 
     /**
-     * Get the facade
+     * Get the proxy
      *
-     * @return ImportFacade
+     * @return ImportProxy
      */
-    protected function importFacade(): ImportFacade
+    protected function importProxy(): ImportProxy
     {
-        return $this->di()->g(ImportFacade::class);
+        return $this->di()->g(ImportProxy::class);
     }
 
     /**
@@ -27,8 +27,8 @@ trait ImportTrait
     public function getImportOptions(): array
     {
         $this->connectToDatabase();
-        $this->breadcrumbs(true)->item($this->utils->trans->lang('Import'));
-        return $this->importFacade()->getImportOptions();
+        $this->breadcrumbs(true)->item($this->utils()->lang('Import'));
+        return $this->importProxy()->getImportOptions();
     }
 
     /**
@@ -43,6 +43,6 @@ trait ImportTrait
     public function executeSqlFiles(array $files, bool $errorStops, bool $onlyErrors): array
     {
         $this->connectToSchema();
-        return $this->importFacade()->executeSqlFiles($files, $errorStops, $onlyErrors);
+        return $this->importProxy()->executeSqlFiles($files, $errorStops, $onlyErrors);
     }
 }

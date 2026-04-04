@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Db\Service\Admin;
 
 use Lagdo\DbAdmin\Db\Config\AuthInterface;
 use Lagdo\DbAdmin\Db\Service\Audit;
-use Lagdo\DbAdmin\Driver\DriverInterface;
+use Lagdo\DbAdmin\Support\DriverInterface;
 
 use function gmdate;
 

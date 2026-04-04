@@ -135,7 +135,7 @@ class Insert extends FuncComponent
     public function showQueryCode(bool $fromSelect, array $formValues): void
     {
         // No specific options for inserts.
-        $result = $this->db()->getInsertQuery($this->getCurrentTable(), [], $formValues);
+        $result = $this->db()->getRowInsertQuery($this->getCurrentTable(), [], $formValues);
         // Show the error
         if(isset($result['error']))
         {

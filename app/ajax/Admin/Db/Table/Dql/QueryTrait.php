@@ -48,7 +48,7 @@ trait QueryTrait
     /**
      * @return string
      */
-    protected function getSelectQuery(): string
+    protected function getRowSelectQuery(): string
     {
         $table = $this->getCurrentTable();
         $options = $this->getOptions();

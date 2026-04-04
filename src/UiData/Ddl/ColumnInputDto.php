@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
 
 use function array_combine;
 use function array_map;

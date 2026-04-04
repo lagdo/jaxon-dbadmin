@@ -1,16 +1,17 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
 use Lagdo\DbAdmin\Db\UiData\Ddl\ForeignKeyTrait;
 use Lagdo\DbAdmin\Db\UiData\Ddl\TableAlter;
 use Lagdo\DbAdmin\Db\UiData\Ddl\TableContent;
 use Lagdo\DbAdmin\Db\UiData\Ddl\TableCreate;
 use Lagdo\DbAdmin\Db\UiData\Ddl\TableHeader;
-use Lagdo\DbAdmin\Driver\Dto\TableAlterDto;
-use Lagdo\DbAdmin\Driver\Dto\TableCreateDto;
-use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Support\Dto\TableAlterDto;
+use Lagdo\DbAdmin\Support\Dto\TableCreateDto;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
 use Exception;
 
 use function array_map;
@@ -19,9 +20,9 @@ use function count;
 use function in_array;
 
 /**
- * Facade to table functions
+ * Proxy to table functions
  */
-class TableFacade extends AbstractFacade
+class TableProxy extends AbstractProxy
 {
     use ForeignKeyTrait;
 
@@ -53,11 +54,19 @@ class TableFacade extends AbstractFacade
     private TableAlter|null $tableAlter = null;
 
     /**
+     * @param AbstractProxy $proxy
+     */
+    public function __construct(AbstractProxy $proxy)
+    {
+        parent::__construct($proxy->driver(), $proxy->page(), $proxy->utils());
+    }
+
+    /**
      * @return TableHeader
      */
     private function header(): TableHeader
     {
-        return $this->tableHeader ??= new TableHeader($this->page, $this->driver, $this->utils);
+        return $this->tableHeader ??= new TableHeader($this->driver(), $this->page(), $this->utils());
     }
 
     /**
@@ -65,7 +74,7 @@ class TableFacade extends AbstractFacade
      */
     private function content(): TableContent
     {
-        return $this->tableContent ??= new TableContent($this->page, $this->driver, $this->utils);
+        return $this->tableContent ??= new TableContent($this->driver(), $this->page(), $this->utils());
     }
 
     /**
@@ -73,7 +82,7 @@ class TableFacade extends AbstractFacade
      */
     private function create(): TableCreate
     {
-        return $this->tableCreate ??= new TableCreate($this->page, $this->driver, $this->utils);
+        return $this->tableCreate ??= new TableCreate($this->driver(), $this->page(), $this->utils());
     }
 
     /**
@@ -81,7 +90,7 @@ class TableFacade extends AbstractFacade
      */
     private function alter(): TableAlter
     {
-        return $this->tableAlter ??= new TableAlter($this->page, $this->driver, $this->utils);
+        return $this->tableAlter ??= new TableAlter($this->driver(), $this->page(), $this->utils());
     }
 
     /**
@@ -95,14 +104,14 @@ class TableFacade extends AbstractFacade
     public function getFieldTypes(string $type = '', array $extraTypes = []): array
     {
         // From includes/editing.inc.php
-        if ($type !== '' && !$this->driver->typeExists($type) &&
+        if ($type !== '' && !$this->driver()->typeExists($type) &&
             !isset($this->foreignKeys[$type]) && !in_array($type, $extraTypes)) {
             $extraTypes[] = $type;
         }
 
-        $structuredTypes = $this->driver->structuredTypes();
+        $structuredTypes = $this->driver()->structuredTypes();
         if (!empty($this->foreignKeys)) {
-            $structuredTypes[$this->utils->trans->lang('Foreign keys')] = $this->foreignKeys;
+            $structuredTypes[$this->utils()->lang('Foreign keys')] = $this->foreignKeys;
         }
 
         // Change from Adminer:
@@ -119,7 +128,7 @@ class TableFacade extends AbstractFacade
      */
     protected function status(string $table)
     {
-        return $this->tableStatus ??= $this->driver->tableStatusOrName($table, true);
+        return $this->tableStatus ??= $this->driver()->tableStatusOrName($table, true);
     }
 
     /**
@@ -148,9 +157,9 @@ class TableFacade extends AbstractFacade
     public function getTableFields(string $table): array
     {
         // From table.inc.php
-        $fields = $this->driver->fields($table);
+        $fields = $this->driver()->fields($table);
         if (empty($fields)) {
-            throw new Exception($this->driver->error());
+            throw new Exception($this->driver()->error());
         }
 
         $status = $this->status($table);
@@ -170,12 +179,12 @@ class TableFacade extends AbstractFacade
      */
     public function getTableIndexes(string $table): ?array
     {
-        if (!$this->driver->support('indexes')) {
+        if (!$this->driver()->support('indexes')) {
             return null;
         }
 
         // From table.inc.php
-        $indexes = $this->driver->indexes($table);
+        $indexes = $this->driver()->indexes($table);
 
         return [
             'headers' => $this->header()->indexes(),
@@ -193,11 +202,11 @@ class TableFacade extends AbstractFacade
     public function getTableForeignKeys(string $table): ?array
     {
         $status = $this->status($table);
-        if (!$this->driver->supportForeignKeys($status)) {
+        if (!$this->driver()->supportForeignKeys($status)) {
             return null;
         }
 
-        $foreignKeys = $this->driver->foreignKeys($table);
+        $foreignKeys = $this->driver()->foreignKeys($table);
 
         return [
             'headers' => $this->header()->foreignKeys(),
@@ -214,12 +223,12 @@ class TableFacade extends AbstractFacade
      */
     public function getTableTriggers(string $table): ?array
     {
-        if (!$this->driver->support('trigger')) {
+        if (!$this->driver()->support('trigger')) {
             return null;
         }
 
         // From table.inc.php
-        $triggers = $this->driver->triggers($table);
+        $triggers = $this->driver()->triggers($table);
 
         return [
             'headers' => $this->header()->triggers(),
@@ -241,11 +250,11 @@ class TableFacade extends AbstractFacade
         $status = null;
         $fields = [];
         if ($table !== '') {
-            $status = $this->driver->tableStatus($table);
+            $status = $this->driver()->tableStatus($table);
             if (!$status) {
-                throw new Exception($this->utils->trans->lang('No tables.'));
+                throw new Exception($this->utils()->lang('No tables.'));
             }
-            $fields = $this->driver->fields($table);
+            $fields = $this->driver()->fields($table);
         }
 
         $this->getForeignKeys($table);
@@ -290,7 +299,7 @@ class TableFacade extends AbstractFacade
         }
 
         return [
-            'queries' => $this->driver->getTableCreationQueries($table),
+            'queries' => $this->grammar()->getCreateTableQueries($table),
         ];
     }
 
@@ -321,9 +330,9 @@ class TableFacade extends AbstractFacade
     public function getAlterTableQueries(string $name, array $options, array $columns): array
     {
         $table = new TableAlterDto($options);
-        if (($table->current = $this->driver->tableStatus($name, true)) === null) {
+        if (($table->current = $this->driver()->tableStatus($name, true)) === null) {
             return[
-                'error' => $this->utils->trans->lang('Unable to find the table.'),
+                'error' => $this->utils()->lang('Unable to find the table.'),
             ];
         }
 
@@ -335,7 +344,7 @@ class TableFacade extends AbstractFacade
         }
 
         return [
-            'queries' => $this->driver->getTableAlterationQueries($table),
+            'queries' => $this->grammar()->getAlterTableQueries($table),
         ];
     }
 
@@ -365,20 +374,20 @@ class TableFacade extends AbstractFacade
      */
     public function dropTable(string $table): array
     {
-        if ($this->driver->tableStatus($table) === null) {
+        if ($this->driver()->tableStatus($table) === null) {
             return [
-                'error' => $this->utils->trans->lang('Invalid table %s.', $table),
+                'error' => $this->utils()->lang('Invalid table %s.', $table),
             ];
         }
 
-        if (!$this->driver->dropTables([$table])) {
+        if (!$this->driver()->dropTables([$table])) {
             return [
-                'error' => $this->driver->error(),
+                'error' => $this->driver()->error(),
             ];
         }
 
         return [
-            'message' => $this->utils->trans->lang('Table has been dropped.'),
+            'message' => $this->utils()->lang('Table has been dropped.'),
         ];
     }
 }

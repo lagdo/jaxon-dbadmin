@@ -2,9 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
-use Lagdo\DbAdmin\Db\UiData\AppPage;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 
 use function count;
 use function explode;
@@ -21,20 +19,30 @@ use function substr_count;
 /**
  * Make data for HTML elements in the user forms for data row insert and update.
  */
-class DataFieldInput
+class DataFieldInput extends AbstractProxy
 {
     /**
-     * The constructor
-     *
-     * @param AppPage $page
-     * @param DriverInterface $driver
-     * @param Utils $utils
+     * @var string
+     */
+    private string $action;
+
+    /**
+     * @var string
+     */
+    private string $operation;
+
+    /**
      * @param string $action
      * @param string $operation
+     *
+     * @return self
      */
-    public function __construct(private AppPage $page, private DriverInterface $driver,
-        private Utils $utils, private string $action, private string $operation)
-    {}
+    public function init(string $action, string $operation): self
+    {
+        $this->action = $action;
+        $this->operation = $operation;
+        return $this;
+    }
 
     /**
      * @param FieldEditDto $editField
@@ -85,8 +93,8 @@ class DataFieldInput
                     ...$attrs,
                     'id' => "{$attrs['id']}_{$enumValue}", // Overwrite the id value in the $attrs array.
                 ],
-                'label' => $this->utils->html($enumValue),
-                'value' => $this->utils->html($fieldValue),
+                'label' => $this->utils()->html($enumValue),
+                'value' => $this->utils()->html($fieldValue),
                 'checked' => $this->isChecked($editField, $fieldValue, $enumValue),
             ];
         }
@@ -108,7 +116,7 @@ class DataFieldInput
             // Prepend the value to the item list
             $items = [[
                 'attrs' => $attrs,
-                'label' => '<i>' . $this->utils->trans->lang('original') . '</i>',
+                'label' => '<i>' . $this->utils()->lang('original') . '</i>',
                 'value' => 'orig',
                 'checked' => true,
             ], ...$items];
@@ -170,7 +178,7 @@ class DataFieldInput
      */
     private function isBlob(FieldEditDto $editField): bool
     {
-        return $this->utils->isBlob($editField->field) && $this->utils->iniBool("file_uploads");
+        return $this->utils()->isBlob($editField->field) && $this->utils()->iniBool("file_uploads");
     }
 
     /**
@@ -206,7 +214,7 @@ class DataFieldInput
                 'rows' => '5',
                 'class' => 'jush-js',
             ],
-            'value' => $this->utils->str->html($editField->value ?? ''),
+            'value' => $this->utils()->str->html($editField->value ?? ''),
         ];
     }
 
@@ -217,7 +225,7 @@ class DataFieldInput
      */
     private function textSizeIsFixed(FieldEditDto $editField): bool
     {
-        return ($editField->isText() && $this->driver->jush() !== 'sqlite') || $editField->isSearch();
+        return ($editField->isText() && $this->driver()->jush() !== 'sqlite') || $editField->isSearch();
     }
 
     /**
@@ -241,7 +249,7 @@ class DataFieldInput
                 ...$attrs,
                 ...$fieldAttrs,
             ],
-            'value' => $this->utils->html($editField->value ?? ''),
+            'value' => $this->utils()->html($editField->value ?? ''),
         ];
     }
 
@@ -255,7 +263,7 @@ class DataFieldInput
         $unsigned = $editField->field->unsigned;
         $length = $editField->field->length;
         $type = $editField->type;
-        $types = $this->driver->types();
+        $types = $this->driver()->types();
 
         $maxlength = (!preg_match('~int~', $type) &&
             preg_match('~^(\d+)(,(\d+))?$~', $length, $match) ?
@@ -265,8 +273,8 @@ class DataFieldInput
             (isset($types[$type]) ? $types[$type] + ($unsigned ? 0 : 1) : 0)
         );
 
-        return $this->driver->jush() === 'sql' &&
-            $this->driver->minVersion(5.6) &&
+        return $this->driver()->jush() === 'sql' &&
+            $this->driver()->minVersion(5.6) &&
             preg_match('~time~', $type) ?
                 $maxlength += 7 : // microtime
                 $maxlength;
@@ -297,7 +305,7 @@ class DataFieldInput
         return [
             'field' => 'input',
             'attrs' => $attrs,
-            'value' => $this->utils->html($editField->value ?? ''),
+            'value' => $this->utils()->html($editField->value ?? ''),
         ];
     }
 
@@ -355,7 +363,7 @@ class DataFieldInput
 
         if (count($editField->functions) < 2) {
             return [
-                'label' => $this->utils->str->html($editField->functions[0] ?? ''),
+                'label' => $this->utils()->str->html($editField->functions[0] ?? ''),
             ];
         }
 

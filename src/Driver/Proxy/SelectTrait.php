@@ -1,25 +1,25 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 use Lagdo\DbAdmin\Db\UiData\Dql\SelectDto;
 use Exception;
 
 /**
- * Facade to table select functions
+ * Proxy to table select functions
  */
 trait SelectTrait
 {
     use AbstractTrait;
 
     /**
-     * Get the facade
+     * Get the proxy
      *
-     * @return SelectFacade
+     * @return SelectProxy
      */
-    protected function selectFacade(): SelectFacade
+    protected function selectProxy(): SelectProxy
     {
-        return $this->di()->g(SelectFacade::class);
+        return $this->di()->g(SelectProxy::class);
     }
 
     /**
@@ -34,9 +34,9 @@ trait SelectTrait
     public function getSelectData(string $table, array $queryOptions = []): SelectDto
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        $this->utils->input->values = $queryOptions;
-        return $this->selectFacade()->getSelectData($table, $queryOptions);
+        $this->utils()->input->table = $table;
+        $this->utils()->input->values = $queryOptions;
+        return $this->selectProxy()->getSelectData($table, $queryOptions);
     }
 
     /**
@@ -51,9 +51,9 @@ trait SelectTrait
     public function countSelect(string $table, array $queryOptions = []): int
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        $this->utils->input->values = $queryOptions;
-        return $this->selectFacade()->countSelect($table, $queryOptions);
+        $this->utils()->input->table = $table;
+        $this->utils()->input->values = $queryOptions;
+        return $this->selectProxy()->countSelect($table, $queryOptions);
     }
 
     /**
@@ -68,8 +68,8 @@ trait SelectTrait
     public function execSelect(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        $this->utils->input->values = $queryOptions;
-        return $this->selectFacade()->execSelect($table, $queryOptions);
+        $this->utils()->input->table = $table;
+        $this->utils()->input->values = $queryOptions;
+        return $this->selectProxy()->execSelect($table, $queryOptions);
     }
 }

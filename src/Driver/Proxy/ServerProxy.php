@@ -1,6 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 
 use function array_filter;
 use function array_intersect;
@@ -12,9 +14,9 @@ use function is_array;
 use function is_string;
 
 /**
- * Facade to server functions
+ * Proxy to server functions
  */
-class ServerFacade extends AbstractFacade
+class ServerProxy extends AbstractProxy
 {
     /**
      * The final database list
@@ -33,12 +35,12 @@ class ServerFacade extends AbstractFacade
     /**
      * The constructor
      *
-     * @param AbstractFacade $dbFacade
+     * @param AbstractProxy $dbProxy
      * @param array $options    The server config options
      */
-    public function __construct(AbstractFacade $dbFacade, array $options)
+    public function __construct(AbstractProxy $dbProxy, array $options)
     {
-        parent::__construct($dbFacade);
+        parent::__construct($dbProxy->driver(), $dbProxy->page(), $dbProxy->utils());
         // Set the user databases, if defined.
         if (is_array(($userDatabases = $options['access']['databases'] ?? null))) {
             $this->userDatabases = $userDatabases;
@@ -54,7 +56,7 @@ class ServerFacade extends AbstractFacade
      */
     public function support(string $feature): bool
     {
-        return $this->driver->support($feature);
+        return $this->driver()->support($feature);
     }
 
     /**
@@ -70,14 +72,14 @@ class ServerFacade extends AbstractFacade
             // Get the database lists
             // Passing false as parameter to this call prevent from using the slow_query() function,
             // which outputs data to the browser are prepended to the Jaxon response.
-            $this->finalDatabases = $this->driver->databases(false);
+            $this->finalDatabases = $this->driver()->databases(false);
             if (is_array($this->userDatabases)) {
                 // Only keep databases that appear in the config.
                 $this->finalDatabases = array_values(array_intersect($this->finalDatabases, $this->userDatabases));
             }
         }
         return $schemaAccess ? $this->finalDatabases : array_filter($this->finalDatabases,
-            fn($database) => !$this->driver->isSystemSchema($database));
+            fn($database) => !$this->driver()->isSystemSchema($database));
     }
 
     /**
@@ -87,13 +89,13 @@ class ServerFacade extends AbstractFacade
      */
     public function getServerInfo(): array
     {
-        $server = $this->utils->trans->lang(
+        $server = $this->utils()->lang(
             '%s version: %s. PHP extension %s.',
-            $this->driver->name(),
-            "<b>" . $this->utils->str->html($this->driver->serverInfo()) . "</b>",
-            "<b>{$this->driver->extension()}</b>"
+            $this->driver()->name(),
+            "<b>" . $this->utils()->html($this->driver()->serverInfo()) . "</b>",
+            "<b>{$this->driver()->extension()}</b>"
         );
-        $user = $this->utils->trans->lang('Logged as: %s.', "<b>" . $this->utils->str->html($this->driver->user()) . "</b>");
+        $user = $this->utils()->lang('Logged as: %s.', "<b>" . $this->utils()->html($this->driver()->user()) . "</b>");
 
         return compact('server', 'user');
     }
@@ -108,7 +110,7 @@ class ServerFacade extends AbstractFacade
      */
     public function createDatabase(string $database, string $collation = ''): bool
     {
-        return $this->driver->createDatabase($database, $collation);
+        return $this->driver()->createDatabase($database, $collation);
     }
 
     /**
@@ -120,7 +122,7 @@ class ServerFacade extends AbstractFacade
      */
     public function dropDatabase(string $database): bool
     {
-        return $this->driver->dropDatabase($database);
+        return $this->driver()->dropDatabase($database);
     }
 
     /**
@@ -130,7 +132,7 @@ class ServerFacade extends AbstractFacade
      */
     public function getCollations(): array
     {
-        return $this->driver->collations();
+        return $this->driver()->collations();
     }
 
     /**
@@ -143,24 +145,24 @@ class ServerFacade extends AbstractFacade
     public function getDatabases(bool $schemaAccess): array
     {
         $headers = [
-            $this->utils->trans->lang('Database'),
-            $this->utils->trans->lang('Collation'),
-            $this->utils->trans->lang('Tables'),
-            $this->utils->trans->lang('Size'),
+            $this->utils()->lang('Database'),
+            $this->utils()->lang('Collation'),
+            $this->utils()->lang('Tables'),
+            $this->utils()->lang('Size'),
             '',
         ];
 
         // Get the database list
         $databases = $this->databases($schemaAccess);
-        $tables = $this->driver->countTables($databases);
-        $collations = $this->driver->collations();
+        $tables = $this->driver()->countTables($databases);
+        $collations = $this->driver()->collations();
         $details = [];
         foreach ($databases as $database) {
             $details[] = [
-                'name' => $this->utils->str->html($database),
-                'collation' => $this->utils->str->html($this->driver->databaseCollation($database, $collations)),
+                'name' => $this->utils()->html($database),
+                'collation' => $this->utils()->html($this->driver()->databaseCollation($database, $collations)),
                 'tables' => array_key_exists($database, $tables) ? $tables[$database] : 0,
-                'size' => $this->utils->trans->formatNumber($this->driver->databaseSize($database)),
+                'size' => $this->utils()->trans->formatNumber($this->driver()->databaseSize($database)),
             ];
         }
 
@@ -175,7 +177,7 @@ class ServerFacade extends AbstractFacade
     public function getProcesses(): array
     {
         // From processlist.inc.php
-        $processes = $this->driver->processes();
+        $processes = $this->driver()->processes();
 
         // From processlist.inc.php
         // TODO: Add a kill column in the headers
@@ -188,7 +190,7 @@ class ServerFacade extends AbstractFacade
         foreach ($processes as $process) {
             $attrs = [];
             foreach ($process as $key => $val) {
-                $attrs[] = is_string($val) ? $this->driver->processAttr($process, $key, $val) : '(null)';
+                $attrs[] = is_string($val) ? $this->driver()->processAttr($process, $key, $val) : '(null)';
             }
             $details[] = $attrs;
         }
@@ -203,14 +205,14 @@ class ServerFacade extends AbstractFacade
     public function getVariables(): array
     {
         // From variables.inc.php
-        $variables = $this->driver->variables();
+        $variables = $this->driver()->variables();
 
         $headers = false;
 
         $details = [];
         // From variables.inc.php
         foreach ($variables as $key => $val) {
-            $details[] = [$this->utils->str->html($key), is_string($val) ? $this->utils->str->shortenUtf8($val, 50) : '(null)'];
+            $details[] = [$this->utils()->html($key), is_string($val) ? $this->utils()->str->shortenUtf8($val, 50) : '(null)'];
         }
 
         return compact('headers', 'details');
@@ -224,13 +226,13 @@ class ServerFacade extends AbstractFacade
     public function getStatus(): array
     {
         // From variables.inc.php
-        $status = $this->driver->statusVariables();
+        $status = $this->driver()->statusVariables();
 
         $headers = false;
         $details = [];
         // From variables.inc.php
         foreach ($status as $key => $val) {
-            $details[] = [$this->utils->str->html($key), is_string($val) ? $this->utils->str->html($val) : '(null)'];
+            $details[] = [$this->utils()->html($key), is_string($val) ? $this->utils()->html($val) : '(null)'];
         }
 
         return compact('headers', 'details');

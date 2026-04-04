@@ -2,34 +2,56 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
-use Lagdo\DbAdmin\Db\UiData\AppPage;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
-use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
 
 /**
  * Reads data from the database for the row insert and update user forms.
  */
-class DataRowWriter
+class DataRowWriter extends AbstractProxy
 {
+    /**
+     * @var string
+     */
+    private string $action;
+
+    /**
+     * @var string
+     */
+    private string $operation;
+
+    /**
+     * @var DataFieldValue
+     */
+    private DataFieldValue $fieldValue;
+
+    /**
+     * @var DataFieldInput
+     */
+    private DataFieldInput $fieldInput;
+
     /**
      * @var bool|null
      */
     private bool|null $autofocus;
 
     /**
-     * The constructor
-     *
-     * @param AppPage $page
-     * @param DriverInterface $driver
-     * @param Utils $utils
      * @param string $action
      * @param string $operation
+     * @param DataFieldValue $fieldValue
+     * @param DataFieldInput $fieldInput
+     *
+     * @return self
      */
-    public function __construct(private AppPage $page, private DriverInterface $driver,
-        private Utils $utils, private string $action, private string $operation,
-        private DataFieldValue $fieldValue, private DataFieldInput $fieldInput)
-    {}
+    public function init(string $action, string $operation,
+        DataFieldValue $fieldValue, DataFieldInput $fieldInput): self
+    {
+        $this->action = $action;
+        $this->operation = $operation;
+        $this->fieldValue = $fieldValue;
+        $this->fieldInput = $fieldInput;
+        return $this;
+    }
 
     /**
      * @param array $result
@@ -44,8 +66,8 @@ class DataRowWriter
         $formatted = [];
         foreach ($result as $fieldName => $value) {
             $field = $fields[$fieldName];
-            $value = $this->driver->value($value, $field);
-            $formatted[] = $this->page->getFieldValue($field, $textLength, $value);
+            $value = $this->driver()->value($value, $field);
+            $formatted[] = $this->page()->getFieldValue($field, $textLength, $value);
         }
         return $formatted;
     }

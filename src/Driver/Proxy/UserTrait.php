@@ -1,22 +1,22 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 /**
- * Facade to user functions
+ * Proxy to user functions
  */
 trait UserTrait
 {
     use AbstractTrait;
 
     /**
-     * Get the facade to user features
+     * Get the proxy to user features
      *
-     * @return UserFacade
+     * @return UserProxy
      */
-    protected function userFacade(): UserFacade
+    protected function userProxy(): UserProxy
     {
-        return $this->di()->g(UserFacade::class);
+        return $this->di()->g(UserProxy::class);
     }
 
     /**
@@ -30,8 +30,8 @@ trait UserTrait
     public function getPrivileges(string $database = ''): array
     {
         $this->connectToServer();
-        $this->breadcrumbs()->clear()->item($this->utils->trans->lang('Privileges'));
-        return $this->userFacade()->getPrivileges($database);
+        $this->breadcrumbs()->clear()->item($this->utils()->lang('Privileges'));
+        return $this->userProxy()->getPrivileges($database);
     }
 
     /**
@@ -42,7 +42,7 @@ trait UserTrait
     public function newUserPrivileges(): array
     {
         $this->connectToServer();
-        return $this->userFacade()->newUserPrivileges();
+        return $this->userProxy()->newUserPrivileges();
     }
 
     /**
@@ -57,6 +57,6 @@ trait UserTrait
     public function getUserPrivileges(string $user, string $host, string $database): array
     {
         $this->connectToServer();
-        return $this->userFacade()->getUserPrivileges($user, $host, $database);
+        return $this->userProxy()->getUserPrivileges($user, $host, $database);
     }
 }

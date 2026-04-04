@@ -1,6 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 
 use function explode;
 use function in_array;
@@ -8,10 +10,18 @@ use function array_keys;
 use function strtoupper;
 
 /**
- * Facade to user functions
+ * Proxy to user functions
  */
-class UserFacade extends AbstractFacade
+class UserProxy extends AbstractProxy
 {
+    /**
+     * @param AbstractProxy $proxy
+     */
+    public function __construct(AbstractProxy $proxy)
+    {
+        parent::__construct($proxy->driver(), $proxy->page(), $proxy->utils());
+    }
+
     /**
      * Get the privilege list
      * This feature is available only for MySQL
@@ -23,19 +33,19 @@ class UserFacade extends AbstractFacade
     public function getPrivileges(string $database = ''): array
     {
         $headers = [
-            $this->utils->trans->lang('Username'),
-            $this->utils->trans->lang('Server'),
+            $this->utils()->lang('Username'),
+            $this->utils()->lang('Server'),
             '',
             '',
         ];
 
         $details = [];
-        foreach ($this->driver->getUsers($database) as $user) {
+        foreach ($this->driver()->getUsers($database) as $user) {
             // Fetch user grants
-            $userDto = $this->driver->getUserGrants($user["User"], $user["Host"]);
+            $userDto = $this->driver()->getUserGrants($user["User"], $user["Host"]);
             $details[] = [
-                'user' => $this->utils->str->html($userDto->name),
-                'host' => $this->utils->str->html($userDto->host),
+                'user' => $this->utils()->html($userDto->name),
+                'host' => $this->utils()->html($userDto->host),
                 'grants' => \array_keys($userDto->grants),
             ];
         }
@@ -91,12 +101,12 @@ class UserFacade extends AbstractFacade
      */
     private function getPrivilegeInput(string $privilege, string $desc, string $context, array $grants): array
     {
-        $detail = [$desc, $this->utils->str->html($privilege)];
+        $detail = [$desc, $this->utils()->html($privilege)];
         // echo '<tr><td' . ($desc ? ">$desc<td" : " colspan='2'") .
-        //     ' lang="en" title="' . $this->utils->str->html($comment) . '">' . $this->utils->str->html($privilege);
+        //     ' lang="en" title="' . $this->utils()->html($comment) . '">' . $this->utils()->html($privilege);
         $i = 0;
         foreach ($grants as $object => $grant) {
-            $name = "'grants[$i][" . $this->utils->str->html(strtoupper($privilege)) . "]'";
+            $name = "'grants[$i][" . $this->utils()->html(strtoupper($privilege)) . "]'";
             $value = $grant[strtoupper($privilege)] ?? false;
             if ($context == 'Server Admin' && $object != (isset($grants['*.*']) ? '*.*' : '.*')) {
                 $detail[] = '';
@@ -104,9 +114,9 @@ class UserFacade extends AbstractFacade
             // elseif(isset($values['grant']))
             // {
             //     $detail[] = "<select name=$name><option><option value='1'" .
-            //         ($value ? ' selected' : '') . '>' . $this->utils->trans->lang('Grant') .
+            //         ($value ? ' selected' : '') . '>' . $this->utils()->lang('Grant') .
             //         "<option value='0'" . ($value == '0' ? ' selected' : '') . '>' .
-            //         $this->utils->trans->lang('Revoke') . '</select>';
+            //         $this->utils()->lang('Revoke') . '</select>';
             // }
             else {
                 $detail[] = "<input type='checkbox' name=$name" . ($value ? ' checked />' : ' />');
@@ -132,7 +142,7 @@ class UserFacade extends AbstractFacade
             ],
             'Columns' => [],
         ];
-        $rows = $this->driver->rows('SHOW PRIVILEGES');
+        $rows = $this->driver()->rows('SHOW PRIVILEGES');
         foreach ($rows as $row) {
             $this->makeFeatures($features, $row);
         }
@@ -144,11 +154,11 @@ class UserFacade extends AbstractFacade
         $privileges = [];
         $contexts = [
             '' => '',
-            'Server Admin' => $this->utils->trans->lang('Server'),
-            'Databases' => $this->utils->trans->lang('Database'),
-            'Tables' => $this->utils->trans->lang('Table'),
-            'Columns' => $this->utils->trans->lang('Column'),
-            'Procedures' => $this->utils->trans->lang('Routine'),
+            'Server Admin' => $this->utils()->lang('Server'),
+            'Databases' => $this->utils()->lang('Database'),
+            'Tables' => $this->utils()->lang('Table'),
+            'Columns' => $this->utils()->lang('Column'),
+            'Procedures' => $this->utils()->lang('Routine'),
         ];
         foreach ($contexts as $context => $desc) {
             foreach ($features[$context] as $privilege => $comment) {
@@ -169,33 +179,33 @@ class UserFacade extends AbstractFacade
         $grants = [".*" => []];
 
         $headers = [
-            $this->utils->trans->lang('Contexts'),
-            $this->utils->trans->lang('Privileges'),
+            $this->utils()->lang('Contexts'),
+            $this->utils()->lang('Privileges'),
         ];
         $i = 0;
         foreach ($grants as $object => $grant) {
             //! separate db, table, columns, PROCEDURE|FUNCTION, routine
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
-                '<input name="objects[' . $i . ']" value="' . $this->utils->str->html($object) . '" autocapitalize="off" />';
+                '<input name="objects[' . $i . ']" value="' . $this->utils()->html($object) . '" autocapitalize="off" />';
             $i++;
         }
 
         $user = [
             'host' => [
-                'label' => $this->utils->trans->lang('Server'),
+                'label' => $this->utils()->lang('Server'),
                 'value' => '',
             ],
             'name' => [
-                'label' => $this->utils->trans->lang('Username'),
+                'label' => $this->utils()->lang('Username'),
                 'value' => '',
             ],
             'pass' => [
-                'label' => $this->utils->trans->lang('Password'),
+                'label' => $this->utils()->lang('Password'),
                 'value' => '',
             ],
             'hashed' => [
-                'label' => $this->utils->trans->lang('Hashed'),
+                'label' => $this->utils()->lang('Hashed'),
                 'value' => false,
             ],
         ];
@@ -216,15 +226,15 @@ class UserFacade extends AbstractFacade
      */
     public function getUserPrivileges(string $user, string $host, string $database): array
     {
-        $userDto = $this->driver->getUserGrants($user, $host);
+        $userDto = $this->driver()->getUserGrants($user, $host);
         if ($database !== '') {
             $userDto->grants = isset($userDto->grants[$database]) ?
                 [$database => $userDto->grants[$database]] : [];
         }
 
         $headers = [
-            $this->utils->trans->lang('Contexts'),
-            $this->utils->trans->lang('Privileges'),
+            $this->utils()->lang('Contexts'),
+            $this->utils()->lang('Privileges'),
         ];
         $i = 0;
         foreach ($userDto->grants as $object => $grant) {
@@ -232,25 +242,25 @@ class UserFacade extends AbstractFacade
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
                 '<input name="objects[' . $i . ']" value="' .
-                    $this->utils->str->html($object) . '" autocapitalize="off" />';
+                    $this->utils()->html($object) . '" autocapitalize="off" />';
             $i++;
         }
 
         $user = [
             'host' => [
-                'label' => $this->utils->trans->lang('Server'),
+                'label' => $this->utils()->lang('Server'),
                 'value' => $host,
             ],
             'name' => [
-                'label' => $this->utils->trans->lang('Username'),
+                'label' => $this->utils()->lang('Username'),
                 'value' => $user,
             ],
             'pass' => [
-                'label' => $this->utils->trans->lang('Password'),
+                'label' => $this->utils()->lang('Password'),
                 'value' => $userDto->password ,
             ],
             'hashed' => [
-                'label' => $this->utils->trans->lang('Hashed'),
+                'label' => $this->utils()->lang('Hashed'),
                 'value' => ($userDto->password  !== ''),
             ],
         ];

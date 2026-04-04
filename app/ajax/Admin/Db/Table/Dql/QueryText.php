@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql;
 
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Lagdo\DbAdmin\Support\Utils\Utils;
 use Lagdo\DbAdmin\Ui\Select\SelectUiBuilder;
 
 use function html_entity_decode;
@@ -51,7 +51,7 @@ class QueryText extends Component
      */
     public function refresh(): void
     {
-        $this->stash()->set('select.query', $this->getSelectQuery());
+        $this->stash()->set('select.query', $this->getRowSelectQuery());
         $this->render();
     }
 }

@@ -2,29 +2,16 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Db\UiData\AppPage;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Dto\ForeignKeyDto;
-use Lagdo\DbAdmin\Driver\Dto\TableCreateDto;
-use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
+use Lagdo\DbAdmin\Support\Dto\ForeignKeyDto;
+use Lagdo\DbAdmin\Support\Dto\TableCreateDto;
 
 use function array_filter;
 use function count;
 
-class TableCreate
+class TableCreate extends AbstractProxy
 {
     use ForeignKeyTrait;
-
-    /**
-     * The constructor
-     *
-     * @param AppPage $page
-     * @param DriverInterface $driver
-     * @param Utils $utils
-     */
-    public function __construct(private AppPage $page,
-        private DriverInterface $driver, private Utils $utils)
-    {}
 
     /**
      * @param TableCreateDto $table
@@ -40,7 +27,7 @@ class TableCreate
         // Auto increment
         $aiCount = count(array_filter($columns, fn($column) => $column->field->autoIncrement));
         if ($aiCount > 1) {
-            $table->error = $this->utils->trans->lang('Only one auto-increment field is allowed.');
+            $table->error = $this->utils()->lang('Only one auto-increment field is allowed.');
             return $table;
         }
 
@@ -54,7 +41,7 @@ class TableCreate
             //! can collide with user defined type
             $typeField = $foreignKey !== null ? $referencableFields[$foreignKey] : $inputField;
 
-            $input = $this->driver->getFieldClauses($inputField, $typeField);
+            $input = $this->grammar()->getFieldClauses($inputField, $typeField);
             // $input->after = $after;
 
             if ($foreignKey !== null) {
@@ -67,7 +54,7 @@ class TableCreate
             }
 
             $table->columns[] = $input;
-            // $after = " AFTER " . $this->driver->escapeId($inputField->name);
+            // $after = " AFTER " . $this->grammar()->escapeId($inputField->name);
         }
 
         return $table;

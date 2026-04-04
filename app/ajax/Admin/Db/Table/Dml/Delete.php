@@ -74,7 +74,7 @@ class Delete extends FuncComponent
             return;
         }
 
-        $result = $this->db()->getDeleteQuery($this->getCurrentTable(), $rowIds);
+        $result = $this->db()->getRowDeleteQuery($this->getCurrentTable(), $rowIds);
         // Show the error
         if(isset($result['error']))
         {

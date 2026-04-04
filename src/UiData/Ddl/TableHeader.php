@@ -2,24 +2,11 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Db\UiData\AppPage;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Dto\TableDto;
-use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
+use Lagdo\DbAdmin\Support\Dto\TableDto;
 
-class TableHeader
+class TableHeader extends AbstractProxy
 {
-    /**
-     * The constructor
-     *
-     * @param AppPage $page
-     * @param DriverInterface $driver
-     * @param Utils $utils
-     */
-    public function __construct(private AppPage $page,
-        private DriverInterface $driver, private Utils $utils)
-    {}
-
     /**
      * @param TableDto $status
      *
@@ -28,23 +15,23 @@ class TableHeader
     private function getTabs(TableDto $status): array
     {
         $tabs = [
-            'fields' => $this->utils->trans->lang('Columns'),
+            'fields' => $this->utils()->lang('Columns'),
         ];
-        if ($this->driver->isView($status)) {
-            if ($this->driver->support('view_trigger')) {
-                $tabs['triggers'] = $this->utils->trans->lang('Triggers');
+        if ($this->driver()->isView($status)) {
+            if ($this->driver()->support('view_trigger')) {
+                $tabs['triggers'] = $this->utils()->lang('Triggers');
             }
             return $tabs;
         }
 
-        if ($this->driver->support('indexes')) {
-            $tabs['indexes'] = $this->utils->trans->lang('Indexes');
+        if ($this->driver()->support('indexes')) {
+            $tabs['indexes'] = $this->utils()->lang('Indexes');
         }
-        if ($this->driver->supportForeignKeys($status)) {
-            $tabs['foreign-keys'] = $this->utils->trans->lang('Foreign keys');
+        if ($this->driver()->supportForeignKeys($status)) {
+            $tabs['foreign-keys'] = $this->utils()->lang('Foreign keys');
         }
-        if ($this->driver->support('trigger')) {
-            $tabs['triggers'] = $this->utils->trans->lang('Triggers');
+        if ($this->driver()->support('trigger')) {
+            $tabs['triggers'] = $this->utils()->lang('Triggers');
         }
         return $tabs;
     }
@@ -57,11 +44,11 @@ class TableHeader
      */
     public function infos(string $table, TableDto $status): array
     {
-        $name = $this->page->tableName($status);
+        $name = $this->page()->tableName($status);
 
         return [
-            'title' => $this->utils->trans->lang('Table') . ': ' .
-                ($name != '' ? $name : $this->utils->str->html($table)),
+            'title' => $this->utils()->lang('Table') . ': ' .
+                ($name != '' ? $name : $this->utils()->str->html($table)),
             'comment' => $status->comment,
             'tabs' => $this->getTabs($status),
         ];
@@ -73,12 +60,12 @@ class TableHeader
     public function fields(): array
     {
         $headers = [
-            $this->utils->trans->lang('Name'),
-            $this->utils->trans->lang('Type'),
-            $this->utils->trans->lang('Collation'),
+            $this->utils()->lang('Name'),
+            $this->utils()->lang('Type'),
+            $this->utils()->lang('Collation'),
         ];
-        if ($this->driver->support('comment')) {
-            $headers[] = $this->utils->trans->lang('Comment');
+        if ($this->driver()->support('comment')) {
+            $headers[] = $this->utils()->lang('Comment');
         }
 
         return $headers;
@@ -90,9 +77,9 @@ class TableHeader
     public function indexes(): array
     {
         return [
-            $this->utils->trans->lang('Name'),
-            $this->utils->trans->lang('Type'),
-            $this->utils->trans->lang('Column'),
+            $this->utils()->lang('Name'),
+            $this->utils()->lang('Type'),
+            $this->utils()->lang('Column'),
         ];
     }
 
@@ -102,11 +89,11 @@ class TableHeader
     public function foreignKeys(): array
     {
         return [
-            $this->utils->trans->lang('Name'),
-            $this->utils->trans->lang('Source'),
-            $this->utils->trans->lang('Target'),
-            $this->utils->trans->lang('ON DELETE'),
-            $this->utils->trans->lang('ON UPDATE'),
+            $this->utils()->lang('Name'),
+            $this->utils()->lang('Source'),
+            $this->utils()->lang('Target'),
+            $this->utils()->lang('ON DELETE'),
+            $this->utils()->lang('ON UPDATE'),
         ];
     }
 
@@ -116,7 +103,7 @@ class TableHeader
     public function triggers(): array
     {
         return [
-            $this->utils->trans->lang('Name'),
+            $this->utils()->lang('Name'),
             '&nbsp;',
             '&nbsp;',
             '&nbsp;',

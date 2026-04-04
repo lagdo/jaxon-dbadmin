@@ -4,30 +4,28 @@ namespace Lagdo\DbAdmin\Db\Driver;
 
 use Jaxon\App\View\ViewRenderer;
 use Jaxon\Di\Container;
-use Lagdo\DbAdmin\Db\Driver\Facades\AbstractFacade;
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Db\Service\Breadcrumbs;
-use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Lagdo\DbAdmin\Support\Utils\Utils;
 
 /**
- * Facade to calls to the database functions
+ * Proxy to calls to the database functions
  */
-class DbFacade extends AbstractFacade
+class DbProxy extends AbstractProxy
 {
-    use Facades\ServerTrait;
-    use Facades\UserTrait;
-    use Facades\DatabaseTrait;
-    use Facades\TableTrait;
-    use Facades\SelectTrait;
-    use Facades\QueryTrait;
-    use Facades\ViewTrait;
-    use Facades\CommandTrait;
-    use Facades\ExportTrait;
-    use Facades\ImportTrait;
+    use Proxy\ServerTrait;
+    use Proxy\UserTrait;
+    use Proxy\DatabaseTrait;
+    use Proxy\TableTrait;
+    use Proxy\SelectTrait;
+    use Proxy\QueryTrait;
+    use Proxy\ViewTrait;
+    use Proxy\CommandTrait;
+    use Proxy\ExportTrait;
+    use Proxy\ImportTrait;
 
     /**
-     * The breadcrumbs items
-     *
      * @var Breadcrumbs
      */
     protected $breadcrumbs;
@@ -57,6 +55,7 @@ class DbFacade extends AbstractFacade
     public function __construct(protected Container $di, protected Utils $utils,
         protected ViewRenderer $viewRenderer)
     {
+        $this->setDriver();
         // Make the translator available into views
         $viewRenderer->share('trans', $utils->trans);
         $this->breadcrumbs = new Breadcrumbs();
@@ -136,15 +135,16 @@ class DbFacade extends AbstractFacade
     private function connect(string $server, string $database = '', string $schema = '')
     {
         // Prevent multiple calls.
-        if (!$this->driver) {
+        if (!$this->driver()) {
             // Save the selected server in the di container.
             $this->di->val('dbadmin_config_server', $server);
             // The DI is now able to return the corresponding driver.
-            $this->driver = $this->di->get(AppDriver::class);
-            $this->page = $this->di->get(AppPage::class);
+            $driver = $this->di->get(AppDriver::class);
+            $page = $this->di->get(AppPage::class);
+            $this->setDriver($driver)->setPage($page)->setUtils($this->utils);
         }
         // Open the selected database
-        $this->driver->openConnection($database, $schema);
+        $this->driver()->openConnection($database, $schema);
     }
 
     /**

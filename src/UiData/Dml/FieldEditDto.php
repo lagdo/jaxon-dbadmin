@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
-use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
 
 use function implode;
 use function in_array;

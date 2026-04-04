@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 use Jaxon\Request\Upload\FileInterface;
 
@@ -10,9 +10,9 @@ use function implode;
 use function ini_get;
 
 /**
- * Facade to import functions
+ * Proxy to import functions
  */
-class ImportFacade extends CommandFacade
+class ImportProxy extends CommandProxy
 {
     /**
      * Get data for import
@@ -25,11 +25,11 @@ class ImportFacade extends CommandFacade
         $gz = extension_loaded('zlib') ? '[.gz]' : '';
         // ignore post_max_size because it is for all form fields
         // together and bytes computing would be necessary.
-        $contents = $this->utils->iniBool('file_uploads') ?
+        $contents = $this->utils()->iniBool('file_uploads') ?
             ['upload' => "SQL$gz (&lt; " . ini_get('upload_max_filesize') . 'B)'] :
-            ['upload_disabled' => $this->utils->trans->lang('File uploads are disabled.')];
-        if (($importServerPath = $this->page->importServerPath())) {
-            $contents['path'] = $this->utils->str->html($importServerPath) . $gz;
+            ['upload_disabled' => $this->utils()->lang('File uploads are disabled.')];
+        if (($importServerPath = $this->page()->importServerPath())) {
+            $contents['path'] = $this->utils()->html($importServerPath) . $gz;
         }
 
         return ['contents' => $contents];

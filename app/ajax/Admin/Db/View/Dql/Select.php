@@ -113,6 +113,6 @@ class Select extends MainComponent
     #[After('showBreadcrumbs')]
     public function edit(): void
     {
-        $this->cl(QueryEdit::class)->database($this->getSelectQuery());
+        $this->cl(QueryEdit::class)->database($this->getRowSelectQuery());
     }
 }

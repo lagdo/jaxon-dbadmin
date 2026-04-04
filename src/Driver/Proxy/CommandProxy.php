@@ -1,11 +1,12 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
-use Lagdo\DbAdmin\Driver\Db\AbstractConnection;
-use Lagdo\DbAdmin\Driver\Dto\QueryDto;
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\Service\Admin\QueryLogger;
 use Lagdo\DbAdmin\Db\Service\TimerService;
+use Lagdo\DbAdmin\Support\Db\Engine\Driver\AbstractConnection;
+use Lagdo\DbAdmin\Support\Dto\QueryDto;
 
 use function compact;
 use function count;
@@ -17,9 +18,9 @@ use function preg_match;
 use function strlen;
 
 /**
- * Facade to command functions
+ * Proxy to command functions
  */
-class CommandFacade extends AbstractFacade
+class CommandProxy extends AbstractProxy
 {
     /**
      * Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
@@ -40,16 +41,16 @@ class CommandFacade extends AbstractFacade
     protected $duration;
 
     /**
-     * Initialize the facade
+     * Initialize the proxy
      *
-     * @param AbstractFacade $dbFacade
+     * @param AbstractProxy $dbProxy
      * @param TimerService $timer
      * @param QueryLogger|null $queryLogger
      */
-    public function __construct(AbstractFacade $dbFacade,
+    public function __construct(AbstractProxy $dbProxy,
         protected TimerService $timer, protected QueryLogger|null $queryLogger)
     {
-        parent::__construct($dbFacade);
+        parent::__construct($dbProxy->driver(), $dbProxy->page(), $dbProxy->utils());
     }
 
     /**
@@ -62,9 +63,9 @@ class CommandFacade extends AbstractFacade
         // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
         //! PDO - silent error
         // TODO: use this connection to execute EXPLAIN queries.
-        if ($this->connection === null && $this->driver->database() !== '') {
-            $this->connection = $this->driver->newConnection(
-                $this->driver->database(), $this->driver->schema());
+        if ($this->connection === null && $this->driver()->database() !== '') {
+            $this->connection = $this->driver()->newConnection(
+                $this->driver()->database(), $this->driver()->schema());
         }
     }
 
@@ -83,11 +84,11 @@ class CommandFacade extends AbstractFacade
             $values[$key] = match(true) {
                 $value === null => '<i>NULL</i>',
                 //! link to download
-                isset($blobs[$key]) && $blobs[$key] && !$this->utils->str->isUtf8($value) =>
-                    '<i>' . $this->utils->trans->lang('%d byte(s)', strlen($value)) . '</i>',
+                isset($blobs[$key]) && $blobs[$key] && !$this->utils()->str->isUtf8($value) =>
+                    '<i>' . $this->utils()->lang('%d byte(s)', strlen($value)) . '</i>',
                 isset($types[$key]) && $types[$key] == 254 =>
-                    '<code>' . $this->utils->str->html($value) . '</code>',
-                default => $this->utils->str->html($value),
+                    '<code>' . $this->utils()->html($value) . '</code>',
+                default => $this->utils()->html($value),
             };
         }
         return $values;
@@ -105,9 +106,9 @@ class CommandFacade extends AbstractFacade
         $message = '';
         if ($numRows > 0) {
             if ($limit > 0 && $numRows > $limit) {
-                $message = $this->utils->trans->lang('%d / ', $limit);
+                $message = $this->utils()->lang('%d / ', $limit);
             }
-            $message .= $this->utils->trans->lang('%d row(s)', $numRows);
+            $message .= $this->utils()->lang('%d row(s)', $numRows);
         }
         return $message;
     }
@@ -125,15 +126,15 @@ class CommandFacade extends AbstractFacade
     {
         // No resultset
         if ($statement === true) {
-            $affected = $this->driver->affectedRows();
-            $message = $this->utils->trans
+            $affected = $this->driver()->affectedRows();
+            $message = $this->utils()->trans
                 ->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
             return [null, [$message]];
         }
         // Fetch the first row.
         if (!($row = $statement->fetchRow())) {
             // Empty resultset.
-            $message = $this->utils->trans->lang('No rows.');
+            $message = $this->utils()->lang('No rows.');
             return [null, [$message]];
         }
 
@@ -153,7 +154,7 @@ class CommandFacade extends AbstractFacade
                 $blobs[$j] = true;
             }
             $types[$j] = $field->type(); // Some drivers don't set the type field.
-            $headers[] = $this->utils->str->html($field->name());
+            $headers[] = $this->utils()->html($field->name());
         }
 
         // Table rows (the first was already fetched).
@@ -179,8 +180,8 @@ class CommandFacade extends AbstractFacade
         }
         $this->timer->start();
         //! Don't allow changing of character_set_results, convert encoding of displayed query
-        $space = $this->utils->str->spaceRegex();
-        $succeeded = $this->driver->multiQuery($queryDto->query);
+        $space = $this->utils()->str->spaceRegex();
+        $succeeded = $this->driver()->multiQuery($queryDto->query);
         if ($succeeded && $this->connection !== null &&
             preg_match("~^$space*+USE\\b~i", $queryDto->query)) {
             $this->connection->query($queryDto->query);
@@ -191,10 +192,10 @@ class CommandFacade extends AbstractFacade
             $select = null;
             $errors = [];
             $messages = [];
-            $statement = $this->driver->storedResult();
+            $statement = $this->driver()->storedResult();
 
-            if (!$statement || $this->driver->hasError()) {
-                $errors[] = $this->driver->errorMessage();
+            if (!$statement || $this->driver()->hasError()) {
+                $errors[] = $this->driver()->errorMessage();
             } elseif (!$queryDto->onlyErrors) {
                 [$select, $messages] = $this->select($statement, $queryDto->limit);
             }
@@ -202,10 +203,10 @@ class CommandFacade extends AbstractFacade
             $result = compact('errors', 'messages', 'select');
             $result['query'] = $queryDto->query;
             $this->results[] = $result;
-            if ($this->driver->hasError() && $queryDto->errorStops) {
+            if ($this->driver()->hasError() && $queryDto->errorStops) {
                 return false;
             }
-        } while ($this->driver->nextResult());
+        } while ($this->driver()->nextResult());
 
         return true;
     }
@@ -225,7 +226,7 @@ class CommandFacade extends AbstractFacade
         if (function_exists('memory_get_usage')) {
             // @ - may be disabled, 2 - substr and trim, 8e6 - other variables
             try {
-                ini_set('memory_limit', max($this->utils->iniBytes('memory_limit'),
+                ini_set('memory_limit', max($this->utils()->iniBytes('memory_limit'),
                     2 * strlen($queries) + memory_get_usage() + 8e6));
             }
             catch(\Exception $e) {
@@ -241,7 +242,7 @@ class CommandFacade extends AbstractFacade
         $commands = 0;
         $errors = 0;
         $queryDto = new QueryDto($queries, $limit, $errorStops, $onlyErrors);
-        while ($this->driver->parseQueries($queryDto)) {
+        while ($this->grammar()->parseQueries($queryDto)) {
             $commands++;
             if (!$this->executeCommand($queryDto)) {
                 $errors++;
@@ -253,10 +254,10 @@ class CommandFacade extends AbstractFacade
 
         $messages = match(true) {
             $commands === 0 => [
-                'message' => $this->utils->trans->lang('No commands to execute.'),
+                'message' => $this->utils()->lang('No commands to execute.'),
             ],
             $onlyErrors => [
-                'message' => $this->utils->trans->lang('%d query(s) executed OK.', $commands - $errors),
+                'message' => $this->utils()->lang('%d query(s) executed OK.', $commands - $errors),
             ],
             default => [],
         };

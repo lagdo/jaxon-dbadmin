@@ -2,10 +2,8 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dql;
 
-use Lagdo\DbAdmin\Db\UiData\AppPage;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
-use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
 
 use function array_map;
 use function current;
@@ -22,19 +20,8 @@ use function trim;
 /**
  * Prepare the results of a select query for the frontend.
  */
-class SelectResult
+class SelectResult extends AbstractProxy
 {
-    /**
-     * The constructor
-     *
-     * @param AppPage $page
-     * @param DriverInterface $driver
-     * @param Utils $utils
-     */
-    public function __construct(private AppPage $page,
-        private DriverInterface $driver, private Utils $utils)
-    {}
-
     /**
      * @param SelectDto $selectDto
      * @param string $column
@@ -51,7 +38,7 @@ class SelectResult
         $fieldKey = !$selectDto->select ? $column :
             ($value["col"] ?? current($selectDto->select));
         $field = $selectDto->fields[$fieldKey];
-        $name = !$field ? ($fun ? "*" : $column) : $this->page->fieldName($field, $position);
+        $name = !$field ? ($fun ? "*" : $column) : $this->page()->fieldName($field, $position);
 
         return [$fun, $name, $field];
     }
@@ -75,10 +62,10 @@ class SelectResult
             $selectDto->names[$column] = $name;
             // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($column);
             // $desc = "&desc%5B0%5D=1";
-            $header['column'] = $this->driver->escapeId($column);
-            // $header['key'] = $this->utils->html($this->driver->bracketEscape($column));
+            $header['column'] = $this->grammar()->escapeId($column);
+            // $header['key'] = $this->utils()->html($this->grammar()->bracketEscape($column));
             //! columns looking like functions
-            $header['title'] = $this->page->applySqlFunction($fun, $name);
+            $header['title'] = $this->page()->applySqlFunction($fun, $name);
         }
         // $functions[$column] = $fun;
         next($selectDto->select);
@@ -142,7 +129,7 @@ class SelectResult
      */
     private function getUniqueIds(SelectDto $selectDto, array $row): array
     {
-        $uniqueIds = $this->utils->uniqueIds($row, $selectDto->indexes);
+        $uniqueIds = $this->utils()->uniqueIds($row, $selectDto->indexes);
         if (empty($uniqueIds)) {
             $pattern = '~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)' .
                 '|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~';
@@ -164,7 +151,7 @@ class SelectResult
      */
     private function shouldEncodeRowId(string $type, $value): bool
     {
-        return in_array($this->driver->jush(), ['sql', 'pgsql']) &&
+        return in_array($this->driver()->jush(), ['sql', 'pgsql']) &&
             is_string($value) && strlen($value) > 64 &&
             preg_match('~char|text|enum|set~', $type);
     }
@@ -177,9 +164,9 @@ class SelectResult
      */
     private function getRowIdMd5Key(string $column, string $collation): string
     {
-        return $this->driver->jush() !== 'sql' ||
+        return $this->driver()->jush() !== 'sql' ||
             preg_match("~^utf8~", $collation) ? $column :
-                "CONVERT($column USING " . $this->driver->charset() . ")";
+                "CONVERT($column USING " . $this->driver()->charset() . ")";
     }
 
     /**
@@ -200,12 +187,12 @@ class SelectResult
         if ($this->shouldEncodeRowId($type, $value)) {
             if (!strpos($column, '(')) {
                 //! columns looking like functions
-                $column = $this->driver->escapeId($column);
+                $column = $this->grammar()->escapeId($column);
             }
             // Set the value to an array to indicate that a function is applied to the column.
             $expr = "MD5(" . $this->getRowIdMd5Key($column, $collation) . ")";
             $value = [
-                'expr' => $this->driver->bracketEscape($expr),
+                'expr' => $this->grammar()->bracketEscape($expr),
                 'value' => md5($value),
             ];
         }
@@ -227,7 +214,7 @@ class SelectResult
         foreach ($uniqueIds as $column => $value) {
             $column = trim($column);
             $value = $this->getRowIdValue($selectDto, $column, $value);
-            $column = $this->driver->bracketEscape($column);
+            $column = $this->grammar()->bracketEscape($column);
 
             // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" .
             // $column . "]") . "=" .
@@ -252,8 +239,8 @@ class SelectResult
     {
         $field = $selectDto->fields[$column] ?? new TableFieldDto();
         $textLength = $selectDto->textLength;
-        $value = $this->driver->value($value, $field);
-        return $this->page->getFieldValue($field, $textLength, $value);
+        $value = $this->driver()->value($value, $field);
+        return $this->page()->getFieldValue($field, $textLength, $value);
     }
 
     /**

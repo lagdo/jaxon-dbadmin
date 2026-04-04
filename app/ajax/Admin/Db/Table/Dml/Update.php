@@ -180,7 +180,7 @@ class Update extends FuncComponent
         // Add the select options, which are used to format the modified data
         $rowIds['select'] = $this->getSelectBag('options', []);
         $tableName = $this->getCurrentTable();
-        $result = $this->db()->getUpdateQuery($tableName, $rowIds, $formValues);
+        $result = $this->db()->getRowUpdateQuery($tableName, $rowIds, $formValues);
         // Show the error
         if(isset($result['error']))
         {

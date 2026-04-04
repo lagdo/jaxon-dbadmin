@@ -14,7 +14,7 @@ class ConfigReader
     private string $captureRegex = '/^env\((.*)\)$/';
 
     /**
-     * @var Config $config
+     * @var Config
      */
     private Config $config;
 

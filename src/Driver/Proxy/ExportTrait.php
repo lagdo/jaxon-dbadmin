@@ -1,22 +1,22 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 /**
- * Facade to export functions
+ * Proxy to export functions
  */
 trait ExportTrait
 {
     use AbstractTrait;
 
     /**
-     * Get the facade
+     * Get the proxy
      *
-     * @return ExportFacade
+     * @return ExportProxy
      */
-    protected function exportFacade(): ExportFacade
+    protected function exportProxy(): ExportProxy
     {
-        return $this->di()->g(ExportFacade::class);
+        return $this->di()->g(ExportProxy::class);
     }
 
     /**
@@ -27,8 +27,8 @@ trait ExportTrait
     public function getExportOptions(): array
     {
         $this->connectToDatabase();
-        $this->breadcrumbs(true)->item($this->utils->trans->lang('Export'));
-        return $this->exportFacade()->getExportOptions($this->dbName);
+        $this->breadcrumbs(true)->item($this->utils()->lang('Export'));
+        return $this->exportProxy()->getExportOptions($this->dbName);
     }
 
     /**
@@ -37,7 +37,7 @@ trait ExportTrait
     public function getSelectValues(): array
     {
         $this->connectToServer();
-        return $this->exportFacade()->getSelectValues();
+        return $this->exportProxy()->getSelectValues();
     }
 
     /**
@@ -53,6 +53,6 @@ trait ExportTrait
     public function exportDatabases(array $databases, array $dumpOptions)
     {
         $this->connectToServer();
-        return $this->exportFacade()->exportDatabases($databases, $dumpOptions);
+        return $this->exportProxy()->exportDatabases($databases, $dumpOptions);
     }
 }

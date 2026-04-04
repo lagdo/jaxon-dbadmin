@@ -2,22 +2,12 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dql;
 
-use Lagdo\DbAdmin\Driver\Utils\Utils;
-use Lagdo\DbAdmin\Driver\DriverInterface;
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 
 use function intval;
 
-class SelectOptions
+class SelectOptions extends AbstractProxy
 {
-    /**
-     * The constructor
-     *
-     * @param DriverInterface $driver
-     * @param Utils $utils
-     */
-    public function __construct(private DriverInterface $driver, private Utils $utils)
-    {}
-
     /**
      * @param SelectDto $selectDto
      *
@@ -36,7 +26,7 @@ class SelectOptions
             'page' => '1',
         ];
         foreach ($defaultOptions as $name => $value) {
-            $this->utils->input->values[$name] ??= $value;
+            $this->utils()->input->values[$name] ??= $value;
             $selectDto->queryOptions[$name] ??= $value;
         }
         $page = intval($selectDto->queryOptions['page']);
@@ -61,8 +51,8 @@ class SelectOptions
             'select' => $select,
             'values' => (array)$options["columns"],
             'columns' => $columns,
-            'functions' => $this->driver->functions(),
-            'grouping' => $this->driver->grouping(),
+            'functions' => $this->driver()->functions(),
+            'grouping' => $this->driver()->grouping(),
         ];
     }
 
@@ -80,14 +70,14 @@ class SelectOptions
         $fulltexts = [];
         foreach ($indexes as $i => $index) {
             $fulltexts[$i] = $index->type == "FULLTEXT" ?
-                $this->utils->str->html($options["fulltext"][$i] ?? '') : '';
+                $this->utils()->str->html($options["fulltext"][$i] ?? '') : '';
         }
         return [
             // 'where' => $where,
             'values' => (array)$options["where"],
             'columns' => $columns,
             'indexes' => $indexes,
-            'operators' => $this->driver->operators(),
+            'operators' => $this->driver()->operators(),
             'fulltexts' => $fulltexts,
         ];
     }
@@ -126,7 +116,7 @@ class SelectOptions
      */
     private function getLimitOptions(string $limit): array
     {
-        return ['value' => $this->utils->str->html($limit)];
+        return ['value' => $this->utils()->str->html($limit)];
     }
 
     /**
@@ -138,7 +128,7 @@ class SelectOptions
      */
     private function getLengthOptions(int $textLength): array
     {
-        return ['value' => $textLength === 0 ? 0 : $this->utils->str->html($textLength)];
+        return ['value' => $textLength === 0 ? 0 : $this->utils()->str->html($textLength)];
     }
 
     /**
@@ -168,7 +158,7 @@ class SelectOptions
      */
     // private function getCommandOptions()
     // {
-    //     return !$this->driver->isInformationSchema($this->driver->database());
+    //     return !$this->driver()->isInformationSchema($this->driver()->database());
     // }
 
     /**
@@ -178,7 +168,7 @@ class SelectOptions
      */
     // private function getImportOptions()
     // {
-    //     return !$this->driver->isInformationSchema($this->driver->database());
+    //     return !$this->driver()->isInformationSchema($this->driver()->database());
     // }
 
     /**

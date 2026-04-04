@@ -1,19 +1,20 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\UiData\Dml\DataFieldInput;
 use Lagdo\DbAdmin\Db\UiData\Dml\DataFieldValue;
 use Lagdo\DbAdmin\Db\UiData\Dml\DataRowReader;
 use Lagdo\DbAdmin\Db\UiData\Dml\DataRowWriter;
-use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
 
 use function count;
 
 /**
- * Facade to table query functions
+ * Proxy to table query functions
  */
-class QueryFacade extends AbstractFacade
+class QueryProxy extends AbstractProxy
 {
     /**
      * @var string
@@ -30,16 +31,24 @@ class QueryFacade extends AbstractFacade
     private string $operation;
 
     /**
+     * @param AbstractProxy $proxy
+     */
+    public function __construct(AbstractProxy $proxy)
+    {
+        parent::__construct($proxy->driver(), $proxy->page(), $proxy->utils());
+    }
+
+    /**
      * @return DataRowWriter
      */
     private function writer(): DataRowWriter
     {
-        $fieldValue = new DataFieldValue($this->page, $this->driver,
-            $this->utils, $this->action, $this->operation);
-        $fieldInput = new DataFieldInput($this->page, $this->driver,
-            $this->utils, $this->action, $this->operation);
-        return new DataRowWriter($this->page, $this->driver, $this->utils,
-            $this->action, $this->operation, $fieldValue, $fieldInput);
+        $fieldValue = (new DataFieldValue($this->driver(), $this->page(), $this->utils()))
+            ->init($this->action, $this->operation);
+        $fieldInput = (new DataFieldInput($this->driver(), $this->page(), $this->utils()))
+            ->init($this->action, $this->operation);
+        return (new DataRowWriter($this->driver(), $this->page(), $this->utils()))
+            ->init($this->action, $this->operation, $fieldValue, $fieldInput);
     }
 
     /**
@@ -47,7 +56,7 @@ class QueryFacade extends AbstractFacade
      */
     private function reader(): DataRowReader
     {
-        return new DataRowReader($this->page, $this->driver, $this->utils);
+        return new DataRowReader($this->driver(), $this->page(), $this->utils());
     }
 
     /**
@@ -61,14 +70,14 @@ class QueryFacade extends AbstractFacade
     private function getFields(string $table, array $options): array
     {
         // From edit.inc.php
-        $fields = $this->driver->fields($table);
+        $fields = $this->driver()->fields($table);
         // Important: get the where clauses before filtering the fields.
         $where = $this->operation === 'insert' ? [] :
-            $this->driver->where($options, $fields);
+            $this->driver()->where($options, $fields);
         // Remove fields without the required privilege, or that cannot be edited.
         $fields = array_filter($fields, fn(TableFieldDto $field) =>
             isset($field->privileges[$this->operation]) &&
-            $this->page->fieldName($field) !== '' && !$field->generated);
+            $this->page()->fieldName($field) !== '' && !$field->generated);
 
         return [$fields, $where];
     }
@@ -89,7 +98,7 @@ class QueryFacade extends AbstractFacade
         [$fields,] = $this->getFields($table, $options);
         if (empty($fields)) {
             return [
-                'error' => $this->utils->trans->lang('You have no privileges to update this table.'),
+                'error' => $this->utils()->lang('You have no privileges to update this table.'),
             ];
         }
 
@@ -106,7 +115,7 @@ class QueryFacade extends AbstractFacade
      */
     private function getRowSelectClauses(array $fields): array
     {
-        // if (!$this->driver->support("table")) {
+        // if (!$this->driver()->support("table")) {
         //     return ["*"];
         // }
 
@@ -115,8 +124,8 @@ class QueryFacade extends AbstractFacade
         foreach ($fields as $name => $field) {
             if (isset($field->privileges["select"])) {
                 $as = $this->action === 'clone' && $field->autoIncrement ? "''" :
-                    $this->driver->convertField($field);
-                $select[] = ($as ? "$as AS " : "") . $this->driver->escapeId($name);
+                    $this->grammar()->convertField($field);
+                $select[] = ($as ? "$as AS " : "") . $this->grammar()->escapeId($name);
             }
         }
         return $select;
@@ -139,7 +148,7 @@ class QueryFacade extends AbstractFacade
         [$fields, $where] = $this->getFields($table, $options);
         if (empty($fields) || !$where) {
             return [
-                'error' => $this->utils->trans->lang('You have no privileges to update this table.'),
+                'error' => $this->utils()->lang('You have no privileges to update this table.'),
             ];
         }
 
@@ -147,15 +156,15 @@ class QueryFacade extends AbstractFacade
         $select = $this->getRowSelectClauses($fields);
         if (count($select) === 0) {
             return [
-                'error' => $this->utils->trans->lang('Unable to find the edited data row.'),
+                'error' => $this->utils()->lang('Unable to find the edited data row.'),
             ]; // No data
         }
 
-        $statement = $this->driver->select($table, $select, [$where],
+        $statement = $this->driver()->select($table, $select, [$where],
             $select, [], $this->action === 'select' ? 2 : 1);
         if (!$statement) {
             return [
-                'error' => $this->driver->error(),
+                'error' => $this->driver()->error(),
             ]; // Error
         }
 
@@ -164,7 +173,7 @@ class QueryFacade extends AbstractFacade
         {
             // $statement->rowCount() != 1 isn't available in all drivers
             return [
-                'error' => $this->utils->trans->lang('Unable to find the edited data row.'),
+                'error' => $this->utils()->lang('Unable to find the edited data row.'),
             ]; // No data
         }
 
@@ -182,7 +191,7 @@ class QueryFacade extends AbstractFacade
      *
      * @return array
      */
-    public function getInsertQuery(string $table, array $options, array $values): array
+    public function getRowInsertQuery(string $table, array $options, array $values): array
     {
         $this->action = 'save';
         $this->operation = 'insert';
@@ -190,9 +199,9 @@ class QueryFacade extends AbstractFacade
         [$fields,] = $this->getFields($table, $options);
         $values = $this->reader()->getInputValues($fields, $values);
 
-        $query = $this->driver->getInsertQuery($table, $values);
+        $query = $this->grammar()->getRowInsertQuery($table, $values);
         return $query !== '' ? ['query' => $query] : [
-            'error' => $this->utils->trans->lang('Unable to build the SQL code for this insert query.'),
+            'error' => $this->utils()->lang('Unable to build the SQL code for this insert query.'),
         ];
     }
 
@@ -213,15 +222,15 @@ class QueryFacade extends AbstractFacade
         [$fields,] = $this->getFields($table, $options);
         $values = $this->reader()->getInputValues($fields, $values);
 
-        if (!$this->driver->insert($table, $values)) {
+        if (!$this->driver()->insert($table, $values)) {
             return [
-                'error' => $this->driver->error(),
+                'error' => $this->driver()->error(),
             ];
         }
 
-        $lastId = $this->driver->lastAutoIncrementId();
+        $lastId = $this->driver()->lastAutoIncrementId();
         return [
-            'message' => $this->utils->trans->lang('Item%s has been inserted.',
+            'message' => $this->utils()->lang('Item%s has been inserted.',
                 $lastId ? " $lastId" : ''),
         ];
     }
@@ -235,8 +244,8 @@ class QueryFacade extends AbstractFacade
     private function getQueryLimit(string $table, array $options): int
     {
         // From edit.inc.php
-        $indexes = $this->driver->indexes($table);
-        $uniqueIds = $this->utils->uniqueIds($options['where'], $indexes);
+        $indexes = $this->driver()->indexes($table);
+        $uniqueIds = $this->utils()->uniqueIds($options['where'], $indexes);
         return count($uniqueIds ?? []) === 0 ? 1 : 0; // Limit to 1 if no unique ids are found.
     }
 
@@ -249,7 +258,7 @@ class QueryFacade extends AbstractFacade
      *
      * @return array
      */
-    public function getUpdateQuery(string $table, array $options, array $values): array
+    public function getRowUpdateQuery(string $table, array $options, array $values): array
     {
         $this->action = 'save';
         $this->operation = 'update';
@@ -258,9 +267,9 @@ class QueryFacade extends AbstractFacade
         $values = $this->reader()->getInputValues($fields, $values);
         $limit = $this->getQueryLimit($table, $options);
 
-        $query = $this->driver->getUpdateQuery($table, $values, "\nWHERE $where", $limit);
+        $query = $this->grammar()->getRowUpdateQuery($table, $values, "\nWHERE $where", $limit);
         return $query !== '' ? ['query' => $query] : [
-            'error' => $this->utils->trans->lang('Unable to build the SQL code for this insert query.'),
+            'error' => $this->utils()->lang('Unable to build the SQL code for this insert query.'),
         ];
     }
 
@@ -282,25 +291,25 @@ class QueryFacade extends AbstractFacade
         $values = $this->reader()->getInputValues($fields, $values);
         $limit = $this->getQueryLimit($table, $options);
 
-        if (!$this->driver->update($table, $values, "\nWHERE $where", $limit)) {
+        if (!$this->driver()->update($table, $values, "\nWHERE $where", $limit)) {
             return [
-                'error' => $this->driver->error(),
+                'error' => $this->driver()->error(),
             ];
         }
 
         // Get the modified data
         // Todo: check if the values in the where clause are changed.
-        $statement = $this->driver->select($table, array_keys($values), [$where]);
+        $statement = $this->driver()->select($table, array_keys($values), [$where]);
         $result = !$statement ? null : $statement->fetchAssoc();
         if (!$result) {
             return [
-                'warning' => $this->utils->trans->lang('Unable to read the updated row.'),
+                'warning' => $this->utils()->lang('Unable to read the updated row.'),
             ];
         }
 
         return [
             'cols' => $this->writer()->getUpdatedRow($result, $fields, $options),
-            'message' => $this->utils->trans->lang('Item has been updated.'),
+            'message' => $this->utils()->lang('Item has been updated.'),
         ];
     }
 
@@ -312,7 +321,7 @@ class QueryFacade extends AbstractFacade
      *
      * @return array
      */
-    public function getDeleteQuery(string $table, array $options): array
+    public function getRowDeleteQuery(string $table, array $options): array
     {
         $this->action = 'save';
         $this->operation = 'update';
@@ -320,9 +329,9 @@ class QueryFacade extends AbstractFacade
         [, $where] = $this->getFields($table, $options);
         $limit = $this->getQueryLimit($table, $options);
 
-        $query = $this->driver->getDeleteQuery($table, "\nWHERE $where", $limit);
+        $query = $this->grammar()->getRowDeleteQuery($table, "\nWHERE $where", $limit);
         return $query !== '' ? ['query' => $query] : [
-            'error' => $this->utils->trans->lang('Unable to build the SQL code for this insert query.'),
+            'error' => $this->utils()->lang('Unable to build the SQL code for this insert query.'),
         ];
     }
 
@@ -342,14 +351,14 @@ class QueryFacade extends AbstractFacade
         [, $where] = $this->getFields($table, $options);
         $limit = $this->getQueryLimit($table, $options);
 
-        if (!$this->driver->delete($table, "\nWHERE $where", $limit)) {
+        if (!$this->driver()->delete($table, "\nWHERE $where", $limit)) {
             return [
-                'error' => $this->driver->error(),
+                'error' => $this->driver()->error(),
             ];
         }
 
         return [
-            'message' => $this->utils->trans->lang('Item has been deleted.'),
+            'message' => $this->utils()->lang('Item has been deleted.'),
         ];
     }
 }

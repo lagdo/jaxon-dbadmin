@@ -4,7 +4,7 @@ use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Db;
 use Lagdo\DbAdmin\Db\Config;
 use Lagdo\DbAdmin\Db\Service;
-use Lagdo\DbAdmin\Driver;
+use Lagdo\DbAdmin\Support;
 use Lagdo\DbAdmin\Ui;
 use Lagdo\Facades\Logger;
 use Lagdo\UiBuilder\Builder;
@@ -37,7 +37,7 @@ return [
             Db\Driver\AppDriver::class => function(Container $di) {
                 // This class will "clone" the selected driver, and define the callbacks.
                 // By doing this, the driver classes will call the driver without the callbacks.
-                $driver = new Db\Driver\AppDriver($di->g(Driver\DriverInterface::class));
+                $driver = new Db\Driver\AppDriver($di->g(Support\DriverInterface::class));
                 $timerCallback = function() use($di) {
                     $timer = $di->g(Service\TimerService::class);
                     $timer->stop();
@@ -88,8 +88,8 @@ return [
 
                 // User database, different from the audit database.
                 $serverOptions = $di->g('dbadmin_server_options');
-                $dbFacade = $di->g(Db\Driver\DbFacade::class);
-                $database = $dbFacade->getDatabaseOptions($serverOptions);
+                $dbProxy = $di->g(Db\Driver\DbProxy::class);
+                $database = $dbProxy->getDatabaseOptions($serverOptions);
 
                 $proxy = $di->g(Service\Admin\ConnectionProxy::class);
                 return new Service\Admin\QueryLogger($proxy, $options, $database);

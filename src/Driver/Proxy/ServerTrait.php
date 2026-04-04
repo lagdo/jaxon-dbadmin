@@ -1,22 +1,22 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 /**
- * Facade to server functions
+ * Proxy to server functions
  */
 trait ServerTrait
 {
     use AbstractTrait;
 
     /**
-     * Get the facade
+     * Get the proxy
      *
-     * @return ServerFacade
+     * @return ServerProxy
      */
-    protected function serverFacade(): ServerFacade
+    protected function serverProxy(): ServerProxy
     {
-        return $this->di()->g(ServerFacade::class);
+        return $this->di()->g(ServerProxy::class);
     }
 
     /**
@@ -25,7 +25,7 @@ trait ServerTrait
     public function getServerInfo(): array
     {
         $this->connectToServer();
-        return $this->serverFacade()->getServerInfo();
+        return $this->serverProxy()->getServerInfo();
     }
 
     /**
@@ -38,7 +38,7 @@ trait ServerTrait
     public function support(string $feature): bool
     {
         $this->connectToServer();
-        return $this->serverFacade()->support($feature);
+        return $this->serverProxy()->support($feature);
     }
 
     /**
@@ -49,7 +49,7 @@ trait ServerTrait
     public function getCollations(): array
     {
         $this->connectToServer();
-        return $this->serverFacade()->getCollations();
+        return $this->serverProxy()->getCollations();
     }
 
     /**
@@ -62,8 +62,8 @@ trait ServerTrait
     public function getDatabases(bool $schemaAccess): array
     {
         $this->connectToServer();
-        $this->breadcrumbs()->clear()->item($this->utils->trans->lang('Databases'));
-        return $this->serverFacade()->getDatabases($schemaAccess);
+        $this->breadcrumbs()->clear()->item($this->utils()->lang('Databases'));
+        return $this->serverProxy()->getDatabases($schemaAccess);
     }
 
     /**
@@ -74,8 +74,8 @@ trait ServerTrait
     public function getProcesses(): array
     {
         $this->connectToServer();
-        $this->breadcrumbs()->clear()->item($this->utils->trans->lang('Process list'));
-        return $this->serverFacade()->getProcesses();
+        $this->breadcrumbs()->clear()->item($this->utils()->lang('Process list'));
+        return $this->serverProxy()->getProcesses();
     }
 
     /**
@@ -86,8 +86,8 @@ trait ServerTrait
     public function getVariables(): array
     {
         $this->connectToServer();
-        $this->breadcrumbs()->clear()->item($this->utils->trans->lang('Variables'));
-        return $this->serverFacade()->getVariables();
+        $this->breadcrumbs()->clear()->item($this->utils()->lang('Variables'));
+        return $this->serverProxy()->getVariables();
     }
 
     /**
@@ -98,8 +98,8 @@ trait ServerTrait
     public function getStatus(): array
     {
         $this->connectToServer();
-        $this->breadcrumbs()->clear()->item($this->utils->trans->lang('Status'));
-        return $this->serverFacade()->getStatus();
+        $this->breadcrumbs()->clear()->item($this->utils()->lang('Status'));
+        return $this->serverProxy()->getStatus();
     }
 
     /**
@@ -113,7 +113,7 @@ trait ServerTrait
     public function createDatabase(string $database, string $collation = ''): bool
     {
         $this->connectToServer();
-        return $this->serverFacade()->createDatabase($database, $collation);
+        return $this->serverProxy()->createDatabase($database, $collation);
     }
 
     /**
@@ -126,6 +126,6 @@ trait ServerTrait
     public function dropDatabase(string $database): bool
     {
         $this->connectToServer();
-        return $this->serverFacade()->dropDatabase($database);
+        return $this->serverProxy()->dropDatabase($database);
     }
 }

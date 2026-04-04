@@ -2,10 +2,11 @@
 
 namespace Lagdo\DbAdmin\Db\UiData;
 
-use Lagdo\DbAdmin\Driver\Utils\Utils;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Dto\TableDto;
-use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
+use Lagdo\DbAdmin\Support\DriverInterface;
+use Lagdo\DbAdmin\Support\Dto\TableDto;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Support\Utils\Utils;
 
 use function file_get_contents;
 use function function_exists;
@@ -17,7 +18,7 @@ use function strlen;
 use function strtoupper;
 use function substr;
 
-class AppPage
+class AppPage extends AbstractProxy
 {
     /**
      * The constructor
@@ -26,7 +27,9 @@ class AppPage
      * @param Utils $utils
      */
     public function __construct(public DriverInterface $driver, protected Utils $utils)
-    {}
+    {
+        parent::__construct($driver, $this, $utils);
+    }
 
     /**
      * Name in title and navigation
@@ -55,7 +58,7 @@ class AppPage
      */
     public function error(): string
     {
-        return $this->utils->html($this->driver->error());
+        return $this->utils()->html($this->driver()->error());
     }
 
     /**
@@ -67,7 +70,7 @@ class AppPage
      */
     public function tableName(TableDto $table): string
     {
-        return $this->utils->html($table->name);
+        return $this->utils()->html($table->name);
     }
 
     /**
@@ -80,8 +83,8 @@ class AppPage
      */
     public function fieldName(TableFieldDto $field, /** @scrutinizer ignore-unused */ int $order = 0): string
     {
-        return '<span title="' . $this->utils->html($field->fullType) . '">' .
-            $this->utils->html($field->name) . '</span>';
+        return '<span title="' . $this->utils()->html($field->fullType) . '">' .
+            $this->utils()->html($field->name) . '</span>';
     }
 
     /**
@@ -135,13 +138,13 @@ class AppPage
             preg_match('~char|binary|boolean~', $type) > 0 &&
                 !preg_match('~var~', $type) => "<code>$value</code>",
             preg_match('~blob|bytea|raw|file~', $type) > 0 &&
-                !$this->utils->str->isUtf8($value) => '<i>' .
-                    $this->utils->trans->lang('%d byte(s)', strlen($original)) . '</i>',
+                !$this->utils()->str->isUtf8($value) => '<i>' .
+                    $this->utils()->lang('%d byte(s)', strlen($original)) . '</i>',
             preg_match('~json~', $type) > 0 => "<code>$value</code>",
-            $this->utils->isMail($value) => '<a href="' .
-                $this->utils->html("mailto:$value") . '">' . $value . '</a>',
+            $this->utils()->isMail($value) => '<a href="' .
+                $this->utils()->html("mailto:$value") . '">' . $value . '</a>',
             // IE 11 and all modern browsers hide referrer
-            $this->utils->isUrl($value) => '<a href="' . $this->utils->html($value) .
+            $this->utils()->isUrl($value) => '<a href="' . $this->utils()->html($value) .
                 '"' . $this->blankTarget() . '>' . $value . '</a>',
             default => $value,
         };
@@ -162,7 +165,7 @@ class AppPage
         //     $expression = '';
         //     foreach ($value as $k => $v) {
         //         $expression .= '<tr>' . ($value != \array_values($value) ?
-        //             '<th>' . $this->utils->html($k) :
+        //             '<th>' . $this->utils()->html($k) :
         //             '') . '<td>' . $this->selectValue($field, $v, $textLength);
         //     }
         //     return "<table cellspacing='0'>$expression</table>";
@@ -172,14 +175,14 @@ class AppPage
         // }
         $expression = $value;
         if (!empty($expression)) {
-            if (!$this->utils->str->isUtf8($expression)) {
+            if (!$this->utils()->str->isUtf8($expression)) {
                 $expression = "\0"; // htmlspecialchars of binary data returns an empty string
             } elseif ($textLength != '' && $this->isShortable($field)) {
                 // usage of LEFT() would reduce traffic but complicate query -
                 // expected average speedup: .001 s VS .01 s on local network
-                $expression = $this->utils->str->shortenUtf8($expression, max(0, +$textLength));
+                $expression = $this->utils()->str->shortenUtf8($expression, max(0, +$textLength));
             } else {
-                $expression = $this->utils->html($expression);
+                $expression = $this->utils()->html($expression);
             }
         }
         return $this->getSelectFieldValue($expression, $field->type, $value);
@@ -196,7 +199,7 @@ class AppPage
     {
         /*if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
             //! filled e-mails can be contained on other pages
-            $email_fields[$key] = ($this->page->isMail($value) ? $names[$key] : "");
+            $email_fields[$key] = ($this->page()->isMail($value) ? $names[$key] : "");
         }*/
         return [
             // 'id',
@@ -214,8 +217,8 @@ class AppPage
      */
     public function getTableFieldType(TableFieldDto $field, string $tableCollation = ''): string
     {
-        $type = $this->utils->str->html($field->fullType);
-        $collation = $this->utils->str->html($field->collation);
+        $type = $this->utils()->str->html($field->fullType);
+        $collation = $this->utils()->str->html($field->collation);
         if ($collation !== '' && $tableCollation !== '' && $collation != $tableCollation) {
             $type .= " $collation";
         }
@@ -224,11 +227,11 @@ class AppPage
             $types[] = '<i>nullable</i>'; // ' <i>NULL</i>';
         }
         if ($field->autoIncrement) {
-            $types[] = '<i>' . $this->utils->trans->lang('Auto Increment') . '</i>';
+            $types[] = '<i>' . $this->utils()->lang('Auto Increment') . '</i>';
         }
         if ($field->hasDefault()) {
-            $types[] = /*' ' . $this->utils->trans->lang('Default value') .*/ '[<b>' .
-                $this->utils->str->html($field->default) . '</b>]';
+            $types[] = /*' ' . $this->utils()->lang('Default value') .*/ '[<b>' .
+                $this->utils()->str->html($field->default) . '</b>]';
         }
         return implode(' ', $types);
     }
@@ -242,8 +245,8 @@ class AppPage
     private function getInputFieldExpression(TableFieldDto $field,
         string $value, string $function): string
     {
-        $fieldName = $this->driver->escapeId($field->name);
-        $expression = $this->driver->quote($value);
+        $fieldName = $this->driver()->grammar()->escapeId($field->name);
+        $expression = $this->driver()->quote($value);
 
         if (preg_match('~^(now|getdate|uuid)$~', $function)) {
             return "$function()";
@@ -257,7 +260,7 @@ class AppPage
         if (preg_match('~^[+-] interval$~', $function)) {
             return "$fieldName $function " .
                 (preg_match("~^(\\d+|'[0-9.: -]') [A-Z_]+\$~i", $value) &&
-                    $this->driver->jush() !== "pgsql" ? $value : $expression);
+                    $this->driver()->jush() !== "pgsql" ? $value : $expression);
         }
         if (preg_match('~^(addtime|subtime|concat)$~', $function)) {
             return "$function($fieldName, $expression)";
@@ -283,7 +286,7 @@ class AppPage
         }
 
         $expression = $this->getInputFieldExpression($field, $value, $function);
-        return $this->driver->unconvertField($field, $expression);
+        return $this->grammar()->unconvertField($field, $expression);
     }
 
     /**
@@ -365,8 +368,8 @@ class AppPage
     public function dumpOutput(): array
     {
         $output = [
-            'open' => $this->utils->trans->lang('open'),
-            'save' => $this->utils->trans->lang('save'),
+            'open' => $this->utils()->lang('open'),
+            'save' => $this->utils()->lang('save'),
         ];
         if (function_exists('gzencode')) {
             $output['gzip'] = 'gzip';

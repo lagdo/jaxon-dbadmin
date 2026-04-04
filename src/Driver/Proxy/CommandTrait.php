@@ -1,22 +1,22 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 /**
- * Facade to command functions
+ * Proxy to command functions
  */
 trait CommandTrait
 {
     use AbstractTrait;
 
     /**
-     * Get the facade
+     * Get the proxy
      *
-     * @return CommandFacade
+     * @return CommandProxy
      */
-    protected function commandFacade(): CommandFacade
+    protected function commandProxy(): CommandProxy
     {
-        return $this->di()->g(CommandFacade::class);
+        return $this->di()->g(CommandProxy::class);
     }
 
     /**
@@ -26,7 +26,7 @@ trait CommandTrait
      */
     public function prepareCommand()
     {
-        $this->breadcrumbs(true)->item($this->utils->trans->lang('Query'));
+        $this->breadcrumbs(true)->item($this->utils()->lang('Query'));
     }
 
     /**
@@ -42,6 +42,6 @@ trait CommandTrait
     public function executeCommands(string $query, int $limit, bool $errorStops, bool $onlyErrors): array
     {
         $this->connectToSchema();
-        return $this->commandFacade()->executeCommands($query, $limit, $errorStops, $onlyErrors);
+        return $this->commandProxy()->executeCommands($query, $limit, $errorStops, $onlyErrors);
     }
 }

@@ -8,7 +8,7 @@ use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Ajax\Exception\AppException;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
-use Lagdo\DbAdmin\Db\Driver\DbFacade;
+use Lagdo\DbAdmin\Db\Driver\DbProxy;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\DbAdmin\Ui\UiBuilder;
@@ -31,10 +31,10 @@ trait ComponentTrait
     protected ServerConfig $config;
 
     /**
-     * @var DbFacade
+     * @var DbProxy
      */
     #[Inject]
-    protected DbFacade $db;
+    protected DbProxy $db;
 
     /**
      * @var Translator
@@ -57,9 +57,9 @@ trait ComponentTrait
     }
 
     /**
-     * @return DbFacade
+     * @return DbProxy
      */
-    protected function db(): DbFacade
+    protected function db(): DbProxy
     {
         return $this->db;
     }

@@ -110,6 +110,6 @@ class Select extends MainComponent
     #[Databag('dbadmin.tab')]
     public function edit(): void
     {
-        $this->cl(QueryEdit::class)->database($this->getSelectQuery());
+        $this->cl(QueryEdit::class)->database($this->getRowSelectQuery());
     }
 }

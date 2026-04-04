@@ -1,6 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 
 use function array_filter;
 use function array_intersect;
@@ -8,9 +10,9 @@ use function array_values;
 use function is_array;
 
 /**
- * Facade to database functions
+ * Proxy to database functions
  */
-class DatabaseFacade extends AbstractFacade
+class DatabaseProxy extends AbstractProxy
 {
     /**
      * The final schema list
@@ -29,12 +31,12 @@ class DatabaseFacade extends AbstractFacade
     /**
      * The constructor
      *
-     * @param AbstractFacade $dbFacade
+     * @param AbstractProxy $dbProxy
      * @param array $options    The server config options
      */
-    public function __construct(AbstractFacade $dbFacade, array $options)
+    public function __construct(AbstractProxy $dbProxy, array $options)
     {
-        parent::__construct($dbFacade);
+        parent::__construct($dbProxy->driver(), $dbProxy->page(), $dbProxy->utils());
         // Set the user schemas, if defined.
         if (is_array(($userSchemas = $options['access']['schemas'] ?? null))) {
             $this->userSchemas = $userSchemas;
@@ -52,14 +54,14 @@ class DatabaseFacade extends AbstractFacade
     {
         // Get the schema lists
         if ($this->finalSchemas === null) {
-            $this->finalSchemas = $this->driver->schemas();
+            $this->finalSchemas = $this->driver()->schemas();
             if ($this->userSchemas !== null) {
                 // Only keep schemas that appear in the config.
                 $this->finalSchemas = array_values(array_intersect($this->finalSchemas, $this->userSchemas));
             }
         }
         return $schemaAccess ? $this->finalSchemas : array_filter($this->finalSchemas,
-            fn($schema) => !$this->driver->isSystemSchema($schema));
+            fn($schema) => !$this->driver()->isSystemSchema($schema));
     }
 
     /**
@@ -73,15 +75,15 @@ class DatabaseFacade extends AbstractFacade
     {
         // From db.inc.php
         $schemas = null;
-        if ($this->driver->support("scheme")) {
+        if ($this->driver()->support("scheme")) {
             $schemas = $this->schemas($schemaAccess);
         }
-        // $tables_list = $this->driver->tables();
+        // $tables_list = $this->driver()->tables();
 
         // $tables = [];
         // foreach($tableStatus as $table)
         // {
-        //     $tables[] = $this->utils->str->html($table);
+        //     $tables[] = $this->utils()->html($table);
         // }
 
         return \compact('schemas'/*, 'tables'*/);
@@ -95,26 +97,26 @@ class DatabaseFacade extends AbstractFacade
     public function getTables()
     {
         $headers = [
-            $this->utils->trans->lang('Table'),
-            $this->utils->trans->lang('Engine'),
-            $this->utils->trans->lang('Collation'),
-            // $this->utils->trans->lang('Data Length'),
-            // $this->utils->trans->lang('Index Length'),
-            // $this->utils->trans->lang('Data Free'),
-            // $this->utils->trans->lang('Auto Increment'),
-            // $this->utils->trans->lang('Rows'),
-            $this->utils->trans->lang('Comment'),
+            $this->utils()->lang('Table'),
+            $this->utils()->lang('Engine'),
+            $this->utils()->lang('Collation'),
+            // $this->utils()->lang('Data Length'),
+            // $this->utils()->lang('Index Length'),
+            // $this->utils()->lang('Data Free'),
+            // $this->utils()->lang('Auto Increment'),
+            // $this->utils()->lang('Rows'),
+            $this->utils()->lang('Comment'),
         ];
 
         // From db.inc.php
-        // $tableStatus = $this->driver->tableStatuses(true); // Tables details
-        $tableStatus = $this->driver->tableStatuses(); // Tables details
+        // $tableStatus = $this->driver()->tableStatuses(true); // Tables details
+        $tableStatus = $this->driver()->tableStatuses(); // Tables details
 
         $details = [];
         foreach ($tableStatus as $table => $status) {
-            if (!$this->driver->isView($status)) {
+            if (!$this->driver()->isView($status)) {
                 $details[] = [
-                    'name' => $this->page->tableName($status),
+                    'name' => $this->page()->tableName($status),
                     'engine' => $status->engine,
                     'collation' => '',
                     'comment' => $status->comment,
@@ -134,25 +136,25 @@ class DatabaseFacade extends AbstractFacade
     public function getViews()
     {
         $headers = [
-            $this->utils->trans->lang('View'),
-            $this->utils->trans->lang('Engine'),
-            // $this->utils->trans->lang('Data Length'),
-            // $this->utils->trans->lang('Index Length'),
-            // $this->utils->trans->lang('Data Free'),
-            // $this->utils->trans->lang('Auto Increment'),
-            // $this->utils->trans->lang('Rows'),
-            $this->utils->trans->lang('Comment'),
+            $this->utils()->lang('View'),
+            $this->utils()->lang('Engine'),
+            // $this->utils()->lang('Data Length'),
+            // $this->utils()->lang('Index Length'),
+            // $this->utils()->lang('Data Free'),
+            // $this->utils()->lang('Auto Increment'),
+            // $this->utils()->lang('Rows'),
+            $this->utils()->lang('Comment'),
         ];
 
         // From db.inc.php
-        // $tableStatus = $this->driver->tableStatuses(true); // Tables details
-        $tableStatus = $this->driver->tableStatuses(); // Tables details
+        // $tableStatus = $this->driver()->tableStatuses(true); // Tables details
+        $tableStatus = $this->driver()->tableStatuses(); // Tables details
 
         $details = [];
         foreach ($tableStatus as $table => $status) {
-            if ($this->driver->isView($status)) {
+            if ($this->driver()->isView($status)) {
                 $details[] = [
-                    'name' => $this->page->tableName($status),
+                    'name' => $this->page()->tableName($status),
                     'engine' => $status->engine,
                     'comment' => $status->comment,
                 ];
@@ -170,13 +172,13 @@ class DatabaseFacade extends AbstractFacade
     public function getRoutines()
     {
         $headers = [
-            $this->utils->trans->lang('Name'),
-            $this->utils->trans->lang('Type'),
-            $this->utils->trans->lang('Return type'),
+            $this->utils()->lang('Name'),
+            $this->utils()->lang('Type'),
+            $this->utils()->lang('Return type'),
         ];
 
         // From db.inc.php
-        $routines = $this->driver->routines();
+        $routines = $this->driver()->routines();
         $details = [];
         foreach ($routines as $routine) {
             // not computed on the pages to be able to print the header first
@@ -184,10 +186,10 @@ class DatabaseFacade extends AbstractFacade
             //     "" : "&name=" . urlencode($routine["ROUTINE_NAME"]));
 
             $details[] = [
-                'name' => $this->utils->str->html($routine->name),
-                'type' => $this->utils->str->html($routine->type),
-                'returnType' => $this->utils->str->html($routine->dtd),
-                // 'alter' => $this->utils->trans->lang('Alter'),
+                'name' => $this->utils()->html($routine->name),
+                'type' => $this->utils()->html($routine->type),
+                'returnType' => $this->utils()->html($routine->dtd),
+                // 'alter' => $this->utils()->lang('Alter'),
             ];
         }
 
@@ -202,13 +204,13 @@ class DatabaseFacade extends AbstractFacade
     public function getSequences()
     {
         $headers = [
-            $this->utils->trans->lang('Name'),
+            $this->utils()->lang('Name'),
         ];
 
         $details = [];
-        foreach ($this->driver->sequences() as $sequence) {
+        foreach ($this->driver()->sequences() as $sequence) {
             $details[] = [
-                'name' => $this->utils->str->html($sequence),
+                'name' => $this->utils()->html($sequence),
             ];
         }
 
@@ -223,14 +225,14 @@ class DatabaseFacade extends AbstractFacade
     public function getUserTypes()
     {
         $headers = [
-            $this->utils->trans->lang('Name'),
+            $this->utils()->lang('Name'),
         ];
 
         // From db.inc.php
         $details = [];
-        foreach ($this->driver->userTypes(false) as $userType) {
+        foreach ($this->driver()->userTypes(false) as $userType) {
             $details[] = [
-                'name' => $this->utils->str->html($userType->name),
+                'name' => $this->utils()->html($userType->name),
             ];
         }
 
@@ -245,24 +247,24 @@ class DatabaseFacade extends AbstractFacade
     public function getEvents()
     {
         $headers = [
-            $this->utils->trans->lang('Name'),
-            $this->utils->trans->lang('Schedule'),
-            $this->utils->trans->lang('Start'),
-            // $this->utils->trans->lang('End'),
+            $this->utils()->lang('Name'),
+            $this->utils()->lang('Schedule'),
+            $this->utils()->lang('Start'),
+            // $this->utils()->lang('End'),
         ];
 
         // From db.inc.php
         $details = [];
-        foreach ($this->driver->events() as $event) {
+        foreach ($this->driver()->events() as $event) {
             $detail = [
-                'name' => $this->utils->str->html($event["Name"]),
+                'name' => $this->utils()->html($event["Name"]),
             ];
             if (($event["Execute at"])) {
-                $detail['schedule'] = $this->utils->trans->lang('At given time');
+                $detail['schedule'] = $this->utils()->lang('At given time');
                 $detail['start'] = $event["Execute at"];
             // $detail['end'] = '';
             } else {
-                $detail['schedule'] = $this->utils->trans->lang('Every') . " " .
+                $detail['schedule'] = $this->utils()->lang('Every') . " " .
                     $event["Interval value"] . " " . $event["Interval field"];
                 $detail['start'] = $event["Starts"];
                 // $detail['end'] = '';

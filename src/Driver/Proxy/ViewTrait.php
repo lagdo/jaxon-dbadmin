@@ -1,24 +1,24 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 use Exception;
 
 /**
- * Facade to view functions
+ * Proxy to view functions
  */
 trait ViewTrait
 {
     use AbstractTrait;
 
     /**
-     * Get the facade
+     * Get the proxy
      *
-     * @return ViewFacade
+     * @return ViewProxy
      */
-    protected function viewFacade(): ViewFacade
+    protected function viewProxy(): ViewProxy
     {
-        return $this->di()->g(ViewFacade::class);
+        return $this->di()->g(ViewProxy::class);
     }
 
     /**
@@ -32,10 +32,10 @@ trait ViewTrait
     {
         $this->connectToSchema();
         $this->breadcrumbs(true)
-            ->item($this->utils->trans->lang('Views'))
+            ->item($this->utils()->lang('Views'))
             ->item("<i><b>$view</b></i>");
-        $this->utils->input->table = $view;
-        return $this->viewFacade()->getViewInfo($view);
+        $this->utils()->input->table = $view;
+        return $this->viewProxy()->getViewInfo($view);
     }
 
     /**
@@ -49,8 +49,8 @@ trait ViewTrait
     public function getViewFields(string $view): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $view;
-        return $this->viewFacade()->getViewFields($view);
+        $this->utils()->input->table = $view;
+        return $this->viewProxy()->getViewFields($view);
     }
 
     /**
@@ -63,8 +63,8 @@ trait ViewTrait
     public function getViewTriggers(string $view): ?array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $view;
-        return $this->viewFacade()->getViewTriggers($view);
+        $this->utils()->input->table = $view;
+        return $this->viewProxy()->getViewTriggers($view);
     }
 
     /**
@@ -78,8 +78,8 @@ trait ViewTrait
     public function getView(string $view): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $view;
-        return $this->viewFacade()->getView($view);
+        $this->utils()->input->table = $view;
+        return $this->viewProxy()->getView($view);
     }
 
     /**
@@ -93,8 +93,8 @@ trait ViewTrait
     public function createView(array $values): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $values['name'];
-        return $this->viewFacade()->createView($values);
+        $this->utils()->input->table = $values['name'];
+        return $this->viewProxy()->createView($values);
     }
 
     /**
@@ -109,8 +109,8 @@ trait ViewTrait
     public function updateView(string $view, array $values): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $view;
-        return $this->viewFacade()->updateView($view, $values);
+        $this->utils()->input->table = $view;
+        return $this->viewProxy()->updateView($view, $values);
     }
 
     /**
@@ -124,6 +124,6 @@ trait ViewTrait
     public function dropView(string $view): array
     {
         $this->connectToSchema();
-        return $this->viewFacade()->dropView($view);
+        return $this->viewProxy()->dropView($view);
     }
 }

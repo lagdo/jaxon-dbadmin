@@ -1,26 +1,26 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
-use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
 use Exception;
 
 /**
- * Facade to table functions
+ * Proxy to table functions
  */
 trait TableTrait
 {
     use AbstractTrait;
 
     /**
-     * Get the facade
+     * Get the proxy
      *
-     * @return TableFacade
+     * @return TableProxy
      */
-    protected function tableFacade(): TableFacade
+    protected function tableProxy(): TableProxy
     {
-        return $this->di()->g(TableFacade::class);
+        return $this->di()->g(TableProxy::class);
     }
 
     /**
@@ -34,10 +34,10 @@ trait TableTrait
     {
         $this->connectToSchema();
         $this->breadcrumbs(true)
-            ->item($this->utils->trans->lang('Tables'))
+            ->item($this->utils()->lang('Tables'))
             ->item("<i><b>$table</b></i>");
-        $this->utils->input->table = $table;
-        return $this->tableFacade()->getTableInfo($table);
+        $this->utils()->input->table = $table;
+        return $this->tableProxy()->getTableInfo($table);
     }
 
     /**
@@ -51,8 +51,8 @@ trait TableTrait
     public function getTableFields(string $table): array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        return $this->tableFacade()->getTableFields($table);
+        $this->utils()->input->table = $table;
+        return $this->tableProxy()->getTableFields($table);
     }
 
     /**
@@ -65,8 +65,8 @@ trait TableTrait
     public function getTableIndexes(string $table): ?array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        return $this->tableFacade()->getTableIndexes($table);
+        $this->utils()->input->table = $table;
+        return $this->tableProxy()->getTableIndexes($table);
     }
 
     /**
@@ -79,8 +79,8 @@ trait TableTrait
     public function getTableForeignKeys(string $table): ?array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        return $this->tableFacade()->getTableForeignKeys($table);
+        $this->utils()->input->table = $table;
+        return $this->tableProxy()->getTableForeignKeys($table);
     }
 
     /**
@@ -93,8 +93,8 @@ trait TableTrait
     public function getTableTriggers(string $table): ?array
     {
         $this->connectToSchema();
-        $this->utils->input->table = $table;
-        return $this->tableFacade()->getTableTriggers($table);
+        $this->utils()->input->table = $table;
+        return $this->tableProxy()->getTableTriggers($table);
     }
 
     /**
@@ -108,15 +108,15 @@ trait TableTrait
     public function getTableMetadata(string $table = ''): array
     {
         $this->connectToSchema();
-        $this->breadcrumbs(true)->item($this->utils->trans->lang('Tables'));
+        $this->breadcrumbs(true)->item($this->utils()->lang('Tables'));
         if (!$table) {
-            $this->breadcrumbs()->item($this->utils->trans->lang('Create table'));
+            $this->breadcrumbs()->item($this->utils()->lang('Create table'));
         } else {
             $this->breadcrumbs()->item("<i><b>$table</b></i>")
-                ->item($this->utils->trans->lang('Alter table'));
+                ->item($this->utils()->lang('Alter table'));
         }
-        $this->utils->input->table = $table;
-        return $this->tableFacade()->getTableMetadata($table);
+        $this->utils()->input->table = $table;
+        return $this->tableProxy()->getTableMetadata($table);
     }
 
     /**
@@ -127,7 +127,7 @@ trait TableTrait
     public function getTableField(): TableFieldDto
     {
         $this->connectToSchema();
-        return $this->tableFacade()->getTableField();
+        return $this->tableProxy()->getTableField();
     }
 
     /**
@@ -141,7 +141,7 @@ trait TableTrait
     {
         // Must be called after the connection to a schema is made.
         // $this->connectToSchema();
-        return $this->tableFacade()->getFieldTypes($type);
+        return $this->tableProxy()->getFieldTypes($type);
     }
 
     /**
@@ -155,7 +155,7 @@ trait TableTrait
     public function getCreateTableQueries(array $options, array $columns): array
     {
         $this->connectToSchema();
-        return $this->tableFacade()->getCreateTableQueries($options, $columns);
+        return $this->tableProxy()->getCreateTableQueries($options, $columns);
     }
 
     /**
@@ -169,7 +169,7 @@ trait TableTrait
     public function createTable(array $options, array $columns): ?array
     {
         $this->connectToSchema();
-        return $this->tableFacade()->createTable($options, $columns);
+        return $this->tableProxy()->createTable($options, $columns);
     }
 
     /**
@@ -184,7 +184,7 @@ trait TableTrait
     public function getAlterTableQueries(string $name, array $options, array $columns): array
     {
         $this->connectToSchema();
-        return $this->tableFacade()->getAlterTableQueries($name, $options, $columns);
+        return $this->tableProxy()->getAlterTableQueries($name, $options, $columns);
     }
 
     /**
@@ -200,7 +200,7 @@ trait TableTrait
     public function alterTable(string $name, array $options, array $columns): ?array
     {
         $this->connectToSchema();
-        return $this->tableFacade()->alterTable($name, $options, $columns);
+        return $this->tableProxy()->alterTable($name, $options, $columns);
     }
 
     /**
@@ -213,6 +213,6 @@ trait TableTrait
     public function dropTable(string $table): array
     {
         $this->connectToSchema();
-        return $this->tableFacade()->dropTable($table);
+        return $this->tableProxy()->dropTable($table);
     }
 }

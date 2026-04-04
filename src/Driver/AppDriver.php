@@ -3,15 +3,15 @@
 namespace Lagdo\DbAdmin\Db\Driver;
 
 use Jaxon\Di\Container;
-use Lagdo\DbAdmin\Driver\AbstractDriver;
-use Lagdo\DbAdmin\Driver\Db\AbstractConnection;
-use Lagdo\DbAdmin\Driver\Db\StatementInterface;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Driver\DatabaseInterface;
-use Lagdo\DbAdmin\Driver\Driver\GrammarInterface;
-use Lagdo\DbAdmin\Driver\Driver\QueryInterface;
-use Lagdo\DbAdmin\Driver\Driver\ServerInterface;
-use Lagdo\DbAdmin\Driver\Driver\TableInterface;
+use Lagdo\DbAdmin\Support\AbstractDriver;
+use Lagdo\DbAdmin\Support\Db\Engine\Driver\AbstractConnection;
+use Lagdo\DbAdmin\Support\Db\Engine\Connection\StatementInterface;
+use Lagdo\DbAdmin\Support\Db\Admin\Driver\DatabaseInterface;
+use Lagdo\DbAdmin\Support\Db\Admin\Driver\QueryInterface;
+use Lagdo\DbAdmin\Support\Db\Admin\Driver\ServerInterface;
+use Lagdo\DbAdmin\Support\Db\Admin\Driver\TableInterface;
+use Lagdo\DbAdmin\Support\DriverInterface;
+use Lagdo\DbAdmin\Support\GrammarInterface;
 use Closure;
 
 /**
@@ -34,6 +34,14 @@ class AppDriver extends AbstractDriver
         $this->config = $driver->config;
         $this->mainConnection = $driver->mainConnection;
         $this->connection = $driver->connection;
+    }
+
+    /**
+     * @var GrammarInterface
+     */
+    public function grammar(): GrammarInterface
+    {
+        return $this->driver->grammar();
     }
 
     /**
@@ -61,14 +69,6 @@ class AppDriver extends AbstractDriver
     }
 
     /**
-     * @var GrammarInterface
-     */
-    protected function _grammar(): GrammarInterface
-    {
-        return $this->driver->_grammar();
-    }
-
-    /**
      * @var QueryInterface
      */
     protected function _query(): QueryInterface
@@ -79,7 +79,7 @@ class AppDriver extends AbstractDriver
     /**
      * @inheritDoc
      */
-    public function name()
+    public function name(): string
     {
         return $this->driver->name();
     }

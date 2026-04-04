@@ -2,11 +2,12 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\UiData\AppPage;
-use Lagdo\DbAdmin\Driver\Utils\Utils;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
-use Lagdo\DbAdmin\Driver\Dto\UserTypeDto;
+use Lagdo\DbAdmin\Support\Utils\Utils;
+use Lagdo\DbAdmin\Support\DriverInterface;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Support\Dto\UserTypeDto;
 
 use function bin2hex;
 use function implode;
@@ -18,7 +19,7 @@ use function preg_match;
 /**
  * Writes data in the user forms for data row insert and update.
  */
-class DataFieldValue
+class DataFieldValue extends AbstractProxy
 {
     /**
      * @var bool
@@ -26,24 +27,43 @@ class DataFieldValue
     private bool $isUpdate = false;
 
     /**
-     * @var array<UserTypeDto>
+     * @var array<UserTypeDto>|null
      */
-    private array $userTypes;
+    private array|null $userTypes = null;
 
     /**
-     * The constructor
-     *
-     * @param AppPage $page
-     * @param DriverInterface $driver
-     * @param Utils $utils
+     * @var string
+     */
+    private string $action;
+
+    /**
+     * @var string
+     */
+    private string $operation;
+
+    /**
      * @param string $action
      * @param string $operation
+     *
+     * @return self
      */
-    public function __construct(private AppPage $page, private DriverInterface $driver,
-        private Utils $utils, private string $action, private string $operation)
+    public function init(string $action, string $operation): self
     {
+        $this->action = $action;
+        $this->operation = $operation;
         $this->isUpdate = $operation === 'update';
-        $this->userTypes = $this->driver->userTypes(true);
+        return $this;
+    }
+
+    /**
+     * @param TableFieldDto $field
+     *
+     * @return UserTypeDto|null
+     */
+    public function userType(TableFieldDto $field): UserTypeDto|null
+    {
+        $this->userTypes ??= $this->driver()->userTypes(true);
+        return $this->userTypes[$field->type] ?? null;
     }
 
     /**
@@ -75,28 +95,28 @@ class DataFieldValue
     private function editFunctions(TableFieldDto $field): array
     {
         if ($field->autoIncrement && !$this->isUpdate) {
-            return [$this->utils->trans->lang('Auto Increment')];
+            return [$this->utils()->lang('Auto Increment')];
         }
 
         $names = $field->nullable ? ['NULL', ''] : [''];
-        $functions = $this->driver->insertFunctions();
+        $functions = $this->driver()->insertFunctions();
         $names = $this->addEditFunctions($names, $functions, $field);
 
-        $functions = $this->driver->editFunctions();
-        if (/*!isset($this->utils->input->values['call']) &&*/ $this->isUpdate) { // relative functions
+        $functions = $this->driver()->editFunctions();
+        if (/*!isset($this->utils()->input->values['call']) &&*/ $this->isUpdate) { // relative functions
             $names = $this->addEditFunctions($names, $functions, $field);
         }
 
-        $structuredTypes = $this->driver->structuredTypes();
-        $userTypes = $structuredTypes[$this->utils->trans->lang('User types')] ?? [];
+        $structuredTypes = $this->driver()->structuredTypes();
+        $userTypes = $structuredTypes[$this->utils()->lang('User types')] ?? [];
         if ($functions && !preg_match('~set|bool~', $field->type) &&
-            !$this->utils->isBlob($field, $userTypes)) {
+            !$this->utils()->isBlob($field, $userTypes)) {
             $names[] = 'SQL';
         }
 
         // $dbFunctions = [
-        //     'insert' => $this->driver->insertFunctions(),
-        //     'edit' => $this->driver->editFunctions(),
+        //     'insert' => $this->driver()->insertFunctions(),
+        //     'edit' => $this->driver()->editFunctions(),
         // ];
         // foreach ($dbFunctions as $key => $functions) {
         //     if ($key === 'insert' || (!$isCall && $this->isUpdate)) { // relative functions
@@ -106,7 +126,7 @@ class DataFieldValue
         //             }
         //         }
         //     }
-        //     if ($key === 'edit' && !preg_match('~set|bool~', $field->type) && !$this->utils->isBlob($field, $userTypes)) {
+        //     if ($key === 'edit' && !preg_match('~set|bool~', $field->type) && !$this->utils()->isBlob($field, $userTypes)) {
         //         $names[] = 'SQL';
         //     }
         // }
@@ -123,13 +143,13 @@ class DataFieldValue
     private function getInputValue(TableFieldDto $field, array|null $rowData): mixed
     {
         $update = $this->operation === 'update';
-        // $default = $options["set"][$this->driver->bracketEscape($name)] ?? null;
+        // $default = $options["set"][$this->grammar()->bracketEscape($name)] ?? null;
         /*if ($default === null)*/ {
             $default = $field->default;
             if ($field->type == "bit" && preg_match("~^b'([01]*)'\$~", $default, $regs)) {
                 $default = $regs[1];
             }
-            if ($this->driver->jush() == "sql" && preg_match('~binary~', $field->type)) {
+            if ($this->driver()->jush() == "sql" && preg_match('~binary~', $field->type)) {
                 $default = bin2hex($default); // same as UNHEX
             }
         }
@@ -144,7 +164,7 @@ class DataFieldValue
 
         $fieldValue = $rowData[$field->name] ?? null;
         return match(true) {
-            $fieldValue !== '' && $this->driver->jush() === 'sql' &&
+            $fieldValue !== '' && $this->driver()->jush() === 'sql' &&
                 preg_match("~enum|set~", $field->type) > 0 &&
                 is_array($fieldValue) => implode(",", $fieldValue),
             is_bool($fieldValue) => +$fieldValue,
@@ -206,8 +226,8 @@ class DataFieldValue
         [$editField->value, $editField->function] = $this->getInputFunction($field, $value);
 
         // From html.inc.php: input(array $field, $value, ?string $function, ?bool $autofocus = false)
-        $editField->name = $this->utils->html($this->driver->bracketEscape($field->name));
-        $editField->fullType = $this->utils->html($field->fullType);
+        $editField->name = $this->utils()->html($this->grammar()->bracketEscape($field->name));
+        $editField->fullType = $this->utils()->html($field->fullType);
 
         if (is_array($editField->value) && !$editField->function) {
              // 128 - JSON_PRETTY_PRINT, 64 - JSON_UNESCAPED_SLASHES, 256 - JSON_UNESCAPED_UNICODE available since PHP 5.4
@@ -217,19 +237,19 @@ class DataFieldValue
         }
 
         // Since mssql is not yet supported, $reset is always false.
-        // $reset = $this->driver->jush() === 'mssql' && $field->autoIncrement;
+        // $reset = $this->driver()->jush() === 'mssql' && $field->autoIncrement;
         // if ($reset && $this->action !== 'save') {
         //     $editField->function = null;
         // }
 
         // $editField->functions = [];
         // if ($reset) {
-        //     $editField->functions['orig'] = $this->utils->trans->lang('original');
+        //     $editField->functions['orig'] = $this->utils()->lang('original');
         // }
         // $editField->functions = [...$editField->functions, ...$this->editFunctions($field)];
         $editField->functions = $this->editFunctions($field);
 
-        $userType = $this->userTypes[$field->type] ?? null;
+        $userType = $this->userType($field);
         $editField->enums = $userType?->enums ?? [];
         if ($editField->enums) {
             $editField->type = 'enum';

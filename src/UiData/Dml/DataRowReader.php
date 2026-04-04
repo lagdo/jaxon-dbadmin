@@ -2,11 +2,12 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\UiData\AppPage;
-use Lagdo\DbAdmin\Driver\DriverInterface;
-use Lagdo\DbAdmin\Driver\Dto\TableFieldDto;
-use Lagdo\DbAdmin\Driver\Dto\UserTypeDto;
-use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Lagdo\DbAdmin\Support\DriverInterface;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Support\Dto\UserTypeDto;
+use Lagdo\DbAdmin\Support\Utils\Utils;
 
 use function count;
 use function implode;
@@ -19,24 +20,22 @@ use function substr;
 /**
  * Reads data from the user inputs for data row insert and update.
  */
-class DataRowReader
+class DataRowReader extends AbstractProxy
 {
     /**
-     * @var array<UserTypeDto>
+     * @var array<UserTypeDto>|null
      */
-    private array $userTypes;
+    private array|null $userTypes = null;
 
     /**
-     * The constructor
+     * @param TableFieldDto $field
      *
-     * @param AppPage $page
-     * @param DriverInterface $driver
-     * @param Utils $utils
+     * @return UserTypeDto|null
      */
-    public function __construct(private AppPage $page,
-        private DriverInterface $driver, private Utils $utils)
+    public function userType(TableFieldDto $field): UserTypeDto|null
     {
-        $this->userTypes = $this->driver->userTypes(true);
+        $this->userTypes ??= $this->driver()->userTypes(true);
+        return $this->userTypes[$field->type] ?? null;
     }
 
     /**
@@ -54,8 +53,8 @@ class DataRowReader
             return false;
         }
 
-        $fieldId = $this->driver->bracketEscape($field->name);
-        $userType = $this->userTypes[$field->type] ?? null;
+        $fieldId = $this->grammar()->bracketEscape($field->name);
+        $userType = $this->userType($field);
         $enumValues = $userType?->enums ?? [];
         if ($field->type === "enum" || count($enumValues) > 0) {
             // An enum field with no value selected will have no entry in the values.
@@ -69,7 +68,7 @@ class DataRowReader
 
             $value = substr($value, 4); // 4 - strlen("val-")
             // There's no function on enum fields.
-            return $this->page->getUnconvertedFieldValue($field, $value);
+            return $this->page()->getUnconvertedFieldValue($field, $value);
         }
 
         $value = $values['field_values'][$fieldId] ?? '';
@@ -82,7 +81,7 @@ class DataRowReader
         $function = $values['field_functions'][$fieldId] ?? '';
         if ($function === 'orig') {
             return preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) ?
-                $this->driver->escapeId($field->name) : false;
+                $this->grammar()->escapeId($field->name) : false;
         }
 
         if ($function === 'NULL') {
@@ -100,13 +99,13 @@ class DataRowReader
             return is_array($value) ? $value : false;
         }
 
-        if ($this->utils->isBlob($field) && $this->utils->iniBool('file_uploads')) {
-            $file = $this->page->getFileContents("fields-$fieldId");
+        if ($this->utils()->isBlob($field) && $this->utils()->iniBool('file_uploads')) {
+            $file = $this->page()->getFileContents("fields-$fieldId");
             //! report errors
-            return is_string($file) ? $this->driver->quoteBinary($file) : false;
+            return is_string($file) ? $this->driver()->quoteBinary($file) : false;
         }
 
-        return $this->page->getUnconvertedFieldValue($field, $value, $function);
+        return $this->page()->getUnconvertedFieldValue($field, $value, $function);
     }
 
     /**
@@ -122,7 +121,7 @@ class DataRowReader
         foreach ($fields as $name => $field) {
             $value = $this->getInputValue($field, $inputs);
             if ($value !== false && $value !== null) {
-                $values[$this->driver->escapeId($name)] = $value;
+                $values[$this->grammar()->escapeId($name)] = $value;
             }
         }
 

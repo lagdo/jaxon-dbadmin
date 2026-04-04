@@ -1,22 +1,22 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 /**
- * Facade to database functions
+ * Proxy to database functions
  */
 trait DatabaseTrait
 {
     use AbstractTrait;
 
     /**
-     * Get the facade
+     * Get the proxy
      *
-     * @return DatabaseFacade
+     * @return DatabaseProxy
      */
-    protected function databaseFacade()
+    protected function databaseProxy()
     {
-        return $this->di()->g(DatabaseFacade::class);
+        return $this->di()->g(DatabaseProxy::class);
     }
 
     /**
@@ -30,7 +30,7 @@ trait DatabaseTrait
     {
         $this->connectToDatabase();
         $this->breadcrumbs(true);
-        return $this->databaseFacade()->getDatabaseInfo($schemaAccess);
+        return $this->databaseProxy()->getDatabaseInfo($schemaAccess);
     }
 
     /**
@@ -41,8 +41,8 @@ trait DatabaseTrait
     public function getTables()
     {
         $this->connectToSchema();
-        $this->breadcrumbs(true)->item($this->utils->trans->lang('Tables'));
-        return $this->databaseFacade()->getTables();
+        $this->breadcrumbs(true)->item($this->utils()->lang('Tables'));
+        return $this->databaseProxy()->getTables();
     }
 
     /**
@@ -53,8 +53,8 @@ trait DatabaseTrait
     public function getViews()
     {
         $this->connectToSchema();
-        $this->breadcrumbs(true)->item($this->utils->trans->lang('Views'));
-        return $this->databaseFacade()->getViews();
+        $this->breadcrumbs(true)->item($this->utils()->lang('Views'));
+        return $this->databaseProxy()->getViews();
     }
 
     /**
@@ -65,8 +65,8 @@ trait DatabaseTrait
     public function getRoutines()
     {
         $this->connectToSchema();
-        $this->breadcrumbs(true)->item($this->utils->trans->lang('Routines'));
-        return $this->databaseFacade()->getRoutines();
+        $this->breadcrumbs(true)->item($this->utils()->lang('Routines'));
+        return $this->databaseProxy()->getRoutines();
     }
 
     /**
@@ -77,8 +77,8 @@ trait DatabaseTrait
     public function getSequences()
     {
         $this->connectToSchema();
-        $this->breadcrumbs(true)->item($this->utils->trans->lang('Sequences'));
-        return $this->databaseFacade()->getSequences();
+        $this->breadcrumbs(true)->item($this->utils()->lang('Sequences'));
+        return $this->databaseProxy()->getSequences();
     }
 
     /**
@@ -89,8 +89,8 @@ trait DatabaseTrait
     public function getUserTypes()
     {
         $this->connectToSchema();
-        $this->breadcrumbs(true)->item($this->utils->trans->lang('User types'));
-        return $this->databaseFacade()->getUserTypes();
+        $this->breadcrumbs(true)->item($this->utils()->lang('User types'));
+        return $this->databaseProxy()->getUserTypes();
     }
 
     /**
@@ -101,7 +101,7 @@ trait DatabaseTrait
     public function getEvents()
     {
         $this->connectToSchema();
-        $this->breadcrumbs(true)->item($this->utils->trans->lang('Events'));
-        return $this->databaseFacade()->getEvents();
+        $this->breadcrumbs(true)->item($this->utils()->lang('Events'));
+        return $this->databaseProxy()->getEvents();
     }
 }

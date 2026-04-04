@@ -1,15 +1,16 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Facades;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
+use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Exception;
 
 use function compact;
 
 /**
- * Facade to view functions
+ * Proxy to view functions
  */
-class ViewFacade extends AbstractFacade
+class ViewProxy extends AbstractProxy
 {
     /**
      * The current table status
@@ -17,6 +18,14 @@ class ViewFacade extends AbstractFacade
      * @var mixed
      */
     protected $viewStatus = null;
+
+    /**
+     * @param AbstractProxy $proxy
+     */
+    public function __construct(AbstractProxy $proxy)
+    {
+        parent::__construct($proxy->driver(), $proxy->page(), $proxy->utils());
+    }
 
     /**
      * Get the current table status
@@ -28,7 +37,7 @@ class ViewFacade extends AbstractFacade
     protected function status(string $table)
     {
         if (!$this->viewStatus) {
-            $this->viewStatus = $this->driver->tableStatusOrName($table, true);
+            $this->viewStatus = $this->driver()->tableStatusOrName($table, true);
         }
         return $this->viewStatus;
     }
@@ -44,20 +53,20 @@ class ViewFacade extends AbstractFacade
     {
         // From table.inc.php
         $status = $this->status($view);
-        $name = $this->page->tableName($status);
-        $title = ($status->engine == 'materialized view' ? $this->utils->trans->lang('Materialized view') :
-            $this->utils->trans->lang('View')) . ': ' . ($name != '' ? $name : $this->utils->str->html($view));
+        $name = $this->page()->tableName($status);
+        $title = ($status->engine == 'materialized view' ? $this->utils()->lang('Materialized view') :
+            $this->utils()->lang('View')) . ': ' . ($name != '' ? $name : $this->utils()->html($view));
 
         $comment = $status->comment;
 
         $tabs = [
-            'fields' => $this->utils->trans->lang('Columns'),
-            // 'indexes' => $this->utils->trans->lang('Indexes'),
-            // 'foreign-keys' => $this->utils->trans->lang('Foreign keys'),
-            // 'triggers' => $this->utils->trans->lang('Triggers'),
+            'fields' => $this->utils()->lang('Columns'),
+            // 'indexes' => $this->utils()->lang('Indexes'),
+            // 'foreign-keys' => $this->utils()->lang('Foreign keys'),
+            // 'triggers' => $this->utils()->lang('Triggers'),
         ];
-        if ($this->driver->support('view_trigger')) {
-            $tabs['triggers'] = $this->utils->trans->lang('Triggers');
+        if ($this->driver()->support('view_trigger')) {
+            $tabs['triggers'] = $this->utils()->lang('Triggers');
         }
 
         return compact('title', 'comment', 'tabs');
@@ -74,49 +83,49 @@ class ViewFacade extends AbstractFacade
     public function getViewFields(string $view): array
     {
         // From table.inc.php
-        $fields = $this->driver->fields($view);
+        $fields = $this->driver()->fields($view);
         if (empty($fields)) {
-            throw new Exception($this->driver->error());
+            throw new Exception($this->driver()->error());
         }
 
         $tabs = [
-            'fields' => $this->utils->trans->lang('Columns'),
-            // 'triggers' => $this->utils->trans->lang('Triggers'),
+            'fields' => $this->utils()->lang('Columns'),
+            // 'triggers' => $this->utils()->lang('Triggers'),
         ];
-        if ($this->driver->support('view_trigger')) {
-            $tabs['triggers'] = $this->utils->trans->lang('Triggers');
+        if ($this->driver()->support('view_trigger')) {
+            $tabs['triggers'] = $this->utils()->lang('Triggers');
         }
 
         $headers = [
-            $this->utils->trans->lang('Name'),
-            $this->utils->trans->lang('Type'),
-            $this->utils->trans->lang('Collation'),
+            $this->utils()->lang('Name'),
+            $this->utils()->lang('Type'),
+            $this->utils()->lang('Collation'),
         ];
-        $hasComment = $this->driver->support('comment');
+        $hasComment = $this->driver()->support('comment');
         if ($hasComment) {
-            $headers[] = $this->utils->trans->lang('Comment');
+            $headers[] = $this->utils()->lang('Comment');
         }
 
         $details = [];
         foreach ($fields as $field) {
-            $type = $this->utils->str->html($field->fullType);
+            $type = $this->utils()->html($field->fullType);
             if ($field->nullable) {
                 $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
             }
             if ($field->autoIncrement) {
-                $type .= ' <i>' . $this->utils->trans->lang('Auto Increment') . '</i>';
+                $type .= ' <i>' . $this->utils()->lang('Auto Increment') . '</i>';
             }
             if ($field->hasDefault()) {
-                $type .= /*' ' . $this->utils->trans->lang('Default value') .*/ ' [<b>' .
-                    $this->utils->str->html($field->default) . '</b>]';
+                $type .= /*' ' . $this->utils()->lang('Default value') .*/ ' [<b>' .
+                    $this->utils()->html($field->default) . '</b>]';
             }
             $detail = [
-                'name' => $this->utils->str->html($field->name),
+                'name' => $this->utils()->html($field->name),
                 'type' => $type,
-                'collation' => $this->utils->str->html($field->collation),
+                'collation' => $this->utils()->html($field->collation),
             ];
             if ($hasComment) {
-                $detail['comment'] = $this->utils->str->html($field->comment);
+                $detail['comment'] = $this->utils()->html($field->comment);
             }
 
             $details[] = $detail;
@@ -134,12 +143,12 @@ class ViewFacade extends AbstractFacade
      */
     public function getViewTriggers(string $view): ?array
     {
-        if (!$this->driver->support('view_trigger')) {
+        if (!$this->driver()->support('view_trigger')) {
             return null;
         }
 
         $headers = [
-            $this->utils->trans->lang('Name'),
+            $this->utils()->lang('Name'),
             '&nbsp;',
             '&nbsp;',
             '&nbsp;',
@@ -147,13 +156,13 @@ class ViewFacade extends AbstractFacade
 
         $details = [];
         // From table.inc.php
-        $triggers = $this->driver->triggers($view);
+        $triggers = $this->driver()->triggers($view);
         foreach ($triggers as $name => $trigger) {
             $details[] = [
-                $this->utils->str->html($trigger->timing),
-                $this->utils->str->html($trigger->event),
-                $this->utils->str->html($name),
-                $this->utils->trans->lang('Alter'),
+                $this->utils()->html($trigger->timing),
+                $this->utils()->html($trigger->event),
+                $this->utils()->html($name),
+                $this->utils()->lang('Alter'),
             ];
         }
 
@@ -170,15 +179,15 @@ class ViewFacade extends AbstractFacade
      */
     public function getView(string $view): array
     {
-        $values = $this->driver->view($view);
-        $error = $this->driver->error();
+        $values = $this->driver()->view($view);
+        $error = $this->driver()->error();
         if (($error)) {
             throw new Exception($error);
         }
 
         return [
             'view' => $values,
-            'materialized' => $this->driver->support('materializedview'),
+            'materialized' => $this->driver()->support('materializedview'),
         ];
     }
 
@@ -192,9 +201,9 @@ class ViewFacade extends AbstractFacade
      */
     public function createView(array $values): array
     {
-        $success = $this->driver->createView($values);
-        $message = $this->utils->trans->lang('View has been created.');
-        $error = $this->driver->error();
+        $success = $this->driver()->createView($values);
+        $message = $this->utils()->lang('View has been created.');
+        $error = $this->driver()->error();
 
         return compact('success', 'message', 'error');
     }
@@ -210,9 +219,9 @@ class ViewFacade extends AbstractFacade
      */
     public function updateView(string $view, array $values): array
     {
-        $result = $this->driver->updateView($view, $values);
-        $message = $this->utils->trans->lang("View has been $result.");
-        $error = $this->driver->error();
+        $result = $this->driver()->updateView($view, $values);
+        $message = $this->utils()->lang("View has been $result.");
+        $error = $this->driver()->error();
         $success = !$error;
 
         return compact('success', 'message', 'error');
@@ -228,20 +237,20 @@ class ViewFacade extends AbstractFacade
      */
     public function dropView(string $view): array
     {
-        if ($this->driver->tableStatus($view) === null) {
+        if ($this->driver()->tableStatus($view) === null) {
             return [
-                'error' => $this->utils->trans->lang('Invalid view %s.', $view),
+                'error' => $this->utils()->lang('Invalid view %s.', $view),
             ];
         }
 
-        if (!$this->driver->dropView($view)) {
+        if (!$this->driver()->dropView($view)) {
             return [
-                'error' => $this->driver->error(),
+                'error' => $this->driver()->error(),
             ];
         }
 
         return [
-            'message' => $this->utils->trans->lang('View has been dropped.'),
+            'message' => $this->utils()->lang('View has been dropped.'),
         ];
     }
 }
