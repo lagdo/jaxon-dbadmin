@@ -55,7 +55,7 @@ class DbProxy extends AbstractProxy
     public function __construct(protected Container $di, protected Utils $utils,
         protected ViewRenderer $viewRenderer)
     {
-        $this->setDriver();
+        $this->setDriver()->setUtils($utils);
         // Make the translator available into views
         $viewRenderer->share('trans', $utils->trans);
         $this->breadcrumbs = new Breadcrumbs();
