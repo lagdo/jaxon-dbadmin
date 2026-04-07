@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
+use Lagdo\DbAdmin\Db\Driver\AbstractProxyTrait;
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
 use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
 use Exception;
@@ -11,7 +12,7 @@ use Exception;
  */
 trait TableTrait
 {
-    use AbstractTrait;
+    use AbstractProxyTrait;
 
     /**
      * Get the proxy

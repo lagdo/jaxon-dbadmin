@@ -2,12 +2,14 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
+use Lagdo\DbAdmin\Db\Driver\AbstractProxyTrait;
+
 /**
  * Proxy to command functions
  */
 trait CommandTrait
 {
-    use AbstractTrait;
+    use AbstractProxyTrait;
 
     /**
      * Get the proxy

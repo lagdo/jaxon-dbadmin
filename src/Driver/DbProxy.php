@@ -26,11 +26,6 @@ class DbProxy extends AbstractProxy
     use Proxy\ImportTrait;
 
     /**
-     * @var Breadcrumbs
-     */
-    protected $breadcrumbs;
-
-    /**
      * @var string
      */
     protected $dbServer;
@@ -51,14 +46,14 @@ class DbProxy extends AbstractProxy
      * @param Container $di
      * @param Utils $utils
      * @param ViewRenderer $viewRenderer
+     * @param Breadcrumbs $breadcrumbs
      */
     public function __construct(protected Container $di, protected Utils $utils,
-        protected ViewRenderer $viewRenderer)
+        protected ViewRenderer $viewRenderer, protected Breadcrumbs $breadcrumbs)
     {
         $this->setDriver()->setUtils($utils);
         // Make the translator available into views
         $viewRenderer->share('trans', $utils->trans);
-        $this->breadcrumbs = new Breadcrumbs();
     }
 
     /**

@@ -9,6 +9,7 @@ use Lagdo\DbAdmin\Db\Service;
 use Lagdo\DbAdmin\Support;
 use Lagdo\DbAdmin\Ui;
 
+// This setup needs to be applied after the config is loaded.
 jaxon()->callback()->boot(function() {
     $di = jaxon()->di();
     // Register a driver for each database server.
@@ -134,6 +135,8 @@ return [
         Db\UiData\AppPage::class,
         // The proxy to the database features
         Db\Driver\DbProxy::class,
+        // The Breadcrumbs service
+        Service\Breadcrumbs::class,
         // The Timer service
         Service\TimerService::class,
         // The UI builders
