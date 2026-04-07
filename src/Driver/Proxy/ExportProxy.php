@@ -246,16 +246,16 @@ class ExportProxy extends AbstractProxy
     private function getCreateQuery(string $table, string $style, int $tableType): string
     {
         if ($tableType !== 2) {
-            return $this->grammar()->getTableDefinitionQueries($table,
-                $this->options['autoIncrement'], $style);
+            $autoIncrement = $this->options['autoIncrement'];
+            return $this->grammar()->getExportTableQueries($table, $autoIncrement, $style);
         }
 
         $fields = [];
         foreach ($this->driver()->fields($table) as $name => $field) {
             $fields[] = $this->grammar()->escapeId($name) . ' ' . $field->fullType;
         }
-        return 'CREATE TABLE ' . $this->grammar()->escapeTableName($table) .
-            ' (' . implode(', ', $fields) . ')';
+        $tableName = $this->grammar()->escapeTableName($table);
+        return "CREATE TABLE $tableName (" . implode(', ', $fields) . ')';
     }
 
     /**
