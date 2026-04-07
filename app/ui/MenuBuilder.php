@@ -18,24 +18,34 @@ class MenuBuilder
     {}
 
     /**
-     * @param string $server
      * @param string $user
      *
      * @return string
      */
-    public function dbConnection(string $server, string $user): string
+    public function user(string $user): string
+    {
+        return $this->ui->build(
+            $this->ui->col(
+                $this->ui->panel(
+                    $this->ui->panelBody($this->ui->html($user))
+                ),
+            )->width(12)
+        );
+    }
+
+    /**
+     * @param string $server
+     *
+     * @return string
+     */
+    public function server(string $server): string
     {
         return $this->ui->build(
             $this->ui->col(
                 $this->ui->panel(
                     $this->ui->panelBody($this->ui->html($server))
                 )
-            )->width(8),
-            $this->ui->col(
-                $this->ui->panel(
-                    $this->ui->panelBody($this->ui->html($user))
-                ),
-            )->width(4),
+            )->width(12)
         );
     }
 

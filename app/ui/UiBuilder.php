@@ -12,7 +12,6 @@ use Lagdo\DbAdmin\Ajax\Admin\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Ajax\Admin\Page\Content;
 use Lagdo\DbAdmin\Ajax\Admin\Page\PageActions;
-use Lagdo\DbAdmin\Ajax\Admin\Page\DbConnection;
 use Lagdo\DbAdmin\Ajax\Audit\Sidebar as AuditSidebar;
 use Lagdo\DbAdmin\Ajax\Audit\Wrapper as AuditWrapper;
 use Lagdo\DbAdmin\Db\Translator;
@@ -175,13 +174,16 @@ class UiBuilder
     public function wrapper(): string
     {
         return $this->ui->build(
-            $this->ui->row()->tbnBindApp(rq(DbConnection::class)),
             $this->ui->row(
                 $this->ui->col(
-                    $this->ui->span(['style' => 'float:left'])
-                        ->tbnBindApp(rq(Breadcrumbs::class)),
-                    $this->ui->span(['style' => 'float:right'])
-                        ->tbnBindApp(rq(PageActions::class))
+                    $this->ui->panel(
+                        $this->ui->panelBody( 
+                            $this->ui->span(['style' => 'float:left'])
+                                ->tbnBindApp(rq(Breadcrumbs::class)),
+                            $this->ui->span(['style' => 'float:right'])
+                                ->tbnBindApp(rq(PageActions::class))
+                        )->setStyle('padding-top: 0;padding-bottom: 0;')
+                    )
                 )->width(12)
             ),
             $this->ui->row(

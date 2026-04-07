@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Ui;
 
+use Lagdo\DbAdmin\Ajax\Admin\Page\DbServer;
+use Lagdo\DbAdmin\Ajax\Admin\Page\DbUser;
 use Lagdo\DbAdmin\Ajax\Admin\Sidebar as AdminSidebar;
 use Lagdo\DbAdmin\Ajax\Admin\Wrapper as AdminWrapper;
 use Lagdo\DbAdmin\Ui\TabApp;
@@ -51,9 +53,11 @@ trait UiTabTrait
         return $this->ui->tabContentItem(
             $this->ui->div(
                 $this->ui->div(
+                    $this->ui->row()->tbnBindApp(rq(DbUser::class)),
                     $this->ui->div(
                         cl(AdminSidebar::class)->html()
-                    )->tbnBindApp(rq(AdminSidebar::class))
+                    )->tbnBindApp(rq(AdminSidebar::class)),
+                    $this->ui->row()->tbnBindApp(rq(DbServer::class))
                 )->setClass('jaxon-dbadmin-content-layout_sidebar'),
                 $this->ui->div(
                     $this->ui->div(

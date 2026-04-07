@@ -9,7 +9,6 @@ use function array_intersect;
 use function array_key_exists;
 use function array_keys;
 use function array_values;
-use function compact;
 use function is_array;
 use function is_string;
 
@@ -89,15 +88,13 @@ class ServerProxy extends AbstractProxy
      */
     public function getServerInfo(): array
     {
-        $server = $this->utils()->lang(
-            '%s version: %s. PHP extension %s.',
-            $this->driver()->name(),
-            "<b>" . $this->utils()->html($this->driver()->serverInfo()) . "</b>",
-            "<b>{$this->driver()->extension()}</b>"
-        );
-        $user = $this->utils()->lang('Logged as: %s.', "<b>" . $this->utils()->html($this->driver()->user()) . "</b>");
-
-        return compact('server', 'user');
+        return [
+            'user' => $this->utils()->lang('Logged as: %s.',
+                "<b>" . $this->utils()->html($this->driver()->user()) . "</b>"),
+            'server' => $this->utils()->lang('%s version: %s.', $this->driver()->name(),
+                "<b>" . $this->utils()->html($this->driver()->serverInfo()) . "</b>") . '<br/>' .
+                $this->utils()->lang('PHP extension %s.',"<b>{$this->driver()->extension()}</b>"),
+        ];
     }
 
     /**
@@ -144,14 +141,6 @@ class ServerProxy extends AbstractProxy
      */
     public function getDatabases(bool $schemaAccess): array
     {
-        $headers = [
-            $this->utils()->lang('Database'),
-            $this->utils()->lang('Collation'),
-            $this->utils()->lang('Tables'),
-            $this->utils()->lang('Size'),
-            '',
-        ];
-
         // Get the database list
         $databases = $this->databases($schemaAccess);
         $tables = $this->driver()->countTables($databases);
@@ -166,7 +155,17 @@ class ServerProxy extends AbstractProxy
             ];
         }
 
-        return compact('headers', 'databases', 'details');
+        return [
+            'headers' => [
+                $this->utils()->lang('Database'),
+                $this->utils()->lang('Collation'),
+                $this->utils()->lang('Tables'),
+                $this->utils()->lang('Size'),
+                '',
+            ],
+            'databases' => $databases,
+            'details' => $details,
+        ];
     }
 
     /**
@@ -194,7 +193,8 @@ class ServerProxy extends AbstractProxy
             }
             $details[] = $attrs;
         }
-        return compact('headers', 'details');
+
+        return ['headers' => $headers, 'details' => $details];
     }
 
     /**
@@ -206,16 +206,13 @@ class ServerProxy extends AbstractProxy
     {
         // From variables.inc.php
         $variables = $this->driver()->variables();
-
-        $headers = false;
-
         $details = [];
         // From variables.inc.php
         foreach ($variables as $key => $val) {
             $details[] = [$this->utils()->html($key), is_string($val) ? $this->utils()->str->shortenUtf8($val, 50) : '(null)'];
         }
 
-        return compact('headers', 'details');
+        return ['headers' => false, 'details' => $details];
     }
 
     /**
@@ -227,14 +224,12 @@ class ServerProxy extends AbstractProxy
     {
         // From variables.inc.php
         $status = $this->driver()->statusVariables();
-
-        $headers = false;
         $details = [];
         // From variables.inc.php
         foreach ($status as $key => $val) {
             $details[] = [$this->utils()->html($key), is_string($val) ? $this->utils()->html($val) : '(null)'];
         }
 
-        return compact('headers', 'details');
+        return ['headers' => false, 'details' => $details];
     }
 }
