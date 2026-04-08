@@ -45,13 +45,13 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getCssCode(): CssCode
     {
-        $sCode = "/* Spinner CSS code. */\n" .
+        $code = "/* Spinner CSS code. */\n" .
             $this->view()->render('dbadmin::codes::spin.css') .
             "\n/* DbAdmin CSS code. */\n" .
             $this->view()->render('dbadmin::codes::layout.css') .
             $this->view()->render('dbadmin::codes::styles.css');
 
-        return new CssCode($sCode);
+        return new CssCode(sCode: $code);
     }
 
     /**
@@ -59,11 +59,11 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getJsCode(): JsCode
     {
-        $html = $this->view()->render('dbadmin::codes::js.html');
+        $html = $this->view()->render('dbadmin::codes::editor/ace.js.html');
         $code = "// Spinner javascript code.\n\n" .
             $this->view()->render('dbadmin::codes::spin.js') . "\n\n" .
             $this->view()->render('dbadmin::codes::script.js') . "\n\n" .
-            $this->view()->render('dbadmin::codes::editor.js');
+            $this->view()->render('dbadmin::codes::editor/ace.js');
 
         return new JsCode(sCode: $code, sHtml: $html);
     }
