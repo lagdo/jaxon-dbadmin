@@ -49,7 +49,7 @@ class QueryHistory
         // PostgreSQL doesn't allow the use of distinct and order by
         // a field not in the select clause in the same SQL query.
         $category = Options::CAT_EDITOR;
-        $select = $this->historyDistinct && $this->proxy->jush() !== 'pgsql' ?
+        $select = $this->historyDistinct && $this->proxy->pgsql() ?
             'SELECT DISTINCT' : 'SELECT';
         $query = "$select driver,query FROM dbadmin_runned_commands c " .
             "WHERE c.user_id=:user_id AND c.category=:category " .

@@ -225,7 +225,7 @@ class DataFieldInput extends AbstractProxy
      */
     private function textSizeIsFixed(FieldEditDto $editField): bool
     {
-        return ($editField->isText() && $this->driver()->jush() !== 'sqlite') || $editField->isSearch();
+        return ($editField->isText() && !$this->driver()->sqlite()) || $editField->isSearch();
     }
 
     /**
@@ -273,7 +273,7 @@ class DataFieldInput extends AbstractProxy
             (isset($types[$type]) ? $types[$type] + ($unsigned ? 0 : 1) : 0)
         );
 
-        return $this->driver()->jush() === 'sql' &&
+        return $this->driver()->sql() &&
             $this->driver()->minVersion(5.6) &&
             preg_match('~time~', $type) ?
                 $maxlength += 7 : // microtime

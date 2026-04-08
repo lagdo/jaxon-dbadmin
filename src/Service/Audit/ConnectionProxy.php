@@ -32,11 +32,11 @@ class ConnectionProxy
     }
 
     /**
-     * @return string
+     * @return bool
      */
-    public function jush(): string
+    public function pgsql(): bool
     {
-        return $this->driver->jush();
+        return $this->driver->pgsql();
     }
 
     /**

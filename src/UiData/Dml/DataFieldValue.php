@@ -149,7 +149,7 @@ class DataFieldValue extends AbstractProxy
             if ($field->type == "bit" && preg_match("~^b'([01]*)'\$~", $default, $regs)) {
                 $default = $regs[1];
             }
-            if ($this->driver()->jush() == "sql" && preg_match('~binary~', $field->type)) {
+            if ($this->driver()->sql() && preg_match('~binary~', $field->type)) {
                 $default = bin2hex($default); // same as UNHEX
             }
         }
@@ -164,7 +164,7 @@ class DataFieldValue extends AbstractProxy
 
         $fieldValue = $rowData[$field->name] ?? null;
         return match(true) {
-            $fieldValue !== '' && $this->driver()->jush() === 'sql' &&
+            $fieldValue !== '' && $this->driver()->sql() &&
                 preg_match("~enum|set~", $field->type) > 0 &&
                 is_array($fieldValue) => implode(",", $fieldValue),
             is_bool($fieldValue) => +$fieldValue,
@@ -237,7 +237,7 @@ class DataFieldValue extends AbstractProxy
         }
 
         // Since mssql is not yet supported, $reset is always false.
-        // $reset = $this->driver()->jush() === 'mssql' && $field->autoIncrement;
+        // $reset = $this->driver()->mssql() && $field->autoIncrement;
         // if ($reset && $this->action !== 'save') {
         //     $editField->function = null;
         // }

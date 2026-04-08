@@ -260,7 +260,7 @@ class AppPage extends AbstractProxy
         if (preg_match('~^[+-] interval$~', $function)) {
             return "$fieldName $function " .
                 (preg_match("~^(\\d+|'[0-9.: -]') [A-Z_]+\$~i", $value) &&
-                    $this->driver()->jush() !== "pgsql" ? $value : $expression);
+                    !$this->driver()->pgsql() ? $value : $expression);
         }
         if (preg_match('~^(addtime|subtime|concat)$~', $function)) {
             return "$function($fieldName, $expression)";

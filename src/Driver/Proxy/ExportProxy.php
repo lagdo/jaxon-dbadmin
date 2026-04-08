@@ -228,7 +228,7 @@ class ExportProxy extends AbstractProxy
             return;
         }
 
-        $maxRowSize = ($this->driver()->jush() === 'sqlite' ? 0 : 1048576); // default, minimum is 1024
+        $maxRowSize = ($this->driver()->sqlite() ? 0 : 1048576); // default, minimum is 1024
         $separator = $maxRowSize > 0 ? "\n" : ' ';
         $dump = new DataDump($table, $maxRowSize, $separator);
 
@@ -359,7 +359,7 @@ class ExportProxy extends AbstractProxy
             $options = $tableOptions[$status->name] ?? $tableOptions['*'];
             $this->dumpTable($status, $options['table'], $options['data']);
         }
-        if ($this->driver()->jush() !== 'pgsql') {
+        if (!$this->driver()->pgsql()) {
             return;
         }
 
@@ -466,7 +466,7 @@ class ExportProxy extends AbstractProxy
             ' RETURNS' . $this->grammar()->getFieldType($routineInfo->return, 'CHARACTER SET');
         $routineLanguage = $routineInfo->language ? " LANGUAGE {$routineInfo->language}" : '';
         $definition = rtrim($routineInfo->definition, ';');
-        $routineDefinition = $this->driver()->jush() !== 'pgsql' ? "\n$definition;" :
+        $routineDefinition = !$this->driver()->pgsql() ? "\n$definition;" :
             ' AS ' . $this->driver()->quote($definition);
 
         return "CREATE {$routine->type} $routineName ($routineParams)" .
@@ -613,7 +613,7 @@ class ExportProxy extends AbstractProxy
             'sql' => false,
             'data_style' => false,
         ];
-        if ($this->driver()->jush() === 'sql') {
+        if ($this->driver()->sql()) {
             $headers['sql'] = true;
             if (isset($this->options['data_style'])) {
                 $headers['data_style'] = true;

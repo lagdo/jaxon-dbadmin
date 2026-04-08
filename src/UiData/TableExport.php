@@ -32,7 +32,7 @@ class TableExport extends AbstractProxy
     public function getSelectDataValues(): array
     {
         //! use insertOrUpdate() in all drivers
-        return $this->driver()->jush() !== 'sql' ? ['', 'TRUNCATE+INSERT', 'INSERT'] :
+        return !$this->driver()->sql() ? ['', 'TRUNCATE+INSERT', 'INSERT'] :
             ['', 'TRUNCATE+INSERT', 'INSERT', 'INSERT+UPDATE'];
     }
 
@@ -100,7 +100,7 @@ class TableExport extends AbstractProxy
                 'checked' => $row['triggers'],
             ];
         }
-        if ($this->driver()->jush() === 'sqlite') {
+        if ($this->driver()->sqlite()) {
             return $options;
         }
 

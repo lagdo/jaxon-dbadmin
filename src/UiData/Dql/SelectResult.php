@@ -151,7 +151,7 @@ class SelectResult extends AbstractProxy
      */
     private function shouldEncodeRowId(string $type, $value): bool
     {
-        return in_array($this->driver()->jush(), ['sql', 'pgsql']) &&
+        return ($this->driver()->sql() || $this->driver()->pgsql()) &&
             is_string($value) && strlen($value) > 64 &&
             preg_match('~char|text|enum|set~', $type);
     }
@@ -164,9 +164,8 @@ class SelectResult extends AbstractProxy
      */
     private function getRowIdMd5Key(string $column, string $collation): string
     {
-        return $this->driver()->jush() !== 'sql' ||
-            preg_match("~^utf8~", $collation) ? $column :
-                "CONVERT($column USING " . $this->driver()->charset() . ")";
+        return !$this->driver()->sql() || preg_match("~^utf8~", $collation) ?
+            $column : "CONVERT($column USING " . $this->driver()->charset() . ")";
     }
 
     /**

@@ -127,7 +127,7 @@ class SelectProxy extends AbstractProxy
         // From select.inc.php
         $selectDto->rows = [];
         while (($row = $statement->fetchAssoc())) {
-            if ($selectDto->page && $this->driver()->jush() === "oracle") {
+            if ($selectDto->page && $this->driver()->oracle()) {
                 unset($row["RNUM"]);
             }
             $selectDto->rows[] = $row;
