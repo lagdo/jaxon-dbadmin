@@ -106,4 +106,15 @@ trait DatabaseTrait
         $this->breadcrumbs(true)->item($this->utils()->lang('Events'));
         return $this->databaseProxy()->getEvents();
     }
+
+    /**
+     * Get all the columns of all the tables in the database.
+     *
+     * @return array
+     */
+    public function getSchemaColumns(): array
+    {
+        $this->connectToSchema();
+        return $this->databaseProxy()->getSchemaColumns();
+    }
 }

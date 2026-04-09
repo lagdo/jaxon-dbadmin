@@ -3,8 +3,10 @@
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
+use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
 
 use function array_filter;
+use function array_map;
 use function array_intersect;
 use function array_values;
 use function is_array;
@@ -78,15 +80,15 @@ class DatabaseProxy extends AbstractProxy
         if ($this->driver()->support("scheme")) {
             $schemas = $this->schemas($schemaAccess);
         }
-        // $tables_list = $this->driver()->tables();
 
+        // $tables_list = $this->driver()->tables();
         // $tables = [];
         // foreach($tableStatus as $table)
         // {
         //     $tables[] = $this->utils()->html($table);
         // }
 
-        return \compact('schemas'/*, 'tables'*/);
+        return ['schemas' => $schemas, /*'tables' => $tables*/];
     }
 
     /**
@@ -124,7 +126,7 @@ class DatabaseProxy extends AbstractProxy
             }
         }
 
-        return \compact('headers', 'details');
+        return ['headers' => $headers, 'details' => $details];
     }
 
     /**
@@ -161,7 +163,7 @@ class DatabaseProxy extends AbstractProxy
             }
         }
 
-        return \compact('headers', 'details');
+        return ['headers' => $headers, 'details' => $details];
     }
 
     /**
@@ -193,7 +195,7 @@ class DatabaseProxy extends AbstractProxy
             ];
         }
 
-        return \compact('headers', 'details');
+        return ['headers' => $headers, 'details' => $details];
     }
 
     /**
@@ -214,7 +216,7 @@ class DatabaseProxy extends AbstractProxy
             ];
         }
 
-        return \compact('headers', 'details');
+        return ['headers' => $headers, 'details' => $details];
     }
 
     /**
@@ -236,7 +238,7 @@ class DatabaseProxy extends AbstractProxy
             ];
         }
 
-        return \compact('headers', 'details');
+        return ['headers' => $headers, 'details' => $details];
     }
 
     /**
@@ -272,6 +274,21 @@ class DatabaseProxy extends AbstractProxy
             $details[] = $detail;
         }
 
-        return \compact('headers', 'details');
+        return ['headers' => $headers, 'details' => $details];
+    }
+
+    /**
+     * Get all the columns of all the tables in the database.
+     *
+     * @return array
+     */
+    public function getSchemaColumns(): array
+    {
+        $fieldCallback = fn(TableFieldDto $field) => ['name' => $field->name];
+        $tables = array_map(fn(string $table) => [
+            'name' => $table,
+            'columns' => array_values(array_map($fieldCallback, $this->driver()->fields($table))),
+        ], $this->driver()->tableNames());
+        return ['tables' => $tables];
     }
 }
