@@ -47,9 +47,11 @@ trait EditorTrait
         [$server,] = $this->getCurrentDb();
         $driver = $this->config()->getServerDriver($server);
         // Create the SQL editor in the new tab.
-        $this->response()->jo('jaxon.dbadmin')
-            ->createQueryEditor($this->queryUi->commandEditorId(), $driver,
-                TabApp::current(), TabEditor::$page, TabEditor::current());
+        $containerId = $this->queryUi->commandEditorId();
+        // The query completion is enabled only in the database editor.
+        $schema = TabEditor::$page === 'db' ? $this->db()->getSchemaColumns() : [];
+        $this->response()->jo('jaxon.dbadmin')->createQueryEditor($containerId, $driver,
+            $schema, TabApp::current(), TabEditor::$page, TabEditor::current());
     }
 
     /**
