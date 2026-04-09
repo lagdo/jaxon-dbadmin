@@ -26,6 +26,8 @@ abstract class Component extends JaxonComponent
         }
 
         $this->cl(Sections::class)->server($activeItem);
+        $this->setBag('dbadmin', 'section', 'server');
+
         $this->cl(ServerCommand::class)->set('active', '')->render();
         // Reset the database command menu only if there is an active database
         [, $database] = $this->getCurrentDb();
@@ -46,7 +48,11 @@ abstract class Component extends JaxonComponent
             return;
         }
 
-        $this->cl(Sections::class)->server();
+        // The section content must be reset but not changed.
+        $this->getBag('dbadmin', 'section', 'server') === 'server' ?
+            $this->cl(Sections::class)->server() :
+            $this->cl(Sections::class)->database();
+
         $this->cl(ServerCommand::class)->set('active', $activeItem)->render();
         // Reset the database command menu only if there is an active database
         [, $database] = $this->getCurrentDb();
@@ -64,6 +70,8 @@ abstract class Component extends JaxonComponent
     protected function activateDatabaseSectionMenu(string $activeItem): void
     {
         $this->cl(Sections::class)->database($activeItem);
+        $this->setBag('dbadmin', 'section', 'database');
+
         if ($this->hasServerAccess()) {
             $this->cl(ServerCommand::class)->set('active', '')->render();
         }
