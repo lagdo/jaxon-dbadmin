@@ -1,4 +1,4 @@
-(function(self) {
+(function(self, types) {
     const options = {
         fontSize: '13px',
         modes: {
@@ -17,7 +17,7 @@
      *
      * @returns {object}
      */
-    self.create = function(containerId, readOnly, driver, schema) {
+    self.create = function(containerId, readOnly, driver, { tables } = {}) {
         const editor = ace.edit(containerId, {
             mode: options.modes[driver] ?? options.modes.sql,
             selectionStyle: "text",
@@ -31,6 +31,16 @@
             showGutter: true, // !readOnly, // Also hide the line number "column".
             readOnly: readOnly,
         });
+
+        if (!readOnly && types.isArray(tables) && tables.length > 0) {
+            const sqlCompleter = {
+                getCompletions: function(editor, session, pos, prefix, callback) {
+                    callback(null, tables.map(({ name }) => ({ caption: '', value: name, meta: "Table" })));
+                }
+            };
+            editor.completers.push(sqlCompleter);
+        }
+
         editor.setTheme(options.theme);
         editor.session.setUseWrapMode(true);
         editor.resize();
@@ -91,4 +101,4 @@
      * @returns {void}
      */
     self.insertQuery = ({ instance } = {}, query) => instance?.insert(query);
-})(jaxon.dbadmin.editor);
+})(jaxon.dbadmin.editor, jaxon.utils.types);
