@@ -118,7 +118,7 @@
         editors.query = getTabEditor(appTabId, editorTabId);
         // When the editor content is changed when it is in a hidden tab, the visible content
         // is not updated when the tab becomes visible. We need to force the refresh.
-        self.editor.setQuery(editors.query, self.editor.getQuery(editors.query, false));
+        self.editor.refreshQuery(editors.query);
         // Save the current editor tab name.
         jaxon.bag.setEntry('dbadmin', 'tab.editor', editorTabId);
     };

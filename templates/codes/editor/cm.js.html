@@ -56,7 +56,7 @@ import { sql, MySQL, PostgreSQL, SQLite, StandardSQL } from '@codemirror/lang-sq
             const sqlOptions = {
                 dialect: modes[driver] ?? modes.default,
                 upperCaseKeywords: true,
-                ...(schema !== null ? { schema } : {}),
+                ...(!schema ? {} : { schema }),
             };
             const state = EditorState.create({
                 doc: queryText,

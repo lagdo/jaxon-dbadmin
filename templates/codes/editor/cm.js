@@ -63,7 +63,7 @@
         // Try to get the selected text first.
         const { selection: { main: { from, to } } } = editorState;
         const selectedText = editorState.sliceDoc(from, to);
-        return selectedText ? selectedText : queryText.toString() ?? '';
+        return selectedText ? selectedText : (queryText.toString() ?? '');
     };
 
     /**
@@ -77,6 +77,16 @@
     self.resetQuery = (editor, query) => self.setQuery(editor, query);
     // self.resetQuery = ({ instance } = {}, query) =>
     //     instance?.setState(EditorState.create({doc: query }));
+
+    /**
+     * Refresh the editor by resetting the SQL query to its current value.
+     * (Nothing to do here, since the CodeMirror editor does not need to be refreshed.)
+     *
+     * @param {object} editor
+     *
+     * @returns {void}
+     */
+    self.refreshQuery = (editor) => false, // self.setQuery(editor, self.getQuery(editor, false));
 
     /**
      * @param {object} editor

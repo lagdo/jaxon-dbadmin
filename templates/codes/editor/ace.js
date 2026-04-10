@@ -58,6 +58,15 @@
     self.resetQuery = ({ instance } = {}, query) => instance?.session.setValue(query);
 
     /**
+     * Refresh the editor by resetting the SQL query to its current value.
+     *
+     * @param {object} editor
+     *
+     * @returns {void}
+     */
+    self.refreshQuery = (editor) => self.setQuery(editor, self.getQuery(editor, false));
+
+    /**
      * @param {object} editor
      * @param {bool} takeSelectedText
      *
@@ -72,7 +81,7 @@
         }
         // Try to get the selected text first.
         const selectedText = instance.getSelectedText();
-        return selectedText ? selectedText : instance.getValue() ?? '';
+        return selectedText ? selectedText : (instance.getValue() ?? '');
     };
 
     /**
