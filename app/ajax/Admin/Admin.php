@@ -101,9 +101,9 @@ class Admin extends FuncComponent
     public function start(): void
     {
         // Toast library for the SQL editor.
-        if ($this->config->hasOption('toast.lib')) {
+        if ($this->config->hasOption('ui.toast.lib')) {
             $this->response()->jo('jaxon.dbadmin')
-                ->setToastLib($this->config->getOption('toast.lib'));
+                ->setToastLib($this->config->getOption('ui.toast.lib'));
         }
 
         $tabs = $this->getSavedAppTabs();
