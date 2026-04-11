@@ -4,12 +4,12 @@ namespace Lagdo\DbAdmin\Db\Driver;
 
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Support\AbstractDriver;
-use Lagdo\DbAdmin\Support\Db\Admin\Driver\DatabaseInterface;
-use Lagdo\DbAdmin\Support\Db\Admin\Driver\QueryInterface;
-use Lagdo\DbAdmin\Support\Db\Admin\Driver\ServerInterface;
-use Lagdo\DbAdmin\Support\Db\Admin\Driver\TableInterface;
-use Lagdo\DbAdmin\Support\Db\Engine\Driver\AbstractConnection;
+use Lagdo\DbAdmin\Support\Db\Admin\Config\DriverConfig;
 use Lagdo\DbAdmin\Support\Db\Engine\Connection\StatementInterface;
+use Lagdo\DbAdmin\Support\Db\Engine\Driver\AbstractDatabase;
+use Lagdo\DbAdmin\Support\Db\Engine\Driver\AbstractQuery;
+use Lagdo\DbAdmin\Support\Db\Engine\Driver\AbstractServer;
+use Lagdo\DbAdmin\Support\Db\Engine\Driver\AbstractTable;
 use Lagdo\DbAdmin\Support\DriverInterface;
 use Lagdo\DbAdmin\Support\GrammarInterface;
 use Closure;
@@ -31,9 +31,14 @@ class AppDriver extends AbstractDriver
     {
         // "Clone" the driver instance.
         $this->utils = $driver->utils;
-        $this->config = $driver->config;
-        $this->mainConnection = $driver->mainConnection;
-        $this->connection = $driver->connection;
+    }
+
+    /**
+     * @return DriverConfig
+     */
+    protected function config(): DriverConfig
+    {
+        return $this->driver->config();
     }
 
     /**
@@ -45,33 +50,33 @@ class AppDriver extends AbstractDriver
     }
 
     /**
-     * @var ServerInterface
+     * @var AbstractServer
      */
-    protected function _server(): ServerInterface
+    protected function _server(): AbstractServer
     {
         return $this->driver->_server();
     }
 
     /**
-     * @var DatabaseInterface
+     * @var AbstractDatabase
      */
-    protected function _database(): DatabaseInterface
+    protected function _database(): AbstractDatabase
     {
         return $this->driver->_database();
     }
 
     /**
-     * @var TableInterface
+     * @var AbstractTable
      */
-    protected function _table(): TableInterface
+    protected function _table(): AbstractTable
     {
         return $this->driver->_table();
     }
 
     /**
-     * @var QueryInterface
+     * @var AbstractQuery
      */
-    protected function _query(): QueryInterface
+    protected function _query(): AbstractQuery
     {
         return $this->driver->_query();
     }
@@ -82,38 +87,6 @@ class AppDriver extends AbstractDriver
     public function name(): string
     {
         return $this->driver->name();
-    }
-
-    /**
-     * @return void
-     */
-    protected function beforeConnection(): void
-    {
-        $this->driver->beforeConnection();
-    }
-
-    /**
-     * @return void
-     */
-    protected function configConnection(): void
-    {
-        $this->driver->configConnection();
-    }
-
-    /**
-     * @return void
-     */
-    protected function connectionOpened(): void
-    {
-        $this->driver->connectionOpened();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function createConnection(array $options): AbstractConnection|null
-    {
-        return $this->driver->createConnection($options);
     }
 
     /**

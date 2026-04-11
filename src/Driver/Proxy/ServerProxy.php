@@ -189,7 +189,7 @@ class ServerProxy extends AbstractProxy
         foreach ($processes as $process) {
             $attrs = [];
             foreach ($process as $key => $val) {
-                $attrs[] = is_string($val) ? $this->driver()->processAttr($process, $key, $val) : '(null)';
+                $attrs[] = is_string($val) ? $this->grammar()->processAttr($process, $key, $val) : '(null)';
             }
             $details[] = $attrs;
         }

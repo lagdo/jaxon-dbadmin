@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\Service\Admin\QueryLogger;
 use Lagdo\DbAdmin\Db\Service\TimerService;
-use Lagdo\DbAdmin\Support\Db\Engine\Driver\AbstractConnection;
+use Lagdo\DbAdmin\Support\Db\Engine\Connection\AbstractConnection;
 use Lagdo\DbAdmin\Support\Dto\QueryDto;
 
 use function compact;
