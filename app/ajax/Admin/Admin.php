@@ -114,6 +114,9 @@ class Admin extends FuncComponent
             $this->response()->html(TabApp::titleId(), $title);
             // The first tab content is loaded.
             $this->server($server);
+            // Updating the breadcrumbs after the request processing doesn't work here.
+            // So we need to do it manually here.
+            $this->showBreadcrumbs();
         }
         if (count($tabs) < 2) {
             return;
