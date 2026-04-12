@@ -18,15 +18,6 @@ use function count;
 class Server extends FuncComponent
 {
     /**
-     * @return array
-     */
-    private function getDatabases(): array
-    {
-        $systemAccess = $this->config()->getOption('access.system', false);
-        return $this->db()->getDatabases($systemAccess)['databases'];
-    }
-
-    /**
      * Connect to a db server.
      * The database list will be displayed in the HTML select component.
      *
@@ -48,7 +39,8 @@ class Server extends FuncComponent
         $this->cl(Sidebar::class)->refresh($server);
 
         // Always show the database list.
-        $databases = $this->getDatabases();
+        $systemAccess = $this->config()->getOption('access.system', false);
+        $databases = $this->db()->getDatabases($systemAccess)['databases'];
         $this->cl(MenuDatabases::class)->set('databases', $databases)->render();
 
         $hasServerAccess = $this->config()->getServerAccess($server);

@@ -12,7 +12,7 @@ class Databases extends MenuComponent
      */
     public function html(): string
     {
-        return $this->ui()->databases($this->get('databases'));
+        return $this->ui()->databases($this->get('databases'), $this->get('with_empty', true));
     }
 
     /**
@@ -23,6 +23,10 @@ class Databases extends MenuComponent
     #[Exclude]
     public function change(string $database): void
     {
+        $systemAccess = $this->config()->getOption('access.system', false);
+        $databases = $this->db()->getDatabases($systemAccess)['databases'];
+        $this->set('databases', $databases)->set('with_empty', false)->render();
+
         // Change the value of the select field in the component content.
         $this->node()->jq('select')->val($database)->change();
     }

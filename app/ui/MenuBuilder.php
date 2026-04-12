@@ -93,10 +93,11 @@ class MenuBuilder
 
     /**
      * @param array $databases
+     * @param bool $withEmpty
      *
      * @return string
      */
-    public function databases(array $databases): string
+    public function databases(array $databases, bool $withEmpty = true): string
     {
         $dbSelectId = TabApp::id('jaxon-dbadmin-database-select');
         $database = select($dbSelectId);
@@ -106,8 +107,10 @@ class MenuBuilder
             $this->ui->form(
                 $this->ui->inputGroup(
                     $this->ui->select(
-                        $this->ui->option($this->ui->text(''))
-                            ->selected(false),
+                        $this->ui->when($withEmpty, fn() =>
+                            $this->ui->option($this->ui->text(''))
+                                ->selected(false)
+                        ),
                         $this->ui->each($databases, fn($database) =>
                             $this->ui->option($this->ui->text($database))
                                 ->selected(false)
