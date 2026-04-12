@@ -22,12 +22,14 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
+        $primaryField = $this->getTableBag('primary', '');
+
         $title = $column->added() ?
             "Edit new column in table $table" :
             "Edit column {$column->name} in table $table";
         $content = $this->columnUi
             ->metadata($this->metadata())
-            ->column($column);
+            ->column($column, $primaryField);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

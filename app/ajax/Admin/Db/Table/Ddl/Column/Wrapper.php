@@ -30,16 +30,22 @@ class Wrapper extends Component
     {
         $this->columns = [];
 
+        // The primary field.
+        $primaryField = null;
         // Set the columns positions.
         $position = 0;
         foreach ($columns as $column) {
             $column->position = $position++;
             $this->columns["column_$position"] = $column;
+            if ($column->values()->primary) {
+                $primaryField = $column->values()->name;
+            }
         }
 
-        // Save the columns in the databag.
+        // Save the columns and the primary field name in the databag.
         $callback = fn($column) => $column->toArray();
         $this->setTableBag('columns', array_map($callback, $this->columns));
+        $this->setTableBag('primary', $primaryField);
     }
 
     /**

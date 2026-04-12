@@ -19,12 +19,14 @@ class ColumnUiBuilder
     {}
 
     /**
-     * @param ColumnInputDto $field
+     * @param ColumnInputDto $column
+     * @param string $primaryField
      *
      * @return string
      */
-    public function column(ColumnInputDto $column): string
+    public function column(ColumnInputDto $column, string $primaryField): string
     {
+        $isPrimary = $column->values()->name === $primaryField;
         $this->listMode = false;
 
         return $this->ui->build(
@@ -39,9 +41,15 @@ class ColumnUiBuilder
                 ),
                 $this->ui->row(
                     $this->ui->col(
-                        $this->getColumnPrimaryField($column, 'primary'),
-                        $this->ui->span($this->ui->html('Primary'))
-                            ->setStyle('margin-left:5px;')
+                        // Show the checkbox only if this column is or can be the primary key.
+                        $this->ui->when(!$isPrimary, fn() => ''),
+                        $this->ui->when($isPrimary, fn() =>
+                            $this->ui->list(
+                                $this->getColumnPrimaryField($column, 'primary'),
+                                $this->ui->span($this->ui->html('Primary'))
+                                    ->setStyle('margin-left:5px;')
+                            )
+                        )
                     )->width(3),
                     $this->ui->col(
                         $this->getColumnAutoIncrementField($column, 'autoIncrement'),
