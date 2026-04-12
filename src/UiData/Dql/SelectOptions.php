@@ -70,7 +70,7 @@ class SelectOptions extends AbstractProxy
         $fulltexts = [];
         foreach ($indexes as $i => $index) {
             $fulltexts[$i] = $index->type == "FULLTEXT" ?
-                $this->utils()->str->html($options["fulltext"][$i] ?? '') : '';
+                $this->utils()->html($options["fulltext"][$i] ?? '') : '';
         }
         return [
             // 'where' => $where,
@@ -116,7 +116,7 @@ class SelectOptions extends AbstractProxy
      */
     private function getLimitOptions(string $limit): array
     {
-        return ['value' => $this->utils()->str->html($limit)];
+        return ['value' => $this->utils()->html($limit)];
     }
 
     /**
@@ -128,7 +128,7 @@ class SelectOptions extends AbstractProxy
      */
     private function getLengthOptions(int $textLength): array
     {
-        return ['value' => $textLength === 0 ? 0 : $this->utils()->str->html($textLength)];
+        return ['value' => $textLength === 0 ? 0 : $this->utils()->html($textLength)];
     }
 
     /**

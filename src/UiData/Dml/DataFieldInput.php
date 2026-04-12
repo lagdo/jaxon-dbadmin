@@ -214,7 +214,7 @@ class DataFieldInput extends AbstractProxy
                 'rows' => '5',
                 'class' => 'jush-js',
             ],
-            'value' => $this->utils()->str->html($editField->value ?? ''),
+            'value' => $this->utils()->html($editField->value ?? ''),
         ];
     }
 
@@ -363,7 +363,7 @@ class DataFieldInput extends AbstractProxy
 
         if (count($editField->functions) < 2) {
             return [
-                'label' => $this->utils()->str->html($editField->functions[0] ?? ''),
+                'label' => $this->utils()->html($editField->functions[0] ?? ''),
             ];
         }
 

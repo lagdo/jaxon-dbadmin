@@ -48,7 +48,7 @@ class TableHeader extends AbstractProxy
 
         return [
             'title' => $this->utils()->lang('Table') . ': ' .
-                ($name != '' ? $name : $this->utils()->str->html($table)),
+                ($name != '' ? $name : $this->utils()->html($table)),
             'comment' => $status->comment,
             'tabs' => $this->getTabs($status),
         ];

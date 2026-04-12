@@ -217,8 +217,8 @@ class AppPage extends AbstractProxy
      */
     public function getTableFieldType(TableFieldDto $field, string $tableCollation = ''): string
     {
-        $type = $this->utils()->str->html($field->fullType);
-        $collation = $this->utils()->str->html($field->collation);
+        $type = $this->utils()->html($field->fullType);
+        $collation = $this->utils()->html($field->collation);
         if ($collation !== '' && $tableCollation !== '' && $collation != $tableCollation) {
             $type .= " $collation";
         }
@@ -231,7 +231,7 @@ class AppPage extends AbstractProxy
         }
         if ($field->hasDefault()) {
             $types[] = /*' ' . $this->utils()->lang('Default value') .*/ '[<b>' .
-                $this->utils()->str->html($field->default) . '</b>]';
+                $this->utils()->html($field->default) . '</b>]';
         }
         return implode(' ', $types);
     }

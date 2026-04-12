@@ -32,18 +32,18 @@ class TableContent extends AbstractProxy
         $contents = [];
         foreach ($fields as $field) {
             $content = [
-                'name' => $this->utils()->str->html($field->name),
+                'name' => $this->utils()->html($field->name),
                 'type' => $this->page()->getTableFieldType($field, $tableCollation),
-                'collation' => $this->utils()->str->html($field->collation),
+                'collation' => $this->utils()->html($field->collation),
             ];
 
-            $fullType = $this->utils()->str->html($field->fullType);
+            $fullType = $this->utils()->html($field->fullType);
             if (in_array($fullType, $userTypes)) {
                 $content['references'] = $fullType;
             }
 
             if ($commentSupported) {
-                $content['comment'] = $this->utils()->str->html($field->comment);
+                $content['comment'] = $this->utils()->html($field->comment);
             }
 
             $contents[] = $content;
@@ -65,7 +65,7 @@ class TableContent extends AbstractProxy
             ksort($index->columns); // enforce correct columns order
             $print = [];
             foreach ($index->columns as $key => $val) {
-                $value = '<i>' . $this->utils()->str->html($val) . '</i>';
+                $value = '<i>' . $this->utils()->html($val) . '</i>';
                 if (array_key_exists($key, $index->lengths)) {
                     $value .= '(' . $index->lengths[$key] . ')';
                 }
@@ -75,7 +75,7 @@ class TableContent extends AbstractProxy
                 $print[] = $value;
             }
             $contents[] = [
-                'name' => $this->utils()->str->html($name),
+                'name' => $this->utils()->html($name),
                 'type' => $index->type,
                 'desc' => implode(', ', $print),
             ];
@@ -93,25 +93,25 @@ class TableContent extends AbstractProxy
     {
         $contents = [];
         // From table.inc.php
-        $keyCallback = fn ($key) => $this->utils()->html($key);
+        $keyCallback = $this->utils()->html(...);
         foreach ($foreignKeys as $name => $foreignKey) {
             $target = '';
             if ($foreignKey->database != '') {
-                $target .= '<b>' . $this->utils()->str->html($foreignKey->database) . '</b>.';
+                $target .= '<b>' . $this->utils()->html($foreignKey->database) . '</b>.';
             }
             if ($foreignKey->schema != '') {
-                $target .= '<b>' . $this->utils()->str->html($foreignKey->schema) . '</b>.';
+                $target .= '<b>' . $this->utils()->html($foreignKey->schema) . '</b>.';
             }
             $targets = array_map($keyCallback, $foreignKey->target);
-            $target = $this->utils()->str->html($foreignKey->table) .
+            $target = $this->utils()->html($foreignKey->table) .
                 '(' . implode(', ', $targets) . ')';
             $sources = array_map($keyCallback, $foreignKey->source);
             $contents[] = [
-                'name' => $this->utils()->str->html($name),
+                'name' => $this->utils()->html($name),
                 'source' => '<i>' . implode('</i>, <i>', $sources) . '</i>',
                 'target' => $target,
-                'onDelete' => $this->utils()->str->html($foreignKey->onDelete),
-                'onUpdate' => $this->utils()->str->html($foreignKey->onUpdate),
+                'onDelete' => $this->utils()->html($foreignKey->onDelete),
+                'onUpdate' => $this->utils()->html($foreignKey->onUpdate),
             ];
         }
 
@@ -128,9 +128,9 @@ class TableContent extends AbstractProxy
         $contents = [];
         foreach ($triggers as $name => $trigger) {
             $contents[] = [
-                $this->utils()->str->html($trigger->timing),
-                $this->utils()->str->html($trigger->event),
-                $this->utils()->str->html($name),
+                $this->utils()->html($trigger->timing),
+                $this->utils()->html($trigger->event),
+                $this->utils()->html($name),
                 $this->utils()->lang('Alter'),
             ];
         }

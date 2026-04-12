@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Db\Driver;
 
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Support\AbstractDriver;
+use Lagdo\DbAdmin\Support\AbstractGrammar;
 use Lagdo\DbAdmin\Support\Db\Admin\Config\DriverConfig;
 use Lagdo\DbAdmin\Support\Db\Engine\Connection\StatementInterface;
 use Lagdo\DbAdmin\Support\Db\Engine\Driver\AbstractDatabase;
@@ -11,7 +12,7 @@ use Lagdo\DbAdmin\Support\Db\Engine\Driver\AbstractQuery;
 use Lagdo\DbAdmin\Support\Db\Engine\Driver\AbstractServer;
 use Lagdo\DbAdmin\Support\Db\Engine\Driver\AbstractTable;
 use Lagdo\DbAdmin\Support\DriverInterface;
-use Lagdo\DbAdmin\Support\GrammarInterface;
+use Lagdo\DbAdmin\Support\Utils\Utils;
 use Closure;
 
 /**
@@ -42,15 +43,31 @@ class AppDriver extends AbstractDriver
     }
 
     /**
-     * @var GrammarInterface
+     * @return AbstractDriver
      */
-    public function grammar(): GrammarInterface
+    protected function _driver(): AbstractDriver
     {
-        return $this->driver->grammar();
+        return $this->driver;
     }
 
     /**
-     * @var AbstractServer
+     * @return AbstractGrammar
+     */
+    protected function _grammar(): AbstractGrammar
+    {
+        return $this->driver->_grammar();
+    }
+
+    /**
+     * @return Utils
+     */
+    protected function _utils(): Utils
+    {
+        return $this->driver->_utils();
+    }
+
+    /**
+     * @return AbstractServer
      */
     protected function _server(): AbstractServer
     {
@@ -58,7 +75,7 @@ class AppDriver extends AbstractDriver
     }
 
     /**
-     * @var AbstractDatabase
+     * @return AbstractDatabase
      */
     protected function _database(): AbstractDatabase
     {
@@ -66,7 +83,7 @@ class AppDriver extends AbstractDriver
     }
 
     /**
-     * @var AbstractTable
+     * @return AbstractTable
      */
     protected function _table(): AbstractTable
     {
@@ -74,7 +91,7 @@ class AppDriver extends AbstractDriver
     }
 
     /**
-     * @var AbstractQuery
+     * @return AbstractQuery
      */
     protected function _query(): AbstractQuery
     {

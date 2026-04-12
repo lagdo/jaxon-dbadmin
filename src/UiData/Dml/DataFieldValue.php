@@ -69,7 +69,6 @@ class DataFieldValue extends AbstractProxy
     /**
      * @param array $names
      * @param array $functions
-     * @param bool $addSql
      * @param TableFieldDto $field
      *
      * @return array
