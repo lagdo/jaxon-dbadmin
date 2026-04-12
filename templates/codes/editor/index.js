@@ -1,5 +1,6 @@
 (function(self) {
     const editors = {
+        select: null, // Editor for the current table SQL query.
         query: null, // Editor for the current tab SQL query.
         tabs: {},
     };
@@ -22,6 +23,12 @@
             .forEach(({ id, editor }) => queries[id] = self.editor.getQuery(editor));
         return queries;
     };
+
+    /**
+     * @returns {string}
+     */
+    self.getSelectQuery = () => !editors.select ? '' :
+        self.editor.getQuery(editors.select, true);
 
     /**
      * @returns {string}
@@ -182,7 +189,7 @@
      * @returns {void}
      */
     self.createSelectEditor = (containerId, driver) =>
-        self.editor.create(containerId, true, driver);
+        editors.select = self.editor.create(containerId, true, driver);
 
     /**
      * @param {string} containerId

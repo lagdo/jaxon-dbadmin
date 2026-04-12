@@ -31,7 +31,7 @@ class Select extends MainComponent
 
         $table = $this->getCurrentTable();
         // Set the breadcrumbs
-        $this->db->breadcrumbs(true)
+        $this->db()->breadcrumbs(true)
             ->item($this->trans->lang('Tables'))
             ->item("<i><b>$table</b></i>")
             ->item($this->trans->lang('Select'));
@@ -68,7 +68,7 @@ class Select extends MainComponent
      */
     public function html(): string
     {
-        return $this->selectUi->home();
+        return $this->selectUi->home($this->config()->canSaveQuery());
     }
 
     /**

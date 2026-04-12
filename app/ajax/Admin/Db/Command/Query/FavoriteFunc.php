@@ -58,10 +58,11 @@ class FavoriteFunc extends FuncComponent
 
     /**
      * @param string $query
+     * @param bool $refresh
      *
      * @return void
      */
-    public function add(string $query): void
+    public function add(string $query, bool $refresh = true): void
     {
         if(!($query = trim($query)))
         {
@@ -80,17 +81,18 @@ class FavoriteFunc extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create($this->auditUi->favoriteFormValues()),
+            'click' => $this->rq()->create($this->auditUi->favoriteFormValues(), $refresh),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }
 
     /**
      * @param array $formValues
+     * @param bool $refresh
      *
      * @return void
      */
-    public function create(array $formValues): void
+    public function create(array $formValues, bool $refresh): void
     {
         $values = $this->validate($formValues);
 
@@ -103,7 +105,11 @@ class FavoriteFunc extends FuncComponent
         $this->alert()
             ->title($this->trans->lang('Success'))
             ->success($this->trans->lang('The query is saved.'));
-        $this->cl(Favorite::class)->render();
+
+        if($refresh)
+        {
+            $this->cl(Favorite::class)->render();
+        }
     }
 
     /**

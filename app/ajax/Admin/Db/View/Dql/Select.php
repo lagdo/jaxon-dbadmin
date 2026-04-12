@@ -72,7 +72,7 @@ class Select extends MainComponent
      */
     public function html(): string
     {
-        return $this->selectUi->home();
+        return $this->selectUi->home($this->config()->canSaveQuery());
     }
 
     /**

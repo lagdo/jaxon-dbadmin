@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Ui\Select;
 
+use Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query\FavoriteFunc;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
@@ -12,6 +13,7 @@ use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\cl;
+use function Jaxon\jo;
 use function Jaxon\rq;
 use function sprintf;
 
@@ -74,9 +76,11 @@ class SelectUiBuilder
     }
 
     /**
+     * @param bool $canSaveQuery
+     *
      * @return string
      */
-    public function home(): string
+    public function home(bool $canSaveQuery): string
     {
         return $this->ui->build(
             $this->ui->row(
@@ -112,10 +116,15 @@ class SelectUiBuilder
                         $this->ui->button($this->ui->text($this->trans->lang('Edit')))
                             ->outline()->secondary()->fullWidth()
                             ->jxnClick(rq(Select::class)->edit()),
+                        $this->ui->when($canSaveQuery, fn() =>
+                            $this->ui->button($this->ui->text($this->trans->lang('Save')))
+                                ->outline()->secondary()->fullWidth()
+                                ->jxnClick(rq(FavoriteFunc::class)->add(jo('jaxon.dbadmin')->getSelectQuery(), false))
+                        ),
                         $this->ui->button($this->ui->text($this->trans->lang('Execute')))
                             ->fullWidth()->primary()
                             ->jxnClick(rq(ResultSet::class)->page())
-                    )->fullWidth(true)
+                    )->fullWidth()
                 )->width(3),
                 $this->ui->col(
                     $this->ui->row(
