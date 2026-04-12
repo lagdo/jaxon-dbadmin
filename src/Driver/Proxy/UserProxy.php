@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
-
 use function explode;
 use function in_array;
 use function array_keys;
@@ -14,14 +12,6 @@ use function strtoupper;
  */
 class UserProxy extends AbstractProxy
 {
-    /**
-     * @param AbstractProxy $proxy
-     */
-    public function __construct(AbstractProxy $proxy)
-    {
-        parent::__construct($proxy->driver(), $proxy->page(), $proxy->utils());
-    }
-
     /**
      * Get the privilege list
      * This feature is available only for MySQL
@@ -40,9 +30,9 @@ class UserProxy extends AbstractProxy
         ];
 
         $details = [];
-        foreach ($this->driver()->getUsers($database) as $user) {
+        foreach ($this->engine()->getUsers($database) as $user) {
             // Fetch user grants
-            $userDto = $this->driver()->getUserGrants($user["User"], $user["Host"]);
+            $userDto = $this->engine()->getUserGrants($user["User"], $user["Host"]);
             $details[] = [
                 'user' => $this->utils()->html($userDto->name),
                 'host' => $this->utils()->html($userDto->host),
@@ -142,7 +132,7 @@ class UserProxy extends AbstractProxy
             ],
             'Columns' => [],
         ];
-        $rows = $this->driver()->rows('SHOW PRIVILEGES');
+        $rows = $this->engine()->rows('SHOW PRIVILEGES');
         foreach ($rows as $row) {
             $this->makeFeatures($features, $row);
         }
@@ -226,7 +216,7 @@ class UserProxy extends AbstractProxy
      */
     public function getUserPrivileges(string $user, string $host, string $database): array
     {
-        $userDto = $this->driver()->getUserGrants($user, $host);
+        $userDto = $this->engine()->getUserGrants($user, $host);
         if ($database !== '') {
             $userDto->grants = isset($userDto->grants[$database]) ?
                 [$database => $userDto->grants[$database]] : [];

@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Db\Service\Admin;
 
 use Lagdo\DbAdmin\Db\Config\AuthInterface;
 use Lagdo\DbAdmin\Db\Service\Audit;
-use Lagdo\DbAdmin\Support\DriverInterface;
+use Lagdo\DbAdmin\Driver\EngineInterface;
 
 use function gmdate;
 
@@ -22,13 +22,13 @@ class ConnectionProxy extends Audit\ConnectionProxy
      * The constructor
      *
      * @param AuthInterface $auth
-     * @param DriverInterface $driver
+     * @param EngineInterface $engine
      * @param array $database
      */
     public function __construct(private AuthInterface $auth,
-        DriverInterface $driver, array $database)
+        EngineInterface $engine, array $database)
     {
-        parent::__construct($driver, $database);
+        parent::__construct($engine, $database);
     }
 
     /**

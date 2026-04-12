@@ -4,8 +4,9 @@ use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Ajax\Admin\Admin;
 use Lagdo\DbAdmin\Db;
 use Lagdo\DbAdmin\Db\Config;
+use Lagdo\DbAdmin\Db\Driver\Engine;
 use Lagdo\DbAdmin\Db\Service;
-use Lagdo\DbAdmin\Support;
+use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Ui;
 use Lagdo\Facades\Logger;
 use Lagdo\UiBuilder\Builder;
@@ -51,25 +52,6 @@ return [
                 $authSetup = $di->has(Config\AuthInterface::class);
                 return new Config\ServerConfig($config, $reader, $authSetup);
             },
-            // The database driver used in the application
-            Db\Driver\AppDriver::class => function(Container $di) {
-                // This class will "clone" the selected driver, and define the callbacks.
-                // By doing this, the driver classes will call the driver without the callbacks.
-                $driver = new Db\Driver\AppDriver($di->g(Support\DriverInterface::class));
-                $timerCallback = function() use($di) {
-                    $timer = $di->g(Service\TimerService::class);
-                    $timer->stop();
-                };
-                $loggerCallback = function(string $query) use($di) {
-                    $logger = $di->g(Service\Admin\QueryLogger::class);
-                    if ($logger !== null) {
-                        $logger->saveCommand($query);
-                    }
-                };
-                $driver->addQueryCallback($timerCallback);
-                $driver->addQueryCallback($loggerCallback);
-                return $driver;
-            },
             // Options for query recording
             'queries_record_options' => function(Container $di) {
                 $serverConfig = $di->g(Config\ServerConfig::class);
@@ -95,8 +77,8 @@ return [
                 $auth = $di->g('dbadmin_auth_service');
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getQueryDatabaseOptions();
-                $driver = Db\Driver\AppDriver::createDriver($di, $database);
-                return new Service\Admin\ConnectionProxy($auth, $driver, $database);
+                $driver = Driver\Driver::createDriver($di->g(Driver\Utils\Utils::class), $database);
+                return new Service\Admin\ConnectionProxy($auth, $driver->engine, $database);
             },
             // Query logger
             Service\Admin\QueryLogger::class => function(Container $di) {
@@ -106,7 +88,7 @@ return [
 
                 // User database, different from the audit database.
                 $serverOptions = $di->g('dbadmin_server_options');
-                $dbProxy = $di->g(Db\Driver\DbProxy::class);
+                $dbProxy = $di->g(Db\Driver\DriverProxy::class);
                 $database = $dbProxy->getDatabaseOptions($serverOptions);
 
                 $proxy = $di->g(Service\Admin\ConnectionProxy::class);
@@ -145,6 +127,27 @@ return [
                 $builder->registerHelper('tbn', Builder::TARGET_COMPONENT,
                     Ui\TabApp::helper(...));
                 return $builder;
+            },
+            // The database driver used in the application
+            Driver\Driver::class => function(Driver\Driver $driver, Container $di) {
+                // This class will create a new Engine object, and define the callbacks.
+                // By doing this, the driver classes will still call the engine without the callbacks.
+                $engine = new Engine($driver->engine);
+                $timerCallback = function() use($di) {
+                    $timer = $di->g(Service\TimerService::class);
+                    $timer->stop();
+                };
+                $loggerCallback = function(string $query) use($di) {
+                    $logger = $di->g(Service\Admin\QueryLogger::class);
+                    if ($logger !== null) {
+                        $logger->saveCommand($query);
+                    }
+                };
+                $engine->addQueryCallback($timerCallback);
+                $engine->addQueryCallback($loggerCallback);
+                $driver->engine = $engine;
+
+                return $driver;
             },
         ],
     ],

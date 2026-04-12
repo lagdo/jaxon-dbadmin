@@ -2,15 +2,14 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\UiData\DataDump;
 use Lagdo\DbAdmin\Db\UiData\TableExport;
-use Lagdo\DbAdmin\Support\Db\Engine\Connection\StatementInterface;
-use Lagdo\DbAdmin\Support\Dto\FieldType;
-use Lagdo\DbAdmin\Support\Dto\RoutineDto;
-use Lagdo\DbAdmin\Support\Dto\RoutineInfoDto;
-use Lagdo\DbAdmin\Support\Dto\TableDto;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Specific\Connection\StatementInterface;
+use Lagdo\DbAdmin\Driver\Sql\Dto\FieldType;
+use Lagdo\DbAdmin\Driver\Sql\Dto\RoutineDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\RoutineInfoDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 use Exception;
 
 use function array_filter;
@@ -45,19 +44,11 @@ class ExportProxy extends AbstractProxy
     private $options;
 
     /**
-     * @param AbstractProxy $proxy
-     */
-    public function __construct(AbstractProxy $proxy)
-    {
-        parent::__construct($proxy->driver(), $proxy->page(), $proxy->utils());
-    }
-
-    /**
      * @return TableExport
      */
     private function export(): TableExport
     {
-        return new TableExport($this->driver(), $this->page(), $this->utils());
+        return new TableExport($this->helper());
     }
 
     /**
@@ -98,11 +89,11 @@ class ExportProxy extends AbstractProxy
             return 'NULL';
         }
 
-        if (!preg_match($this->driver()->numberRegex(), $field->type) ||
+        if (!preg_match($this->engine()->numberRegex(), $field->type) ||
             preg_match('~\[~', $field->fullType) && is_numeric($value)) {
-            $value = $this->driver()->quote(($value === false ? 0 : $value));
+            $value = $this->engine()->quote(($value === false ? 0 : $value));
         }
-        return $this->grammar()->unconvertField($field, $value);
+        return $this->statement()->unconvertField($field, $value);
     }
 
     /**
@@ -114,7 +105,7 @@ class ExportProxy extends AbstractProxy
     {
         if ($this->options['format'] === 'sql' &&
             $this->options['data_style'] === 'TRUNCATE+INSERT') {
-            $this->queries[] = $this->grammar()->getTruncateTableQuery($table) . ";\n";
+            $this->queries[] = $this->statement()->getTruncateTableQuery($table) . ";\n";
         }
     }
 
@@ -136,7 +127,7 @@ class ExportProxy extends AbstractProxy
         for ($i = 0; $i < $rowCount; $i++) {
             $field = $statement->fetchField();
             $keys[] = $field->name();
-            $key = $this->grammar()->escapeId($field->name());
+            $key = $this->statement()->escapeId($field->name());
             $values[] = "$key = VALUES($key)";
         }
         $dump->suffix = $this->options['data_style'] !== 'INSERT+UPDATE' ? ';' :
@@ -165,9 +156,9 @@ class ExportProxy extends AbstractProxy
         }
 
         if ($dump->insert === '') {
-            $dump->insert = 'INSERT INTO ' . $this->grammar()->escapeTableName($dump->table) . ' (' .
+            $dump->insert = 'INSERT INTO ' . $this->statement()->escapeTableName($dump->table) . ' (' .
                 implode(', ', array_map(function ($key) {
-                    return $this->grammar()->escapeId($key);
+                    return $this->statement()->escapeId($key);
                 }, $keys)) . ') VALUES';
         }
         foreach ($row as $key => $val) {
@@ -189,7 +180,7 @@ class ExportProxy extends AbstractProxy
      */
     private function dumpRows(DataDump $dump, StatementInterface $statement)
     {
-        $fields = $this->options['format'] !== 'sql' ? [] : $this->driver()->fields($dump->table);
+        $fields = $this->options['format'] !== 'sql' ? [] : $this->engine()->fields($dump->table);
         $keys = [];
         $fetchFunction = $dump->table !== '' ?
             fn($statement) => $statement->fetchAssoc() :
@@ -216,19 +207,19 @@ class ExportProxy extends AbstractProxy
         if (!$this->options['data_style']) {
             return;
         }
-        $fields = $this->driver()->fields($table);
-        $query = 'SELECT *' . $this->grammar()->convertFields($fields, $fields) .
-            ' FROM ' . $this->grammar()->escapeTableName($table);
+        $fields = $this->engine()->fields($table);
+        $query = 'SELECT *' . $this->statement()->convertFields($fields, $fields) .
+            ' FROM ' . $this->statement()->escapeTableName($table);
         // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
-        $statement = $this->driver()->execute($query);
+        $statement = $this->engine()->execute($query);
         if (!$statement) {
             if ($this->options['format'] === 'sql') {
-                $this->queries[] = '-- ' . str_replace("\n", ' ', $this->driver()->error()) . "\n";
+                $this->queries[] = '-- ' . str_replace("\n", ' ', $this->engine()->error()) . "\n";
             }
             return;
         }
 
-        $maxRowSize = ($this->driver()->sqlite() ? 0 : 1048576); // default, minimum is 1024
+        $maxRowSize = ($this->engine()->sqlite() ? 0 : 1048576); // default, minimum is 1024
         $separator = $maxRowSize > 0 ? "\n" : ' ';
         $dump = new DataDump($table, $maxRowSize, $separator);
 
@@ -247,14 +238,14 @@ class ExportProxy extends AbstractProxy
     {
         if ($tableType !== 2) {
             $autoIncrement = $this->options['autoIncrement'];
-            return $this->grammar()->getExportTableQueries($table, $autoIncrement, $style);
+            return $this->statement()->getExportTableQueries($table, $autoIncrement, $style);
         }
 
         $fields = [];
-        foreach ($this->driver()->fields($table) as $name => $field) {
-            $fields[] = $this->grammar()->escapeId($name) . ' ' . $field->fullType;
+        foreach ($this->engine()->fields($table) as $name => $field) {
+            $fields[] = $this->statement()->escapeId($name) . ' ' . $field->fullType;
         }
-        $tableName = $this->grammar()->escapeTableName($table);
+        $tableName = $this->statement()->escapeTableName($table);
         return "CREATE TABLE $tableName (" . implode(', ', $fields) . ')';
     }
 
@@ -274,13 +265,13 @@ class ExportProxy extends AbstractProxy
             return;
         }
 
-        $this->grammar()->setUtf8mb4($query);
+        $this->statement()->setUtf8mb4($query);
         if ($style === 'DROP+CREATE' || $tableType === 1) {
             $this->queries[] = 'DROP ' . ($tableType === 2 ? 'VIEW' : 'TABLE') .
-                ' IF EXISTS ' . $this->grammar()->escapeTableName($table) . ';';
+                ' IF EXISTS ' . $this->statement()->escapeTableName($table) . ';';
         }
         if ($tableType === 1) {
-            $query = $this->grammar()->removeDefiner($query);
+            $query = $this->statement()->removeDefiner($query);
         }
         $this->queries[] = "$query;\n";
     }
@@ -300,7 +291,7 @@ class ExportProxy extends AbstractProxy
         if ($this->options['format'] !== 'sql') {
             $this->queries[] = "\xef\xbb\xbf"; // UTF-8 byte order mark
             if ($style) {
-                $this->dumpCsv(array_keys($this->driver()->fields($table)));
+                $this->dumpCsv(array_keys($this->engine()->fields($table)));
             }
             return;
         }
@@ -318,7 +309,7 @@ class ExportProxy extends AbstractProxy
      */
     private function dumpTableTriggers(string $table): void
     {
-        if (($triggers = $this->grammar()->getCreateTriggerQuery($table)) !== '') {
+        if (($triggers = $this->statement()->getCreateTriggerQuery($table)) !== '') {
             $this->queries[] = '';
             $this->queries[] = 'DELIMITER ;;';
             $this->queries[] = $triggers;
@@ -336,7 +327,7 @@ class ExportProxy extends AbstractProxy
     private function dumpTable(TableDto $tableStatus, bool $dumpTable, bool $dumpData): void
     {
         $style = $dumpTable ? $this->options['table_style'] : '';
-        $tableType = $this->driver()->isView($tableStatus) ? 2 : 1;
+        $tableType = $this->engine()->isView($tableStatus) ? 2 : 1;
         $this->dumpCreateTableOrView($tableStatus->name, $style, $tableType);
         if ($dumpData) {
             $this->dumpTableData($tableStatus->name);
@@ -359,16 +350,16 @@ class ExportProxy extends AbstractProxy
             $options = $tableOptions[$status->name] ?? $tableOptions['*'];
             $this->dumpTable($status, $options['table'], $options['data']);
         }
-        if (!$this->driver()->pgsql()) {
+        if (!$this->engine()->pgsql()) {
             return;
         }
 
         // Add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
         $this->queries[] = '';
         $tables = array_filter($tableStatuses,
-            fn($status) => !$this->driver()->isView($status));
+            fn($status) => !$this->engine()->isView($status));
         foreach ($tables as $status) {
-            $queries = $this->grammar()->getForeignKeyQueries($status);
+            $queries = $this->statement()->getForeignKeyQueries($status);
             foreach ($queries as $query) {
                 $this->queries[] = $query;
             }
@@ -386,7 +377,7 @@ class ExportProxy extends AbstractProxy
     private function dumpViews(array $tableStatuses)
     {
         $views = array_filter($tableStatuses,
-            fn($status) => $this->driver()->isView($status));
+            fn($status) => $this->engine()->isView($status));
         foreach ($views as $view) {
             $this->dumpCreateTableOrView($view->name, $this->options['table_style'], 1);
         }
@@ -439,12 +430,12 @@ class ExportProxy extends AbstractProxy
         // From dump.inc.php create_routine()
         $params = array_filter($params, fn($param) => $param->name !== '');
         ksort($params); // enforce params order
-        $regex = "~^(" . $this->driver()->inout() . ")\$~";
+        $regex = "~^(" . $this->engine()->inout() . ")\$~";
 
         $params = array_map(function($param) use($regex) {
             $inout = preg_match($regex, $param->inout) ? "{$param->inout} " : '';
-            return $inout . $this->grammar()->escapeId($param->name) .
-                $this->grammar()->getFieldType($param, 'CHARACTER SET');
+            return $inout . $this->statement()->escapeId($param->name) .
+                $this->statement()->getFieldType($param, 'CHARACTER SET');
         },$params);
         return implode(', ', $params);
     }
@@ -460,14 +451,14 @@ class ExportProxy extends AbstractProxy
     private function getRoutineQuery(RoutineDto $routine, RoutineInfoDto $routineInfo): string
     {
         // From dump.inc.php create_routine()
-        $routineName = $this->grammar()->escapeId(trim($routine->name));
+        $routineName = $this->statement()->escapeId(trim($routine->name));
         $routineParams = $this->getRoutineParams($routineInfo->params);
         $routineReturns = $routine->type !== 'FUNCTION' ? '' :
-            ' RETURNS' . $this->grammar()->getFieldType($routineInfo->return, 'CHARACTER SET');
+            ' RETURNS' . $this->statement()->getFieldType($routineInfo->return, 'CHARACTER SET');
         $routineLanguage = $routineInfo->language ? " LANGUAGE {$routineInfo->language}" : '';
         $definition = rtrim($routineInfo->definition, ';');
-        $routineDefinition = !$this->driver()->pgsql() ? "\n$definition;" :
-            ' AS ' . $this->driver()->quote($definition);
+        $routineDefinition = !$this->engine()->pgsql() ? "\n$definition;" :
+            ' AS ' . $this->engine()->quote($definition);
 
         return "CREATE {$routine->type} $routineName ($routineParams)" .
             "{$routineReturns}{$routineLanguage}{$routineDefinition};";
@@ -486,7 +477,7 @@ class ExportProxy extends AbstractProxy
 
         // From dump.inc.php
         $style = $this->options['db_style'];
-        foreach ($this->driver()->userTypes(true) as $type) {
+        foreach ($this->engine()->userTypes(true) as $type) {
             $this->queries[] = ''; // Empty line
             if (count($type->enums) === 0) {
                 //! https://github.com/postgres/postgres/blob/REL_17_4/src/bin/pg_dump/pg_dump.c#L10846
@@ -494,7 +485,7 @@ class ExportProxy extends AbstractProxy
                 continue;
             }
 
-            $typeName = $this->grammar()->escapeId($type->name);
+            $typeName = $this->statement()->escapeId($type->name);
             if ($style !== 'DROP+CREATE') {
                 $this->queries[] = "DROP TYPE IF EXISTS $typeName;;";
             }
@@ -516,15 +507,15 @@ class ExportProxy extends AbstractProxy
 
         // From dump.inc.php
         $style = $this->options['db_style'];
-        foreach ($this->driver()->routines() as $routine) {
-            $routineName = $this->grammar()->escapeId(trim($routine->name));
-            $routineInfo = $this->driver()->routine($routine->specificName, $routine->type);
+        foreach ($this->engine()->routines() as $routine) {
+            $routineName = $this->statement()->escapeId(trim($routine->name));
+            $routineInfo = $this->engine()->routine($routine->specificName, $routine->type);
             if ($routineInfo === null) {
                 continue;
             }
 
             $create = $this->getRoutineQuery($routine, $routineInfo);
-            $this->grammar()->setUtf8mb4($create);
+            $this->statement()->setUtf8mb4($create);
             $this->queries[] = ''; // Empty line
             if ($style !== 'DROP+CREATE') {
                 $this->queries[] = "DROP {$routine->type} IF EXISTS $routineName;;";
@@ -546,13 +537,13 @@ class ExportProxy extends AbstractProxy
 
         // From dump.inc.php
         $style = $this->options['db_style'];
-        foreach ($this->driver()->rows('SHOW EVENTS') as $row) {
-            $sql = 'SHOW CREATE EVENT ' . $this->grammar()->escapeId($row['Name']);
-            $create = $this->grammar()->removeDefiner($this->driver()->result($sql, 3));
-            $this->grammar()->setUtf8mb4($create);
+        foreach ($this->engine()->rows('SHOW EVENTS') as $row) {
+            $sql = 'SHOW CREATE EVENT ' . $this->statement()->escapeId($row['Name']);
+            $create = $this->statement()->removeDefiner($this->engine()->result($sql, 3));
+            $this->statement()->setUtf8mb4($create);
             $this->queries[] = ''; // Empty line
             if ($style !== 'DROP+CREATE') {
-                $this->queries[] = 'DROP EVENT IF EXISTS ' . $this->grammar()->escapeId($row['Name']) . ';;';
+                $this->queries[] = 'DROP EVENT IF EXISTS ' . $this->statement()->escapeId($row['Name']) . ';;';
             }
             $this->queries[] = "$create;;\n";
         }
@@ -570,7 +561,7 @@ class ExportProxy extends AbstractProxy
             return;
         }
 
-        $this->queries[] = $this->grammar()->getUseDatabaseQuery($database, $style);
+        $this->queries[] = $this->statement()->getUseDatabaseQuery($database, $style);
     }
 
     /**
@@ -581,7 +572,7 @@ class ExportProxy extends AbstractProxy
      */
     private function dumpDatabase(string $database, array $tableOptions): void
     {
-        $this->driver()->openConnection($database); // New connection
+        $this->engine()->openConnection($database); // New connection
         $this->dumpUseDatabaseQuery($database);
 
         if ($this->options['to_sql']) {
@@ -594,7 +585,7 @@ class ExportProxy extends AbstractProxy
             return;
         }
 
-        $statuses = array_filter($this->driver()->tableStatuses(true), fn($status) =>
+        $statuses = array_filter($this->engine()->tableStatuses(true), fn($status) =>
             isset($tableOptions['*']) || isset($tableOptions[$status->name]));
         $this->dumpTables($statuses, $tableOptions);
         // Dump the views after all the tables
@@ -607,20 +598,20 @@ class ExportProxy extends AbstractProxy
     private function getDatabaseExportHeaders(): array
     {
         $headers = [
-            'version' => $this->driver()->version(),
-            'driver' => $this->driver()->name(),
-            'server' => str_replace("\n", ' ', $this->driver()->serverInfo()),
+            'version' => $this->engine()->version(),
+            'driver' => $this->engine()->name(),
+            'server' => str_replace("\n", ' ', $this->engine()->serverInfo()),
             'sql' => false,
             'data_style' => false,
         ];
-        if ($this->driver()->sql()) {
+        if ($this->engine()->sql()) {
             $headers['sql'] = true;
             if (isset($this->options['data_style'])) {
                 $headers['data_style'] = true;
             }
             // Set some options in database server
-            $this->driver()->execute("SET time_zone = '+00:00'");
-            $this->driver()->execute("SET sql_mode = ''");
+            $this->engine()->execute("SET time_zone = '+00:00'");
+            $this->engine()->execute("SET sql_mode = ''");
         }
         return $headers;
     }
@@ -654,7 +645,7 @@ class ExportProxy extends AbstractProxy
         }
 
         if ($this->options['to_sql']) {
-            $this->queries[] = '-- ' . $this->driver()->result('SELECT NOW()');
+            $this->queries[] = '-- ' . $this->engine()->result('SELECT NOW()');
         }
 
         return [

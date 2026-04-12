@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\UiData\Dql\SelectDto;
 use Lagdo\DbAdmin\Db\UiData\Dql\SelectQuery;
 use Lagdo\DbAdmin\Db\UiData\Dql\SelectResult;
@@ -28,12 +27,19 @@ class SelectProxy extends AbstractProxy
     private SelectResult|null $selectResult = null;
 
     /**
-     * @param AbstractProxy $dbProxy
-     * @param TimerService $timer
+     * @var TimerService
      */
-    public function __construct(AbstractProxy $dbProxy, protected TimerService $timer)
+    protected TimerService $timer;
+
+    /**
+     * @param TimerService $timer
+     *
+     * @return static
+     */
+    public function setTimer(TimerService $timer): static
     {
-        parent::__construct($dbProxy->driver(), $dbProxy->page(), $dbProxy->utils());
+        $this->timer = $timer;
+        return $this;
     }
 
     /**
@@ -41,7 +47,7 @@ class SelectProxy extends AbstractProxy
      */
     private function query(): SelectQuery
     {
-        return $this->selectQuery ??= new SelectQuery($this->driver(), $this->page(), $this->utils());
+        return $this->selectQuery ??= new SelectQuery($this->helper());
     }
 
     /**
@@ -49,7 +55,7 @@ class SelectProxy extends AbstractProxy
      */
     private function result(): SelectResult
     {
-        return $this->selectResult ??= new SelectResult($this->driver(), $this->page(), $this->utils());
+        return $this->selectResult ??= new SelectResult($this->helper());
     }
 
     /**
@@ -61,7 +67,7 @@ class SelectProxy extends AbstractProxy
      */
     private function prepareSelect(string $table, array $queryOptions = []): SelectDto
     {
-        $tableStatus = $this->driver()->tableStatusOrName($table);
+        $tableStatus = $this->engine()->tableStatusOrName($table);
         $tableName = $this->page()->tableName($tableStatus);
         $selectDto = new SelectDto($table, $tableName,
             $tableStatus, $queryOptions);
@@ -96,9 +102,9 @@ class SelectProxy extends AbstractProxy
         $hasGroupsInFields = count($selectDto->group) < count($selectDto->select);
 
         try {
-            $query = $this->grammar()->getRowCountQuery($table, $selectDto->where,
+            $query = $this->statement()->getRowCountQuery($table, $selectDto->where,
                 $hasGroupsInFields, $selectDto->group);
-            return (int)$this->driver()->result($query);
+            return (int)$this->engine()->result($query);
         } catch(Exception) {
             return -1;
         }
@@ -114,20 +120,20 @@ class SelectProxy extends AbstractProxy
         $this->timer->start();
 
         // From driver.inc.php
-        $statement = $this->driver()->execute($selectDto->query);
+        $statement = $this->engine()->execute($selectDto->query);
         $selectDto->duration = $this->timer->duration();
         $selectDto->rows = [];
 
         // From adminer.inc.php
         if (!$statement) {
-            $selectDto->error = $this->driver()->error();
+            $selectDto->error = $this->engine()->error();
             return;
         }
 
         // From select.inc.php
         $selectDto->rows = [];
         while (($row = $statement->fetchAssoc())) {
-            if ($selectDto->page && $this->driver()->oracle()) {
+            if ($selectDto->page && $this->engine()->oracle()) {
                 unset($row["RNUM"]);
             }
             $selectDto->rows[] = $row;
@@ -159,7 +165,7 @@ class SelectProxy extends AbstractProxy
             ];
         }
 
-        // $backward_keys = $this->driver()->backwardKeys($table, $tableName);
+        // $backward_keys = $this->engine()->backwardKeys($table, $tableName);
         // lengths = $this->getValuesLengths($rows, $selectDto->queryOptions);
 
         $queryFields = array_keys($selectDto->rows[0]);

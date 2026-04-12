@@ -2,8 +2,8 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dql;
 
-use Lagdo\DbAdmin\Support\Dto\TableDto;
-use Lagdo\DbAdmin\Support\Dto\TableSelectDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableSelectDto;
 
 class SelectDto
 {

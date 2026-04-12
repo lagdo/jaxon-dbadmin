@@ -8,7 +8,7 @@ use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\Ajax\Exception\AppException;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
-use Lagdo\DbAdmin\Db\Driver\DbProxy;
+use Lagdo\DbAdmin\Db\Driver\DriverProxy;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\DbAdmin\Ui\UiBuilder;
@@ -31,10 +31,10 @@ trait ComponentTrait
     protected ServerConfig $config;
 
     /**
-     * @var DbProxy
+     * @var DriverProxy
      */
     #[Inject]
-    protected DbProxy $db;
+    protected DriverProxy $db;
 
     /**
      * @var Translator
@@ -57,9 +57,9 @@ trait ComponentTrait
     }
 
     /**
-     * @return DbProxy
+     * @return DriverProxy
      */
-    protected function db(): DbProxy
+    protected function db(): DriverProxy
     {
         return $this->db;
     }

@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 
 use function array_filter;
 use function array_intersect;
@@ -32,18 +31,17 @@ class ServerProxy extends AbstractProxy
     protected $userDatabases = null;
 
     /**
-     * The constructor
-     *
-     * @param AbstractProxy $dbProxy
      * @param array $options    The server config options
+     *
+     * @return static
      */
-    public function __construct(AbstractProxy $dbProxy, array $options)
+    public function setOptions(array $options): static
     {
-        parent::__construct($dbProxy->driver(), $dbProxy->page(), $dbProxy->utils());
         // Set the user databases, if defined.
         if (is_array(($userDatabases = $options['access']['databases'] ?? null))) {
             $this->userDatabases = $userDatabases;
         }
+        return $this;
     }
 
     /**
@@ -55,7 +53,7 @@ class ServerProxy extends AbstractProxy
      */
     public function support(string $feature): bool
     {
-        return $this->driver()->support($feature);
+        return $this->engine()->support($feature);
     }
 
     /**
@@ -71,14 +69,14 @@ class ServerProxy extends AbstractProxy
             // Get the database lists
             // Passing false as parameter to this call prevent from using the slow_query() function,
             // which outputs data to the browser are prepended to the Jaxon response.
-            $this->finalDatabases = $this->driver()->databases(false);
+            $this->finalDatabases = $this->engine()->databases(false);
             if (is_array($this->userDatabases)) {
                 // Only keep databases that appear in the config.
                 $this->finalDatabases = array_values(array_intersect($this->finalDatabases, $this->userDatabases));
             }
         }
         return $schemaAccess ? $this->finalDatabases : array_filter($this->finalDatabases,
-            fn($database) => !$this->driver()->isSystemSchema($database));
+            fn($database) => !$this->engine()->isSystemSchema($database));
     }
 
     /**
@@ -90,10 +88,10 @@ class ServerProxy extends AbstractProxy
     {
         return [
             'user' => $this->utils()->lang('Logged as: %s.',
-                "<b>" . $this->utils()->html($this->driver()->user()) . "</b>"),
-            'server' => $this->utils()->lang('%s version: %s.', $this->driver()->name(),
-                "<b>" . $this->utils()->html($this->driver()->serverInfo()) . "</b>") . '<br/>' .
-                $this->utils()->lang('PHP extension %s.',"<b>{$this->driver()->extension()}</b>"),
+                "<b>" . $this->utils()->html($this->engine()->user()) . "</b>"),
+            'server' => $this->utils()->lang('%s version: %s.', $this->engine()->name(),
+                "<b>" . $this->utils()->html($this->engine()->serverInfo()) . "</b>") . '<br/>' .
+                $this->utils()->lang('PHP extension %s.',"<b>{$this->engine()->extension()}</b>"),
         ];
     }
 
@@ -107,7 +105,7 @@ class ServerProxy extends AbstractProxy
      */
     public function createDatabase(string $database, string $collation = ''): bool
     {
-        return $this->driver()->createDatabase($database, $collation);
+        return $this->engine()->createDatabase($database, $collation);
     }
 
     /**
@@ -119,7 +117,7 @@ class ServerProxy extends AbstractProxy
      */
     public function dropDatabase(string $database): bool
     {
-        return $this->driver()->dropDatabase($database);
+        return $this->engine()->dropDatabase($database);
     }
 
     /**
@@ -129,7 +127,7 @@ class ServerProxy extends AbstractProxy
      */
     public function getCollations(): array
     {
-        return $this->driver()->collations();
+        return $this->engine()->collations();
     }
 
     /**
@@ -143,15 +141,15 @@ class ServerProxy extends AbstractProxy
     {
         // Get the database list
         $databases = $this->databases($schemaAccess);
-        $tables = $this->driver()->countTables($databases);
-        $collations = $this->driver()->collations();
+        $tables = $this->engine()->countTables($databases);
+        $collations = $this->engine()->collations();
         $details = [];
         foreach ($databases as $database) {
             $details[] = [
                 'name' => $this->utils()->html($database),
-                'collation' => $this->utils()->html($this->driver()->databaseCollation($database, $collations)),
+                'collation' => $this->utils()->html($this->engine()->databaseCollation($database, $collations)),
                 'tables' => array_key_exists($database, $tables) ? $tables[$database] : 0,
-                'size' => $this->utils()->trans->formatNumber($this->driver()->databaseSize($database)),
+                'size' => $this->utils()->trans->formatNumber($this->engine()->databaseSize($database)),
             ];
         }
 
@@ -176,7 +174,7 @@ class ServerProxy extends AbstractProxy
     public function getProcesses(): array
     {
         // From processlist.inc.php
-        $processes = $this->driver()->processes();
+        $processes = $this->engine()->processes();
 
         // From processlist.inc.php
         // TODO: Add a kill column in the headers
@@ -189,7 +187,7 @@ class ServerProxy extends AbstractProxy
         foreach ($processes as $process) {
             $attrs = [];
             foreach ($process as $key => $val) {
-                $attrs[] = is_string($val) ? $this->grammar()->processAttr($process, $key, $val) : '(null)';
+                $attrs[] = is_string($val) ? $this->statement()->processAttr($process, $key, $val) : '(null)';
             }
             $details[] = $attrs;
         }
@@ -205,7 +203,7 @@ class ServerProxy extends AbstractProxy
     public function getVariables(): array
     {
         // From variables.inc.php
-        $variables = $this->driver()->variables();
+        $variables = $this->engine()->variables();
         $details = [];
         // From variables.inc.php
         foreach ($variables as $key => $val) {
@@ -223,7 +221,7 @@ class ServerProxy extends AbstractProxy
     public function getStatus(): array
     {
         // From variables.inc.php
-        $status = $this->driver()->statusVariables();
+        $status = $this->engine()->statusVariables();
         $details = [];
         // From variables.inc.php
         foreach ($status as $key => $val) {

@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dql;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
 
 use function intval;
 
@@ -51,8 +51,8 @@ class SelectOptions extends AbstractProxy
             'select' => $select,
             'values' => (array)$options["columns"],
             'columns' => $columns,
-            'functions' => $this->driver()->functions(),
-            'grouping' => $this->driver()->grouping(),
+            'functions' => $this->engine()->functions(),
+            'grouping' => $this->engine()->grouping(),
         ];
     }
 
@@ -77,7 +77,7 @@ class SelectOptions extends AbstractProxy
             'values' => (array)$options["where"],
             'columns' => $columns,
             'indexes' => $indexes,
-            'operators' => $this->driver()->operators(),
+            'operators' => $this->engine()->operators(),
             'fulltexts' => $fulltexts,
         ];
     }
@@ -158,7 +158,7 @@ class SelectOptions extends AbstractProxy
      */
     // private function getCommandOptions()
     // {
-    //     return !$this->driver()->isInformationSchema($this->driver()->database());
+    //     return !$this->engine()->isInformationSchema($this->engine()->database());
     // }
 
     /**
@@ -168,7 +168,7 @@ class SelectOptions extends AbstractProxy
      */
     // private function getImportOptions()
     // {
-    //     return !$this->driver()->isInformationSchema($this->driver()->database());
+    //     return !$this->engine()->isInformationSchema($this->engine()->database());
     // }
 
     /**

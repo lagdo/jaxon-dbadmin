@@ -2,10 +2,10 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dql;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
-use Lagdo\DbAdmin\Support\Dto\IndexDto;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
-use Lagdo\DbAdmin\Support\Dto\TableSelectDto;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\IndexDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableSelectDto;
 use Exception;
 
 use function count;
@@ -30,7 +30,7 @@ class SelectQuery extends AbstractProxy
      */
     private function options(): SelectOptions
     {
-        return $this->selectOptions ??= new SelectOptions($this->driver(), $this->page(), $this->utils());
+        return $this->selectOptions ??= new SelectOptions($this->helper());
     }
 
     /**
@@ -65,7 +65,7 @@ class SelectQuery extends AbstractProxy
     private function setForeignKeys(SelectDto $selectDto): void
     {
         $selectDto->foreignKeys = [];
-        foreach ($this->driver()->foreignKeys($selectDto->table) as $foreignKey) {
+        foreach ($this->engine()->foreignKeys($selectDto->table) as $foreignKey) {
             foreach ($foreignKey->source as $val) {
                 $selectDto->foreignKeys[$val][] = $foreignKey;
             }
@@ -81,8 +81,8 @@ class SelectQuery extends AbstractProxy
     {
         return $value['fun'] === 'count' ||
             ($value['col'] !== '' && (!$value['fun'] ||
-                in_array($value['fun'], $this->driver()->functions()) ||
-                in_array($value['fun'], $this->driver()->grouping())));
+                in_array($value['fun'], $this->engine()->functions()) ||
+                in_array($value['fun'], $this->engine()->grouping())));
     }
 
     /**
@@ -110,10 +110,10 @@ class SelectQuery extends AbstractProxy
             if ($this->colHasValidValue($value)) {
                 $column = '*';
                 if ($value['col'] !== '') {
-                    $column = $this->grammar()->escapeId($value['col']);
+                    $column = $this->statement()->escapeId($value['col']);
                 }
                 $selectDto->select[$key] = $this->page()->applySqlFunction($value['fun'], $column);
-                if (!in_array($value['fun'], $this->driver()->grouping())) {
+                if (!in_array($value['fun'], $this->engine()->grouping())) {
                     $selectDto->group[] = $selectDto->select[$key];
                 }
             }
@@ -134,7 +134,7 @@ class SelectQuery extends AbstractProxy
 
         return match(true) {
             preg_match('~IN$~', $op) > 0 => " $op " .
-                (($in = $this->grammar()->processLength($val)) !== '' ? $in : '(NULL)'),
+                (($in = $this->statement()->processLength($val)) !== '' ? $in : '(NULL)'),
             $op === 'SQL' => " $val", // SQL injection
             $op === 'LIKE %%' => ' LIKE ' . $this->page()
                 ->getUnconvertedFieldValue($fields[$col], "%$val%"),
@@ -160,7 +160,7 @@ class SelectQuery extends AbstractProxy
         $in = preg_match('~IN$~', $op) ? ',' : '';
 
         return (preg_match('~^[-\d.' . $in . ']+$~', $val) ||
-                !preg_match('~' . $this->driver()->numberRegex() . '|bit~', $field->type)) &&
+                !preg_match('~' . $this->engine()->numberRegex() . '|bit~', $field->type)) &&
             (!preg_match("~[\x80-\xFF]~", $val) ||
                 preg_match('~char|text|enum|set~', $field->type)) &&
             (!preg_match('~date|timestamp~', $field->type) ||
@@ -179,19 +179,19 @@ class SelectQuery extends AbstractProxy
         $col = $value['col'];
         $prefix = '';
         if ($op === 'FIND_IN_SET') {
-            $quotedValue = $this->driver()->quote($value['val']);
+            $quotedValue = $this->engine()->quote($value['val']);
             $prefix = "{$op}({$quotedValue}, ";
         }
         $condition = $this->getWhereCondition($value, $fields);
         if ($col !== '') {
-            return $prefix . $this->driver()->convertSearch($this->grammar()->escapeId($col),
+            return $prefix . $this->engine()->convertSearch($this->statement()->escapeId($col),
                 $value, $fields[$col]) . $condition;
         }
         // find anywhere
         $clauses = [];
         foreach ($fields as $name => $field) {
             if ($this->selectFieldIsValid($field, $value)) {
-                $clauses[] = $prefix . $this->driver()->convertSearch($this->grammar()->escapeId($name),
+                $clauses[] = $prefix . $this->engine()->convertSearch($this->statement()->escapeId($name),
                     $value, $field) . $condition;
             }
         }
@@ -207,9 +207,9 @@ class SelectQuery extends AbstractProxy
      */
     private function getMatchExpression(IndexDto $index, int $i): string
     {
-        $columns = array_map($this->grammar()->escapeId(...), $index->columns);
+        $columns = array_map($this->statement()->escapeId(...), $index->columns);
         $fulltext = $this->utils()->input->values['fulltext'][$i] ?? '';
-        $match = $this->driver()->quote($fulltext);
+        $match = $this->engine()->quote($fulltext);
         if (isset($this->utils()->input->values['boolean'][$i])) {
             $match .= ' IN BOOLEAN MODE';
         }
@@ -234,7 +234,7 @@ class SelectQuery extends AbstractProxy
         }
         foreach ((array) $this->utils()->input->values['where'] as $value) {
             if (($value['col'] !== '' ||  $value['val'] !== '') &&
-                in_array($value['op'], $this->driver()->operators())) {
+                in_array($value['op'], $this->engine()->operators())) {
                 $selectDto->where[] = $this
                     ->getSelectExpression($value, $selectDto->fields);
             }
@@ -254,7 +254,7 @@ class SelectQuery extends AbstractProxy
             if ($value !== '') {
                 $regexp = '~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~';
                 if (preg_match($regexp, $value) !== false) {
-                    $value = $this->grammar()->escapeId($value);
+                    $value = $this->statement()->escapeId($value);
                 }
                 if (isset($values['desc'][$key]) && intval($values['desc'][$key]) !== 0) {
                     $value .= ' DESC';
@@ -298,7 +298,7 @@ class SelectQuery extends AbstractProxy
                 $primary = array_flip($index->columns);
                 $selectDto->unselected = ($selectDto->select ? $primary : []);
                 foreach ($selectDto->unselected as $key => $val) {
-                    if (in_array($this->grammar()->escapeId($key), $selectDto->select)) {
+                    if (in_array($this->statement()->escapeId($key), $selectDto->select)) {
                         unset($selectDto->unselected[$key]);
                     }
                 }
@@ -328,24 +328,24 @@ class SelectQuery extends AbstractProxy
         $group2 = $selectDto->group;
         if (empty($select2)) {
             $select2[] = "*";
-            $convert_fields = $this->grammar()->convertFields($selectDto->columns,
+            $convert_fields = $this->statement()->convertFields($selectDto->columns,
                 $selectDto->fields, $selectDto->select);
             if ($convert_fields) {
                 $select2[] = substr($convert_fields, 2);
             }
         }
         foreach ($selectDto->select as $key => $val) {
-            $field = $fields[$this->grammar()->unescapeId($val)] ?? null;
-            if ($field && ($as = $this->grammar()->convertField($field))) {
+            $field = $fields[$this->statement()->unescapeId($val)] ?? null;
+            if ($field && ($as = $this->statement()->convertField($field))) {
                 $select2[$key] = "$as AS $val";
             }
         }
         $isGroup = count($selectDto->group) < count($selectDto->select);
         if (!$isGroup && !empty($unselected)) {
             foreach ($unselected as $key => $val) {
-                $select2[] = $this->grammar()->escapeId($key);
+                $select2[] = $this->statement()->escapeId($key);
                 if (!empty($group2)) {
-                    $group2[] = $this->grammar()->escapeId($key);
+                    $group2[] = $this->statement()->escapeId($key);
                 }
             }
         }
@@ -369,14 +369,14 @@ class SelectQuery extends AbstractProxy
         $this->options()->setDefaultOptions($selectDto);
 
         // From select.inc.php
-        $selectDto->fields = $this->driver()->fields($selectDto->table);
+        $selectDto->fields = $this->engine()->fields($selectDto->table);
         $this->setFieldsOptions($selectDto);
-        if (!$selectDto->columns && $this->driver()->support("table")) {
+        if (!$selectDto->columns && $this->engine()->support("table")) {
             throw new Exception($this->utils()->lang('Unable to select the table') .
-                ($selectDto->fields ? "." : ": " . $this->driver()->error()));
+                ($selectDto->fields ? "." : ": " . $this->engine()->error()));
         }
 
-        $selectDto->indexes = $this->driver()->indexes($selectDto->table);
+        $selectDto->indexes = $this->engine()->indexes($selectDto->table);
         $this->setForeignKeys($selectDto);
         $this->setSelectColumns($selectDto);
 
@@ -392,7 +392,7 @@ class SelectQuery extends AbstractProxy
         //         if($foreignKeys[$val["col"]] && count($foreignKeys[$val["col"]]) == 1 && ($val["op"] == "="
         //             || (!$val["op"] && !preg_match('~[_%]~', $val["val"])) // LIKE in Editor
         //         )) {
-        //             $set .= "&set" . urlencode("[" . $this->grammar()->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
+        //             $set .= "&set" . urlencode("[" . $this->statement()->bracketEscape($val["col"]) . "]") . "=" . urlencode($val["val"]);
         //         }
         //     }
         // }
@@ -401,14 +401,14 @@ class SelectQuery extends AbstractProxy
         // if($page == "last")
         // {
         //     $isGroup = count($group) < count($select);
-        //     $found_rows = $this->driver()->result($this->grammar()->getRowCountQuery($table, $where, $isGroup, $group));
+        //     $found_rows = $this->engine()->result($this->statement()->getRowCountQuery($table, $where, $isGroup, $group));
         //     $page = \floor(\max(0, $found_rows - 1) / $limit);
         // }
 
         $this->options()->setSelectOptions($selectDto);
         $this->setSelectDto($selectDto);
 
-        $query = $this->grammar()->getTableSelectQuery($selectDto->tableSelect);
+        $query = $this->statement()->getTableSelectQuery($selectDto->tableSelect);
         // From adminer.inc.php
         $selectDto->query = str_replace("\n", " ", $query);
 

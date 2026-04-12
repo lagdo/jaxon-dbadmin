@@ -4,16 +4,18 @@ namespace Lagdo\DbAdmin\Db\Driver;
 
 use Jaxon\App\View\ViewRenderer;
 use Jaxon\Di\Container;
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
 use Lagdo\DbAdmin\Db\UiData\AppPage;
 use Lagdo\DbAdmin\Db\Service\Breadcrumbs;
-use Lagdo\DbAdmin\Support\Utils\Utils;
+use Lagdo\DbAdmin\Driver\Driver;
+use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 /**
  * Proxy to calls to the database functions
  */
-class DbProxy extends AbstractProxy
+class DriverProxy extends AbstractProxy
 {
+    use DriverHelperTrait;
     use Proxy\ServerTrait;
     use Proxy\UserTrait;
     use Proxy\DatabaseTrait;
@@ -41,8 +43,6 @@ class DbProxy extends AbstractProxy
     protected $dbSchema;
 
     /**
-     * The constructor
-     *
      * @param Container $di
      * @param Utils $utils
      * @param ViewRenderer $viewRenderer
@@ -51,8 +51,9 @@ class DbProxy extends AbstractProxy
     public function __construct(protected Container $di, protected Utils $utils,
         protected ViewRenderer $viewRenderer, protected Breadcrumbs $breadcrumbs)
     {
-        $this->setDriver()->setUtils($utils);
-        // Make the translator available into views
+        $this->driverHelper = new DriverHelper();
+        $this->driverHelper->setUtils($utils);
+        // Make the translator available into views.
         $viewRenderer->share('trans', $utils->trans);
     }
 
@@ -130,16 +131,17 @@ class DbProxy extends AbstractProxy
     private function connect(string $server, string $database = '', string $schema = '')
     {
         // Prevent multiple calls.
-        if (!$this->driver()) {
+        if (!$this->engine()) {
             // Save the selected server in the di container.
             $this->di->val('dbadmin_config_server', $server);
             // The DI is now able to return the corresponding driver.
-            $driver = $this->di->get(AppDriver::class);
+            $driver = $this->di->get(Driver::class);
             $page = $this->di->get(AppPage::class);
-            $this->setDriver($driver)->setPage($page)->setUtils($this->utils);
+            $this->driverHelper->setDriver($driver)->setPage($page);
         }
+
         // Open the selected database
-        $this->driver()->openConnection($database, $schema);
+        $this->engine()->openConnection($database, $schema);
     }
 
     /**

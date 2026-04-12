@@ -2,11 +2,10 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\Service\Admin\QueryLogger;
 use Lagdo\DbAdmin\Db\Service\TimerService;
-use Lagdo\DbAdmin\Support\Db\Engine\Connection\AbstractConnection;
-use Lagdo\DbAdmin\Support\Dto\QueryDto;
+use Lagdo\DbAdmin\Driver\Sql\Specific\Connection\AbstractConnection;
+use Lagdo\DbAdmin\Driver\Sql\Dto\QueryDto;
 
 use function compact;
 use function count;
@@ -31,6 +30,16 @@ class CommandProxy extends AbstractProxy
     protected $connection = null;
 
     /**
+     * @var TimerService
+     */
+    protected TimerService $timer;
+
+    /**
+     * @var QueryLogger|null
+     */
+    protected QueryLogger|null $queryLogger;
+
+    /**
      * @var array
      */
     protected $results;
@@ -41,16 +50,25 @@ class CommandProxy extends AbstractProxy
     protected $duration;
 
     /**
-     * Initialize the proxy
-     *
-     * @param AbstractProxy $dbProxy
      * @param TimerService $timer
-     * @param QueryLogger|null $queryLogger
+     *
+     * @return static
      */
-    public function __construct(AbstractProxy $dbProxy,
-        protected TimerService $timer, protected QueryLogger|null $queryLogger)
+    public function setTimer(TimerService $timer): static
     {
-        parent::__construct($dbProxy->driver(), $dbProxy->page(), $dbProxy->utils());
+        $this->timer = $timer;
+        return $this;
+    }
+
+    /**
+     * @param QueryLogger|null $queryLogger
+     *
+     * @return static
+     */
+    public function setQueryLogger(QueryLogger|null $queryLogger): static
+    {
+        $this->queryLogger = $queryLogger;
+        return $this;
     }
 
     /**
@@ -63,9 +81,9 @@ class CommandProxy extends AbstractProxy
         // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
         //! PDO - silent error
         // TODO: use this connection to execute EXPLAIN queries.
-        if ($this->connection === null && $this->driver()->database() !== '') {
-            $this->connection = $this->driver()->newConnection(
-                $this->driver()->database(), $this->driver()->schema());
+        if ($this->connection === null && $this->engine()->database() !== '') {
+            $this->connection = $this->engine()->newConnection(
+                $this->engine()->database(), $this->engine()->schema());
         }
     }
 
@@ -126,7 +144,7 @@ class CommandProxy extends AbstractProxy
     {
         // No resultset
         if ($statement === true) {
-            $affected = $this->driver()->affectedRows();
+            $affected = $this->engine()->affectedRows();
             $message = $this->utils()->trans
                 ->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
             return [null, [$message]];
@@ -181,7 +199,7 @@ class CommandProxy extends AbstractProxy
         $this->timer->start();
         //! Don't allow changing of character_set_results, convert encoding of displayed query
         $space = $this->utils()->str->spaceRegex();
-        $succeeded = $this->driver()->multiQuery($queryDto->query);
+        $succeeded = $this->engine()->multiQuery($queryDto->query);
         if ($succeeded && $this->connection !== null &&
             preg_match("~^$space*+USE\\b~i", $queryDto->query)) {
             $this->connection->query($queryDto->query);
@@ -192,10 +210,10 @@ class CommandProxy extends AbstractProxy
             $select = null;
             $errors = [];
             $messages = [];
-            $statement = $this->driver()->storedResult();
+            $statement = $this->engine()->storedResult();
 
-            if (!$statement || $this->driver()->hasError()) {
-                $errors[] = $this->driver()->errorMessage();
+            if (!$statement || $this->engine()->hasError()) {
+                $errors[] = $this->engine()->errorMessage();
             } elseif (!$queryDto->onlyErrors) {
                 [$select, $messages] = $this->select($statement, $queryDto->limit);
             }
@@ -203,10 +221,10 @@ class CommandProxy extends AbstractProxy
             $result = compact('errors', 'messages', 'select');
             $result['query'] = $queryDto->query;
             $this->results[] = $result;
-            if ($this->driver()->hasError() && $queryDto->errorStops) {
+            if ($this->engine()->hasError() && $queryDto->errorStops) {
                 return false;
             }
-        } while ($this->driver()->nextResult());
+        } while ($this->engine()->nextResult());
 
         return true;
     }
@@ -242,7 +260,7 @@ class CommandProxy extends AbstractProxy
         $commands = 0;
         $errors = 0;
         $queryDto = new QueryDto($queries, $limit, $errorStops, $onlyErrors);
-        while ($this->grammar()->parseQueries($queryDto)) {
+        while ($this->statement()->parseQueries($queryDto)) {
             $commands++;
             if (!$this->executeCommand($queryDto)) {
                 $errors++;

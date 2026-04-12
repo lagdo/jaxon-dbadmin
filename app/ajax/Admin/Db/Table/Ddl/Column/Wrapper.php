@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Ddl\Column;
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Component;
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 
 use function array_map;
 

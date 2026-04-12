@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\UiData;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
 
 use function compact;
 use function preg_replace;
@@ -32,7 +32,7 @@ class TableExport extends AbstractProxy
     public function getSelectDataValues(): array
     {
         //! use insertOrUpdate() in all drivers
-        return !$this->driver()->sql() ? ['', 'TRUNCATE+INSERT', 'INSERT'] :
+        return !$this->engine()->sql() ? ['', 'TRUNCATE+INSERT', 'INSERT'] :
             ['', 'TRUNCATE+INSERT', 'INSERT', 'INSERT+UPDATE'];
     }
 
@@ -93,14 +93,14 @@ class TableExport extends AbstractProxy
                 'value' => $row['data_style'],
             ],
         ];
-        if ($this->driver()->support('trigger')) {
+        if ($this->engine()->support('trigger')) {
             $options['triggers'] = [
                 'label' => $this->utils()->lang('Triggers'),
                 'value' => 1,
                 'checked' => $row['triggers'],
             ];
         }
-        if ($this->driver()->sqlite()) {
+        if ($this->engine()->sqlite()) {
             return $options;
         }
 
@@ -109,21 +109,21 @@ class TableExport extends AbstractProxy
             'options' => $this->getSelectDatabaseValues(),
             'value' => $row['db_style'],
         ];
-        if ($this->driver()->support('type')) {
+        if ($this->engine()->support('type')) {
             $options['types'] = [
                 'label' => $this->utils()->lang('Types'),
                 'value' => 1,
                 'checked' => $row['types'],
             ];
         }
-        if ($this->driver()->support('routine')) {
+        if ($this->engine()->support('routine')) {
             $options['routines'] = [
                 'label' => $this->utils()->lang('Routines'),
                 'value' => 1,
                 'checked' => $row['routines'],
             ];
         }
-        if ($this->driver()->support('event')) {
+        if ($this->engine()->support('event')) {
             $options['events'] = [
                 'label' => $this->utils()->lang('Events'),
                 'value' => 1,
@@ -142,7 +142,7 @@ class TableExport extends AbstractProxy
             'headers' => [$this->utils()->lang('Tables'), $this->utils()->lang('Data')],
             'details' => [],
         ];
-        $tables_list = $this->driver()->tables();
+        $tables_list = $this->engine()->tables();
         foreach ($tables_list as $name => $type) {
             $prefix = preg_replace('~_.*~', '', $name);
             //! % may be part of table name
@@ -163,9 +163,9 @@ class TableExport extends AbstractProxy
             'headers' => [$this->utils()->lang('Database'), $this->utils()->lang('Data')],
             'details' => [],
         ];
-        $databases_list = $this->driver()->databases(false) ?? [];
+        $databases_list = $this->engine()->databases(false) ?? [];
         foreach ($databases_list as $name) {
-            if (!$this->driver()->isInformationSchema($name)) {
+            if (!$this->engine()->isInformationSchema($name)) {
                 $prefix = preg_replace('~_.*~', '', $name);
                 // $results['prefixes'][$prefix]++;
 

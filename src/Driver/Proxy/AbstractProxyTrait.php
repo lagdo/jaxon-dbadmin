@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver;
+namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Db\Service\Breadcrumbs;

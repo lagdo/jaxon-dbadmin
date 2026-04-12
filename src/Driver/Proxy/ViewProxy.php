@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Exception;
 
 use function compact;
@@ -20,14 +19,6 @@ class ViewProxy extends AbstractProxy
     protected $viewStatus = null;
 
     /**
-     * @param AbstractProxy $proxy
-     */
-    public function __construct(AbstractProxy $proxy)
-    {
-        parent::__construct($proxy->driver(), $proxy->page(), $proxy->utils());
-    }
-
-    /**
      * Get the current table status
      *
      * @param string $table
@@ -37,7 +28,7 @@ class ViewProxy extends AbstractProxy
     protected function status(string $table)
     {
         if (!$this->viewStatus) {
-            $this->viewStatus = $this->driver()->tableStatusOrName($table, true);
+            $this->viewStatus = $this->engine()->tableStatusOrName($table, true);
         }
         return $this->viewStatus;
     }
@@ -65,7 +56,7 @@ class ViewProxy extends AbstractProxy
             // 'foreign-keys' => $this->utils()->lang('Foreign keys'),
             // 'triggers' => $this->utils()->lang('Triggers'),
         ];
-        if ($this->driver()->support('view_trigger')) {
+        if ($this->engine()->support('view_trigger')) {
             $tabs['triggers'] = $this->utils()->lang('Triggers');
         }
 
@@ -83,16 +74,16 @@ class ViewProxy extends AbstractProxy
     public function getViewFields(string $view): array
     {
         // From table.inc.php
-        $fields = $this->driver()->fields($view);
+        $fields = $this->engine()->fields($view);
         if (empty($fields)) {
-            throw new Exception($this->driver()->error());
+            throw new Exception($this->engine()->error());
         }
 
         $tabs = [
             'fields' => $this->utils()->lang('Columns'),
             // 'triggers' => $this->utils()->lang('Triggers'),
         ];
-        if ($this->driver()->support('view_trigger')) {
+        if ($this->engine()->support('view_trigger')) {
             $tabs['triggers'] = $this->utils()->lang('Triggers');
         }
 
@@ -101,7 +92,7 @@ class ViewProxy extends AbstractProxy
             $this->utils()->lang('Type'),
             $this->utils()->lang('Collation'),
         ];
-        $hasComment = $this->driver()->support('comment');
+        $hasComment = $this->engine()->support('comment');
         if ($hasComment) {
             $headers[] = $this->utils()->lang('Comment');
         }
@@ -143,7 +134,7 @@ class ViewProxy extends AbstractProxy
      */
     public function getViewTriggers(string $view): ?array
     {
-        if (!$this->driver()->support('view_trigger')) {
+        if (!$this->engine()->support('view_trigger')) {
             return null;
         }
 
@@ -156,7 +147,7 @@ class ViewProxy extends AbstractProxy
 
         $details = [];
         // From table.inc.php
-        $triggers = $this->driver()->triggers($view);
+        $triggers = $this->engine()->triggers($view);
         foreach ($triggers as $name => $trigger) {
             $details[] = [
                 $this->utils()->html($trigger->timing),
@@ -179,15 +170,15 @@ class ViewProxy extends AbstractProxy
      */
     public function getView(string $view): array
     {
-        $values = $this->driver()->view($view);
-        $error = $this->driver()->error();
+        $values = $this->engine()->view($view);
+        $error = $this->engine()->error();
         if (($error)) {
             throw new Exception($error);
         }
 
         return [
             'view' => $values,
-            'materialized' => $this->driver()->support('materializedview'),
+            'materialized' => $this->engine()->support('materializedview'),
         ];
     }
 
@@ -201,9 +192,9 @@ class ViewProxy extends AbstractProxy
      */
     public function createView(array $values): array
     {
-        $success = $this->driver()->createView($values);
+        $success = $this->engine()->createView($values);
         $message = $this->utils()->lang('View has been created.');
-        $error = $this->driver()->error();
+        $error = $this->engine()->error();
 
         return compact('success', 'message', 'error');
     }
@@ -219,9 +210,9 @@ class ViewProxy extends AbstractProxy
      */
     public function updateView(string $view, array $values): array
     {
-        $result = $this->driver()->updateView($view, $values);
+        $result = $this->engine()->updateView($view, $values);
         $message = $this->utils()->lang("View has been $result.");
-        $error = $this->driver()->error();
+        $error = $this->engine()->error();
         $success = !$error;
 
         return compact('success', 'message', 'error');
@@ -237,15 +228,15 @@ class ViewProxy extends AbstractProxy
      */
     public function dropView(string $view): array
     {
-        if ($this->driver()->tableStatus($view) === null) {
+        if ($this->engine()->tableStatus($view) === null) {
             return [
                 'error' => $this->utils()->lang('Invalid view %s.', $view),
             ];
         }
 
-        if (!$this->driver()->dropView($view)) {
+        if (!$this->engine()->dropView($view)) {
             return [
-                'error' => $this->driver()->error(),
+                'error' => $this->engine()->error(),
             ];
         }
 

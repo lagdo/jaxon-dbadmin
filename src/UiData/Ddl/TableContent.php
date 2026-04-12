@@ -2,12 +2,12 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
-use Lagdo\DbAdmin\Support\Dto\ForeignKeyDto;
-use Lagdo\DbAdmin\Support\Dto\IndexDto;
-use Lagdo\DbAdmin\Support\Dto\TableDto;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
-use Lagdo\DbAdmin\Support\Dto\TriggerDto;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\IndexDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TriggerDto;
 
 use function array_key_exists;
 use function array_map;
@@ -26,8 +26,8 @@ class TableContent extends AbstractProxy
      */
     public function fields(array $fields, string $tableCollation): array
     {
-        $commentSupported = $this->driver()->support('comment');
-        $userTypes = $this->driver()->structuredTypes()[$this->utils()->lang('User types')] ?? [];
+        $commentSupported = $this->engine()->support('comment');
+        $userTypes = $this->engine()->structuredTypes()[$this->utils()->lang('User types')] ?? [];
 
         $contents = [];
         foreach ($fields as $field) {
@@ -158,7 +158,7 @@ class TableContent extends AbstractProxy
             // $type = $field->type;
             $field->lengthRequired = true; // !$field->length && preg_match('~var(char|binary)$~', $type);
             $field->collationHidden = false; // !preg_match('~(char|text|enum|set)$~', $type);
-            $field->unsignedHidden = false; // $type && !preg_match($this->driver()->numberRegex(), $type);
+            $field->unsignedHidden = false; // $type && !preg_match($this->engine()->numberRegex(), $type);
             $field->onUpdateHidden = false; // !preg_match('~timestamp|datetime~', $type);
             $field->onDeleteHidden = false; // !preg_match('~`~', $type);
 
@@ -172,19 +172,19 @@ class TableContent extends AbstractProxy
             'options' => [
                 'hasAutoIncrement' => $hasAutoIncrement,
                 'onUpdate' => ['CURRENT_TIMESTAMP' => 'CURRENT_TIMESTAMP'],
-                'onDelete' => $this->driver()->onActions(),
+                'onDelete' => $this->engine()->onActions(),
             ],
-            'collations' => $this->driver()->collations(),
-            'engines' => $this->driver()->engines(),
-            'defaults' => $this->driver()->fieldDefaults(),
+            'collations' => $this->engine()->collations(),
+            'engines' => $this->engine()->engines(),
+            'defaults' => $this->engine()->fieldDefaults(),
             'support' => [
-                'columns' => $this->driver()->support('columns'),
-                'comment' => $this->driver()->support('comment'),
-                'partitioning' => $this->driver()->support('partitioning'),
-                'move_col' => $this->driver()->support('move_col'),
-                'drop_col' => $this->driver()->support('drop_col'),
+                'columns' => $this->engine()->support('columns'),
+                'comment' => $this->engine()->support('comment'),
+                'partitioning' => $this->engine()->support('partitioning'),
+                'move_col' => $this->engine()->support('move_col'),
+                'drop_col' => $this->engine()->support('drop_col'),
             ],
-            'unsigned' => $this->driver()->unsigned(),
+            'unsigned' => $this->engine()->unsigned(),
         ];
     }
 }

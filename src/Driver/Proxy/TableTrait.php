@@ -2,9 +2,8 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxyTrait;
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 use Exception;
 
 /**

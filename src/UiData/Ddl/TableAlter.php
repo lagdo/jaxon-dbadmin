@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
-use Lagdo\DbAdmin\Support\Dto\ForeignKeyDto;
-use Lagdo\DbAdmin\Support\Dto\TableAlterDto;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
 
 use function array_filter;
 use function count;
@@ -52,7 +52,7 @@ class TableAlter extends AbstractProxy
             //! can collide with user defined type
             $typeField = $foreignKey !== null ? $referencableFields[$foreignKey] : $inputField;
 
-            $input = $this->grammar()->getFieldClauses($inputField, $typeField);
+            $input = $this->statement()->getFieldClauses($inputField, $typeField);
             // $input->after = $after;
 
             if ($foreignKey !== null) {
@@ -66,7 +66,7 @@ class TableAlter extends AbstractProxy
 
             $column->added() ? $table->addedColumns[] = $input :
                 $table->changedColumns[$column->name] = $input;
-            // $after = " AFTER " . $this->grammar()->escapeId($inputField->name);
+            // $after = " AFTER " . $this->statement()->escapeId($inputField->name);
         }
 
         return $table;

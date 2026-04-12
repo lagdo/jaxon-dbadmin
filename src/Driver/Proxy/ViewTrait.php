@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxyTrait;
 use Exception;
 
 /**

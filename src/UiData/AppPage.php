@@ -2,11 +2,9 @@
 
 namespace Lagdo\DbAdmin\Db\UiData;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
-use Lagdo\DbAdmin\Support\DriverInterface;
-use Lagdo\DbAdmin\Support\Dto\TableDto;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
-use Lagdo\DbAdmin\Support\Utils\Utils;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 
 use function file_get_contents;
 use function function_exists;
@@ -20,17 +18,6 @@ use function substr;
 
 class AppPage extends AbstractProxy
 {
-    /**
-     * The constructor
-     *
-     * @param DriverInterface $driver
-     * @param Utils $utils
-     */
-    public function __construct(public DriverInterface $driver, protected Utils $utils)
-    {
-        parent::__construct($driver, $this, $utils);
-    }
-
     /**
      * Name in title and navigation
      *
@@ -58,7 +45,7 @@ class AppPage extends AbstractProxy
      */
     public function error(): string
     {
-        return $this->utils()->html($this->driver()->error());
+        return $this->utils()->html($this->engine()->error());
     }
 
     /**
@@ -245,8 +232,8 @@ class AppPage extends AbstractProxy
     private function getInputFieldExpression(TableFieldDto $field,
         string $value, string $function): string
     {
-        $fieldName = $this->driver()->grammar()->escapeId($field->name);
-        $expression = $this->driver()->quote($value);
+        $fieldName = $this->statement()->escapeId($field->name);
+        $expression = $this->engine()->quote($value);
 
         if (preg_match('~^(now|getdate|uuid)$~', $function)) {
             return "$function()";
@@ -260,7 +247,7 @@ class AppPage extends AbstractProxy
         if (preg_match('~^[+-] interval$~', $function)) {
             return "$fieldName $function " .
                 (preg_match("~^(\\d+|'[0-9.: -]') [A-Z_]+\$~i", $value) &&
-                    !$this->driver()->pgsql() ? $value : $expression);
+                    !$this->engine()->pgsql() ? $value : $expression);
         }
         if (preg_match('~^(addtime|subtime|concat)$~', $function)) {
             return "$function($fieldName, $expression)";
@@ -286,7 +273,7 @@ class AppPage extends AbstractProxy
         }
 
         $expression = $this->getInputFieldExpression($field, $value, $function);
-        return $this->grammar()->unconvertField($field, $expression);
+        return $this->statement()->unconvertField($field, $expression);
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db;
 
-use Lagdo\DbAdmin\Support\Utils\TranslatorInterface;
+use Lagdo\DbAdmin\Driver\Utils\TranslatorInterface;
 
 use function func_get_args;
 use function array_shift;

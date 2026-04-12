@@ -2,12 +2,11 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\UiData\Dml\DataFieldInput;
 use Lagdo\DbAdmin\Db\UiData\Dml\DataFieldValue;
 use Lagdo\DbAdmin\Db\UiData\Dml\DataRowReader;
 use Lagdo\DbAdmin\Db\UiData\Dml\DataRowWriter;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 
 use function count;
 
@@ -31,23 +30,15 @@ class QueryProxy extends AbstractProxy
     private string $operation;
 
     /**
-     * @param AbstractProxy $proxy
-     */
-    public function __construct(AbstractProxy $proxy)
-    {
-        parent::__construct($proxy->driver(), $proxy->page(), $proxy->utils());
-    }
-
-    /**
      * @return DataRowWriter
      */
     private function writer(): DataRowWriter
     {
-        $fieldValue = (new DataFieldValue($this->driver(), $this->page(), $this->utils()))
+        $fieldValue = (new DataFieldValue($this->helper()))
             ->init($this->action, $this->operation);
-        $fieldInput = (new DataFieldInput($this->driver(), $this->page(), $this->utils()))
+        $fieldInput = (new DataFieldInput($this->helper()))
             ->init($this->action, $this->operation);
-        return (new DataRowWriter($this->driver(), $this->page(), $this->utils()))
+        return (new DataRowWriter($this->helper()))
             ->init($this->action, $this->operation, $fieldValue, $fieldInput);
     }
 
@@ -56,7 +47,7 @@ class QueryProxy extends AbstractProxy
      */
     private function reader(): DataRowReader
     {
-        return new DataRowReader($this->driver(), $this->page(), $this->utils());
+        return new DataRowReader($this->helper());
     }
 
     /**
@@ -70,10 +61,10 @@ class QueryProxy extends AbstractProxy
     private function getFields(string $table, array $options): array
     {
         // From edit.inc.php
-        $fields = $this->driver()->fields($table);
+        $fields = $this->engine()->fields($table);
         // Important: get the where clauses before filtering the fields.
         $where = $this->operation === 'insert' ? [] :
-            $this->driver()->where($options, $fields);
+            $this->engine()->where($options, $fields);
         // Remove fields without the required privilege, or that cannot be edited.
         $fields = array_filter($fields, fn(TableFieldDto $field) =>
             isset($field->privileges[$this->operation]) &&
@@ -115,7 +106,7 @@ class QueryProxy extends AbstractProxy
      */
     private function getRowSelectClauses(array $fields): array
     {
-        // if (!$this->driver()->support("table")) {
+        // if (!$this->engine()->support("table")) {
         //     return ["*"];
         // }
 
@@ -124,8 +115,8 @@ class QueryProxy extends AbstractProxy
         foreach ($fields as $name => $field) {
             if (isset($field->privileges["select"])) {
                 $as = $this->action === 'clone' && $field->autoIncrement ? "''" :
-                    $this->grammar()->convertField($field);
-                $select[] = ($as ? "$as AS " : "") . $this->grammar()->escapeId($name);
+                    $this->statement()->convertField($field);
+                $select[] = ($as ? "$as AS " : "") . $this->statement()->escapeId($name);
             }
         }
         return $select;
@@ -160,11 +151,11 @@ class QueryProxy extends AbstractProxy
             ]; // No data
         }
 
-        $statement = $this->driver()->select($table, $select, [$where],
+        $statement = $this->engine()->select($table, $select, [$where],
             $select, [], $this->action === 'select' ? 2 : 1);
         if (!$statement) {
             return [
-                'error' => $this->driver()->error(),
+                'error' => $this->engine()->error(),
             ]; // Error
         }
 
@@ -199,7 +190,7 @@ class QueryProxy extends AbstractProxy
         [$fields,] = $this->getFields($table, $options);
         $values = $this->reader()->getInputValues($fields, $values);
 
-        $query = $this->grammar()->getRowInsertQuery($table, $values);
+        $query = $this->statement()->getRowInsertQuery($table, $values);
         return $query !== '' ? ['query' => $query] : [
             'error' => $this->utils()->lang('Unable to build the SQL code for this insert query.'),
         ];
@@ -222,13 +213,13 @@ class QueryProxy extends AbstractProxy
         [$fields,] = $this->getFields($table, $options);
         $values = $this->reader()->getInputValues($fields, $values);
 
-        if (!$this->driver()->insert($table, $values)) {
+        if (!$this->engine()->insert($table, $values)) {
             return [
-                'error' => $this->driver()->error(),
+                'error' => $this->engine()->error(),
             ];
         }
 
-        $lastId = $this->driver()->lastAutoIncrementId();
+        $lastId = $this->engine()->lastAutoIncrementId();
         return [
             'message' => $this->utils()->lang('Item%s has been inserted.',
                 $lastId ? " $lastId" : ''),
@@ -244,7 +235,7 @@ class QueryProxy extends AbstractProxy
     private function getQueryLimit(string $table, array $options): int
     {
         // From edit.inc.php
-        $indexes = $this->driver()->indexes($table);
+        $indexes = $this->engine()->indexes($table);
         $uniqueIds = $this->utils()->uniqueIds($options['where'], $indexes);
         return count($uniqueIds ?? []) === 0 ? 1 : 0; // Limit to 1 if no unique ids are found.
     }
@@ -267,7 +258,7 @@ class QueryProxy extends AbstractProxy
         $values = $this->reader()->getInputValues($fields, $values);
         $limit = $this->getQueryLimit($table, $options);
 
-        $query = $this->grammar()->getRowUpdateQuery($table, $values, "\nWHERE $where", $limit);
+        $query = $this->statement()->getRowUpdateQuery($table, $values, "\nWHERE $where", $limit);
         return $query !== '' ? ['query' => $query] : [
             'error' => $this->utils()->lang('Unable to build the SQL code for this insert query.'),
         ];
@@ -291,15 +282,15 @@ class QueryProxy extends AbstractProxy
         $values = $this->reader()->getInputValues($fields, $values);
         $limit = $this->getQueryLimit($table, $options);
 
-        if (!$this->driver()->update($table, $values, "\nWHERE $where", $limit)) {
+        if (!$this->engine()->update($table, $values, "\nWHERE $where", $limit)) {
             return [
-                'error' => $this->driver()->error(),
+                'error' => $this->engine()->error(),
             ];
         }
 
         // Get the modified data
         // Todo: check if the values in the where clause are changed.
-        $statement = $this->driver()->select($table, array_keys($values), [$where]);
+        $statement = $this->engine()->select($table, array_keys($values), [$where]);
         $result = !$statement ? null : $statement->fetchAssoc();
         if (!$result) {
             return [
@@ -329,7 +320,7 @@ class QueryProxy extends AbstractProxy
         [, $where] = $this->getFields($table, $options);
         $limit = $this->getQueryLimit($table, $options);
 
-        $query = $this->grammar()->getRowDeleteQuery($table, "\nWHERE $where", $limit);
+        $query = $this->statement()->getRowDeleteQuery($table, "\nWHERE $where", $limit);
         return $query !== '' ? ['query' => $query] : [
             'error' => $this->utils()->lang('Unable to build the SQL code for this insert query.'),
         ];
@@ -351,9 +342,9 @@ class QueryProxy extends AbstractProxy
         [, $where] = $this->getFields($table, $options);
         $limit = $this->getQueryLimit($table, $options);
 
-        if (!$this->driver()->delete($table, "\nWHERE $where", $limit)) {
+        if (!$this->engine()->delete($table, "\nWHERE $where", $limit)) {
             return [
-                'error' => $this->driver()->error(),
+                'error' => $this->engine()->error(),
             ];
         }
 

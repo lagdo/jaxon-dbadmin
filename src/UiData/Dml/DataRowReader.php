@@ -2,12 +2,9 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
-use Lagdo\DbAdmin\Db\UiData\AppPage;
-use Lagdo\DbAdmin\Support\DriverInterface;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
-use Lagdo\DbAdmin\Support\Dto\UserTypeDto;
-use Lagdo\DbAdmin\Support\Utils\Utils;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\UserTypeDto;
 
 use function count;
 use function implode;
@@ -34,7 +31,7 @@ class DataRowReader extends AbstractProxy
      */
     public function userType(TableFieldDto $field): UserTypeDto|null
     {
-        $this->userTypes ??= $this->driver()->userTypes(true);
+        $this->userTypes ??= $this->engine()->userTypes(true);
         return $this->userTypes[$field->type] ?? null;
     }
 
@@ -53,7 +50,7 @@ class DataRowReader extends AbstractProxy
             return false;
         }
 
-        $fieldId = $this->grammar()->bracketEscape($field->name);
+        $fieldId = $this->statement()->bracketEscape($field->name);
         $userType = $this->userType($field);
         $enumValues = $userType?->enums ?? [];
         if ($field->type === "enum" || count($enumValues) > 0) {
@@ -81,7 +78,7 @@ class DataRowReader extends AbstractProxy
         $function = $values['field_functions'][$fieldId] ?? '';
         if ($function === 'orig') {
             return preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate) ?
-                $this->grammar()->escapeId($field->name) : false;
+                $this->statement()->escapeId($field->name) : false;
         }
 
         if ($function === 'NULL') {
@@ -102,7 +99,7 @@ class DataRowReader extends AbstractProxy
         if ($this->utils()->isBlob($field) && $this->utils()->iniBool('file_uploads')) {
             $file = $this->page()->getFileContents("fields-$fieldId");
             //! report errors
-            return is_string($file) ? $this->driver()->quoteBinary($file) : false;
+            return is_string($file) ? $this->engine()->quoteBinary($file) : false;
         }
 
         return $this->page()->getUnconvertedFieldValue($field, $value, $function);
@@ -121,7 +118,7 @@ class DataRowReader extends AbstractProxy
         foreach ($fields as $name => $field) {
             $value = $this->getInputValue($field, $inputs);
             if ($value !== false && $value !== null) {
-                $values[$this->grammar()->escapeId($name)] = $value;
+                $values[$this->statement()->escapeId($name)] = $value;
             }
         }
 

@@ -2,12 +2,11 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dql;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 
 use function array_map;
 use function current;
-use function in_array;
 use function is_string;
 use function key;
 use function md5;
@@ -62,8 +61,8 @@ class SelectResult extends AbstractProxy
             $selectDto->names[$column] = $name;
             // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($column);
             // $desc = "&desc%5B0%5D=1";
-            $header['column'] = $this->grammar()->escapeId($column);
-            // $header['key'] = $this->utils()->html($this->grammar()->bracketEscape($column));
+            $header['column'] = $this->statement()->escapeId($column);
+            // $header['key'] = $this->utils()->html($this->statement()->bracketEscape($column));
             //! columns looking like functions
             $header['title'] = $this->page()->applySqlFunction($fun, $name);
         }
@@ -151,7 +150,7 @@ class SelectResult extends AbstractProxy
      */
     private function shouldEncodeRowId(string $type, $value): bool
     {
-        return ($this->driver()->sql() || $this->driver()->pgsql()) &&
+        return ($this->engine()->sql() || $this->engine()->pgsql()) &&
             is_string($value) && strlen($value) > 64 &&
             preg_match('~char|text|enum|set~', $type);
     }
@@ -164,8 +163,8 @@ class SelectResult extends AbstractProxy
      */
     private function getRowIdMd5Key(string $column, string $collation): string
     {
-        return !$this->driver()->sql() || preg_match("~^utf8~", $collation) ?
-            $column : "CONVERT($column USING " . $this->driver()->charset() . ")";
+        return !$this->engine()->sql() || preg_match("~^utf8~", $collation) ?
+            $column : "CONVERT($column USING " . $this->engine()->charset() . ")";
     }
 
     /**
@@ -186,12 +185,12 @@ class SelectResult extends AbstractProxy
         if ($this->shouldEncodeRowId($type, $value)) {
             if (!strpos($column, '(')) {
                 //! columns looking like functions
-                $column = $this->grammar()->escapeId($column);
+                $column = $this->statement()->escapeId($column);
             }
             // Set the value to an array to indicate that a function is applied to the column.
             $expr = "MD5(" . $this->getRowIdMd5Key($column, $collation) . ")";
             $value = [
-                'expr' => $this->grammar()->bracketEscape($expr),
+                'expr' => $this->statement()->bracketEscape($expr),
                 'value' => md5($value),
             ];
         }
@@ -213,7 +212,7 @@ class SelectResult extends AbstractProxy
         foreach ($uniqueIds as $column => $value) {
             $column = trim($column);
             $value = $this->getRowIdValue($selectDto, $column, $value);
-            $column = $this->grammar()->bracketEscape($column);
+            $column = $this->statement()->bracketEscape($column);
 
             // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" .
             // $column . "]") . "=" .
@@ -238,7 +237,7 @@ class SelectResult extends AbstractProxy
     {
         $field = $selectDto->fields[$column] ?? new TableFieldDto();
         $textLength = $selectDto->textLength;
-        $value = $this->driver()->value($value, $field);
+        $value = $this->engine()->value($value, $field);
         return $this->page()->getFieldValue($field, $textLength, $value);
     }
 

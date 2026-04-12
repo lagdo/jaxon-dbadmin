@@ -2,8 +2,8 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 
 /**
  * Reads data from the database for the row insert and update user forms.
@@ -66,7 +66,7 @@ class DataRowWriter extends AbstractProxy
         $formatted = [];
         foreach ($result as $fieldName => $value) {
             $field = $fields[$fieldName];
-            $value = $this->driver()->value($value, $field);
+            $value = $this->engine()->value($value, $field);
             $formatted[] = $this->page()->getFieldValue($field, $textLength, $value);
         }
         return $formatted;

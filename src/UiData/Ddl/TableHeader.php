@@ -2,8 +2,8 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Ddl;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
-use Lagdo\DbAdmin\Support\Dto\TableDto;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 
 class TableHeader extends AbstractProxy
 {
@@ -17,20 +17,20 @@ class TableHeader extends AbstractProxy
         $tabs = [
             'fields' => $this->utils()->lang('Columns'),
         ];
-        if ($this->driver()->isView($status)) {
-            if ($this->driver()->support('view_trigger')) {
+        if ($this->engine()->isView($status)) {
+            if ($this->engine()->support('view_trigger')) {
                 $tabs['triggers'] = $this->utils()->lang('Triggers');
             }
             return $tabs;
         }
 
-        if ($this->driver()->support('indexes')) {
+        if ($this->engine()->support('indexes')) {
             $tabs['indexes'] = $this->utils()->lang('Indexes');
         }
-        if ($this->driver()->supportForeignKeys($status)) {
+        if ($this->engine()->supportForeignKeys($status)) {
             $tabs['foreign-keys'] = $this->utils()->lang('Foreign keys');
         }
-        if ($this->driver()->support('trigger')) {
+        if ($this->engine()->support('trigger')) {
             $tabs['triggers'] = $this->utils()->lang('Triggers');
         }
         return $tabs;
@@ -64,7 +64,7 @@ class TableHeader extends AbstractProxy
             $this->utils()->lang('Type'),
             $this->utils()->lang('Collation'),
         ];
-        if ($this->driver()->support('comment')) {
+        if ($this->engine()->support('comment')) {
             $headers[] = $this->utils()->lang('Comment');
         }
 

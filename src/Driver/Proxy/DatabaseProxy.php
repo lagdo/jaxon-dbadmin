@@ -2,8 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 
 use function array_filter;
 use function array_map;
@@ -31,18 +30,17 @@ class DatabaseProxy extends AbstractProxy
     protected $userSchemas = null;
 
     /**
-     * The constructor
-     *
-     * @param AbstractProxy $dbProxy
      * @param array $options    The server config options
+     *
+     * @return static
      */
-    public function __construct(AbstractProxy $dbProxy, array $options)
+    public function setOptions(array $options): static
     {
-        parent::__construct($dbProxy->driver(), $dbProxy->page(), $dbProxy->utils());
         // Set the user schemas, if defined.
         if (is_array(($userSchemas = $options['access']['schemas'] ?? null))) {
             $this->userSchemas = $userSchemas;
         }
+        return $this;
     }
 
     /**
@@ -56,14 +54,14 @@ class DatabaseProxy extends AbstractProxy
     {
         // Get the schema lists
         if ($this->finalSchemas === null) {
-            $this->finalSchemas = $this->driver()->schemas();
+            $this->finalSchemas = $this->engine()->schemas();
             if ($this->userSchemas !== null) {
                 // Only keep schemas that appear in the config.
                 $this->finalSchemas = array_values(array_intersect($this->finalSchemas, $this->userSchemas));
             }
         }
         return $schemaAccess ? $this->finalSchemas : array_filter($this->finalSchemas,
-            fn($schema) => !$this->driver()->isSystemSchema($schema));
+            fn($schema) => !$this->engine()->isSystemSchema($schema));
     }
 
     /**
@@ -77,11 +75,11 @@ class DatabaseProxy extends AbstractProxy
     {
         // From db.inc.php
         $schemas = null;
-        if ($this->driver()->support("scheme")) {
+        if ($this->engine()->support("scheme")) {
             $schemas = $this->schemas($schemaAccess);
         }
 
-        // $tables_list = $this->driver()->tables();
+        // $tables_list = $this->engine()->tables();
         // $tables = [];
         // foreach($tableStatus as $table)
         // {
@@ -111,12 +109,12 @@ class DatabaseProxy extends AbstractProxy
         ];
 
         // From db.inc.php
-        // $tableStatus = $this->driver()->tableStatuses(true); // Tables details
-        $tableStatus = $this->driver()->tableStatuses(); // Tables details
+        // $tableStatus = $this->engine()->tableStatuses(true); // Tables details
+        $tableStatus = $this->engine()->tableStatuses(); // Tables details
 
         $details = [];
         foreach ($tableStatus as $table => $status) {
-            if (!$this->driver()->isView($status)) {
+            if (!$this->engine()->isView($status)) {
                 $details[] = [
                     'name' => $this->page()->tableName($status),
                     'engine' => $status->engine,
@@ -149,12 +147,12 @@ class DatabaseProxy extends AbstractProxy
         ];
 
         // From db.inc.php
-        // $tableStatus = $this->driver()->tableStatuses(true); // Tables details
-        $tableStatus = $this->driver()->tableStatuses(); // Tables details
+        // $tableStatus = $this->engine()->tableStatuses(true); // Tables details
+        $tableStatus = $this->engine()->tableStatuses(); // Tables details
 
         $details = [];
         foreach ($tableStatus as $table => $status) {
-            if ($this->driver()->isView($status)) {
+            if ($this->engine()->isView($status)) {
                 $details[] = [
                     'name' => $this->page()->tableName($status),
                     'engine' => $status->engine,
@@ -180,7 +178,7 @@ class DatabaseProxy extends AbstractProxy
         ];
 
         // From db.inc.php
-        $routines = $this->driver()->routines();
+        $routines = $this->engine()->routines();
         $details = [];
         foreach ($routines as $routine) {
             // not computed on the pages to be able to print the header first
@@ -210,7 +208,7 @@ class DatabaseProxy extends AbstractProxy
         ];
 
         $details = [];
-        foreach ($this->driver()->sequences() as $sequence) {
+        foreach ($this->engine()->sequences() as $sequence) {
             $details[] = [
                 'name' => $this->utils()->html($sequence),
             ];
@@ -232,7 +230,7 @@ class DatabaseProxy extends AbstractProxy
 
         // From db.inc.php
         $details = [];
-        foreach ($this->driver()->userTypes(false) as $userType) {
+        foreach ($this->engine()->userTypes(false) as $userType) {
             $details[] = [
                 'name' => $this->utils()->html($userType->name),
             ];
@@ -257,7 +255,7 @@ class DatabaseProxy extends AbstractProxy
 
         // From db.inc.php
         $details = [];
-        foreach ($this->driver()->events() as $event) {
+        foreach ($this->engine()->events() as $event) {
             $detail = [
                 'name' => $this->utils()->html($event["Name"]),
             ];
@@ -287,8 +285,8 @@ class DatabaseProxy extends AbstractProxy
         $fieldCallback = fn(TableFieldDto $field) => ['name' => $field->name];
         $tables = array_map(fn(string $table) => [
             'name' => $table,
-            'columns' => array_values(array_map($fieldCallback, $this->driver()->fields($table))),
-        ], $this->driver()->tableNames());
+            'columns' => array_values(array_map($fieldCallback, $this->engine()->fields($table))),
+        ], $this->engine()->tableNames());
         return ['tables' => $tables];
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\Db\Service\Audit;
 
-use Lagdo\DbAdmin\Support\Db\Engine\Connection\AbstractConnection;
-use Lagdo\DbAdmin\Support\Db\Engine\Connection\StatementInterface;
-use Lagdo\DbAdmin\Support\DriverInterface;
+use Lagdo\DbAdmin\Driver\Sql\Specific\Connection\AbstractConnection;
+use Lagdo\DbAdmin\Driver\Sql\Specific\Connection\StatementInterface;
+use Lagdo\DbAdmin\Driver\EngineInterface;
 use Lagdo\Facades\Logger;
 
 /**
@@ -20,12 +20,12 @@ class ConnectionProxy
     /**
      * The constructor
      *
-     * @param DriverInterface $driver
+     * @param EngineInterface $engine
      * @param array $database
      */
-    public function __construct(private DriverInterface $driver, array $database)
+    public function __construct(private EngineInterface $engine, array $database)
     {
-        $connection = $driver->createConnection($database);
+        $connection = $engine->createConnection($database);
         if ($connection->open($database['name'], $database['schema'] ?? '')) {
             $this->connection = $connection;
         }
@@ -36,7 +36,7 @@ class ConnectionProxy
      */
     public function pgsql(): bool
     {
-        return $this->driver->pgsql();
+        return $this->engine->pgsql();
     }
 
     /**

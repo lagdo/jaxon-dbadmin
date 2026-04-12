@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Ajax\Base;
 use Jaxon\App\Component;
 use Jaxon\App\ComponentDataTrait;
 use Lagdo\DbAdmin\Db\Config\ServerConfig;
-use Lagdo\DbAdmin\Db\Driver\DbProxy;
+use Lagdo\DbAdmin\Db\Driver\DriverProxy;
 use Lagdo\DbAdmin\Db\Translator;
 use Lagdo\DbAdmin\Ui\MenuBuilder;
 
@@ -16,18 +16,18 @@ abstract class MenuComponent extends Component
 
     /**
      * @param MenuBuilder $ui
-     * @param DbProxy $db
+     * @param DriverProxy $db
      * @param Translator $trans
      * @param ServerConfig $config
      */
-    public function __construct(private MenuBuilder $ui, private DbProxy $db,
+    public function __construct(private MenuBuilder $ui, private DriverProxy $db,
         private Translator $trans, private ServerConfig $config)
     {}
 
     /**
-     * @return DbProxy
+     * @return DriverProxy
      */
-    protected function db(): DbProxy
+    protected function db(): DriverProxy
     {
         return $this->db;
     }

@@ -5,6 +5,7 @@ use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Db;
 use Lagdo\DbAdmin\Db\Config;
 use Lagdo\DbAdmin\Db\Service;
+use Lagdo\DbAdmin\Driver;
 
 $base = require __DIR__ . '/base.php';
 $container = require __DIR__ . '/container.php';
@@ -36,15 +37,13 @@ return [
             },
             // Connection to the audit database
             Service\Audit\ConnectionProxy::class => function(Container $di) {
-                /** @var Config\ServerConfig */
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getQueryDatabaseOptions();
-                $driver = Db\Driver\AppDriver::createDriver($di, $database);
-                return new Service\Audit\ConnectionProxy($driver, $database);
+                $driver = Driver\Driver::createDriver($di->g(Driver\Utils\Utils::class), $database);
+                return new Service\Audit\ConnectionProxy($driver->engine, $database);
             },
             // Query audit
             Service\Audit\QueryLogger::class => function(Container $di) {
-                /** @var Config\ServerConfig */
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getQueryDatabaseOptions();
                 if ($database === null) {

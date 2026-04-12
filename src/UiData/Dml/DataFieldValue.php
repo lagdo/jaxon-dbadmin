@@ -2,12 +2,9 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
-use Lagdo\DbAdmin\Db\UiData\AppPage;
-use Lagdo\DbAdmin\Support\Utils\Utils;
-use Lagdo\DbAdmin\Support\DriverInterface;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
-use Lagdo\DbAdmin\Support\Dto\UserTypeDto;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\UserTypeDto;
 
 use function bin2hex;
 use function implode;
@@ -62,7 +59,7 @@ class DataFieldValue extends AbstractProxy
      */
     public function userType(TableFieldDto $field): UserTypeDto|null
     {
-        $this->userTypes ??= $this->driver()->userTypes(true);
+        $this->userTypes ??= $this->engine()->userTypes(true);
         return $this->userTypes[$field->type] ?? null;
     }
 
@@ -98,15 +95,15 @@ class DataFieldValue extends AbstractProxy
         }
 
         $names = $field->nullable ? ['NULL', ''] : [''];
-        $functions = $this->driver()->insertFunctions();
+        $functions = $this->engine()->insertFunctions();
         $names = $this->addEditFunctions($names, $functions, $field);
 
-        $functions = $this->driver()->editFunctions();
+        $functions = $this->engine()->editFunctions();
         if (/*!isset($this->utils()->input->values['call']) &&*/ $this->isUpdate) { // relative functions
             $names = $this->addEditFunctions($names, $functions, $field);
         }
 
-        $structuredTypes = $this->driver()->structuredTypes();
+        $structuredTypes = $this->engine()->structuredTypes();
         $userTypes = $structuredTypes[$this->utils()->lang('User types')] ?? [];
         if ($functions && !preg_match('~set|bool~', $field->type) &&
             !$this->utils()->isBlob($field, $userTypes)) {
@@ -114,8 +111,8 @@ class DataFieldValue extends AbstractProxy
         }
 
         // $dbFunctions = [
-        //     'insert' => $this->driver()->insertFunctions(),
-        //     'edit' => $this->driver()->editFunctions(),
+        //     'insert' => $this->engine()->insertFunctions(),
+        //     'edit' => $this->engine()->editFunctions(),
         // ];
         // foreach ($dbFunctions as $key => $functions) {
         //     if ($key === 'insert' || (!$isCall && $this->isUpdate)) { // relative functions
@@ -142,13 +139,13 @@ class DataFieldValue extends AbstractProxy
     private function getInputValue(TableFieldDto $field, array|null $rowData): mixed
     {
         $update = $this->operation === 'update';
-        // $default = $options["set"][$this->grammar()->bracketEscape($name)] ?? null;
+        // $default = $options["set"][$this->statement()->bracketEscape($name)] ?? null;
         /*if ($default === null)*/ {
             $default = $field->default;
             if ($field->type == "bit" && preg_match("~^b'([01]*)'\$~", $default, $regs)) {
                 $default = $regs[1];
             }
-            if ($this->driver()->sql() && preg_match('~binary~', $field->type)) {
+            if ($this->engine()->sql() && preg_match('~binary~', $field->type)) {
                 $default = bin2hex($default); // same as UNHEX
             }
         }
@@ -163,7 +160,7 @@ class DataFieldValue extends AbstractProxy
 
         $fieldValue = $rowData[$field->name] ?? null;
         return match(true) {
-            $fieldValue !== '' && $this->driver()->sql() &&
+            $fieldValue !== '' && $this->engine()->sql() &&
                 preg_match("~enum|set~", $field->type) > 0 &&
                 is_array($fieldValue) => implode(",", $fieldValue),
             is_bool($fieldValue) => +$fieldValue,
@@ -225,7 +222,7 @@ class DataFieldValue extends AbstractProxy
         [$editField->value, $editField->function] = $this->getInputFunction($field, $value);
 
         // From html.inc.php: input(array $field, $value, ?string $function, ?bool $autofocus = false)
-        $editField->name = $this->utils()->html($this->grammar()->bracketEscape($field->name));
+        $editField->name = $this->utils()->html($this->statement()->bracketEscape($field->name));
         $editField->fullType = $this->utils()->html($field->fullType);
 
         if (is_array($editField->value) && !$editField->function) {
@@ -236,7 +233,7 @@ class DataFieldValue extends AbstractProxy
         }
 
         // Since mssql is not yet supported, $reset is always false.
-        // $reset = $this->driver()->mssql() && $field->autoIncrement;
+        // $reset = $this->engine()->mssql() && $field->autoIncrement;
         // if ($reset && $this->action !== 'save') {
         //     $editField->function = null;
         // }

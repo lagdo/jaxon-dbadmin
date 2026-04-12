@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Db\UiData\Dml;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
+use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
 
 use function count;
 use function explode;
@@ -225,7 +225,7 @@ class DataFieldInput extends AbstractProxy
      */
     private function textSizeIsFixed(FieldEditDto $editField): bool
     {
-        return ($editField->isText() && !$this->driver()->sqlite()) || $editField->isSearch();
+        return ($editField->isText() && !$this->engine()->sqlite()) || $editField->isSearch();
     }
 
     /**
@@ -263,7 +263,7 @@ class DataFieldInput extends AbstractProxy
         $unsigned = $editField->field->unsigned;
         $length = $editField->field->length;
         $type = $editField->type;
-        $types = $this->driver()->types();
+        $types = $this->engine()->types();
 
         $maxlength = (!preg_match('~int~', $type) &&
             preg_match('~^(\d+)(,(\d+))?$~', $length, $match) ?
@@ -273,8 +273,8 @@ class DataFieldInput extends AbstractProxy
             (isset($types[$type]) ? $types[$type] + ($unsigned ? 0 : 1) : 0)
         );
 
-        return $this->driver()->sql() &&
-            $this->driver()->minVersion(5.6) &&
+        return $this->engine()->sql() &&
+            $this->engine()->minVersion(5.6) &&
             preg_match('~time~', $type) ?
                 $maxlength += 7 : // microtime
                 $maxlength;

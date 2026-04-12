@@ -2,16 +2,15 @@
 
 namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\Driver\AbstractProxy;
 use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
 use Lagdo\DbAdmin\Db\UiData\Ddl\ForeignKeyTrait;
 use Lagdo\DbAdmin\Db\UiData\Ddl\TableAlter;
 use Lagdo\DbAdmin\Db\UiData\Ddl\TableContent;
 use Lagdo\DbAdmin\Db\UiData\Ddl\TableCreate;
 use Lagdo\DbAdmin\Db\UiData\Ddl\TableHeader;
-use Lagdo\DbAdmin\Support\Dto\TableAlterDto;
-use Lagdo\DbAdmin\Support\Dto\TableCreateDto;
-use Lagdo\DbAdmin\Support\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 use Exception;
 
 use function array_map;
@@ -54,19 +53,11 @@ class TableProxy extends AbstractProxy
     private TableAlter|null $tableAlter = null;
 
     /**
-     * @param AbstractProxy $proxy
-     */
-    public function __construct(AbstractProxy $proxy)
-    {
-        parent::__construct($proxy->driver(), $proxy->page(), $proxy->utils());
-    }
-
-    /**
      * @return TableHeader
      */
     private function header(): TableHeader
     {
-        return $this->tableHeader ??= new TableHeader($this->driver(), $this->page(), $this->utils());
+        return $this->tableHeader ??= new TableHeader($this->helper());
     }
 
     /**
@@ -74,7 +65,7 @@ class TableProxy extends AbstractProxy
      */
     private function content(): TableContent
     {
-        return $this->tableContent ??= new TableContent($this->driver(), $this->page(), $this->utils());
+        return $this->tableContent ??= new TableContent($this->helper());
     }
 
     /**
@@ -82,7 +73,7 @@ class TableProxy extends AbstractProxy
      */
     private function create(): TableCreate
     {
-        return $this->tableCreate ??= new TableCreate($this->driver(), $this->page(), $this->utils());
+        return $this->tableCreate ??= new TableCreate($this->helper());
     }
 
     /**
@@ -90,7 +81,7 @@ class TableProxy extends AbstractProxy
      */
     private function alter(): TableAlter
     {
-        return $this->tableAlter ??= new TableAlter($this->driver(), $this->page(), $this->utils());
+        return $this->tableAlter ??= new TableAlter($this->helper());
     }
 
     /**
@@ -104,12 +95,12 @@ class TableProxy extends AbstractProxy
     public function getFieldTypes(string $type = '', array $extraTypes = []): array
     {
         // From includes/editing.inc.php
-        if ($type !== '' && !$this->driver()->typeExists($type) &&
+        if ($type !== '' && !$this->engine()->typeExists($type) &&
             !isset($this->foreignKeys[$type]) && !in_array($type, $extraTypes)) {
             $extraTypes[] = $type;
         }
 
-        $structuredTypes = $this->driver()->structuredTypes();
+        $structuredTypes = $this->engine()->structuredTypes();
         if (!empty($this->foreignKeys)) {
             $structuredTypes[$this->utils()->lang('Foreign keys')] = $this->foreignKeys;
         }
@@ -128,7 +119,7 @@ class TableProxy extends AbstractProxy
      */
     protected function status(string $table)
     {
-        return $this->tableStatus ??= $this->driver()->tableStatusOrName($table, true);
+        return $this->tableStatus ??= $this->engine()->tableStatusOrName($table, true);
     }
 
     /**
@@ -157,9 +148,9 @@ class TableProxy extends AbstractProxy
     public function getTableFields(string $table): array
     {
         // From table.inc.php
-        $fields = $this->driver()->fields($table);
+        $fields = $this->engine()->fields($table);
         if (empty($fields)) {
-            throw new Exception($this->driver()->error());
+            throw new Exception($this->engine()->error());
         }
 
         $status = $this->status($table);
@@ -179,12 +170,12 @@ class TableProxy extends AbstractProxy
      */
     public function getTableIndexes(string $table): ?array
     {
-        if (!$this->driver()->support('indexes')) {
+        if (!$this->engine()->support('indexes')) {
             return null;
         }
 
         // From table.inc.php
-        $indexes = $this->driver()->indexes($table);
+        $indexes = $this->engine()->indexes($table);
 
         return [
             'headers' => $this->header()->indexes(),
@@ -202,11 +193,11 @@ class TableProxy extends AbstractProxy
     public function getTableForeignKeys(string $table): ?array
     {
         $status = $this->status($table);
-        if (!$this->driver()->supportForeignKeys($status)) {
+        if (!$this->engine()->supportForeignKeys($status)) {
             return null;
         }
 
-        $foreignKeys = $this->driver()->foreignKeys($table);
+        $foreignKeys = $this->engine()->foreignKeys($table);
 
         return [
             'headers' => $this->header()->foreignKeys(),
@@ -223,12 +214,12 @@ class TableProxy extends AbstractProxy
      */
     public function getTableTriggers(string $table): ?array
     {
-        if (!$this->driver()->support('trigger')) {
+        if (!$this->engine()->support('trigger')) {
             return null;
         }
 
         // From table.inc.php
-        $triggers = $this->driver()->triggers($table);
+        $triggers = $this->engine()->triggers($table);
 
         return [
             'headers' => $this->header()->triggers(),
@@ -250,11 +241,11 @@ class TableProxy extends AbstractProxy
         $status = null;
         $fields = [];
         if ($table !== '') {
-            $status = $this->driver()->tableStatus($table);
+            $status = $this->engine()->tableStatus($table);
             if (!$status) {
                 throw new Exception($this->utils()->lang('No tables.'));
             }
-            $fields = $this->driver()->fields($table);
+            $fields = $this->engine()->fields($table);
         }
 
         $this->getForeignKeys($table);
@@ -299,7 +290,7 @@ class TableProxy extends AbstractProxy
         }
 
         return [
-            'queries' => $this->grammar()->getCreateTableQueries($table),
+            'queries' => $this->statement()->getCreateTableQueries($table),
         ];
     }
 
@@ -330,7 +321,7 @@ class TableProxy extends AbstractProxy
     public function getAlterTableQueries(string $name, array $options, array $columns): array
     {
         $table = new TableAlterDto($options);
-        if (($table->current = $this->driver()->tableStatus($name, true)) === null) {
+        if (($table->current = $this->engine()->tableStatus($name, true)) === null) {
             return[
                 'error' => $this->utils()->lang('Unable to find the table.'),
             ];
@@ -344,7 +335,7 @@ class TableProxy extends AbstractProxy
         }
 
         return [
-            'queries' => $this->grammar()->getAlterTableQueries($table),
+            'queries' => $this->statement()->getAlterTableQueries($table),
         ];
     }
 
@@ -374,15 +365,15 @@ class TableProxy extends AbstractProxy
      */
     public function dropTable(string $table): array
     {
-        if ($this->driver()->tableStatus($table) === null) {
+        if ($this->engine()->tableStatus($table) === null) {
             return [
                 'error' => $this->utils()->lang('Invalid table %s.', $table),
             ];
         }
 
-        if (!$this->driver()->dropTables([$table])) {
+        if (!$this->engine()->dropTables([$table])) {
             return [
-                'error' => $this->driver()->error(),
+                'error' => $this->engine()->error(),
             ];
         }
 
