@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Ui\Select;
 
 use Lagdo\DbAdmin\Ajax\Admin\Db\Command\Query\FavoriteFunc;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Duration;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\GotoPage;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultSet;
@@ -13,6 +14,7 @@ use Lagdo\DbAdmin\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\cl;
+use function Jaxon\input;
 use function Jaxon\jo;
 use function Jaxon\rq;
 use function sprintf;
@@ -76,6 +78,34 @@ class SelectUiBuilder
     }
 
     /**
+     * @param int $page
+     *
+     * @return string
+     */
+    public function gotoPageForm(int $page): string
+    {
+        $pageInputId = TabApp::id('jaxon-dbadmin-resulset-goto-page');
+        return $this->ui->build(
+            $this->ui->form(
+                $this->ui->inputGroup(
+                    $this->ui->label(
+                        $this->ui->text($this->trans->lang('Page'))
+                    ),
+                    $this->ui->input()
+                        // ->setType('number')
+                        ->setId($pageInputId)
+                        ->setValue($page),
+                    $this->ui->button()
+                        ->outline()
+                        ->secondary()
+                        ->addIcon('ok')
+                        ->jxnClick(rq(ResultSet::class)->page(input($pageInputId)->toInt()))
+                )
+            )
+        );
+    }
+
+    /**
      * @param bool $canSaveQuery
      *
      * @return string
@@ -129,9 +159,16 @@ class SelectUiBuilder
                 $this->ui->col(
                     $this->ui->row(
                         $this->ui->col(
-                            $this->ui->nav()
-                                ->jxnPagination(cl(ResultSet::class))
-                                ->setId(TabApp::id('jaxon-dbadmin-resulset-pagination'))
+                            $this->ui->row(
+                                $this->ui->col()
+                                    ->width(3)
+                                    ->tbnBindApp(rq(GotoPage::class)),
+                                $this->ui->col(
+                                    $this->ui->nav()
+                                        ->jxnPagination(cl(ResultSet::class))
+                                        ->setId(TabApp::id('jaxon-dbadmin-resulset-pagination'))
+                                )->width(9),
+                            ),
                         )->width(10)
                             ->setStyle('overflow:hidden'),
                         $this->ui->col()

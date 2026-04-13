@@ -16,6 +16,11 @@ class ResultSet extends PageComponent
     use RowMenuTrait;
 
     /**
+     * @var int|null
+     */
+    private int|null $_count = null;
+
+    /**
      * The constructor
      *
      * @param ResultUiBuilder   $resultUi   The HTML UI builder
@@ -28,14 +33,16 @@ class ResultSet extends PageComponent
      */
     protected function count(): int
     {
+        // Save the count value in the $_count attribute.
+
         $options = $this->getOptions();
         if (!($options['total'] ?? true)) {
             // Do not query the total number of items.
-            return -1;
+            return $this->_count = -1;
         }
 
         $table = $this->getCurrentTable();
-        return $this->db()->countSelect($table, $options);
+        return $this->_count = $this->db()->countSelect($table, $options);
     }
 
     /**
@@ -100,5 +107,11 @@ class ResultSet extends PageComponent
     {
         $this->cl(QueryText::class)->refresh();
         $this->cl(Duration::class)->update($this->get('duration'));
+
+        $this->_count > 0 && $this->_count <= $this->limit() ?
+            $this->cl(GotoPage::class)->clear() :
+            $this->cl(GotoPage::class)->set('page', $this->currentPage())->render();
+        // Reset the count value.
+        $this->_count = null;
     }
 }
