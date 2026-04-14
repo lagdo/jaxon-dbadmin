@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Ajax\Admin;
 
-use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Databag;
 use Jaxon\Attributes\Attribute\Exclude;
 use Jaxon\Attributes\Attribute\Inject;
@@ -46,7 +45,6 @@ class Admin extends FuncComponent
      *
      * @return void
      */
-    #[After('showBreadcrumbs')]
     public function server(string $server): void
     {
         $this->connect($server);
@@ -59,6 +57,8 @@ class Admin extends FuncComponent
         $this->setBag('dbadmin.tab', 'editor.names.db', []);
         $this->setBag('dbadmin.tab', 'editor.saved.sv', true);
         $this->setBag('dbadmin.tab', 'editor.saved.db', true);
+
+        $this->showBreadcrumbs();
     }
 
     /**
@@ -156,7 +156,8 @@ class Admin extends FuncComponent
         for ($index = 0; $index < $count; $index++) {
             // Load the tabs contents with an ajax request.
             $this->response()->jo('jaxon.dbadmin')->onAppTabClick($names[$index]);
-            $this->response()->rq(Admin::class)->server($tabs[$index]['server']);
+            // This is a synchronous call to a function. See the dbadmin.php config file.
+            $this->response()->rq()->server($tabs[$index]['server']);
         }
     }
 }

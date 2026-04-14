@@ -22,25 +22,16 @@ return [
             'path' => __DIR__ . '/../app/ajax/Admin',
             'namespace' => 'Lagdo\\DbAdmin\\Ajax\\Admin',
             'autoload' => false,
-            // This method need to be synchronous, so the tabs are created in the correct order.
-            'classes' => [
-                Admin::class => [
-                    'functions' => [
-                        'server' => [
-                            'mode' => "'synchronous'",
-                        ],
-                    ],
-                ],
-            ],
         ],
     ],
-    // 'functions' => [
-    //     'server' => [
-    //         'class' => Admin::class,
-    //         'mode' => "'synchronous'",
-    //         'bags' => '["dbadmin","dbadmin.tab"]',
-    //     ],
-    // ],
+    'functions' => [
+        // We need synchronous calls to this function, so the tabs are created in the correct order.
+        'server' => [
+            'class' => Admin::class,
+            'mode' => "'synchronous'",
+            'bags' => '["dbadmin","dbadmin.tab"]',
+        ],
+    ],
     'container' => [
         ...$container,
         'set' => [
