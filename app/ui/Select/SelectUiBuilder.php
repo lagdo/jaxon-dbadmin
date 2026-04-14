@@ -85,6 +85,7 @@ class SelectUiBuilder
     public function gotoPageForm(int $page): string
     {
         $pageInputId = TabApp::id('jaxon-dbadmin-resulset-goto-page');
+        $pageNumber = input($pageInputId)->toInt();
         return $this->ui->build(
             $this->ui->form(
                 $this->ui->inputGroup(
@@ -99,7 +100,10 @@ class SelectUiBuilder
                         ->outline()
                         ->secondary()
                         ->addIcon('ok')
-                        ->jxnClick(rq(ResultSet::class)->page(input($pageInputId)->toInt()))
+                        ->jxnClick(rq(ResultSet::class)->page($pageNumber)
+                            // In Js, NaN is not equal to itself.
+                            ->ifteq($pageNumber, $pageNumber)
+                            ->elseWarning('Invalid page number {1}', input($pageInputId)))
                 )
             )
         );
