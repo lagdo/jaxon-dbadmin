@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\Db\Service\Audit;
 
-use Lagdo\DbAdmin\Driver\Sql\Specific\Connection\AbstractConnection;
-use Lagdo\DbAdmin\Driver\Sql\Specific\Connection\StatementInterface;
 use Lagdo\DbAdmin\Driver\EngineInterface;
+use Lagdo\DbAdmin\Driver\Sql\Connection\AbstractConnection;
+use Lagdo\DbAdmin\Driver\Sql\Connection\StatementInterface;
 use Lagdo\Facades\Logger;
 
 /**

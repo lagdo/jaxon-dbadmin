@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Db\Driver\Proxy;
 
 use Lagdo\DbAdmin\Db\UiData\DataDump;
 use Lagdo\DbAdmin\Db\UiData\TableExport;
-use Lagdo\DbAdmin\Driver\Sql\Specific\Connection\StatementInterface;
+use Lagdo\DbAdmin\Driver\Sql\Connection\StatementInterface;
 use Lagdo\DbAdmin\Driver\Sql\Dto\FieldType;
 use Lagdo\DbAdmin\Driver\Sql\Dto\RoutineDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\RoutineInfoDto;

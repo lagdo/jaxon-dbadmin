@@ -4,8 +4,8 @@ namespace Lagdo\DbAdmin\Db\Driver;
 
 use Lagdo\DbAdmin\Driver\AbstractEngine;
 use Lagdo\DbAdmin\Driver\AbstractStatement;
-use Lagdo\DbAdmin\Driver\Sql\Specific\Config\DriverConfig;
-use Lagdo\DbAdmin\Driver\Sql\Specific\Connection\StatementInterface;
+use Lagdo\DbAdmin\Driver\Sql\Config\DriverConfig;
+use Lagdo\DbAdmin\Driver\Sql\Connection\StatementInterface;
 use Lagdo\DbAdmin\Driver\Sql\Specific\Engine\AbstractDatabase;
 use Lagdo\DbAdmin\Driver\Sql\Specific\Engine\AbstractQuery;
 use Lagdo\DbAdmin\Driver\Sql\Specific\Engine\AbstractServer;
