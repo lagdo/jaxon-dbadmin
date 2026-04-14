@@ -14,9 +14,9 @@ use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Closure;
 
 /**
- * Add callbacks to the engine features.
+ * Add callbacks to the engine features, using the decorator pattern.
  */
-class Engine extends AbstractEngine
+class EngineDecorator extends AbstractEngine
 {
     /**
      * @var array

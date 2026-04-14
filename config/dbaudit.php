@@ -55,5 +55,10 @@ return [
                 return new Service\Audit\QueryLogger($proxy, $options);
             },
         ],
+        'alias' => [
+            ...$container['alias'],
+            // Selected database driver
+            Driver\Driver::class => 'dbadmin_server_driver',
+        ],
     ],
 ];

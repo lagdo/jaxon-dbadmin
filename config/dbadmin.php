@@ -4,7 +4,7 @@ use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Ajax\Admin\Admin;
 use Lagdo\DbAdmin\Db;
 use Lagdo\DbAdmin\Db\Config;
-use Lagdo\DbAdmin\Db\Driver\Engine;
+use Lagdo\DbAdmin\Db\Driver\EngineDecorator;
 use Lagdo\DbAdmin\Db\Service;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Ui;
@@ -36,6 +36,30 @@ return [
         ...$container,
         'set' => [
             ...$container['set'],
+            // The database driver used in the application
+            Driver\Driver::class => function(Container $di) {
+                /** @var Driver\Driver */
+                $driver = $di->g('dbadmin_server_driver');
+
+                // Create the Engine decorator, and define the callbacks. The original engine
+                // functions, which are called in the driver libraries, will not use the callbacks,
+                // while those redefined in the decorator, which are called in the application, will.
+                $engine = new EngineDecorator($driver->engine);
+                $timerCallback = function() use($di) {
+                    $timer = $di->g(Service\TimerService::class);
+                    $timer->stop();
+                };
+                $loggerCallback = function(string $query) use($di) {
+                    $logger = $di->g(Service\Admin\QueryLogger::class);
+                    if ($logger !== null) {
+                        $logger->saveCommand($query);
+                    }
+                };
+                $engine->addQueryCallback($timerCallback);
+                $engine->addQueryCallback($loggerCallback);
+
+                return new Driver\Driver($engine, $driver->statement);
+            },
             Config\ServerConfig::class => function(Container $di) {
                 $config = $di->getPackageConfig(Db\DbAdminPackage::class);
                 $reader = $di->get($config->getOption('config.reader',
@@ -68,7 +92,8 @@ return [
                 $auth = $di->g('dbadmin_auth_service');
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getQueryDatabaseOptions();
-                $driver = Driver\Driver::createDriver($di->g(Driver\Utils\Utils::class), $database);
+                $utils = $di->g(Driver\Utils\Utils::class);
+                $driver = Driver\Driver::createDriver($utils, $database);
                 return new Service\Admin\ConnectionProxy($auth, $driver->engine, $database);
             },
             // Query logger
@@ -118,27 +143,6 @@ return [
                 $builder->registerHelper('tbn', Builder::TARGET_COMPONENT,
                     Ui\TabApp::helper(...));
                 return $builder;
-            },
-            // The database driver used in the application
-            Driver\Driver::class => function(Driver\Driver $driver, Container $di) {
-                // This class will create a new Engine object, and define the callbacks.
-                // By doing this, the driver classes will still call the engine without the callbacks.
-                $engine = new Engine($driver->engine);
-                $timerCallback = function() use($di) {
-                    $timer = $di->g(Service\TimerService::class);
-                    $timer->stop();
-                };
-                $loggerCallback = function(string $query) use($di) {
-                    $logger = $di->g(Service\Admin\QueryLogger::class);
-                    if ($logger !== null) {
-                        $logger->saveCommand($query);
-                    }
-                };
-                $engine->addQueryCallback($timerCallback);
-                $engine->addQueryCallback($loggerCallback);
-                $driver->engine = $engine;
-
-                return $driver;
             },
         ],
     ],

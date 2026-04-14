@@ -12,6 +12,7 @@ use Lagdo\DbAdmin\Ui;
 // This setup needs to be applied after the config is loaded.
 jaxon()->callback()->boot(function() {
     $di = jaxon()->di();
+
     // Register a driver for each database server.
     $serverConfig = $di->g(Config\ServerConfig::class);
     foreach($serverConfig->getServerIds() as $server) {
@@ -20,24 +21,25 @@ jaxon()->callback()->boot(function() {
             $serverConfig->getServerConfig($server));
         // The driver itself
         $di->set("dbadmin_server_$server", function() use($di, $server) {
+            $utils = $di->g(Driver\Utils\Utils::class);
             $options = $di->g("dbadmin_server_options_$server");
-            return Driver\Driver::createDriver($di->g(Driver\Utils\Utils::class), $options);
+            return Driver\Driver::createDriver($utils, $options);
         });
     }
+    // Selected database driver options
+    $di->set('dbadmin_server_options', function(Container $di) {
+        $server = $di->g('dbadmin_config_server');
+        return $di->g("dbadmin_server_options_$server");
+    });
+    // Selected database driver
+    $di->set('dbadmin_server_driver', function(Container $di) {
+        $server = $di->g('dbadmin_config_server');
+        return $di->g("dbadmin_server_$server");
+    });
 });
 
 return [
     'set' => [
-        // Selected database driver options
-        'dbadmin_server_options' => function(Container $di) {
-            $server = $di->g('dbadmin_config_server');
-            return $di->g("dbadmin_server_options_$server");
-        },
-        // Selected database driver
-        Driver\Driver::class => function(Container $di) {
-            $server = $di->g('dbadmin_config_server');
-            return $di->g("dbadmin_server_$server");
-        },
         // The AppPage class
         Db\UiData\AppPage::class => fn(Container $di) =>
             new Db\UiData\AppPage($di->g(Db\Driver\DriverProxy::class)->helper()),
@@ -69,6 +71,8 @@ return [
             new Proxy\UserProxy($di->g(Db\Driver\DriverProxy::class)->helper()),
         Proxy\ViewProxy::class => fn(Container $di) =>
             new Proxy\ViewProxy($di->g(Db\Driver\DriverProxy::class)->helper()),
+
+        // Application authentication.
         'dbadmin_auth_service' => fn(Container $di) =>
             $di->has(Config\AuthInterface::class) ?
                 // Custom auth service defined.
