@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Options;
 
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\Duration;
+use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\GotoPage;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\Ajax\Admin\Db\Table\Dql\ResultSet;
 
@@ -26,6 +27,7 @@ class Values extends Component
     private function clearResults(): void
     {
         $this->cl(Duration::class)->clear();
+        $this->cl(GotoPage::class)->clear();
         $this->cl(ResultSet::class)->clear();
     }
 
@@ -45,6 +47,7 @@ class Values extends Component
 
         // Display the new query
         $this->cl(QueryText::class)->refresh();
+        $this->render();
         // Clear the result components
         $this->clearResults();
     }
@@ -63,6 +66,7 @@ class Values extends Component
         $options['total'] = $total;
         $this->setSelectBag('options', $options);
 
+        $this->render();
         // Clear the result components
         $this->clearResults();
     }
@@ -78,9 +82,11 @@ class Values extends Component
     {
         // Select options
         $options = $this->getSelectBag('options');
-        $options['length'] = $length;
+        // Fix the text length value.
+        $options['length'] = $length > 0 ? $length : 100;
         $this->setSelectBag('options', $options);
 
+        $this->render();
         // Clear the result components
         $this->clearResults();
     }

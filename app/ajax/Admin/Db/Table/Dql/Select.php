@@ -41,7 +41,7 @@ class Select extends MainComponent
         $this->setSelectBag('options', [
             'limit' => (int)($selectData->options['limit']['value'] ?? 0),
             'total' => (bool)($options['total'] ?? true), // Keep the same value.
-            'length' => (int)($selectData->options['length']['value'] ?? 100),
+            'length' => (int)($selectData->options['length']['value'] ?: 100),
         ]);
         $this->stash()->set('select.query', $selectData->query);
 
