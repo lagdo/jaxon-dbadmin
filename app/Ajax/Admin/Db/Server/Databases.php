@@ -30,7 +30,7 @@ class Databases extends MainComponent
     /**
      * @inheritDoc
      */
-    public function html(): string
+    protected function content(): string
     {
         // Add checkboxes to database table
         return $this->ui()->pageContent($this->get('content'), 'database');

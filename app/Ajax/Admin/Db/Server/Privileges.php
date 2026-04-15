@@ -36,7 +36,7 @@ class Privileges extends MainComponent
     /**
      * @inheritDoc
      */
-    public function html(): string
+    protected function content(): string
     {
         return $this->ui()->pageContent($this->get('content'));
     }

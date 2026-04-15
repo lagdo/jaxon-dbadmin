@@ -8,10 +8,13 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Views;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Dql\Select;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
+use Lagdo\DbAdmin\App\Ajax\Base\PageContentTrait;
 use Lagdo\DbAdmin\App\Ui\Table\ViewUiBuilder;
 
 class Form extends Component
 {
+    use PageContentTrait;
+
     /**
      * @var string
      */
@@ -28,7 +31,7 @@ class Form extends Component
     /**
      * @inheritDoc
      */
-    public function html(): string
+    protected function content(): string
     {
         $data = $this->get('data');
         return $this->viewUi->form($data['materialized'], $data['view'] ?? []);

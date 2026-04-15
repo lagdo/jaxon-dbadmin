@@ -114,7 +114,7 @@ class SelectUiBuilder
      *
      * @return string
      */
-    public function home(bool $canSaveQuery): string
+    public function header(bool $canSaveQuery): string
     {
         return $this->ui->build(
             $this->ui->row(
@@ -147,6 +147,9 @@ class SelectUiBuilder
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->buttonGroup(
+                        $this->ui->button($this->ui->text($this->trans->lang('Execute')))
+                            ->fullWidth()->primary()
+                            ->jxnClick(rq(ResultSet::class)->page()),
                         $this->ui->button($this->ui->text($this->trans->lang('Edit')))
                             ->outline()->secondary()->fullWidth()
                             ->jxnClick(rq(Select::class)->edit()),
@@ -154,32 +157,32 @@ class SelectUiBuilder
                             $this->ui->button($this->ui->text($this->trans->lang('Save')))
                                 ->outline()->secondary()->fullWidth()
                                 ->jxnClick(rq(FavoriteFunc::class)->add(jo('jaxon.dbadmin')->getSelectQuery(), false))
-                        ),
-                        $this->ui->button($this->ui->text($this->trans->lang('Execute')))
-                            ->fullWidth()->primary()
-                            ->jxnClick(rq(ResultSet::class)->page())
+                        )
                     )->fullWidth()
-                )->width(3),
+                )->width(4),
+                $this->ui->col()
+                    ->width(2)
+                    ->tbnBindApp(rq(Duration::class))
+            )->setStyle('margin-bottom: 0;')
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function content(): string
+    {
+        return $this->ui->build(
+            $this->ui->row(
+                $this->ui->col()
+                    ->width(2)
+                    ->tbnBindApp(rq(GotoPage::class)),
                 $this->ui->col(
-                    $this->ui->row(
-                        $this->ui->col(
-                            $this->ui->row(
-                                $this->ui->col()
-                                    ->width(3)
-                                    ->tbnBindApp(rq(GotoPage::class)),
-                                $this->ui->col(
-                                    $this->ui->nav()
-                                        ->jxnPagination(cl(ResultSet::class))
-                                        ->setId(TabApp::id('jaxon-dbadmin-resulset-pagination'))
-                                )->width(9),
-                            ),
-                        )->width(10)
-                            ->setStyle('overflow:hidden'),
-                        $this->ui->col()
-                            ->width(2)
-                            ->tbnBindApp(rq(Duration::class))
-                    )
-                )->width(9),
+                    $this->ui->nav()
+                        ->jxnPagination(cl(ResultSet::class))
+                        ->setId(TabApp::id('jaxon-dbadmin-resulset-pagination'))
+                )->width(10)
+                    ->setStyle('overflow:hidden'),
             ),
             $this->ui->row(
                 $this->ui->col()

@@ -23,7 +23,7 @@ trait QueryTrait
     /**
      * @return string
      */
-    public function html(): string
+    protected function content(): string
     {
         return $this->queryUi->canSaveQuery($this->config()->canSaveQuery())
             ->command($this->rq(), $this->rq($this->editorClass));

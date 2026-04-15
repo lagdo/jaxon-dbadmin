@@ -55,7 +55,7 @@ trait ExportTrait
     /**
      * @return string
      */
-    public function html(): string
+    protected function content(): string
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();

@@ -20,8 +20,6 @@ class ConnectionProxy extends Audit\ConnectionProxy
     private int|null $userId = null;
 
     /**
-     * The constructor
-     *
      * @param AuthInterface $auth
      * @param EngineInterface $engine
      * @param ServerConfig $serverConfig
@@ -81,7 +79,6 @@ class ConnectionProxy extends Audit\ConnectionProxy
         if (!$this->connected() || !$user) {
             return 0;
         }
-
         if ($this->userId !== null || ($this->userId = $this->readUserId($user)) > 0) {
             return $this->userId;
         }

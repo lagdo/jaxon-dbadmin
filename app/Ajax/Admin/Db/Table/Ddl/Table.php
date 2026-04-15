@@ -94,7 +94,7 @@ class Table extends MainComponent
     /**
      * @inheritDoc
      */
-    public function html(): string
+    protected function content(): string
     {
         $metadata = $this->get('metadata');
         return $this->tableUi->mainDbTable($metadata['tabs']);

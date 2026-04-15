@@ -75,14 +75,14 @@ class QueryUiBuilder
         $queryValues = form($this->queryFormId());
 
         return $this->ui->buttonGroup(
-        $this->ui->button(
+            $this->ui->button(
                 $this->ui->text($this->trans->lang('Execute'))
             )->primary()
                 ->jxnClick($rqQuery->exec($queryText, $queryValues)),
             $this->ui->when($this->canSaveQuery, fn() =>
                 $this->ui->button(
                     $this->ui->text($this->trans->lang('Save'))
-                )->secondary()
+                )->outline()->secondary()
                     ->jxnClick(rq(Query\FavoriteFunc::class)->add($queryText))
             )
         )->fullWidth();
@@ -98,44 +98,44 @@ class QueryUiBuilder
         return $this->ui->form(
             $this->ui->row(
                 $this->ui->col(
-                    $this->ui->inputGroup(
-                        $this->ui->label(
-                            $this->ui->text($this->trans->lang('Limit rows'))
-                        ),
-                        $this->ui->input()
-                            ->setName('limit')
-                            ->setType('number')
-                            ->setValue($this->defaultLimit)
-                    )
-                )->width(2),
-                $this->ui->col(
-                    $this->ui->inputGroup(
-                        $this->ui->label(
-                            $this->ui->text($this->trans->lang('Stop on error'))
-                        ),
-                        $this->ui->checkbox()
-                            ->setName('error_stops')
-                    )
-                )->width(3),
-                $this->ui->col(
-                    $this->ui->inputGroup(
-                        $this->ui->label(
-                            $this->ui->text($this->trans->lang('Show only errors'))
-                        ),
-                        $this->ui->checkbox()
-                            ->setName('only_errors')
-                    )
-                )->width(3),
+                    $this->queryButtons($rqQuery)
+                )->width(4),
+                $this->ui->col()
+                    ->width(1)
+                    ->tbnBindEditor(rq(Query\QueryDuration::class)),
                 $this->ui->col(
                     $this->ui->row(
                         $this->ui->col(
-                            $this->queryButtons($rqQuery)
-                        )->width(8),
-                        $this->ui->col()
-                            ->width(4)
-                            ->tbnBindEditor(rq(Query\QueryDuration::class))
-                    )
-                )->width(4)
+                            $this->ui->inputGroup(
+                                $this->ui->label(
+                                    $this->ui->text($this->trans->lang('Limit rows'))
+                                ),
+                                $this->ui->input()
+                                    ->setName('limit')
+                                    ->setType('number')
+                                    ->setValue($this->defaultLimit)
+                            )
+                        )->width(4),
+                        $this->ui->col(
+                            $this->ui->inputGroup(
+                                $this->ui->label(
+                                    $this->ui->text($this->trans->lang('Stop on error'))
+                                ),
+                                $this->ui->checkbox()
+                                    ->setName('error_stops')
+                            )
+                        )->width(4),
+                        $this->ui->col(
+                            $this->ui->inputGroup(
+                                $this->ui->label(
+                                    $this->ui->text($this->trans->lang('Show only errors'))
+                                ),
+                                $this->ui->checkbox()
+                                    ->setName('only_errors')
+                            )
+                        )->width(4)
+                    ),
+                )->width(7)
             )
         )->horizontal(true)
             ->wrapped(true)

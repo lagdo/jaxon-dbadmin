@@ -29,7 +29,7 @@ class ResultRow extends MainComponent
     /**
      * @inheritDoc
      */
-    public function html(): string
+    protected function content(): string
     {
         return $this->resultUi->resultRowContent($this->get('row'));
     }

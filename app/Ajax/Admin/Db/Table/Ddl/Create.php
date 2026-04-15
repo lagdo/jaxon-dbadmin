@@ -65,7 +65,7 @@ class Create extends MainComponent
     /**
      * @inheritDoc
      */
-    public function html(): string
+    protected function content(): string
     {
         return $this->tableUi
             ->metadata($this->metadata())

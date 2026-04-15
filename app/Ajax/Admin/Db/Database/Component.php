@@ -5,10 +5,13 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Database;
 use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Base\Component as BaseComponent;
+use Lagdo\DbAdmin\App\Ajax\Base\PageContentTrait;
 
 #[Before('checkDatabaseAccess')]
 abstract class Component extends BaseComponent
 {
+    use PageContentTrait;
+
     /**
      * @var string
      */

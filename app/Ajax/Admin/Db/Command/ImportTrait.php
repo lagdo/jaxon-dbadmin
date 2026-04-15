@@ -18,7 +18,7 @@ trait ImportTrait
     /**
      * @return string
      */
-    public function html(): string
+    protected function content(): string
     {
         $importOptions = $this->db()->getImportOptions();
         $handlers = [

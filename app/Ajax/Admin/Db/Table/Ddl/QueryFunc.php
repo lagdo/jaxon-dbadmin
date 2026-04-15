@@ -4,6 +4,9 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Query;
 
+use function count;
+use function implode;
+
 /**
  * Show the changes and queries on a table.
  */
@@ -39,6 +42,16 @@ class QueryFunc extends Column\FuncComponent
     }
 
     /**
+     * @param array $queries
+     *
+     * @return string
+     */
+    private function queryText(array $queries): string
+    {
+        return count($queries) === 0 ? '' : implode(";\n\n", $queries) . ";\n";
+    }
+
+    /**
      * Show the queries to create the table
      *
      * @param array $formValues
@@ -58,7 +71,7 @@ class QueryFunc extends Column\FuncComponent
             return;
         }
 
-        $queryText = implode(";\n\n", $result['queries']) . ";\n";
+        $queryText = $this->queryText($result['queries']);
         $title = $this->trans()->lang('Queries to create a new table');
         $content = $this->columnUi->sqlCodeElement($queryText);
         $buttons = [[
@@ -97,7 +110,7 @@ class QueryFunc extends Column\FuncComponent
             return;
         }
 
-        $queryText = implode(";\n\n", $result['queries']) . ";\n";
+        $queryText = $this->queryText($result['queries']);
         $title = $this->trans()->lang('Queries to create a new table');
         $content = $this->columnUi->sqlCodeElement($queryText);
         $buttons = [[

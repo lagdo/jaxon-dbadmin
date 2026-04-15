@@ -122,15 +122,38 @@ trait PageTrait
      */
     public function pageContent(array $pageContent, string $contentType = ''): string
     {
-        $countId = TabApp::id("dbadmin-table-{$contentType}-count");
         return $this->ui->build(
-            $this->makeTable($pageContent, $contentType),
-            $this->ui->when($contentType !== '', function() use($countId) {
-                $message = "Selected (<span id=\"{$countId}\">0</span>)";
-                return $this->ui->panel(
-                    $this->ui->panelBody($this->ui->html($message))
-                );
-            })
+            $this->makeTable($pageContent, $contentType)
+        );
+    }
+
+    /**
+     * @param string $contentType
+     *
+     * @return string
+     */
+    public function pageFooter(string $contentType = ''): string
+    {
+        if ($contentType === '') {
+            return '';
+        }
+
+        $countId = TabApp::id("dbadmin-table-{$contentType}-count");
+        $message = "Selected (<span id=\"{$countId}\">0</span>)";
+        return $this->ui->html($message);
+    }
+
+    /**
+     * @param string $content
+     *
+     * @return string
+     */
+    public function panel(string $content): string
+    {
+        return $this->ui->build(
+            $this->ui->panel(
+                $this->ui->panelBody($content)
+            )->setStyle('margin-bottom: 10px;')
         );
     }
 }

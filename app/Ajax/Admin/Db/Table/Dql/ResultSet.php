@@ -108,9 +108,11 @@ class ResultSet extends PageComponent
         $this->cl(QueryText::class)->refresh();
         $this->cl(Duration::class)->update($this->get('duration'));
 
-        $this->_count > 0 && $this->_count <= $this->limit() ?
+        $duration =  $this->get('duration', null);
+        ($duration === null) || $this->_count > 0 && $this->_count <= $this->limit() ?
             $this->cl(GotoPage::class)->clear() :
             $this->cl(GotoPage::class)->set('page', $this->currentPage())->render();
+
         // Reset the count value.
         $this->_count = null;
     }

@@ -3,13 +3,16 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Server;
 
 use Jaxon\Attributes\Attribute\Before;
-use Lagdo\DbAdmin\App\Ajax\Base\Component as BaseComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Base\Component as BaseComponent;
+use Lagdo\DbAdmin\App\Ajax\Base\PageContentTrait;
 use Lagdo\DbAdmin\Support\Exception\DbException;
 
 #[Before('checkServerAccess')]
 abstract class MainComponent extends BaseComponent
 {
+    use PageContentTrait;
+
     /**
      * @var string
      */
