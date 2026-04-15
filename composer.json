@@ -45,7 +45,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Lagdo\\DbAdmin\\Support\\Tests\\": "tests/"
+            "Lagdo\\DbAdmin\\App\\Tests\\": "tests/app/",
+            "Lagdo\\DbAdmin\\Support\\Tests\\": "tests/src/"
         }
     },
     "minimum-stability": "dev",
