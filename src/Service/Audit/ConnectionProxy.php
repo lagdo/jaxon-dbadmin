@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\Support\Service\Audit;
 use Lagdo\DbAdmin\Driver\EngineInterface;
 use Lagdo\DbAdmin\Driver\Sql\Connection\AbstractConnection;
 use Lagdo\DbAdmin\Driver\Sql\Connection\StatementInterface;
+use Lagdo\DbAdmin\Support\Config\ServerConfig;
 use Lagdo\Facades\Logger;
 
 /**
@@ -21,13 +22,15 @@ class ConnectionProxy
      * The constructor
      *
      * @param EngineInterface $engine
-     * @param array $database
+     * @param ServerConfig $serverConfig
      */
-    public function __construct(private EngineInterface $engine, array $database)
+    public function __construct(private EngineInterface $engine, ServerConfig $serverConfig)
     {
+        $database = $serverConfig->getQueryDatabaseOptions();
         $connection = $engine->createConnection($database);
         if ($connection->open($database['name'], $database['schema'] ?? '')) {
             $this->connection = $connection;
+            $serverConfig->setConnected();
         }
     }
 

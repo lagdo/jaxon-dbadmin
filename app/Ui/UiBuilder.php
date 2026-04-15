@@ -3,12 +3,12 @@
 namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Admin;
-use Lagdo\DbAdmin\App\Ajax\Admin\TabFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Sections as MenuSections;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Schemas as MenuSchemas;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Command as ServerCommand;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Databases as MenuDatabases;
+use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppTabMenu;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
@@ -197,38 +197,16 @@ class UiBuilder
     /**
      * The DbAdmin layout
      *
-     * @param bool $preferencesEnabled
-     *
      * @return string
      */
-    public function admin(bool $preferencesEnabled): string
+    public function admin(): string
     {
-        $rqTab = rq(TabFunc::class);
-        $menuEntries = [[
-            'label' => '<i class="fa fa-plus"></i>',
-            'handler' => $rqTab->add(),
-        ], [
-            'label' => $this->trans->lang('Title'),
-            'handler' => $rqTab->editTitle(),
-        ], [
-            'label' => $this->trans->lang('Delete'),
-            'handler' => $rqTab->del()
-                ->confirm($this->trans->lang('Delete the current tab?')),
-        ]];
-        if ($preferencesEnabled) {
-            $menuEntries[] =  [
-                'label' => $this->trans->lang('Save tabs'),
-                'handler' => $rqTab->saveAppTabs()
-                    ->confirm($this->trans->lang('Save the current tabs in your preferences?')),
-            ];
-        }
-
         return $this->ui->build(
             $this->ui->div(
                 $this->ui->div(
-                    $this->ui->div(
-                        $this->tableMenu($menuEntries),
-                    )->setClass('jaxon-dbadmin-tabs-layout_button'),
+                    $this->ui->div()
+                        ->jxnBind(rq(AppTabMenu::class))
+                        ->setClass('jaxon-dbadmin-tabs-layout_button'),
                     $this->ui->col(
                         $this->ui->tabNav(
                             $this->tabNavItem('&nbsp;', true)

@@ -5,7 +5,7 @@ use Jaxon\Di\Container;
 use Lagdo\DbAdmin\App;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Support\Config;
-use Lagdo\DbAdmin\Support\Service;
+use Lagdo\DbAdmin\Support\Service\Audit;
 
 $base = require __DIR__ . '/base.php';
 $container = require __DIR__ . '/container.php';
@@ -25,25 +25,27 @@ return [
             ...$container['set'],
             Config\ServerConfig::class => function(Container $di) {
                 $config = $di->getPackageConfig(App\DbAuditPackage::class);
-                $reader = $di->get($config->getOption('config.reader',
-                    Config\ConfigReader::class));
+                $defaultReader = Config\ConfigReader::class;
+                $reader = $di->get($config->getOption('config.reader', $defaultReader));
                 // Move the options under the "queries" key. Needed by the ServerConfig class.
                 $config = (new ConfigSetter())->newConfig([
                     'database' => $config->getOption('database'),
                     'audit' => $config->getOption('audit', []),
                 ], 'queries');
-                $authSetup = $di->has(Config\AuthInterface::class);
-                return new Config\ServerConfig($config, $reader, $authSetup);
+
+                return new Config\ServerConfig($config, $reader);
             },
             // Connection to the audit database
-            Service\Audit\ConnectionProxy::class => function(Container $di) {
+            Audit\ConnectionProxy::class => function(Container $di) {
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getQueryDatabaseOptions();
-                $driver = Driver\Driver::createDriver($di->g(Driver\Utils\Utils::class), $database);
-                return new Service\Audit\ConnectionProxy($driver->engine, $database);
+                $utils = $di->g(Driver\Utils\Utils::class);
+                $driver = Driver\Driver::createDriver($utils, $database);
+
+                return new Audit\ConnectionProxy($driver->engine, $serverConfig);
             },
             // Query audit
-            Service\Audit\QueryLogger::class => function(Container $di) {
+            Audit\QueryLogger::class => function(Container $di) {
                 $serverConfig = $di->g(Config\ServerConfig::class);
                 $database = $serverConfig->getQueryDatabaseOptions();
                 if ($database === null) {
@@ -51,8 +53,8 @@ return [
                 }
 
                 $options = $serverConfig->getQueryAuditOptions();
-                $proxy = $di->g(Service\Audit\ConnectionProxy::class);
-                return new Service\Audit\QueryLogger($proxy, $options);
+                $proxy = $di->g(Audit\ConnectionProxy::class);
+                return new Audit\QueryLogger($proxy, $options);
             },
         ],
         'alias' => [

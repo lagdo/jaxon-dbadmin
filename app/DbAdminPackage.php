@@ -99,8 +99,6 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function layout(): string
     {
-        $preferencesEnabled = $this->getConfig()
-            ->getOption('queries.admin.preferences.enabled', false);
-        return $this->ui->admin((bool)$preferencesEnabled);
+        return $this->ui->admin();
     }
 }

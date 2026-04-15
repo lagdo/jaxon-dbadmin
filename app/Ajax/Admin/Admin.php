@@ -7,6 +7,7 @@ use Jaxon\Attributes\Attribute\Exclude;
 use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Base\FuncComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Server\Server;
+use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppTabMenu;
 use Lagdo\DbAdmin\Support\Service\Admin\Preference;
 use Lagdo\DbAdmin\App\Ui\TabApp;
 
@@ -105,6 +106,9 @@ class Admin extends FuncComponent
             $this->response()->jo('jaxon.dbadmin')
                 ->setToastLib($this->config->getOption('ui.toast.lib'));
         }
+
+        // Show the app tab menu.
+        $this->cl(AppTabMenu::class)->render();
 
         $tabs = $this->getSavedAppTabs();
         // Connect the first tab to the first saved of default database.

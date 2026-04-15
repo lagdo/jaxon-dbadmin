@@ -63,11 +63,10 @@ return [
             },
             Config\ServerConfig::class => function(Container $di) {
                 $config = $di->getPackageConfig(App\DbAdminPackage::class);
-                $reader = $di->get($config->getOption('config.reader',
-                    Config\ConfigReader::class));
-                $authSetup = $di->has(Config\AuthInterface::class);
+                $defaultReader = Config\ConfigReader::class;
+                $reader = $di->get($config->getOption('config.reader', $defaultReader));
 
-                return new Config\ServerConfig($config, $reader, $authSetup);
+                return new Config\ServerConfig($config, $reader);
             },
             // Options for query recording
             'queries_record_options' => function(Container $di) {
@@ -97,7 +96,7 @@ return [
                 $utils = $di->g(Driver\Utils\Utils::class);
                 $driver = Driver\Driver::createDriver($utils, $database);
 
-                return new Service\Admin\ConnectionProxy($auth, $driver->engine, $database);
+                return new Service\Admin\ConnectionProxy($auth, $driver->engine, $serverConfig);
             },
             // Query logger
             Service\Admin\QueryLogger::class => function(Container $di) {

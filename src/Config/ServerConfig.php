@@ -30,33 +30,23 @@ class ServerConfig
     private array $configs = [];
 
     /**
-     * The constructor
-     *
+     * @var bool
+     */
+    private bool $connected = false;
+
+    /**
      * @param Config $config
      * @param ConfigReader $reader
-     * @param bool $authSetup
      */
-    public function __construct(protected readonly Config $config,
-        private ConfigReader $reader, private bool $authSetup)
+    public function __construct(protected Config $config, private ConfigReader $reader)
     {}
 
     /**
-     * @return bool
+     * @return void
      */
-    public function queryRecordEnabled(): bool
+    public function setConnected(): void
     {
-        return $this->getOption('queries.record.editor.enabled', false) ||
-            $this->getOption('queries.record.builder.enabled', false)/* ||
-            $this->getOption('queries.record.library.enabled', false)*/;
-    }
-
-    /**
-     * @return bool
-     */
-    public function canSaveQuery(): bool
-    {
-        return $this->authSetup && $this->queryRecordEnabled() &&
-            $this->getQueryDatabaseOptions() !== null;
+        $this->connected = true;
     }
 
     /**
@@ -82,6 +72,48 @@ class ServerConfig
     public function getOption(string $option, $default = null): mixed
     {
         return $this->config->getOption($option, $default);
+    }
+
+    /**
+     * @return bool
+     */
+    private function queryRecordEnabled(): bool
+    {
+        return $this->getOption('queries.record.editor.enabled', false) ||
+            $this->getOption('queries.record.builder.enabled', false)/* ||
+            $this->getOption('queries.record.library.enabled', false)*/;
+    }
+
+    /**
+     * @return bool
+     */
+    public function canSaveQuery(): bool
+    {
+        return $this->connected && $this->queryRecordEnabled();
+    }
+
+    /**
+     * @return bool
+     */
+    public function queryHistoryEnabled(): bool
+    {
+        return $this->connected && $this->getOption('queries.admin.history.show', false);
+    }
+
+    /**
+     * @return bool
+     */
+    public function queryFavoriteEnabled(): bool
+    {
+        return $this->connected && $this->getOption('queries.admin.favorite.show', false);
+    }
+
+    /**
+     * @return bool
+     */
+    public function userPreferencesEnabled(): bool
+    {
+        return $this->connected && $this->getOption('queries.admin.preferences.enabled', false);
     }
 
     /**
@@ -291,21 +323,5 @@ class ServerConfig
     public function getQueryAdminOptions(): array
     {
         return $this->getOption('queries.admin', []);
-    }
-
-    /**
-     * @return bool
-     */
-    public function queryHistoryEnabled(): bool
-    {
-        return $this->getOption('queries.admin.history.show', false);
-    }
-
-    /**
-     * @return bool
-     */
-    public function queryFavoriteEnabled(): bool
-    {
-        return $this->getOption('queries.admin.favorite.show', false);
     }
 }
