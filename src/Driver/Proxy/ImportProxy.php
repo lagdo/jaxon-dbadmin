@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Jaxon\Request\Upload\FileInterface;
 
@@ -28,7 +28,7 @@ class ImportProxy extends CommandProxy
         $contents = $this->utils()->iniBool('file_uploads') ?
             ['upload' => "SQL$gz (&lt; " . ini_get('upload_max_filesize') . 'B)'] :
             ['upload_disabled' => $this->utils()->lang('File uploads are disabled.')];
-        if (($importServerPath = $this->page()->importServerPath())) {
+        if (($importServerPath = $this->pageUi()->importServerPath())) {
             $contents['path'] = $this->utils()->html($importServerPath) . $gz;
         }
 

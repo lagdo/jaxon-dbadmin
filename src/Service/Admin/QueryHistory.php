@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Service\Admin;
+namespace Lagdo\DbAdmin\Support\Service\Admin;
 
-use Lagdo\DbAdmin\Db\Service\Audit\Options;
+use Lagdo\DbAdmin\Support\Service\Audit\Options;
 
 /**
  * SQL queries logging and storage.

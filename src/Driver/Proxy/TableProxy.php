@@ -1,13 +1,14 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
-use Lagdo\DbAdmin\Db\UiData\Ddl\ForeignKeyTrait;
-use Lagdo\DbAdmin\Db\UiData\Ddl\TableAlter;
-use Lagdo\DbAdmin\Db\UiData\Ddl\TableContent;
-use Lagdo\DbAdmin\Db\UiData\Ddl\TableCreate;
-use Lagdo\DbAdmin\Db\UiData\Ddl\TableHeader;
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ForeignKeyTrait;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableAlter;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableContent;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableCreate;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableHeader;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
@@ -21,7 +22,7 @@ use function in_array;
 /**
  * Proxy to table functions
  */
-class TableProxy extends AbstractProxy
+class TableProxy extends AbstractDriverProxy
 {
     use ForeignKeyTrait;
 

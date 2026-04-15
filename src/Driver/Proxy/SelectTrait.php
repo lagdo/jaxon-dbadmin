@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\UiData\Dql\SelectDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDto;
 use Exception;
 
 /**

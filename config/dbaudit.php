@@ -2,10 +2,10 @@
 
 use Jaxon\Config\ConfigSetter;
 use Jaxon\Di\Container;
-use Lagdo\DbAdmin\Db;
-use Lagdo\DbAdmin\Db\Config;
-use Lagdo\DbAdmin\Db\Service;
+use Lagdo\DbAdmin\App;
 use Lagdo\DbAdmin\Driver;
+use Lagdo\DbAdmin\Support\Config;
+use Lagdo\DbAdmin\Support\Service;
 
 $base = require __DIR__ . '/base.php';
 $container = require __DIR__ . '/container.php';
@@ -14,8 +14,8 @@ return [
     ...$base,
     'directories' => [
         [
-            'path' => __DIR__ . '/../app/ajax/Audit',
-            'namespace' => 'Lagdo\\DbAdmin\\Ajax\\Audit',
+            'path' => dirname(__DIR__) . '/app/Ajax/Audit',
+            'namespace' => 'Lagdo\\DbAdmin\\App\\Ajax\\Audit',
             'autoload' => false,
         ],
     ],
@@ -24,7 +24,7 @@ return [
         'set' => [
             ...$container['set'],
             Config\ServerConfig::class => function(Container $di) {
-                $config = $di->getPackageConfig(Db\DbAuditPackage::class);
+                $config = $di->getPackageConfig(App\DbAuditPackage::class);
                 $reader = $di->get($config->getOption('config.reader',
                     Config\ConfigReader::class));
                 // Move the options under the "queries" key. Needed by the ServerConfig class.

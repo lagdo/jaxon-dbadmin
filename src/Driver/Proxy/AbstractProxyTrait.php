@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Jaxon\Di\Container;
-use Lagdo\DbAdmin\Db\Service\Breadcrumbs;
+use Lagdo\DbAdmin\Support\Service\Breadcrumbs;
 
 trait AbstractProxyTrait
 {

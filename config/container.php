@@ -1,13 +1,14 @@
 <?php
 
 use Infisical\SDK\InfisicalSDK;
+use Jaxon\App\View\ViewRenderer;
 use Jaxon\Di\Container;
-use Lagdo\DbAdmin\Db;
-use Lagdo\DbAdmin\Db\Config;
-use Lagdo\DbAdmin\Db\Driver\Proxy;
-use Lagdo\DbAdmin\Db\Service;
+use Lagdo\DbAdmin\App\Ui;
 use Lagdo\DbAdmin\Driver;
-use Lagdo\DbAdmin\Ui;
+use Lagdo\DbAdmin\Support;
+use Lagdo\DbAdmin\Support\Config;
+use Lagdo\DbAdmin\Support\Driver\Proxy;
+use Lagdo\DbAdmin\Support\Service;
 
 // This setup needs to be applied after the config is loaded.
 jaxon()->callback()->boot(function() {
@@ -36,41 +37,42 @@ jaxon()->callback()->boot(function() {
         $server = $di->g('dbadmin_config_server');
         return $di->g("dbadmin_server_$server");
     });
+
+    // Make the translator available into views.
+    $viewRenderer = $di->g(ViewRenderer::class);
+    $viewRenderer->share('trans', $di->g(Support\Translator::class));
 });
 
 return [
     'set' => [
-        // The AppPage class
-        Db\UiData\AppPage::class => fn(Container $di) =>
-            new Db\UiData\AppPage($di->g(Db\Driver\DriverProxy::class)->helper()),
         // Proxies to the DB driver features
         Proxy\CommandProxy::class => fn(Container $di) =>
-            (new Proxy\CommandProxy($di->g(Db\Driver\DriverProxy::class)->helper()))
+            (new Proxy\CommandProxy($di->g(Support\Driver\DriverProxy::class)->helper()))
                 ->setTimer($di->g(Service\TimerService::class))
                 ->setQueryLogger($di->g(Service\Admin\QueryLogger::class)),
         Proxy\DatabaseProxy::class => fn(Container $di) =>
-            (new Proxy\DatabaseProxy($di->g(Db\Driver\DriverProxy::class)->helper()))
+            (new Proxy\DatabaseProxy($di->g(Support\Driver\DriverProxy::class)->helper()))
                 ->setOptions($di->g('dbadmin_server_options')),
         Proxy\ExportProxy::class => fn(Container $di) =>
-            new Proxy\ExportProxy($di->g(Db\Driver\DriverProxy::class)->helper()),
+            new Proxy\ExportProxy($di->g(Support\Driver\DriverProxy::class)->helper()),
         Proxy\ImportProxy::class => fn(Container $di) =>
-            (new Proxy\ImportProxy($di->g(Db\Driver\DriverProxy::class)->helper()))
+            (new Proxy\ImportProxy($di->g(Support\Driver\DriverProxy::class)->helper()))
                 ->setTimer($di->g(Service\TimerService::class))
                 ->setQueryLogger($di->g(Service\Admin\QueryLogger::class)),
         Proxy\QueryProxy::class => fn(Container $di) =>
-            new Proxy\QueryProxy($di->g(Db\Driver\DriverProxy::class)->helper()),
+            new Proxy\QueryProxy($di->g(Support\Driver\DriverProxy::class)->helper()),
         Proxy\SelectProxy::class => fn(Container $di) =>
-            (new Proxy\SelectProxy($di->g(Db\Driver\DriverProxy::class)->helper()))
+            (new Proxy\SelectProxy($di->g(Support\Driver\DriverProxy::class)->helper()))
                 ->setTimer($di->g(Service\TimerService::class)),
         Proxy\ServerProxy::class => fn(Container $di) =>
-            (new Proxy\ServerProxy($di->g(Db\Driver\DriverProxy::class)->helper()))
+            (new Proxy\ServerProxy($di->g(Support\Driver\DriverProxy::class)->helper()))
                 ->setOptions($di->g('dbadmin_server_options')),
         Proxy\TableProxy::class => fn(Container $di) =>
-            new Proxy\TableProxy($di->g(Db\Driver\DriverProxy::class)->helper()),
+            new Proxy\TableProxy($di->g(Support\Driver\DriverProxy::class)->helper()),
         Proxy\UserProxy::class => fn(Container $di) =>
-            new Proxy\UserProxy($di->g(Db\Driver\DriverProxy::class)->helper()),
+            new Proxy\UserProxy($di->g(Support\Driver\DriverProxy::class)->helper()),
         Proxy\ViewProxy::class => fn(Container $di) =>
-            new Proxy\ViewProxy($di->g(Db\Driver\DriverProxy::class)->helper()),
+            new Proxy\ViewProxy($di->g(Support\Driver\DriverProxy::class)->helper()),
 
         // Application authentication.
         'dbadmin_auth_service' => fn(Container $di) =>
@@ -110,16 +112,18 @@ return [
         },
     ],
     'auto' => [
-        // The translator
-        Db\Translator::class,
         // The string manipulation class
         Driver\Utils\Str::class,
         // The user input
         Driver\Utils\Input::class,
         // The utils class
         Driver\Utils\Utils::class,
+        // The PageUi class
+        Support\Driver\PageUi::class,
+        // The translator
+        Support\Translator::class,
         // The proxy to the database features
-        Db\Driver\DriverProxy::class,
+        Support\Driver\DriverProxy::class,
         // The Breadcrumbs service
         Service\Breadcrumbs::class,
         // The Timer service
@@ -144,6 +148,7 @@ return [
     ],
     'alias' => [
         // The translator
-        Driver\Utils\TranslatorInterface::class => Db\Translator::class,
+        Driver\Utils\TranslatorInterface::class => Support\Translator::class,
     ],
+    'extend' => [],
 ];

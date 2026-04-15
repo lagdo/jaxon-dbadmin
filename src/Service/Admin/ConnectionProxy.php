@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Service\Admin;
+namespace Lagdo\DbAdmin\Support\Service\Admin;
 
-use Lagdo\DbAdmin\Db\Config\AuthInterface;
-use Lagdo\DbAdmin\Db\Service\Audit;
+use Lagdo\DbAdmin\Support\Config\AuthInterface;
+use Lagdo\DbAdmin\Support\Service\Audit;
 use Lagdo\DbAdmin\Driver\EngineInterface;
 
 use function gmdate;

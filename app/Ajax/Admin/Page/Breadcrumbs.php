@@ -1,0 +1,21 @@
+<?php
+
+namespace Lagdo\DbAdmin\App\Ajax\Admin\Page;
+
+use Jaxon\Attributes\Attribute\Exclude;
+use Lagdo\DbAdmin\App\Ajax\Base\Component;
+
+#[Exclude]
+class Breadcrumbs extends Component
+{
+    /**
+     * @inheritDoc
+     */
+    public function html(): string
+    {
+        [$server,] = $this->getCurrentDb();
+        $serverName = $this->config()->getServerName($server);
+        $breadcrumbs = [$serverName, ...$this->db->breadcrumbs()->items()];
+        return $this->ui()->breadcrumbs($breadcrumbs);
+    }
+}

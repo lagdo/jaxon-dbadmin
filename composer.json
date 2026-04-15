@@ -39,14 +39,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Lagdo\\DbAdmin\\Ajax\\": "app/ajax/",
-            "Lagdo\\DbAdmin\\Ui\\": "app/ui/",
-            "Lagdo\\DbAdmin\\Db\\": "src/"
+            "Lagdo\\DbAdmin\\App\\": "app/",
+            "Lagdo\\DbAdmin\\Support\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Lagdo\\DbAdmin\\Tests\\": "tests/"
+            "Lagdo\\DbAdmin\\Support\\Tests\\": "tests/"
         }
     },
     "minimum-stability": "dev",

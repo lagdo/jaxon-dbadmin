@@ -1,7 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 
 use function array_filter;
@@ -13,7 +14,7 @@ use function is_array;
 /**
  * Proxy to database functions
  */
-class DatabaseProxy extends AbstractProxy
+class DatabaseProxy extends AbstractDriverProxy
 {
     /**
      * The final schema list
@@ -116,7 +117,7 @@ class DatabaseProxy extends AbstractProxy
         foreach ($tableStatus as $table => $status) {
             if (!$this->engine()->isView($status)) {
                 $details[] = [
-                    'name' => $this->page()->tableName($status),
+                    'name' => $this->pageUi()->tableName($status),
                     'engine' => $status->engine,
                     'collation' => '',
                     'comment' => $status->comment,
@@ -154,7 +155,7 @@ class DatabaseProxy extends AbstractProxy
         foreach ($tableStatus as $table => $status) {
             if ($this->engine()->isView($status)) {
                 $details[] = [
-                    'name' => $this->page()->tableName($status),
+                    'name' => $this->pageUi()->tableName($status),
                     'engine' => $status->engine,
                     'comment' => $status->comment,
                 ];

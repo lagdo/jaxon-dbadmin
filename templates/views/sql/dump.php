@@ -1,7 +1,6 @@
 <?php if(is_array($this->headers)): ?>
 -- Jaxon DbAdmin <?php echo $this->headers['version'], ' ',
-                    $this->headers['driver'], ' ',
-                    $this->headers['server'] ?> dump
+    $this->headers['driver'], ' ', $this->headers['server'] ?> dump
 
 <?php if(($this->headers['sql'])): ?>
 SET NAMES utf8;

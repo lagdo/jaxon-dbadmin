@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Service\Audit;
+namespace Lagdo\DbAdmin\Support\Service\Audit;
 
 use Lagdo\DbAdmin\Driver\EngineInterface;
 use Lagdo\DbAdmin\Driver\Sql\Connection\AbstractConnection;

@@ -1,13 +1,13 @@
 <?php
 
 use Jaxon\Di\Container;
-use Lagdo\DbAdmin\Ajax\Admin\Admin;
-use Lagdo\DbAdmin\Db;
-use Lagdo\DbAdmin\Db\Config;
-use Lagdo\DbAdmin\Db\Driver\EngineDecorator;
-use Lagdo\DbAdmin\Db\Service;
+use Lagdo\DbAdmin\App;
 use Lagdo\DbAdmin\Driver;
-use Lagdo\DbAdmin\Ui;
+use Lagdo\DbAdmin\Support;
+use Lagdo\DbAdmin\Support\Config;
+use Lagdo\DbAdmin\Support\Driver\DriverHelper;
+use Lagdo\DbAdmin\Support\Driver\EngineDecorator;
+use Lagdo\DbAdmin\Support\Service;
 use Lagdo\Facades\Logger;
 use Lagdo\UiBuilder\Builder;
 use Lagdo\UiBuilder\BuilderInterface;
@@ -19,15 +19,15 @@ return [
     ...$base,
     'directories' => [
         [
-            'path' => __DIR__ . '/../app/ajax/Admin',
-            'namespace' => 'Lagdo\\DbAdmin\\Ajax\\Admin',
+            'path' => dirname(__DIR__) . '/app/Ajax/Admin',
+            'namespace' => 'Lagdo\\DbAdmin\\App\\Ajax\\Admin',
             'autoload' => false,
         ],
     ],
     'functions' => [
         // We need synchronous calls to this function, so the tabs are created in the correct order.
         'server' => [
-            'class' => Admin::class,
+            'class' => App\Ajax\Admin\Admin::class,
             'mode' => "'synchronous'",
             'bags' => '["dbadmin","dbadmin.tab"]',
         ],
@@ -41,9 +41,10 @@ return [
                 /** @var Driver\Driver */
                 $driver = $di->g('dbadmin_server_driver');
 
-                // Create the Engine decorator, and define the callbacks. The original engine
-                // functions, which are called in the driver libraries, will not use the callbacks,
-                // while those redefined in the decorator, which are called in the application, will.
+                // Create the Engine decorator, and define the callbacks.
+                // The original engine functions, which are called in the driver
+                // libraries, will not use the callbacks, while those redefined 
+                // in the decorator, which are called in the application, will.
                 $engine = new EngineDecorator($driver->engine);
                 $timerCallback = function() use($di) {
                     $timer = $di->g(Service\TimerService::class);
@@ -61,10 +62,11 @@ return [
                 return new Driver\Driver($engine, $driver->statement);
             },
             Config\ServerConfig::class => function(Container $di) {
-                $config = $di->getPackageConfig(Db\DbAdminPackage::class);
+                $config = $di->getPackageConfig(App\DbAdminPackage::class);
                 $reader = $di->get($config->getOption('config.reader',
                     Config\ConfigReader::class));
                 $authSetup = $di->has(Config\AuthInterface::class);
+
                 return new Config\ServerConfig($config, $reader, $authSetup);
             },
             // Options for query recording
@@ -94,6 +96,7 @@ return [
                 $database = $serverConfig->getQueryDatabaseOptions();
                 $utils = $di->g(Driver\Utils\Utils::class);
                 $driver = Driver\Driver::createDriver($utils, $database);
+
                 return new Service\Admin\ConnectionProxy($auth, $driver->engine, $database);
             },
             // Query logger
@@ -104,7 +107,7 @@ return [
 
                 // User database, different from the audit database.
                 $serverOptions = $di->g('dbadmin_server_options');
-                $dbProxy = $di->g(Db\Driver\DriverProxy::class);
+                $dbProxy = $di->g(Support\Driver\DriverProxy::class);
                 $database = $dbProxy->getDatabaseOptions($serverOptions);
 
                 $proxy = $di->g(Service\Admin\ConnectionProxy::class);
@@ -138,10 +141,17 @@ return [
                 return new Service\Admin\Preference($proxy, $options);
             },
         ],
+        'auto' => [
+            ...$container['auto'],
+            // Helper for the driver proxies.
+            DriverHelper::class,
+        ],
         'extend' => [
+            ...$container['extend'],
+            // Register the UI builder helper for the tab-aware UI components.
             BuilderInterface::class => function(BuilderInterface $builder): BuilderInterface {
-                $builder->registerHelper('tbn', Builder::TARGET_COMPONENT,
-                    Ui\TabApp::helper(...));
+                $target = Builder::TARGET_COMPONENT;
+                $builder->registerHelper('tbn', $target, App\Ui\TabApp::helper(...));
                 return $builder;
             },
         ],

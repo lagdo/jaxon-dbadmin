@@ -1,7 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 
 use function array_filter;
 use function array_intersect;
@@ -14,7 +15,7 @@ use function is_string;
 /**
  * Proxy to server functions
  */
-class ServerProxy extends AbstractProxy
+class ServerProxy extends AbstractDriverProxy
 {
     /**
      * The final database list

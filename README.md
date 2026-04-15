@@ -88,7 +88,7 @@ See the corresponding database driver package for specific database server optio
         // Other config options
         // ...
         'packages' => [
-            Lagdo\DbAdmin\Db\DbAdminPackage::class => [
+            Lagdo\DbAdmin\App\DbAdminPackage::class => [
                 'servers' => [
                     // The database servers
                     'pgsql_server' => [ // A unique identifier for this server
@@ -147,7 +147,7 @@ The `default` option sets a database server `Jaxon DbAdmin` must connect to when
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\Db\DbAdminPackage::class => [
+            Lagdo\DbAdmin\App\DbAdminPackage::class => [
                 'servers' => [
                     // The database servers
                 ],
@@ -167,7 +167,7 @@ The `access.server` option can also be set at a server level, and in this case i
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\Db\DbAdminPackage::class => [
+            Lagdo\DbAdmin\App\DbAdminPackage::class => [
                 'servers' => [
                     // The database servers
                     'server_id' => [
@@ -195,7 +195,7 @@ The `access.schemas` option will apply only on servers which provide that featur
 ```php
     'app' => [
         'packages' => [
-            Lagdo\DbAdmin\Db\DbAdminPackage::class => [
+            Lagdo\DbAdmin\App\DbAdminPackage::class => [
                 'servers' => [
                     // The database servers
                     'server_id' => [
@@ -249,7 +249,7 @@ $dbConfigProvider = function(array $config) {
         // Other config options
         // ...
         'packages' => [
-            Lagdo\DbAdmin\Db\DbAdminPackage::class => [
+            Lagdo\DbAdmin\App\DbAdminPackage::class => [
                 // A callable that return the access options.
                 'provider' => $dbConfigProvider,
                 'servers' => [],
@@ -273,7 +273,7 @@ The required options are provided under the `queries` key.
         // Other config options
         // ...
         'packages' => [
-            Lagdo\DbAdmin\Db\DbAdminPackage::class => [
+            Lagdo\DbAdmin\App\DbAdminPackage::class => [
                 // ...
                 'queries' => [
                     'record' => [
@@ -323,14 +323,14 @@ When the query history is enabled, the `queries.admin.history.distinct` option e
 ### The DbAudit package
 
 Jaxon DbAdmin includes a second package which can be use to display the audit logs in another web page.
-The `Lagdo\DbAdmin\Db\DbAuditPackage` needs to be provided with the audit database connection parameters.
+The `Lagdo\DbAdmin\App\DbAuditPackage` needs to be provided with the audit database connection parameters.
 
 ```php
     'app' => [
         // Other config options
         // ...
         'packages' => [
-            Lagdo\DbAdmin\Db\DbAuditPackage::class => [
+            Lagdo\DbAdmin\App\DbAuditPackage::class => [
                 // ...
                 'audit' => [
                     'enabled' => true,
@@ -367,14 +367,14 @@ The `DbAdminPackage` and `DbAuditPackage` can be configured to use it as their `
     'app' => [
         // ...
         'packages' => [
-            Lagdo\DbAdmin\Db\DbAdminPackage::class => [
+            Lagdo\DbAdmin\App\DbAdminPackage::class => [
                 // Read the database credentials with the custom config reader.
                 'config' => [
                     'reader' => CustomConfigReader::class,
                 ],
                 // ...
             ],
-            Lagdo\DbAdmin\Db\DbAuditPackage::class => [
+            Lagdo\DbAdmin\App\DbAuditPackage::class => [
                 // Read the database credentials with the custom config reader.
                 'config' => [
                     'reader' => CustomConfigReader::class,
@@ -391,8 +391,8 @@ The setup of the required `Secrets Management` project in the Infisical server i
 The Infisical `config reader` needs to be provided with a closure which returns the key where to find each secret in the server.
 
 ```php
-use Lagdo\DbAdmin\Db\Config\AuthInterface;
-use Lagdo\DbAdmin\Db\Config\InfisicalConfigReader;
+use Lagdo\DbAdmin\Support\Config\AuthInterface;
+use Lagdo\DbAdmin\Support\Config\InfisicalConfigReader;
 
 $secretKetBuilder = function(string $prefix, string $option, AuthInterface $auth) {
     // Select a secret key based on the authenticated user, and the option prefix and name.
@@ -405,19 +405,19 @@ $reader->setSecretKeyBuilder($secretKeyBuilder);
 The packages can then be configured to use the Infisical `config reader`.
 
 ```php
-use Lagdo\DbAdmin\Db\Config\InfisicalConfigReader;
+use Lagdo\DbAdmin\Support\Config\InfisicalConfigReader;
 
     'app' => [
         // ...
         'packages' => [
-            Lagdo\DbAdmin\Db\DbAdminPackage::class => [
+            Lagdo\DbAdmin\App\DbAdminPackage::class => [
                 // Read the database credentials with the custom config reader.
                 'config' => [
                     'reader' => InfisicalConfigReader::class,
                 ],
                 // ...
             ],
-            Lagdo\DbAdmin\Db\DbAuditPackage::class => [
+            Lagdo\DbAdmin\App\DbAuditPackage::class => [
                 // Read the database credentials with the custom config reader.
                 'config' => [
                     'reader' => InfisicalConfigReader::class,
@@ -460,7 +460,7 @@ use function Jaxon\storage;
             ],
         ],
         'packages' => [
-            Lagdo\DbAdmin\Db\DbAdminPackage::class => [
+            Lagdo\DbAdmin\App\DbAdminPackage::class => [
                 'servers' => [
                     // The database servers
                 ],

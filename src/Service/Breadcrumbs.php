@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Service;
+namespace Lagdo\DbAdmin\Support\Service;
 
 /**
  * Breadcrumbs

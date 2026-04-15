@@ -1,0 +1,23 @@
+<?php
+
+namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table;
+
+use Jaxon\Attributes\Attribute\Before;
+use Jaxon\Attributes\Attribute\Databag;
+use Lagdo\DbAdmin\App\Ajax\Base\Component as BaseComponent;
+use Lagdo\DbAdmin\App\Ui\Table\TableUiBuilder;
+
+#[Before('checkDatabaseAccess')]
+#[Databag('dbadmin.table')]
+abstract class Component extends BaseComponent
+{
+    use ComponentTrait;
+
+    /**
+     * The constructor
+     *
+     * @param TableUiBuilder $tableUi   The HTML UI builder
+     */
+    public function __construct(protected TableUiBuilder $tableUi)
+    {}
+}

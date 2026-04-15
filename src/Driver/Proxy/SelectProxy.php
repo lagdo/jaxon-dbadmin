@@ -1,11 +1,12 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\UiData\Dql\SelectDto;
-use Lagdo\DbAdmin\Db\UiData\Dql\SelectQuery;
-use Lagdo\DbAdmin\Db\UiData\Dql\SelectResult;
-use Lagdo\DbAdmin\Db\Service\TimerService;
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectQuery;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectResult;
+use Lagdo\DbAdmin\Support\Service\TimerService;
 use Exception;
 
 use function array_keys;
@@ -14,7 +15,7 @@ use function count;
 /**
  * Proxy to table select functions
  */
-class SelectProxy extends AbstractProxy
+class SelectProxy extends AbstractDriverProxy
 {
     /**
      * @var SelectQuery|null
@@ -68,7 +69,7 @@ class SelectProxy extends AbstractProxy
     private function prepareSelect(string $table, array $queryOptions = []): SelectDto
     {
         $tableStatus = $this->engine()->tableStatusOrName($table);
-        $tableName = $this->page()->tableName($tableStatus);
+        $tableName = $this->pageUi()->tableName($tableStatus);
         $selectDto = new SelectDto($table, $tableName,
             $tableStatus, $queryOptions);
         return $this->query()->prepareSelect($selectDto);

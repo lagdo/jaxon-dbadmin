@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver;
+namespace Lagdo\DbAdmin\Support\Driver;
 
-use Lagdo\DbAdmin\Db\UiData\AppPage;
+use Lagdo\DbAdmin\Support\Driver\PageUi;
 use Lagdo\DbAdmin\Driver\Driver;
 use Lagdo\DbAdmin\Driver\EngineInterface;
 use Lagdo\DbAdmin\Driver\StatementInterface;
@@ -14,83 +14,56 @@ use Lagdo\DbAdmin\Driver\Utils\Utils;
 class DriverHelper
 {
     /**
-     * @var EngineInterface|null
+     * @var EngineInterface
      */
-    private EngineInterface|null $engine = null;
+    private EngineInterface $engine;
 
     /**
-     * @var StatementInterface|null
+     * @var StatementInterface
      */
-    private StatementInterface|null $statement = null;
-
-    /**
-     * @var AppPage
-     */
-    private AppPage $page;
-
-    /**
-     * @var Utils
-     */
-    private Utils $utils;
-
-    /**
-     * @param Driver|null $driver
-     *
-     * @return self
-     */
-    public function setDriver(Driver|null $driver = null): self
-    {
-        if($driver !== null) {
-            $this->engine = $driver->engine;
-            $this->statement = $driver->statement;
-        }
-        return $this;
-    }
-
-    /**
-     * @param AppPage $page
-     *
-     * @return self
-     */
-    public function setPage(AppPage $page): self
-    {
-        $this->page = $page;
-        return $this;
-    }
+    private StatementInterface $statement;
 
     /**
      * @param Utils $utils
+     * @param PageUi $pageUi
+     */
+    public function __construct(private Utils $utils, private PageUi $pageUi)
+    {}
+
+    /**
+     * @param Driver $driver
      *
      * @return self
      */
-    public function setUtils(Utils $utils): self
+    public function setDriver(Driver $driver): self
     {
-        $this->utils = $utils;
+        $this->engine = $driver->engine;
+        $this->statement = $driver->statement;
         return $this;
     }
 
     /**
-     * @return EngineInterface|null
+     * @return EngineInterface
      */
-    public function engine(): EngineInterface|null
+    public function engine(): EngineInterface
     {
         return $this->engine;
     }
 
     /**
-     * @return StatementInterface|null
+     * @return StatementInterface
      */
-    public function statement(): StatementInterface|null
+    public function statement(): StatementInterface
     {
         return $this->statement;
     }
 
     /**
-     * @return AppPage
+     * @return PageUi
      */
-    public function page(): AppPage
+    public function pageUi(): PageUi
     {
-        return $this->page;
+        return $this->pageUi;
     }
 
     /**

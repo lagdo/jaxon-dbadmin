@@ -1,11 +1,12 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\UiData\Dml\DataFieldInput;
-use Lagdo\DbAdmin\Db\UiData\Dml\DataFieldValue;
-use Lagdo\DbAdmin\Db\UiData\Dml\DataRowReader;
-use Lagdo\DbAdmin\Db\UiData\Dml\DataRowWriter;
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\DataFieldInput;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\DataFieldValue;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\DataRowReader;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\DataRowWriter;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 
 use function count;
@@ -13,7 +14,7 @@ use function count;
 /**
  * Proxy to table query functions
  */
-class QueryProxy extends AbstractProxy
+class QueryProxy extends AbstractDriverProxy
 {
     /**
      * @var string
@@ -68,7 +69,7 @@ class QueryProxy extends AbstractProxy
         // Remove fields without the required privilege, or that cannot be edited.
         $fields = array_filter($fields, fn(TableFieldDto $field) =>
             isset($field->privileges[$this->operation]) &&
-            $this->page()->fieldName($field) !== '' && !$field->generated);
+            $this->pageUi()->fieldName($field) !== '' && !$field->generated);
 
         return [$fields, $where];
     }

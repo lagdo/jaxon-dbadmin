@@ -1,6 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver\Proxy;
+
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 
 use function explode;
 use function in_array;
@@ -10,7 +12,7 @@ use function strtoupper;
 /**
  * Proxy to user functions
  */
-class UserProxy extends AbstractProxy
+class UserProxy extends AbstractDriverProxy
 {
     /**
      * Get the privilege list

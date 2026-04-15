@@ -1,9 +1,10 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\Service\Admin\QueryLogger;
-use Lagdo\DbAdmin\Db\Service\TimerService;
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
+use Lagdo\DbAdmin\Support\Service\TimerService;
 use Lagdo\DbAdmin\Driver\Sql\Connection\AbstractConnection;
 use Lagdo\DbAdmin\Driver\Sql\Dto\QueryDto;
 
@@ -19,7 +20,7 @@ use function strlen;
 /**
  * Proxy to command functions
  */
-class CommandProxy extends AbstractProxy
+class CommandProxy extends AbstractDriverProxy
 {
     /**
      * Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())

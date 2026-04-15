@@ -1,0 +1,94 @@
+<?php
+
+namespace Lagdo\DbAdmin\App\Ajax\Base;
+
+use Jaxon\App\Component as JaxonComponent;
+use Jaxon\Attributes\Attribute\Databag;
+use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Sections;
+use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
+use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Command as ServerCommand;
+
+#[Databag('dbadmin')]
+abstract class Component extends JaxonComponent
+{
+    use ComponentTrait;
+    use TabItemTrait;
+
+    /**
+     * @param string $activeItem
+     *
+     * @return void
+     */
+    protected function activateServerSectionMenu(string $activeItem): void
+    {
+        if (!$this->hasServerAccess()) {
+            return;
+        }
+
+        $this->cl(Sections::class)->server($activeItem);
+        $this->setBag('dbadmin', 'section', 'server');
+
+        $this->cl(ServerCommand::class)->set('active', '')->render();
+        // Reset the database command menu only if there is an active database
+        [, $database] = $this->getCurrentDb();
+        if($database !== '')
+        {
+            $this->cl(DatabaseCommand::class)->set('active', '')->render();
+        }
+    }
+
+    /**
+     * @param string $activeItem
+     *
+     * @return void
+     */
+    protected function activateServerCommandMenu(string $activeItem): void
+    {
+        if (!$this->hasServerAccess()) {
+            return;
+        }
+
+        // The section content must be reset but not changed.
+        $this->getBag('dbadmin', 'section', 'server') === 'server' ?
+            $this->cl(Sections::class)->server() :
+            $this->cl(Sections::class)->database();
+
+        $this->cl(ServerCommand::class)->set('active', $activeItem)->render();
+        // Reset the database command menu only if there is an active database
+        [, $database] = $this->getCurrentDb();
+        if($database !== '')
+        {
+            $this->cl(DatabaseCommand::class)->set('active', '')->render();
+        }
+    }
+
+    /**
+     * @param string $activeItem
+     *
+     * @return void
+     */
+    protected function activateDatabaseSectionMenu(string $activeItem): void
+    {
+        $this->cl(Sections::class)->database($activeItem);
+        $this->setBag('dbadmin', 'section', 'database');
+
+        if ($this->hasServerAccess()) {
+            $this->cl(ServerCommand::class)->set('active', '')->render();
+        }
+        $this->cl(DatabaseCommand::class)->set('active', '')->render();
+    }
+
+    /**
+     * @param string $activeItem
+     *
+     * @return void
+     */
+    protected function activateDatabaseCommandMenu(string $activeItem): void
+    {
+        $this->cl(Sections::class)->database();
+        if ($this->hasServerAccess()) {
+            $this->cl(ServerCommand::class)->set('active', '')->render();
+        }
+        $this->cl(DatabaseCommand::class)->set('active', $activeItem)->render();
+    }
+}

@@ -1,7 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Exception;
 
 use function compact;
@@ -9,7 +10,7 @@ use function compact;
 /**
  * Proxy to view functions
  */
-class ViewProxy extends AbstractProxy
+class ViewProxy extends AbstractDriverProxy
 {
     /**
      * The current table status
@@ -44,7 +45,7 @@ class ViewProxy extends AbstractProxy
     {
         // From table.inc.php
         $status = $this->status($view);
-        $name = $this->page()->tableName($status);
+        $name = $this->pageUi()->tableName($status);
         $title = ($status->engine == 'materialized view' ? $this->utils()->lang('Materialized view') :
             $this->utils()->lang('View')) . ': ' . ($name != '' ? $name : $this->utils()->html($view));
 

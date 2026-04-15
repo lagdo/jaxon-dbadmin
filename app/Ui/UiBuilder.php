@@ -1,0 +1,269 @@
+<?php
+
+namespace Lagdo\DbAdmin\App\Ui;
+
+use Lagdo\DbAdmin\App\Ajax\Admin\Admin;
+use Lagdo\DbAdmin\App\Ajax\Admin\TabFunc;
+use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Sections as MenuSections;
+use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
+use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Schemas as MenuSchemas;
+use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Command as ServerCommand;
+use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Databases as MenuDatabases;
+use Lagdo\DbAdmin\App\Ajax\Admin\Page\Breadcrumbs;
+use Lagdo\DbAdmin\App\Ajax\Admin\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
+use Lagdo\DbAdmin\App\Ajax\Audit\Sidebar as AuditSidebar;
+use Lagdo\DbAdmin\App\Ajax\Audit\Wrapper as AuditWrapper;
+use Lagdo\DbAdmin\Support\Translator;
+use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\UiBuilder\BuilderInterface;
+
+use function count;
+use function Jaxon\cl;
+use function Jaxon\rq;
+use function Jaxon\select;
+
+class UiBuilder
+{
+    use PageTrait;
+    use UiTabTrait;
+
+    /**
+     * @param Translator $trans
+     * @param BuilderInterface $ui
+     */
+    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    {}
+
+    /**
+     * @return string
+     */
+    public static function hostSelectId(): string
+    {
+        return TabApp::id('jaxon-dbadmin-dbhost-select');
+    }
+
+    /**
+     * @param string $contentType
+     *
+     * @return array<string>
+     */
+    public function contentIds(string $contentType): array
+    {
+        return [
+            "dbadmin-table-$contentType",
+            TabApp::id("dbadmin-table-$contentType"),
+            TabApp::wrapperId(),
+        ];
+    }
+
+    /**
+     * @param array<string> $servers
+     * @param string $default
+     *
+     * @return mixed
+     */
+    private function getHostSelectCol(array $servers, string $default): mixed
+    {
+        return $this->ui->col(
+            $this->ui->form(
+                $this->ui->inputGroup(
+                    $this->ui->select(
+                        $this->ui->each($servers, fn($serverName, $serverId) =>
+                            $this->ui->option($serverName)
+                                ->selected($serverId === $default)
+                                ->setValue($serverId)
+                        )
+                    )->setId(self::hostSelectId()),
+                    $this->ui->button($this->ui->text('Show'))
+                        ->primary()
+                        ->setClass('btn-select')
+                        ->jxnClick(rq(Admin::class)
+                            ->server(select(self::hostSelectId())))
+                )
+            )
+        );
+    }
+
+    /**
+     * @param array<string> $servers
+     * @param bool $serverAccess
+     * @param string $default
+     *
+     * @return string
+     */
+    public function sidebar(array $servers, bool $serverAccess, string $default): string
+    {
+        return $this->ui->build(
+            $this->ui->row(
+                $this->getHostSelectCol($servers, $default)
+                    ->width(12)
+            ),
+            $this->ui->when($serverAccess, fn() =>
+                $this->ui->row(
+                    $this->ui->col()
+                        ->width(12)
+                        ->tbnBindApp(rq(ServerCommand::class))
+                )
+            ),
+            $this->ui->row(
+                $this->ui->col()
+                    ->width(12)
+                    ->tbnBindApp(rq(MenuDatabases::class))
+            ),
+            $this->ui->row(
+                $this->ui->col()
+                    ->width(12)
+                    ->tbnBindApp(rq(MenuSchemas::class))
+            ),
+            $this->ui->row(
+                $this->ui->col()
+                    ->width(12)
+                    ->tbnBindApp(rq(DatabaseCommand::class))
+            ),
+            $this->ui->row(
+                $this->ui->col()
+                    ->width(12)
+                    ->tbnBindApp(rq(MenuSections::class))
+            )
+        );
+    }
+
+    /**
+     * @param array $breadcrumbs
+     *
+     * @return string
+     */
+    public function breadcrumbs(array $breadcrumbs): string
+    {
+        $last = count($breadcrumbs) - 1;
+        $curr = 0;
+        return $this->ui->build(
+            $this->ui->breadcrumb(
+                $this->ui->each($breadcrumbs, fn($breadcrumb) =>
+                    $this->ui->breadcrumbItem($this->ui->html($breadcrumb))
+                        ->active($curr++ === $last)
+                )
+            )
+        );
+    }
+
+    /**
+     * @param array $actions
+     *
+     * @return string
+     */
+    public function actions(array $actions): string
+    {
+        return $this->ui->build(
+            $this->ui->buttonGroup(
+                $this->ui->each($actions, fn($action, $class) =>
+                    $this->ui->button(['class' => $class],
+                        $this->ui->text($action['title'])
+                    )->outline()
+                        ->secondary()
+                        ->jxnClick($action['handler'])
+                )
+            )->setClass('dbadmin-main-action-group')
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function wrapper(): string
+    {
+        return $this->ui->build(
+            $this->ui->row(
+                $this->ui->col(
+                    $this->ui->panel(
+                        $this->ui->panelBody( 
+                            $this->ui->span(['style' => 'float:left'])
+                                ->tbnBindApp(rq(Breadcrumbs::class)),
+                            $this->ui->span(['style' => 'float:right'])
+                                ->tbnBindApp(rq(PageActions::class))
+                        )->setStyle('padding-top: 0;padding-bottom: 0;')
+                    )
+                )->width(12)
+            ),
+            $this->ui->row(
+                $this->ui->col()
+                    ->width(12)
+                    ->tbnBindApp(rq(Content::class))
+            )
+        );
+    }
+
+    /**
+     * The DbAdmin layout
+     *
+     * @param bool $preferencesEnabled
+     *
+     * @return string
+     */
+    public function admin(bool $preferencesEnabled): string
+    {
+        $rqTab = rq(TabFunc::class);
+        $menuEntries = [[
+            'label' => '<i class="fa fa-plus"></i>',
+            'handler' => $rqTab->add(),
+        ], [
+            'label' => $this->trans->lang('Title'),
+            'handler' => $rqTab->editTitle(),
+        ], [
+            'label' => $this->trans->lang('Delete'),
+            'handler' => $rqTab->del()
+                ->confirm($this->trans->lang('Delete the current tab?')),
+        ]];
+        if ($preferencesEnabled) {
+            $menuEntries[] =  [
+                'label' => $this->trans->lang('Save tabs'),
+                'handler' => $rqTab->saveAppTabs()
+                    ->confirm($this->trans->lang('Save the current tabs in your preferences?')),
+            ];
+        }
+
+        return $this->ui->build(
+            $this->ui->div(
+                $this->ui->div(
+                    $this->ui->div(
+                        $this->tableMenu($menuEntries),
+                    )->setClass('jaxon-dbadmin-tabs-layout_button'),
+                    $this->ui->col(
+                        $this->ui->tabNav(
+                            $this->tabNavItem('&nbsp;', true)
+                        )->setId('dbadmin-server-tab-nav')
+                    )->setClass('jaxon-dbadmin-tabs-layout_header')
+                )->setClass('jaxon-dbadmin-tabs-layout'),
+                $this->ui->tabContent(
+                    $this->tabContentItem(true)
+                )->setId('dbadmin-server-tab-content')
+            )->setId('jaxon-dbadmin')
+        );
+    }
+
+    /**
+     * The DbAudit layout
+     *
+     * @return string
+     */
+    public function audit(): string
+    {
+        return $this->ui->build(
+            $this->ui->div(
+                $this->ui->div(
+                    $this->ui->div(
+                        $this->ui->div(
+                            cl(AuditSidebar::class)->html()
+                        )->jxnBind(rq(AuditSidebar::class))
+                    )->setClass('jaxon-dbadmin-content-layout_sidebar'),
+                    $this->ui->div(
+                        $this->ui->div(
+                            cl(AuditWrapper::class)->html()
+                        )->jxnBind(rq(AuditWrapper::class))
+                    )->setClass('jaxon-dbadmin-content-layout_wrapper')
+                )->setClass('jaxon-dbadmin-content-layout')
+            )->setId('jaxon-dbadmin')
+        );
+    }
+}

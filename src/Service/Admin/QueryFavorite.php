@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Service\Admin;
+namespace Lagdo\DbAdmin\Support\Service\Admin;
 
 use function implode;
 

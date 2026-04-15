@@ -1,21 +1,16 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver;
+namespace Lagdo\DbAdmin\Support\Driver;
 
-use Jaxon\App\View\ViewRenderer;
 use Jaxon\Di\Container;
-use Lagdo\DbAdmin\Db\Driver\Proxy\AbstractProxy;
-use Lagdo\DbAdmin\Db\UiData\AppPage;
-use Lagdo\DbAdmin\Db\Service\Breadcrumbs;
+use Lagdo\DbAdmin\Support\Service\Breadcrumbs;
 use Lagdo\DbAdmin\Driver\Driver;
-use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 /**
- * Proxy to calls to the database functions
+ * Proxy to calls to the database functions, for the UI components.
  */
-class DriverProxy extends AbstractProxy
+class DriverProxy extends AbstractDriverProxy
 {
-    use DriverHelperTrait;
     use Proxy\ServerTrait;
     use Proxy\UserTrait;
     use Proxy\DatabaseTrait;
@@ -28,33 +23,34 @@ class DriverProxy extends AbstractProxy
     use Proxy\ImportTrait;
 
     /**
-     * @var string
+     * @var bool
      */
-    protected $dbServer;
+    protected bool $connected = false;
 
     /**
      * @var string
      */
-    protected $dbName;
+    protected string $dbServer;
 
     /**
      * @var string
      */
-    protected $dbSchema;
+    protected string $dbName;
+
+    /**
+     * @var string
+     */
+    protected string $dbSchema;
 
     /**
      * @param Container $di
-     * @param Utils $utils
-     * @param ViewRenderer $viewRenderer
+     * @param DriverHelper $helper
      * @param Breadcrumbs $breadcrumbs
      */
-    public function __construct(protected Container $di, protected Utils $utils,
-        protected ViewRenderer $viewRenderer, protected Breadcrumbs $breadcrumbs)
+    public function __construct(protected Container $di,
+        DriverHelper $helper, protected Breadcrumbs $breadcrumbs)
     {
-        $this->driverHelper = new DriverHelper();
-        $this->driverHelper->setUtils($utils);
-        // Make the translator available into views.
-        $viewRenderer->share('trans', $utils->trans);
+        parent::__construct($helper);
     }
 
     /**
@@ -131,13 +127,12 @@ class DriverProxy extends AbstractProxy
     private function connect(string $server, string $database = '', string $schema = '')
     {
         // Prevent multiple calls.
-        if (!$this->engine()) {
+        if (!$this->connected) {
             // Save the selected server in the di container.
             $this->di->val('dbadmin_config_server', $server);
             // The DI is now able to return the corresponding driver.
-            $driver = $this->di->get(Driver::class);
-            $page = $this->di->get(AppPage::class);
-            $this->driverHelper->setDriver($driver)->setPage($page);
+            $this->helper()->setDriver($this->di->get(Driver::class));
+            $this->connected = true;
         }
 
         // Open the selected database

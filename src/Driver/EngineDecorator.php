@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver;
+namespace Lagdo\DbAdmin\Support\Driver;
 
 use Lagdo\DbAdmin\Driver\AbstractEngine;
 use Lagdo\DbAdmin\Driver\AbstractStatement;

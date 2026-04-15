@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Db\UiData\Ddl\ColumnInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 use Exception;
 

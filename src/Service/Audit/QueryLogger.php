@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Service\Audit;
+namespace Lagdo\DbAdmin\Support\Service\Audit;
 
 use function count;
 use function implode;
