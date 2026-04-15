@@ -83,7 +83,7 @@ class CommandProxy extends AbstractDriverProxy
         //! PDO - silent error
         // TODO: use this connection to execute EXPLAIN queries.
         if ($this->connection === null && $this->engine()->database() !== '') {
-            $this->connection = $this->engine()->newConnection(
+            $this->connection = $this->engine()->openNewConnection(
                 $this->engine()->database(), $this->engine()->schema());
         }
     }

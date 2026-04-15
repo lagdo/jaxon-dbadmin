@@ -4,7 +4,9 @@ namespace Lagdo\DbAdmin\Support\Driver\UiDto;
 
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 
-use function compact;
+use function array_keys;
+use function array_map;
+use function array_values;
 use function preg_replace;
 
 class TableExport extends AbstractDriverProxy
@@ -138,20 +140,20 @@ class TableExport extends AbstractDriverProxy
      */
     public function getDbTables(): array
     {
-        $tables = [
-            'headers' => [$this->utils()->lang('Tables'), $this->utils()->lang('Data')],
-            'details' => [],
+        $tables = $this->engine()->tables();
+        return [
+            'headers' => [
+                $this->utils()->lang('Tables'),
+                $this->utils()->lang('Data'),
+            ],
+            'details' => array_map(fn($name, $type) => [
+                'prefix' => preg_replace('~_.*~', '', $name),
+                'name' => $name,
+                'type' => $type,
+                //! % may be part of table name
+                // 'checked' => ($TABLE == '' || $TABLE == (\substr($TABLE, -1) == '%' ? "$prefix%" : $name)),
+            ], array_keys($tables), array_values($tables)),
         ];
-        $tables_list = $this->engine()->tables();
-        foreach ($tables_list as $name => $type) {
-            $prefix = preg_replace('~_.*~', '', $name);
-            //! % may be part of table name
-            // $checked = ($TABLE == '' || $TABLE == (\substr($TABLE, -1) == '%' ? "$prefix%" : $name));
-            // $results['prefixes'][$prefix]++;
-
-            $tables['details'][] = compact('prefix', 'name', 'type'/*, 'checked'*/);
-        }
-        return $tables;
     }
 
     /**
@@ -159,19 +161,16 @@ class TableExport extends AbstractDriverProxy
      */
     public function getDatabases(): array
     {
-        $databases = [
-            'headers' => [$this->utils()->lang('Database'), $this->utils()->lang('Data')],
-            'details' => [],
+        $databases = $this->engine()->databases(false) ?? [];
+        return [
+            'headers' => [
+                $this->utils()->lang('Database'),
+                $this->utils()->lang('Data'),
+            ],
+            'details' => array_map(fn($name) => [
+                'prefix' => preg_replace('~_.*~', '', $name),
+                'name' => $name,
+            ], $databases),
         ];
-        $databases_list = $this->engine()->databases(false) ?? [];
-        foreach ($databases_list as $name) {
-            if (!$this->engine()->isInformationSchema($name)) {
-                $prefix = preg_replace('~_.*~', '', $name);
-                // $results['prefixes'][$prefix]++;
-
-                $databases['details'][] = compact('prefix', 'name');
-            }
-        }
-        return $databases;
     }
 }

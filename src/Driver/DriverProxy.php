@@ -136,7 +136,7 @@ class DriverProxy extends AbstractDriverProxy
         }
 
         // Open the selected database
-        $this->engine()->openConnection($database, $schema);
+        $this->engine()->openMainConnection($database, $schema);
     }
 
     /**

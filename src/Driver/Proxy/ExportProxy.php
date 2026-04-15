@@ -572,24 +572,35 @@ class ExportProxy extends AbstractDriverProxy
      */
     private function dumpDatabase(string $database, array $tableOptions): void
     {
-        $this->engine()->openConnection($database); // New connection
-        $this->dumpUseDatabaseQuery($database);
-
-        if ($this->options['to_sql']) {
-            $this->dumpTypes();
-            $this->dumpRoutines();
-            $this->dumpEvents();
-        }
-
-        if (!$this->options['table_style'] && !$this->options['data_style']) {
+        // New connection
+        $connection = $this->engine()->openNewConnection($database);
+        if ($connection === null) {
+            // Todo: Error message.
             return;
         }
 
-        $statuses = array_filter($this->engine()->tableStatuses(true), fn($status) =>
-            isset($tableOptions['*']) || isset($tableOptions[$status->name]));
-        $this->dumpTables($statuses, $tableOptions);
-        // Dump the views after all the tables
-        $this->dumpViews($statuses);
+        $this->engine()->withConnection($connection, function() use($database, $tableOptions) {
+            // Dump the database using the created connection.
+            $this->dumpUseDatabaseQuery($database);
+
+            if ($this->options['to_sql']) {
+                $this->dumpTypes();
+                $this->dumpRoutines();
+                $this->dumpEvents();
+            }
+
+            if (!$this->options['table_style'] && !$this->options['data_style']) {
+                return;
+            }
+
+            $statuses = array_filter($this->engine()->tableStatuses(true), fn($status) =>
+                isset($tableOptions['*']) || isset($tableOptions[$status->name]));
+            $this->dumpTables($statuses, $tableOptions);
+            // Dump the views after all the tables
+            $this->dumpViews($statuses);
+
+            $this->engine()->closeConnection();
+        });
     }
 
     /**
