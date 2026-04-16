@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Support\Service\Admin;
 
 use Lagdo\DbAdmin\Support\Service\Audit\Options;
+use Closure;
 
 use function json_encode;
 
@@ -26,10 +27,10 @@ class QueryLogger
      *
      * @param ConnectionProxy $proxy
      * @param array $options
-     * @param array $database
+     * @param Closure $database
      */
     public function __construct(private ConnectionProxy $proxy,
-        array $options, private array $database)
+        array $options, private Closure $database)
     {
         $this->record = [
             Options::CAT_LIBRARY => false, // (bool)($options['library']['enabled'] ?? false),
@@ -68,14 +69,17 @@ class QueryLogger
             return false;
         }
 
-        if (isset($this->database['password'])) {
+        // Get the database options using the provided closure.
+        $database = ($this->database)();
+
+        if (isset($database['password'])) {
             // Hide the password.
-            $this->database['password'] = '';
+            $database['password'] = '';
         }
         $values = [
             'query' => $query,
-            'driver' => $this->database['driver'],
-            'options' => json_encode($this->database) ?? '{}',
+            'driver' => $database['driver'],
+            'options' => json_encode($database) ?? '{}',
             'category' => $category,
             'last_update' => $this->proxy->currentTime(),
             'user_id' => $this->proxy->getUserId(),

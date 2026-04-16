@@ -99,7 +99,7 @@ class QueryUiBuilder
             $this->ui->row(
                 $this->ui->col(
                     $this->queryButtons($rqQuery)
-                )->width(4),
+                )->width(3),
                 $this->ui->col()
                     ->width(1)
                     ->tbnBindEditor(rq(Query\QueryDuration::class)),
@@ -135,7 +135,7 @@ class QueryUiBuilder
                             )
                         )->width(4)
                     ),
-                )->width(7)
+                )->width(8)
             )
         )->horizontal(true)
             ->wrapped(true)

@@ -4,11 +4,13 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Databag;
+use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Query as QueryEdit;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Table;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\Insert;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
+use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
 
 /**
  * This class provides select query features on tables.
@@ -16,6 +18,11 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 class Select extends MainComponent
 {
     use QueryTrait;
+
+    /**
+     * @var QueryLogger|null
+     */
+    protected QueryLogger|null $queryLogger = null;
 
     /**
      * @inheritDoc
@@ -99,6 +106,8 @@ class Select extends MainComponent
      * @return void
      */
     #[After('showBreadcrumbs')]
+    // Injecting the query logger here makes it possible to check if the audit db connection is active.
+    #[Inject(attr: 'queryLogger')]
     public function show(string $table): void
     {
         // Save the table name in the databag.

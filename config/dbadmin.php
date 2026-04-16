@@ -104,10 +104,15 @@ return [
                     return null;
                 }
 
+                /*
+                 * The "dbadmin_server_options" entry might not yet be available
+                 * in the DI when this class is instantiated. So closures are used
+                 * to delay the access to its value until it is actually needed.
+                 */
                 // User database, different from the audit database.
-                $serverOptions = $di->g('dbadmin_server_options');
+                $serverOptions = fn() => $di->g('dbadmin_server_options');
                 $dbProxy = $di->g(Support\Driver\DriverProxy::class);
-                $database = $dbProxy->getDatabaseOptions($serverOptions);
+                $database = fn() => $dbProxy->getDatabaseOptions($serverOptions());
 
                 $proxy = $di->g(Service\Admin\ConnectionProxy::class);
                 return new Service\Admin\QueryLogger($proxy, $options, $database);

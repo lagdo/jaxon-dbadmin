@@ -23,9 +23,9 @@ class DriverProxy extends AbstractDriverProxy
     use Proxy\ImportTrait;
 
     /**
-     * @var bool
+     * @var array
      */
-    protected bool $connected = false;
+    protected array $connected = ['', '', ''];
 
     /**
      * @var string
@@ -101,6 +101,11 @@ class DriverProxy extends AbstractDriverProxy
         $this->dbServer = $server;
         $this->dbName = $database;
         $this->dbSchema = $schema;
+
+        // Save the selected server in the di container.
+        $this->di->val('dbadmin_config_server', $server);
+        // The DI is now able to return the corresponding driver.
+        $this->helper()->setDriver($this->di->get(Driver::class));
     }
 
     /**
@@ -126,17 +131,14 @@ class DriverProxy extends AbstractDriverProxy
      */
     private function connect(string $server, string $database = '', string $schema = '')
     {
-        // Prevent multiple calls.
-        if (!$this->connected) {
-            // Save the selected server in the di container.
-            $this->di->val('dbadmin_config_server', $server);
-            // The DI is now able to return the corresponding driver.
-            $this->helper()->setDriver($this->di->get(Driver::class));
-            $this->connected = true;
+        $dbChanged = $this->connected[0] !== $server ||
+            $this->connected[1] !== $database ||
+            $this->connected[2] !== $schema;
+        if ($dbChanged) {
+            // Open the selected database
+            $this->engine()->openMainConnection($database, $schema);
+            $this->connected = [$server, $database, $schema];
         }
-
-        // Open the selected database
-        $this->engine()->openMainConnection($database, $schema);
     }
 
     /**
