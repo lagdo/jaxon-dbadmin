@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ui\Table;
 
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
 use Lagdo\DbAdmin\Support\Translator;
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 class ColumnUiBuilder
@@ -14,9 +14,19 @@ class ColumnUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @param ColumnInputDto $column
@@ -118,7 +128,7 @@ class ColumnUiBuilder
                         $this->ui->text($this->trans->lang('Comment'))
                     )->width(3),
                     $this->ui->col(
-                        $this->getColumnCommentField($column, 'comment')
+                        $this->getColumnCommentField($column, 'comment', 'hasComment')
                     )->width(9)
                 )
             )->setId($this->editFormId())
@@ -170,7 +180,7 @@ class ColumnUiBuilder
      */
     public function getQueryDivId(): string
     {
-        return TabApp::id('dbadmin-table-show-sql-query');
+        return $this->tab()->app()->id('dbadmin-table-show-sql-query');
     }
 
     /**

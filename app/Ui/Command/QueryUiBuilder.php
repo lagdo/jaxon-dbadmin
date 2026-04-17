@@ -7,8 +7,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
 use Lagdo\DbAdmin\Support\Config\ServerConfig;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\PageTrait;
-use Lagdo\DbAdmin\App\Ui\TabApp;
-use Lagdo\DbAdmin\App\Ui\TabEditor;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
@@ -40,10 +39,20 @@ class QueryUiBuilder
      * @param Translator $trans
      * @param BuilderInterface $ui
      * @param ServerConfig $config
+     * @param Tab $tab
      */
     public function __construct(protected Translator $trans,
-        protected BuilderInterface $ui, protected ServerConfig $config)
+        protected BuilderInterface $ui, protected ServerConfig $config,
+        protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @param bool $canSaveQuery
@@ -61,7 +70,7 @@ class QueryUiBuilder
      */
     private function queryFormId(): string
     {
-        return TabEditor::id('dbadmin-main-command-form');
+        return $this->tab()->editor()->id('dbadmin-main-command-form');
     }
 
     /**
@@ -147,7 +156,7 @@ class QueryUiBuilder
      */
     public function commandDetailsId(): string
     {
-        return TabEditor::id('dbadmin-main-command-details');
+        return $this->tab()->editor()->id('dbadmin-main-command-details');
     }
 
     /**
@@ -155,7 +164,7 @@ class QueryUiBuilder
      */
     public function commandEditorId(): string
     {
-        return TabEditor::id(self::QUERY_TEXT_CLASS);
+        return $this->tab()->editor()->id(self::QUERY_TEXT_CLASS);
     }
 
     /**
@@ -166,11 +175,11 @@ class QueryUiBuilder
     private function editorTabNav(bool $active): HtmlComponent
     {
         return $this->ui->tabNavItem($this->trans->lang('Editor'))
-            ->target(TabEditor::wrapperId())
-            ->setId(TabEditor::titleId())
+            ->target($this->tab()->editor()->wrapperId())
+            ->setId($this->tab()->editor()->titleId())
             ->active($active)
             ->jxnOn('click', jo('jaxon.dbadmin')
-                ->onEditorTabClick(TabApp::current(), TabEditor::current()));
+                ->onEditorTabClick($this->tab()->app()->current(), $this->tab()->editor()->current()));
     }
 
     /**
@@ -216,7 +225,7 @@ class QueryUiBuilder
                             ->width(12)
                             ->tbnBindEditor(rq(Query\QueryResult::class))
                     )
-                )->setId(TabEditor::wrapperId())
+                )->setId($this->tab()->editor()->wrapperId())
                     ->active($active);
     }
 
@@ -237,7 +246,7 @@ class QueryUiBuilder
      */
     public function editorTabNavWrapperId(): string
     {
-        return TabApp::id("dbadmin-query-editor-tab-nav");
+        return $this->tab()->app()->id("dbadmin-query-editor-tab-nav");
     }
 
     /**
@@ -245,7 +254,7 @@ class QueryUiBuilder
      */
     public function editorTabContentWrapperId(): string
     {
-        return TabApp::id("dbadmin-query-editor-tab-content");
+        return $this->tab()->app()->id("dbadmin-query-editor-tab-content");
     }
 
     /**
@@ -268,7 +277,8 @@ class QueryUiBuilder
                 ->confirm($this->trans->lang('Delete this tab?')),
         ]];
         if ($this->canSaveQuery) {
-            $tabQueries = jo('jaxon.dbadmin')->getQueries(TabApp::current(), TabEditor::$page);
+            $tabQueries = jo('jaxon.dbadmin')->getQueries($this->tab()->app()->current(),
+                $this->tab()->editor()->page());
             $menuEntries[] = [
                 'label' => $this->trans->lang('Save tabs'),
                 'handler' => $rqEditor->saveTabs($tabQueries)
@@ -285,12 +295,12 @@ class QueryUiBuilder
                     $this->ui->tabNav(
                         $this->ui->when($this->config->queryFavoriteEnabled(), fn() =>
                             $this->ui->tabNavItem($this->trans->lang('History'))
-                                ->target(TabEditor::id("tab-content-query-history"))
+                                ->target($this->tab()->editor()->id("tab-content-query-history"))
                                 ->active(false)
                         ),
                         $this->ui->when($this->config->queryHistoryEnabled(), fn() =>
                             $this->ui->tabNavItem($this->trans->lang('Favorites'))
-                                ->target(TabEditor::id("tab-content-query-favorite"))
+                                ->target($this->tab()->editor()->id("tab-content-query-favorite"))
                                 ->active(false)
                         ),
                         $this->editorTabNav(true)
@@ -302,12 +312,12 @@ class QueryUiBuilder
                 $this->ui->when($this->config->queryFavoriteEnabled(), fn() =>
                     $this->ui->tabContentItem()
                         ->tbnBindApp(rq(Query\History::class))
-                        ->setId(TabEditor::id("tab-content-query-history"))
+                        ->setId($this->tab()->editor()->id("tab-content-query-history"))
                         ->active(false)),
                 $this->ui->when($this->config->queryHistoryEnabled(), fn() =>
                     $this->ui->tabContentItem()
                         ->tbnBindApp(rq(Query\Favorite::class))
-                        ->setId(TabEditor::id("tab-content-query-favorite"))
+                        ->setId($this->tab()->editor()->id("tab-content-query-favorite"))
                         ->active(false)),
                 $this->editorTabContent($rqQuery, true)
             )->setId($this->editorTabContentWrapperId())

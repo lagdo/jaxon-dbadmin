@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\App\Ui\Select;
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options;
 use Lagdo\DbAdmin\Support\Translator;
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
@@ -19,9 +19,19 @@ class OptionsUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @param JxnCall $rqInput
@@ -111,7 +121,7 @@ class OptionsUiBuilder
      */
     public function columnFormId(): string
     {
-        return TabApp::id('dbadmin-table-select-columns-form');
+        return $this->tab()->app()->id('dbadmin-table-select-columns-form');
     }
 
     /**
@@ -186,7 +196,7 @@ class OptionsUiBuilder
      */
     public function filterFormId(): string
     {
-        return TabApp::id('dbadmin-table-select-filters-form');
+        return $this->tab()->app()->id('dbadmin-table-select-filters-form');
     }
 
     /**
@@ -259,7 +269,7 @@ class OptionsUiBuilder
      */
     public function sortingFormId(): string
     {
-        return TabApp::id('dbadmin-table-select-sorting-form');
+        return $this->tab()->app()->id('dbadmin-table-select-sorting-form');
     }
 
     /**
@@ -326,9 +336,9 @@ class OptionsUiBuilder
      */
     public function optionsValues(array $options): string
     {
-        $optionsLimitId = TabApp::id('dbadmin-table-select-options-form-limit');
-        $optionsTotalId = TabApp::id('dbadmin-table-select-options-form-total');
-        $optionsLengthId = TabApp::id('dbadmin-table-select-options-form-length');
+        $optionsLimitId = $this->tab()->app()->id('dbadmin-table-select-options-form-limit');
+        $optionsTotalId = $this->tab()->app()->id('dbadmin-table-select-options-form-total');
+        $optionsLengthId = $this->tab()->app()->id('dbadmin-table-select-options-form-length');
         $rqOptionsValues = rq(Options\Values::class);
         $selectLimitValue = input($optionsLimitId)->toInt();
         $selectTotalValue = checked($optionsTotalId);

@@ -3,8 +3,8 @@
 namespace Lagdo\DbAdmin\App\Ui\Table;
 
 use Jaxon\Script\JsExpr;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
-use Lagdo\DbAdmin\App\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
@@ -44,11 +44,16 @@ trait TableFieldTrait
     protected BuilderInterface $ui;
 
     /**
+     * @return Tab
+     */
+    abstract protected function tab(): Tab;
+
+    /**
      * @return string
      */
     protected function listFormId(): string
     {
-        return TabApp::id('dbadmin-table-columns-form');
+        return $this->tab()->app()->id('dbadmin-table-columns-form');
     }
 
     /**
@@ -73,7 +78,7 @@ trait TableFieldTrait
      */
     protected function editFormId(): string
     {
-        return TabApp::id('dbadmin-table-column-edit-form');
+        return $this->tab()->app()->id('dbadmin-table-column-edit-form');
     }
 
     /**
@@ -235,23 +240,24 @@ trait TableFieldTrait
     /**
      * @param ColumnInputDto $column
      * @param string $fieldName
+     * @param string $hasFieldName
      *
      * @return mixed
      */
-    protected function getColumnCommentField(ColumnInputDto $column, string $fieldName): mixed
+    protected function getColumnCommentField(ColumnInputDto $column,
+        string $fieldName, string $hasFieldName): mixed
     {
-        // return $this->ui->when(/*$support['comment']*/true, fn() =>
-        //     $this->ui->input()
-        //         ->setType('text')
-        //         ->setName($fieldName)
-        //         ->setValue($column->values()->comment ?? '')
-        //         ->setDataField('comment')
-        // );
-        return $this->ui->input()
-            ->setType('text')
-            ->setName($fieldName)
-            ->setValue($column->values()->comment ?? '')
-            ->setDataField('comment');
+        $comment = $column->values()->comment;
+        return $this->ui->inputGroup(
+            $this->ui->checkbox()
+                ->checked($comment !== null)
+                ->setName($hasFieldName),
+            $this->ui->input()
+                ->setType('text')
+                ->setName($fieldName)
+                ->setValue($comment ?? '')
+                ->setDataField('comment')
+        );
     }
 
     /**
@@ -264,18 +270,26 @@ trait TableFieldTrait
     {
         return $this->ui->select(
             $this->ui->each($column->field->types, fn($groupTypes, $groupName) =>
-                is_numeric($groupName) ?
-                    $this->ui->each($groupTypes, fn($type, $key) =>
-                        $this->ui->option($type)
-                            ->selected($column->values()->type === $type)
-                            ->when(!is_numeric($key), fn($input) => $input->setValue($key))) :
-                    $this->ui->optgroup(
+                $this->ui->pick([
+                    !is_numeric($groupName),
+                    fn() => $this->ui->optgroup(
                         $this->ui->each($groupTypes, fn($type, $key) =>
                             $this->ui->option($type)
                                 ->selected($column->values()->type === $type)
                                 ->when(!is_numeric($key), fn($input) => $input->setValue($key))
                         )
                     )->setLabel($groupName)
+                ], [
+                    is_array($groupTypes),
+                    fn() => $this->ui->each($groupTypes, fn($type, $key) =>
+                        $this->ui->option($type)
+                            ->selected($column->values()->type === $type)
+                            ->when(!is_numeric($key), fn($input) => $input->setValue($key)))
+                ], [
+                    $type = $groupTypes, // Always true
+                    $this->ui->option($type)
+                        ->selected($column->values()->type === $type)
+                ])
             )
         )->setName($fieldName)
             ->setDataField('type');

@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ui\Data;
 
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\FieldEditDto;
 use Lagdo\DbAdmin\Support\Translator;
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 class EditUiBuilder
@@ -12,9 +12,19 @@ class EditUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @param array $input
@@ -32,7 +42,7 @@ class EditUiBuilder
                             $radio->setAttribute('checked', 'checked'))
                         ->setStyle('margin-right:3px;'),
                     $this->ui->span($item['label'])
-                )->setFor(TabApp::id($item['attrs']['id']))
+                )->setFor($this->tab()->app()->id($item['attrs']['id']))
                     ->setStyle('margin-right:7px;')
             )
         );
@@ -53,7 +63,7 @@ class EditUiBuilder
                         $checkbox->setAttribute('checked', 'checked'))
                     ->setStyle('margin-right:3px;'),
                 $this->ui->span($item['label'])
-            )->setFor(TabApp::id($item['attrs']['id']))
+            )->setFor($this->tab()->app()->id($item['attrs']['id']))
                 ->setStyle('margin-right:7px;')
         );
     }
@@ -176,7 +186,7 @@ class EditUiBuilder
     {
         return isset($field->valueInput['attrs']['id']) ?
             $this->ui->label($field->name)
-                ->setFor(TabApp::id($field->valueInput['attrs']['id']))
+                ->setFor($this->tab()->app()->id($field->valueInput['attrs']['id']))
                 ->setTitle($field->type) :
             $this->ui->span($field->name)
                 ->setTitle($field->type);
@@ -187,7 +197,7 @@ class EditUiBuilder
      */
     public function queryFormId(): string
     {
-        return TabApp::id('dbadmin-table-query-form');
+        return $this->tab()->app()->id('dbadmin-table-query-form');
     }
 
     /**
@@ -226,7 +236,7 @@ class EditUiBuilder
      */
     public function queryDivId(): string
     {
-        return TabApp::id('dbadmin-table-show-sql-query');
+        return $this->tab()->app()->id('dbadmin-table-show-sql-query');
     }
 
     /**

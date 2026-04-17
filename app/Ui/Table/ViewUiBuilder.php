@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ui\Table;
 
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\PageTrait;
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 class ViewUiBuilder
@@ -20,16 +20,26 @@ class ViewUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @return string
      */
     public function queryFormId(): string
     {
-        return TabApp::id(self::QUERY_FORM_CLASS);
+        return $this->tab()->app()->id(self::QUERY_FORM_CLASS);
     }
 
     /**

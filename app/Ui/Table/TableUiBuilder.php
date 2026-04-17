@@ -7,6 +7,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\PageTrait;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
@@ -28,9 +29,19 @@ class TableUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @var JxnCall
@@ -115,6 +126,7 @@ class TableUiBuilder
         $hasEngines = count($this->engines()) > 0;
         $hasCollations = count($this->collations()) > 0;
         $hasAutoIncrement = $this->table['hasAutoIncrement'] ?? false;
+        $comment = $this->table['comment'] ?? null;
         $support = $this->support();
 
         return $this->ui->div(
@@ -164,11 +176,16 @@ class TableUiBuilder
                     $this->ui->when(isset($support['comment']), fn() =>
                         $this->ui->row(
                             $this->ui->col(
-                                $this->ui->input()
-                                    ->setType('text')
-                                    ->setName('comment')
-                                    ->setValue($this->table['comment'] ?? '')
-                                    ->setPlaceholder($this->trans->lang('Comment'))
+                                $this->ui->inputGroup(
+                                    $this->ui->checkbox()
+                                        ->checked($comment !== null)
+                                        ->setName('hasComment'),
+                                    $this->ui->input()
+                                        ->setType('text')
+                                        ->setName('comment')
+                                        ->setValue($comment ?? '')
+                                        ->setPlaceholder($this->trans->lang('Comment'))
+                                )
                             )->width(11)
                         )
                     )
@@ -323,7 +340,7 @@ class TableUiBuilder
             $this->ui->col(
                 $this->getColumnNameField($column, "{$editPrefix}[name]")
                     ->setPlaceholder($this->trans->lang('Name'))
-                    ->with(fn($input) => $this->disable($input))
+                    ->with(fn($input) => $this->disable($input, true))
             )->width(4)
                 ->setClass('dbadmin-table-column-left'),
             $this->ui->col(
@@ -337,9 +354,10 @@ class TableUiBuilder
                 $this->ui->row(
                     $this->ui->col(
                         $this->ui->when(isset($support['comment']), fn() =>
-                            $this->getColumnCommentField($column, "{$editPrefix}[comment]")
+                            $this->getColumnCommentField($column,
+                                "{$editPrefix}[comment]", "{$editPrefix}[hasComment]")
                                 ->setPlaceholder($this->trans->lang('Comment'))
-                                ->with(fn($input) => $this->disable($input))
+                                ->with(fn($input) => $this->disable($input, true))
                         )
                     )->width(11)
                         ->setClass('dbadmin-table-column-middle nested-col'),

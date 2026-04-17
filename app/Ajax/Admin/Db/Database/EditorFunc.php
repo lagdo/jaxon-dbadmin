@@ -7,7 +7,6 @@ use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query\EditorTrait;
 use Lagdo\DbAdmin\Support\Service\Admin\Preference;
 use Lagdo\DbAdmin\App\Ui\Command\QueryUiBuilder;
-use Lagdo\DbAdmin\App\Ui\TabEditor;
 
 #[Databag('dbadmin.tab')]
 #[Before('setEditorPage')]
@@ -30,7 +29,7 @@ class EditorFunc extends FuncComponent
      */
     protected function setEditorPage(): void
     {
-        TabEditor::$page = 'db';
+        $this->tab()->editor()->setPage('db');
         $this->queryClass = Query::class;
     }
 

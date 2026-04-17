@@ -9,7 +9,6 @@ use Lagdo\DbAdmin\App\Ajax\Base\FuncComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Server\Server;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppTabMenu;
 use Lagdo\DbAdmin\Support\Service\Admin\Preference;
-use Lagdo\DbAdmin\App\Ui\TabApp;
 
 use function array_shift;
 use function count;
@@ -51,7 +50,7 @@ class Admin extends FuncComponent
         $this->connect($server);
 
         if (!$this->bag('dbadmin')->get('tab.app')) {
-            $this->bag('dbadmin')->set('tab.app', TabApp::current());
+            $this->bag('dbadmin')->set('tab.app', $this->tab()->app()->current());
         }
         // Initially clear all the tabs.
         $this->setBag('dbadmin.tab', 'editor.names.sv', []);
@@ -115,7 +114,7 @@ class Admin extends FuncComponent
         [$server, $title] = $this->getDefaultServer($tabs[0] ?? []);
         if ($server !== '') {
             $this->setCurrentTitle($title);
-            $this->response()->html(TabApp::titleId(), $title);
+            $this->response()->html($this->tab()->app()->titleId(), $title);
             // The first tab content is loaded.
             $this->server($server);
             // Updating the breadcrumbs after the request processing doesn't work here.

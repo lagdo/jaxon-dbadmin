@@ -7,10 +7,7 @@ use Jaxon\Plugin\CssCode;
 use Jaxon\Plugin\CssCodeGeneratorInterface;
 use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
-use Jaxon\Plugin\Response\Databag\DatabagPlugin;
 use Lagdo\DbAdmin\App\Ajax\Admin\Admin;
-use Lagdo\DbAdmin\App\Ui\TabApp;
-use Lagdo\DbAdmin\App\Ui\TabEditor;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
 
 use function realpath;
@@ -33,10 +30,6 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public static function config(): string
     {
-        $databag = jaxon()->di()->g(DatabagPlugin::class);
-        TabApp::$databag = $databag;
-        TabEditor::$databag = $databag;
-
         return realpath(__DIR__ . '/../config/dbadmin.php');
     }
 

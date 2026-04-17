@@ -145,6 +145,7 @@ return [
         Ui\Table\TableUiBuilder::class,
         Ui\Table\ViewUiBuilder::class,
         Ui\Table\ColumnUiBuilder::class,
+        Ui\Tab\Tab::class,
     ],
     'alias' => [
         // The translator

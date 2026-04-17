@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\App\Ui\Command;
 use Jaxon\Script\JsExpr;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
 use Lagdo\DbAdmin\Support\Translator;
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\form;
@@ -18,16 +18,26 @@ class ImportUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @return string
      */
     private function formId(): string
     {
-        return TabApp::id('dbadmin-import-form');
+        return $this->tab()->app()->id('dbadmin-import-form');
     }
 
     /**
@@ -35,7 +45,7 @@ class ImportUiBuilder
      */
     public function filesDivId(): string
     {
-        return TabApp::id('dbadmin-import-sql-files-wrapper');
+        return $this->tab()->app()->id('dbadmin-import-sql-files-wrapper');
     }
 
     /**
@@ -54,7 +64,7 @@ class ImportUiBuilder
      */
     private function fileCol(array $contents, JsExpr $handler): mixed
     {
-        $sqlFilesInputId = TabApp::id('dbadmin-import-sql-files-input');
+        $sqlFilesInputId = $this->tab()->app()->id('dbadmin-import-sql-files-input');
         return $this->ui->col(
             $this->ui->row(
                 $this->ui->col(
@@ -183,7 +193,7 @@ class ImportUiBuilder
     {
         return $this->ui->build(
             $this->ui->row(
-                $this->ui->col()->width(12)->setId(TabApp::id('dbadmin-command-details')),
+                $this->ui->col()->width(12)->setId($this->tab()->app()->id('dbadmin-command-details')),
                 $this->ui->col(
                     $this->ui->form(
                         $this->ui->row(

@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ui;
 
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function array_shift;
@@ -14,6 +14,11 @@ trait PageTrait
      * @var BuilderInterface
      */
     protected BuilderInterface $ui;
+
+    /**
+     * @return Tab
+     */
+    abstract protected function tab(): Tab;
 
     /**
      * @param array $menus
@@ -88,7 +93,7 @@ trait PageTrait
                 $this->ui->when($contentType !== '', fn() =>
                     $this->ui->th(
                         $this->ui->checkbox()
-                            ->setId(TabApp::id("dbadmin-table-$contentType-all"))
+                            ->setId($this->tab()->app()->id("dbadmin-table-$contentType-all"))
                     )->addClass('dbadmin-table-checkbox')
                 ),
                 $this->ui->each($headers, fn($header) =>
@@ -138,7 +143,7 @@ trait PageTrait
             return '';
         }
 
-        $countId = TabApp::id("dbadmin-table-{$contentType}-count");
+        $countId = $this->tab()->app()->id("dbadmin-table-{$contentType}-count");
         $message = "Selected (<span id=\"{$countId}\">0</span>)";
         return $this->ui->html($message);
     }

@@ -10,7 +10,7 @@ use Lagdo\DbAdmin\App\Ajax\Exception\AppException;
 use Lagdo\DbAdmin\Support\Config\ServerConfig;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
 use Lagdo\DbAdmin\Support\Translator;
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
 use Exception;
 
@@ -49,6 +49,12 @@ trait ComponentTrait
     protected UiBuilder $ui;
 
     /**
+     * @var Tab
+     */
+    #[Inject]
+    protected Tab $tab;
+
+    /**
      * @return ServerConfig
      */
     protected function config(): ServerConfig
@@ -70,6 +76,14 @@ trait ComponentTrait
     protected function ui(): UiBuilder
     {
         return $this->ui;
+    }
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
     }
 
     /**
@@ -122,7 +136,7 @@ trait ComponentTrait
     protected function getBag(string $bag, string $key, mixed $value = null): mixed
     {
         $currentValues = $this->bag($bag)->get($key, []);
-        return $currentValues[TabApp::current()] ?? $value;
+        return $currentValues[$this->tab()->app()->current()] ?? $value;
     }
 
     /**
@@ -137,7 +151,7 @@ trait ComponentTrait
         $currentValues = $this->bag($bag)->get($key, []);
         $this->bag($bag)->set($key, [
             ...$currentValues,
-            TabApp::current() => $value,
+            $this->tab()->app()->current() => $value,
         ]);
     }
 
@@ -149,7 +163,7 @@ trait ComponentTrait
      */
     protected function unsetBag(string $bag, string $key): void
     {
-        $currentTab = TabApp::current();
+        $currentTab = $this->tab()->app()->current();
         $nextValues = array_filter($this->bag($bag)->get($key, []),
             fn(string $tab) => $tab !== $currentTab, ARRAY_FILTER_USE_KEY);
         $this->bag($bag)->set($key, $nextValues);
@@ -206,7 +220,7 @@ trait ComponentTrait
      */
     protected function tabId(string $id): string
     {
-        return TabApp::id($id);
+        return $this->tab()->app()->id($id);
     }
 
     /**
@@ -216,7 +230,7 @@ trait ComponentTrait
      */
     protected function tabBag(string $key): string
     {
-        return "{$key}." . TabApp::current();
+        return "{$key}." . $this->tab()->app()->current();
     }
 
     /**

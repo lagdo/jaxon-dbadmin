@@ -4,8 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\ComponentTrait as BaseTrait;
 
-use Lagdo\DbAdmin\App\Ui\TabApp;
-
 trait ComponentTrait
 {
     use BaseTrait;
@@ -17,7 +15,7 @@ trait ComponentTrait
      */
     protected function setDefaultSelectOptions(): void
     {
-        $currentTab = TabApp::current();
+        $currentTab = $this->tab()->app()->current();
         $defaults = $this->bag('dbadmin.select')->get($currentTab, []);
 
         // Do not change the values if they are already set.

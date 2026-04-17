@@ -14,8 +14,8 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ajax\Audit\Sidebar as AuditSidebar;
 use Lagdo\DbAdmin\App\Ajax\Audit\Wrapper as AuditWrapper;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Translator;
-use Lagdo\DbAdmin\App\Ui\TabApp;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
@@ -31,16 +31,26 @@ class UiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @return string
      */
-    public static function hostSelectId(): string
+    public function hostSelectId(): string
     {
-        return TabApp::id('jaxon-dbadmin-dbhost-select');
+        return $this->tab()->app()->id('jaxon-dbadmin-dbhost-select');
     }
 
     /**
@@ -52,8 +62,8 @@ class UiBuilder
     {
         return [
             "dbadmin-table-$contentType",
-            TabApp::id("dbadmin-table-$contentType"),
-            TabApp::wrapperId(),
+            $this->tab()->app()->id("dbadmin-table-$contentType"),
+            $this->tab()->app()->wrapperId(),
         ];
     }
 
@@ -74,12 +84,12 @@ class UiBuilder
                                 ->selected($serverId === $default)
                                 ->setValue($serverId)
                         )
-                    )->setId(self::hostSelectId()),
+                    )->setId($this->hostSelectId()),
                     $this->ui->button($this->ui->text('Show'))
                         ->primary()
                         ->setClass('btn-select')
                         ->jxnClick(rq(Admin::class)
-                            ->server(select(self::hostSelectId())))
+                            ->server(select($this->hostSelectId())))
                 )
             )
         );

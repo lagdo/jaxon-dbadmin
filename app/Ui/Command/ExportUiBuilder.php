@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ui\Command;
 
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\Support\Translator;
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\form;
@@ -34,16 +34,26 @@ class ExportUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @return string
      */
     private function formId(): string
     {
-        return TabApp::id('dbadmin-main-export-form');
+        return $this->tab()->app()->id('dbadmin-main-export-form');
     }
 
     /**
@@ -51,7 +61,7 @@ class ExportUiBuilder
      */
     private function exportResultsId(): string
     {
-        return TabApp::id('dbadmin-export-results');
+        return $this->tab()->app()->id('dbadmin-export-results');
     }
 
     /**
@@ -59,7 +69,7 @@ class ExportUiBuilder
      */
     private function databaseNameId(): string
     {
-        return TabApp::id($this->databaseNameClass);
+        return $this->tab()->app()->id($this->databaseNameClass);
     }
 
     /**
@@ -67,7 +77,7 @@ class ExportUiBuilder
      */
     private function databaseDataId(): string
     {
-        return TabApp::id($this->databaseDataClass);
+        return $this->tab()->app()->id($this->databaseDataClass);
     }
 
     /**
@@ -75,7 +85,7 @@ class ExportUiBuilder
      */
     private function tableNameId(): string
     {
-        return TabApp::id($this->tableNameClass);
+        return $this->tab()->app()->id($this->tableNameClass);
     }
 
     /**
@@ -83,7 +93,7 @@ class ExportUiBuilder
      */
     private function tableDataId(): string
     {
-        return TabApp::id($this->tableDataClass);
+        return $this->tab()->app()->id($this->tableDataClass);
     }
 
     /**
@@ -96,7 +106,7 @@ class ExportUiBuilder
             $this->databaseNameId(),
             $this->databaseDataClass,
             $this->databaseDataId(),
-            TabApp::wrapperId(),
+            $this->tab()->app()->wrapperId(),
         ];
     }
 
@@ -110,7 +120,7 @@ class ExportUiBuilder
             $this->tableNameId(),
             $this->tableDataClass,
             $this->tableDataId(),
-            TabApp::wrapperId(),
+            $this->tab()->app()->wrapperId(),
         ];
     }
 
@@ -316,7 +326,7 @@ class ExportUiBuilder
                                 $this->ui->checkbox()
                                     ->checked(true)
                                     ->setName('database_data[]')
-                                    ->setId(TabApp::id("{$this->databaseDataClass}-$pos"))
+                                    ->setId($this->tab()->app()->id("{$this->databaseDataClass}-$pos"))
                                     ->setClass($this->databaseDataClass)
                                     ->setValue($database['name'])
                             )

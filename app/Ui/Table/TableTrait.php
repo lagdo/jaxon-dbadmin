@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ui\Table;
 
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function array_key_first;
@@ -13,6 +13,11 @@ trait TableTrait
      * @var BuilderInterface
      */
     protected BuilderInterface $ui;
+
+    /**
+     * @return Tab
+     */
+    abstract protected function tab(): Tab;
 
     /**
      * @param array $tabs
@@ -26,14 +31,14 @@ trait TableTrait
             $this->ui->tabNav(
                 $this->ui->each($tabs, fn($tab, $id) =>
                     $this->ui->tabNavItem($this->ui->text($tab))
-                        ->target(TabApp::id("tab-content-$id"))
+                        ->target($this->tab()->app()->id("tab-content-$id"))
                         ->active($firstTabId === $id)
                 )
             )->setStyle('margin-bottom: 5px;'),
             $this->ui->tabContent(
                 $this->ui->each($tabs, fn($_, $id) =>
                     $this->ui->tabContentItem()
-                        ->setId(TabApp::id("tab-content-$id"))
+                        ->setId($this->tab()->app()->id("tab-content-$id"))
                         ->active($firstTabId === $id)
                 )
             )

@@ -153,9 +153,10 @@ return [
         'extend' => [
             ...$container['extend'],
             // Register the UI builder helper for the tab-aware UI components.
-            BuilderInterface::class => function(BuilderInterface $builder): BuilderInterface {
-                $target = Builder::TARGET_COMPONENT;
-                $builder->registerHelper('tbn', $target, App\Ui\TabApp::helper(...));
+            BuilderInterface::class => function(BuilderInterface $builder,
+                    Container $di): BuilderInterface {
+                $tab = $di->g(App\Ui\Tab\Tab::class);
+                $builder->registerHelper('tbn', Builder::TARGET_COMPONENT, $tab->helper(...));
                 return $builder;
             },
         ],

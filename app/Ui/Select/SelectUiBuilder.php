@@ -10,7 +10,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Support\Translator;
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\cl;
@@ -29,16 +29,26 @@ class SelectUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @return string
      */
     public function queryTextId(): string
     {
-        return TabApp::id(self::QUERY_TEXT_CLASS);
+        return $this->tab()->app()->id(self::QUERY_TEXT_CLASS);
     }
 
     /**
@@ -74,7 +84,7 @@ class SelectUiBuilder
      */
     public function formId(): string
     {
-        return TabApp::id('dbadmin-table-select-options-form');
+        return $this->tab()->app()->id('dbadmin-table-select-options-form');
     }
 
     /**
@@ -84,7 +94,7 @@ class SelectUiBuilder
      */
     public function gotoPageForm(int $page): string
     {
-        $pageInputId = TabApp::id('jaxon-dbadmin-resulset-goto-page');
+        $pageInputId = $this->tab()->app()->id('jaxon-dbadmin-resulset-goto-page');
         $pageNumber = input($pageInputId)->toInt();
         return $this->ui->build(
             $this->ui->form(
@@ -180,7 +190,7 @@ class SelectUiBuilder
                 $this->ui->col(
                     $this->ui->nav()
                         ->jxnPagination(cl(ResultSet::class))
-                        ->setId(TabApp::id('jaxon-dbadmin-resulset-pagination'))
+                        ->setId($this->tab()->app()->id('jaxon-dbadmin-resulset-pagination'))
                 )->width(10)
                     ->setStyle('overflow:hidden'),
             ),

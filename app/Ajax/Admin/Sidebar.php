@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin;
 
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\App\Ajax\Base\Component;
-use Lagdo\DbAdmin\App\Ui\UiBuilder;
 
 #[Exclude]
 class Sidebar extends Component
@@ -29,6 +28,6 @@ class Sidebar extends Component
     {
         $this->render();
         // Change the value of the select field in the component content.
-        $this->node()->jq('#' . UiBuilder::hostSelectId())->val($server)->change();
+        $this->node()->jq('#' . $this->ui()->hostSelectId())->val($server)->change();
     }
 }

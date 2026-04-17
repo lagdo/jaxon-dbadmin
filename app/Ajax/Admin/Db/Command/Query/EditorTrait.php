@@ -4,8 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
 
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\App\Ui\Command\QueryUiBuilder;
-use Lagdo\DbAdmin\App\Ui\TabApp;
-use Lagdo\DbAdmin\App\Ui\TabEditor;
 
 use function array_filter;
 use function count;
@@ -36,7 +34,7 @@ trait EditorTrait
     {
         // Always start with tab zero.
         $this->setEditorPage();
-        $this->bag('dbadmin')->set('tab.editor', TabEditor::zero());
+        $this->bag('dbadmin')->set('tab.editor', $this->tab()->editor()->zero());
     }
 
     /**
@@ -49,9 +47,10 @@ trait EditorTrait
         // Create the SQL editor in the new tab.
         $containerId = $this->queryUi->commandEditorId();
         // The query completion is enabled only in the database editor.
-        $schema = TabEditor::$page === 'db' ? $this->db()->getSchemaColumns() : [];
+        $schema = $this->tab()->editor()->onPage('db') ? $this->db()->getSchemaColumns() : [];
         $this->response()->jo('jaxon.dbadmin')->createQueryEditor($containerId, $driver,
-            $schema, TabApp::current(), TabEditor::$page, TabEditor::current());
+            $schema, $this->tab()->app()->current(), $this->tab()->editor()->page(),
+            $this->tab()->editor()->current());
     }
 
     /**
@@ -86,8 +85,8 @@ trait EditorTrait
     private function _showTabs(): int
     {
         // The saved tabs are fetched only on the first access to the query editor.
-        if ($this->getBag('dbadmin.tab', TabEditor::saved(), true)) {
-            $this->setBag('dbadmin.tab', TabEditor::saved(), false);
+        if ($this->getBag('dbadmin.tab', $this->tab()->editor()->saved(), true)) {
+            $this->setBag('dbadmin.tab', $this->tab()->editor()->saved(), false);
 
             $savedTabs = $this->getSavedTabs();
             if (($count = count($savedTabs)) > 0) {
@@ -107,7 +106,7 @@ trait EditorTrait
 
         // Show the other opened tabs. The addEditorTab() function is used
         // here because the tabs are already saved in the databag.
-        $names = $this->getBag('dbadmin.tab', TabEditor::names(), []);
+        $names = $this->getBag('dbadmin.tab', $this->tab()->editor()->names(), []);
         foreach ($names as $name) {
             $this->addEditorTab($name);
         }
@@ -141,12 +140,12 @@ trait EditorTrait
      */
     public function addTab(): void
     {
-        $name = TabEditor::newId();
+        $name = $this->tab()->editor()->newId();
         $this->addEditorTab($name);
         // The addEditorTab() function dos not activate the created tab.
-        $this->response()->jo('jaxon.dbadmin')->activateTab(TabEditor::titleId());
+        $this->response()->jo('jaxon.dbadmin')->activateTab($this->tab()->editor()->titleId());
 
-        $bagNamesKey = TabEditor::names();
+        $bagNamesKey = $this->tab()->editor()->names();
         $names = $this->getBag('dbadmin.tab', $bagNamesKey, []);
         $this->setBag('dbadmin.tab', $bagNamesKey, [...$names, $name]);
 
@@ -159,7 +158,7 @@ trait EditorTrait
      */
     private function currentTabs(): array
     {
-        $bagNamesKey = TabEditor::names();
+        $bagNamesKey = $this->tab()->editor()->names();
         return [
             $this->getBag('dbadmin.tab', $bagNamesKey, []),
             $this->bag('dbadmin')->get('tab.editor', ''),
@@ -172,7 +171,7 @@ trait EditorTrait
     public function cloneTab(): void
     {
         [$names, $current] = $this->currentTabs();
-        if ($current !== TabEditor::zero() && !in_array($current, $names)) {
+        if ($current !== $this->tab()->editor()->zero() && !in_array($current, $names)) {
             $this->alert()->title('Error')->error('Cannot find the tab to clone.');
             return;
         }
@@ -180,7 +179,7 @@ trait EditorTrait
         $this->addTab();
 
         // Copy the query text from the previous current tab to the new tab.
-        $this->response()->jo('jaxon.dbadmin')->copyQueryText(TabApp::current(), $current);
+        $this->response()->jo('jaxon.dbadmin')->copyQueryText($this->tab()->app()->current(), $current);
     }
 
     /**
@@ -189,7 +188,7 @@ trait EditorTrait
     public function delTab(): void
     {
         [$names, $current] = $this->currentTabs();
-        if ($current === TabEditor::zero() || count($names) === 0) {
+        if ($current === $this->tab()->editor()->zero() || count($names) === 0) {
             $this->alert()->title('Error')->error('Cannot delete the current tab.');
             return;
         }
@@ -200,12 +199,12 @@ trait EditorTrait
 
         // Delete the current tab. This script also activates the first tab.
         $this->response()->jo('jaxon.dbadmin')
-            ->delTab(TabEditor::titleId(), TabEditor::wrapperId(), TabEditor::zeroTitleId());
+            ->delTab($this->tab()->editor()->titleId(), $this->tab()->editor()->wrapperId(), $this->tab()->editor()->zeroTitleId());
         $this->response()->jo('jaxon.dbadmin')
-            ->deleteQueryEditor(TabApp::current(), TabEditor::current());
+            ->deleteQueryEditor($this->tab()->app()->current(), $this->tab()->editor()->current());
 
         // Update the databag contents.
-        $this->setBag('dbadmin.tab', TabEditor::names(), array_filter($names,
+        $this->setBag('dbadmin.tab', $this->tab()->editor()->names(), array_filter($names,
             fn(string $name) => $name !== $current));
     }
 }

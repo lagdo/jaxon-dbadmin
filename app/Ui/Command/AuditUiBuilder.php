@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ui\Command;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
 use Lagdo\DbAdmin\Support\Translator;
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
@@ -24,9 +24,19 @@ class AuditUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @return mixed
@@ -53,7 +63,7 @@ class AuditUiBuilder
     public function history(array $queries): string
     {
         $jsThis = jq();
-        $prefix = TabApp::id('dbadmin-history-query-');
+        $prefix = $this->tab()->app()->id('dbadmin-history-query-');
         $btnCopyHandler = jo('jaxon.dbadmin.history')->copyQueryText($jsThis, $prefix);
         $btnInsertHandler = jo('jaxon.dbadmin.history')->insertQuerytext($jsThis, $prefix);
         return $this->ui->build(
@@ -151,7 +161,7 @@ class AuditUiBuilder
         }
 
         $jsThis = jq();
-        $prefix = TabApp::id('dbadmin-favorite-query-');
+        $prefix = $this->tab()->app()->id('dbadmin-favorite-query-');
         $queryId = jo('jaxon.dbadmin.favorite')->getQueryId($jsThis);
         $sqlQuery = jo('jaxon.dbadmin.favorite')->getQueryText($jsThis, $prefix);
         $btnCopyHandler = jo('jaxon.dbadmin.favorite')->copyQueryText($jsThis, $prefix);
@@ -209,7 +219,7 @@ class AuditUiBuilder
                     ->setClass('jaxon-dbadmin-sql-query-wrapper')
             )->horizontal(false)
                 ->wrapped(true)
-                ->setId(TabApp::id($this->favoriteFormId))
+                ->setId($this->tab()->app()->id($this->favoriteFormId))
         );
     }
 
@@ -235,7 +245,7 @@ class AuditUiBuilder
                     ->setClass('jaxon-dbadmin-sql-query-wrapper')
             )->horizontal(false)
                 ->wrapped(true)
-                ->setId(TabApp::id($this->favoriteFormId))
+                ->setId($this->tab()->app()->id($this->favoriteFormId))
         );
     }
 
@@ -244,6 +254,6 @@ class AuditUiBuilder
      */
     public function favoriteFormValues(): mixed
     {
-        return form(TabApp::id($this->favoriteFormId));
+        return form($this->tab()->app()->id($this->favoriteFormId));
     }
 }

@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ui\Database;
 
 use Lagdo\DbAdmin\App\Ui\PageTrait;
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -16,16 +16,26 @@ class ServerUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @return string
      */
     public function userFormId(): string
     {
-        return TabApp::id('jaxon-dbadmin-user-form');
+        return $this->tab()->app()->id('jaxon-dbadmin-user-form');
     }
 
     /**
@@ -33,7 +43,7 @@ class ServerUiBuilder
      */
     public function dbFormId(): string
     {
-        return TabApp::id('jaxon-dbadmin-database-form');
+        return $this->tab()->app()->id('jaxon-dbadmin-database-form');
     }
 
     /**

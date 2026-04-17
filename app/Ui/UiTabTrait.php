@@ -6,7 +6,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbServer;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbUser;
 use Lagdo\DbAdmin\App\Ajax\Admin\Sidebar as AdminSidebar;
 use Lagdo\DbAdmin\App\Ajax\Admin\Wrapper as AdminWrapper;
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
 use function Jaxon\cl;
@@ -17,6 +17,11 @@ use function Jaxon\rq;
 trait UiTabTrait
 {
     /**
+     * @return Tab
+     */
+    abstract protected function tab(): Tab;
+
+    /**
      * @param string $title
      * @param bool $active
      *
@@ -25,10 +30,10 @@ trait UiTabTrait
     private function tabNavItem(string $title, bool $active): HtmlComponent
     {
         return $this->ui->tabNavItem($title)
-            ->target(TabApp::wrapperId())
-            ->setId(TabApp::titleId())
+            ->target($this->tab()->app()->wrapperId())
+            ->setId($this->tab()->app()->titleId())
             ->active($active)
-            ->jxnClick(jo('jaxon.dbadmin')->onAppTabClick(TabApp::current()));
+            ->jxnClick(jo('jaxon.dbadmin')->onAppTabClick($this->tab()->app()->current()));
     }
 
     /**
@@ -65,7 +70,7 @@ trait UiTabTrait
                     )->tbnBindApp(rq(AdminWrapper::class))
                 )->setClass('jaxon-dbadmin-content-layout_wrapper')
             )->setClass('jaxon-dbadmin-content-layout')
-        )->setId(TabApp::wrapperId())
+        )->setId($this->tab()->app()->wrapperId())
             ->active($active);
     }
 
@@ -84,7 +89,7 @@ trait UiTabTrait
      */
     private function tabTitleFormId(): string
     {
-        return TabApp::id('jaxon-dbadmin-app-tab-title');
+        return $this->tab()->app()->id('jaxon-dbadmin-app-tab-title');
     }
 
     /**

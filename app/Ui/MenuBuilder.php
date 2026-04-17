@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Database;
-use Lagdo\DbAdmin\App\Ui\TabApp;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\select;
@@ -13,9 +13,18 @@ class MenuBuilder
 {
     /**
      * @param BuilderInterface $ui
+     * @param Tab $tab
      */
-    public function __construct(protected BuilderInterface $ui)
+    public function __construct(protected BuilderInterface $ui, protected Tab $tab)
     {}
+
+    /**
+     * @return Tab
+     */
+    protected function tab(): Tab
+    {
+        return $this->tab;
+    }
 
     /**
      * @param string $user
@@ -99,7 +108,7 @@ class MenuBuilder
      */
     public function databases(array $databases, string|null $selected = null): string
     {
-        $dbSelectId = TabApp::id('jaxon-dbadmin-database-select');
+        $dbSelectId = $this->tab()->app()->id('jaxon-dbadmin-database-select');
         $database = select($dbSelectId);
         $call = rq(Database::class)->select($database)->ifne($database, '');
 
@@ -133,7 +142,7 @@ class MenuBuilder
      */
     public function schemas(string $database, array $schemas): string
     {
-        $schemaSelectId = TabApp::id('jaxon-dbadmin-schema-select');
+        $schemaSelectId = $this->tab()->app()->id('jaxon-dbadmin-schema-select');
         $schema = select($schemaSelectId);
         $call = rq(Database::class)->select($database, $schema);
 
