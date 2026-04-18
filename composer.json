@@ -31,6 +31,7 @@
         "infisical/php-sdk": "^0.0.1"
     },
     "require-dev": {
+        "aws/aws-sdk-php": "^3.379",
         "phpunit/phpunit": "^9.5",
         "behat/behat": "^3.10",
         "dvdoug/behat-code-coverage": "5.0.*",

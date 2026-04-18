@@ -1,5 +1,6 @@
 <?php
 
+use Aws\SecretsManager\SecretsManagerClient;
 use Infisical\SDK\InfisicalSDK;
 use Jaxon\App\View\ViewRenderer;
 use Jaxon\Di\Container;
@@ -125,6 +126,30 @@ return [
 
             return new Config\Server\InfisicalConfigProvider($auth, $secrets,
                 $projectId, $projectEnv, $secretPath);
+        },
+        Config\Server\AwsSecretsConfigProvider::class => function(Container $di) {
+            $auth = $di->get(Config\AuthInterface::class);
+
+            $awsAuth = match(env('AWS_SECRETS_CLIENT_AUTH')) {
+                'credentials' => [
+                    'credentials' => [
+                        'key'    => env('AWS_SECRETS_CLIENT_KEY'),
+                        'secret' => env('AWS_SECRETS_CLIENT_SECRET'),
+                    ]
+                ],
+                'profile' => [
+                    'profile' => env('AWS_SECRETS_CLIENT_PROFILE'),
+                ],
+                default => [],
+            };
+            $client = new SecretsManagerClient([
+                'region'      => env('AWS_SECRETS_REGION'),
+                'version'     => env('AWS_SECRETS_VERSION'),
+                'endpoint'    => env('AWS_SECRETS_SERVER_URL'),
+                ...$awsAuth,
+            ]);
+
+            return new Config\Server\AwsSecretsConfigProvider($auth, $client);
         },
     ],
     'auto' => [
