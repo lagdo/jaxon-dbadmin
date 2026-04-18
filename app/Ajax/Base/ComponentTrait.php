@@ -7,7 +7,7 @@ use Jaxon\Attributes\Attribute\Databag;
 use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\App\Ajax\Exception\AppException;
-use Lagdo\DbAdmin\Support\Config\ServerConfig;
+use Lagdo\DbAdmin\Support\Config\ConfigProvider;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
@@ -25,10 +25,10 @@ trait ComponentTrait
     use ComponentDataTrait;
 
     /**
-     * @var ServerConfig
+     * @var ConfigProvider
      */
     #[Inject]
-    protected ServerConfig $config;
+    protected ConfigProvider $config;
 
     /**
      * @var DriverProxy
@@ -55,9 +55,9 @@ trait ComponentTrait
     protected Tab $tab;
 
     /**
-     * @return ServerConfig
+     * @return ConfigProvider
      */
-    protected function config(): ServerConfig
+    protected function config(): ConfigProvider
     {
         return $this->config;
     }

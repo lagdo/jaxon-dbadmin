@@ -23,36 +23,35 @@ return [
         ...$container,
         'set' => [
             ...$container['set'],
-            Config\ServerConfig::class => function(Container $di) {
+            'server_config_provider_options' => function(Container $di) {
                 $config = $di->getPackageConfig(App\DbAuditPackage::class);
-                $defaultReader = Config\ConfigReader::class;
-                $reader = $di->get($config->getOption('config.reader', $defaultReader));
-                // Move the options under the "queries" key. Needed by the ServerConfig class.
-                $config = (new ConfigSetter())->newConfig([
-                    'database' => $config->getOption('database'),
-                    'audit' => $config->getOption('audit', []),
-                ], 'queries');
-
-                return new Config\ServerConfig($config, $reader);
+                // Move the "database" and "audit" options under the "queries" key.
+                // Needed by the ConfigProvider class.
+                return (new ConfigSetter())->newConfig([
+                    'reader' => $config->getOption('reader', []),
+                    'queries' => [
+                        'database' => $config->getOption('database'),
+                        'audit' => $config->getOption('audit', []),
+                    ],
+                ]);
             },
             // Connection to the audit database
             Audit\ConnectionProxy::class => function(Container $di) {
-                $serverConfig = $di->g(Config\ServerConfig::class);
-                $database = $serverConfig->getQueryDatabaseOptions();
+                $configProvider = $di->g(Config\ConfigProvider::class);
+                $database = $configProvider->getQueryDatabaseOptions();
                 $utils = $di->g(Driver\Utils\Utils::class);
                 $driver = Driver\Driver::createDriver($utils, $database);
 
-                return new Audit\ConnectionProxy($driver->engine, $serverConfig);
+                return new Audit\ConnectionProxy($driver->engine, $configProvider);
             },
             // Query audit
             Audit\QueryLogger::class => function(Container $di) {
-                $serverConfig = $di->g(Config\ServerConfig::class);
-                $database = $serverConfig->getQueryDatabaseOptions();
-                if ($database === null) {
+                $configProvider = $di->g(Config\ConfigProvider::class);
+                if (!$configProvider->hasQueryDatabaseOptions()) {
                     return null;
                 }
 
-                $options = $serverConfig->getQueryAuditOptions();
+                $options = $configProvider->getQueryAuditOptions();
                 $proxy = $di->g(Audit\ConnectionProxy::class);
                 return new Audit\QueryLogger($proxy, $options);
             },

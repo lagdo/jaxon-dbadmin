@@ -15,11 +15,11 @@ jaxon()->callback()->boot(function() {
     $di = jaxon()->di();
 
     // Register a driver for each database server.
-    $serverConfig = $di->g(Config\ServerConfig::class);
-    foreach($serverConfig->getServerIds() as $server) {
+    $configProvider = $di->g(Config\ConfigProvider::class);
+    foreach($configProvider->getServerIds() as $server) {
         // The driver options
         $di->set("dbadmin_server_options_$server", fn() =>
-            $serverConfig->getServerConfig($server));
+            $configProvider->getServerConfig($server));
         // The driver itself
         $di->set("dbadmin_server_$server", function() use($di, $server) {
             $utils = $di->g(Driver\Utils\Utils::class);
@@ -90,10 +90,26 @@ return [
                         return '';
                     }
                 },
-        Config\ConfigProvider::class => fn(Container $di) =>
-            new Config\ConfigProvider($di->g('dbadmin_auth_service')),
-        Config\ConfigReader::class => fn() => new Config\ConfigReader(),
-        Config\InfisicalConfigReader::class => function(Container $di) {
+        Config\PackageConfigProvider::class => fn(Container $di) =>
+            new Config\PackageConfigProvider($di->g('dbadmin_auth_service')),
+        Config\Server\AccessConfigProvider::class => fn() => new Config\Server\AccessConfigProvider(),
+        Config\Server\ServerConfigProvider::class => function(Container $di) {
+            $config = $di->g('server_config_provider_options');
+            $accessConfigReaderClass = $config->getOption('reader.access',
+                Config\Server\AccessConfigProvider::class);
+            $accessConfigReader = $di->get($accessConfigReaderClass);
+
+            return new Config\Server\ServerConfigProvider($accessConfigReader);
+        },
+        Config\ConfigProvider::class => function(Container $di) {
+            $config = $di->g('server_config_provider_options');
+            $serverConfigReaderClass = $config->getOption('reader.server',
+                Config\Server\ServerConfigProvider::class);
+            $serverConfigReader = $di->get($serverConfigReaderClass);
+
+            return new Config\ConfigProvider($config, $serverConfigReader);
+        },
+        Config\Server\InfisicalConfigProvider::class => function(Container $di) {
             $auth = $di->get(Config\AuthInterface::class);
 
             $infisicalSdk = new InfisicalSDK(env('INFISICAL_SERVER_URL'));
@@ -107,7 +123,7 @@ return [
             $projectEnv = env('INFISICAL_PROJECT_ENV', 'dev');
             $secretPath = env('INFISICAL_SECRET_PATH', '');
 
-            return new Config\InfisicalConfigReader($auth, $secrets,
+            return new Config\Server\InfisicalConfigProvider($auth, $secrets,
                 $projectId, $projectEnv, $secretPath);
         },
     ],

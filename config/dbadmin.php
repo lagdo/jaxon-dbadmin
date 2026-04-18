@@ -61,42 +61,37 @@ return [
 
                 return new Driver\Driver($engine, $driver->statement);
             },
-            Config\ServerConfig::class => function(Container $di) {
-                $config = $di->getPackageConfig(App\DbAdminPackage::class);
-                $defaultReader = Config\ConfigReader::class;
-                $reader = $di->get($config->getOption('config.reader', $defaultReader));
-
-                return new Config\ServerConfig($config, $reader);
-            },
+            'server_config_provider_options' =>
+                fn(Container $di) => $di->getPackageConfig(App\DbAdminPackage::class),
             // Options for query recording
             'queries_record_options' => function(Container $di) {
-                $serverConfig = $di->g(Config\ServerConfig::class);
-                if (!$serverConfig->hasQueryDatabaseOptions()) {
+                $configProvider = $di->g(Config\ConfigProvider::class);
+                if (!$configProvider->hasQueryDatabaseOptions()) {
                     Logger::warning('Unable to connect to the audit database: no database connection options provided.');
                     return null;
                 }
 
-                return $serverConfig->getQueryRecordOptions();
+                return $configProvider->getQueryRecordOptions();
             },
             // Options for query access
             'queries_admin_options' => function(Container $di) {
-                $serverConfig = $di->g(Config\ServerConfig::class);
-                if (!$serverConfig->hasQueryDatabaseOptions()) {
+                $configProvider = $di->g(Config\ConfigProvider::class);
+                if (!$configProvider->hasQueryDatabaseOptions()) {
                     Logger::warning('Unable to connect to the audit database: no database connection options provided.');
                     return null;
                 }
 
-                return $serverConfig->getQueryAdminOptions();
+                return $configProvider->getQueryAdminOptions();
             },
             // Connection to the audit database
             Service\Admin\ConnectionProxy::class => function(Container $di) {
                 $auth = $di->g('dbadmin_auth_service');
-                $serverConfig = $di->g(Config\ServerConfig::class);
-                $database = $serverConfig->getQueryDatabaseOptions();
+                $configProvider = $di->g(Config\ConfigProvider::class);
+                $database = $configProvider->getQueryDatabaseOptions();
                 $utils = $di->g(Driver\Utils\Utils::class);
                 $driver = Driver\Driver::createDriver($utils, $database);
 
-                return new Service\Admin\ConnectionProxy($auth, $driver->engine, $serverConfig);
+                return new Service\Admin\ConnectionProxy($auth, $driver->engine, $configProvider);
             },
             // Query logger
             Service\Admin\QueryLogger::class => function(Container $di) {

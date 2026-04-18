@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Support\Service\Admin;
 
 use Lagdo\DbAdmin\Support\Config\AuthInterface;
-use Lagdo\DbAdmin\Support\Config\ServerConfig;
+use Lagdo\DbAdmin\Support\Config\ConfigProvider;
 use Lagdo\DbAdmin\Support\Service\Audit;
 use Lagdo\DbAdmin\Driver\EngineInterface;
 
@@ -22,12 +22,12 @@ class ConnectionProxy extends Audit\ConnectionProxy
     /**
      * @param AuthInterface $auth
      * @param EngineInterface $engine
-     * @param ServerConfig $serverConfig
+     * @param ConfigProvider $configProvider
      */
     public function __construct(private AuthInterface $auth,
-        EngineInterface $engine, ServerConfig $serverConfig)
+        EngineInterface $engine, ConfigProvider $configProvider)
     {
-        parent::__construct($engine, $serverConfig);
+        parent::__construct($engine, $configProvider);
     }
 
     /**

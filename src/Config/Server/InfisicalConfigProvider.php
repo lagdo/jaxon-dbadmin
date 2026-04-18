@@ -1,13 +1,16 @@
 <?php
 
-namespace Lagdo\DbAdmin\Db\Config;
+namespace Lagdo\DbAdmin\Support\Config\Server;
 
 use Infisical\SDK\Models\GetSecretParameters;
 use Infisical\SDK\Models\Secret;
 use Infisical\SDK\Services\SecretsService;
+use Lagdo\DbAdmin\Support\Config\AuthInterface;
 use Closure;
+use Exception;
+use RuntimeException;
 
-class InfisicalConfigReader extends ConfigReader
+class InfisicalConfigProvider extends AccessConfigProvider
 {
     /**
      * @var Closure
@@ -43,19 +46,29 @@ class InfisicalConfigReader extends ConfigReader
      * @param string $secretKey
      *
      * @return Secret
+     * @throws RuntimeException
      */
     private function getSecret(string $secretKey): Secret
     {
-        $params = [
-            'secretKey' => $secretKey,
-            'environment' => $this->environment,
-            'projectId' => $this->projectId,
-        ];
-        // Add the secretPath only if one is provided.
-        if ($this->secretPath !== '') {
-            $params['secretPath'] = $this->secretPath;
+        try {
+            $params = [
+                'secretKey' => $secretKey,
+                'environment' => $this->environment,
+                'projectId' => $this->projectId,
+            ];
+            // Add the secretPath only if one is provided.
+            if ($this->secretPath !== '') {
+                $params['secretPath'] = $this->secretPath;
+            }
+            $secret = $this->secrets->get(new GetSecretParameters(...$params));
+            if (!$secret || !isset($secret->secretValue)) {
+                throw new RuntimeException("Secret retrieval failed: invalid response");
+            }
+
+            return $secret;
+        } catch (Exception $e) {
+            throw new RuntimeException("Secret retrieval failed");
         }
-        return $this->secrets->get(new GetSecretParameters(...$params));
     }
 
     /**
@@ -63,12 +76,19 @@ class InfisicalConfigReader extends ConfigReader
      * @param string $option
      *
      * @return string
+     * @throws RuntimeException
      */
     private function getSecretValue(string $prefix, string $option): string
     {
         // The secret key is generated with the provided closure.
         $secretKey = ($this->secretKeyBuilder)($prefix, $option, $this->auth);
-        return $this->getSecret($secretKey)->secretValue;
+        $secret = $this->getSecret($secretKey);
+        $value = $secret->secretValue ?? '';
+        if ($value === '') {
+            throw new RuntimeException("Secret retrieval failed: empty value");
+        }
+
+        return $value;
     }
 
     /**

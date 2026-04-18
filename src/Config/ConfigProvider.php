@@ -2,141 +2,328 @@
 
 namespace Lagdo\DbAdmin\Support\Config;
 
-use Jaxon\Config\ConfigReader;
-use Jaxon\Config\ConfigSetter;
+use Jaxon\Config\Config;
+use Lagdo\DbAdmin\Support\Config\Server\ServerConfigProvider;
 
 use function array_filter;
-use function array_values;
+use function array_keys;
+use function array_map;
 use function in_array;
-use function is_array;
-use function is_file;
+use function is_numeric;
 use function is_string;
+use function preg_match;
 
 class ConfigProvider
 {
     /**
-     * @var string
+     * @var array
      */
-    private string $configFile;
+    public const DRIVERS = ['pgsql', 'mysql', 'sqlite'];
 
     /**
-     * The constructor
-     *
-     * @param AuthInterface $auth
+     * @var string
      */
-    public function __construct(private AuthInterface $auth)
+    private string $compareRegex = '/^env\(.*\)$/';
+
+    /**
+     * @var array<Config>
+     */
+    private array $configs = [];
+
+    /**
+     * @var bool
+     */
+    private bool $connected = false;
+
+    /**
+     * @param Config $config
+     * @param ServerConfigProvider $serverConfig
+     */
+    public function __construct(protected Config $config,
+        private ServerConfigProvider $serverConfig)
     {}
 
     /**
-     * @param string $configFile
-     *
-     * @return self
+     * @return void
      */
-    public function config(string $configFile): self
+    public function setConnected(): void
     {
-        $this->configFile = $configFile;
-        return $this;
+        $this->connected = true;
     }
 
     /**
-     * @param array $options
+     * Check if a given package option is defined
+     *
+     * @param string $option    The option name
      *
      * @return bool
      */
-    private function checkUser(array $options): bool
+    public function hasOption(string $option): bool
     {
-        $user = $options['id']['user'] ?? null;
-        return is_string($user) && $this->auth->user() === $user;
+        return $this->config->hasOption($option);
     }
 
     /**
-     * @param array $options
+     * Get the value of a given package option
+     *
+     * @param string $option    The option name
+     * @param mixed $default    The default value
+     *
+     * @return mixed
+     */
+    public function getOption(string $option, $default = null): mixed
+    {
+        return $this->config->getOption($option, $default);
+    }
+
+    /**
+     * @return bool
+     */
+    private function queryRecordEnabled(): bool
+    {
+        return $this->getOption('queries.record.editor.enabled', false) ||
+            $this->getOption('queries.record.builder.enabled', false)/* ||
+            $this->getOption('queries.record.library.enabled', false)*/;
+    }
+
+    /**
+     * @return bool
+     */
+    public function canSaveQuery(): bool
+    {
+        return $this->connected && $this->queryRecordEnabled();
+    }
+
+    /**
+     * @return bool
+     */
+    public function queryHistoryEnabled(): bool
+    {
+        return $this->connected && $this->getOption('queries.admin.history.show', false);
+    }
+
+    /**
+     * @return bool
+     */
+    public function queryFavoriteEnabled(): bool
+    {
+        return $this->connected && $this->getOption('queries.admin.favorite.show', false);
+    }
+
+    /**
+     * @return bool
+     */
+    public function userPreferencesEnabled(): bool
+    {
+        return $this->connected && $this->getOption('queries.admin.preferences.enabled', false);
+    }
+
+    /**
+     * Get the name of a given server
+     *
+     * @param string $server    The server name in the configuration
+     *
+     * @return string
+     */
+    public function getServerName(string $server): string
+    {
+        return $this->getOption("servers.$server.name", '');
+    }
+
+    /**
+     * Get the driver of a given server
+     *
+     * @param string $server    The server name in the configuration
+     *
+     * @return string
+     */
+    public function getServerDriver(string $server): string
+    {
+        return $this->getOption("servers.$server.driver", '');
+    }
+
+    /**
+     * Check if the user has access to a server
+     *
+     * @param string $server      The database server
+     *
+     * return bool
+     */
+    public function getServerAccess(string $server): bool
+    {
+        // Check in server options
+        $serverAccess = $this->getOption("servers.$server.access.server", null);
+        $globalAccess = $this->getOption('access.server', true);
+        return match(true) {
+            $serverAccess === true,
+            $serverAccess === false => $serverAccess,
+            // Check in global options
+            default => $globalAccess === true,
+        };
+    }
+
+    /**
+     * @param string $value
      *
      * @return bool
      */
-    private function checkUsers(array $options): bool
+    private function isEnvVar(string $value): bool
     {
-        $users = $options['id']['users'] ?? null;
-        return is_array($users) && in_array($this->auth->user(), $users);
+        return preg_match($this->compareRegex, $value) !== false;
     }
 
     /**
-     * @param array $options
+     * @param string $prefix
      *
      * @return bool
      */
-    private function checkRole(array $options): bool
+    final public function checkPortNumber(string $prefix): bool
     {
-        $role = $options['id']['role'] ?? null;
-        return is_string($role) && $this->auth->role() === $role;
+        $port = $this->getOption("$prefix.port");
+        return match(true) {
+            !$this->config->hasOption("$prefix.port"),
+            is_numeric($port) => true,
+            !is_string($port) => false,
+            // The port number can also be defined with an env var.
+            default => $this->isEnvVar($port)
+        };
     }
 
     /**
-     * @param array $options
+     * @param string $prefix
      *
      * @return bool
      */
-    private function checkRoles(array $options): bool
+    private function hasDbServer(string $prefix): bool
     {
-        $roles = $options['id']['roles'] ?? null;
-        return is_array($roles) && in_array($this->auth->role(), $roles);
+        $name = $this->getOption("$prefix.name");
+        $driver = $this->getOption("$prefix.driver");
+        return $this->config->hasOption("$prefix.name") &&
+            $this->config->hasOption("$prefix.driver") &&
+            is_string($name) && is_string($driver) &&
+            in_array($driver, self::DRIVERS) &&
+            $this->checkPortNumber($prefix);
     }
 
     /**
-     * @param array $options
-     *
-     * @return bool
+     * @return array
      */
-    private function userMatches(array $options): bool
+    private function getValidServers(): array
     {
-        return $this->checkUser($options) || $this->checkUsers($options) ||
-            $this->checkRole($options) || $this->checkRoles($options);
+        $names = $this->config->getOptionNames('servers');
+        // Filter the names with valid driver and name options.
+        return array_filter($names, $this->hasDbServer(...));
     }
 
     /**
-     * Get the options for the authenticated user.
-     *
-     * @param array $defaultOptions
+     * Get the database server names
      *
      * @return array
      */
-    public function getOptions(array $defaultOptions = []): array
+    public function getServerIds(): array
     {
-        // If the config file doesn't exists, return an empty array.
-        if (!is_file($this->configFile)) {
+        return array_keys($this->getValidServers());
+    }
+
+    /**
+     * Get the database servers
+     *
+     * @return array<string>
+     */
+    public function getServerNames(): array
+    {
+        $callback = fn($prefix) => $this->config->getOption("$prefix.name");
+        return array_map($callback, $this->getValidServers());
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return bool
+     */
+    private function checkOptions(array $options): bool
+    {
+        return $options['driver'] === 'sqlite' ?
+            // Options for the SQLite database.
+            isset($options['directory']) && is_string($options['directory']) :
+            // Options for a server database.
+            isset($options['username']) && isset($options['password']) &&
+                isset($options['host']) && is_string($options['username']) &&
+                is_string($options['password']) && is_string($options['host']);
+    }
+
+    /**
+     * @param string $prefix
+     *
+     * @return array
+     */
+    private function _readConfig(string $prefix): array
+    {
+        if (!$this->hasDbServer($prefix)) {
             return [];
         }
 
-        // The key to use for the user options
-        $userKey = 'user';
-        // Remove the provider field.
-        unset($defaultOptions['provider']);
+        $options = $this->serverConfig->with($this->config)->readServerConfig($prefix);
+        return $this->checkOptions($options) ? $options : [];
+    }
 
-        $setter = new ConfigSetter();
-        $reader = new ConfigReader($setter);
-        $userConfig = $setter->newConfig([$userKey => $defaultOptions]);
+    /**
+     * @param string $prefix
+     *
+     * @return array
+     */
+    private function readConfig(string $prefix): array
+    {
+        return $this->configs[$prefix] ??= $this->_readConfig($prefix);
+    }
 
-        $config = $reader->load($setter->newConfig(), $this->configFile);
-        $commonOptions = $config->getOption('common', null);
-        if (is_array($commonOptions)) {
-            $userConfig = $setter->setOptions($userConfig, $commonOptions, $userKey);
-        }
+    /**
+     * @param string $server
+     *
+     * @return array
+     */
+    public function getServerConfig(string $server): array
+    {
+        return $this->readConfig("servers.$server");
+    }
 
-        $fallbackOptions = $config->getOption('fallback', null);
+    /**
+     * @return bool
+     */
+    public function hasQueryDatabaseOptions(): bool
+    {
+        return $this->hasDbServer('queries.database');
+    }
 
-        $userList = $config->getOption('users', []);
-        $userList = array_values(array_filter($userList, $this->userMatches(...)));
-        $userOptions = $userList[0] ?? $fallbackOptions;
+    /**
+     * @return array
+     */
+    public function getQueryDatabaseOptions(): array
+    {
+        return $this->readConfig('queries.database');
+    }
 
-        if (!is_array($userOptions)) {
-            // Return nothing if no entry is found for the user.
-            return [];
-        }
+    /**
+     * @return array
+     */
+    public function getQueryRecordOptions(): array
+    {
+        return $this->getOption('queries.record', []);
+    }
 
-        // Remove the id field.
-        unset($userOptions['id']);
-        $userConfig = $setter->setOptions($userConfig, $userOptions, $userKey);
+    /**
+     * @return array
+     */
+    public function getQueryAuditOptions(): array
+    {
+        return $this->getOption('queries.audit', []);
+    }
 
-        return $userConfig->getOption($userKey);
+    /**
+     * @return array
+     */
+    public function getQueryAdminOptions(): array
+    {
+        return $this->getOption('queries.admin', []);
     }
 }
