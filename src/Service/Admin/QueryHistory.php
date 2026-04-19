@@ -38,9 +38,19 @@ class QueryHistory
     }
 
     /**
+     * @return int
+     */
+    public function getLimit(): int
+    {
+        return $this->historyLimit;
+    }
+
+    /**
+     * @param int $page
+     *
      * @return array
      */
-    public function getQueries(): array
+    public function getQueries(int $page): array
     {
         if (!$this->showHistory || ($userId = $this->proxy->getUserId(false)) === 0) {
             return [];
@@ -54,6 +64,9 @@ class QueryHistory
         $query = "$select driver,query FROM dbadmin_runned_commands c " .
             "WHERE c.user_id=:user_id AND c.category=:category " .
             "ORDER BY c.last_update DESC LIMIT {$this->historyLimit}";
+        if ($page > 1) {
+            $query .= ' OFFSET ' . ($page - 1) * $this->historyLimit;
+        }
         $values = [
             'user_id' => $userId,
             'category' => $category,

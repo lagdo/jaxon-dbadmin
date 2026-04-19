@@ -56,49 +56,63 @@ class AuditUiBuilder
     }
 
     /**
+     * @return string
+     */
+    public function history(): string
+    {
+        return $this->ui->build(
+            $this->ui->row(
+                $this->ui->col(
+                    $this->ui->nav()
+                        ->jxnPagination(cl(Query\HistoryPage::class))
+                        ->setStyle('float:right;'))
+                    ->width(12)
+            ),
+            $this->ui->row(
+                $this->ui->col(
+                    $this->ui->div()
+                        ->tbnBindApp(rq(Query\HistoryPage::class))
+                )->width(12),
+            )
+        );
+    }
+
+    /**
      * @param array $queries
      *
      * @return string
      */
-    public function history(array $queries): string
+    public function historyQueries(array $queries): string
     {
         $jsThis = jq();
         $prefix = $this->tab()->app()->id('dbadmin-history-query-');
         $btnCopyHandler = jo('jaxon.dbadmin.history')->copyQueryText($jsThis, $prefix);
         $btnInsertHandler = jo('jaxon.dbadmin.history')->insertQuerytext($jsThis, $prefix);
+
         return $this->ui->build(
-            // $this->ui->row(
-            //     $this->ui->col(
-            //             $this->ui->h4($this->trans->lang('History'))
-            //                 ->setStyle('font-size:16px; font-weight:600;')
-            //         )->width(12)
-            // ),
-            $this->ui->row(
-                $this->ui->col(
-                    $this->ui->table(
-                        $this->ui->tbody(
-                            $this->ui->each($queries, fn($query, $id) =>
-                                $this->ui->tr(
-                                    $this->ui->td(
-                                        $this->ui->div("[{$query['driver']}]")
-                                            ->setStyle('font-size:14px; font-style:italic;'),
-                                        $this->ui->div($query['query'])
-                                            ->setId("{$prefix}{$id}")
-                                    ),
-                                    $this->ui->td($this->historyButtons())
-                                        ->setDataQueryId($id)
-                                        ->setStyle('width:50px;')
-                                )
+            $this->ui->div(
+                $this->ui->table(
+                    $this->ui->tbody(
+                        $this->ui->each($queries, fn($query, $id) =>
+                            $this->ui->tr(
+                                $this->ui->td(
+                                    $this->ui->div("[{$query['driver']}]")
+                                        ->setStyle('font-size:14px; font-style:italic;'),
+                                    $this->ui->div($query['query'])
+                                        ->setId("{$prefix}{$id}")
+                                ),
+                                $this->ui->td($this->historyButtons())
+                                    ->setDataQueryId($id)
+                                    ->setStyle('width:50px;')
                             )
-                        )->setStyle('padding:5px 15px')
-                            ->jxnEvent([
-                                ['.dbadmin-history-query-copy', 'click', $btnCopyHandler],
-                                ['.dbadmin-history-query-insert', 'click', $btnInsertHandler],
-                            ])
-                    )->look('bordered'),
-                )->width(12)
-                    ->setClass('jaxon-dbadmin-sql-query-wrapper')
-            ),
+                        )
+                    )->setStyle('padding:5px 15px')
+                        ->jxnEvent([
+                            ['.dbadmin-history-query-copy', 'click', $btnCopyHandler],
+                            ['.dbadmin-history-query-insert', 'click', $btnInsertHandler],
+                        ])
+                )->look('bordered')
+            )->setClass('jaxon-dbadmin-sql-query-wrapper')
         );
     }
 
@@ -109,15 +123,11 @@ class AuditUiBuilder
     {
         return $this->ui->build(
             $this->ui->row(
-                // $this->ui->col(
-                //     $this->ui->h4($this->trans->lang('Favorites'))
-                //         ->setStyle('font-size:16px; font-weight:600;'))
-                //     ->width(3),
                 $this->ui->col(
                     $this->ui->nav()
                         ->jxnPagination(cl(Query\FavoritePage::class))
                         ->setStyle('float:right;'))
-                    ->width(9)
+                    ->width(12)
             ),
             $this->ui->row(
                 $this->ui->col(
@@ -154,7 +164,7 @@ class AuditUiBuilder
      *
      * @return string
      */
-    public function favorites(array $queries): string
+    public function favoriteQueries(array $queries): string
     {
         if (count($queries) === 0) {
             return '';

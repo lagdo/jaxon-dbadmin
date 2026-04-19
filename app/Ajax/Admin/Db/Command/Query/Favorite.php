@@ -2,9 +2,11 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
 
+use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Component;
 use Lagdo\DbAdmin\App\Ui\Command\AuditUiBuilder;
 
+#[Exclude]
 class Favorite extends Component
 {
     /**
