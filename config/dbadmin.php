@@ -65,7 +65,7 @@ return [
                 fn(Container $di) => $di->getPackageConfig(App\DbAdminPackage::class),
             // Options for query recording
             'queries_record_options' => function(Container $di) {
-                $configProvider = $di->g(Config\ConfigProvider::class);
+                $configProvider = $di->g(Config\DatabaseConfigProvider::class);
                 if (!$configProvider->hasQueryDatabaseOptions()) {
                     Logger::warning('Unable to connect to the audit database: no database connection options provided.');
                     return null;
@@ -75,7 +75,7 @@ return [
             },
             // Options for query access
             'queries_admin_options' => function(Container $di) {
-                $configProvider = $di->g(Config\ConfigProvider::class);
+                $configProvider = $di->g(Config\DatabaseConfigProvider::class);
                 if (!$configProvider->hasQueryDatabaseOptions()) {
                     Logger::warning('Unable to connect to the audit database: no database connection options provided.');
                     return null;
@@ -86,7 +86,7 @@ return [
             // Connection to the audit database
             Service\Admin\ConnectionProxy::class => function(Container $di) {
                 $auth = $di->g('dbadmin_auth_service');
-                $configProvider = $di->g(Config\ConfigProvider::class);
+                $configProvider = $di->g(Config\DatabaseConfigProvider::class);
                 $database = $configProvider->getQueryDatabaseOptions();
                 $utils = $di->g(Driver\Utils\Utils::class);
                 $driver = Driver\Driver::createDriver($utils, $database);

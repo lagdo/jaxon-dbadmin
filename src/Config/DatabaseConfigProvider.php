@@ -13,7 +13,7 @@ use function is_numeric;
 use function is_string;
 use function preg_match;
 
-class ConfigProvider
+class DatabaseConfigProvider
 {
     /**
      * @var array

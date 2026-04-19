@@ -37,7 +37,7 @@ return [
             },
             // Connection to the audit database
             Audit\ConnectionProxy::class => function(Container $di) {
-                $configProvider = $di->g(Config\ConfigProvider::class);
+                $configProvider = $di->g(Config\DatabaseConfigProvider::class);
                 $database = $configProvider->getQueryDatabaseOptions();
                 $utils = $di->g(Driver\Utils\Utils::class);
                 $driver = Driver\Driver::createDriver($utils, $database);
@@ -46,7 +46,7 @@ return [
             },
             // Query audit
             Audit\QueryLogger::class => function(Container $di) {
-                $configProvider = $di->g(Config\ConfigProvider::class);
+                $configProvider = $di->g(Config\DatabaseConfigProvider::class);
                 if (!$configProvider->hasQueryDatabaseOptions()) {
                     return null;
                 }

@@ -16,7 +16,7 @@ jaxon()->callback()->boot(function() {
     $di = jaxon()->di();
 
     // Register a driver for each database server.
-    $configProvider = $di->g(Config\ConfigProvider::class);
+    $configProvider = $di->g(Config\DatabaseConfigProvider::class);
     foreach($configProvider->getServerIds() as $server) {
         // The driver options
         $di->set("dbadmin_server_options_$server", fn() =>
@@ -102,13 +102,13 @@ return [
 
             return new Config\Server\ServerConfigProvider($accessConfigReader);
         },
-        Config\ConfigProvider::class => function(Container $di) {
+        Config\DatabaseConfigProvider::class => function(Container $di) {
             $config = $di->g('server_config_provider_options');
             $serverConfigReaderClass = $config->getOption('reader.server',
                 Config\Server\ServerConfigProvider::class);
             $serverConfigReader = $di->get($serverConfigReaderClass);
 
-            return new Config\ConfigProvider($config, $serverConfigReader);
+            return new Config\DatabaseConfigProvider($config, $serverConfigReader);
         },
         Config\Server\InfisicalConfigProvider::class => function(Container $di) {
             $auth = $di->get(Config\AuthInterface::class);

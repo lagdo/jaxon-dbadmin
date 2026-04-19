@@ -20,8 +20,6 @@ class PackageConfigProvider
     private string $configFile;
 
     /**
-     * The constructor
-     *
      * @param AuthInterface $auth
      */
     public function __construct(private AuthInterface $auth)
@@ -127,7 +125,6 @@ class PackageConfigProvider
         $userList = $config->getOption('users', []);
         $userList = array_values(array_filter($userList, $this->userMatches(...)));
         $userOptions = $userList[0] ?? $fallbackOptions;
-
         if (!is_array($userOptions)) {
             // Return nothing if no entry is found for the user.
             return [];

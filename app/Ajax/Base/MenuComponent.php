@@ -6,7 +6,7 @@ use Jaxon\App\Component;
 use Jaxon\App\ComponentDataTrait;
 use Lagdo\DbAdmin\App\Ui\MenuBuilder;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
-use Lagdo\DbAdmin\Support\Config\ConfigProvider;
+use Lagdo\DbAdmin\Support\Config\DatabaseConfigProvider;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
 use Lagdo\DbAdmin\Support\Translator;
 
@@ -19,11 +19,11 @@ abstract class MenuComponent extends Component
      * @param MenuBuilder $ui
      * @param DriverProxy $db
      * @param Translator $trans
-     * @param ConfigProvider $config
+     * @param DatabaseConfigProvider $config
      * @param Tab $tab
      */
     public function __construct(private MenuBuilder $ui, private DriverProxy $db,
-        private Translator $trans, private ConfigProvider $config, private Tab $tab)
+        private Translator $trans, private DatabaseConfigProvider $config, private Tab $tab)
     {}
 
     /**
@@ -59,9 +59,9 @@ abstract class MenuComponent extends Component
     }
 
     /**
-     * @return ConfigProvider
+     * @return DatabaseConfigProvider
      */
-    protected function config(): ConfigProvider
+    protected function config(): DatabaseConfigProvider
     {
         return $this->config;
     }

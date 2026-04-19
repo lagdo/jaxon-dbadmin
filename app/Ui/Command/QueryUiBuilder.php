@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ui\Command;
 
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
-use Lagdo\DbAdmin\Support\Config\ConfigProvider;
+use Lagdo\DbAdmin\Support\Config\DatabaseConfigProvider;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\PageTrait;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
@@ -38,11 +38,11 @@ class QueryUiBuilder
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
-     * @param ConfigProvider $config
+     * @param DatabaseConfigProvider $config
      * @param Tab $tab
      */
     public function __construct(protected Translator $trans,
-        protected BuilderInterface $ui, protected ConfigProvider $config,
+        protected BuilderInterface $ui, protected DatabaseConfigProvider $config,
         protected Tab $tab)
     {}
 
