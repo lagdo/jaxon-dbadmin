@@ -3,12 +3,10 @@
 namespace Lagdo\DbAdmin\App\Ajax\Base;
 
 use Jaxon\App\Component as JaxonComponent;
-use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Sections;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Command as ServerCommand;
 
-#[Databag('dbadmin')]
 abstract class Component extends JaxonComponent
 {
     use ComponentTrait;

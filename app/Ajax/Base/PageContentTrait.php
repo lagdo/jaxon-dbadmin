@@ -4,11 +4,17 @@ namespace Lagdo\DbAdmin\App\Ajax\Base;
 
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
 
+use function array_filter;
+use function implode;
+use function trim;
+
 /**
  * Features for page content components with three parts: header, content and footer.
  */
 trait PageContentTrait
 {
+    use PageContentFixHeightTrait;
+
     /**
      * @return UiBuilder
      */
@@ -40,10 +46,10 @@ trait PageContentTrait
      */
     public function html(): string
     {
-        return implode("\n", array_map($this->ui()->panel(...), array_filter([
-            $this->header(),
-            $this->content(),
-            $this->footer(),
-        ], fn(string $html) => trim($html) !== '')));
+        return implode("\n", array_filter([
+            $this->ui()->panel($this->header(), false),
+            $this->ui()->panel($this->content(), true),
+            $this->ui()->panel($this->footer(), false),
+        ], fn(string $html) => trim($html) !== ''));
     }
 }

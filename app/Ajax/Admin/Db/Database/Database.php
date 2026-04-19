@@ -2,16 +2,10 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Database;
 
-use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\FuncComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Server\Databases;
-use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Schemas as MenuSchemas;
-use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Databases as MenuDatabases;
-use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ui\Database\ServerUiBuilder;
 
-use function count;
-use function is_array;
 use function Jaxon\form;
 
 class Database extends FuncComponent
@@ -23,50 +17,6 @@ class Database extends FuncComponent
      */
     public function __construct(protected ServerUiBuilder $serverUi)
     {}
-
-    /**
-     * Select a database
-     *
-     * @param string $database    The database name
-     * @param string $schema      The database schema
-     *
-     * @return void
-     */
-    #[After('showBreadcrumbs')]
-    public function select(string $database, string $schema = ''): void
-    {
-        [$server,] = $this->getCurrentDb();
-        // Set the selected server
-        $this->db()->selectDatabase($server, $database);
-
-        $systemAccess = $this->config()->getOption('access.system', false);
-        $databaseInfo = $this->db()->getDatabaseInfo($systemAccess);
-
-        // Set main menu buttons
-        $this->cl(PageActions::class)->clear();
-
-        // Set the selected entry on database dropdown select
-        $this->cl(MenuDatabases::class)->change($database);
-
-        $schemas = $databaseInfo['schemas'];
-        if(is_array($schemas) && count($schemas) > 0 && !$schema)
-        {
-            $schema = $schemas[0]; // Select the first schema
-
-            $this->cl(MenuSchemas::class)
-                ->set('database', $database)
-                ->set('schemas', $schemas)
-                ->render();
-        }
-
-        $this->db()->selectDatabase($server, $database, $schema);
-
-        // Save the selection in the databag
-        $this->setCurrentDb([$server, $database, $schema]);
-
-        // Show the database tables
-        $this->cl(Tables::class)->show();
-    }
 
     /**
      * Show the  create database dialog
@@ -108,6 +58,7 @@ class Database extends FuncComponent
             $this->alert()->error("Cannot create database $database.");
             return;
         }
+
         $this->cl(Databases::class)->show();
 
         $this->modal()->hide();

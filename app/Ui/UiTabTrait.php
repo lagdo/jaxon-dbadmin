@@ -68,6 +68,7 @@ trait UiTabTrait
                     $this->ui->div(
                         cl(AdminWrapper::class)->html()
                     )->tbnBindApp(rq(AdminWrapper::class))
+                        ->setClass('jaxon-dbadmin-columns-wrapper')
                 )->setClass('jaxon-dbadmin-content-layout_wrapper')
             )->setClass('jaxon-dbadmin-content-layout')
         )->setId($this->tab()->app()->wrapperId())

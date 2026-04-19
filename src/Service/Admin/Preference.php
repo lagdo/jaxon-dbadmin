@@ -173,7 +173,7 @@ SET content=:content,last_update=:last_update WHERE id=:preference_id";
 
         $category = 1; // The category for the app preferences.
         $preference = $this->getPreferenceContent($category);
-        return array_values($preference['content']['tabs'] ?? []);
+        return $preference['content']['tabs'] ?? [];
     }
 
     /**

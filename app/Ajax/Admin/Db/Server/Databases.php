@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Server;
 
 use Jaxon\Attributes\Attribute\After;
+use Lagdo\DbAdmin\App\Ajax\Admin\DbFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Database;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Schemas as MenuSchemas;
@@ -57,7 +58,7 @@ class Databases extends MainComponent
             $databaseName = $detail['name'];
             $detail['menu'] = $this->ui()->tableMenu([[
                 'label' => $this->trans->lang('Show'),
-                'handler' => $this->rq(Database::class)->select($databaseName),
+                'handler' => $this->rq(DbFunc::class)->database($databaseName),
             ], [
                 'label' => $this->trans->lang('Drop'),
                 'handler' => $this->rq(Database::class)->drop($databaseName)

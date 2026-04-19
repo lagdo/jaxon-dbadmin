@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Server;
 
 use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Database;
+use Lagdo\DbAdmin\App\Ajax\Admin\DbFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\FuncComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Command as ServerCommand;
@@ -55,7 +55,7 @@ class Server extends FuncComponent
         {
             $this->cl(DatabaseCommand::class)->render();
             $database = array_values($databases)[0];
-            $this->cl(Database::class)->select($database);
+            $this->cl(DbFunc::class)->database($database);
         }
     }
 }

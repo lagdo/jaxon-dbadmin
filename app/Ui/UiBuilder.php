@@ -2,10 +2,10 @@
 
 namespace Lagdo\DbAdmin\App\Ui;
 
-use Lagdo\DbAdmin\App\Ajax\Admin\Admin;
-use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Sections as MenuSections;
+use Lagdo\DbAdmin\App\Ajax\Admin\DbFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Schemas as MenuSchemas;
+use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Sections as MenuSections;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Command as ServerCommand;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppTabMenu;
@@ -88,7 +88,7 @@ class UiBuilder
                     $this->ui->button($this->ui->text('Show'))
                         ->primary()
                         ->setClass('btn-select')
-                        ->jxnClick(rq(Admin::class)
+                        ->jxnClick(rq(DbFunc::class)
                             ->server(select($this->hostSelectId())))
                 )
             )
@@ -184,23 +184,19 @@ class UiBuilder
     public function wrapper(): string
     {
         return $this->ui->build(
-            $this->ui->row(
-                $this->ui->col(
-                    $this->ui->panel(
-                        $this->ui->panelBody( 
-                            $this->ui->span(['style' => 'float:left'])
-                                ->tbnBindApp(rq(Breadcrumbs::class)),
-                            $this->ui->span(['style' => 'float:right'])
-                                ->tbnBindApp(rq(PageActions::class))
-                        )->setStyle('padding-top: 0;padding-bottom: 0;')
-                    )
-                )->width(12)
-            ),
-            $this->ui->row(
-                $this->ui->col()
-                    ->width(12)
+            $this->ui->div(
+                $this->ui->panel(
+                    $this->ui->panelBody( 
+                        $this->ui->span(['style' => 'float:left'])
+                            ->tbnBindApp(rq(Breadcrumbs::class)),
+                        $this->ui->span(['style' => 'float:right'])
+                            ->tbnBindApp(rq(PageActions::class))
+                    )->setStyle('padding-top: 0; padding-bottom: 0;')
+                )->setStyle('margin-bottom: 10px;'),
+                $this->ui->div()
                     ->tbnBindApp(rq(Content::class))
-            )
+                    ->setClass('jaxon-dbadmin-columns-wrapper page-content-wrapper')
+            )->setClass('jaxon-dbadmin-columns-wrapper full-height')
         );
     }
 
@@ -226,6 +222,7 @@ class UiBuilder
                 $this->ui->tabContent(
                     $this->tabContentItem(true)
                 )->setId('dbadmin-server-tab-content')
+                    ->addClass('full-height')
             )->setId('jaxon-dbadmin')
         );
     }

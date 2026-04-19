@@ -150,15 +150,24 @@ trait PageTrait
 
     /**
      * @param string $content
+     * @param bool $grow
      *
      * @return string
      */
-    public function panel(string $content): string
+    public function panel(string $content, bool $grow): string
     {
-        return $this->ui->build(
-            $this->ui->panel(
-                $this->ui->panelBody($content)
-            )->setStyle('margin-bottom: 10px;')
-        );
+        return $content === '' ? '' :
+            $this->ui->build(
+                $this->ui->div(
+                    $this->ui->panel(
+                        $this->ui->panelBody(
+                            $this->ui->div($content)
+                                ->when($grow, fn($element) =>
+                                    $element->addClass('jaxon-dbadmin-scrollable-content'))
+                        )->when($grow, fn($element) => $element->addClass('full-height'))
+                    )->when($grow, fn($element) => $element->addClass('full-height'))
+                )->when($grow, fn($element) => $element
+                    ->addClass('jaxon-dbadmin-column-flexible'))
+            );
     }
 }

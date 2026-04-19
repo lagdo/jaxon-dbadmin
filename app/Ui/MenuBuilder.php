@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ui;
 
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Database;
+use Lagdo\DbAdmin\App\Ajax\Admin\DbFunc;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -110,7 +110,7 @@ class MenuBuilder
     {
         $dbSelectId = $this->tab()->app()->id('jaxon-dbadmin-database-select');
         $database = select($dbSelectId);
-        $call = rq(Database::class)->select($database)->ifne($database, '');
+        $call = rq(DbFunc::class)->database($database)->ifne($database, '');
 
         return $this->ui->build(
             $this->ui->form(
@@ -144,7 +144,7 @@ class MenuBuilder
     {
         $schemaSelectId = $this->tab()->app()->id('jaxon-dbadmin-schema-select');
         $schema = select($schemaSelectId);
-        $call = rq(Database::class)->select($database, $schema);
+        $call = rq(DbFunc::class)->database($database, $schema);
 
         return $this->ui->build(
             $this->ui->form(

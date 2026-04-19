@@ -3,9 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Base;
 
 use Jaxon\App\PageComponent as BaseComponent;
-use Jaxon\Attributes\Attribute\Databag;
 
-#[Databag('dbadmin')]
 abstract class PageComponent extends BaseComponent
 {
     use ComponentTrait;

@@ -335,7 +335,7 @@ class ExportUiBuilder
                 )
             )->responsive(true)
                 ->look('bordered')
-        )->setStyle('max-height: 450px; overflow: scroll;');
+        );
     }
 
     /**
@@ -388,7 +388,7 @@ class ExportUiBuilder
                 )
             )->responsive(true)
                 ->look('bordered')
-        )->setStyle('max-height: 450px; overflow: scroll;');
+        );
     }
 
     /**
@@ -407,12 +407,14 @@ class ExportUiBuilder
                             $this->optionsCol($rqExport, $options['options'])
                                 ->width(6),
                             $this->ui->when(isset($options['databases']), fn() =>
-                                $this->ui->col($this->databases($options['databases']))
-                                    ->width(6)
+                                $this->ui->col(
+                                    $this->databases($options['databases'])
+                                )->width(6)
                             ),
                             $this->ui->when(isset($options['tables']), fn() =>
-                                $this->ui->col($this->tables($options['tables']))
-                                    ->width(6)
+                                $this->ui->col(
+                                    $this->tables($options['tables'])
+                                )->width(6)
                             )
                         )
                     )->wrapped(false)
@@ -421,7 +423,7 @@ class ExportUiBuilder
                 $this->ui->col()
                     ->width(12)
                     ->setId($this->exportResultsId())
-            )
+            )->setStyle('margin-right: 3px;')
         );
     }
 }

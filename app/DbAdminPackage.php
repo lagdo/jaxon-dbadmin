@@ -7,7 +7,7 @@ use Jaxon\Plugin\CssCode;
 use Jaxon\Plugin\CssCodeGeneratorInterface;
 use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
-use Lagdo\DbAdmin\App\Ajax\Admin\Admin;
+use Lagdo\DbAdmin\App\Ajax\Admin\AppFunc;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
 
 use function realpath;
@@ -82,7 +82,7 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getReadyScript(): string
     {
-        return '{' . rq(Admin::class)->start() . '}';
+        return '{' . rq(AppFunc::class)->start() . '}';
     }
 
     /**
