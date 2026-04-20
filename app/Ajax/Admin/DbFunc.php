@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin;
 
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Databag;
-use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Server\Server;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Schemas as MenuSchemas;
@@ -29,8 +28,7 @@ class DbFunc extends FuncComponent
      *
      * @return void
      */
-    #[Exclude]
-    public function connect(string $server): void
+    private function connect(string $server): void
     {
         $this->logger()->info('Connecting to server', ['server' => $server]);
         // Set the selected server
@@ -42,7 +40,7 @@ class DbFunc extends FuncComponent
     /**
      * @return void
      */
-    public function setBags(): void
+    private function setBags(): void
     {
         if (!$this->bag('dbadmin')->get('tab.app')) {
             $this->bag('dbadmin')->set('tab.app', $this->tab()->app()->current());
@@ -65,21 +63,6 @@ class DbFunc extends FuncComponent
     {
         $this->connect($server);
         $this->setBags();
-    }
-
-    /**
-     * Connect to a database server, and execute the callbacks.
-     *
-     * @param string $server      The database server id in the package config
-     *
-     * @return void
-     */
-    #[Exclude]
-    public function serverSync(string $server): void
-    {
-        $this->server($server);
-        $this->showBreadcrumbs();
-        $this->fixPageContentHeight();
     }
 
     /**
@@ -117,7 +100,6 @@ class DbFunc extends FuncComponent
 
         // The current schema might have changed. Reselect the database.
         $this->db()->selectDatabase($server, $database, $schema);
-
         // Save the selection in the databag.
         $this->setCurrentDb([$server, $database, $schema]);
 

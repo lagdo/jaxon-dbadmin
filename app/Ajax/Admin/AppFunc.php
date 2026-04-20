@@ -3,8 +3,6 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin;
 
 use Jaxon\Attributes\Attribute\Databag;
-use Jaxon\Attributes\Attribute\Exclude;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Server\Server;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppTabMenu;
 use Lagdo\DbAdmin\App\Ajax\Base\FuncComponent;
 use Lagdo\DbAdmin\App\Ajax\Base\PageContentFixHeightTrait;
@@ -30,20 +28,17 @@ class AppFunc extends FuncComponent
     {}
 
     /**
-     * Connect to a database server.
+     * Connect to a database server, and execute the callbacks.
      *
      * @param string $server      The database server id in the package config
      *
      * @return void
      */
-    #[Exclude]
-    public function connect(string $server): void
+    private function server(string $server): void
     {
-        $this->logger()->info('Connecting to server', ['server' => $server]);
-        // Set the selected server
-        $this->db()->selectDatabase($server);
-
-        $this->cl(Server::class)->connect($server);
+        $this->cl(DbFunc::class)->server($server);
+        $this->showBreadcrumbs();
+        $this->fixPageContentHeight();
     }
 
     /**
@@ -97,7 +92,7 @@ class AppFunc extends FuncComponent
             $this->setCurrentTitle($title);
             $this->response()->html($this->tab()->app()->titleId(), $title);
             // The first tab content is loaded.
-            $this->cl(DbFunc::class)->serverSync($server);
+            $this->server($server);
         }
 
         if (count($tabs) > 1) {
@@ -168,7 +163,7 @@ class AppFunc extends FuncComponent
 
         // Connect the new tab to the provided server.
         if ($server !== '') {
-            $this->cl(DbFunc::class)->serverSync($server);
+            $this->server($server);
         }
 
         // Back to the first tab.
@@ -190,7 +185,7 @@ class AppFunc extends FuncComponent
 
         // Connect the new tab to the provided server.
         if ($server !== '') {
-            $this->cl(DbFunc::class)->serverSync($server);
+            $this->server($server);
         }
     }
 
