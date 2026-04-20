@@ -11,59 +11,59 @@ use function preg_match;
 class FieldEditDto
 {
     /**
-     * @var mixed
+     * @var string
      */
-    public $name;
+    public string $name;
 
     /**
-     * @var mixed
+     * @var string
      */
-    public $type;
+    public string $type;
 
     /**
-     * @var mixed
+     * @var string
      */
-    public $fullType;
-
-    /**
-     * @var mixed
-     */
-    public $comment;
-
-    /**
-     * @var mixed
-     */
-    public $value;
+    public string $fullType;
 
     /**
      * @var string|null
      */
-    public $function;
+    public string|null $comment;
+
+    /**
+     * @var mixed
+     */
+    public mixed $value;
+
+    /**
+     * @var string|null
+     */
+    public string|null $function;
 
     /**
      * @var array
      */
-    public $functions;
+    public array $functions;
 
     /**
      * @var array
      */
-    public $valueInput;
+    public array $valueInput;
 
     /**
      * @var array|null
      */
-    public $functionInput;
+    public array|null $functionInput;
 
     /**
      * @var array
      */
-    public $enums = [];
+    public array $enums = [];
 
     /**
      * @var bool|null
      */
-    public $isText = null;
+    public bool|null $isText = null;
 
     /**
      * @param TableFieldDto $field
@@ -161,7 +161,7 @@ class FieldEditDto
     public function hasFunction(): bool
     {
         return in_array($this->function, $this->functions) ||
-            isset($functions[$this->function]);
+            isset($this->functions[$this->function]);
     }
 
     /**
