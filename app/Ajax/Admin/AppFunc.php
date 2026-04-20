@@ -77,8 +77,6 @@ class AppFunc extends FuncComponent
     }
 
     /**
-     * Connect to a database server.
-     *
      * @return void
      */
     public function start(): void
@@ -115,7 +113,9 @@ class AppFunc extends FuncComponent
      */
     private function createTab(string $title): void
     {
-        $name = $this->tab()->app()->newId();
+        $appTab = $this->tab()->app();
+
+        $name = $appTab->newId();
         $this->bag('dbadmin')->set('tab.app', $name);
 
         $names = $this->bag('dbadmin.tab')->get('app.names', []);
@@ -125,8 +125,8 @@ class AppFunc extends FuncComponent
 
         $nav = $this->ui()->tabNavItemHtml($title);
         $content = $this->ui()->tabContentItemHtml();
-        $this->response()->jo('jaxon.dbadmin')->addTab('dbadmin-server-tab-nav', $nav,
-            'dbadmin-server-tab-content', $content, $this->tab()->app()->titleId());
+        $this->response()->jo('jaxon.dbadmin')->addTab('dbadmin-server-tab-nav',
+            $nav, 'dbadmin-server-tab-content', $content, $appTab->titleId());
     }
 
     /**
@@ -170,6 +170,11 @@ class AppFunc extends FuncComponent
         if ($server !== '') {
             $this->cl(DbFunc::class)->serverSync($server);
         }
+
+        // Back to the first tab.
+        $appTab = $this->tab()->app();
+        $this->response()->jo('jaxon.dbadmin')->activateTab($appTab->zeroTitleId());
+        $this->bag('dbadmin')->set('tab.app', $appTab->zero());
     }
 
     /**
@@ -194,9 +199,11 @@ class AppFunc extends FuncComponent
      */
     public function delTab(): void
     {
+        $appTab = $this->tab()->app();
+
         $names = $this->bag('dbadmin.tab')->get('app.names', []);
         $current = $this->bag('dbadmin')->get('tab.app', '');
-        if ($current === $this->tab()->app()->zero() || count($names) === 0) {
+        if ($current === $appTab->zero() || count($names) === 0) {
             $this->alert()->title('Error')->error('Cannot delete the current tab.');
             return;
         }
@@ -206,10 +213,10 @@ class AppFunc extends FuncComponent
         }
 
         // Delete the current tab. This script also activates the first tab.
-        $this->response()->jo('jaxon.dbadmin')->delTab($this->tab()->app()->titleId(),
-            $this->tab()->app()->wrapperId(), $this->tab()->app()->zeroTitleId());
+        $this->response()->jo('jaxon.dbadmin')->delTab($appTab->titleId(),
+            $appTab->wrapperId(), $appTab->zeroTitleId());
         // Delete the query editors created in the tab;
-        $this->response()->jo('jaxon.dbadmin')->delAppEditors($this->tab()->app()->current());
+        $this->response()->jo('jaxon.dbadmin')->delAppEditors($appTab->current());
 
         // Update the databag contents.
         $this->bag('dbadmin.tab')->set('app.names',
@@ -219,7 +226,7 @@ class AppFunc extends FuncComponent
         $this->unsetBag('dbadmin.tab', 'editor.names.db');
 
         // Set the first tab as the current.
-        $this->bag('dbadmin')->set('tab.app', $this->tab()->app()->zero());
+        $this->bag('dbadmin')->set('tab.app', $appTab->zero());
     }
 
     /**

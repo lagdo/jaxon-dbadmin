@@ -42,9 +42,9 @@
 }
 #jaxon-dbadmin .jaxon-dbadmin-scrollable-content {
   min-height: 0;
-  /* max-height: 500px; */
   overflow-x: hidden;
   overflow-y: auto;
+  padding-right: 15px;
 }
 #jaxon-dbadmin .jaxon-dbadmin-columns-wrapper > * {
     /* Prevents children from pushing the parent */
