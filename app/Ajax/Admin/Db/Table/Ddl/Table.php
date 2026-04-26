@@ -9,8 +9,6 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\Insert;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 
-use function is_array;
-
 class Table extends MainComponent
 {
     /**
@@ -128,21 +126,21 @@ class Table extends MainComponent
 
         // Show indexes
         $indexes = $this->db()->getTableIndexes($table);
-        if(is_array($indexes))
+        if($indexes !== null)
         {
             $this->showTab($indexes, $this->tabId('tab-content-indexes'));
         }
 
         // Show foreign keys
         $foreignKeys = $this->db()->getTableForeignKeys($table);
-        if(is_array($foreignKeys))
+        if($foreignKeys !== null)
         {
             $this->showTab($foreignKeys, $this->tabId('tab-content-foreign-keys'));
         }
 
         // Show triggers
         $triggers = $this->db()->getTableTriggers($table);
-        if(is_array($triggers))
+        if($triggers !== null)
         {
             $this->showTab($triggers, $this->tabId('tab-content-triggers'));
         }

@@ -77,7 +77,7 @@ class CommandProxy extends AbstractDriverProxy
      *
      * @return void
      */
-    private function openSecondConnection()
+    private function openNewConnection()
     {
         // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
         //! PDO - silent error
@@ -254,7 +254,7 @@ class CommandProxy extends AbstractDriverProxy
         }
 
         // The second connection must be created before executing the queries.
-        $this->openSecondConnection();
+        $this->openNewConnection();
 
         $this->results = [];
         $this->duration = 0;

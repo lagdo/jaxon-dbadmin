@@ -69,9 +69,6 @@ class TableContent extends AbstractDriverProxy
                 if (array_key_exists($key, $index->lengths)) {
                     $value .= '(' . $index->lengths[$key] . ')';
                 }
-                if (array_key_exists($key, $index->descs)) {
-                    $value .= ' DESC';
-                }
                 $print[] = $value;
             }
             $contents[] = [
