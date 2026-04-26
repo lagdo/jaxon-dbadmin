@@ -8,6 +8,7 @@ use Lagdo\DbAdmin\Driver\Sql\Dto\IndexDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TriggerDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 
 use function array_key_exists;
 use function array_map;
@@ -43,10 +44,11 @@ class TableContent extends AbstractDriverProxy
             }
 
             if ($commentSupported) {
-                $content['comment'] = $this->utils()->html($field->comment);
+                $content['comment'] = $field->comment === null ? null :
+                    $this->utils()->html($field->comment);
             }
 
-            $contents[] = $content;
+            $contents[] = new DetailDto($content);
         }
 
         return $contents;
@@ -71,11 +73,11 @@ class TableContent extends AbstractDriverProxy
                 }
                 $print[] = $value;
             }
-            $contents[] = [
+            $contents[] = new DetailDto([
                 'name' => $this->utils()->html($name),
                 'type' => $index->type,
                 'desc' => implode(', ', $print),
-            ];
+            ]);
         }
 
         return $contents;
@@ -103,13 +105,13 @@ class TableContent extends AbstractDriverProxy
             $target = $this->utils()->html($foreignKey->table) .
                 '(' . implode(', ', $targets) . ')';
             $sources = array_map($keyCallback, $foreignKey->source);
-            $contents[] = [
+            $contents[] = new DetailDto([
                 'name' => $this->utils()->html($name),
                 'source' => '<i>' . implode('</i>, <i>', $sources) . '</i>',
                 'target' => $target,
                 'onDelete' => $this->utils()->html($foreignKey->onDelete),
                 'onUpdate' => $this->utils()->html($foreignKey->onUpdate),
-            ];
+            ]);
         }
 
         return $contents;
@@ -124,12 +126,12 @@ class TableContent extends AbstractDriverProxy
     {
         $contents = [];
         foreach ($triggers as $name => $trigger) {
-            $contents[] = [
+            $contents[] = new DetailDto([
                 $this->utils()->html($trigger->timing),
                 $this->utils()->html($trigger->event),
                 $this->utils()->html($name),
                 $this->utils()->lang('Alter'),
-            ];
+            ]);
         }
 
         return $contents;

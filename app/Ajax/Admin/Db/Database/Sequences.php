@@ -12,6 +12,7 @@ class Sequences extends MainComponent
     protected function before(): void
     {
         $this->activateDatabaseSectionMenu('sequences');
+
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             // 'add-sequence' => [

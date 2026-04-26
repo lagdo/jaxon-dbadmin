@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 
 use function array_filter;
 use function array_intersect;
@@ -146,12 +147,12 @@ class ServerProxy extends AbstractDriverProxy
         $collations = $this->engine()->collations();
         $details = [];
         foreach ($databases as $database) {
-            $details[] = [
+            $details[$database] = new DetailDto([
                 'name' => $this->utils()->html($database),
                 'collation' => $this->utils()->html($this->engine()->databaseCollation($database, $collations)),
                 'tables' => array_key_exists($database, $tables) ? $tables[$database] : 0,
                 'size' => $this->utils()->trans->formatNumber($this->engine()->databaseSize($database)),
-            ];
+            ]);
         }
 
         return [
@@ -190,7 +191,7 @@ class ServerProxy extends AbstractDriverProxy
             foreach ($process as $key => $val) {
                 $attrs[] = is_string($val) ? $this->statement()->processAttr($process, $key, $val) : '(null)';
             }
-            $details[] = $attrs;
+            $details[] = new DetailDto($attrs);
         }
 
         return ['headers' => $headers, 'details' => $details];
@@ -208,7 +209,10 @@ class ServerProxy extends AbstractDriverProxy
         $details = [];
         // From variables.inc.php
         foreach ($variables as $key => $val) {
-            $details[] = [$this->utils()->html($key), is_string($val) ? $this->utils()->str->shortenUtf8($val, 50) : '(null)'];
+            $details[] = new DetailDto([
+                $this->utils()->html($key),
+                is_string($val) ? $this->utils()->str->shortenUtf8($val, 50) : '(null)',
+            ]);
         }
 
         return ['headers' => false, 'details' => $details];
@@ -226,7 +230,10 @@ class ServerProxy extends AbstractDriverProxy
         $details = [];
         // From variables.inc.php
         foreach ($status as $key => $val) {
-            $details[] = [$this->utils()->html($key), is_string($val) ? $this->utils()->html($val) : '(null)'];
+            $details[] = new DetailDto([
+                $this->utils()->html($key),
+                is_string($val) ? $this->utils()->html($val) : '(null)',
+            ]);
         }
 
         return ['headers' => false, 'details' => $details];

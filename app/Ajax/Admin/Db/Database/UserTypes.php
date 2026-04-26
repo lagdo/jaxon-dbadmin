@@ -12,6 +12,7 @@ class UserTypes extends MainComponent
     protected function before(): void
     {
         $this->activateDatabaseSectionMenu('types');
+
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             // 'add-type' => [

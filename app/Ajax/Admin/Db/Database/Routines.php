@@ -12,6 +12,7 @@ class Routines extends MainComponent
     protected function before(): void
     {
         $this->activateDatabaseSectionMenu('routines');
+
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             // 'add-procedure' => [

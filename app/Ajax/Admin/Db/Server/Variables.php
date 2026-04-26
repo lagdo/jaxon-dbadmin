@@ -13,6 +13,7 @@ class Variables extends MainComponent
     protected function before(): void
     {
         $this->activateServerSectionMenu('variables');
+
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
     }

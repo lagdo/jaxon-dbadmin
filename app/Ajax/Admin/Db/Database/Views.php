@@ -8,9 +8,6 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Ddl\ViewFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Dql\Select;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 
-use function array_keys;
-use function array_map;
-
 class Views extends MainComponent
 {
     /**
@@ -19,6 +16,7 @@ class Views extends MainComponent
     protected function before(): void
     {
         $this->activateDatabaseSectionMenu('views');
+
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             'add-view' => [
@@ -36,24 +34,20 @@ class Views extends MainComponent
     public function show(): void
     {
         $viewsInfo = $this->db()->getViews();
-        $details = $viewsInfo['details'];
 
-        // Add links, classes and data values to view names. The $details['name']
-        // value is wrapped into a <div>, the cannot be used as param for calls.
-        $viewsInfo['details'] = array_map(fn(array $detail, string $view) => [
-            ...$detail,
-            'menu' => $this->ui()->buttonMenu([[
+        foreach($viewsInfo['details'] as $name => $detail) {
+            $detail->menus = [[
                 'label' => $this->trans->lang('Select'),
-                'handler' => $this->rq(Select::class)->show($view),
+                'handler' => $this->rq(Select::class)->show($name),
             ], [
                 'label' => $this->trans->lang('Show'),
-                'handler' => $this->rq(View::class)->show($view),
+                'handler' => $this->rq(View::class)->show($name),
             ], [
                 'label' => $this->trans->lang('Drop'),
-                'handler' => $this->rq(ViewFunc::class)->drop($view)
-                    ->confirm($this->trans->lang('Drop view %s?', $view)),
-            ]]),
-        ], $details, array_keys($details));
+                'handler' => $this->rq(ViewFunc::class)->drop($name)
+                    ->confirm($this->trans->lang('Drop view %s?', $name)),
+            ]];
+        }
 
         $this->showSection($viewsInfo, 'view');
 

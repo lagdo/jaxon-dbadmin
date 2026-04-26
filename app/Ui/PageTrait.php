@@ -4,8 +4,11 @@ namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
+use Lagdo\UiBuilder\Component\HtmlComponent;
 
 use function array_shift;
+use function array_values;
+use function count;
 use function is_array;
 
 trait PageTrait
@@ -23,17 +26,17 @@ trait PageTrait
     /**
      * @param array $menus
      *
-     * @return string
+     * @return HtmlComponent
      */
-    public function buttonMenu(array $menus): string
+    private function _buttonMenu(array $menus): HtmlComponent
     {
         $menu = array_shift($menus);
-        return $this->ui->build(
-            $this->ui->buttonGroup(
-                $this->ui->button($menu['label'])
-                    ->primary()
-                    ->jxnClick($menu['handler']),
-                $this->ui->dropdownItem()->look('primary'),
+        return $this->ui->buttonGroup(
+            $this->ui->button($menu['label'])
+                ->primary()
+                ->jxnClick($menu['handler']),
+            $this->ui->dropdownItem()->look('primary'),
+            $this->ui->when(count($menus) > 0, fn() =>
                 $this->ui->dropdownMenu(
                     $this->ui->each($menus, fn($menu) =>
                         $this->ui->dropdownMenuItem($menu['label'])
@@ -42,6 +45,16 @@ trait PageTrait
                 )->setStyle('position:relative;')
             )
         );
+    }
+
+    /**
+     * @param array $menus
+     *
+     * @return string
+     */
+    public function buttonMenu(array $menus): string
+    {
+        return $this->ui->build($this->_buttonMenu($menus));
     }
 
     /**
@@ -59,17 +72,11 @@ trait PageTrait
                     ->setStyle('width:50px;');
         }
 
-        if(!isset($content['handler']))
-        {
-            return $this->ui->td($this->ui->text($content['label']));
-        }
-
         $element = $this->ui->td();
         if(isset($content['props']))
         {
             $element->setAttributes($content['props']);
         }
-
         $element->contents(
             $this->ui->a($this->ui->text($content['label']))
                 ->setAttributes(['href' => 'javascript:void(0)'])
@@ -88,6 +95,8 @@ trait PageTrait
     {
         $headers = $content['headers'] ?: [];
         $details = $content['details'] ?? [];
+        $hasMenu = (array_values($details)[0] ?? null)?->menus !== null;
+
         return $this->ui->table(
             $this->ui->thead(
                 $this->ui->when($contentType !== '', fn() =>
@@ -96,12 +105,13 @@ trait PageTrait
                             ->setId($this->tab()->app()->id("dbadmin-table-$contentType-all"))
                     )->addClass('dbadmin-table-checkbox')
                 ),
+                $this->ui->when($hasMenu, fn() => $this->ui->th('')),
                 $this->ui->each($headers, fn($header) =>
                     $this->ui->th($this->ui->html($header))
                 )
             ),
             $this->ui->body(
-                $this->ui->each($details, fn($detailGroup) =>
+                $this->ui->each($details, fn($detail, $key) =>
                     $this->ui->tr(
                         $this->ui->when($contentType !== '', fn() =>
                             $this->ui->td(
@@ -110,13 +120,19 @@ trait PageTrait
                                     ->setName("{$contentType}[]")
                             )->addClass('dbadmin-table-checkbox')
                         ),
-                        $this->ui->each($detailGroup, fn($detail, $title) =>
-                            $this->getTableCell($title, $detail ?? '')
+                        $this->ui->when($detail->menus !== null, fn() =>
+                            $this->ui->td(
+                                $this->_buttonMenu($detail->menus)
+                            )->setStyle('width:60px;')
+                        ),
+                        $this->ui->each($detail->items, fn($detailItem, $title) =>
+                            $this->getTableCell($title, $detailItem ?? '')
                         )
                     )
                 )
             )
-        )->responsive()->look('bordered');
+        )->responsive()
+            ->look('bordered');
     }
 
     /**

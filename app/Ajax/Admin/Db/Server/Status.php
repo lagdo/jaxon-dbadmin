@@ -13,6 +13,7 @@ class Status extends MainComponent
     protected function before(): void
     {
         $this->activateServerSectionMenu('status');
+
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
     }

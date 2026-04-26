@@ -3,10 +3,12 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 
+use function array_keys;
+use function compact;
 use function explode;
 use function in_array;
-use function array_keys;
 use function strtoupper;
 
 /**
@@ -35,14 +37,14 @@ class UserProxy extends AbstractDriverProxy
         foreach ($this->engine()->getUsers($database) as $user) {
             // Fetch user grants
             $userDto = $this->engine()->getUserGrants($user["User"], $user["Host"]);
-            $details[] = [
+            $details[] = new DetailDto([
                 'user' => $this->utils()->html($userDto->name),
                 'host' => $this->utils()->html($userDto->host),
-                'grants' => \array_keys($userDto->grants),
-            ];
+                'grants' => array_keys($userDto->grants),
+            ]);
         }
 
-        return \compact('headers', 'details');
+        return compact('headers', 'details');
     }
 
     /**
@@ -204,7 +206,7 @@ class UserProxy extends AbstractDriverProxy
 
         $details = $this->_getUserPrivileges($grants);
 
-        return \compact('user', 'headers', 'details');
+        return compact('user', 'headers', 'details');
     }
 
     /**
@@ -259,6 +261,6 @@ class UserProxy extends AbstractDriverProxy
 
         $details = $this->_getUserPrivileges($userDto->grants);
 
-        return \compact('user', 'headers', 'details');
+        return compact('user', 'headers', 'details');
     }
 }

@@ -8,9 +8,6 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\TableFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 
-use function array_keys;
-use function array_map;
-
 class Tables extends MainComponent
 {
     /**
@@ -19,6 +16,7 @@ class Tables extends MainComponent
     protected function before(): void
     {
         $this->activateDatabaseSectionMenu('tables');
+
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             'add-table' => [
@@ -36,24 +34,20 @@ class Tables extends MainComponent
     public function show(): void
     {
         $tablesInfo = $this->db()->getTables();
-        $details = $tablesInfo['details'];
 
-        // Add links, classes and data values to table names. The $details['name']
-        // value is wrapped into a <div>, the cannot be used as param for calls.
-        $tablesInfo['details'] = array_map(fn(array $detail, string $table) => [
-            ...$detail,
-            'menu' => $this->ui()->buttonMenu([[
+        foreach($tablesInfo['details'] as $name => $detail) {
+            $detail->menus = [[
                 'label' => $this->trans->lang('Select'),
-                'handler' => $this->rq(Select::class)->show($table),
+                'handler' => $this->rq(Select::class)->show($name),
             ], [
                 'label' => $this->trans->lang('Show'),
-                'handler' => $this->rq(Table::class)->show($table),
+                'handler' => $this->rq(Table::class)->show($name),
             ], [
                 'label' => $this->trans->lang('Drop'),
-                'handler' => $this->rq(TableFunc::class)->drop($table)
-                    ->confirm($this->trans->lang('Drop table %s?', $table)),
-            ]]),
-        ], $details, array_keys($details));
+                'handler' => $this->rq(TableFunc::class)->drop($name)
+                    ->confirm($this->trans->lang('Drop table %s?', $name)),
+            ]];
+        }
 
         $this->showSection($tablesInfo, 'table');
 

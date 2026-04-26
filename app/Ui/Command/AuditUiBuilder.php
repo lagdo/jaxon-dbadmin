@@ -95,15 +95,15 @@ class AuditUiBuilder
                     $this->ui->tbody(
                         $this->ui->each($queries, fn($query, $id) =>
                             $this->ui->tr(
+                                $this->ui->td($this->historyButtons())
+                                    ->setDataQueryId($id)
+                                    ->setStyle('width:60px;'),
                                 $this->ui->td(
                                     $this->ui->div("[{$query['driver']}]")
                                         ->setStyle('font-size:14px; font-style:italic;'),
                                     $this->ui->div($query['query'])
                                         ->setId("{$prefix}{$id}")
-                                ),
-                                $this->ui->td($this->historyButtons())
-                                    ->setDataQueryId($id)
-                                    ->setStyle('width:50px;')
+                                )
                             )
                         )
                     )->setStyle('padding:5px 15px')
@@ -186,15 +186,15 @@ class AuditUiBuilder
                     $this->ui->tbody(
                         $this->ui->each($queries, fn($query, $id) =>
                             $this->ui->tr(
+                                $this->ui->td($this->favoriteButtons())
+                                    ->setDataQueryId($id)
+                                    ->setStyle('width:60px;'),
                                 $this->ui->td(
                                     $this->ui->div("[{$query['driver']}] {$query['title']}")
                                         ->setStyle('font-size:14px; font-style:italic;'),
                                     $this->ui->div($query['query'])
                                         ->setId("{$prefix}{$id}")
-                                ),
-                                $this->ui->td($this->favoriteButtons())
-                                    ->setDataQueryId($id)
-                                    ->setStyle('width:50px;')
+                                )
                             )
                         )
                     )->jxnEvent([

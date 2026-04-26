@@ -17,6 +17,7 @@ class Databases extends MainComponent
     protected function before(): void
     {
         $this->activateServerSectionMenu('databases');
+
         // Set main menu buttons
         $this->cl(PageActions::class)->show([
             'add-database' => [
@@ -45,7 +46,6 @@ class Databases extends MainComponent
     #[After('showBreadcrumbs')]
     public function show(): void
     {
-        // Access to servers is forbidden. Show the first database.
         $systemAccess = $this->config()->getOption('access.system', false);
         $pageContent = $this->db()->getDatabases($systemAccess);
         // Set the database dropdown list
@@ -53,17 +53,15 @@ class Databases extends MainComponent
             ->set('databases', $pageContent['databases'])
             ->render();
 
-        // Add links, classes and data values to database names.
-        foreach($pageContent['details'] as &$detail) {
-            $databaseName = $detail['name'];
-            $detail['menu'] = $this->ui()->buttonMenu([[
+        foreach($pageContent['details'] as $name => $detail) {
+            $detail->menus = [[
                 'label' => $this->trans->lang('Show'),
-                'handler' => $this->rq(DbFunc::class)->database($databaseName),
+                'handler' => $this->rq(DbFunc::class)->database($name),
             ], [
                 'label' => $this->trans->lang('Drop'),
-                'handler' => $this->rq(Database::class)->drop($databaseName)
-                    ->confirm("Delete database {1}?", $databaseName),
-            ]]);
+                'handler' => $this->rq(Database::class)->drop($name)
+                    ->confirm("Delete database {1}?", $name),
+            ]];
         }
 
         $this->set('content', $pageContent);

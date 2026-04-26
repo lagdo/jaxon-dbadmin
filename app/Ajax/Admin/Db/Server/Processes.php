@@ -13,6 +13,7 @@ class Processes extends MainComponent
     protected function before(): void
     {
         $this->activateServerSectionMenu('processes');
+
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
     }
