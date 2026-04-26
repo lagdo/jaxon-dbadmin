@@ -48,7 +48,7 @@ class SelectProxy extends AbstractDriverProxy
      */
     private function query(): SelectQuery
     {
-        return $this->selectQuery ??= new SelectQuery($this->helper());
+        return $this->selectQuery ??= new SelectQuery($this);
     }
 
     /**
@@ -56,7 +56,7 @@ class SelectProxy extends AbstractDriverProxy
      */
     private function result(): SelectResult
     {
-        return $this->selectResult ??= new SelectResult($this->helper());
+        return $this->selectResult ??= new SelectResult($this);
     }
 
     /**

@@ -35,11 +35,11 @@ class QueryProxy extends AbstractDriverProxy
      */
     private function writer(): DataRowWriter
     {
-        $fieldValue = (new DataFieldValue($this->helper()))
+        $fieldValue = (new DataFieldValue($this))
             ->init($this->action, $this->operation);
-        $fieldInput = (new DataFieldInput($this->helper()))
+        $fieldInput = (new DataFieldInput($this))
             ->init($this->action, $this->operation);
-        return (new DataRowWriter($this->helper()))
+        return (new DataRowWriter($this))
             ->init($this->action, $this->operation, $fieldValue, $fieldInput);
     }
 
@@ -48,7 +48,7 @@ class QueryProxy extends AbstractDriverProxy
      */
     private function reader(): DataRowReader
     {
-        return new DataRowReader($this->helper());
+        return new DataRowReader($this);
     }
 
     /**

@@ -16,10 +16,31 @@ use Lagdo\DbAdmin\Driver\Utils\Utils;
 abstract class AbstractDriverProxy
 {
     /**
-     * @param DriverHelper $driverHelper
+     * @var CurrentDbDto
      */
-    public function __construct(private DriverHelper $driverHelper)
-    {}
+    protected CurrentDbDto $currentDb;
+
+    /**
+     * @var DriverHelper
+     */
+    protected DriverHelper $driverHelper;
+
+    /**
+     * @param AbstractDriverProxy $parent
+     */
+    public function __construct(AbstractDriverProxy $parent)
+    {
+        $this->currentDb = $parent->currentDb;
+        $this->driverHelper = $parent->driverHelper;
+    }
+
+    /**
+     * @return CurrentDbDto
+     */
+    public function db(): CurrentDbDto
+    {
+        return $this->currentDb;
+    }
 
     /**
      * @return DriverHelper

@@ -12,6 +12,7 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableHeader;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
+use Lagdo\Facades\Logger;
 use Exception;
 
 use function array_map;
@@ -58,7 +59,7 @@ class TableProxy extends AbstractDriverProxy
      */
     private function header(): TableHeader
     {
-        return $this->tableHeader ??= new TableHeader($this->helper());
+        return $this->tableHeader ??= new TableHeader($this);
     }
 
     /**
@@ -66,7 +67,7 @@ class TableProxy extends AbstractDriverProxy
      */
     private function content(): TableContent
     {
-        return $this->tableContent ??= new TableContent($this->helper());
+        return $this->tableContent ??= new TableContent($this);
     }
 
     /**
@@ -74,7 +75,7 @@ class TableProxy extends AbstractDriverProxy
      */
     private function create(): TableCreate
     {
-        return $this->tableCreate ??= new TableCreate($this->helper());
+        return $this->tableCreate ??= new TableCreate($this);
     }
 
     /**
@@ -82,7 +83,7 @@ class TableProxy extends AbstractDriverProxy
      */
     private function alter(): TableAlter
     {
-        return $this->tableAlter ??= new TableAlter($this->helper());
+        return $this->tableAlter ??= new TableAlter($this);
     }
 
     /**
@@ -151,6 +152,12 @@ class TableProxy extends AbstractDriverProxy
         // From table.inc.php
         $fields = $this->engine()->fields($table);
         if (empty($fields)) {
+            Logger::warning('Unable to get fields from table.', [
+                'table' => $table,
+                'schema' => $this->db()->schema,
+                'database' => $this->db()->name,
+                'server' => $this->db()->server,
+            ]);
             throw new Exception($this->engine()->error());
         }
 

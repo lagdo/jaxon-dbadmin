@@ -31,7 +31,7 @@ class SelectQuery extends AbstractDriverProxy
      */
     private function options(): SelectOptions
     {
-        return $this->selectOptions ??= new SelectOptions($this->helper());
+        return $this->selectOptions ??= new SelectOptions($this);
     }
 
     /**

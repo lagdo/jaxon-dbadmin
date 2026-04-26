@@ -47,7 +47,7 @@ class DatabaseProxy extends AbstractDriverProxy
      */
     private function header(): DatabaseHeader
     {
-        return $this->databaseHeader ??= new DatabaseHeader($this->helper());
+        return $this->databaseHeader ??= new DatabaseHeader($this);
     }
 
     /**
@@ -55,7 +55,7 @@ class DatabaseProxy extends AbstractDriverProxy
      */
     private function content(): DatabaseContent
     {
-        return $this->databaseContent ??= new DatabaseContent($this->helper());
+        return $this->databaseContent ??= new DatabaseContent($this);
     }
 
     /**

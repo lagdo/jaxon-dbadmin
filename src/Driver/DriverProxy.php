@@ -28,21 +28,6 @@ class DriverProxy extends AbstractDriverProxy
     protected array $connected = ['', '', ''];
 
     /**
-     * @var string
-     */
-    protected string $dbServer;
-
-    /**
-     * @var string
-     */
-    protected string $dbName;
-
-    /**
-     * @var string
-     */
-    protected string $dbSchema;
-
-    /**
      * @param Container $di
      * @param DriverHelper $helper
      * @param Breadcrumbs $breadcrumbs
@@ -50,7 +35,8 @@ class DriverProxy extends AbstractDriverProxy
     public function __construct(protected Container $di,
         DriverHelper $helper, protected Breadcrumbs $breadcrumbs)
     {
-        parent::__construct($helper);
+        $this->currentDb = new CurrentDbDto();
+        $this->driverHelper = $helper;
     }
 
     /**
@@ -58,7 +44,7 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function getServerName(): string
     {
-        return $this->dbServer;
+        return $this->db()->server;
     }
 
     /**
@@ -72,8 +58,8 @@ class DriverProxy extends AbstractDriverProxy
     {
         if ($withDb) {
             $this->breadcrumbs->clear();
-            if ($this->dbName) {
-                $this->breadcrumbs->item("<i><b>$this->dbName</b></i>");
+            if ($this->db()->name) {
+                $this->breadcrumbs->item("<i><b>{$this->db()->name}</b></i>");
             }
         }
         return $this->breadcrumbs;
@@ -98,9 +84,9 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function selectDatabase(string $server, string $database = '', string $schema = '')
     {
-        $this->dbServer = $server;
-        $this->dbName = $database;
-        $this->dbSchema = $schema;
+        $this->db()->server = $server;
+        $this->db()->name = $database;
+        $this->db()->schema = $schema;
 
         // Save the selected server in the di container.
         $this->di->val('dbadmin_config_server', $server);
@@ -117,7 +103,7 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function setCurrentDbName(string $database)
     {
-        $this->dbName = $database;
+        $this->db()->name = $database;
     }
 
     /**
@@ -146,7 +132,7 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function connectToServer()
     {
-        $this->connect($this->dbServer);
+        $this->connect($this->db()->server);
     }
 
     /**
@@ -154,7 +140,7 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function connectToDatabase()
     {
-        $this->connect($this->dbServer, $this->dbName);
+        $this->connect($this->db()->server, $this->db()->name);
     }
 
     /**
@@ -162,7 +148,7 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function connectToSchema()
     {
-        $this->connect($this->dbServer, $this->dbName, $this->dbSchema);
+        $this->connect($this->db()->server, $this->db()->name, $this->db()->schema);
     }
 
     /**
@@ -172,11 +158,11 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function getDatabaseOptions(array $options): array
     {
-        if ($this->dbName !== '') {
-            $options['database'] = $this->dbName;
+        if ($this->db()->name !== '') {
+            $options['database'] = $this->db()->name;
         }
-        if ($this->dbSchema !== '') {
-            $options['schema'] = $this->dbSchema;
+        if ($this->db()->schema !== '') {
+            $options['schema'] = $this->db()->schema;
         }
         return $options;
     }

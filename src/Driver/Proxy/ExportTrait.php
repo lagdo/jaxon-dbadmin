@@ -28,7 +28,7 @@ trait ExportTrait
     {
         $this->connectToDatabase();
         $this->breadcrumbs(true)->item($this->utils()->lang('Export'));
-        return $this->exportProxy()->getExportOptions($this->dbName);
+        return $this->exportProxy()->getExportOptions();
     }
 
     /**

@@ -49,7 +49,7 @@ class ExportProxy extends AbstractDriverProxy
      */
     private function export(): TableExport
     {
-        return new TableExport($this->helper());
+        return new TableExport($this);
     }
 
     /**
@@ -386,14 +386,14 @@ class ExportProxy extends AbstractDriverProxy
     /**
      * Get data for export
      *
-     * @param string $database      The database name
      * @param string $table
      *
      * @return array
      */
-    public function getExportOptions(string $database, string $table = ''): array
+    public function getExportOptions(string $table = ''): array
     {
         $export = $this->export();
+        $database = $this->db()->name;
         return $database === '' ? [
             'databases' => $export->getDatabases(),
             'options' => $export->getBaseOptions($database, $table),
