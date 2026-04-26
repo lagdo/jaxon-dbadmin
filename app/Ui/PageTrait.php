@@ -25,7 +25,7 @@ trait PageTrait
      *
      * @return string
      */
-    public function tableMenu(array $menus): string
+    public function buttonMenu(array $menus): string
     {
         $menu = array_shift($menus);
         return $this->ui->build(

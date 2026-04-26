@@ -56,7 +56,7 @@ class Databases extends MainComponent
         // Add links, classes and data values to database names.
         foreach($pageContent['details'] as &$detail) {
             $databaseName = $detail['name'];
-            $detail['menu'] = $this->ui()->tableMenu([[
+            $detail['menu'] = $this->ui()->buttonMenu([[
                 'label' => $this->trans->lang('Show'),
                 'handler' => $this->rq(DbFunc::class)->database($databaseName),
             ], [

@@ -17,7 +17,7 @@ use function str_replace;
 use function substr;
 
 /**
- * Prepare a select query using the user provided options.
+ * Prepare a select query using the user provided values.
  */
 class SelectQuery extends AbstractDriverProxy
 {

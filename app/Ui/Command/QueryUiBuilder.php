@@ -289,7 +289,7 @@ class QueryUiBuilder
         return $this->ui->build(
             $this->ui->div(
                 $this->ui->div(
-                    $this->tableMenu($menuEntries),
+                    $this->buttonMenu($menuEntries),
                 )->setClass('jaxon-dbadmin-tabs-layout_button'),
                 $this->ui->col(
                     $this->ui->tabNav(

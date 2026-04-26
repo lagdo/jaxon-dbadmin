@@ -28,7 +28,7 @@ trait RowMenuTrait
     {
         $bagEntryValue = jo('jaxon.bag')->getValue($this->tabBag('dbadmin.edit'),
             'row.ids', $this->bagValueKey($editId), null);
-        return $this->ui()->tableMenu([[
+        return $this->ui()->buttonMenu([[
             'label' => $this->trans->lang('Edit'),
             'handler' => $this->rq(Update::class)->edit($editId, $bagEntryValue),
         ], [

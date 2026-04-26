@@ -8,6 +8,9 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\TableFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 
+use function array_keys;
+use function array_map;
+
 class Tables extends MainComponent
 {
     /**
@@ -33,22 +36,24 @@ class Tables extends MainComponent
     public function show(): void
     {
         $tablesInfo = $this->db()->getTables();
+        $details = $tablesInfo['details'];
 
-        // Add links, classes and data values to table names.
-        foreach($tablesInfo['details'] as &$detail) {
-            $tableName = $detail['name'];
-            $detail['menu'] = $this->ui()->tableMenu([[
+        // Add links, classes and data values to table names. The $details['name']
+        // value is wrapped into a <div>, the cannot be used as param for calls.
+        $tablesInfo['details'] = array_map(fn(array $detail, string $table) => [
+            ...$detail,
+            'menu' => $this->ui()->buttonMenu([[
                 'label' => $this->trans->lang('Select'),
-                'handler' => $this->rq(Select::class)->show($tableName),
+                'handler' => $this->rq(Select::class)->show($table),
             ], [
                 'label' => $this->trans->lang('Show'),
-                'handler' => $this->rq(Table::class)->show($tableName),
+                'handler' => $this->rq(Table::class)->show($table),
             ], [
                 'label' => $this->trans->lang('Drop'),
-                'handler' => $this->rq(TableFunc::class)->drop($tableName)
-                    ->confirm($this->trans->lang('Drop table %s?', $tableName)),
-            ]]);
-        }
+                'handler' => $this->rq(TableFunc::class)->drop($table)
+                    ->confirm($this->trans->lang('Drop table %s?', $table)),
+            ]]),
+        ], $details, array_keys($details));
 
         $this->showSection($tablesInfo, 'table');
 

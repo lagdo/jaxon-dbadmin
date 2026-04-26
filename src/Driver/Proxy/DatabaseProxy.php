@@ -2,12 +2,14 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseHeader;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseContent;
 
 use function array_filter;
-use function array_map;
 use function array_intersect;
+use function array_map;
 use function array_values;
 use function is_array;
 
@@ -31,6 +33,32 @@ class DatabaseProxy extends AbstractDriverProxy
     protected $userSchemas = null;
 
     /**
+     * @var DatabaseHeader|null
+     */
+    private DatabaseHeader|null $databaseHeader = null;
+
+    /**
+     * @var DatabaseContent|null
+     */
+    private DatabaseContent|null $databaseContent = null;
+
+    /**
+     * @return DatabaseHeader
+     */
+    private function header(): DatabaseHeader
+    {
+        return $this->databaseHeader ??= new DatabaseHeader($this->helper());
+    }
+
+    /**
+     * @return DatabaseContent
+     */
+    private function content(): DatabaseContent
+    {
+        return $this->databaseContent ??= new DatabaseContent($this->helper());
+    }
+
+    /**
      * @param array $options    The server config options
      *
      * @return static
@@ -51,7 +79,7 @@ class DatabaseProxy extends AbstractDriverProxy
      *
      * @return array
      */
-    protected function schemas(bool $schemaAccess)
+    protected function schemas(bool $schemaAccess): array
     {
         // Get the schema lists
         if ($this->finalSchemas === null) {
@@ -61,8 +89,9 @@ class DatabaseProxy extends AbstractDriverProxy
                 $this->finalSchemas = array_values(array_intersect($this->finalSchemas, $this->userSchemas));
             }
         }
-        return $schemaAccess ? $this->finalSchemas : array_filter($this->finalSchemas,
-            fn($schema) => !$this->engine()->isSystemSchema($schema));
+
+        return $schemaAccess ? $this->finalSchemas :
+            array_filter($this->finalSchemas, $this->engine()->isUserSchema(...));
     }
 
     /**
@@ -72,13 +101,10 @@ class DatabaseProxy extends AbstractDriverProxy
      *
      * @return array
      */
-    public function getDatabaseInfo(bool $schemaAccess)
+    public function getDatabaseInfo(bool $schemaAccess): array
     {
         // From db.inc.php
-        $schemas = null;
-        if ($this->engine()->support("scheme")) {
-            $schemas = $this->schemas($schemaAccess);
-        }
+        $schemas = $this->engine()->support("scheme") ? $this->schemas($schemaAccess) : null;
 
         // $tables_list = $this->engine()->tables();
         // $tables = [];
@@ -87,7 +113,10 @@ class DatabaseProxy extends AbstractDriverProxy
         //     $tables[] = $this->utils()->html($table);
         // }
 
-        return ['schemas' => $schemas, /*'tables' => $tables*/];
+        return [
+            'schemas' => $schemas,
+            // 'tables' => $tables,
+        ];
     }
 
     /**
@@ -95,74 +124,33 @@ class DatabaseProxy extends AbstractDriverProxy
      *
      * @return array
      */
-    public function getTables()
+    public function getTables(): array
     {
-        $headers = [
-            $this->utils()->lang('Table'),
-            $this->utils()->lang('Engine'),
-            $this->utils()->lang('Collation'),
-            // $this->utils()->lang('Data Length'),
-            // $this->utils()->lang('Index Length'),
-            // $this->utils()->lang('Data Free'),
-            // $this->utils()->lang('Auto Increment'),
-            // $this->utils()->lang('Rows'),
-            $this->utils()->lang('Comment'),
-        ];
-
         // From db.inc.php
         // $tableStatus = $this->engine()->tableStatuses(true); // Tables details
-        $tableStatus = $this->engine()->tableStatuses(); // Tables details
+        $tables = array_filter($this->engine()->tableStatuses(), $this->engine()->isTable(...));
 
-        $details = [];
-        foreach ($tableStatus as $table => $status) {
-            if (!$this->engine()->isView($status)) {
-                $details[] = [
-                    'name' => $this->pageUi()->tableName($status),
-                    'engine' => $status->engine,
-                    'collation' => '',
-                    'comment' => $status->comment,
-                ];
-            }
-        }
-
-        return ['headers' => $headers, 'details' => $details];
+        return [
+            'headers' => $this->header()->tables(),
+            'details' => $this->content()->tables($tables),
+        ];
     }
 
     /**
      * Get the views from a database server
-     * Almost the same as getTables()
      *
      * @return array
      */
-    public function getViews()
+    public function getViews(): array
     {
-        $headers = [
-            $this->utils()->lang('View'),
-            $this->utils()->lang('Engine'),
-            // $this->utils()->lang('Data Length'),
-            // $this->utils()->lang('Index Length'),
-            // $this->utils()->lang('Data Free'),
-            // $this->utils()->lang('Auto Increment'),
-            // $this->utils()->lang('Rows'),
-            $this->utils()->lang('Comment'),
-        ];
-
         // From db.inc.php
         // $tableStatus = $this->engine()->tableStatuses(true); // Tables details
-        $tableStatus = $this->engine()->tableStatuses(); // Tables details
+        $views = array_filter($this->engine()->tableStatuses(), $this->engine()->isView(...));
 
-        $details = [];
-        foreach ($tableStatus as $table => $status) {
-            if ($this->engine()->isView($status)) {
-                $details[] = [
-                    'name' => $this->pageUi()->tableName($status),
-                    'engine' => $status->engine,
-                    'comment' => $status->comment,
-                ];
-            }
-        }
-
-        return ['headers' => $headers, 'details' => $details];
+        return [
+            'headers' => $this->header()->views(),
+            'details' => $this->content()->views($views),
+        ];
     }
 
     /**
@@ -170,31 +158,15 @@ class DatabaseProxy extends AbstractDriverProxy
      *
      * @return array
      */
-    public function getRoutines()
+    public function getRoutines(): array
     {
-        $headers = [
-            $this->utils()->lang('Name'),
-            $this->utils()->lang('Type'),
-            $this->utils()->lang('Return type'),
-        ];
-
         // From db.inc.php
-        $routines = $this->engine()->routines();
-        $details = [];
-        foreach ($routines as $routine) {
-            // not computed on the pages to be able to print the header first
-            // $name = ($routine["SPECIFIC_NAME"] == $routine["ROUTINE_NAME"] ?
-            //     "" : "&name=" . urlencode($routine["ROUTINE_NAME"]));
+        $routines =$this->engine()->routines();
 
-            $details[] = [
-                'name' => $this->utils()->html($routine->name),
-                'type' => $this->utils()->html($routine->type),
-                'returnType' => $this->utils()->html($routine->dtd),
-                // 'alter' => $this->utils()->lang('Alter'),
-            ];
-        }
-
-        return ['headers' => $headers, 'details' => $details];
+        return [
+            'headers' => $this->header()->routines(),
+            'details' => $this->content()->routines($routines),
+        ];
     }
 
     /**
@@ -202,78 +174,46 @@ class DatabaseProxy extends AbstractDriverProxy
      *
      * @return array
      */
-    public function getSequences()
+    public function getSequences(): array
     {
-        $headers = [
-            $this->utils()->lang('Name'),
+        $sequences = $this->engine()->sequences();
+
+        return [
+            'headers' => $this->header()->sequences(),
+            'details' => $this->content()->sequences($sequences),
         ];
-
-        $details = [];
-        foreach ($this->engine()->sequences() as $sequence) {
-            $details[] = [
-                'name' => $this->utils()->html($sequence),
-            ];
-        }
-
-        return ['headers' => $headers, 'details' => $details];
     }
 
     /**
-     * Get the routines from a given database
+     * Get the uer types from a given database
      *
      * @return array
      */
-    public function getUserTypes()
+    public function getUserTypes(): array
     {
-        $headers = [
-            $this->utils()->lang('Name'),
-        ];
-
         // From db.inc.php
-        $details = [];
-        foreach ($this->engine()->userTypes(false) as $userType) {
-            $details[] = [
-                'name' => $this->utils()->html($userType->name),
-            ];
-        }
+        $userTypes = $this->engine()->userTypes(false);
 
-        return ['headers' => $headers, 'details' => $details];
+        return [
+            'headers' => $this->header()->userTypes(),
+            'details' => $this->content()->userTypes($userTypes),
+        ];
     }
 
     /**
-     * Get the routines from a given database
+     * Get the events from a given database
      *
      * @return array
      */
-    public function getEvents()
+    public function getEvents(): array
     {
-        $headers = [
-            $this->utils()->lang('Name'),
-            $this->utils()->lang('Schedule'),
-            $this->utils()->lang('Start'),
-            // $this->utils()->lang('End'),
-        ];
-
         // From db.inc.php
-        $details = [];
-        foreach ($this->engine()->events() as $event) {
-            $detail = [
-                'name' => $this->utils()->html($event["Name"]),
-            ];
-            if (($event["Execute at"])) {
-                $detail['schedule'] = $this->utils()->lang('At given time');
-                $detail['start'] = $event["Execute at"];
-            // $detail['end'] = '';
-            } else {
-                $detail['schedule'] = $this->utils()->lang('Every') . " " .
-                    $event["Interval value"] . " " . $event["Interval field"];
-                $detail['start'] = $event["Starts"];
-                // $detail['end'] = '';
-            }
-            $details[] = $detail;
-        }
+        $events = $this->engine()->events();
 
-        return ['headers' => $headers, 'details' => $details];
+        return [
+            'headers' => $this->header()->events(),
+            'details' => $this->content()->events($events),
+        ];
     }
 
     /**
@@ -288,6 +228,7 @@ class DatabaseProxy extends AbstractDriverProxy
             'name' => $table,
             'columns' => array_values(array_map($fieldCallback, $this->engine()->fields($table))),
         ], $this->engine()->tableNames());
+
         return ['tables' => $tables];
     }
 }
