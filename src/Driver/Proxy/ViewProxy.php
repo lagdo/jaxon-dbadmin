@@ -93,8 +93,8 @@ class ViewProxy extends AbstractDriverProxy
             $this->utils()->lang('Type'),
             $this->utils()->lang('Collation'),
         ];
-        $hasComment = $this->engine()->support('comment');
-        if ($hasComment) {
+        $commentSupported = $this->engine()->support('comment');
+        if ($commentSupported) {
             $headers[] = $this->utils()->lang('Comment');
         }
 
@@ -116,8 +116,9 @@ class ViewProxy extends AbstractDriverProxy
                 'type' => $type,
                 'collation' => $this->utils()->html($field->collation),
             ];
-            if ($hasComment) {
-                $detail['comment'] = $this->utils()->html($field->comment);
+            if ($commentSupported) {
+                $detail['comment'] = $field->comment === null ? null :
+                    $this->utils()->html($field->comment);
             }
 
             $details[] = $detail;

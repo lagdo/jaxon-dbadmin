@@ -265,7 +265,7 @@ class SelectResult extends AbstractDriverProxy
      */
     public function getRows(SelectDto $selectDto): array
     {
-        return array_map(fn($row) => [
+        return array_map(fn(array $row) => [
             // The unique identifiers to edit the result rows.
             'ids' => $this->getRowIds($selectDto, $row),
             'cols' => $this->getRowValues($selectDto, $row),

@@ -38,6 +38,7 @@ class ColumnUiBuilder
     {
         $isPrimary = $column->values()->name === $primaryField;
         $this->listMode = false;
+        $support = $this->support();
 
         return $this->ui->build(
             $this->ui->form(
@@ -123,13 +124,15 @@ class ColumnUiBuilder
                         $this->getColumnOnDeleteField($column, 'onDelete')
                     )->width(8)
                 ),
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->text($this->trans->lang('Comment'))
-                    )->width(3),
-                    $this->ui->col(
-                        $this->getColumnCommentField($column, 'comment', 'hasComment')
-                    )->width(9)
+                $this->ui->when($support['comment'], fn() =>
+                    $this->ui->row(
+                        $this->ui->col(
+                            $this->ui->text($this->trans->lang('Comment'))
+                        )->width(3),
+                        $this->ui->col(
+                            $this->getColumnCommentField($column, 'comment', 'setComment')
+                        )->width(9)
+                    )
                 )
             )->setId($this->editFormId())
         );

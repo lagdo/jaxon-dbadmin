@@ -61,7 +61,7 @@ trait ColumnTrait
             $this->db()->getTableField() :
             // Existing column => check the metadata
             ($this->metadata()['fields'][$columnInput['name']] ?? null);
-        // Fill the data from the database with the data from the databag.
+        // Combine the data from the database with the data from the databag.
         return $field === null ? null : ColumnInputDto::newColumn($field, $columnInput);
     }
 

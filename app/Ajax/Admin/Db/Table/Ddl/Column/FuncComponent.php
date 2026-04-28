@@ -31,10 +31,13 @@ abstract class FuncComponent extends BaseComponent
         $formValues['primary'] = isset($formValues['primary']);
         $formValues['autoIncrement'] = isset($formValues['autoIncrement']);
         $formValues['nullable'] = isset($formValues['nullable']);
+        $formValues['setComment'] = isset($formValues['setComment']);
+
         $formValues['generated'] = trim($formValues['generated']);
         if ($formValues['generated'] === '') {
             $formValues['default'] = ''; // Erase the default value.
         }
+        $formValues['comment'] = $formValues['comment'] ?? '';
 
         return $formValues;
     }

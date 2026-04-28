@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
+use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
@@ -58,18 +59,14 @@ trait PageTrait
     }
 
     /**
-     * @param string $title
      * @param mixed $content
      *
      * @return mixed
      */
-    private function getTableCell(string $title, $content): mixed
+    private function getTableCell(mixed $content): mixed
     {
         if (!is_array($content)) {
-            return $title !== 'menu' ?
-                $this->ui->td($this->ui->html($content)) :
-                $this->ui->td($this->ui->html($content))
-                    ->setStyle('width:50px;');
+            return $this->ui->td($this->ui->html($content));
         }
 
         $element = $this->ui->td();
@@ -98,20 +95,22 @@ trait PageTrait
         $hasMenu = (array_values($details)[0] ?? null)?->menus !== null;
 
         return $this->ui->table(
-            $this->ui->thead(
-                $this->ui->when($contentType !== '', fn() =>
-                    $this->ui->th(
-                        $this->ui->checkbox()
-                            ->setId($this->tab()->app()->id("dbadmin-table-$contentType-all"))
-                    )->addClass('dbadmin-table-checkbox')
+            $this->ui->when(count($details) > 0, fn() =>
+                $this->ui->thead(
+                    $this->ui->when($contentType !== '', fn() =>
+                        $this->ui->th(
+                            $this->ui->checkbox()
+                                ->setId($this->tab()->app()->id("dbadmin-table-$contentType-all"))
+                        )->addClass('dbadmin-table-checkbox')
+                    ),
+                    $this->ui->when($hasMenu, fn() => $this->ui->th('')),
+                    $this->ui->each($headers, fn($header) =>
+                        $this->ui->th($this->ui->html($header))
+                    )
                 ),
-                $this->ui->when($hasMenu, fn() => $this->ui->th('')),
-                $this->ui->each($headers, fn($header) =>
-                    $this->ui->th($this->ui->html($header))
-                )
             ),
             $this->ui->body(
-                $this->ui->each($details, fn($detail, $key) =>
+                $this->ui->each($details, fn(DetailDto $detail) =>
                     $this->ui->tr(
                         $this->ui->when($contentType !== '', fn() =>
                             $this->ui->td(
@@ -125,14 +124,13 @@ trait PageTrait
                                 $this->_buttonMenu($detail->menus)
                             )->setStyle('width:60px;')
                         ),
-                        $this->ui->each($detail->items, fn($detailItem, $title) =>
-                            $this->getTableCell($title, $detailItem ?? '')
+                        $this->ui->each($detail->items, fn($detailItem) =>
+                            $this->getTableCell($detailItem ?? '')
                         )
                     )
                 )
             )
-        )->responsive()
-            ->look('bordered');
+        )->responsive()->look('bordered');
     }
 
     /**
@@ -143,9 +141,7 @@ trait PageTrait
      */
     public function pageContent(array $pageContent, string $contentType = ''): string
     {
-        return $this->ui->build(
-            $this->makeTable($pageContent, $contentType)
-        );
+        return $this->ui->build($this->makeTable($pageContent, $contentType));
     }
 
     /**
@@ -160,8 +156,7 @@ trait PageTrait
         }
 
         $countId = $this->tab()->app()->id("dbadmin-table-{$contentType}-count");
-        $message = "Selected (<span id=\"{$countId}\">0</span>)";
-        return $this->ui->html($message);
+        return $this->ui->html("Selected (<span id=\"{$countId}\">0</span>)");
     }
 
     /**
@@ -182,8 +177,8 @@ trait PageTrait
                                     $element->addClass('jaxon-dbadmin-scrollable-content'))
                         )->when($grow, fn($element) => $element->addClass('full-height'))
                     )->when($grow, fn($element) => $element->addClass('full-height'))
-                )->when($grow, fn($element) => $element
-                    ->addClass('jaxon-dbadmin-column-flexible'))
+                )->when($grow, fn($element) =>
+                    $element->addClass('jaxon-dbadmin-column-flexible'))
             );
     }
 }

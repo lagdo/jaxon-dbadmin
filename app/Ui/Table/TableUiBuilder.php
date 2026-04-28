@@ -132,96 +132,76 @@ class TableUiBuilder
         return $this->ui->div(
             $this->ui->row(
                 $this->ui->col(
-                    $this->ui->row(
-                        $this->ui->col(
-                            $this->ui->input()
-                                ->setType('text')
-                                ->setName('name')
-                                ->setValue($this->table['name'] ?? '')
-                                ->setPlaceholder('Name')
-                        )->width(12)
-                    ),
-                    $this->ui->row(
-                        $this->ui->col(
-                            $this->ui->inputGroup(
-                                $this->ui->checkbox()
-                                    ->checked($hasAutoIncrement)
-                                    ->setName('hasAutoIncrement'),
-                                $this->ui->input()
-                                    ->setName('autoIncrement')
-                                    ->setPlaceholder('Auto Increment')
-                                    ->setValue($hasAutoIncrement ? $this->table['autoIncrement'] : '')
-                            )
-                        )->width(7)
-                    )
-                )->width(4),
-                $this->ui->col($this->ui->html('&nbsp'))->width(1),
+                    $this->ui->input()
+                        ->setType('text')
+                        ->setName('name')
+                        ->setValue($this->table['name'] ?? '')
+                        ->setPlaceholder('Name')
+                )->setClass('dbadmin-table-column-left')
+                    ->width(4),
+                $this->ui->col()->setClass('dbadmin-table-column-middle')
+                    ->width(1),
                 $this->ui->col(
-                    $this->ui->when($hasEngines || $hasCollations, fn() =>
-                        $this->ui->row(
-                            $this->ui->when($hasCollations, fn() =>
-                                $this->ui->col(
-                                    $this->getCollationSelect($this->table['collation'] ?? '')
-                                        ->setName('collation')
-                                )->width(6)
-                            ),
-                            $this->ui->when($hasEngines, fn() =>
-                                $this->ui->col(
-                                    $this->getEngineSelect($this->table['engine'] ?? '')
-                                        ->setName('engine')
-                                )->width(4)
-                            )
-                        )
-                    ),
-                    $this->ui->when(isset($support['comment']), fn() =>
-                        $this->ui->row(
+                    $this->ui->row(
+                        $this->ui->when($hasCollations, fn() =>
                             $this->ui->col(
+                                $this->getCollationSelect($this->table['collation'] ?? '')
+                                    ->setName('collation')
+                            )->setClass('nested-col')
+                                ->width(6)
+                        ),
+                        $this->ui->when($hasEngines, fn() =>
+                            $this->ui->col(
+                                $this->getEngineSelect($this->table['engine'] ?? '')
+                                    ->setName('engine')
+                            )->setClass('nested-col')
+                                ->width(4)
+                        )
+                    )->setClass('nested-row')
+                )->setClass('dbadmin-table-column-right')
+                    ->width(7),
+                $this->ui->col(
+                    $this->ui->inputGroup(
+                        $this->ui->checkbox()
+                            ->checked($hasAutoIncrement)
+                            ->setName('hasAutoIncrement'),
+                        $this->ui->input()
+                            ->setName('autoIncrement')
+                            ->setPlaceholder('Auto Increment')
+                            ->setValue($hasAutoIncrement ? $this->table['autoIncrement'] : '')
+                    )
+                )->setClass('dbadmin-table-column-left')
+                    ->width(2),
+                $this->ui->col()->setClass('dbadmin-table-column-middle')
+                    ->width(3),
+                $this->ui->col(
+                    $this->ui->div(
+                        $this->ui->div(
+                            $this->ui->when($support['comment'], fn() =>
                                 $this->ui->inputGroup(
                                     $this->ui->checkbox()
-                                        ->checked($comment !== null)
-                                        ->setName('hasComment'),
+                                        ->checked(false)
+                                        ->setName('setComment'),
                                     $this->ui->input()
                                         ->setType('text')
                                         ->setName('comment')
                                         ->setValue($comment ?? '')
                                         ->setPlaceholder($this->trans->lang('Comment'))
                                 )
-                            )->width(11)
-                        )
-                    )
-                )->width(7)
+                            )
+                        )->setStyle('flex: 1'),
+                        $this->ui->div(
+                            $this->ui->when($support['columns'], fn() =>
+                                $this->ui->button($this->ui->html('<i class="fa fa-plus"></i>'))
+                                    ->primary()
+                                    ->jxnClick($this->rqCreate()->add())
+                            )
+                        )->setStyle('width:40px; padding-left:5px;')
+                    )->setStyle('display:flex; flex-direction:row; align-items:flex-start;'),
+                )->setClass('dbadmin-table-column-right')
+                    ->width(7)
             )->setClass('dbadmin-table-edit-field'),
         );
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function columnsHeaderBlock(): mixed
-    {
-        $support = $this->support();
-        return $this->ui->row(
-            $this->ui->col(
-                $this->ui->label($this->ui->text($this->trans->lang('Column')))
-                    ->setStyle('margin-left: 5px;')
-            )->width(4),
-            $this->ui->col(
-                $this->ui->html('&nbsp;')
-            )->width(1),
-            $this->ui->col(
-                $this->ui->label($this->ui->text($this->trans->lang('Options')))
-                    ->setStyle('margin-left: -10px;')
-            )->width(4),
-            $this->ui->col(
-                $this->ui->when($support['columns'], fn() =>
-                    $this->ui->button($this->trans->lang('Add'))
-                        ->primary()
-                        ->jxnClick($this->rqCreate()->add())
-                )
-            )->width(3)
-                ->setAlign('right')
-                ->setStyle('padding-right: 30px;')
-        )->setClass('dbadmin-table-column-header');
     }
 
     /**
@@ -234,7 +214,6 @@ class TableUiBuilder
                 $this->ui->form(
                     $this->tableNameBlock(),
                     $this->tablePropertiesForm(),
-                    $this->columnsHeaderBlock()
                 )->wrapped(false)->setId($this->listFormId())
             ),
             $this->ui->form(
@@ -298,21 +277,6 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnInputDto $column
-     *
-     * @return mixed
-     */
-    private function getColumnBgColor(ColumnInputDto $column): string
-    {
-        return match(true) {
-            $column->added() => "background-color: #e6ffe6;",
-            $column->changed() => "background-color: #d9f1ffff;",
-            $column->dropped() => "background-color: #ffe6e6;",
-            default => "background-color: white;",
-        };
-    }
-
-    /**
      * @param string $label
      *
      * @return HtmlComponent
@@ -353,18 +317,19 @@ class TableUiBuilder
             $this->ui->col(
                 $this->ui->row(
                     $this->ui->col(
-                        $this->ui->when(isset($support['comment']), fn() =>
-                            $this->getColumnCommentField($column,
-                                "{$editPrefix}[comment]", "{$editPrefix}[hasComment]")
-                                ->setPlaceholder($this->trans->lang('Comment'))
-                                ->with(fn($input) => $this->disable($input, true))
-                        )
-                    )->width(11)
-                        ->setClass('dbadmin-table-column-middle nested-col'),
+                        $column->field->collationHidden ?
+                            $this->hiddenField('Collation') :
+                            $this->getColumnCollationField($column, "{$editPrefix}[collation]")
+                                ->with(fn($input) => $this->disable($input))
+                    )->width(6)
+                        ->setClass('dbadmin-table-column-middle'),
                     $this->ui->col(
-                        $this->getColumnActionMenu($column, $columnId)
-                    )->width(1)
-                        ->setClass('dbadmin-table-column-buttons nested-col')
+                        $column->field->onUpdateHidden ?
+                            $this->hiddenField('On update') :
+                            $this->getColumnOnUpdateField($column, "{$editPrefix}[onUpdate]")
+                                ->with(fn($input) => $this->disable($input))
+                    )->width(6)
+                        ->setClass('dbadmin-table-column-right'),
                 )->setClass('nested-row')
             )->width(7),
 
@@ -383,8 +348,7 @@ class TableUiBuilder
                     )->width(4)
                         ->setClass('dbadmin-table-column-right nested-col'),
                 )->setClass('nested-row')
-            )->width(4)
-                ->setClass('second-line'),
+            )->width(4),
             $this->ui->col(
                 $this->getColumnAutoIncrementField($column, "{$editPrefix}[autoIncrement]")
                     ->with(fn($input) => $this->disable($input, false)),
@@ -393,44 +357,64 @@ class TableUiBuilder
                     ->with(fn($input) => $this->disable($input, false)),
                 $this->ui->span($this->ui->html('&nbsp;N'))
             )->width(1)
-                ->setClass('dbadmin-table-column-middle second-line')
+                ->setClass('dbadmin-table-column-middle')
                 ->setStyle('padding-top: 7px'),
             $this->ui->col(
-                $column->field->collationHidden ?
-                    $this->hiddenField('Collation') :
-                    $this->getColumnCollationField($column, "{$editPrefix}[collation]")
-                        ->with(fn($input) => $this->disable($input))
-            )->width(4)
-                ->setClass('dbadmin-table-column-middle second-line'),
-            $this->ui->col(
-                $column->field->onUpdateHidden ?
-                    $this->hiddenField('On update') :
-                    $this->getColumnOnUpdateField($column, "{$editPrefix}[onUpdate]")
-                        ->with(fn($input) => $this->disable($input))
-            )->width(3)
-                ->setClass('dbadmin-table-column-right second-line'),
+                $this->ui->row(
+                    $this->ui->col(
+                        $column->field->unsignedHidden ?
+                            $this->hiddenField('Unsigned') :
+                            $this->getColumnUnsignedField($column, "{$editPrefix}[unsigned]")
+                                ->with(fn($input) => $this->disable($input))
+                    )->width(6)
+                        ->setClass('dbadmin-table-column-middle'),
+                    $this->ui->col(
+                        $column->field->onDeleteHidden ?
+                        $this->hiddenField('On delete') :
+                        $this->getColumnOnDeleteField($column, "{$editPrefix}[onDelete]")
+                            ->with(fn($input) => $this->disable($input))
+                    )->width(6)
+                        ->setClass('dbadmin-table-column-right'),
+                )->setClass('nested-row')
+            )->width(7),
 
             // Third line
             $this->ui->col(
                 $this->getColumnDefaultField($column, "{$editPrefix}[generated]",
                 "{$editPrefix}[default]", $this->trans->lang('Default value'))
             )->width(5)
-                ->setClass('dbadmin-table-column-left second-line'),
+                ->setClass('dbadmin-table-column-left'),
             $this->ui->col(
-                $column->field->unsignedHidden ?
-                    $this->hiddenField('Unsigned') :
-                    $this->getColumnUnsignedField($column, "{$editPrefix}[unsigned]")
-                        ->with(fn($input) => $this->disable($input))
-            )->width(4)
-                ->setClass('dbadmin-table-column-middle second-line'),
-            $this->ui->col(
-                $column->field->onDeleteHidden ?
-                $this->hiddenField('On delete') :
-                $this->getColumnOnDeleteField($column, "{$editPrefix}[onDelete]")
-                    ->with(fn($input) => $this->disable($input))
-            )->width(3)
-                ->setClass('dbadmin-table-column-right second-line'),
+                $this->ui->div(
+                    $this->ui->div(
+                        $this->ui->when($support['comment'], fn() =>
+                            $this->getColumnCommentField($column, "{$editPrefix}[comment]",
+                                "{$editPrefix}[setComment]", $this->trans->lang('Comment'), true)
+                        )
+                    )->setStyle('flex: 1'),
+                    $this->ui->div(
+                        $this->getColumnActionMenu($column, $columnId)
+                    )->setStyle('width:40px; padding-left:5px;')
+                )->setStyle('display:flex; flex-direction:row; align-items:flex-start;')
+                    ->setClass('nested-col')
+            )->setStyle('padding-left:2px; padding-right:2px;')
+                ->width(7)
         )->setClass($this->formColumnClass);
+    }
+
+    /**
+     * @param ColumnInputDto $column
+     *
+     * @return mixed
+     */
+    private function getColumnBgColor(ColumnInputDto $column): string
+    {
+        return match(true) {
+            $column->added() => "background-color: #e6ffe6;",
+            $column->changed() => "background-color: #d9f1ffff;",
+            $column->dropped() => "background-color: #ffe6e6;",
+            default => "background-color: white;",
+        };
     }
 
     /**

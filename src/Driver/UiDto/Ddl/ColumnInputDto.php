@@ -24,35 +24,35 @@ class ColumnInputDto
      *
      * @var ColumnAction
      */
-    private $action = ColumnAction::NONE;
+    private ColumnAction $action = ColumnAction::NONE;
 
     /**
      * The field position in the edit form
      *
      * @var int
      */
-    public $position = 0;
+    public int $position = 0;
 
     /**
      * The original field values
      *
      * @var array
      */
-    private $fieldValues;
+    private array $fieldValues;
 
     /**
      * The edited field values
      *
      * @var object|null
      */
-    private $values = null;
+    private object|null $values = null;
 
     /**
      * The attributes in the column values
      *
      * @var array
      */
-    private static $attributes = [
+    private static array $attributes = [
         'name',
         'primary',
         'autoIncrement',
@@ -84,6 +84,7 @@ class ColumnInputDto
         $this->fieldValues['nullable'] = (bool)$this->fieldValues['nullable'];
         // Don't keep null in the comment value.
         $this->fieldValues['comment'] ??= '';
+        $this->fieldValues['setComment'] = false;
         // Set the "DEFAULT" value for the "generated" attribute.
         // Remove the null value from the "default" attribute.
         // From create.inc.php
@@ -200,7 +201,8 @@ class ColumnInputDto
                 return true;
             }
         }
-        return false;
+        // The setComment field meaning is different.
+        return $values->setComment;
     }
 
     /**
@@ -237,7 +239,7 @@ class ColumnInputDto
                 ];
             }
         }
-        // The other attributes
+        // The string attributes
         foreach (['generated', 'default', 'collation', 'onUpdate', 'onDelete', 'comment'] as $attr) {
             if ($values->$attr !== $this->fieldValues[$attr]) {
                 $changes[$attr] = [
@@ -245,6 +247,13 @@ class ColumnInputDto
                     'to' => $values->$attr,
                 ];
             }
+        }
+        // The comment attribute
+        if ($values->setComment) {
+            $changes['comment'] = [
+                'from' => $this->fieldValues['comment'],
+                'to' => $values->comment,
+            ];
         }
 
         return $changes;

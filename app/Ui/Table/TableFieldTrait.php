@@ -241,22 +241,26 @@ trait TableFieldTrait
      * @param ColumnInputDto $column
      * @param string $fieldName
      * @param string $hasFieldName
+     * @param string $placeholder
+     * @param bool $disabled
      *
      * @return mixed
      */
-    protected function getColumnCommentField(ColumnInputDto $column,
-        string $fieldName, string $hasFieldName): mixed
+    protected function getColumnCommentField(ColumnInputDto $column, string $fieldName,
+        string $hasFieldName, string $placeholder = '', bool $disabled = false): mixed
     {
-        $comment = $column->values()->comment;
         return $this->ui->inputGroup(
             $this->ui->checkbox()
-                ->checked($comment !== null)
-                ->setName($hasFieldName),
+                ->checked($column->values()->setComment)
+                ->setName($hasFieldName)
+                ->when($disabled, fn($checkbox) => $this->disable($checkbox, false)),
             $this->ui->input()
                 ->setType('text')
                 ->setName($fieldName)
-                ->setValue($comment ?? '')
+                ->setValue($column->values()->comment ?? '')
                 ->setDataField('comment')
+                ->setPlaceholder($placeholder)
+                ->when($disabled, fn($input) => $this->disable($input, true))
         );
     }
 
