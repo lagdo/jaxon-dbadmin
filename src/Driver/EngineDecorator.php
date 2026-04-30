@@ -127,9 +127,9 @@ class EngineDecorator extends AbstractEngine
     /**
      * @inheritDoc
      */
-    public function result(string $query, int $field = -1): mixed
+    public function result(string $query, int $column = -1): mixed
     {
-        $result = $this->engine->result($query, $field);
+        $result = $this->engine->result($query, $column);
         // Call the query callbacks.
         $this->callCallbacks($query);
         return $result;

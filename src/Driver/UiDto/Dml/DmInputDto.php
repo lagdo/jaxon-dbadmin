@@ -2,13 +2,13 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dml;
 
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 
 use function implode;
 use function in_array;
 use function preg_match;
 
-class FieldEditDto
+class DmInputDto
 {
     /**
      * @var string
@@ -66,12 +66,12 @@ class FieldEditDto
     public bool|null $isText = null;
 
     /**
-     * @param TableFieldDto $field
+     * @param ColumnDto $column
      */
-    public function __construct(public TableFieldDto $field)
+    public function __construct(public readonly ColumnDto $column)
     {
-        $this->type = $field->type;
-        $this->comment = $field->comment;
+        $this->type = $column->type;
+        $this->comment = $column->comment;
     }
 
     /**
@@ -79,7 +79,7 @@ class FieldEditDto
      */
     public function isDisabled(): bool
     {
-        return $this->field->isDisabled();
+        return $this->column->isDisabled();
     }
 
     /**
@@ -169,9 +169,9 @@ class FieldEditDto
      */
     public function isNumber(): bool
     {
-        return (!$this->hasFunction() || $this->function === "") &&
+        return (!$this->hasFunction() || $this->function === '') &&
             preg_match('~(?<!o)int(?!er)~', $this->type) &&
-            !preg_match('~\[\]~', $this->field->fullType);
+            !preg_match('~\[\]~', $this->column->fullType);
     }
 
     /**

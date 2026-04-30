@@ -2,8 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
 use Exception;
 
 /**
@@ -48,11 +48,11 @@ trait TableTrait
      * @return array
      * @throws Exception
      */
-    public function getTableFields(string $table): array
+    public function getTableColumns(string $table): array
     {
         $this->connectToSchema();
         $this->utils()->input->table = $table;
-        return $this->tableProxy()->getTableFields($table);
+        return $this->tableProxy()->getTableColumns($table);
     }
 
     /**
@@ -120,56 +120,56 @@ trait TableTrait
     }
 
     /**
-     * Get fields for a new column
+     * Get a new column
      *
-     * @return TableFieldDto
+     * @return ColumnDto
      */
-    public function getTableField(): TableFieldDto
+    public function newTableColumn(): ColumnDto
     {
         $this->connectToSchema();
-        return $this->tableProxy()->getTableField();
+        return $this->tableProxy()->newTableColumn();
     }
 
     /**
-     * Get field types
+     * Get column types
      *
      * @param string $type  The type name
      *
      * @return array
      */
-    public function getFieldTypes(string $type = ''): array
+    public function getColumnTypes(string $type = ''): array
     {
         // Must be called after the connection to a schema is made.
         // $this->connectToSchema();
-        return $this->tableProxy()->getFieldTypes($type);
+        return $this->tableProxy()->getColumnTypes($type);
     }
 
     /**
      * Get SQL commands to create a table
      *
      * @param array $options     The table options
-     * @param array<ColumnInputDto> $columns
+     * @param array<DdInputDto> $inputs
      *
      * @return array
      */
-    public function getCreateTableQueries(array $options, array $columns): array
+    public function getCreateTableQueries(array $options, array $inputs): array
     {
         $this->connectToSchema();
-        return $this->tableProxy()->getCreateTableQueries($options, $columns);
+        return $this->tableProxy()->getCreateTableQueries($options, $inputs);
     }
 
     /**
      * Create a table
      *
      * @param array $options     The table options
-     * @param array<ColumnInputDto> $columns
+     * @param array<DdInputDto> $inputs
      *
      * @return array|null
      */
-    public function createTable(array $options, array $columns): ?array
+    public function createTable(array $options, array $inputs): ?array
     {
         $this->connectToSchema();
-        return $this->tableProxy()->createTable($options, $columns);
+        return $this->tableProxy()->createTable($options, $inputs);
     }
 
     /**
@@ -177,14 +177,14 @@ trait TableTrait
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<ColumnInputDto> $columns
+     * @param array<DdInputDto> $inputs
      *
      * @return array
      */
-    public function getAlterTableQueries(string $name, array $options, array $columns): array
+    public function getAlterTableQueries(string $name, array $options, array $inputs): array
     {
         $this->connectToSchema();
-        return $this->tableProxy()->getAlterTableQueries($name, $options, $columns);
+        return $this->tableProxy()->getAlterTableQueries($name, $options, $inputs);
     }
 
     /**
@@ -192,15 +192,15 @@ trait TableTrait
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<ColumnInputDto> $columns
+     * @param array<InputDto> $inputs
      *
      * @return array|null
      * @throws Exception
      */
-    public function alterTable(string $name, array $options, array $columns): ?array
+    public function alterTable(string $name, array $options, array $inputs): ?array
     {
         $this->connectToSchema();
-        return $this->tableProxy()->alterTable($name, $options, $columns);
+        return $this->tableProxy()->alterTable($name, $options, $inputs);
     }
 
     /**

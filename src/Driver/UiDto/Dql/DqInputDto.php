@@ -2,25 +2,30 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dql;
 
+use Lagdo\DbAdmin\Driver\Sql\Dto\SelectInputDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableSelectDto;
 
-class SelectDto
+class DqInputDto
 {
     /**
      * @var array
      */
-    public array $fields;
-
-    /**
-     * @var array
-     */
-    public array $rights;
+    public array $selects; // selectable columns
 
     /**
      * @var array
      */
     public array $columns;
+
+    /**
+     * @var array
+     */
+    public array $clauses;
+
+    /**
+     * @var array
+     */
+    public array $rights;
 
     /**
      * @var int
@@ -35,22 +40,17 @@ class SelectDto
     /**
      * @var array
      */
-    public array $select;
+    public array $groups;
 
     /**
      * @var array
      */
-    public array $group;
+    public array $wheres;
 
     /**
      * @var array
      */
-    public array $where;
-
-    /**
-     * @var array
-     */
-    public array $order;
+    public array $orders;
 
     /**
      * @var array
@@ -108,9 +108,9 @@ class SelectDto
     public string|null $error = null;
 
     /**
-     * @var TableSelectDto
+     * @var SelectInputDto
      */
-    public TableSelectDto $tableSelect;
+    public SelectInputDto $tableSelect;
 
     /**
      * @param string $table

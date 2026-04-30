@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
 
 class UpdateFunc extends FuncComponent
 {
@@ -14,22 +14,22 @@ class UpdateFunc extends FuncComponent
     public function edit(string $columnId): void
     {
         $table = $this->getCurrentTable();
-        $column = $this->getFieldColumn($columnId);
-        if ($column === null) {
+        $input = $this->getColumnInput($columnId);
+        if ($input === null) {
             $this->alert()
                 ->title($this->trans->lang('Error'))
                 ->error("Unable to find the requested column in table '$table'.");
             return;
         }
 
-        $primaryField = $this->getTableBag('primary', '');
+        $primaryColumn = $this->getTableBag('primary', '');
 
-        $title = $column->added() ?
+        $title = $input->added() ?
             "Edit new column in table $table" :
-            "Edit column {$column->name} in table $table";
+            "Edit column {$input->column->name} in table $table";
         $content = $this->columnUi
             ->metadata($this->metadata())
-            ->column($column, $primaryField);
+            ->column($input, $primaryColumn);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -51,8 +51,8 @@ class UpdateFunc extends FuncComponent
      */
     public function save(string $columnId, array $values): void
     {
-        $columns = $this->getTableColumns();
-        if (!isset($columns[$columnId])) {
+        $inputs = $this->getColumnInputs();
+        if (!isset($inputs[$columnId])) {
             $table = $this->getCurrentTable();
             $this->alert()
                 ->title($this->trans->lang('Error'))
@@ -60,15 +60,15 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $column = $columns[$columnId];
-        $column->setValues($this->getUserFormValues($values));
-        if ($column->changed() || $column->unchanged()) {
-            $column->changeIf();
+        $input = $inputs[$columnId];
+        $input->setValues($this->getUserFormValues($values));
+        if ($input->changed() || $input->unchanged()) {
+            $input->changeIf();
         }
 
         $this->modal()->hide();
 
-        $this->cl(Wrapper::class)->show($this->metadata(), $columns);
+        $this->cl(Wrapper::class)->show($this->metadata(), $inputs);
     }
 
     /**
@@ -78,8 +78,8 @@ class UpdateFunc extends FuncComponent
      */
     public function cancel(string $columnId): void
     {
-        $columns = $this->getTableColumns();
-        if (!isset($columns[$columnId])) {
+        $inputs = $this->getColumnInputs();
+        if (!isset($inputs[$columnId])) {
             $table = $this->getCurrentTable();
             $this->alert()
                 ->title($this->trans->lang('Error'))
@@ -87,15 +87,17 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $fields = $this->metadata()['fields'];
-        $column = $columns[$columnId];
-        if (isset($fields[$column->name])) {
-            // Reset the column with values from the database.
-            $column = new ColumnInputDto($fields[$column->name]);
-            $column->undo();
-            $columns[$columnId] = $column;
+        $columns = $this->metadata()['columns'];
+        $input = $inputs[$columnId];
+        $columnName = $input->column->name;
+
+        // Reset the column input with values from the database.
+        if (isset($columns[$columnName])) {
+            $input = new DdInputDto($columns[$columnName]);
+            $input->undo();
+            $inputs[$columnId] = $input;
         }
 
-        $this->cl(Wrapper::class)->show($this->metadata(), $columns);
+        $this->cl(Wrapper::class)->show($this->metadata(), $inputs);
     }
 }

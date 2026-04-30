@@ -2,8 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Driver;
 
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 
 use function file_get_contents;
@@ -57,15 +57,15 @@ class PageUi
     /**
      * Field caption used in select and edit
      *
-     * @param TableFieldDto $field Single field returned from fields()
+     * @param ColumnDto $column Single column returned from columns()
      * @param int $order Order of column in select
      *
      * @return string
      */
-    public function fieldName(TableFieldDto $field, int $order = 0): string
+    public function columnName(ColumnDto $column, int $order = 0): string
     {
-        $fullType = $this->utils()->html($field->fullType);
-        $name = $this->utils()->html($field->name);
+        $fullType = $this->utils()->html($column->fullType);
+        $name = $this->utils()->html($column->name);
         return "<span title=\"$fullType\">$name</span>";
     }
 
@@ -73,17 +73,17 @@ class PageUi
      * Apply SQL function
      *
      * @param string $function
-     * @param string $column escaped column identifier
+     * @param string $columnName escaped column identifier
      *
      * @return string
      */
-    public function applySqlFunction(string $function, string $column): string
+    public function applySqlFunction(string $function, string $columnName): string
     {
         return match(true) {
-            !$function => $column,
-            $function === 'unixepoch' => "DATETIME($column, '$function')",
-            $function === 'count distinct' => "COUNT(DISTINCT $column)",
-            default => strtoupper($function) . "($column)",
+            !$function => $columnName,
+            $function === 'unixepoch' => "DATETIME($columnName, '$function')",
+            $function === 'count distinct' => "COUNT(DISTINCT $columnName)",
+            default => strtoupper($function) . "($columnName)",
         };
     }
 
@@ -96,7 +96,7 @@ class PageUi
      *
      * @return string
      */
-    private function getSelectFieldValue($value, string $type, $original): string
+    private function getSelectColumnValue($value, string $type, $original): string
     {
         return match(true) {
             $value === null => '<i>NULL</i>',
@@ -118,25 +118,25 @@ class PageUi
     /**
      * Format value to use in select
      *
-     * @param TableFieldDto $field
+     * @param ColumnDto $column
      * @param int $textLength
      * @param mixed $value
      *
      * @return string
      */
-    public function selectValue(TableFieldDto $field, int $textLength, mixed $value): string
+    public function selectValue(ColumnDto $column, int $textLength, mixed $value): string
     {
         // if (\is_array($value)) {
         //     $expression = '';
         //     foreach ($value as $k => $v) {
         //         $expression .= '<tr>' . ($value != \array_values($value) ?
         //             '<th>' . $this->utils()->html($k) :
-        //             '') . '<td>' . $this->selectValue($field, $v, $textLength);
+        //             '') . '<td>' . $this->selectValue($column, $v, $textLength);
         //     }
         //     return "<table cellspacing='0'>$expression</table>";
         // }
         // if (!$link) {
-        //     $link = $this->selectLink($value, $field);
+        //     $link = $this->selectLink($value, $column);
         // }
 
         $expression = $value;
@@ -146,58 +146,58 @@ class PageUi
                 !$this->utils()->str->isUtf8($expression) => "\0",
                 // usage of LEFT() would reduce traffic but complicate query -
                 // expected average speedup: .001 s VS .01 s on local network
-                $textLength !== 0 && $this->utils()->isShortable($field) =>
+                $textLength !== 0 && $this->utils()->isShortable($column) =>
                     $this->utils()->str->shortenUtf8($expression, max(0, +$textLength)),
                 default => $this->utils()->html($expression),
             };
         }
 
-        return $this->getSelectFieldValue($expression, $field->type, $value);
+        return $this->getSelectColumnValue($expression, $column->type, $value);
     }
 
     /**
-     * @param TableFieldDto $field
+     * @param ColumnDto $column
      * @param int $textLength
      * @param mixed $value
      *
      * @return array
      */
-    public function getFieldValue(TableFieldDto $field, int $textLength, mixed $value): array
+    public function getColumnValue(ColumnDto $column, int $textLength, mixed $value): array
     {
-        /*if ($value != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
+        /*if ($value != "" && (!isset($email_columns[$key]) || $email_columns[$key] != "")) {
             //! filled e-mails can be contained on other pages
-            $email_fields[$key] = ($this->isMail($value) ? $names[$key] : "");
+            $email_columns[$key] = ($this->isMail($value) ? $names[$key] : "");
         }*/
         return [
             // 'id',
-            'text' => preg_match('~text|lob~', $field->type),
-            'value' => $this->selectValue($field, $textLength, $value),
+            'text' => preg_match('~text|lob~', $column->type),
+            'value' => $this->selectValue($column, $textLength, $value),
             // 'editable' => false,
         ];
     }
 
     /**
-     * @param TableFieldDto $field
+     * @param ColumnDto $column
      * @param string $tableCollation
      *
      * @return string
      */
-    public function getTableFieldType(TableFieldDto $field, string $tableCollation = ''): string
+    public function getColumnType(ColumnDto $column, string $tableCollation = ''): string
     {
-        $type = $this->utils()->html($field->fullType);
-        $collation = $this->utils()->html($field->collation);
+        $type = $this->utils()->html($column->fullType);
+        $collation = $this->utils()->html($column->collation);
         if ($collation !== '' && $tableCollation !== '' && $collation != $tableCollation) {
             $type .= " $collation";
         }
         $types = ["<span>$type</span>"];
-        if ($field->nullable) {
+        if ($column->nullable) {
             $types[] = '<i>nullable</i>'; // ' <i>NULL</i>';
         }
-        if ($field->autoIncrement) {
+        if ($column->autoIncrement) {
             $types[] = '<i>' . $this->utils()->lang('Auto Increment') . '</i>';
         }
-        if ($field->hasDefault()) {
-            $types[] = '[<b>' . $this->utils()->html($field->default) . '</b>]';
+        if ($column->hasDefault()) {
+            $types[] = '[<b>' . $this->utils()->html($column->default) . '</b>]';
         }
 
         return implode(' ', $types);

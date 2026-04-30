@@ -30,13 +30,13 @@ abstract class FuncComponent extends BaseComponent
     protected function getEditedFormValues(array $queryFields, array $formValues): array
     {
         // Update the functions
-        foreach ($formValues['field_functions'] ?? [] as $field => $function) {
-            // Make sure the field is present.
-            if (!isset($queryFields[$field])) {
+        foreach ($formValues['input_functions'] ?? [] as $column => $function) {
+            // Make sure the column is present.
+            if (!isset($queryFields[$column])) {
                 continue;
             }
 
-            $queryField = $queryFields[$field];
+            $queryField = $queryFields[$column];
 
             if (isset($queryField->functionInput['select'])) {
                 $queryField->functionInput['select']['value'] = $function;
@@ -44,33 +44,33 @@ abstract class FuncComponent extends BaseComponent
         }
 
         // Update the values
-        foreach ($formValues['field_values'] ?? [] as $field => $value)
+        foreach ($formValues['input_values'] ?? [] as $column => $value)
         {
-            // Make sure the field is present.
-            if (!isset($queryFields[$field])) {
+            // Make sure the column is present.
+            if (!isset($queryFields[$column])) {
                 continue;
             }
 
-            $queryField = $queryFields[$field];
+            $queryField = $queryFields[$column];
 
-            // The field has a simple value.
+            // The column has a simple value.
             if (isset($queryField->valueInput['value'])) {
                 $queryField->valueInput['value'] = $value;
                 continue;
             }
 
-            // The field is a checkbox for a boolean.
-            if ($queryField->valueInput['field'] === 'bool') {
+            // The column is a checkbox for a boolean.
+            if ($queryField->valueInput['column'] === 'bool') {
                 $queryField->valueInput['checked'] = $value === '1';
                 continue;
             }
 
-            // The field is a file upload.
-            if ($queryField->valueInput['field'] === 'file') {
+            // The column is a file upload.
+            if ($queryField->valueInput['column'] === 'file') {
                 continue;
             }
 
-            // The field has an array value (set or enum).
+            // The column has an array value (set or enum).
             if (isset($queryField->valueInput['items']) && is_array($value)) {
                 foreach ($queryField->valueInput['items'] as &$item) {
                     $item['checked'] = in_array($item['value'], $value);

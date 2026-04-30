@@ -131,14 +131,14 @@ class Commands extends PageComponent
 
     /**
      * @param array $formValues
-     * @param string $field
+     * @param string $columnId
      * @param string $defaultTime
      *
      * @return void
      */
-    private function checkDate(array $formValues, string $field, string $defaultTime): void
+    private function checkDate(array $formValues, string $columnId, string $defaultTime): void
     {
-        $date = trim($formValues["{$field}_date"]);
+        $date = trim($formValues["{$columnId}_date"]);
         if ($date === '') {
             return;
         }
@@ -149,11 +149,11 @@ class Commands extends PageComponent
             return;
         }
 
-        $time = trim($formValues["{$field}_time"]);
+        $time = trim($formValues["{$columnId}_time"]);
         if ($time === '') {
             // Save the date only
             $filters = $this->bag(self::BAG)->get('filters', []);
-            $filters[$field] = "$date $defaultTime";
+            $filters[$columnId] = "$date $defaultTime";
             $this->bag(self::BAG)->set('filters', $filters);
             return;
         }
@@ -166,7 +166,7 @@ class Commands extends PageComponent
 
         // Save the date and time
         $filters = $this->bag(self::BAG)->get('filters', []);
-        $filters[$field] = "$date $time:00";
+        $filters[$columnId] = "$date $time:00";
         $this->bag(self::BAG)->set('filters', $filters);
     }
 

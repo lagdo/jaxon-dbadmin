@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ui\Table;
 
 use Jaxon\Script\JsExpr;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
@@ -24,19 +24,19 @@ trait TableFieldTrait
     protected string $formColumnClass = 'dbadmin-table-columns-form-column';
 
     /**
-     * @var array
+     * @var array<string>
      */
-    protected $table = [];
+    protected array $table = [];
 
     /**
-     * @var array
+     * @var array<DdInputDto>
      */
-    protected $columns = [];
+    protected array $inputs = [];
 
     /**
      * @var bool
      */
-    protected $listMode = true;
+    protected bool $listMode = true;
 
     /**
      * @var BuilderInterface
@@ -159,105 +159,105 @@ trait TableFieldTrait
     }
 
     /**
-     * @param ColumnInputDto $column
-     * @param string $fieldName
+     * @param DdInputDto $input
+     * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnNameField(ColumnInputDto $column, string $fieldName): mixed
+    protected function getColumnNameField(DdInputDto $input, string $columnName): mixed
     {
         return $this->ui->input(['class' => 'column-name'])
-            ->setName($fieldName)
-            ->setValue($column->values()->name)
+            ->setName($columnName)
+            ->setValue($input->values()->name)
             ->setDataField('name')
             ->setDataMaxlength('64')
             ->setAutocapitalize('off');
     }
 
     /**
-     * @param ColumnInputDto $column
-     * @param string $fieldName
+     * @param DdInputDto $input
+     * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnPrimaryField(ColumnInputDto $column, string $fieldName): mixed
+    protected function getColumnPrimaryField(DdInputDto $input, string $columnName): mixed
     {
         return $this->ui->checkbox()
-            ->checked($column->values()->primary)
-            ->setName($fieldName)
+            ->checked($input->values()->primary)
+            ->setName($columnName)
             ->setValue('1');
     }
 
     /**
-     * @param ColumnInputDto $column
-     * @param string $fieldName
+     * @param DdInputDto $input
+     * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnAutoIncrementField(ColumnInputDto $column, string $fieldName): mixed
+    protected function getColumnAutoIncrementField(DdInputDto $input, string $columnName): mixed
     {
         return $this->ui->checkbox()
-            ->checked($column->values()->autoIncrement)
-            ->setName($fieldName)
+            ->checked($input->values()->autoIncrement)
+            ->setName($columnName)
             ->setValue('1');
     }
 
     /**
-     * @param ColumnInputDto $column
-     * @param string $fieldName
+     * @param DdInputDto $input
+     * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnCollationField(ColumnInputDto $column, string $fieldName): mixed
+    protected function getColumnCollationField(DdInputDto $input, string $columnName): mixed
     {
-        return $this->getCollationSelect($column->values()->collation)
-            ->setName($fieldName)
+        return $this->getCollationSelect($input->values()->collation)
+            ->setName($columnName)
             ->setDataField('collation')
-            ->when($column->field->collationHidden, fn($input) => $input->setReadonly('readonly'));
+            ->when($input->column->collationHidden, fn($input) => $input->setReadonly('readonly'));
     }
 
     /**
-     * @param ColumnInputDto $column
-     * @param string $fieldName
+     * @param DdInputDto $input
+     * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnOnUpdateField(ColumnInputDto $column, string $fieldName): mixed
+    protected function getColumnOnUpdateField(DdInputDto $input, string $columnName): mixed
     {
         return $this->ui->select(
             $this->ui->option('(' . $this->trans->lang('ON UPDATE') . ')')
                 ->setValue('')->selected(false),
             $this->ui->each($this->options()['onUpdate'], fn($option, $value) =>
                 $this->ui->option($option)
-                    ->selected($column->values()->onUpdate === $option)
+                    ->selected($input->values()->onUpdate === $option)
                     ->setValue($value)
             )
-        )->setName($fieldName)
+        )->setName($columnName)
             ->setDataField('onUpdate')
-            ->when($column->field->onUpdateHidden, fn($input) => $input->setReadonly('readonly'));
+            ->when($input->column->onUpdateHidden, fn($input) => $input->setReadonly('readonly'));
     }
 
     /**
-     * @param ColumnInputDto $column
-     * @param string $fieldName
+     * @param DdInputDto $input
+     * @param string $columnName
      * @param string $hasFieldName
      * @param string $placeholder
      * @param bool $disabled
      *
      * @return mixed
      */
-    protected function getColumnCommentField(ColumnInputDto $column, string $fieldName,
+    protected function getColumnCommentField(DdInputDto $input, string $columnName,
         string $hasFieldName, string $placeholder = '', bool $disabled = false): mixed
     {
         return $this->ui->inputGroup(
             $this->ui->checkbox()
-                ->checked($column->values()->setComment)
+                ->checked($input->values()->setComment)
                 ->setName($hasFieldName)
                 ->when($disabled, fn($checkbox) => $this->disable($checkbox, false)),
             $this->ui->input()
                 ->setType('text')
-                ->setName($fieldName)
-                ->setValue($column->values()->comment ?? '')
+                ->setName($columnName)
+                ->setValue($input->values()->comment ?? '')
                 ->setDataField('comment')
                 ->setPlaceholder($placeholder)
                 ->when($disabled, fn($input) => $this->disable($input, true))
@@ -265,21 +265,21 @@ trait TableFieldTrait
     }
 
     /**
-     * @param ColumnInputDto $column
-     * @param string $fieldName
+     * @param DdInputDto $input
+     * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnTypeField(ColumnInputDto $column, string $fieldName): mixed
+    protected function getColumnTypeField(DdInputDto $input, string $columnName): mixed
     {
         return $this->ui->select(
-            $this->ui->each($column->field->types, fn($groupTypes, $groupName) =>
+            $this->ui->each($input->column->types, fn($groupTypes, $groupName) =>
                 $this->ui->pick([
                     !is_numeric($groupName),
                     fn() => $this->ui->optgroup(
                         $this->ui->each($groupTypes, fn($type, $key) =>
                             $this->ui->option($type)
-                                ->selected($column->values()->type === $type)
+                                ->selected($input->values()->type === $type)
                                 ->when(!is_numeric($key), fn($input) => $input->setValue($key))
                         )
                     )->setLabel($groupName)
@@ -287,58 +287,58 @@ trait TableFieldTrait
                     is_array($groupTypes),
                     fn() => $this->ui->each($groupTypes, fn($type, $key) =>
                         $this->ui->option($type)
-                            ->selected($column->values()->type === $type)
+                            ->selected($input->values()->type === $type)
                             ->when(!is_numeric($key), fn($input) => $input->setValue($key)))
                 ], [
                     $type = $groupTypes, // Always true
                     $this->ui->option($type)
-                        ->selected($column->values()->type === $type)
+                        ->selected($input->values()->type === $type)
                 ])
             )
-        )->setName($fieldName)
+        )->setName($columnName)
             ->setDataField('type');
     }
 
     /**
-     * @param ColumnInputDto $column
-     * @param string $fieldName
+     * @param DdInputDto $input
+     * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnLengthField(ColumnInputDto $column, string $fieldName): mixed
+    protected function getColumnLengthField(DdInputDto $input, string $columnName): mixed
     {
         return $this->ui->input()
             ->setStyle('width: 100%')
-            ->setName($fieldName)
+            ->setName($columnName)
             ->setPlaceholder($this->trans->lang('Length'))
             ->setDataField('length')
             ->setSize('3')
-            ->setValue($column->values()->length ?: '')
-            ->when($column->field->lengthRequired, fn($input) => $input->setRequired('required'));
+            ->setValue($input->values()->length ?: '')
+            ->when($input->column->lengthRequired, fn($input) => $input->setRequired('required'));
     }
 
     /**
-     * @param ColumnInputDto $column
-     * @param string $fieldName
+     * @param DdInputDto $input
+     * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnNullableField(ColumnInputDto $column, string $fieldName): mixed
+    protected function getColumnNullableField(DdInputDto $input, string $columnName): mixed
     {
         return $this->ui->checkbox()
-            ->checked($column->values()->nullable)
-            ->setName($fieldName)
+            ->checked($input->values()->nullable)
+            ->setName($columnName)
             ->setDataField('null')
             ->setValue('1');
     }
 
     /**
-     * @param ColumnInputDto $column
-     * @param string $fieldName
+     * @param DdInputDto $input
+     * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnUnsignedField(ColumnInputDto $column, string $fieldName): mixed
+    protected function getColumnUnsignedField(DdInputDto $input, string $columnName): mixed
     {
         return $this->ui->select(
             $this->ui->option('(unsigned)')
@@ -346,21 +346,21 @@ trait TableFieldTrait
                 ->setValue(''),
             $this->ui->each($this->unsigned(), fn($option) =>
                 $this->ui->option($option)
-                    ->selected($column->values()->unsigned === $option)
+                    ->selected($input->values()->unsigned === $option)
                     ->setValue($option)
             )
-        )->setName($fieldName)
+        )->setName($columnName)
             ->setDataField('unsigned')
-            ->when($column->field->unsignedHidden, fn($input) => $input->setReadonly('readonly'));
+            ->when($input->column->unsignedHidden, fn($input) => $input->setReadonly('readonly'));
     }
 
     /**
-     * @param ColumnInputDto $column
-     * @param string $fieldName
+     * @param DdInputDto $input
+     * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnOnDeleteField(ColumnInputDto $column, string $fieldName): mixed
+    protected function getColumnOnDeleteField(DdInputDto $input, string $columnName): mixed
     {
         return $this->ui->select(
             $this->ui->option('(' . $this->trans->lang('ON DELETE') . ')')
@@ -369,29 +369,29 @@ trait TableFieldTrait
             $this->ui->each($this->options()['onDelete'], fn($option) =>
                 $this->ui->option($option)
                     ->setValue($option)
-                    ->selected($column->values()->onDelete === $option)
+                    ->selected($input->values()->onDelete === $option)
             )
-        )->setName($fieldName)
+        )->setName($columnName)
             ->setDataField('onDelete')
-            ->when($column->field->onDeleteHidden, fn($input) => $input->setReadonly('readonly'));
+            ->when($input->column->onDeleteHidden, fn($input) => $input->setReadonly('readonly'));
     }
 
     /**
-     * @param ColumnInputDto $column
+     * @param DdInputDto $input
      * @param string $generated     The name of the generated input field
      * @param string $default       The name of the default value input field
      * @param string $placeholder
      *
      * @return mixed
      */
-    protected function getColumnDefaultField(ColumnInputDto $column, string $generated,
+    protected function getColumnDefaultField(DdInputDto $input, string $generated,
         string $default, string $placeholder = ''): mixed
     {
         return $this->ui->inputGroup(
             $this->ui->select(
                 $this->ui->each($this->defaults(), fn($default) =>
                     $this->ui->option($default)
-                        ->selected($column->values()->generated === $default))
+                        ->selected($input->values()->generated === $default))
             )->setName($generated)
                 ->setDataField('generated')
                 ->setStyle('width: 30%;')
@@ -401,7 +401,7 @@ trait TableFieldTrait
                 ->setDataField('default')
                 ->setStyle('width: 70%;')
                 ->when($placeholder !== '', fn($input) => $input->setPlaceholder($placeholder))
-                ->setValue($column->values()->default)
+                ->setValue($input->values()->default)
                 ->when($this->listMode, fn($input) => $this->disable($input))
         );
     }

@@ -4,8 +4,8 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Component;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
 
 use function array_map;
 
@@ -17,35 +17,35 @@ use function array_map;
 class Wrapper extends Component
 {
     /**
-     * @var array<ColumnInputDto>
+     * @var array<DdInputDto>
      */
-    private $columns;
+    private $inputs;
 
     /**
-     * @param array $columns
+     * @param array $inputs
      *
      * @return void
      */
-    private function setColumns(array $columns): void
+    private function setColumns(array $inputs): void
     {
-        $this->columns = [];
+        $this->inputs = [];
 
-        // The primary field.
-        $primaryField = null;
+        // The primary column.
+        $primaryColumn = null;
         // Set the columns positions.
         $position = 0;
-        foreach ($columns as $column) {
-            $column->position = $position++;
-            $this->columns["column_$position"] = $column;
-            if ($column->values()->primary) {
-                $primaryField = $column->values()->name;
+        foreach ($inputs as $input) {
+            $input->position = $position++;
+            $this->inputs["column_$position"] = $input;
+            if ($input->values()->primary) {
+                $primaryColumn = $input->values()->name;
             }
         }
 
-        // Save the columns and the primary field name in the databag.
-        $callback = fn($column) => $column->toArray();
-        $this->setTableBag('columns', array_map($callback, $this->columns));
-        $this->setTableBag('primary', $primaryField);
+        // Save the columns and the primary column name in the databag.
+        $callback = fn($input) => $input->toArray();
+        $this->setTableBag('columns', array_map($callback, $this->inputs));
+        $this->setTableBag('primary', $primaryColumn);
     }
 
     /**
@@ -55,32 +55,36 @@ class Wrapper extends Component
     {
         return $this->tableUi
             ->metadata($this->get('metadata'))
-            ->columns($this->columns)
+            ->inputs($this->inputs)
             ->showColumns();
     }
 
     /**
-     * @param ColumnInputDto|null $column
+     * @param DdInputDto|null $input
      *
      * @return bool
      */
-    private function columnIsValid(ColumnInputDto|null $column): bool
+    private function inputIsValid(DdInputDto|null $input): bool
     {
+        if ($input === null) {
+            return false;
+        }
+
         $metadata = $this->get('metadata');
         // Null values and columns not found in the database are discarded.
-        return $column !== null && ($column->added() || isset($metadata['fields'][$column->name]));
+        return $input->added() || isset($metadata['columns'][$input->column->name]);
     }
 
     /**
      * @param array $metadata
-     * @param array<ColumnInputDto> $columns
+     * @param array<DdInputDto> $inputs
      *
      * @return void
      */
-    public function show(array $metadata, array $columns = []): void
+    public function show(array $metadata, array $inputs = []): void
     {
         $this->set('metadata', $metadata);
-        $this->setColumns(array_filter($columns, $this->columnIsValid(...)));
+        $this->setColumns(array_filter($inputs, $this->inputIsValid(...)));
 
         $this->render();
     }
@@ -93,8 +97,8 @@ class Wrapper extends Component
     public function load(array $metadata): void
     {
         $this->set('metadata', $metadata);
-        $callback = fn(TableFieldDto $field) => new ColumnInputDto($field);
-        $this->setColumns(array_map($callback, $metadata['fields']));
+        $callback = fn(ColumnDto $column) => new DdInputDto($column);
+        $this->setColumns(array_map($callback, $metadata['columns']));
 
         $this->render();
     }

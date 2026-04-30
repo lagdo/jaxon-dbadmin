@@ -6,11 +6,11 @@ use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DataDump;
 use Lagdo\DbAdmin\Support\Driver\UiDto\TableExport;
 use Lagdo\DbAdmin\Driver\Sql\Connection\StatementInterface;
-use Lagdo\DbAdmin\Driver\Sql\Dto\FieldType;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnType;
 use Lagdo\DbAdmin\Driver\Sql\Dto\RoutineDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\RoutineInfoDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 use Exception;
 
 use function array_filter;
@@ -78,23 +78,23 @@ class ExportProxy extends AbstractDriverProxy
     /**
      * Convert a value to string
      *
-     * @param mixed  $value
-     * @param TableFieldDto $field
+     * @param mixed $value
+     * @param ColumnDto $column
      *
      * @return string
      */
-    private function convertToString($value, TableFieldDto $field): string
+    private function convertToString(mixed $value, ColumnDto $column): string
     {
         // From functions.inc.php
         if ($value === null) {
             return 'NULL';
         }
 
-        if (!preg_match($this->engine()->numberRegex(), $field->type) ||
-            preg_match('~\[~', $field->fullType) && is_numeric($value)) {
+        if (!preg_match($this->engine()->numberRegex(), $column->type) ||
+            preg_match('~\[~', $column->fullType) && is_numeric($value)) {
             $value = $this->engine()->quote(($value === false ? 0 : $value));
         }
-        return $this->statement()->unconvertField($field, $value);
+        return $this->statement()->unconvertValue($column, $value);
     }
 
     /**
@@ -117,39 +117,34 @@ class ExportProxy extends AbstractDriverProxy
      *
      * @return array
      */
-    private function getDataRowKeys(DataDump $dump, array $row, StatementInterface $statement): array
+    private function getColumnNames(DataDump $dump, array $row, StatementInterface $statement): array
     {
-        $values = [];
-        $keys = [];
-        // For is preferred to foreach because the values are not used.
-        // foreach ($row as $val) {
-        // }
-        $rowCount = count($row);
-        for ($i = 0; $i < $rowCount; $i++) {
-            $field = $statement->fetchField();
-            $keys[] = $field->name();
-            $key = $this->statement()->escapeId($field->name());
-            $values[] = "$key = VALUES($key)";
-        }
+        // For each entry in the row, fetch a column and get the name.
+        // Important: the values in the row are actually not used.
+        $names = array_map(fn($_) => $statement->fetchColumn()->name(), $row);
+        $values = array_map(function(string $name) {
+            $name = $this->statement()->escapeId($name);
+            return "$name = VALUES($name)";
+        }, $names);
         $dump->suffix = $this->options['data_style'] !== 'INSERT+UPDATE' ? ';' :
             "\nON DUPLICATE KEY UPDATE " . implode(', ', $values) . ';';
 
-        return $keys;
+        return $names;
     }
 
     /**
      * @param DataDump $dump
-     * @param array $fields
+     * @param array $columns
      * @param array $row
-     * @param array $keys
+     * @param array $columnNames
      *
      * @return void
      */
-    private function dumpRow(DataDump $dump, array $fields, array $row, array $keys)
+    private function dumpRow(DataDump $dump, array $columns, array $row, array $columnNames)
     {
         if ($this->options['format'] !== 'sql') {
             if ($this->options['data_style'] === 'table') {
-                $this->dumpCsv($keys);
+                $this->dumpCsv($columnNames);
                 $this->options['data_style'] = 'INSERT';
             }
             $this->dumpCsv($row);
@@ -158,12 +153,12 @@ class ExportProxy extends AbstractDriverProxy
 
         if ($dump->insert === '') {
             $tableName = $this->statement()->escapeTableName($dump->table);
-            $fieldNames = implode(', ', array_map($this->statement()->escapeId(...), $keys));
-            $dump->insert = "INSERT INTO $tableName ($fieldNames) VALUES";
+            $columnNames = implode(', ', array_map($this->statement()->escapeId(...), $columnNames));
+            $dump->insert = "INSERT INTO $tableName ($columnNames) VALUES";
         }
-        foreach ($row as $key => $val) {
-            $field = $fields[$key];
-            $row[$key] = $this->convertToString($val, $field);
+        foreach ($row as $columnName => $value) {
+            $column = $columns[$columnName];
+            $row[$columnName] = $this->convertToString($value, $column);
         }
 
         $dump->addRow($row);
@@ -180,16 +175,14 @@ class ExportProxy extends AbstractDriverProxy
      */
     private function dumpRows(DataDump $dump, StatementInterface $statement)
     {
-        $fields = $this->options['format'] !== 'sql' ? [] : $this->engine()->fields($dump->table);
-        $keys = [];
-        $fetchFunction = $dump->table !== '' ?
+        $columns = $this->options['format'] !== 'sql' ? [] : $this->engine()->columns($dump->table);
+        $columnNames = null;
+        $fetchStatement = $dump->table !== '' ?
             fn($statement) => $statement->fetchAssoc() :
             fn($statement) => $statement->fetchRow();
-        while ($row = $fetchFunction($statement)) {
-            if (empty($keys)) {
-                $keys = $this->getDataRowKeys($dump, $row, $statement);
-            }
-            $this->dumpRow($dump, $fields, $row, $keys);
+        while ($row = $fetchStatement($statement)) {
+            $columnNames ??= $this->getColumnNames($dump, $row, $statement);
+            $this->dumpRow($dump, $columns, $row, $columnNames);
         }
         if (count($dump->dataRows) > 0) {
             $this->queries[] = $dump->makeQuery();
@@ -207,9 +200,10 @@ class ExportProxy extends AbstractDriverProxy
         if (!$this->options['data_style']) {
             return;
         }
-        $fields = $this->engine()->fields($table);
-        $query = 'SELECT *' . $this->statement()->convertFields($fields, $fields) .
-            ' FROM ' . $this->statement()->escapeTableName($table);
+
+        $columns = $this->engine()->columns($table);
+        $columns = $this->statement()->convertValues(array_keys($columns), $columns);
+        $query = "SELECT *$columns FROM " . $this->statement()->escapeTableName($table);
         // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
         $statement = $this->engine()->execute($query);
         if (!$statement) {
@@ -241,12 +235,12 @@ class ExportProxy extends AbstractDriverProxy
             return $this->statement()->getExportTableQueries($table, $autoIncrement, $style);
         }
 
-        $fields = [];
-        foreach ($this->engine()->fields($table) as $name => $field) {
-            $fields[] = $this->statement()->escapeId($name) . ' ' . $field->fullType;
-        }
         $tableName = $this->statement()->escapeTableName($table);
-        return "CREATE TABLE $tableName (" . implode(', ', $fields) . ')';
+        $columns = $this->engine()->columns($table);
+        $callback = fn(ColumnDto $column, string $columnName) =>
+            $this->statement()->escapeId($columnName) . ' ' . $column->fullType;
+        $columns = implode(', ', array_map($callback, $columns, array_keys($columns)));
+        return "CREATE TABLE $tableName ($columns)";
     }
 
     /**
@@ -291,7 +285,7 @@ class ExportProxy extends AbstractDriverProxy
         if ($this->options['format'] !== 'sql') {
             $this->queries[] = "\xef\xbb\xbf"; // UTF-8 byte order mark
             if ($style) {
-                $this->dumpCsv(array_keys($this->engine()->fields($table)));
+                $this->dumpCsv(array_keys($this->engine()->columns($table)));
             }
             return;
         }
@@ -356,16 +350,13 @@ class ExportProxy extends AbstractDriverProxy
 
         // Add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
         $this->queries[] = '';
-        $tables = array_filter($tableStatuses,
-            fn($status) => !$this->engine()->isView($status));
+        $tables = array_filter($tableStatuses, $this->engine()->isTable(...));
         foreach ($tables as $status) {
             $queries = $this->statement()->getForeignKeyQueries($status);
-            foreach ($queries as $query) {
-                $this->queries[] = $query;
-            }
             if (count($queries) > 0) {
-                $this->queries[] = '';
+                $queries[] = '';
             }
+            $this->queries = [...$this->queries, ...$queries];
         }
     }
 
@@ -376,8 +367,7 @@ class ExportProxy extends AbstractDriverProxy
      */
     private function dumpViews(array $tableStatuses)
     {
-        $views = array_filter($tableStatuses,
-            fn($status) => $this->engine()->isView($status));
+        $views = array_filter($tableStatuses, $this->engine()->isView(...));
         foreach ($views as $view) {
             $this->dumpCreateTableOrView($view->name, $this->options['table_style'], 1);
         }
@@ -421,7 +411,7 @@ class ExportProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param array<FieldType> $params
+     * @param array<ColumnType> $params
      *
      * @return string
      */
@@ -435,7 +425,7 @@ class ExportProxy extends AbstractDriverProxy
         $params = array_map(function($param) use($regex) {
             $inout = preg_match($regex, $param->inout) ? "{$param->inout} " : '';
             return $inout . $this->statement()->escapeId($param->name) .
-                $this->statement()->getFieldType($param, 'CHARACTER SET');
+                $this->statement()->getColumnType($param, 'CHARACTER SET');
         },$params);
         return implode(', ', $params);
     }
@@ -454,7 +444,7 @@ class ExportProxy extends AbstractDriverProxy
         $routineName = $this->statement()->escapeId(trim($routine->name));
         $routineParams = $this->getRoutineParams($routineInfo->params);
         $routineReturns = $routine->type !== 'FUNCTION' ? '' :
-            ' RETURNS' . $this->statement()->getFieldType($routineInfo->return, 'CHARACTER SET');
+            ' RETURNS' . $this->statement()->getColumnType($routineInfo->return, 'CHARACTER SET');
         $routineLanguage = $routineInfo->language ? " LANGUAGE {$routineInfo->language}" : '';
         $definition = rtrim($routineInfo->definition, ';');
         $routineDefinition = !$this->engine()->pgsql() ? "\n$definition;" :
@@ -557,11 +547,9 @@ class ExportProxy extends AbstractDriverProxy
     private function dumpUseDatabaseQuery(string $database): void
     {
         $style = $this->options['db_style'] ?? '';
-        if ($style === '' || !preg_match('~sql~', $this->options['format'])) {
-            return;
+        if ($style !== '' && preg_match('~sql~', $this->options['format'])) {
+            $this->queries[] = $this->statement()->getUseDatabaseQuery($database, $style);
         }
-
-        $this->queries[] = $this->statement()->getUseDatabaseQuery($database, $style);
     }
 
     /**

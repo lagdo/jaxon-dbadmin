@@ -52,7 +52,7 @@ class ViewProxy extends AbstractDriverProxy
         $comment = $status->comment;
 
         $tabs = [
-            'fields' => $this->utils()->lang('Columns'),
+            'columns' => $this->utils()->lang('Columns'),
             // 'indexes' => $this->utils()->lang('Indexes'),
             // 'foreign-keys' => $this->utils()->lang('Foreign keys'),
             // 'triggers' => $this->utils()->lang('Triggers'),
@@ -65,23 +65,23 @@ class ViewProxy extends AbstractDriverProxy
     }
 
     /**
-     * Get the fields of a table or a view
+     * Get the columns of a table or a view
      *
      * @param string $view The view name
      *
      * @return array
      * @throws Exception
      */
-    public function getViewFields(string $view): array
+    public function getViewColumns(string $view): array
     {
         // From table.inc.php
-        $fields = $this->engine()->fields($view);
-        if (empty($fields)) {
+        $columns = $this->engine()->columns($view);
+        if (empty($columns)) {
             throw new Exception($this->engine()->error());
         }
 
         $tabs = [
-            'fields' => $this->utils()->lang('Columns'),
+            'columns' => $this->utils()->lang('Columns'),
             // 'triggers' => $this->utils()->lang('Triggers'),
         ];
         if ($this->engine()->support('view_trigger')) {
@@ -99,26 +99,26 @@ class ViewProxy extends AbstractDriverProxy
         }
 
         $details = [];
-        foreach ($fields as $field) {
-            $type = $this->utils()->html($field->fullType);
-            if ($field->nullable) {
+        foreach ($columns as $column) {
+            $type = $this->utils()->html($column->fullType);
+            if ($column->nullable) {
                 $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
             }
-            if ($field->autoIncrement) {
+            if ($column->autoIncrement) {
                 $type .= ' <i>' . $this->utils()->lang('Auto Increment') . '</i>';
             }
-            if ($field->hasDefault()) {
+            if ($column->hasDefault()) {
                 $type .= /*' ' . $this->utils()->lang('Default value') .*/ ' [<b>' .
-                    $this->utils()->html($field->default) . '</b>]';
+                    $this->utils()->html($column->default) . '</b>]';
             }
             $detail = [
-                'name' => $this->utils()->html($field->name),
+                'name' => $this->utils()->html($column->name),
                 'type' => $type,
-                'collation' => $this->utils()->html($field->collation),
+                'collation' => $this->utils()->html($column->collation),
             ];
             if ($commentSupported) {
-                $detail['comment'] = $field->comment === null ? null :
-                    $this->utils()->html($field->comment);
+                $detail['comment'] = $column->comment === null ? null :
+                    $this->utils()->html($column->comment);
             }
 
             $details[] = $detail;

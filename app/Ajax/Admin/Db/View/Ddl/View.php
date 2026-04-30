@@ -106,9 +106,9 @@ class View extends FuncComponent
         $content = $this->viewUi->mainDbTable($viewInfo['tabs']);
         $this->cl(Content::class)->set('html', $content)->render();
 
-        // Show fields
-        $fieldsInfo = $this->db()->getViewFields($view);
-        $this->showTab($fieldsInfo, $this->tabId('tab-content-fields'));
+        // Show columns
+        $columnsInfo = $this->db()->getViewFields($view);
+        $this->showTab($columnsInfo, $this->tabId('tab-content-columns'));
 
         // Show triggers
         $triggersInfo = $this->db()->getViewTriggers($view);

@@ -120,9 +120,9 @@ class Table extends MainComponent
     {
         $table = $this->getCurrentTable();
 
-        // Show fields
-        $fields = $this->db()->getTableFields($table);
-        $this->showTab($fields, $this->tabId('tab-content-fields'));
+        // Show columns
+        $columns = $this->db()->getTableColumns($table);
+        $this->showTab($columns, $this->tabId('tab-content-columns'));
 
         // Show indexes
         $indexes = $this->db()->getTableIndexes($table);

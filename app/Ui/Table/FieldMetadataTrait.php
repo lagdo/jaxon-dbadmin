@@ -10,7 +10,7 @@ trait FieldMetadataTrait
     protected $metadata = [];
 
     /**
-     * @return self
+     * @return array
      */
     protected function support(): array
     {
@@ -18,7 +18,7 @@ trait FieldMetadataTrait
     }
 
     /**
-     * @return self
+     * @return array
      */
     protected function engines(): array
     {
@@ -26,7 +26,7 @@ trait FieldMetadataTrait
     }
 
     /**
-     * @return self
+     * @return array
      */
     protected function collations(): array
     {
@@ -34,7 +34,7 @@ trait FieldMetadataTrait
     }
 
     /**
-     * @return self
+     * @return array
      */
     protected function unsigned(): array
     {
@@ -42,7 +42,7 @@ trait FieldMetadataTrait
     }
 
     /**
-     * @return self
+     * @return array
      */
     protected function foreignKeys(): array
     {
@@ -68,9 +68,9 @@ trait FieldMetadataTrait
     /**
      * @param array $metadata
      *
-     * @return self
+     * @return static
      */
-    public function metadata(array $metadata): self
+    public function metadata(array $metadata): static
     {
         $this->metadata = $metadata;
         return $this;

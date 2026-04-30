@@ -2,28 +2,28 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
 
 class DeleteFunc extends FuncComponent
 {
     /**
      * @param string $columnId
-     * @param array<ColumnInputDto> $columns
+     * @param array<DdInputDto> $inputs
      *
      * @return array
      */
-    private function updateColumns(string $columnId, array $columns): array
+    private function updateColumns(string $columnId, array $inputs): array
     {
-        $column = $columns[$columnId];
-        if ($column->added()) {
+        $input = $inputs[$columnId];
+        if ($input->added()) {
             // Remove the column.
-            $columns[$columnId] = null;
-            return $columns;
+            $inputs[$columnId] = null;
+            return $inputs;
         }
 
         // An existing column is set to be dropped.
-        $column->drop();
-        return $columns;
+        $input->drop();
+        return $inputs;
     }
 
     /**
@@ -33,8 +33,8 @@ class DeleteFunc extends FuncComponent
      */
     public function exec(string $columnId): void
     {
-        $columns = $this->getTableColumns();
-        if (!isset($columns[$columnId])) {
+        $inputs = $this->getColumnInputs();
+        if (!isset($inputs[$columnId])) {
             $table = $this->getCurrentTable();
             $this->alert()
                 ->title($this->trans->lang('Error'))
@@ -42,21 +42,21 @@ class DeleteFunc extends FuncComponent
             return;
         }
 
-        $columns = $this->updateColumns($columnId, $columns);
-        $this->cl(Wrapper::class)->show($this->metadata(), $columns);
+        $inputs = $this->updateColumns($columnId, $inputs);
+        $this->cl(Wrapper::class)->show($this->metadata(), $inputs);
     }
 
     /**
      * @param string $columnId
-     * @param array<ColumnInputDto> $columns
+     * @param array<DdInputDto> $inputs
      *
      * @return array
      */
-    private function undoColumn(string $columnId, array $columns): array
+    private function undoColumn(string $columnId, array $inputs): array
     {
         // Reset the column. Only the status needs to be updated.
-        $columns[$columnId]->changeIf();
-        return $columns;
+        $inputs[$columnId]->changeIf();
+        return $inputs;
     }
 
     /**
@@ -66,8 +66,8 @@ class DeleteFunc extends FuncComponent
      */
     public function cancel(string $columnId): void
     {
-        $columns = $this->getTableColumns();
-        if (!isset($columns[$columnId])) {
+        $inputs = $this->getColumnInputs();
+        if (!isset($inputs[$columnId])) {
             $table = $this->getCurrentTable();
             $this->alert()
                 ->title($this->trans->lang('Error'))
@@ -75,7 +75,7 @@ class DeleteFunc extends FuncComponent
             return;
         }
 
-        $columns = $this->undoColumn($columnId, $columns);
-        $this->cl(Wrapper::class)->show($this->metadata(), $columns);
+        $inputs = $this->undoColumn($columnId, $inputs);
+        $this->cl(Wrapper::class)->show($this->metadata(), $inputs);
     }
 }

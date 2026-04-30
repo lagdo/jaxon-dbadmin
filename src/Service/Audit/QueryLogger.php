@@ -95,7 +95,7 @@ INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause";
         $whereClause = $this->getWhereClause($filters);
         $offsetClause = $page > 1 ? 'OFFSET ' . ($page - 1) * $this->limit : '';
         // PostgreSQL doesn't allow the use of distinct and order by
-        // a field not in the select clause in the same SQL query.
+        // a column not in the select clause in the same SQL query.
         $statement = "SELECT c.*, u.username FROM dbadmin_runned_commands c
 INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause
 ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";

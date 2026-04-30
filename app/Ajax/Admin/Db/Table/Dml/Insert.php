@@ -15,14 +15,14 @@ class Insert extends FuncComponent
 {
     /**
      * @param bool $fromSelect
-     * @param array $fields
+     * @param array $columns
      *
      * @return void
      */
-    private function showQueryDataDialog(bool $fromSelect, array $fields): void
+    private function showQueryDataDialog(bool $fromSelect, array $columns): void
     {
         $title = 'New item in table ' . $this->getCurrentTable();
-        $content = $this->editUi->rowDataForm($fields);
+        $content = $this->editUi->rowDataForm($columns);
         $values = form($this->editUi->queryFormId());
         // Bootbox options
         $options = ['size' => 'large'];
@@ -61,7 +61,7 @@ class Insert extends FuncComponent
             return;
         }
 
-        $this->showQueryDataDialog($fromSelect, $insertData['fields']);
+        $this->showQueryDataDialog($fromSelect, $insertData['columns']);
     }
 
     /**
@@ -106,7 +106,7 @@ class Insert extends FuncComponent
      */
     public function showQueryForm(bool $fromSelect, array $formValues): void
     {
-        // We need the table fields to be able to go back to the update form.
+        // We need the table columns to be able to go back to the update form.
         $insertData = $this->db()->getInsertData($this->getCurrentTable());
         // Show the error
         if(isset($insertData['error']))
@@ -120,8 +120,8 @@ class Insert extends FuncComponent
         // Show the query in a modal dialog.
         $this->modal()->hide();
 
-        $fields = $this->getEditedFormValues($insertData['fields'], $formValues);
-        $this->showQueryDataDialog($fromSelect, $fields);
+        $columns = $this->getEditedFormValues($insertData['columns'], $formValues);
+        $this->showQueryDataDialog($fromSelect, $columns);
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
 
 trait ColumnTrait
 {
@@ -14,11 +14,11 @@ trait ColumnTrait
     private array|null $metadata = null;
 
     /**
-     * The columns data stored in the client.
+     * The columns input data stored in the client.
      *
      * @var array|null
      */
-    private array|null $columnInputs = null;
+    private array|null $inputValues = null;
 
     /**
      * @return array
@@ -31,49 +31,49 @@ trait ColumnTrait
     /**
      * @return array
      */
-    protected function columnInputs(): array
+    protected function inputValues(): array
     {
-        return $this->columnInputs ??= $this->getTableBag('columns', []);
+        return $this->inputValues ??= $this->getTableBag('columns', []);
     }
 
     /**
-     * @return ColumnInputDto
+     * @return DdInputDto
      */
-    protected function getEmptyColumn(): ColumnInputDto
+    protected function newColumnInput(): DdInputDto
     {
-        return new ColumnInputDto($this->db()->getTableField());
+        return new DdInputDto($this->db()->newTableColumn());
     }
 
     /**
      * @param string $columnId
      *
-     * @return ColumnInputDto|null
+     * @return DdInputDto|null
      */
-    protected function getFieldColumn(string $columnId): ColumnInputDto|null
+    protected function getColumnInput(string $columnId): DdInputDto|null
     {
-        $columnInput = $this->columnInputs()[$columnId] ?? null;
-        if ($columnInput === null) {
+        $values = $this->inputValues()[$columnId] ?? null;
+        if ($values === null) {
             return null;
         }
 
-        $field = ColumnInputDto::columnIsAdded($columnInput) ?
-            // Added column => empty field
-            $this->db()->getTableField() :
+        $column = DdInputDto::columnIsAdded($values) ?
+            // Added column => empty column
+            $this->db()->newTableColumn() :
             // Existing column => check the metadata
-            ($this->metadata()['fields'][$columnInput['name']] ?? null);
+            ($this->metadata()['columns'][$values['name']] ?? null);
         // Combine the data from the database with the data from the databag.
-        return $field === null ? null : ColumnInputDto::newColumn($field, $columnInput);
+        return $column === null ? null : DdInputDto::newColumn($column, $values);
     }
 
     /**
-     * @return array<ColumnInputDto>
+     * @return array<DdInputDto>
      */
-    protected function getTableColumns(): array
+    protected function getColumnInputs(): array
     {
-        $columns = [];
-        foreach ($this->columnInputs() as $columnId => $_) {
-            $columns[$columnId] = $this->getFieldColumn($columnId);
+        $inputs = [];
+        foreach ($this->inputValues() as $columnId => $_) {
+            $inputs[$columnId] = $this->getColumnInput($columnId);
         }
-        return $columns;
+        return $inputs;
     }
 }

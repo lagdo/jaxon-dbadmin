@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\DqInputDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectQuery;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectResult;
 use Lagdo\DbAdmin\Support\Service\TimerService;
@@ -63,16 +63,15 @@ class SelectProxy extends AbstractDriverProxy
      * @param string $table The table name
      * @param array $queryOptions The query options
      *
-     * @return SelectDto
+     * @return DqInputDto
      * @throws Exception
      */
-    private function prepareSelect(string $table, array $queryOptions = []): SelectDto
+    private function prepareSelect(string $table, array $queryOptions = []): DqInputDto
     {
         $tableStatus = $this->engine()->tableStatusOrName($table);
         $tableName = $this->pageUi()->tableName($tableStatus);
-        $selectDto = new SelectDto($table, $tableName,
-            $tableStatus, $queryOptions);
-        return $this->query()->prepareSelect($selectDto);
+        $input = new DqInputDto($table, $tableName, $tableStatus, $queryOptions);
+        return $this->query()->prepareSelect($input);
     }
 
     /**
@@ -81,10 +80,10 @@ class SelectProxy extends AbstractDriverProxy
      * @param string $table The table name
      * @param array $queryOptions The query options
      *
-     * @return SelectDto
+     * @return DqInputDto
      * @throws Exception
      */
-    public function getSelectData(string $table, array $queryOptions = []): SelectDto
+    public function getSelectData(string $table, array $queryOptions = []): DqInputDto
     {
         return $this->prepareSelect($table, $queryOptions);
     }
@@ -99,12 +98,12 @@ class SelectProxy extends AbstractDriverProxy
      */
     public function countSelect(string $table, array $queryOptions): int
     {
-        $selectDto = $this->prepareSelect($table, $queryOptions);
-        $hasGroupsInFields = count($selectDto->group) < count($selectDto->select);
+        $input = $this->prepareSelect($table, $queryOptions);
+        $hasGroupsInColumns = count($input->groups) < count($input->clauses);
 
         try {
-            $query = $this->statement()->getRowCountQuery($table, $selectDto->where,
-                $hasGroupsInFields, $selectDto->group);
+            $query = $this->statement()->getRowCountQuery($table, $input->wheres,
+                $hasGroupsInColumns, $input->groups);
             return (int)$this->engine()->result($query);
         } catch(Exception) {
             return -1;
@@ -112,32 +111,32 @@ class SelectProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param SelectDto $selectDto
+     * @param DqInputDto $input
      *
      * @return void
      */
-    private function executeQuery(SelectDto $selectDto): void
+    private function executeQuery(DqInputDto $input): void
     {
         $this->timer->start();
 
         // From driver.inc.php
-        $statement = $this->engine()->execute($selectDto->query);
-        $selectDto->duration = $this->timer->duration();
-        $selectDto->rows = [];
+        $statement = $this->engine()->execute($input->query);
+        $input->duration = $this->timer->duration();
+        $input->rows = [];
 
         // From adminer.inc.php
         if (!$statement) {
-            $selectDto->error = $this->engine()->error();
+            $input->error = $this->engine()->error();
             return;
         }
 
         // From select.inc.php
-        $selectDto->rows = [];
+        $input->rows = [];
         while (($row = $statement->fetchAssoc())) {
-            if ($selectDto->page && $this->engine()->oracle()) {
+            if ($input->page && $this->engine()->oracle()) {
                 unset($row["RNUM"]);
             }
-            $selectDto->rows[] = $row;
+            $input->rows[] = $row;
         }
     }
 
@@ -152,32 +151,32 @@ class SelectProxy extends AbstractDriverProxy
      */
     public function execSelect(string $table, array $queryOptions): array
     {
-        $selectDto = $this->prepareSelect($table, $queryOptions);
-        $this->executeQuery($selectDto);
+        $input = $this->prepareSelect($table, $queryOptions);
+        $this->executeQuery($input);
 
-        if ($selectDto->error !== null) {
+        if ($input->error !== null) {
             return [
-                'message' => $selectDto->error,
+                'message' => $input->error,
             ];
         }
-        if (count($selectDto->rows) === 0) {
+        if (count($input->rows) === 0) {
             return [
                 'message' => $this->utils()->lang('No rows.'),
             ];
         }
 
         // $backward_keys = $this->engine()->backwardKeys($table, $tableName);
-        // lengths = $this->getValuesLengths($rows, $selectDto->queryOptions);
+        // lengths = $this->getValuesLengths($rows, $input->queryOptions);
 
-        $queryFields = array_keys($selectDto->rows[0]);
-        $this->result()->setResultHeaders($selectDto, $queryFields);
+        $queryColumns = array_keys($input->rows[0]);
+        $this->result()->setResultHeaders($input, $queryColumns);
 
         return [
-            'headers' => $selectDto->headers,
-            'query' => $selectDto->query,
-            'limit' => $selectDto->limit,
-            'duration' => $selectDto->duration,
-            'rows' => $this->result()->getRows($selectDto),
+            'headers' => $input->headers,
+            'query' => $input->query,
+            'limit' => $input->limit,
+            'duration' => $input->duration,
+            'rows' => $this->result()->getRows($input),
         ];
     }
 }

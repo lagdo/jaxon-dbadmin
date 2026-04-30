@@ -15,7 +15,7 @@ class TableHeader extends AbstractDriverProxy
     private function getTabs(TableDto $status): array
     {
         $tabs = [
-            'fields' => $this->utils()->lang('Columns'),
+            'columns' => $this->utils()->lang('Columns'),
         ];
         if ($this->engine()->isView($status)) {
             if ($this->engine()->support('view_trigger')) {
@@ -57,7 +57,7 @@ class TableHeader extends AbstractDriverProxy
     /**
      * @return array<string>
      */
-    public function fields(): array
+    public function columns(): array
     {
         $headers = [
             $this->utils()->lang('Name'),

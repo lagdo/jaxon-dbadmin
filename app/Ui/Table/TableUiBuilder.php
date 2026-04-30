@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ui\Table;
 
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\PageTrait;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
@@ -95,13 +95,13 @@ class TableUiBuilder
     }
 
     /**
-     * @param array $columns
+     * @param array<DdInputDto> $inputs
      *
      * @return self
      */
-    public function columns(array $columns): self
+    public function inputs(array $inputs): self
     {
-        $this->columns = $columns;
+        $this->inputs = $inputs;
         return $this;
     }
 
@@ -200,7 +200,7 @@ class TableUiBuilder
                     )->setStyle('display:flex; flex-direction:row; align-items:flex-start;'),
                 )->setClass('dbadmin-table-column-right')
                     ->width(7)
-            )->setClass('dbadmin-table-edit-field'),
+            )->setClass('dbadmin-table-edit-column'),
         );
     }
 
@@ -223,28 +223,28 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnInputDto $column
+     * @param DdInputDto $input
      * @param string $columnId
      *
      * @return mixed
      */
-    protected function getColumnActionMenu(ColumnInputDto $column, string $columnId): mixed
+    protected function getColumnActionMenu(DdInputDto $input, string $columnId): mixed
     {
         $support = $this->support();
-        $movableUp = $support['move_col'] && $column->position > 0;
+        $movableUp = $support['move_col'] && $input->position > 0;
         $movableDown = $support['move_col'] &&
-            $column->position < count($this->columns) - 1;
+            $input->position < count($this->inputs) - 1;
         $cancelQuestion = 'Confirm the cancellation?';
-        $isAdded = $column->added();
+        $isAdded = $input->added();
         $removable = $isAdded || $support['drop_col'];
         $removeText = $isAdded ? 'Cancel' : 'Remove';
         $removeQuestion = $isAdded ? 'Remove this new colum?' :
-            "Remove the \"{$column->name}\" column?";
+            "Remove the \"{$input->column->name}\" column?";
 
         return $this->ui->dropdown(
             $this->ui->dropdownItem()->look('primary')/*->addCaret()*/,
             $this->ui->dropdownMenu(
-                $this->ui->when(!$column->dropped(), fn() =>
+                $this->ui->when(!$input->dropped(), fn() =>
                     $this->ui->list(
                         $this->ui->when($movableUp, fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Up'))
@@ -258,7 +258,7 @@ class TableUiBuilder
                             ->jxnClick($this->rqCreate()->add($columnId)),
                         $this->ui->dropdownMenuItem($this->ui->text('Edit'))
                             ->jxnClick($this->rqUpdate()->edit($columnId)),
-                        $this->ui->when($column->changed(), fn() =>
+                        $this->ui->when($input->changed(), fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
                                 ->jxnClick($this->rqUpdate()->cancel($columnId)->confirm($cancelQuestion))
                         ),
@@ -268,7 +268,7 @@ class TableUiBuilder
                         )
                     )
                 ),
-                $this->ui->when($column->dropped(), fn() =>
+                $this->ui->when($input->dropped(), fn() =>
                     $this->ui->dropdownMenuItem($this->ui->text('Cancel'))
                         ->jxnClick($this->rqDelete()->cancel($columnId)->confirm($cancelQuestion))
                 )
@@ -289,26 +289,26 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnInputDto $column
+     * @param DdInputDto $input
      * @param string $columnId
      *
      * @return mixed
      */
-    protected function columnElement(ColumnInputDto $column, string $columnId): mixed
+    protected function columnElement(DdInputDto $input, string $columnId): mixed
     {
-        $editPrefix = sprintf("fields[%d]", $column->position);
+        $editPrefix = sprintf("columns[%d]", $input->position);
         $support = $this->support();
 
         return $this->ui->row(
             // First line
             $this->ui->col(
-                $this->getColumnNameField($column, "{$editPrefix}[name]")
+                $this->getColumnNameField($input, "{$editPrefix}[name]")
                     ->setPlaceholder($this->trans->lang('Name'))
                     ->with(fn($input) => $this->disable($input, true))
             )->width(4)
                 ->setClass('dbadmin-table-column-left'),
             $this->ui->col(
-                $this->getColumnPrimaryField($column, "{$editPrefix}[primary]")
+                $this->getColumnPrimaryField($input, "{$editPrefix}[primary]")
                     ->with(fn($input) => $this->disable($input, false)),
                 $this->ui->span($this->ui->html('&nbsp;Primary'))
             )->width(1)
@@ -317,16 +317,16 @@ class TableUiBuilder
             $this->ui->col(
                 $this->ui->row(
                     $this->ui->col(
-                        $column->field->collationHidden ?
+                        $input->column->collationHidden ?
                             $this->hiddenField('Collation') :
-                            $this->getColumnCollationField($column, "{$editPrefix}[collation]")
+                            $this->getColumnCollationField($input, "{$editPrefix}[collation]")
                                 ->with(fn($input) => $this->disable($input))
                     )->width(6)
                         ->setClass('dbadmin-table-column-middle'),
                     $this->ui->col(
-                        $column->field->onUpdateHidden ?
+                        $input->column->onUpdateHidden ?
                             $this->hiddenField('On update') :
-                            $this->getColumnOnUpdateField($column, "{$editPrefix}[onUpdate]")
+                            $this->getColumnOnUpdateField($input, "{$editPrefix}[onUpdate]")
                                 ->with(fn($input) => $this->disable($input))
                     )->width(6)
                         ->setClass('dbadmin-table-column-right'),
@@ -337,23 +337,23 @@ class TableUiBuilder
             $this->ui->col(
                 $this->ui->row(
                     $this->ui->col(
-                        $this->getColumnTypeField($column, "{$editPrefix}[type]")
+                        $this->getColumnTypeField($input, "{$editPrefix}[type]")
                             ->with(fn($input) => $this->disable($input))
                     )->width(8)
                         ->setClass('dbadmin-table-column-left nested-col'),
                     $this->ui->col(
-                        $this->ui->when($column->field->lengthRequired, fn() =>
-                            $this->getColumnLengthField($column, "{$editPrefix}[length]")
+                        $this->ui->when($input->column->lengthRequired, fn() =>
+                            $this->getColumnLengthField($input, "{$editPrefix}[length]")
                                 ->with(fn($input) => $this->disable($input)))
                     )->width(4)
                         ->setClass('dbadmin-table-column-right nested-col'),
                 )->setClass('nested-row')
             )->width(4),
             $this->ui->col(
-                $this->getColumnAutoIncrementField($column, "{$editPrefix}[autoIncrement]")
+                $this->getColumnAutoIncrementField($input, "{$editPrefix}[autoIncrement]")
                     ->with(fn($input) => $this->disable($input, false)),
                 $this->ui->span($this->ui->html('&nbsp;AI&nbsp;')),
-                $this->getColumnNullableField($column, "{$editPrefix}[null]")
+                $this->getColumnNullableField($input, "{$editPrefix}[null]")
                     ->with(fn($input) => $this->disable($input, false)),
                 $this->ui->span($this->ui->html('&nbsp;N'))
             )->width(1)
@@ -362,16 +362,16 @@ class TableUiBuilder
             $this->ui->col(
                 $this->ui->row(
                     $this->ui->col(
-                        $column->field->unsignedHidden ?
+                        $input->column->unsignedHidden ?
                             $this->hiddenField('Unsigned') :
-                            $this->getColumnUnsignedField($column, "{$editPrefix}[unsigned]")
+                            $this->getColumnUnsignedField($input, "{$editPrefix}[unsigned]")
                                 ->with(fn($input) => $this->disable($input))
                     )->width(6)
                         ->setClass('dbadmin-table-column-middle'),
                     $this->ui->col(
-                        $column->field->onDeleteHidden ?
+                        $input->column->onDeleteHidden ?
                         $this->hiddenField('On delete') :
-                        $this->getColumnOnDeleteField($column, "{$editPrefix}[onDelete]")
+                        $this->getColumnOnDeleteField($input, "{$editPrefix}[onDelete]")
                             ->with(fn($input) => $this->disable($input))
                     )->width(6)
                         ->setClass('dbadmin-table-column-right'),
@@ -380,7 +380,7 @@ class TableUiBuilder
 
             // Third line
             $this->ui->col(
-                $this->getColumnDefaultField($column, "{$editPrefix}[generated]",
+                $this->getColumnDefaultField($input, "{$editPrefix}[generated]",
                 "{$editPrefix}[default]", $this->trans->lang('Default value'))
             )->width(5)
                 ->setClass('dbadmin-table-column-left'),
@@ -388,12 +388,12 @@ class TableUiBuilder
                 $this->ui->div(
                     $this->ui->div(
                         $this->ui->when($support['comment'], fn() =>
-                            $this->getColumnCommentField($column, "{$editPrefix}[comment]",
+                            $this->getColumnCommentField($input, "{$editPrefix}[comment]",
                                 "{$editPrefix}[setComment]", $this->trans->lang('Comment'), true)
                         )
                     )->setStyle('flex: 1'),
                     $this->ui->div(
-                        $this->getColumnActionMenu($column, $columnId)
+                        $this->getColumnActionMenu($input, $columnId)
                     )->setStyle('width:40px; padding-left:5px;')
                 )->setStyle('display:flex; flex-direction:row; align-items:flex-start;')
                     ->setClass('nested-col')
@@ -403,16 +403,16 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnInputDto $column
+     * @param DdInputDto $input
      *
      * @return mixed
      */
-    private function getColumnBgColor(ColumnInputDto $column): string
+    private function getColumnBgColor(DdInputDto $input): string
     {
         return match(true) {
-            $column->added() => "background-color: #e6ffe6;",
-            $column->changed() => "background-color: #d9f1ffff;",
-            $column->dropped() => "background-color: #ffe6e6;",
+            $input->added() => "background-color: #e6ffe6;",
+            $input->changed() => "background-color: #d9f1ffff;",
+            $input->dropped() => "background-color: #ffe6e6;",
             default => "background-color: white;",
         };
     }
@@ -426,11 +426,11 @@ class TableUiBuilder
 
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->each($this->columns, fn($column, $columnId) =>
+                $this->ui->each($this->columns, fn($input, $columnId) =>
                     $this->ui->div(
-                        $this->columnElement($column, $columnId)
-                    )->setClass('dbadmin-table-edit-field')
-                        ->setStyle($this->getColumnBgColor($column))
+                        $this->columnElement($input, $columnId)
+                    )->setClass('dbadmin-table-edit-column')
+                        ->setStyle($this->getColumnBgColor($input))
                 )
             )
         );

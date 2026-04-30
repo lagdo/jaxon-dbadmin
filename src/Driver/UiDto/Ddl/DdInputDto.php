@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 
 use function array_combine;
 use function array_map;
@@ -10,45 +10,38 @@ use function array_map;
 /**
  * User inputs for a table column.
  */
-class ColumnInputDto
+class DdInputDto
 {
     /**
-     * The unchanged name of the table field
-     *
-     * @var string
-     */
-    public readonly string $name;
-
-    /**
-     * The field status when the table is edited
+     * The column status when the table is edited
      *
      * @var ColumnAction
      */
     private ColumnAction $action = ColumnAction::NONE;
 
     /**
-     * The field position in the edit form
+     * The column position in the edit form
      *
      * @var int
      */
     public int $position = 0;
 
     /**
-     * The original field values
+     * The current column values
      *
      * @var array
      */
-    private array $fieldValues;
+    private array $currValues;
 
     /**
-     * The edited field values
+     * The user input values for the column
      *
      * @var object|null
      */
     private object|null $values = null;
 
     /**
-     * The attributes in the column values
+     * The attributes in the input values
      *
      * @var array
      */
@@ -69,31 +62,27 @@ class ColumnInputDto
     ];
 
     /**
-     * The constructor
-     *
-     * @param TableFieldDto $field
+     * @param ColumnDto $column
      */
-    public function __construct(public readonly TableFieldDto $field)
+    public function __construct(public readonly ColumnDto $column)
     {
-        $this->name = $field->name;
-        $this->fieldValues = array_combine(self::$attributes,
-            array_map(fn(string $attr) => $field->$attr, self::$attributes));
-        // Make sure the boolean fields have boolean values.
-        $this->fieldValues['primary'] = (bool)$this->fieldValues['primary'];
-        $this->fieldValues['autoIncrement'] = (bool)$this->fieldValues['autoIncrement'];
-        $this->fieldValues['nullable'] = (bool)$this->fieldValues['nullable'];
-        // Don't keep null in the comment value.
-        $this->fieldValues['comment'] ??= '';
-        $this->fieldValues['setComment'] = false;
+        // Copy the table column values into the local $currValues array.
+        $this->currValues = array_combine(self::$attributes,
+            array_map(fn(string $attr) => $column->$attr, self::$attributes));
+        // Make sure the boolean columns have boolean values.
+        $this->currValues['primary'] = (bool)$this->currValues['primary'];
+        $this->currValues['autoIncrement'] = (bool)$this->currValues['autoIncrement'];
+        $this->currValues['nullable'] = (bool)$this->currValues['nullable'];
+        // Don't keep the null value in the comment.
+        $this->currValues['comment'] ??= '';
+        $this->currValues['setComment'] = false;
         // Set the "DEFAULT" value for the "generated" attribute.
         // Remove the null value from the "default" attribute.
         // From create.inc.php
-        if ($this->fieldValues['generated'] === '') {
-            if ($this->fieldValues['default'] === null) {
-                $this->fieldValues['default'] = '';
-            } else {
-                $this->fieldValues['generated'] = 'DEFAULT';
-            }
+        if ($this->currValues['generated'] === '') {
+            [$attr, $value] = $this->currValues['default'] === null ?
+                ['default', ''] : ['generated', 'DEFAULT'];
+            $this->currValues[$attr] = $value;
         }
     }
 
@@ -150,7 +139,7 @@ class ColumnInputDto
      */
     public function changeIf(): void
     {
-        $this->action = $this->fieldEdited() ? ColumnAction::CHANGE : ColumnAction::NONE;
+        $this->action = $this->columnEdited() ? ColumnAction::CHANGE : ColumnAction::NONE;
     }
 
     /**
@@ -170,14 +159,6 @@ class ColumnInputDto
     }
 
     /**
-     * @return object
-     */
-    public function values(): object
-    {
-        return $this->values ??= (object)$this->fieldValues;
-    }
-
-    /**
      * @param array $values
      *
      * @return void
@@ -191,17 +172,25 @@ class ColumnInputDto
     }
 
     /**
+     * @return object
+     */
+    public function values(): object
+    {
+        return $this->values ??= (object)$this->currValues;
+    }
+
+    /**
      * @return bool
      */
-    public function fieldEdited(): bool
+    public function columnEdited(): bool
     {
         $values = $this->values();
         foreach (self::$attributes as $attr) {
-            if ($values->$attr !== $this->fieldValues[$attr]) {
+            if ($values->$attr !== $this->currValues[$attr]) {
                 return true;
             }
         }
-        // The setComment field meaning is different.
+        // The setComment column meaning is different.
         return $values->setComment;
     }
 
@@ -223,27 +212,27 @@ class ColumnInputDto
 
         // The first attributes
         foreach (['name', 'type', 'unsigned', 'length'] as $attr) {
-            if ($values->$attr !== $this->fieldValues[$attr]) {
+            if ($values->$attr !== $this->currValues[$attr]) {
                 $changes[$attr] = [
-                    'from' => $this->fieldValues[$attr],
+                    'from' => $this->currValues[$attr],
                     'to' => $values->$attr,
                 ];
             }
         }
         // The boolean attributes
         foreach (['primary', 'autoIncrement', 'nullable'] as $attr) {
-            if ($values->$attr !== $this->fieldValues[$attr]) {
+            if ($values->$attr !== $this->currValues[$attr]) {
                 $changes[$attr] = [
-                    'from' => $this->fieldValues[$attr] ? 'true' : 'false',
+                    'from' => $this->currValues[$attr] ? 'true' : 'false',
                     'to' => $values->$attr ? 'true' : 'false',
                 ];
             }
         }
         // The string attributes
         foreach (['generated', 'default', 'collation', 'onUpdate', 'onDelete', 'comment'] as $attr) {
-            if ($values->$attr !== $this->fieldValues[$attr]) {
+            if ($values->$attr !== $this->currValues[$attr]) {
                 $changes[$attr] = [
-                    'from' => $this->fieldValues[$attr],
+                    'from' => $this->currValues[$attr],
                     'to' => $values->$attr,
                 ];
             }
@@ -251,7 +240,7 @@ class ColumnInputDto
         // The comment attribute
         if ($values->setComment) {
             $changes['comment'] = [
-                'from' => $this->fieldValues['comment'],
+                'from' => $this->currValues['comment'] ?? '(NULL)',
                 'to' => $values->comment,
             ];
         }
@@ -265,48 +254,48 @@ class ColumnInputDto
     public function toArray(): array
     {
         return [
-            'name' => $this->name,
+            'name' => $this->column->name,
             'action' => $this->action,
             'position' => $this->position,
-            'field' => $this->values(),
+            'column' => $this->values(),
         ];
     }
 
     /**
-     * @return TableFieldDto
+     * @return ColumnDto
      */
-    public function inputField(): TableFieldDto
+    public function makeColumn(): ColumnDto
     {
-        $values = $this->values();
-        $field = new TableFieldDto();
+        $column = new ColumnDto();
 
+        $values = $this->values();
         foreach (self::$attributes as $attr) {
-            $field->$attr = $values->$attr;
+            $column->$attr = $values->$attr;
         }
         if ($values->generated === '') {
-            $field->default = null;
+            $column->default = null;
         }
 
-        return $field;
+        return $column;
     }
 
     /**
-     * Create an entity from user inputs.
+     * Create an entity from user input.
      *
-     * @param TableFieldDto $field
-     * @param array $inputs
+     * @param ColumnDto $column
+     * @param array $values
      *
-     * @return ColumnInputDto
+     * @return static
      */
-    public static function newColumn(TableFieldDto $field, array $inputs): self
+    public static function newColumn(ColumnDto $column, array $values): self
     {
-        // Pass the field to the constructor, so the origValues attr is set properly. 
-        $column = new static($field);
-        $column->action = ColumnAction::convert($inputs['action']);
-        $column->position = $inputs['position'];
-        $column->setValues($inputs['field']);
+        $input = new static($column);
 
-        return $column;
+        $input->action = ColumnAction::convert($values['action']);
+        $input->position = $values['position'];
+        $input->setValues($values['column']);
+
+        return $input;
     }
 
     /**

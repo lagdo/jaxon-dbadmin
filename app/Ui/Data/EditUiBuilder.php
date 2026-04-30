@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\App\Ui\Data;
 
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\FieldEditDto;
-use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\DmInputDto;
+use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 class EditUiBuilder
@@ -127,14 +127,14 @@ class EditUiBuilder
     }
 
     /**
-     * @param FieldEditDto $field
+     * @param DmInputDto $input
      *
      * @return mixed
      */
-    protected function getFieldValue(FieldEditDto $field): mixed
+    protected function getColumnValue(DmInputDto $input): mixed
     {
-        $input = $field->valueInput;
-        return match($input['field']) {
+        $input = $input->valueInput;
+        return match($input['column']) {
             'enum' => $this->getEnumValueInput($input),
             'bool' => $this->getBoolValueInput($input),
             'set' => $this->getSetValueInput($input),
@@ -146,13 +146,13 @@ class EditUiBuilder
     }
 
     /**
-     * @param FieldEditDto $field
+     * @param DmInputDto $input
      *
      * @return mixed
      */
-    private function getFieldFunction(FieldEditDto $field): mixed
+    private function getColumnFunction(DmInputDto $input): mixed
     {
-        $input = $field->functionInput;
+        $input = $input->functionInput;
         return $this->ui->pick(
             [isset($input['label']), fn() => $this->ui->span($input['label'])],
             [isset($input['select']), fn() => $this->ui->select(
@@ -178,18 +178,18 @@ class EditUiBuilder
     }
 
     /**
-     * @param FieldEditDto $field
+     * @param DmInputDto $input
      *
      * @return mixed
      */
-    public function getFieldTitle(FieldEditDto $field): mixed
+    public function getColumnTitle(DmInputDto $input): mixed
     {
-        return isset($field->valueInput['attrs']['id']) ?
-            $this->ui->label($field->name)
-                ->setFor($this->tab()->app()->id($field->valueInput['attrs']['id']))
-                ->setTitle($field->type) :
-            $this->ui->span($field->name)
-                ->setTitle($field->type);
+        return isset($input->valueInput['attrs']['id']) ?
+            $this->ui->label($input->name)
+                ->setFor($this->tab()->app()->id($input->valueInput['attrs']['id']))
+                ->setTitle($input->type) :
+            $this->ui->span($input->name)
+                ->setTitle($input->type);
     }
 
     /**
@@ -201,24 +201,24 @@ class EditUiBuilder
     }
 
     /**
-     * @param array<FieldEditDto> $fields
+     * @param array<DmInputDto> $inputs
      * @param string $maxHeight
      *
      * @return string
      */
-    public function rowDataForm(array $fields, string $maxHeight = ''): string
+    public function rowDataForm(array $inputs, string $maxHeight = ''): string
     {
         $form = $this->ui->form(
-            $this->ui->each($fields, fn(FieldEditDto $field) =>
+            $this->ui->each($inputs, fn(DmInputDto $input) =>
                 $this->ui->row(
                     $this->ui->col(
-                        $this->getFieldTitle($field)
+                        $this->getColumnTitle($input)
                     )->width(3),
                     $this->ui->col(
-                        $this->getFieldFunction($field)
+                        $this->getColumnFunction($input)
                     )->width(2),
                     $this->ui->col(
-                        $this->getFieldValue($field)
+                        $this->getColumnValue($input)
                     )->width(7)
                 )
             )

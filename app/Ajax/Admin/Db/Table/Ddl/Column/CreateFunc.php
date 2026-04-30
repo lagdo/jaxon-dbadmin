@@ -13,13 +13,13 @@ class CreateFunc extends FuncComponent
      */
     public function add(string $columnId = ''): void
     {
-        $primaryField = $this->getTableBag('primary', '');
+        $primaryColumn = $this->getTableBag('primary', '');
 
         $tableName = $this->getCurrentTable();
         $title = $tableName === '' ? 'New column' : "New column in table $tableName";
         $content = $this->columnUi
             ->metadata($this->metadata())
-            ->column($this->getEmptyColumn(), $primaryField);
+            ->column($this->newColumnInput(), $primaryColumn);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -43,16 +43,16 @@ class CreateFunc extends FuncComponent
      */
     public function save(string $columnId, array $values): void
     {
-        // Create an empty field and fill with the form data.
-        $column = $this->getEmptyColumn();
-        $column->add();
-        $column->setValues($this->getUserFormValues($values));
+        // Create an empty input and fill with the form data.
+        $input = $this->newColumnInput();
+        $input->add();
+        $input->setValues($this->getUserFormValues($values));
 
         $this->modal()->hide();
 
         $this->cl(Wrapper::class)->show($this->metadata(), [
-            ...$this->getTableColumns(),
-            $column,
+            ...$this->getColumnInputs(),
+            $input,
         ]);
     }
 }

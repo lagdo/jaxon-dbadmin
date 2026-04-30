@@ -38,7 +38,7 @@ class TableExport extends AbstractDriverProxy
             ['', 'TRUNCATE+INSERT', 'INSERT', 'INSERT+UPDATE'];
     }
 
-    private function getDataRowOptions(string $database, string $table): array
+    private function getRowDataOptions(string $database, string $table): array
     {
         // \parse_str($_COOKIE['adminer_export'], $options);
         // if(!$options) {
@@ -67,7 +67,7 @@ class TableExport extends AbstractDriverProxy
     public function getBaseOptions(string $database, string $table): array
     {
         // From dump.inc.php
-        $row = $this->getDataRowOptions($database, $table);
+        $row = $this->getRowDataOptions($database, $table);
         $options = [
             'output' => [
                 'label' => $this->utils()->lang('Output'),

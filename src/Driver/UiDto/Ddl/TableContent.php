@@ -3,10 +3,10 @@
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\IndexDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TriggerDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 
@@ -20,32 +20,32 @@ use function preg_match;
 class TableContent extends AbstractDriverProxy
 {
     /**
-     * @param array<TableFieldDto> $fields
+     * @param array<ColumnDto> $columns
      * @param string $tableCollation
      *
      * @return array
      */
-    public function fields(array $fields, string $tableCollation): array
+    public function columns(array $columns, string $tableCollation): array
     {
         $commentSupported = $this->engine()->support('comment');
         $userTypes = $this->engine()->structuredTypes()[$this->utils()->lang('User types')] ?? [];
 
         $contents = [];
-        foreach ($fields as $field) {
+        foreach ($columns as $column) {
             $content = [
-                'name' => $this->utils()->html($field->name),
-                'type' => $this->pageUi()->getTableFieldType($field, $tableCollation),
-                'collation' => $this->utils()->html($field->collation),
+                'name' => $this->utils()->html($column->name),
+                'type' => $this->pageUi()->getColumnType($column, $tableCollation),
+                'collation' => $this->utils()->html($column->collation),
             ];
 
-            $fullType = $this->utils()->html($field->fullType);
+            $fullType = $this->utils()->html($column->fullType);
             if (in_array($fullType, $userTypes)) {
                 $content['references'] = $fullType;
             }
 
             if ($commentSupported) {
-                $content['comment'] = $field->comment === null ? null :
-                    $this->utils()->html($field->comment);
+                $content['comment'] = $column->comment === null ? null :
+                    $this->utils()->html($column->comment);
             }
 
             $contents[] = new DetailDto($content);
@@ -139,35 +139,35 @@ class TableContent extends AbstractDriverProxy
 
     /**
      * @param TableDto|null $status
-     * @param array<TableFieldDto> $fields
+     * @param array<ColumnDto> $columns
      * @param array<string,string> $foreignKeys
      * 
      * @return array
      */
-    public function metadata(TableDto|null $status, array $fields, array $foreignKeys): array
+    public function metadata(TableDto|null $status, array $columns, array $foreignKeys): array
     {
         $hasAutoIncrement = false;
-        $fields = array_map(function($field) use(&$hasAutoIncrement) {
-            $hasAutoIncrement = $hasAutoIncrement || $field->autoIncrement;
-            if (preg_match('~^CURRENT_TIMESTAMP~i', $field->onUpdate)) {
-                $field->onUpdate = 'CURRENT_TIMESTAMP';
+        $columns = array_map(function($column) use(&$hasAutoIncrement) {
+            $hasAutoIncrement = $hasAutoIncrement || $column->autoIncrement;
+            if (preg_match('~^CURRENT_TIMESTAMP~i', $column->onUpdate)) {
+                $column->onUpdate = 'CURRENT_TIMESTAMP';
             }
 
             // Todo: check that these flags are set properly.
-            // $type = $field->type;
-            $field->lengthRequired = true; // !$field->length && preg_match('~var(char|binary)$~', $type);
-            $field->collationHidden = false; // !preg_match('~(char|text|enum|set)$~', $type);
-            $field->unsignedHidden = false; // $type && !preg_match($this->engine()->numberRegex(), $type);
-            $field->onUpdateHidden = false; // !preg_match('~timestamp|datetime~', $type);
-            $field->onDeleteHidden = false; // !preg_match('~`~', $type);
+            // $type = $column->type;
+            $column->lengthRequired = true; // !$column->length && preg_match('~var(char|binary)$~', $type);
+            $column->collationHidden = false; // !preg_match('~(char|text|enum|set)$~', $type);
+            $column->unsignedHidden = false; // $type && !preg_match($this->engine()->numberRegex(), $type);
+            $column->onUpdateHidden = false; // !preg_match('~timestamp|datetime~', $type);
+            $column->onDeleteHidden = false; // !preg_match('~`~', $type);
 
-            return $field;
-        }, $fields);
+            return $column;
+        }, $columns);
 
         return [
             'table' => $status,
             'foreignKeys' => $foreignKeys,
-            'fields' => $fields,
+            'columns' => $columns,
             'options' => [
                 'hasAutoIncrement' => $hasAutoIncrement,
                 'onUpdate' => ['CURRENT_TIMESTAMP' => 'CURRENT_TIMESTAMP'],
@@ -175,7 +175,7 @@ class TableContent extends AbstractDriverProxy
             ],
             'collations' => $this->engine()->collations(),
             'engines' => $this->engine()->engines(),
-            'defaults' => $this->engine()->fieldDefaults(),
+            'defaults' => $this->engine()->columnDefaults(),
             'support' => [
                 'columns' => $this->engine()->support('columns'),
                 'comment' => $this->engine()->support('comment'),

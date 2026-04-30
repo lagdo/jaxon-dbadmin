@@ -23,7 +23,7 @@ class TableFunc extends FuncComponent
     #[Before('notYetAvailable')]
     public function create(array $values): void
     {
-        // $fields = $this->getTableBag('fields');
+        // $columns = $this->getTableBag('columns');
         // $values = array_merge($this->defaults, $values);
 
         // $result = $this->db()->createTable($values);

@@ -3,15 +3,15 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnInputDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ForeignKeyTrait;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableAlter;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableContent;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableCreate;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableHeader;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
 use Lagdo\Facades\Logger;
 use Exception;
 
@@ -87,14 +87,14 @@ class TableProxy extends AbstractDriverProxy
     }
 
     /**
-     * Get field types
+     * Get column types
      *
      * @param string $type  The type name
      * @param array $extraTypes
      *
      * @return array
      */
-    public function getFieldTypes(string $type = '', array $extraTypes = []): array
+    public function getColumnTypes(string $type = '', array $extraTypes = []): array
     {
         // From includes/editing.inc.php
         if ($type !== '' && !$this->engine()->typeExists($type) &&
@@ -140,19 +140,19 @@ class TableProxy extends AbstractDriverProxy
     }
 
     /**
-     * Get the fields of a table
+     * Get the columns of a table
      *
      * @param string $table The table name
      *
      * @return array
      * @throws Exception
      */
-    public function getTableFields(string $table): array
+    public function getTableColumns(string $table): array
     {
         // From table.inc.php
-        $fields = $this->engine()->fields($table);
-        if (empty($fields)) {
-            Logger::warning('Unable to get fields from table.', [
+        $columns = $this->engine()->columns($table);
+        if (empty($columns)) {
+            Logger::warning('Unable to get columns from table.', [
                 'table' => $table,
                 'schema' => $this->db()->schema,
                 'database' => $this->db()->name,
@@ -164,8 +164,8 @@ class TableProxy extends AbstractDriverProxy
         $status = $this->status($table);
 
         return [
-            'headers' => $this->header()->fields(),
-            'details' => $this->content()->fields($fields, $status?->collation ?? ''),
+            'headers' => $this->header()->columns(),
+            'details' => $this->content()->columns($columns, $status?->collation ?? ''),
         ];
     }
 
@@ -247,50 +247,50 @@ class TableProxy extends AbstractDriverProxy
     {
         // From create.inc.php
         $status = null;
-        $fields = [];
+        $columns = [];
         if ($table !== '') {
             $status = $this->engine()->tableStatus($table);
             if (!$status) {
                 throw new Exception($this->utils()->lang('No tables.'));
             }
-            $fields = $this->engine()->fields($table);
+            $columns = $this->engine()->columns($table);
         }
 
         $this->getForeignKeys($table);
 
-        $fields = array_map(function($field) {
-            $field->types = $this->getFieldTypes($field->type);
-            return $field;
-        }, $fields);
+        $columns = array_map(function($column) {
+            $column->types = $this->getColumnTypes($column->type);
+            return $column;
+        }, $columns);
 
-        return $this->content()->metadata($status, $fields, $this->foreignKeys);
+        return $this->content()->metadata($status, $columns, $this->foreignKeys);
     }
 
     /**
-     * Get fields for a new column
+     * Get a new table column
      *
-     * @return TableFieldDto
+     * @return ColumnDto
      */
-    public function getTableField(): TableFieldDto
+    public function newTableColumn(): ColumnDto
     {
         $this->getForeignKeys();
-        $field = new TableFieldDto();
-        $field->types = $this->getFieldTypes();
-        return $field;
+        $column = new ColumnDto();
+        $column->types = $this->getColumnTypes();
+        return $column;
     }
 
     /**
      * Get SQL command to create a table
      *
      * @param array $options     The table options
-     * @param array<ColumnInputDto> $columns
+     * @param array<DdInputDto> $inputs
      *
      * @return array
      */
-    public function getCreateTableQueries(array $options, array $columns): array
+    public function getCreateTableQueries(array $options, array $inputs): array
     {
         $table = new TableCreateDto($options);
-        $table = $this->create()->makeDto($table, $columns);
+        $table = $this->create()->makeDto($table, $inputs);
         if ($table->error !== null) {
             return[
                 'error' => $table->error,
@@ -306,13 +306,13 @@ class TableProxy extends AbstractDriverProxy
      * Create a table
      *
      * @param array $options     The table options
-     * @param array<ColumnInputDto> $columns
+     * @param array<DdInputDto> $inputs
      *
      * @return array
      */
-    public function createTable(array $options, array $columns): array
+    public function createTable(array $options, array $inputs): array
     {
-        $queries = $this->getCreateTableQueries($options, $columns);
+        $queries = $this->getCreateTableQueries($options, $inputs);
 
         return compact('success', 'error', 'message');
     }
@@ -322,11 +322,11 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<ColumnInputDto> $columns
+     * @param array<DdInputDto> $inputs
      *
      * @return array
      */
-    public function getAlterTableQueries(string $name, array $options, array $columns): array
+    public function getAlterTableQueries(string $name, array $options, array $inputs): array
     {
         $table = new TableAlterDto($options);
         if (($table->current = $this->engine()->tableStatus($name, true)) === null) {
@@ -335,7 +335,7 @@ class TableProxy extends AbstractDriverProxy
             ];
         }
 
-        $table = $this->alter()->makeDto($table, $columns);
+        $table = $this->alter()->makeDto($table, $inputs);
         if ($table->error !== null) {
             return[
                 'error' => $table->error,
@@ -352,14 +352,14 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<ColumnInputDto> $columns
+     * @param array<DdInputDto> $inputs
      *
      * @return array
      * @throws Exception
      */
-    public function alterTable(string $name, array $options, array $columns): array
+    public function alterTable(string $name, array $options, array $inputs): array
     {
-        $queries = $this->getAlterTableQueries($name, $options, $columns);
+        $queries = $this->getAlterTableQueries($name, $options, $inputs);
 
         return compact('success', 'error', 'message');
     }

@@ -20,7 +20,7 @@ class QueryFunc extends Column\FuncComponent
     public function changes(array $values): void
     {
         $title = 'Changes in table ' . $this->getCurrentTable();
-        $content = $this->columnUi->changes($this->getTableColumns());
+        $content = $this->columnUi->changes($this->getColumnInputs());
         $buttons = [[
             'title' => 'Close',
             'class' => 'btn btn-tertiary',
@@ -61,10 +61,9 @@ class QueryFunc extends Column\FuncComponent
     public function createTable(array $formValues): void
     {
         $options = $this->options($formValues);
-        $result = $this->db()->getCreateTableQueries($options, $this->getTableColumns());
+        $result = $this->db()->getCreateTableQueries($options, $this->getColumnInputs());
         // Show the error
-        if(isset($result['error']))
-        {
+        if (isset($result['error'])) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
                 ->error($result['error']);
@@ -100,7 +99,7 @@ class QueryFunc extends Column\FuncComponent
     {
         $table = $this->getCurrentTable();
         $options = $this->options($formValues);
-        $result = $this->db()->getAlterTableQueries($table, $options, $this->getTableColumns());
+        $result = $this->db()->getAlterTableQueries($table, $options, $this->getColumnInputs());
         // Show the error
         if(isset($result['error']))
         {

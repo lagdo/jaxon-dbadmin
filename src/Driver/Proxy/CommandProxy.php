@@ -6,10 +6,9 @@ use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
 use Lagdo\DbAdmin\Support\Service\TimerService;
 use Lagdo\DbAdmin\Driver\Sql\Connection\AbstractConnection;
-use Lagdo\DbAdmin\Driver\Sql\Dto\QueryDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\QueryInputDto;
 
 use function compact;
-use function count;
 use function function_exists;
 use function ini_set;
 use function max;
@@ -105,7 +104,7 @@ class CommandProxy extends AbstractDriverProxy
                 //! link to download
                 isset($blobs[$key]) && $blobs[$key] && !$this->utils()->str->isUtf8($value) =>
                     '<i>' . $this->utils()->lang('%d byte(s)', strlen($value)) . '</i>',
-                isset($types[$key]) && $types[$key] == 254 =>
+                isset($types[$key]) && $types[$key] === 254 =>
                     '<code>' . $this->utils()->html($value) . '</code>',
                 default => $this->utils()->html($value),
             };
@@ -161,23 +160,22 @@ class CommandProxy extends AbstractDriverProxy
         $types = []; // colno => type - display char in <code>
         $tables = []; // table => orgtable - mapping to use in EXPLAIN
         $headers = [];
-        $details = [];
-        // Table headers.
-        $colCount = count($row);
-        for ($j = 0; $j < $colCount; $j++) {
-            $field = $statement->fetchField();
+        // Important: the values in the row are actually not used.
+        $columns = array_map(fn($_) => $statement->fetchColumn(), $row);
+
+        // Use the first row to get the table headers.
+        foreach($columns as $column) {
             // PostgreSQL fix: the table field can be missing.
-            $tables[$field->tableName()] = $field->orgTable();
-            // $this->indexes($field);
-            if ($field->isBinary()) {
-                $blobs[$j] = true;
-            }
-            $types[$j] = $field->type(); // Some drivers don't set the type field.
-            $headers[] = $this->utils()->html($field->name());
+            $tables[$column->tableName()] = $column->orgTable();
+            // $this->indexes($column);
+            $blobs[] = $column->isBinary();
+            $types[] = $column->type(); // Some drivers don't set the type field.
+            $headers[] = $this->utils()->html($column->name());
         }
 
         // Table rows (the first was already fetched).
         $rowCount = 0;
+        $details = [];
         do {
             $rowCount++;
             $details[] = $this->values($row, $blobs, $types);
@@ -188,11 +186,11 @@ class CommandProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param QueryDto $queryDto
+     * @param QueryInputDto $input
      *
      * @return bool
      */
-    private function executeCommand(QueryDto $queryDto): bool
+    private function executeCommand(QueryInputDto $input): bool
     {
         if ($this->queryLogger !== null) {
             $this->queryLogger->setCategoryToEditor();
@@ -200,10 +198,10 @@ class CommandProxy extends AbstractDriverProxy
         $this->timer->start();
         //! Don't allow changing of character_set_results, convert encoding of displayed query
         $space = $this->utils()->str->spaceRegex();
-        $succeeded = $this->engine()->multiQuery($queryDto->query);
+        $succeeded = $this->engine()->multiQuery($input->query);
         if ($succeeded && $this->connection !== null &&
-            preg_match("~^$space*+USE\\b~i", $queryDto->query)) {
-            $this->connection->query($queryDto->query);
+            preg_match("~^$space*+USE\\b~i", $input->query)) {
+            $this->connection->query($input->query);
         }
         $this->duration += $this->timer->duration();
 
@@ -215,14 +213,14 @@ class CommandProxy extends AbstractDriverProxy
 
             if (!$statement || $this->engine()->hasError()) {
                 $errors[] = $this->engine()->errorMessage();
-            } elseif (!$queryDto->onlyErrors) {
-                [$select, $messages] = $this->select($statement, $queryDto->limit);
+            } elseif (!$input->onlyErrors) {
+                [$select, $messages] = $this->select($statement, $input->limit);
             }
 
             $result = compact('errors', 'messages', 'select');
-            $result['query'] = $queryDto->query;
+            $result['query'] = $input->query;
             $this->results[] = $result;
-            if ($this->engine()->hasError() && $queryDto->errorStops) {
+            if ($this->engine()->hasError() && $input->errorStops) {
                 return false;
             }
         } while ($this->engine()->nextResult());
@@ -260,10 +258,10 @@ class CommandProxy extends AbstractDriverProxy
         $this->duration = 0;
         $commands = 0;
         $errors = 0;
-        $queryDto = new QueryDto($queries, $limit, $errorStops, $onlyErrors);
-        while ($this->statement()->parseQueries($queryDto)) {
+        $input = new QueryInputDto($queries, $limit, $errorStops, $onlyErrors);
+        while ($this->statement()->parseQueries($input)) {
             $commands++;
-            if (!$this->executeCommand($queryDto)) {
+            if (!$this->executeCommand($input)) {
                 $errors++;
                 if ($errorStops) {
                     break;

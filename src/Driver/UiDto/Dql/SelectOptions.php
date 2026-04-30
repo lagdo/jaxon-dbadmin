@@ -9,11 +9,11 @@ use function intval;
 class SelectOptions extends AbstractDriverProxy
 {
     /**
-     * @param SelectDto $selectDto
+     * @param DqInputDto $input
      *
      * @return void
      */
-    public function setDefaultOptions(SelectDto $selectDto): void
+    public function setDefaultOptions(DqInputDto $input): void
     {
         $defaultOptions = [
             'columns' => [],
@@ -27,14 +27,14 @@ class SelectOptions extends AbstractDriverProxy
         ];
         foreach ($defaultOptions as $name => $value) {
             $this->utils()->input->values[$name] ??= $value;
-            $selectDto->queryOptions[$name] ??= $value;
+            $input->queryOptions[$name] ??= $value;
         }
-        $page = intval($selectDto->queryOptions['page']);
+        $page = intval($input->queryOptions['page']);
         if ($page > 0) {
             $page -= 1; // Page numbers start at 0 here, instead of 1.
         }
-        $selectDto->queryOptions['page'] = $page;
-        $selectDto->page = $page;
+        $input->queryOptions['page'] = $page;
+        $input->page = $page;
     }
 
     /**
@@ -49,7 +49,7 @@ class SelectOptions extends AbstractDriverProxy
     {
         return [
             'select' => $select,
-            'values' => (array)$options["columns"],
+            'values' => (array)$options['columns'],
             'columns' => $columns,
             'functions' => $this->engine()->functions(),
             'grouping' => $this->engine()->grouping(),
@@ -69,12 +69,12 @@ class SelectOptions extends AbstractDriverProxy
     {
         $fulltexts = [];
         foreach ($indexes as $i => $index) {
-            $fulltexts[$i] = $index->type == "FULLTEXT" ?
-                $this->utils()->html($options["fulltext"][$i] ?? '') : '';
+            $fulltexts[$i] = $index->type === 'FULLTEXT' ?
+                $this->utils()->html($options['fulltext'][$i] ?? '') : '';
         }
         return [
             // 'where' => $where,
-            'values' => (array)$options["where"],
+            'values' => (array)$options['where'],
             'columns' => $columns,
             'indexes' => $indexes,
             'operators' => $this->engine()->operators(),
@@ -93,8 +93,8 @@ class SelectOptions extends AbstractDriverProxy
     private function getSortingOptions(array $columns, array $options): array
     {
         $values = [];
-        $descs = (array)$options["desc"];
-        foreach ((array)$options["order"] as $key => $value) {
+        $descs = (array)$options['desc'];
+        foreach ((array)$options['order'] as $key => $value) {
             $values[] = [
                 'col' => $value,
                 'desc' => $descs[$key] ?? 0,
@@ -143,11 +143,11 @@ class SelectOptions extends AbstractDriverProxy
     //     $columns = [];
     //     foreach ($indexes as $index) {
     //         $current_key = \reset($index->columns);
-    //         if ($index->type != "FULLTEXT" && $current_key) {
+    //         if ($index->type != 'FULLTEXT' && $current_key) {
     //             $columns[$current_key] = 1;
     //         }
     //     }
-    //     $columns[""] = 1;
+    //     $columns[''] = 1;
     //     return ['columns' => $columns];
     // }
 
@@ -174,32 +174,31 @@ class SelectOptions extends AbstractDriverProxy
     /**
      * Print extra text in the end of a select form
      *
-     * @param array $emailFields Fields holding e-mails
+     * @param array $emailColumns Columns holding e-mails
      * @param array $columns Selectable columns
      *
      * @return array
      */
-    // private function getEmailOptions(array $emailFields, array $columns)
-    // {
-    // }
+    // private function getEmailOptions(array $emailColumns, array $columns)
+    // {}
 
     /**
-     * @param SelectDto $selectDto
+     * @param DqInputDto $input
      *
      * @return void
      */
-    public function setSelectOptions(SelectDto $selectDto): void
+    public function setQueryOptions(DqInputDto $input): void
     {
-        $selectDto->options = [
-            'columns' => $this->getColumnsOptions($selectDto->select,
-                $selectDto->columns, $selectDto->queryOptions),
-            'filters' => $this->getFiltersOptions($selectDto->columns,
-                $selectDto->indexes, $selectDto->queryOptions),
-            'sorting' => $this->getSortingOptions($selectDto->columns,
-                $selectDto->queryOptions),
-            'limit' => $this->getLimitOptions($selectDto->limit),
-            'length' => $this->getLengthOptions($selectDto->textLength),
-            // 'action' => $this->getActionOptions($selectDto->indexes),
+        $input->options = [
+            'columns' => $this->getColumnsOptions($input->clauses,
+                $input->selects, $input->queryOptions),
+            'filters' => $this->getFiltersOptions($input->selects,
+                $input->indexes, $input->queryOptions),
+            'sorting' => $this->getSortingOptions($input->selects,
+                $input->queryOptions),
+            'limit' => $this->getLimitOptions($input->limit),
+            'length' => $this->getLengthOptions($input->textLength),
+            // 'action' => $this->getActionOptions($input->indexes),
         ];
     }
 }

@@ -186,7 +186,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
         [$values, $whereClause] = $this->getWhereClause($filters);
         $offsetClause = $page > 1 ? 'OFFSET ' . ($page - 1) * $this->favoriteLimit : '';
         // PostgreSQL doesn't allow the use of distinct and order by
-        // a field not in the select clause in the same SQL query.
+        // a column not in the select clause in the same SQL query.
         $sql = "SELECT c.* FROM dbadmin_stored_commands c $whereClause
 ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->favoriteLimit} $offsetClause";
         $statement = $this->proxy->executeQuery($sql, $values);

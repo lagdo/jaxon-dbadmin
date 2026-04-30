@@ -19,7 +19,7 @@ use function substr_count;
 /**
  * Make data for HTML elements in the user forms for data row insert and update.
  */
-class DataFieldInput extends AbstractDriverProxy
+class ColumnInput extends AbstractDriverProxy
 {
     /**
      * @var string
@@ -45,34 +45,34 @@ class DataFieldInput extends AbstractDriverProxy
     }
 
     /**
-     * @param FieldEditDto $editField
-     * @param string $fieldValue
+     * @param DmInputDto $input
+     * @param string $columnValue
      * @param string|null $enumValue
      *
      * @return bool
      */
-    private function isChecked(FieldEditDto $editField, string $fieldValue, string|null $enumValue): bool
+    private function isChecked(DmInputDto $input, string $columnValue, string|null $enumValue): bool
     {
-        return !is_array($editField->value) ? $editField->value === $enumValue :
-            in_array($fieldValue, $editField->value);
+        return !is_array($input->value) ? $input->value === $enumValue :
+            in_array($columnValue, $input->value);
     }
 
     /**
      * Get data for enum or set input field
      * 
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      */
-    private function getItemList(FieldEditDto $editField, array $attrs, string $default = ""): array|null
+    private function getItemList(DmInputDto $input, array $attrs, string $default = ""): array|null
     {
-        if ($editField->type !== 'enum' && $editField->type !== 'set' ) {
+        if ($input->type !== 'enum' && $input->type !== 'set' ) {
             // Only for enums and sets
             return null;
         }
 
         // From html.inc.php: function enum_input(string $type, string $attrs, array $field, $value, string $empty = "")
-        $prefix = $editField->type === 'enum' ? 'val-' : '';
+        $prefix = $input->type === 'enum' ? 'val-' : '';
         $items = [];
-        if ($editField->field->nullable && $prefix) {
+        if ($input->column->nullable && $prefix) {
             $items[] = [
                 'attrs' => [
                     ...$attrs,
@@ -80,22 +80,22 @@ class DataFieldInput extends AbstractDriverProxy
                 ],
                 'label' => "<i>$default</i>",
                 'value' => 'null',
-                'checked' => $this->isChecked($editField, 'null', null),
+                'checked' => $this->isChecked($input, 'null', null),
             ];
         }
 
-        preg_match_all("~'((?:[^']|'')*)'~", $editField->field->length, $matches);
+        preg_match_all("~'((?:[^']|'')*)'~", $input->column->length, $matches);
         foreach (($matches[1] ?? []) as $enumValue) {
             $enumValue = stripcslashes(str_replace("''", "'", $enumValue));
-            $fieldValue = "$prefix$enumValue";
+            $columnValue = "$prefix$enumValue";
             $items[] = [
                 'attrs' => [
                     ...$attrs,
                     'id' => "{$attrs['id']}_{$enumValue}", // Overwrite the id value in the $attrs array.
                 ],
                 'label' => $this->utils()->html($enumValue),
-                'value' => $this->utils()->html($fieldValue),
-                'checked' => $this->isChecked($editField, $fieldValue, $enumValue),
+                'value' => $this->utils()->html($columnValue),
+                'checked' => $this->isChecked($input, $columnValue, $enumValue),
             ];
         }
 
@@ -103,15 +103,15 @@ class DataFieldInput extends AbstractDriverProxy
     }
 
     /**
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getEnumFieldInput(FieldEditDto $editField, array $attrs): array
+    private function getEnumColumnInput(DmInputDto $input, array $attrs): array
     {
         // From adminer.inc.php: function editInput(?string $table, array $field, string $attrs, $value): string
-        $items = $this->getItemList($editField, $attrs, 'NULL');
+        $items = $this->getItemList($input, $attrs, 'NULL');
         if ($this->action === 'select') {
             // Prepend the value to the item list
             $items = [[
@@ -129,30 +129,30 @@ class DataFieldInput extends AbstractDriverProxy
     }
 
     /**
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getSetFieldInput(FieldEditDto $editField, array $attrs): array
+    private function getSetColumnInput(DmInputDto $input, array $attrs): array
     {
-        if (is_string($editField->value)) {
-            $editField->value = explode(",", $editField->value);
+        if (is_string($input->value)) {
+            $input->value = explode(",", $input->value);
         }
 
         return [
             'field' => 'set',
-            'items' => $this->getItemList($editField, $attrs),
+            'items' => $this->getItemList($input, $attrs),
         ];
     }
 
     /**
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getBoolFieldInput(FieldEditDto $editField, array $attrs): array
+    private function getBoolColumnInput(DmInputDto $input, array $attrs): array
     {
         return [
             'field' => 'bool',
@@ -167,44 +167,44 @@ class DataFieldInput extends AbstractDriverProxy
                     'value' => '1',
                 ],
             ],
-            'checked' => $editField->isChecked(),
+            'checked' => $input->isChecked(),
         ];
     }
 
     /**
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      *
      * @return bool
      */
-    private function isBlob(FieldEditDto $editField): bool
+    private function isBlob(DmInputDto $input): bool
     {
-        return $this->utils()->isBlob($editField->field) && $this->utils()->iniBool("file_uploads");
+        return $this->utils()->isBlob($input->column) && $this->utils()->iniBool("file_uploads");
     }
 
     /**
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getFileFieldInput(FieldEditDto $editField, array $attrs): array
+    private function getFileColumnInput(DmInputDto $input, array $attrs): array
     {
         return [
             'field' => 'file',
             'attrs' => [
                 'id' => $attrs['id'],
-                'name' => "fields-{$editField->name}",
+                'name' => "fields-{$input->name}",
             ],
         ];
     }
 
     /**
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getJsonFieldInput(FieldEditDto $editField, array $attrs): array
+    private function getJsonColumnInput(DmInputDto $input, array $attrs): array
     {
         return [
             'field' => 'json',
@@ -214,55 +214,55 @@ class DataFieldInput extends AbstractDriverProxy
                 'rows' => '5',
                 'class' => 'jush-js',
             ],
-            'value' => $this->utils()->html($editField->value ?? ''),
+            'value' => $this->utils()->html($input->value ?? ''),
         ];
     }
 
     /**
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      *
      * @return bool
      */
-    private function textSizeIsFixed(FieldEditDto $editField): bool
+    private function textSizeIsFixed(DmInputDto $input): bool
     {
-        return ($editField->isText() && !$this->engine()->sqlite()) || $editField->isSearch();
+        return ($input->isText() && !$this->engine()->sqlite()) || $input->isSearch();
     }
 
     /**
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getTextFieldInput(FieldEditDto $editField, array $attrs): array
+    private function getTextColumnInput(DmInputDto $input, array $attrs): array
     {
-        $fieldAttrs = $this->textSizeIsFixed($editField) ? [
+        $columnAttrs = $this->textSizeIsFixed($input) ? [
             'cols' => '50',
             'rows' => '5',
         ] : [
             'cols' => '30',
-            'rows' => min(5, substr_count($editField->value ?? '', "\n") + 1),
+            'rows' => min(5, substr_count($input->value ?? '', "\n") + 1),
         ];
         return [
             'field' => 'text',
             'attrs' => [
                 ...$attrs,
-                ...$fieldAttrs,
+                ...$columnAttrs,
             ],
-            'value' => $this->utils()->html($editField->value ?? ''),
+            'value' => $this->utils()->html($input->value ?? ''),
         ];
     }
 
     /**
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      *
      * @return int
      */
-    private function getInputFieldMaxLength(FieldEditDto $editField): int
+    private function getInputFieldMaxLength(DmInputDto $input): int
     {
-        $unsigned = $editField->field->unsigned;
-        $length = $editField->field->length;
-        $type = $editField->type;
+        $unsigned = $input->column->unsigned;
+        $length = $input->column->length;
+        $type = $input->type;
         $types = $this->engine()->types();
 
         $maxlength = (!preg_match('~int~', $type) &&
@@ -281,51 +281,51 @@ class DataFieldInput extends AbstractDriverProxy
     }
 
     /**
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getDefaultFieldInput(FieldEditDto $editField, array $attrs): array
+    private function getDefaultColumnInput(DmInputDto $input, array $attrs): array
     {
-        $maxlength = $this->getInputFieldMaxLength($editField);
+        $maxlength = $this->getInputFieldMaxLength($input);
         // type='date' and type='time' display localized value which may be confusing,
         // type='datetime' uses 'T' as date and time separator
 
-        if ($editField->isNumber()) {
+        if ($input->isNumber()) {
             $attrs['type'] = 'number';
         }
         if ($maxlength > 0) {
             $attrs['data-maxlength'] = $maxlength;
         }
-        if ($editField->bigSize($maxlength)) {
+        if ($input->bigSize($maxlength)) {
             $attrs['size'] = $maxlength > 99 ? '60' : '40';
         }
 
         return [
             'field' => 'input',
             'attrs' => $attrs,
-            'value' => $this->utils()->html($editField->value ?? ''),
+            'value' => $this->utils()->html($input->value ?? ''),
         ];
     }
 
     /**
      * Get the input field for value
      *
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      * @param bool|null $autofocus
      *
      * @return array
      */
-    private function getFieldValueInput(FieldEditDto $editField, bool|null $autofocus): array
+    private function getColumnValueInput(DmInputDto $input, bool|null $autofocus): array
     {
         // From input(array $field, $value, ?string $function, ?bool $autofocus = false) in html.inc.php
         $attrs = [
-            'id' => "fields_{$editField->name}",
-            'name' => $editField->isEnum() || $editField->isSet() ?
-                "field_values[{$editField->name}][]" : "field_values[{$editField->name}]",
+            'id' => "fields_{$input->name}",
+            'name' => $input->isEnum() || $input->isSet() ?
+                "input_values[{$input->name}][]" : "input_values[{$input->name}]",
         ];
-        if ($editField->isDisabled()) {
+        if ($input->isDisabled()) {
             $attrs['disabled'] = 'disabled';
         }
         if ($autofocus) {
@@ -334,61 +334,61 @@ class DataFieldInput extends AbstractDriverProxy
 
         // This function is implemented only for MySQL.
         // Todo: check what it actually does.
-        // echo driver()->unconvertFunction($field) . " ";
+        // echo driver()->unconvertFunction($column) . " ";
 
         return match(true) {
-            $editField->isEnum() => $this->getEnumFieldInput($editField, $attrs),
-            $editField->isBool() => $this->getBoolFieldInput($editField, $attrs),
-            $editField->isSet() => $this->getSetFieldInput($editField, $attrs),
-            $this->isBlob($editField) => $this->getFileFieldInput($editField, $attrs),
-            $editField->isJson() => $this->getJsonFieldInput($editField, $attrs),
-            $editField->editText() => $this->getTextFieldInput($editField, $attrs),
-            default => $this->getDefaultFieldInput($editField, $attrs),
+            $input->isEnum() => $this->getEnumColumnInput($input, $attrs),
+            $input->isBool() => $this->getBoolColumnInput($input, $attrs),
+            $input->isSet() => $this->getSetColumnInput($input, $attrs),
+            $this->isBlob($input) => $this->getFileColumnInput($input, $attrs),
+            $input->isJson() => $this->getJsonColumnInput($input, $attrs),
+            $input->editText() => $this->getTextColumnInput($input, $attrs),
+            default => $this->getDefaultColumnInput($input, $attrs),
         };
     }
 
     /**
      * Get the input field for function
      *
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      *
      * @return array|null
      */
-    private function getFieldFunctionInput(FieldEditDto $editField): array|null
+    private function getColumnFunctionInput(DmInputDto $input): array|null
     {
         // From html.inc.php: function input(array $field, $value, ?string $function, ?bool $autofocus = false)
-        if ($editField->type === 'enum' || $editField->function === null) {
+        if ($input->type === 'enum' || $input->function === null) {
             return null; // No function for enum values
         }
 
-        if (count($editField->functions) < 2) {
+        if (count($input->functions) < 2) {
             return [
-                'label' => $this->utils()->html($editField->functions[0] ?? ''),
+                'label' => $this->utils()->html($input->functions[0] ?? ''),
             ];
         }
 
-        $disabledAttr = $editField->isDisabled() ? ['disabled' => 'disabled'] : [];
+        $disabledAttr = $input->isDisabled() ? ['disabled' => 'disabled'] : [];
         return [
             'select' => [
                 'attrs' => [
-                    'name' => "field_functions[{$editField->name}]",
+                    'name' => "input_functions[{$input->name}]",
                     ...$disabledAttr,
                 ],
-                'options' => $editField->functions,
-                'value' => $editField->functionValue(),
+                'options' => $input->functions,
+                'value' => $input->functionValue(),
             ],
         ];
     }
 
     /**
-     * @param FieldEditDto $editField
+     * @param DmInputDto $input
      * @param bool|null $autofocus
      *
      * @return void
      */
-    public function setFieldInputValues(FieldEditDto $editField, bool|null $autofocus): void
+    public function setColumnInputValues(DmInputDto $input, bool|null $autofocus): void
     {
-        $editField->functionInput = $this->getFieldFunctionInput($editField);
-        $editField->valueInput = $this->getFieldValueInput($editField, $autofocus);
+        $input->functionInput = $this->getColumnFunctionInput($input);
+        $input->valueInput = $this->getColumnValueInput($input, $autofocus);
     }
 }

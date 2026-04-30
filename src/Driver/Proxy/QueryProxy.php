@@ -2,13 +2,16 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\DataFieldInput;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\DataFieldValue;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\DataRowReader;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\DataRowWriter;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnInput;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnValue;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataReader;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataWriter;
 
+use function array_filter;
+use function array_keys;
+use function array_map;
 use function count;
 
 /**
@@ -31,47 +34,45 @@ class QueryProxy extends AbstractDriverProxy
     private string $operation;
 
     /**
-     * @return DataRowWriter
+     * @return RowDataWriter
      */
-    private function writer(): DataRowWriter
+    private function writer(): RowDataWriter
     {
-        $fieldValue = (new DataFieldValue($this))
-            ->init($this->action, $this->operation);
-        $fieldInput = (new DataFieldInput($this))
-            ->init($this->action, $this->operation);
-        return (new DataRowWriter($this))
-            ->init($this->action, $this->operation, $fieldValue, $fieldInput);
+        $columnValue = (new ColumnValue($this))->init($this->action, $this->operation);
+        $columnInput = (new ColumnInput($this))->init($this->action, $this->operation);
+        return (new RowDataWriter($this))->init($this->action, $this->operation,
+            $columnValue, $columnInput);
     }
 
     /**
-     * @return DataRowReader
+     * @return RowDataReader
      */
-    private function reader(): DataRowReader
+    private function reader(): RowDataReader
     {
-        return new DataRowReader($this);
+        return new RowDataReader($this);
     }
 
     /**
-     * Get the table fields
+     * Get the table columns
      *
      * @param string $table         The table name
      * @param array  $options       The query options
      *
      * @return array
      */
-    private function getFields(string $table, array $options): array
+    private function getColumns(string $table, array $options): array
     {
         // From edit.inc.php
-        $fields = $this->engine()->fields($table);
-        // Important: get the where clauses before filtering the fields.
+        $columns = $this->engine()->columns($table);
+        // Important: get the where clauses before filtering the columns.
         $where = $this->operation === 'insert' ? [] :
-            $this->engine()->where($options, $fields);
-        // Remove fields without the required privilege, or that cannot be edited.
-        $fields = array_filter($fields, fn(TableFieldDto $field) =>
-            isset($field->privileges[$this->operation]) &&
-            $this->pageUi()->fieldName($field) !== '' && !$field->generated);
+            $this->engine()->where($options, $columns);
+        // Remove columns without the required privilege, or that cannot be edited.
+        $columns = array_filter($columns, fn(ColumnDto $column) =>
+            isset($column->privileges[$this->operation]) &&
+            $this->pageUi()->columnName($column) !== '' && !$column->generated);
 
-        return [$fields, $where];
+        return [$columns, $where];
     }
 
     /**
@@ -87,8 +88,8 @@ class QueryProxy extends AbstractDriverProxy
         $this->action = 'read';
         $this->operation = 'insert';
 
-        [$fields,] = $this->getFields($table, $options);
-        if (empty($fields)) {
+        [$columns,] = $this->getColumns($table, $options);
+        if (empty($columns)) {
             return [
                 'error' => $this->utils()->lang('You have no privileges to update this table.'),
             ];
@@ -96,31 +97,29 @@ class QueryProxy extends AbstractDriverProxy
 
         // No data when inserting a new row
         return [
-            'fields' => $this->writer()->getInputValues($fields, $options),
+            'columns' => $this->writer()->getInputValues($columns, $options),
         ];
     }
 
     /**
-     * @param array<TableFieldDto> $fields
+     * @param array<ColumnDto> $columns
      *
      * @return array
      */
-    private function getRowSelectClauses(array $fields): array
+    private function getRowSelectClauses(array $columns): array
     {
-        // if (!$this->engine()->support("table")) {
-        //     return ["*"];
+        // if (!$this->engine()->support('table')) {
+        //     return ['*'];
         // }
 
         // From edit.inc.php
-        $select = [];
-        foreach ($fields as $name => $field) {
-            if (isset($field->privileges["select"])) {
-                $as = $this->action === 'clone' && $field->autoIncrement ? "''" :
-                    $this->statement()->convertField($field);
-                $select[] = ($as ? "$as AS " : "") . $this->statement()->escapeId($name);
-            }
-        }
-        return $select;
+        $columns = array_filter($columns,
+            fn(ColumnDto $column) => isset($column->privileges['select']));
+        return array_map(function(ColumnDto $column, string $name) {
+            $as = $this->action === 'clone' && $column->autoIncrement ? "''" :
+                $this->statement()->convertValue($column);
+            return ($as !== '' ? "$as AS " : '') . $this->statement()->escapeId($name);
+        }, $columns, array_keys($columns));
     }
 
     /**
@@ -137,15 +136,15 @@ class QueryProxy extends AbstractDriverProxy
         $this->operation = 'update';
 
         // From edit.inc.php
-        [$fields, $where] = $this->getFields($table, $options);
-        if (empty($fields) || !$where) {
+        [$columns, $where] = $this->getColumns($table, $options);
+        if (empty($columns) || !$where) {
             return [
                 'error' => $this->utils()->lang('You have no privileges to update this table.'),
             ];
         }
 
         // From edit.inc.php
-        $select = $this->getRowSelectClauses($fields);
+        $select = $this->getRowSelectClauses($columns);
         if (count($select) === 0) {
             return [
                 'error' => $this->utils()->lang('Unable to find the edited data row.'),
@@ -170,7 +169,7 @@ class QueryProxy extends AbstractDriverProxy
         }
 
         return [
-            'fields' => $this->writer()->getInputValues($fields, $rowData),
+            'columns' => $this->writer()->getInputValues($columns, $rowData),
         ];
     }
 
@@ -188,8 +187,8 @@ class QueryProxy extends AbstractDriverProxy
         $this->action = 'save';
         $this->operation = 'insert';
 
-        [$fields,] = $this->getFields($table, $options);
-        $values = $this->reader()->getInputValues($fields, $values);
+        [$columns,] = $this->getColumns($table, $options);
+        $values = $this->reader()->getInputValues($columns, $values);
 
         $query = $this->statement()->getRowInsertQuery($table, $values);
         return $query !== '' ? ['query' => $query] : [
@@ -211,8 +210,8 @@ class QueryProxy extends AbstractDriverProxy
         $this->action = 'save';
         $this->operation = 'insert';
 
-        [$fields,] = $this->getFields($table, $options);
-        $values = $this->reader()->getInputValues($fields, $values);
+        [$columns,] = $this->getColumns($table, $options);
+        $values = $this->reader()->getInputValues($columns, $values);
 
         if (!$this->engine()->insert($table, $values)) {
             return [
@@ -255,8 +254,8 @@ class QueryProxy extends AbstractDriverProxy
         $this->action = 'save';
         $this->operation = 'update';
 
-        [$fields, $where] = $this->getFields($table, $options);
-        $values = $this->reader()->getInputValues($fields, $values);
+        [$columns, $where] = $this->getColumns($table, $options);
+        $values = $this->reader()->getInputValues($columns, $values);
         $limit = $this->getQueryLimit($table, $options);
 
         $query = $this->statement()->getRowUpdateQuery($table, $values, "\nWHERE $where", $limit);
@@ -279,8 +278,8 @@ class QueryProxy extends AbstractDriverProxy
         $this->action = 'save';
         $this->operation = 'update';
 
-        [$fields, $where] = $this->getFields($table, $options);
-        $values = $this->reader()->getInputValues($fields, $values);
+        [$columns, $where] = $this->getColumns($table, $options);
+        $values = $this->reader()->getInputValues($columns, $values);
         $limit = $this->getQueryLimit($table, $options);
 
         if (!$this->engine()->update($table, $values, "\nWHERE $where", $limit)) {
@@ -300,7 +299,7 @@ class QueryProxy extends AbstractDriverProxy
         }
 
         return [
-            'cols' => $this->writer()->getUpdatedRow($result, $fields, $options),
+            'cols' => $this->writer()->getUpdatedRow($result, $columns, $options),
             'message' => $this->utils()->lang('Item has been updated.'),
         ];
     }
@@ -318,7 +317,7 @@ class QueryProxy extends AbstractDriverProxy
         $this->action = 'save';
         $this->operation = 'update';
 
-        [, $where] = $this->getFields($table, $options);
+        [, $where] = $this->getColumns($table, $options);
         $limit = $this->getQueryLimit($table, $options);
 
         $query = $this->statement()->getRowDeleteQuery($table, "\nWHERE $where", $limit);
@@ -340,7 +339,7 @@ class QueryProxy extends AbstractDriverProxy
         $this->action = 'save';
         $this->operation = 'update';
 
-        [, $where] = $this->getFields($table, $options);
+        [, $where] = $this->getColumns($table, $options);
         $limit = $this->getQueryLimit($table, $options);
 
         if (!$this->engine()->delete($table, "\nWHERE $where", $limit)) {

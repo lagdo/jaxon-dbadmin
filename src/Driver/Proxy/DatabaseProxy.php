@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableFieldDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseHeader;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseContent;
@@ -223,10 +223,10 @@ class DatabaseProxy extends AbstractDriverProxy
      */
     public function getSchemaColumns(): array
     {
-        $fieldCallback = fn(TableFieldDto $field) => ['name' => $field->name];
+        $callback = fn(ColumnDto $column) => ['name' => $column->name];
         $tables = array_map(fn(string $table) => [
             'name' => $table,
-            'columns' => array_values(array_map($fieldCallback, $this->engine()->fields($table))),
+            'columns' => array_values(array_map($callback, $this->engine()->columns($table))),
         ], $this->engine()->tableNames());
 
         return ['tables' => $tables];

@@ -21,14 +21,14 @@ class Update extends FuncComponent
     /**
      * @param int $editId
      * @param array $rowIds
-     * @param array $fields
+     * @param array $columns
      *
      * @return void
      */
-    private function showQueryDataDialog(int $editId, array $rowIds, array $fields): void
+    private function showQueryDataDialog(int $editId, array $rowIds, array $columns): void
     {
         $title = 'Edit row in table ' . $this->getCurrentTable();
-        $content = $this->editUi->rowDataForm($fields);
+        $content = $this->editUi->rowDataForm($columns);
         $values = form($this->editUi->queryFormId());
         // Bootbox options
         $options = ['size' => 'large'];
@@ -77,7 +77,7 @@ class Update extends FuncComponent
             return;
         }
 
-        $this->showQueryDataDialog($editId, $rowIds, $updateData['fields']);
+        $this->showQueryDataDialog($editId, $rowIds, $updateData['columns']);
     }
 
     /**
@@ -139,7 +139,7 @@ class Update extends FuncComponent
     public function showQueryForm(int $editId, array $rowIds, array $formValues): void
     {
         $tableName = $this->getCurrentTable();
-        // We need the table fields to be able to go back to the update form.
+        // We need the table columns to be able to go back to the update form.
         $updateData = $this->db()->getUpdateData($tableName,  $rowIds);
         // Show the error
         if(isset($updateData['error']))
@@ -153,8 +153,8 @@ class Update extends FuncComponent
         // Show the query in a modal dialog.
         $this->modal()->hide();
 
-        $fields = $this->getEditedFormValues($updateData['fields'], $formValues);
-        $this->showQueryDataDialog($editId, $rowIds, $fields);
+        $columns = $this->getEditedFormValues($updateData['columns'], $formValues);
+        $this->showQueryDataDialog($editId, $rowIds, $columns);
     }
 
     /**
