@@ -5,13 +5,17 @@ namespace Lagdo\DbAdmin\Support\Driver;
 use Lagdo\DbAdmin\Driver\AbstractEngine;
 use Lagdo\DbAdmin\Driver\AbstractStatement;
 use Lagdo\DbAdmin\Driver\Sql\Config\DriverConfig;
-use Lagdo\DbAdmin\Driver\Sql\Connection\StatementInterface;
+use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface;
 use Lagdo\DbAdmin\Driver\Sql\Specific\Engine\AbstractDatabase;
 use Lagdo\DbAdmin\Driver\Sql\Specific\Engine\AbstractQuery;
 use Lagdo\DbAdmin\Driver\Sql\Specific\Engine\AbstractServer;
 use Lagdo\DbAdmin\Driver\Sql\Specific\Engine\AbstractTable;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
 use Closure;
+use Exception;
+
+use function strlen;
+use function substr;
 
 /**
  * Add callbacks to the engine features, using the decorator pattern.
@@ -116,9 +120,9 @@ class EngineDecorator extends AbstractEngine
     /**
      * @inheritDoc
      */
-    public function multiQuery(string $query): bool
+    public function executeQuery(string $query, bool $unbuffered = false): QueryResultInterface
     {
-        $result = $this->engine->multiQuery($query);
+        $result = $this->engine->executeQuery($query, $unbuffered);
         // Call the query callbacks.
         $this->callCallbacks($query);
         return $result;
@@ -127,22 +131,77 @@ class EngineDecorator extends AbstractEngine
     /**
      * @inheritDoc
      */
-    public function result(string $query, int $column = -1): mixed
-    {
-        $result = $this->engine->result($query, $column);
-        // Call the query callbacks.
-        $this->callCallbacks($query);
-        return $result;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function execute(string $query): StatementInterface|bool
+    public function execute(string $query): bool
     {
         $result = $this->engine->execute($query);
         // Call the query callbacks.
         $this->callCallbacks($query);
         return $result;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function columnValue(string $query, string|int $column = -1): mixed
+    {
+        $result = $this->engine->columnValue($query, $column);
+        // Call the query callbacks.
+        $this->callCallbacks($query);
+        return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function executeMultiQuery(string $query): QueryResultInterface
+    {
+        $result = $this->engine->executeMultiQuery($query);
+        // Call the query callbacks.
+        $this->callCallbacks($query);
+        return $result;
+    }
+
+    /**
+     * Query printed after execution in the message
+     *
+     * @param string $query Executed query
+     *
+     * @return string
+     */
+    // private function queryToLog(string $query/*, string $time*/): string
+    // {
+    //     if (strlen($query) > 1e6) {
+    //         // [\x80-\xFF] - valid UTF-8, \n - can end by one-line comment
+    //         $query = preg_replace('~[\x80-\xFF]+$~', '', substr($query, 0, 1e6)) . "\n…";
+    //     }
+    //     return $query;
+    // }
+
+    /**
+     * Execute query
+     *
+     * @param string $query
+     * @param bool $execute
+     * @param bool $failed
+     *
+     * @return bool
+     * @throws Exception
+     */
+    // public function executeQuery(string $query, bool $execute = true,
+    //     bool $failed = false/*, string $time = ''*/): bool
+    // {
+    //     if ($execute) {
+    //         // $start = microtime(true);
+    //         $failed = !$this->execute($query);
+    //         // $time = $this->trans->formatTime($start);
+    //     }
+    //     if ($failed) {
+    //         $sql = '';
+    //         if ($query) {
+    //             $sql = $this->queryToLog($query/*, $time*/);
+    //         }
+    //         throw new Exception($this->_engine()->error() . $sql);
+    //     }
+    //     return true;
+    // }
 }

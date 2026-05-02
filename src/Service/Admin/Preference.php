@@ -37,8 +37,8 @@ class Preference
     private function _getDefaultProfileId(int $userId): int
     {
         $query = "SELECT id FROM dbadmin_profiles WHERE title='' AND user_id=:user_id LIMIT 1";
-        $statement = $this->proxy->executeQuery($query, ['user_id' => $userId]);
-        return !$statement || !($row = $statement->fetchAssoc()) ? 0 : (int)$row['id'];
+        $result = $this->proxy->executeQuery($query, ['user_id' => $userId]);
+        return $result->hasRowset() && ($row = $result->fetchAssoc()) ? (int)$row['id'] : 0;
     }
 
     /**
@@ -54,8 +54,8 @@ class Preference
 
         // Try to create a default profile for the user.
         $query = "INSERT INTO dbadmin_profiles(title,user_id) VALUES ('',:user_id)";
-        $statement = $this->proxy->executeQuery($query, ['user_id' => $userId]);
-        if ($statement !== false) {
+        $result = $this->proxy->executeQuery($query, ['user_id' => $userId]);
+        if (!$result->hasError()) {
             return $this->_getDefaultProfileId($userId);
         }
 
@@ -73,11 +73,11 @@ class Preference
     {
         $query = "SELECT id FROM dbadmin_preferences
 WHERE category=:category AND profile_id=:profile_id LIMIT 1";
-        $statement = $this->proxy->executeQuery($query, [
+        $result = $this->proxy->executeQuery($query, [
             'category' => $category,
             'profile_id' => $profileId,
         ]);
-        return !$statement || !($row = $statement->fetchAssoc()) ? 0 : (int)$row['id'];
+        return $result->hasRowset() && ($row = $result->fetchAssoc()) ? (int)$row['id'] : 0;
     }
 
     /**
@@ -95,12 +95,12 @@ WHERE category=:category AND profile_id=:profile_id LIMIT 1";
         // Try to create a preference for the profile and category.
         $query = "INSERT INTO dbadmin_preferences(content,category,last_update,profile_id)
 VALUES ('{}', :category, :last_update, :profile_id)";
-        $statement = $this->proxy->executeQuery($query, [
+        $result = $this->proxy->executeQuery($query, [
             'category' => $category,
             'last_update' => $this->proxy->currentTime(),
             'profile_id' => $profileId,
         ]);
-        if ($statement !== false) {
+        if (!$result->hasError()) {
             return $this->_getPreferenceId($profileId, $category);
         }
 
@@ -126,17 +126,14 @@ VALUES ('{}', :category, :last_update, :profile_id)";
         }
 
         $query = "SELECT content FROM dbadmin_preferences WHERE id=:preference_id LIMIT 1";
-        $statement = $this->proxy->executeQuery($query, [
+        $result = $this->proxy->executeQuery($query, [
             'preference_id' => $preferenceId,
         ]);
-        if (!$statement || !($row = $statement->fetchAssoc())) {
-            return [];
-        }
 
-        return [
+        return $result->hasRowset() && ($row = $result->fetchAssoc()) ? [
             'id' => $preferenceId,
             'content' => json_decode((string)$row['content'], true),
-        ];
+        ] : [];
     }
 
     /**
@@ -149,12 +146,12 @@ VALUES ('{}', :category, :last_update, :profile_id)";
     {
         $sql = "UPDATE dbadmin_preferences
 SET content=:content,last_update=:last_update WHERE id=:preference_id";
-        $statement = $this->proxy->executeQuery($sql, [
+        $result = $this->proxy->executeQuery($sql, [
             'content' => json_encode($content),
             'last_update' => $this->proxy->currentTime(),
             'preference_id' => $preferenceId,
         ]);
-        if ($statement !== false) {
+        if (!$result->hasError()) {
             return true;
         }
 

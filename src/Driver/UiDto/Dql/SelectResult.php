@@ -238,7 +238,7 @@ class SelectResult extends AbstractDriverProxy
     {
         $column = $input->columns[$columnName] ?? new ColumnDto();
         $textLength = $input->textLength;
-        $value = $this->engine()->value($value, $column);
+        $value = $this->engine()->convertValue($value, $column);
         return $this->pageUi()->getColumnValue($column, $textLength, $value);
     }
 

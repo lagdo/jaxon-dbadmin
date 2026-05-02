@@ -51,8 +51,8 @@ class QueryFavorite
         ];
         $sql = "INSERT INTO dbadmin_stored_commands (title,query,driver,last_update,user_id)
 VALUES (:title,:query,:driver,:last_update,:user_id)";
-        $statement = $this->proxy->executeQuery($sql, $values);
-        if ($statement !== false) {
+        $result = $this->proxy->executeQuery($sql, $values);
+        if (!$result->hasError()) {
             return true;
         }
 
@@ -82,8 +82,8 @@ VALUES (:title,:query,:driver,:last_update,:user_id)";
         ];
         $sql = "UPDATE dbadmin_stored_commands SET title=:title,query=:query,
 driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id";
-        $statement = $this->proxy->executeQuery($sql, $values);
-        if ($statement !== false) {
+        $result = $this->proxy->executeQuery($sql, $values);
+        if (!$result->hasError()) {
             return true;
         }
 
@@ -107,8 +107,8 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
             'query_id' => $queryId,
         ];
         $sql = "DELETE FROM dbadmin_stored_commands WHERE id=:query_id AND user_id=:user_id";
-        $statement = $this->proxy->executeQuery($sql, $values);
-        if ($statement !== false) {
+        $result = $this->proxy->executeQuery($sql, $values);
+        if (!$result->hasError()) {
             return true;
         }
 
@@ -167,8 +167,8 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
 
         [$values, $whereClause] = $this->getWhereClause($filters);
         $sql = "SELECT count(*) AS cnt FROM dbadmin_stored_commands c $whereClause";
-        $statement = $this->proxy->executeQuery($sql, $values);
-        return !$statement || !($row = $statement->fetchAssoc()) ? 0 : $row['cnt'];
+        $result = $this->proxy->executeQuery($sql, $values);
+        return $result->hasRowset() && ($row = $result->fetchAssoc()) ? $row['cnt'] : 0;
     }
 
     /**
@@ -189,10 +189,10 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
         // a column not in the select clause in the same SQL query.
         $sql = "SELECT c.* FROM dbadmin_stored_commands c $whereClause
 ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->favoriteLimit} $offsetClause";
-        $statement = $this->proxy->executeQuery($sql, $values);
-        if ($statement !== false) {
+        $result = $this->proxy->executeQuery($sql, $values);
+        if ($result->hasRowset()) {
             $commands = [];
-            while (($row = $statement->fetchAssoc())) {
+            while (($row = $result->fetchAssoc())) {
                 $commands[$row['id']] = $row;
             }
             return $commands;
@@ -218,7 +218,7 @@ ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->favoriteLimit} $offsetClaus
             'user_id' => $this->proxy->getUserId(),
         ];
         $sql = "SELECT c.* FROM dbadmin_stored_commands c WHERE id=:query_id AND user_id=:user_id";
-        $statement = $this->proxy->executeQuery($sql, $values);
-        return !$statement ? null : $statement->fetchAssoc();
+        $result = $this->proxy->executeQuery($sql, $values);
+        return $result->hasRowset() ? $result->fetchAssoc() : null;
     }
 }

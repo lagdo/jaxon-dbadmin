@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
+use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
 use Lagdo\DbAdmin\Support\Service\TimerService;
@@ -113,14 +114,14 @@ class CommandProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param mixed $statement
+     * @param QueryResultInterface $result
      * @param int $limit
      *
      * @return string
     */
-    private function message($statement, int $limit): string
+    private function message(QueryResultInterface $result, int $limit): string
     {
-        $numRows = $statement->rowCount();
+        $numRows = $result->rowCount();
         $message = '';
         if ($numRows > 0) {
             if ($limit > 0 && $numRows > $limit) {
@@ -135,22 +136,23 @@ class CommandProxy extends AbstractDriverProxy
      * Print select result
      * From editing.inc.php
      *
-     * @param mixed $statement
+     * @param QueryResultInterface $result
      * @param int $limit
      *
      * @return array
     */
-    protected function select($statement, int $limit = 0): array
+    protected function queryResult(QueryResultInterface $result, int $limit = 0): array
     {
         // No resultset
-        if ($statement === true) {
+        if (!$result->hasRowset()) {
             $affected = $this->engine()->affectedRows();
-            $message = $this->utils()->trans
-                ->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
-            return [null, [$message]];
+            $message = 'Query executed OK, %d row(s) affected.';
+            // $message = $this->utils()->trans->lang($message, $affected); //  . "$time";
+            return [null, [$this->utils()->trans->lang($message, $affected)]];
         }
+
         // Fetch the first row.
-        if (!($row = $statement->fetchRow())) {
+        if (!($row = $result->fetchRow())) {
             // Empty resultset.
             $message = $this->utils()->lang('No rows.');
             return [null, [$message]];
@@ -161,7 +163,7 @@ class CommandProxy extends AbstractDriverProxy
         $tables = []; // table => orgtable - mapping to use in EXPLAIN
         $headers = [];
         // Important: the values in the row are actually not used.
-        $columns = array_map(fn($_) => $statement->fetchColumn(), $row);
+        $columns = array_map(fn($_) => $result->fetchColumn(), $row);
 
         // Use the first row to get the table headers.
         foreach($columns as $column) {
@@ -179,9 +181,9 @@ class CommandProxy extends AbstractDriverProxy
         do {
             $rowCount++;
             $details[] = $this->values($row, $blobs, $types);
-        } while (($limit === 0 || $rowCount < $limit) && ($row = $statement->fetchRow()));
+        } while (($limit === 0 || $rowCount < $limit) && ($row = $result->fetchRow()));
 
-        $message = $this->message($statement, $limit);
+        $message = $this->message($result, $limit);
         return [compact('tables', 'headers', 'details'), [$message]];
     }
 
@@ -198,10 +200,10 @@ class CommandProxy extends AbstractDriverProxy
         $this->timer->start();
         //! Don't allow changing of character_set_results, convert encoding of displayed query
         $space = $this->utils()->str->spaceRegex();
-        $succeeded = $this->engine()->multiQuery($input->query);
-        if ($succeeded && $this->connection !== null &&
+        $multiResult = $this->engine()->executeMultiQuery($input->query);
+        if (!$multiResult->hasError() && $this->connection !== null &&
             preg_match("~^$space*+USE\\b~i", $input->query)) {
-            $this->connection->query($input->query);
+            $this->connection->executeQuery($input->query);
         }
         $this->duration += $this->timer->duration();
 
@@ -209,21 +211,25 @@ class CommandProxy extends AbstractDriverProxy
             $select = null;
             $errors = [];
             $messages = [];
-            $statement = $this->engine()->storedResult();
+            $result = $this->engine()->readRowset($multiResult);
 
-            if (!$statement || $this->engine()->hasError()) {
+            if (!$result || $this->engine()->hasError()) {
                 $errors[] = $this->engine()->errorMessage();
             } elseif (!$input->onlyErrors) {
-                [$select, $messages] = $this->select($statement, $input->limit);
+                [$select, $messages] = $this->queryResult($result, $input->limit);
             }
 
-            $result = compact('errors', 'messages', 'select');
-            $result['query'] = $input->query;
-            $this->results[] = $result;
+            $this->results[] = [
+                'errors' => $errors,
+                'messages' => $messages,
+                'select' => $select,
+                'query' => $input->query,
+            ];
+
             if ($this->engine()->hasError() && $input->errorStops) {
                 return false;
             }
-        } while ($this->engine()->nextResult());
+        } while ($this->engine()->nextRowset($result));
 
         return true;
     }

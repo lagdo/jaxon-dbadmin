@@ -104,7 +104,7 @@ class SelectProxy extends AbstractDriverProxy
         try {
             $query = $this->statement()->getRowCountQuery($table, $input->wheres,
                 $hasGroupsInColumns, $input->groups);
-            return (int)$this->engine()->result($query);
+            return (int)$this->engine()->columnValue($query);
         } catch(Exception) {
             return -1;
         }
@@ -120,19 +120,19 @@ class SelectProxy extends AbstractDriverProxy
         $this->timer->start();
 
         // From driver.inc.php
-        $statement = $this->engine()->execute($input->query);
+        $result = $this->engine()->executeQuery($input->query);
         $input->duration = $this->timer->duration();
         $input->rows = [];
 
         // From adminer.inc.php
-        if (!$statement) {
+        if ($result->hasError()) {
             $input->error = $this->engine()->error();
             return;
         }
 
         // From select.inc.php
         $input->rows = [];
-        while (($row = $statement->fetchAssoc())) {
+        while (($row = $result->fetchAssoc())) {
             if ($input->page && $this->engine()->oracle()) {
                 unset($row["RNUM"]);
             }

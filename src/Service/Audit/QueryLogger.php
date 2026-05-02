@@ -78,10 +78,10 @@ class QueryLogger
     public function getCommandCount(array $filters): int
     {
         $whereClause = $this->getWhereClause($filters);
-        $statement = "SELECT count(*) AS c FROM dbadmin_runned_commands c
+        $query = "SELECT count(*) AS c FROM dbadmin_runned_commands c
 INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause";
-        $statement = $this->proxy->executeQuery($statement);
-        return !$statement || !($row = $statement->fetchAssoc()) ? 0 : $row['c'];
+        $result = $this->proxy->executeQuery($query);
+        return $result->hasRowset() && ($row = $result->fetchAssoc()) ? $row['c'] : 0;
     }
 
     /**
@@ -96,13 +96,13 @@ INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause";
         $offsetClause = $page > 1 ? 'OFFSET ' . ($page - 1) * $this->limit : '';
         // PostgreSQL doesn't allow the use of distinct and order by
         // a column not in the select clause in the same SQL query.
-        $statement = "SELECT c.*, u.username FROM dbadmin_runned_commands c
+        $query = "SELECT c.*, u.username FROM dbadmin_runned_commands c
 INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause
 ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";
-        $statement = $this->proxy->executeQuery($statement);
-        if ($statement !== false) {
+        $result = $this->proxy->executeQuery($query);
+        if ($result->hasRowset()) {
             $commands = [];
-            while (($row = $statement->fetchAssoc())) {
+            while (($row = $result->fetchAssoc())) {
                 $commands[] = $row;
             }
             return $commands;

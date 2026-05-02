@@ -68,7 +68,7 @@ class RowDataWriter extends AbstractDriverProxy
         $textLength = $options['select']['length'];
         return array_map(function($value, $columnName) use($columns, $textLength) {
             $column = $columns[$columnName];
-            $value = $this->engine()->value($value, $column);
+            $value = $this->engine()->convertValue($value, $column);
             return $this->pageUi()->getColumnValue($column, $textLength, $value);
         }, $values, array_keys($values));
     }

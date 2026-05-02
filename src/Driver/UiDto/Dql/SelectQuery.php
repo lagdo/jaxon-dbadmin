@@ -338,7 +338,7 @@ class SelectQuery extends AbstractDriverProxy
         }
         foreach ($input->clauses as $key => $val) {
             $column = $columns[$this->statement()->unescapeId($val)] ?? null;
-            if ($column && ($as = $this->statement()->convertValue($column))) {
+            if ($column && ($as = $this->statement()->convertColumn($column))) {
                 $clauses[$key] = "$as AS $val";
             }
         }
@@ -407,7 +407,7 @@ class SelectQuery extends AbstractDriverProxy
         //     $page = \floor(\max(0, $found_rows - 1) / $limit);
         // }
 
-        $this->options()->setSelectOptions($input);
+        $this->options()->setQueryOptions($input);
         $this->setDqInputDto($input);
 
         $query = $this->statement()->getTableSelectQuery($input->tableSelect);

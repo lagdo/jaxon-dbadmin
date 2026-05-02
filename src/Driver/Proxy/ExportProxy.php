@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DataDump;
 use Lagdo\DbAdmin\Support\Driver\UiDto\TableExport;
-use Lagdo\DbAdmin\Driver\Sql\Connection\StatementInterface;
+use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnType;
 use Lagdo\DbAdmin\Driver\Sql\Dto\RoutineDto;
@@ -94,7 +94,7 @@ class ExportProxy extends AbstractDriverProxy
             preg_match('~\[~', $column->fullType) && is_numeric($value)) {
             $value = $this->engine()->quote(($value === false ? 0 : $value));
         }
-        return $this->statement()->unconvertValue($column, $value);
+        return $this->statement()->unconvertColumn($column, $value);
     }
 
     /**
@@ -113,15 +113,15 @@ class ExportProxy extends AbstractDriverProxy
     /**
      * @param DataDump $dump
      * @param array $row
-     * @param StatementInterface $statement
+     * @param QueryResultInterface $result
      *
      * @return array
      */
-    private function getColumnNames(DataDump $dump, array $row, StatementInterface $statement): array
+    private function getColumnNames(DataDump $dump, array $row, QueryResultInterface $result): array
     {
         // For each entry in the row, fetch a column and get the name.
         // Important: the values in the row are actually not used.
-        $names = array_map(fn($_) => $statement->fetchColumn()->name(), $row);
+        $names = array_map(fn($_) => $result->fetchColumn()->name(), $row);
         $values = array_map(function(string $name) {
             $name = $this->statement()->escapeId($name);
             return "$name = VALUES($name)";
@@ -169,19 +169,19 @@ class ExportProxy extends AbstractDriverProxy
 
     /**
      * @param DataDump $dump
-     * @param StatementInterface $statement
+     * @param QueryResultInterface $result
      *
      * @return void
      */
-    private function dumpRows(DataDump $dump, StatementInterface $statement)
+    private function dumpRows(DataDump $dump, QueryResultInterface $result)
     {
         $columns = $this->options['format'] !== 'sql' ? [] : $this->engine()->columns($dump->table);
         $columnNames = null;
         $fetchStatement = $dump->table !== '' ?
-            fn($statement) => $statement->fetchAssoc() :
-            fn($statement) => $statement->fetchRow();
-        while ($row = $fetchStatement($statement)) {
-            $columnNames ??= $this->getColumnNames($dump, $row, $statement);
+            fn(QueryResultInterface $result) => $result->fetchAssoc() :
+            fn(QueryResultInterface $result) => $result->fetchRow();
+        while ($row = $fetchStatement($result)) {
+            $columnNames ??= $this->getColumnNames($dump, $row, $result);
             $this->dumpRow($dump, $columns, $row, $columnNames);
         }
         if (count($dump->dataRows) > 0) {
@@ -205,8 +205,8 @@ class ExportProxy extends AbstractDriverProxy
         $columns = $this->statement()->convertValues(array_keys($columns), $columns);
         $query = "SELECT *$columns FROM " . $this->statement()->escapeTableName($table);
         // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
-        $statement = $this->engine()->execute($query);
-        if (!$statement) {
+        $result = $this->engine()->executeQuery($query);
+        if ($result->hasError()) {
             if ($this->options['format'] === 'sql') {
                 $this->queries[] = '-- ' . str_replace("\n", ' ', $this->engine()->error()) . "\n";
             }
@@ -218,7 +218,7 @@ class ExportProxy extends AbstractDriverProxy
         $dump = new DataDump($table, $maxRowSize, $separator);
 
         $this->dumpTruncateQuery($table);
-        $this->dumpRows($dump, $statement);
+        $this->dumpRows($dump, $result);
     }
 
     /**
@@ -529,7 +529,7 @@ class ExportProxy extends AbstractDriverProxy
         $style = $this->options['db_style'];
         foreach ($this->engine()->rows('SHOW EVENTS') as $row) {
             $sql = 'SHOW CREATE EVENT ' . $this->statement()->escapeId($row['Name']);
-            $create = $this->statement()->removeDefiner($this->engine()->result($sql, 3));
+            $create = $this->statement()->removeDefiner($this->engine()->columnValue($sql, 3));
             $this->statement()->setUtf8mb4($create);
             $this->queries[] = ''; // Empty line
             if ($style !== 'DROP+CREATE') {
@@ -644,7 +644,7 @@ class ExportProxy extends AbstractDriverProxy
         }
 
         if ($this->options['to_sql']) {
-            $this->queries[] = '-- ' . $this->engine()->result('SELECT NOW()');
+            $this->queries[] = '-- ' . $this->engine()->columnValue('SELECT NOW()');
         }
 
         return [

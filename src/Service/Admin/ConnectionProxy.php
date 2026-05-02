@@ -46,8 +46,8 @@ class ConnectionProxy extends Audit\ConnectionProxy
     private function readUserId(string $username): int
     {
         $query = "SELECT id FROM dbadmin_users WHERE username=:username LIMIT 1";
-        $statement = $this->executeQuery($query, ['username' => $username]);
-        return !$statement || !($row = $statement->fetchAssoc()) ? 0 : (int)$row['id'];
+        $result = $this->executeQuery($query, ['username' => $username]);
+        return $result->hasRowset() && ($row = $result->fetchAssoc()) ? (int)$row['id'] : 0;
     }
 
     /**
@@ -59,8 +59,8 @@ class ConnectionProxy extends Audit\ConnectionProxy
     {
         // Try to save the user and return his id.
         $query = "INSERT INTO dbadmin_users(username) VALUES (:username)";
-        $statement = $this->executeQuery($query, ['username' => $username]);
-        if ($statement !== false) {
+        $result = $this->executeQuery($query, ['username' => $username]);
+        if (!$result->hasError()) {
             return $this->readUserId($username);
         }
 

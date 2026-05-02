@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Support\Service\Audit;
 
 use Lagdo\DbAdmin\Driver\EngineInterface;
 use Lagdo\DbAdmin\Driver\Sql\Connection\AbstractConnection;
-use Lagdo\DbAdmin\Driver\Sql\Connection\StatementInterface;
+use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface;
 use Lagdo\DbAdmin\Support\Config\DatabaseConfigProvider;
 use Lagdo\Facades\Logger;
 
@@ -67,19 +67,15 @@ class ConnectionProxy
      * @param string $query
      * @param array|null $values
      *
-     * @return bool|StatementInterface
+     * @return QueryResultInterface
      */
-    public function executeQuery(string $query, array|null $values = null): bool|StatementInterface
+    public function executeQuery(string $query, array|null $values = null): QueryResultInterface
     {
-        if ($this->connection === null) {
-            return false;
-        }
-
         if ($values === null) {
-            return $this->connection->query($query);
+            return $this->connection->executeQuery($query);
         }
 
         $st = $this->connection->prepareStatement($query);
-        return $this->connection->executeStatement($st, $values) ?? false;
+        return $this->connection->executeStatement($st, $values);
     }
 }

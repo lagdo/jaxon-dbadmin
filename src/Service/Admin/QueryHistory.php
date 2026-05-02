@@ -71,11 +71,11 @@ class QueryHistory
             'user_id' => $userId,
             'category' => $category,
         ];
-        $statement = $this->proxy->executeQuery($query, $values);
-        if ($statement !== false) {
+        $result = $this->proxy->executeQuery($query, $values);
+        if ($result->hasRowset()) {
             $id = 1;
             $commands = [];
-            while (($row = $statement->fetchAssoc())) {
+            while (($row = $result->fetchAssoc())) {
                 $commands[$id++] = $row;
             }
             return $commands;

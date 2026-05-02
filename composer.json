@@ -31,6 +31,10 @@
         "infisical/php-sdk": "^0.0.1"
     },
     "require-dev": {
+        "ext-mysqli": "*",
+        "ext-pdo": "*",
+        "ext-pgsql": "*",
+        "ext-sqlite3": "*",
         "aws/aws-sdk-php": "^3.379",
         "phpunit/phpunit": "^9.5",
         "behat/behat": "^3.10",

@@ -117,7 +117,7 @@ class QueryProxy extends AbstractDriverProxy
             fn(ColumnDto $column) => isset($column->privileges['select']));
         return array_map(function(ColumnDto $column, string $name) {
             $as = $this->action === 'clone' && $column->autoIncrement ? "''" :
-                $this->statement()->convertValue($column);
+                $this->statement()->convertColumn($column);
             return ($as !== '' ? "$as AS " : '') . $this->statement()->escapeId($name);
         }, $columns, array_keys($columns));
     }
@@ -151,25 +151,25 @@ class QueryProxy extends AbstractDriverProxy
             ]; // No data
         }
 
-        $statement = $this->engine()->select($table, $select, [$where],
+        $result = $this->engine()->select($table, $select, [$where],
             $select, [], $this->action === 'select' ? 2 : 1);
-        if (!$statement) {
+        if ($result->hasError()) {
             return [
                 'error' => $this->engine()->error(),
             ]; // Error
         }
 
-        $rowData = $statement->fetchAssoc();
-        if($this->action === 'select' && (!$rowData || $statement->fetchAssoc()))
+        $row = $result->fetchAssoc();
+        if($this->action === 'select' && (!$row || $result->fetchAssoc()))
         {
-            // $statement->rowCount() != 1 isn't available in all drivers
+            // $result->rowCount() != 1 isn't available in all drivers
             return [
                 'error' => $this->utils()->lang('Unable to find the edited data row.'),
             ]; // No data
         }
 
         return [
-            'columns' => $this->writer()->getInputValues($columns, $rowData),
+            'columns' => $this->writer()->getInputValues($columns, $row),
         ];
     }
 
@@ -290,16 +290,16 @@ class QueryProxy extends AbstractDriverProxy
 
         // Get the modified data
         // Todo: check if the values in the where clause are changed.
-        $statement = $this->engine()->select($table, array_keys($values), [$where]);
-        $result = !$statement ? null : $statement->fetchAssoc();
-        if (!$result) {
+        $result = $this->engine()->select($table, array_keys($values), [$where]);
+        if ($result->hasError()) {
             return [
                 'warning' => $this->utils()->lang('Unable to read the updated row.'),
             ];
         }
 
+        $row = $result->fetchAssoc();
         return [
-            'cols' => $this->writer()->getUpdatedRow($result, $columns, $options),
+            'cols' => $this->writer()->getUpdatedRow($row, $columns, $options),
             'message' => $this->utils()->lang('Item has been updated.'),
         ];
     }

@@ -88,8 +88,8 @@ class QueryLogger
         $query = "INSERT INTO dbadmin_runned_commands
 (query,driver,options,category,last_update,user_id)
 VALUES (:query,:driver,:options,:category,:last_update,:user_id)";
-        $statement = $this->proxy->executeQuery($query, $values);
-        if ($statement !== false) {
+        $result = $this->proxy->executeQuery($query, $values);
+        if (!$result->hasError()) {
             return true;
         }
 
