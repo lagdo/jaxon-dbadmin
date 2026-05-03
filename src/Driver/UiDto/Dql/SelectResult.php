@@ -10,7 +10,6 @@ use function current;
 use function is_string;
 use function key;
 use function md5;
-use function next;
 use function preg_match;
 use function strlen;
 use function strpos;
@@ -30,13 +29,13 @@ class SelectResult extends AbstractDriverProxy
      */
     private function getResultHeaderItem(DqInputDto $input, string $columnName, int $position): array
     {
-        $valueKey = key($input->clauses);
-        $value = $input->queryOptions["columns"][$valueKey] ?? [];
+        $valueKey = key($input->columns);
+        $value = $input->params["columns"][$valueKey] ?? [];
 
         $fun = $value["fun"] ?? '';
-        $columnKey = !$input->clauses ? $columnName :
-            ($value["col"] ?? current($input->clauses));
-        $column = $input->columns[$columnKey];
+        $columnKey = !$input->columns ? $columnName :
+            ($value["col"] ?? current($input->columns));
+        $column = $input->table->columns[$columnKey];
         $name = !$column ? ($fun ? "*" : $columnName) :
             $this->pageUi()->columnName($column, $position);
 
@@ -52,14 +51,13 @@ class SelectResult extends AbstractDriverProxy
      */
     private function getResultHeader(DqInputDto $input, string $columnName, int $position): array
     {
-        if (isset($input->unselected[$columnName])) {
+        if (isset($input->primaryColumns[$columnName])) {
             return [];
         }
 
         [$fun, $name, $column] = $this->getResultHeaderItem($input, $columnName, $position);
         $header = ['column' => $column, 'name' => $name];
-        if ($name != "") {
-            $input->names[$columnName] = $name;
+        if ($name !== '') {
             // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($columnName);
             // $desc = "&desc%5B0%5D=1";
             $header['column'] = $this->statement()->escapeId($columnName);
@@ -67,8 +65,6 @@ class SelectResult extends AbstractDriverProxy
             //! columns looking like functions
             $header['title'] = $this->pageUi()->applySqlFunction($fun, $name);
         }
-        // $functions[$columnName] = $fun;
-        next($input->clauses);
 
         return $header;
     }
@@ -85,9 +81,7 @@ class SelectResult extends AbstractDriverProxy
     {
         // Results headers
         $input->headers = [];
-        $input->names = [];
         // $input->functions = [];
-        reset($input->clauses);
 
         $position = 1;
         foreach ($queryColumns as $columnName) {
@@ -95,7 +89,7 @@ class SelectResult extends AbstractDriverProxy
             if ($header['name'] ?? '' !== '') {
                 $position++;
             }
-            $input->headers[] = $header;
+            $input->headers[$columnName] = $header;
         }
     }
 
@@ -129,7 +123,7 @@ class SelectResult extends AbstractDriverProxy
      */
     private function getUniqueIds(DqInputDto $input, array $row): array
     {
-        $uniqueIds = $this->utils()->uniqueIds($row, $input->indexes);
+        $uniqueIds = $this->utils()->uniqueIds($row, $input->table->indexes);
         if (empty($uniqueIds)) {
             $pattern = '~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)' .
                 '|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~';
@@ -179,9 +173,9 @@ class SelectResult extends AbstractDriverProxy
     {
         $type = '';
         $collation = '';
-        if (isset($input->columns[$columnName])) {
-            $type = $input->columns[$columnName]->type;
-            $collation = $input->columns[$columnName]->collation;
+        if (isset($input->table->columns[$columnName])) {
+            $type = $input->table->columns[$columnName]->type;
+            $collation = $input->table->columns[$columnName]->collation;
         }
         if ($this->shouldEncodeRowId($type, $value)) {
             if (!strpos($columnName, '(')) {
@@ -236,7 +230,7 @@ class SelectResult extends AbstractDriverProxy
      */
     private function getColumnValue(DqInputDto $input, string $columnName, $value): array
     {
-        $column = $input->columns[$columnName] ?? new ColumnDto();
+        $column = $input->table->columns[$columnName] ?? new ColumnDto();
         $textLength = $input->textLength;
         $value = $this->engine()->convertValue($value, $column);
         return $this->pageUi()->getColumnValue($column, $textLength, $value);
@@ -252,7 +246,7 @@ class SelectResult extends AbstractDriverProxy
     {
         $cols = [];
         foreach ($row as $columnName => $value) {
-            if (isset($input->names[$columnName])) {
+            if (isset($input->headers[$columnName]['name'])) {
                 $cols[] = $this->getColumnValue($input, $columnName, $value);
             }
         }

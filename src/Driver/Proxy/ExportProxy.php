@@ -202,7 +202,7 @@ class ExportProxy extends AbstractDriverProxy
         }
 
         $columns = $this->engine()->columns($table);
-        $columns = $this->statement()->convertValues(array_keys($columns), $columns);
+        $columns = $this->statement()->convertColumns(array_keys($columns), $columns);
         $query = "SELECT *$columns FROM " . $this->statement()->escapeTableName($table);
         // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
         $result = $this->engine()->executeQuery($query);

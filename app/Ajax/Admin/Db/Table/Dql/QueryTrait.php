@@ -52,7 +52,7 @@ trait QueryTrait
     {
         $table = $this->getCurrentTable();
         $options = $this->getOptions();
-        $select = $this->db()->getSelectData($table, $options);
+        $select = $this->db()->getSelectParams($table, $options);
         return $select->query;
     }
 }

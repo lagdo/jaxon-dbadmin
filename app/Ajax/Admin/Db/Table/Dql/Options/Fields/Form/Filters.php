@@ -22,10 +22,10 @@ class Filters extends Component
         if(count($values) > 0)
         {
             $options = $this->getSelectBag('options');
-            $selectData = $this->db()->getSelectData($this->getCurrentTable(), $options);
+            $select = $this->db()->getSelectParams($this->getCurrentTable(), $options);
             $options = [
-                'columns' => $selectData->options['filters']['columns'] ?? [],
-                'operators' => $selectData->options['filters']['operators'] ?? [],
+                'columns' => $select->options['filters']['columns'] ?? [],
+                'operators' => $select->options['filters']['operators'] ?? [],
             ];
         }
 

@@ -11,9 +11,9 @@ use Exception;
 use function array_filter;
 use function array_keys;
 use function array_map;
+use function array_values;
 use function count;
 use function implode;
-use function intval;
 use function in_array;
 use function preg_match;
 use function str_replace;
@@ -38,6 +38,27 @@ class SelectQuery extends AbstractDriverProxy
     }
 
     /**
+     * @param string $param
+     *
+     * @return array
+     */
+    private function inputArray(string $param): array
+    {
+        return $this->utils()->input->values[$param] ?? [];
+    }
+
+    /**
+     * @param string $param
+     * @param int $default
+     *
+     * @return int
+     */
+    private function inputInt(string $param, int $default): int
+    {
+        return (int)($this->utils()->input->values[$param] ?? $default);
+    }
+
+    /**
      * @param DqInputDto $input
      *
      * @return void
@@ -45,14 +66,15 @@ class SelectQuery extends AbstractDriverProxy
     private function setColumnsOptions(DqInputDto $input): void
     {
         $input->rights = []; // privilege => 0
-        $input->selects = []; // selectable columns
+        $input->columnNames = []; // selectable columns
         $input->textLength = 0;
-        foreach ($input->columns as $key => $column) {
+
+        foreach ($input->table->columns as $key => $column) {
             $name = $this->pageUi()->columnName($column);
             if (isset($column->privileges["select"]) && $name !== '') {
-                $input->selects[$key] = html_entity_decode(strip_tags($name), ENT_QUOTES);
+                $input->columnNames[$key] = html_entity_decode(strip_tags($name), ENT_QUOTES);
                 if ($this->utils()->isShortable($column)) {
-                    $this->setSelectTextLength($input);
+                    $input->textLength = $this->inputInt('length', 100);
                 }
             }
             $input->rights[] = $column->privileges;
@@ -68,10 +90,10 @@ class SelectQuery extends AbstractDriverProxy
      */
     private function setForeignKeys(DqInputDto $input): void
     {
-        $input->foreignKeys = [];
-        foreach ($this->engine()->foreignKeys($input->table) as $foreignKey) {
-            foreach ($foreignKey->source as $val) {
-                $input->foreignKeys[$val][] = $foreignKey;
+        foreach ($input->table->foreignKeys as $foreignKey) {
+            foreach ($foreignKey->source as $source) {
+                $input->foreignKeys[$source] ??= [];
+                $input->foreignKeys[$source][] = $foreignKey;
             }
         }
     }
@@ -107,19 +129,22 @@ class SelectQuery extends AbstractDriverProxy
      */
     private function setSelectColumns(DqInputDto $input): void
     {
-        $input->clauses = []; // select expressions, empty for *
-        $input->groups = []; // expressions without aggregation - will be used for GROUP BY if an aggregation function is used
-        $inputs = $this->utils()->input->values;
-        foreach ($inputs['columns'] as $key => $value) {
-            if ($this->colHasValidValue($value)) {
-                $columnName = '*';
-                if ($value['col'] !== '') {
-                    $columnName = $this->statement()->escapeId($value['col']);
-                }
-                $input->clauses[$key] = $this->pageUi()->applySqlFunction($value['fun'], $columnName);
-                if (!in_array($value['fun'], $this->engine()->grouping())) {
-                    $input->groups[] = $input->clauses[$key];
-                }
+        // Select expressions, empty for *.
+        $input->columns = [];
+        // Expressions without aggregation.
+        // Will be used for GROUP BY if an aggregation function is used
+        $input->groups = [];
+
+        $inputColumns = array_filter($this->inputArray('columns'), $this->colHasValidValue(...));
+        foreach ($inputColumns as $key => $value) {
+            $columnName = '*';
+            if ($value['col'] !== '') {
+                $columnName = $this->statement()->escapeId($value['col']);
+            }
+            $input->columns[$key] = $this->pageUi()->applySqlFunction($value['fun'], $columnName);
+
+            if (!in_array($value['fun'], $this->engine()->grouping())) {
+                $input->groups[] = $input->columns[$key];
             }
         }
     }
@@ -157,8 +182,7 @@ class SelectQuery extends AbstractDriverProxy
      */
     private function selectFieldIsValid(ColumnDto $column, array $value): bool
     {
-        $op = $value['op'];
-        $val = $value['val'];
+        ['op' => $op, 'val' => $val] = $value;
         $in = preg_match('~IN$~', $op) ? ',' : '';
 
         return (preg_match('~^[-\d.' . $in . ']+$~', $val) ||
@@ -208,16 +232,18 @@ class SelectQuery extends AbstractDriverProxy
      */
     private function getMatchExpression(IndexDto $index, int $position): string
     {
-        $fulltext = $this->utils()->input->values['fulltext'][$position] ?? '';
+        $inputFulltexts = $this->inputArray('fulltext');
+        $inputBooleans = $this->inputArray('boolean');
+
+        $fulltext = $inputFulltexts[$position] ?? '';
         $match = $this->engine()->quote($fulltext);
-        if (isset($this->utils()->input->values['boolean'][$position])) {
+        if (isset($inputBooleans[$position])) {
             $match .= ' IN BOOLEAN MODE';
         }
 
-        $selects = array_map($this->statement()->escapeId(...), $index->selects);
-        $selects = implode(', ', $selects);
-
-        return "MATCH ($selects) AGAINST ($match)";
+        $columns = array_map($this->statement()->escapeId(...), $index->columns);
+        $columns = implode(', ', $columns);
+        return "MATCH ($columns) AGAINST ($match)";
     }
 
     /**
@@ -227,18 +253,20 @@ class SelectQuery extends AbstractDriverProxy
      */
     private function setSelectWheres(DqInputDto $input): void
     {
-        $inputs = $this->utils()->input->values;
+        $inputFulltexts = $this->inputArray('fulltext');
+        $inputWheres = $this->inputArray('where');
+
         $input->wheres = [];
-        foreach ($input->indexes as $i => $index) {
-            $fulltext = $inputs['fulltext'][$i] ?? '';
+        foreach ($input->table->indexes as $i => $index) {
+            $fulltext = $inputFulltexts[$i] ?? '';
             if ($index->type === 'FULLTEXT' && $fulltext !== '') {
                 $input->wheres[] = $this->getMatchExpression($index, $i);
             }
         }
-        foreach ((array)$inputs['where'] as $value) {
+        foreach ($inputWheres as $value) {
             if (($value['col'] !== '' ||  $value['val'] !== '') &&
                 in_array($value['op'], $this->engine()->operators())) {
-                $input->wheres[] = $this->getSelectExpression($value, $input->columns);
+                $input->wheres[] = $this->getSelectExpression($value, $input->table->columns);
             }
         }
     }
@@ -250,40 +278,20 @@ class SelectQuery extends AbstractDriverProxy
      */
     private function setSelectOrders(DqInputDto $input): void
     {
-        $inputs = $this->utils()->input->values;
+        $regexp = '~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~';
+        $orders = array_filter($this->inputArray('order'), fn(string $value) => $value !== '');
+        $descs = $this->inputArray('desc');
+
         $input->orders = [];
-        foreach ($inputs['order'] as $key => $value) {
-            if ($value !== '') {
-                $regexp = '~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~';
-                if (preg_match($regexp, $value) !== false) {
-                    $value = $this->statement()->escapeId($value);
-                }
-                if (isset($inputs['desc'][$key]) && intval($inputs['desc'][$key]) !== 0) {
-                    $value .= ' DESC';
-                }
-                $input->orders[] = $value;
+        foreach ($orders as $key => $value) {
+            if (preg_match($regexp, $value) !== false) {
+                $value = $this->statement()->escapeId($value);
             }
+            if ((int)($descs[$key] ?? 0) !== 0) {
+                $value .= ' DESC';
+            }
+            $input->orders[] = $value;
         }
-    }
-
-    /**
-     * @param DqInputDto $input
-     *
-     * @return void
-     */
-    private function setSelectLimit(DqInputDto $input): void
-    {
-        $input->limit = intval($this->utils()->input->values['limit'] ?? 50);
-    }
-
-    /**
-     * @param DqInputDto $input
-     *
-     * @return void
-     */
-    private function setSelectTextLength(DqInputDto $input): void
-    {
-        $input->textLength = intval($this->utils()->input->values['length'] ?? 100);
     }
 
     /**
@@ -293,56 +301,53 @@ class SelectQuery extends AbstractDriverProxy
      */
     private function setPrimaryKey(DqInputDto $input): void
     {
-        $primary = null;
-        $input->unselected = [];
-        foreach ($input->indexes as $index) {
-            if ($index->type === "PRIMARY") {
-                $primary = array_flip($index->columns);
-                $input->unselected = ($input->clauses ? $primary : []);
-                foreach ($input->unselected as $key => $val) {
-                    if (in_array($this->statement()->escapeId($key), $input->clauses)) {
-                        unset($input->unselected[$key]);
-                    }
-                }
-                break;
-            }
+        $input->primaryColumns = [];
+        // Take the first index only.
+        $primaryIndexes = array_values(array_filter($input->table->indexes,
+            fn(IndexDto $index) => $index->type === 'PRIMARY'));
+        $primaryIndex = $primaryIndexes[0] ?? null;
+
+        if ($primaryIndex !== null && count($input->columns) > 0) {
+            $primaryColumns = array_filter($primaryIndex->columns, fn(string $columnName) =>
+                in_array($this->statement()->escapeId($columnName), $input->columns));
+            $input->primaryColumns = array_flip($primaryColumns);
         }
 
-        $oid = $input->tableStatus->oid;
-        if ($oid && !$primary) {
-            /*$primary = */$input->unselected = [$oid => 0];
+        $oid = $input->table->status->oid;
+        if ($oid !== '' && count($input->primaryColumns) === 0) {
+            $input->primaryColumns = [$oid => 0];
             // Make an index for the OID
             $index = new IndexDto();
             $index->type = "PRIMARY";
             $index->columns = [$oid];
-            $input->indexes[] = $index;
+            $input->table->indexes[] = $index;
         }
     }
 
     /**
      * @param DqInputDto $input
      *
-     * @return void
+     * @return SelectInputDto
      */
-    private function setDqInputDto(DqInputDto $input): void
+    private function makeSelectDto(DqInputDto $input): SelectInputDto
     {
-        $clauses = $input->clauses;
+        $clauses = $input->columns;
         $groups = $input->groups;
         if (empty($clauses)) {
             $clauses[] = "*";
-            $names = array_keys($input->selects);
-            $convert_columns = $this->statement()->convertValues($names, $input->columns, $input->clauses);
+            $names = array_keys($input->columnNames);
+            $convert_columns = $this->statement()->convertColumns($names, $input->table->columns, $input->columns);
             if ($convert_columns) {
                 $clauses[] = substr($convert_columns, 2);
             }
         }
-        foreach ($input->clauses as $key => $val) {
+        foreach ($input->columns as $key => $val) {
             $column = $columns[$this->statement()->unescapeId($val)] ?? null;
             if ($column && ($as = $this->statement()->convertColumn($column))) {
                 $clauses[$key] = "$as AS $val";
             }
         }
-        $isGroup = count($input->groups) < count($input->clauses);
+        $isGroup = count($input->groups) < count($input->columns);
         if (!$isGroup && !empty($unselected)) {
             foreach ($unselected as $key => $val) {
                 $clauses[] = $this->statement()->escapeId($key);
@@ -353,7 +358,7 @@ class SelectQuery extends AbstractDriverProxy
         }
 
         // From driver.inc.php
-        $input->tableSelect = new SelectInputDto($input->table,
+        return new SelectInputDto($input->table->name,
             $clauses, $input->wheres, $groups, $input->orders,
             $input->limit, $input->page);
     }
@@ -371,20 +376,18 @@ class SelectQuery extends AbstractDriverProxy
         $this->options()->setDefaultOptions($input);
 
         // From select.inc.php
-        $input->columns = $this->engine()->columns($input->table);
         $this->setColumnsOptions($input);
-        if (!$input->selects && $this->engine()->support("table")) {
+        if (!$input->columnNames && $this->engine()->support("table")) {
             throw new Exception($this->utils()->lang('Unable to select the table') .
-                ($input->columns ? "." : ": " . $this->engine()->error()));
+                ($input->table->columns ? "." : ": " . $this->engine()->error()));
         }
 
-        $input->indexes = $this->engine()->indexes($input->table);
         $this->setForeignKeys($input);
         $this->setSelectColumns($input);
 
         $this->setSelectWheres($input);
         $this->setSelectOrders($input);
-        $this->setSelectLimit($input);
+        $input->limit = $this->inputInt('limit', 50);
         $this->setPrimaryKey($input);
 
         // $set = null;
@@ -408,9 +411,9 @@ class SelectQuery extends AbstractDriverProxy
         // }
 
         $this->options()->setQueryOptions($input);
-        $this->setDqInputDto($input);
+        $selectDto = $this->makeSelectDto($input);
 
-        $query = $this->statement()->getTableSelectQuery($input->tableSelect);
+        $query = $this->statement()->getTableSelectQuery($selectDto);
         // From adminer.inc.php
         $input->query = str_replace("\n", " ", $query);
 

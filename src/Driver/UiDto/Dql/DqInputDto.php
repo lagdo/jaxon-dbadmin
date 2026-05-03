@@ -2,16 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dql;
 
-use Lagdo\DbAdmin\Driver\Sql\Dto\SelectInputDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
-
 class DqInputDto
 {
-    /**
-     * @var array
-     */
-    public array $selects; // selectable columns
-
     /**
      * @var array
      */
@@ -20,7 +12,17 @@ class DqInputDto
     /**
      * @var array
      */
-    public array $clauses;
+    public array $columnNames; // Selectable columns.
+
+    /**
+     * @var array
+     */
+    public array $primaryColumns;
+
+    /**
+     * @var array
+     */
+    public array $foreignKeys;
 
     /**
      * @var array
@@ -31,11 +33,6 @@ class DqInputDto
      * @var int
      */
     public int $textLength;
-
-    /**
-     * @var array
-     */
-    public array $indexes;
 
     /**
      * @var array
@@ -53,11 +50,6 @@ class DqInputDto
     public array $orders;
 
     /**
-     * @var array
-     */
-    public array $unselected;
-
-    /**
      * @var int
      */
     public int $limit;
@@ -66,11 +58,6 @@ class DqInputDto
      * @var int
      */
     public int $page;
-
-    /**
-     * @var array
-     */
-    public array $foreignKeys;
  
     /**
      * @var string
@@ -98,27 +85,14 @@ class DqInputDto
     public array $headers;
 
     /**
-     * @var array
-     */
-    public array $names;
-
-    /**
      * @var string|null
      */
     public string|null $error = null;
 
     /**
-     * @var SelectInputDto
+     * @param SelectTableDto $table
+     * @param array $params
      */
-    public SelectInputDto $tableSelect;
-
-    /**
-     * @param string $table
-     * @param string $tableName
-     * @param TableDto $tableStatus
-     * @param array $queryOptions
-     */
-    public function __construct(public string $table, public string $tableName,
-        public TableDto $tableStatus, public array $queryOptions)
+    public function __construct(public SelectTableDto $table, public array $params)
     {}
 }

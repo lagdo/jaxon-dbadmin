@@ -27,30 +27,29 @@ class SelectOptions extends AbstractDriverProxy
         ];
         foreach ($defaultOptions as $name => $value) {
             $this->utils()->input->values[$name] ??= $value;
-            $input->queryOptions[$name] ??= $value;
+            $input->params[$name] ??= $value;
         }
-        $page = intval($input->queryOptions['page']);
+        $page = intval($input->params['page']);
         if ($page > 0) {
             $page -= 1; // Page numbers start at 0 here, instead of 1.
         }
-        $input->queryOptions['page'] = $page;
+        $input->params['page'] = $page;
         $input->page = $page;
     }
 
     /**
      * Print columns box in select
      *
-     * @param array $select Result of processSelectColumns()[0]
-     * @param array $columns Selectable columns
-     * @param array $options
+     * @param DqInputDto $input
+     *
      * @return array
      */
-    private function getColumnsOptions(array $select, array $columns, array $options): array
+    private function getColumnsOptions(DqInputDto $input): array
     {
         return [
-            'select' => $select,
-            'values' => (array)$options['columns'],
-            'columns' => $columns,
+            'select' => $input->columns,
+            'values' => (array)$input->params['columns'],
+            'columns' => $input->columnNames,
             'functions' => $this->engine()->functions(),
             'grouping' => $this->engine()->grouping(),
         ];
@@ -59,24 +58,22 @@ class SelectOptions extends AbstractDriverProxy
     /**
      * Print search box in select
      *
-     * @param array $columns Selectable columns
-     * @param array $indexes
-     * @param array $options
+     * @param DqInputDto $input
      *
      * @return array
      */
-    private function getFiltersOptions(array $columns, array $indexes, array $options): array
+    private function getFiltersOptions(DqInputDto $input): array
     {
         $fulltexts = [];
-        foreach ($indexes as $i => $index) {
+        foreach ($input->table->indexes as $i => $index) {
             $fulltexts[$i] = $index->type === 'FULLTEXT' ?
-                $this->utils()->html($options['fulltext'][$i] ?? '') : '';
+                $this->utils()->html($input->params['fulltext'][$i] ?? '') : '';
         }
         return [
             // 'where' => $where,
-            'values' => (array)$options['where'],
-            'columns' => $columns,
-            'indexes' => $indexes,
+            'values' => (array)$input->params['where'],
+            'columns' => $input->columnNames,
+            'indexes' => $input->table->indexes,
             'operators' => $this->engine()->operators(),
             'fulltexts' => $fulltexts,
         ];
@@ -85,16 +82,15 @@ class SelectOptions extends AbstractDriverProxy
     /**
      * Print order box in select
      *
-     * @param array $columns Selectable columns
-     * @param array $options
+     * @param DqInputDto $input
      *
      * @return array
      */
-    private function getSortingOptions(array $columns, array $options): array
+    private function getSortingOptions(DqInputDto $input): array
     {
         $values = [];
-        $descs = (array)$options['desc'];
-        foreach ((array)$options['order'] as $key => $value) {
+        $descs = (array)$input->params['desc'];
+        foreach ((array)$input->params['order'] as $key => $value) {
             $values[] = [
                 'col' => $value,
                 'desc' => $descs[$key] ?? 0,
@@ -103,45 +99,49 @@ class SelectOptions extends AbstractDriverProxy
         return [
             // 'order' => $order,
             'values' => $values,
-            'columns' => $columns,
+            'columns' => $input->columnNames,
         ];
     }
 
     /**
      * Print limit box in select
      *
-     * @param string $limit Result of processSelectLimit()
+     * @param DqInputDto $input
      *
      * @return array
      */
-    private function getLimitOptions(string $limit): array
+    private function getLimitOptions(DqInputDto $input): array
     {
-        return ['value' => $this->utils()->html($limit)];
+        return [
+            'value' => $this->utils()->html($input->limit),
+        ];
     }
 
     /**
      * Print text length box in select
      *
-     * @param int $textLength Result of processSelectLength()
+     * @param DqInputDto $input
      *
      * @return array
      */
-    private function getLengthOptions(int $textLength): array
+    private function getLengthOptions(DqInputDto $input): array
     {
-        return ['value' => $textLength === 0 ? 0 : $this->utils()->html($textLength)];
+        return [
+            'value' => $input->textLength === 0 ? 0 : $this->utils()->html($input->textLength),
+        ];
     }
 
     /**
      * Print action box in select
      *
-     * @param array $indexes
+     * @param DqInputDto $input
      *
      * @return array
      */
-    // private function getActionOptions(array $indexes)
+    // private function getActionOptions(DqInputDto $input)
     // {
     //     $columns = [];
-    //     foreach ($indexes as $index) {
+    //     foreach ($input->table->indexes as $index) {
     //         $current_key = \reset($index->columns);
     //         if ($index->type != 'FULLTEXT' && $current_key) {
     //             $columns[$current_key] = 1;
@@ -190,15 +190,12 @@ class SelectOptions extends AbstractDriverProxy
     public function setQueryOptions(DqInputDto $input): void
     {
         $input->options = [
-            'columns' => $this->getColumnsOptions($input->clauses,
-                $input->selects, $input->queryOptions),
-            'filters' => $this->getFiltersOptions($input->selects,
-                $input->indexes, $input->queryOptions),
-            'sorting' => $this->getSortingOptions($input->selects,
-                $input->queryOptions),
-            'limit' => $this->getLimitOptions($input->limit),
-            'length' => $this->getLengthOptions($input->textLength),
-            // 'action' => $this->getActionOptions($input->indexes),
+            'columns' => $this->getColumnsOptions($input),
+            'filters' => $this->getFiltersOptions($input),
+            'sorting' => $this->getSortingOptions($input),
+            'limit' => $this->getLimitOptions($input),
+            'length' => $this->getLengthOptions($input),
+            // 'action' => $this->getActionOptions($input),
         ];
     }
 }

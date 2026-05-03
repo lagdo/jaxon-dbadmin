@@ -22,11 +22,11 @@ class Columns extends Component
         if(count($values) > 0)
         {
             $options = $this->getSelectBag('options');
-            $selectData = $this->db()->getSelectData($this->getCurrentTable(), $options);
+            $select = $this->db()->getSelectParams($this->getCurrentTable(), $options);
             $options = [
-                'functions' => $selectData->options['columns']['functions'] ?? [],
-                'grouping' => $selectData->options['columns']['grouping'] ?? [],
-                'columns' => $selectData->options['columns']['columns'] ?? [],
+                'functions' => $select->options['columns']['functions'] ?? [],
+                'grouping' => $select->options['columns']['grouping'] ?? [],
+                'columns' => $select->options['columns']['columns'] ?? [],
             ];
         }
 

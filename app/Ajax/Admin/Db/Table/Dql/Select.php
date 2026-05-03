@@ -44,13 +44,13 @@ class Select extends MainComponent
             ->item($this->trans->lang('Select'));
 
         // Save select queries options
-        $selectData = $this->db()->getSelectData($table, $options);
+        $select = $this->db()->getSelectParams($table, $options);
         $this->setSelectBag('options', [
-            'limit' => (int)($selectData->options['limit']['value'] ?? 0),
+            'limit' => (int)($select->options['limit']['value'] ?? 0),
             'total' => (bool)($options['total'] ?? true), // Keep the same value.
-            'length' => (int)($selectData->options['length']['value'] ?: 100),
+            'length' => (int)($select->options['length']['value'] ?: 100),
         ]);
-        $this->stash()->set('select.query', $selectData->query);
+        $this->stash()->set('select.query', $select->query);
 
         // Set main menu buttons
         $actions = [

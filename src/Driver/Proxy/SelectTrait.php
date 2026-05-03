@@ -26,50 +26,50 @@ trait SelectTrait
      * Get required data for create/update on tables
      *
      * @param string $table The table name
-     * @param array $queryOptions The query options
+     * @param array $queryParams The user params
      *
      * @return DqInputDto
      * @throws Exception
      */
-    public function getSelectData(string $table, array $queryOptions = []): DqInputDto
+    public function getSelectParams(string $table, array $queryParams = []): DqInputDto
     {
         $this->connectToSchema();
         $this->utils()->input->table = $table;
-        $this->utils()->input->values = $queryOptions;
-        return $this->selectProxy()->getSelectData($table, $queryOptions);
+        $this->utils()->input->values = $queryParams;
+        return $this->selectProxy()->getSelectParams($table, $queryParams);
     }
 
     /**
      * Get required data for create/update on tables
      *
      * @param string $table The table name
-     * @param array $queryOptions The query options
+     * @param array $queryParams The user params
      *
      * @return int
      * @throws Exception
      */
-    public function countSelect(string $table, array $queryOptions = []): int
+    public function countSelect(string $table, array $queryParams = []): int
     {
         $this->connectToSchema();
         $this->utils()->input->table = $table;
-        $this->utils()->input->values = $queryOptions;
-        return $this->selectProxy()->countSelect($table, $queryOptions);
+        $this->utils()->input->values = $queryParams;
+        return $this->selectProxy()->countSelect($table, $queryParams);
     }
 
     /**
      * Get required data for create/update on tables
      *
      * @param string $table The table name
-     * @param array $queryOptions The query options
+     * @param array $queryParams The user params
      *
      * @return array
      * @throws Exception
      */
-    public function execSelect(string $table, array $queryOptions = []): array
+    public function execSelect(string $table, array $queryParams = []): array
     {
         $this->connectToSchema();
         $this->utils()->input->table = $table;
-        $this->utils()->input->values = $queryOptions;
-        return $this->selectProxy()->execSelect($table, $queryOptions);
+        $this->utils()->input->values = $queryParams;
+        return $this->selectProxy()->execSelect($table, $queryParams);
     }
 }

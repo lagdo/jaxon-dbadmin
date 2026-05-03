@@ -6,6 +6,7 @@ use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\DqInputDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectQuery;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectResult;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectTableDto;
 use Lagdo\DbAdmin\Support\Service\TimerService;
 use Exception;
 
@@ -61,16 +62,20 @@ class SelectProxy extends AbstractDriverProxy
 
     /**
      * @param string $table The table name
-     * @param array $queryOptions The query options
+     * @param array $queryParams The user params
      *
      * @return DqInputDto
      * @throws Exception
      */
-    private function prepareSelect(string $table, array $queryOptions = []): DqInputDto
+    private function prepareSelect(string $table, array $queryParams = []): DqInputDto
     {
-        $tableStatus = $this->engine()->tableStatusOrName($table);
-        $tableName = $this->pageUi()->tableName($tableStatus);
-        $input = new DqInputDto($table, $tableName, $tableStatus, $queryOptions);
+        $table = new SelectTableDto($table);
+        $table->status = $this->engine()->tableStatusOrName($table->name);
+        $table->columns = $this->engine()->columns($table->name);
+        $table->indexes = $this->engine()->indexes($table->name);
+        $table->foreignKeys = $this->engine()->foreignKeys($table->name);
+
+        $input = new DqInputDto($table, $queryParams);
         return $this->query()->prepareSelect($input);
     }
 
@@ -78,28 +83,28 @@ class SelectProxy extends AbstractDriverProxy
      * Get required data for create/update on tables
      *
      * @param string $table The table name
-     * @param array $queryOptions The query options
+     * @param array $queryParams The user params
      *
      * @return DqInputDto
      * @throws Exception
      */
-    public function getSelectData(string $table, array $queryOptions = []): DqInputDto
+    public function getSelectParams(string $table, array $queryParams = []): DqInputDto
     {
-        return $this->prepareSelect($table, $queryOptions);
+        return $this->prepareSelect($table, $queryParams);
     }
 
     /**
      * Get required data for create/update on tables
      *
      * @param string $table The table name
-     * @param array $queryOptions The query options
+     * @param array $queryParams The user params
      *
      * @return int
      */
-    public function countSelect(string $table, array $queryOptions): int
+    public function countSelect(string $table, array $queryParams): int
     {
-        $input = $this->prepareSelect($table, $queryOptions);
-        $hasGroupsInColumns = count($input->groups) < count($input->clauses);
+        $input = $this->prepareSelect($table, $queryParams);
+        $hasGroupsInColumns = count($input->groups) < count($input->columns);
 
         try {
             $query = $this->statement()->getRowCountQuery($table, $input->wheres,
@@ -144,14 +149,14 @@ class SelectProxy extends AbstractDriverProxy
      * Get required data for create/update on tables
      *
      * @param string $table The table name
-     * @param array $queryOptions The query options
+     * @param array $queryParams The user params
      *
      * @return array
      * @throws Exception
      */
-    public function execSelect(string $table, array $queryOptions): array
+    public function execSelect(string $table, array $queryParams): array
     {
-        $input = $this->prepareSelect($table, $queryOptions);
+        $input = $this->prepareSelect($table, $queryParams);
         $this->executeQuery($input);
 
         if ($input->error !== null) {
