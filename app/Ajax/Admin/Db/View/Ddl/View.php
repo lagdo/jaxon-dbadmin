@@ -107,14 +107,14 @@ class View extends FuncComponent
         $this->cl(Content::class)->set('html', $content)->render();
 
         // Show columns
-        $columnsInfo = $this->db()->getViewFields($view);
-        $this->showTab($columnsInfo, $this->tabId('tab-content-columns'));
+        $columns = $this->db()->getViewColumns($view);
+        $this->showTab($columns, $this->tabId('tab-content-columns'));
 
         // Show triggers
-        $triggersInfo = $this->db()->getViewTriggers($view);
-        if(is_array($triggersInfo))
+        $triggers = $this->db()->getViewTriggers($view);
+        if(is_array($triggers))
         {
-            $this->showTab($triggersInfo, $this->tabId('tab-content-triggers'));
+            $this->showTab($triggers, $this->tabId('tab-content-triggers'));
         }
     }
 }

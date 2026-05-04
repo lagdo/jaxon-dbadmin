@@ -4,9 +4,9 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Component;
-use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
 
+use function array_filter;
 use function array_map;
 
 /**
@@ -22,7 +22,7 @@ class Wrapper extends Component
     private $inputs;
 
     /**
-     * @param array $inputs
+     * @param array<DdInputDto> $inputs
      *
      * @return void
      */
@@ -97,8 +97,7 @@ class Wrapper extends Component
     public function load(array $metadata): void
     {
         $this->set('metadata', $metadata);
-        $callback = fn(ColumnDto $column) => new DdInputDto($column);
-        $this->setColumns(array_map($callback, $metadata['columns']));
+        $this->setColumns($metadata['columns']);
 
         $this->render();
     }

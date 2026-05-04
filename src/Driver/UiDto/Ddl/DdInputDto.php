@@ -63,8 +63,17 @@ class DdInputDto
 
     /**
      * @param ColumnDto $column
+     * @param array $types
+     * @param bool $lengthRequired
+     * @param bool $collationEditable
+     * @param bool $unsignedEditable
+     * @param bool $onUpdateEditable
+     * @param bool $onDeleteEditable
      */
-    public function __construct(public readonly ColumnDto $column)
+    public function __construct(public readonly ColumnDto $column,
+        public array $types, public bool $lengthRequired = true,
+        public bool $collationEditable = true, public bool $unsignedEditable = true,
+        public bool $onUpdateEditable = true, public bool $onDeleteEditable = true)
     {
         // Copy the table column values into the local $currValues array.
         $this->currValues = array_combine(self::$attributes,
@@ -89,8 +98,9 @@ class DdInputDto
     /**
      * @return void
      */
-    public function undo(): void
+    public function reset(): void
     {
+        $this->values = (object)$this->currValues;
         $this->action = ColumnAction::NONE;
     }
 
@@ -280,22 +290,19 @@ class DdInputDto
     }
 
     /**
-     * Create an entity from user input.
+     * Update with values from the user input.
      *
-     * @param ColumnDto $column
      * @param array $values
      *
      * @return static
      */
-    public static function newColumn(ColumnDto $column, array $values): self
+    public function updateValues(array $values): self
     {
-        $input = new static($column);
+        $this->action = ColumnAction::convert($values['action']);
+        $this->position = $values['position'];
+        $this->setValues($values['column']);
 
-        $input->action = ColumnAction::convert($values['action']);
-        $input->position = $values['position'];
-        $input->setValues($values['column']);
-
-        return $input;
+        return $this;
     }
 
     /**

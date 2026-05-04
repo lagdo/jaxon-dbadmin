@@ -2,10 +2,14 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TriggerDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 use Exception;
 
-use function compact;
+use function array_keys;
+use function array_map;
 
 /**
  * Proxy to view functions
@@ -28,10 +32,7 @@ class ViewProxy extends AbstractDriverProxy
      */
     protected function status(string $table)
     {
-        if (!$this->viewStatus) {
-            $this->viewStatus = $this->engine()->tableStatusOrName($table, true);
-        }
-        return $this->viewStatus;
+        return $this->viewStatus ??= $this->engine()->tableStatusOrName($table, true);
     }
 
     /**
@@ -49,19 +50,18 @@ class ViewProxy extends AbstractDriverProxy
         $title = ($status->engine == 'materialized view' ? $this->utils()->lang('Materialized view') :
             $this->utils()->lang('View')) . ': ' . ($name != '' ? $name : $this->utils()->html($view));
 
-        $comment = $status->comment;
-
         $tabs = [
             'columns' => $this->utils()->lang('Columns'),
-            // 'indexes' => $this->utils()->lang('Indexes'),
-            // 'foreign-keys' => $this->utils()->lang('Foreign keys'),
-            // 'triggers' => $this->utils()->lang('Triggers'),
         ];
         if ($this->engine()->support('view_trigger')) {
             $tabs['triggers'] = $this->utils()->lang('Triggers');
         }
 
-        return compact('title', 'comment', 'tabs');
+        return [
+            'title' => $title,
+            'comment' => $status->comment,
+            'tabs' => $tabs,
+        ];
     }
 
     /**
@@ -80,14 +80,6 @@ class ViewProxy extends AbstractDriverProxy
             throw new Exception($this->engine()->error());
         }
 
-        $tabs = [
-            'columns' => $this->utils()->lang('Columns'),
-            // 'triggers' => $this->utils()->lang('Triggers'),
-        ];
-        if ($this->engine()->support('view_trigger')) {
-            $tabs['triggers'] = $this->utils()->lang('Triggers');
-        }
-
         $headers = [
             $this->utils()->lang('Name'),
             $this->utils()->lang('Type'),
@@ -98,8 +90,7 @@ class ViewProxy extends AbstractDriverProxy
             $headers[] = $this->utils()->lang('Comment');
         }
 
-        $details = [];
-        foreach ($columns as $column) {
+        $details = array_map(function(ColumnDto $column) use($commentSupported) {
             $type = $this->utils()->html($column->fullType);
             if ($column->nullable) {
                 $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
@@ -121,10 +112,13 @@ class ViewProxy extends AbstractDriverProxy
                     $this->utils()->html($column->comment);
             }
 
-            $details[] = $detail;
-        }
+            return new DetailDto($detail);
+        }, $columns);
 
-        return compact('headers', 'details');
+        return [
+            'headers' => $headers,
+            'details' => $details,
+        ];
     }
 
     /**
@@ -140,26 +134,24 @@ class ViewProxy extends AbstractDriverProxy
             return null;
         }
 
-        $headers = [
-            $this->utils()->lang('Name'),
-            '&nbsp;',
-            '&nbsp;',
-            '&nbsp;',
-        ];
-
-        $details = [];
         // From table.inc.php
         $triggers = $this->engine()->triggers($view);
-        foreach ($triggers as $name => $trigger) {
-            $details[] = [
-                $this->utils()->html($trigger->timing),
-                $this->utils()->html($trigger->event),
-                $this->utils()->html($name),
-                $this->utils()->lang('Alter'),
-            ];
-        }
+        $details = array_map(fn(TriggerDto $trigger, string $name) => new DetailDto([
+            $this->utils()->html($trigger->timing),
+            $this->utils()->html($trigger->event),
+            $this->utils()->html($name),
+            $this->utils()->lang('Alter'),
+        ]), $triggers, array_keys($triggers));
 
-        return compact('headers', 'details');
+        return [
+            'headers' => [
+                $this->utils()->lang('Name'),
+                '&nbsp;',
+                '&nbsp;',
+                '&nbsp;',
+            ],
+            'details' => $details,
+        ];
     }
 
     /**
@@ -194,11 +186,11 @@ class ViewProxy extends AbstractDriverProxy
      */
     public function createView(array $values): array
     {
-        $success = $this->engine()->createView($values);
-        $message = $this->utils()->lang('View has been created.');
-        $error = $this->engine()->error();
-
-        return compact('success', 'message', 'error');
+        return [
+            'success' => $this->engine()->createView($values),
+            'message' => $this->utils()->lang('View has been created.'),
+            'error' => $this->engine()->error(),
+        ];
     }
 
     /**
@@ -213,11 +205,13 @@ class ViewProxy extends AbstractDriverProxy
     public function updateView(string $view, array $values): array
     {
         $result = $this->engine()->updateView($view, $values);
-        $message = $this->utils()->lang("View has been $result.");
         $error = $this->engine()->error();
-        $success = !$error;
 
-        return compact('success', 'message', 'error');
+        return [
+            'success' => !$error,
+            'message' => $this->utils()->lang("View has been $result."),
+            'error' => $error,
+        ];
     }
 
     /**
@@ -230,20 +224,16 @@ class ViewProxy extends AbstractDriverProxy
      */
     public function dropView(string $view): array
     {
-        if ($this->engine()->tableStatus($view) === null) {
-            return [
+        return match(true) {
+            !$this->engine()->tableStatus($view) => [
                 'error' => $this->utils()->lang('Invalid view %s.', $view),
-            ];
-        }
-
-        if (!$this->engine()->dropView($view)) {
-            return [
+            ],
+            !$this->engine()->dropView($view) => [
                 'error' => $this->engine()->error(),
-            ];
-        }
-
-        return [
-            'message' => $this->utils()->lang('View has been dropped.'),
-        ];
+            ],
+            default => [
+                'message' => $this->utils()->lang('View has been dropped.'),
+            ],
+        };
     }
 }

@@ -21,7 +21,7 @@ class TableAlter extends AbstractDriverProxy
     public function makeDto(TableAlterDto $table, array $inputs): TableAlterDto
     {
         // From create.inc.php
-        $this->getForeignKeys($table->name);
+        $foreignKeys = $this->getForeignKeys($table->name);
 
         // Auto increment
         $aiCount = count(array_filter($inputs, fn(DdInputDto $input) =>
@@ -40,10 +40,10 @@ class TableAlter extends AbstractDriverProxy
 
         $table->clearColumns();
         $table->inputs['added'] = array_map(
-            fn(DdInputDto $input) => $this->makeColumnInput($table, $input),
+            fn(DdInputDto $input) => $this->makeColumnInput($table, $input, $foreignKeys),
             array_filter($inputs, fn(DdInputDto $input) => $input->added()));
         $table->inputs['edited'] = array_map(
-            fn(DdInputDto $input) => $this->makeColumnInput($table, $input),
+            fn(DdInputDto $input) => $this->makeColumnInput($table, $input, $foreignKeys),
             array_filter($inputs, fn(DdInputDto $input) => $input->changed()));
         $table->droppedColumns = array_map(
             fn(DdInputDto $input) => $input->column->name,

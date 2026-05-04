@@ -10,8 +10,10 @@ use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TriggerDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 
+use function array_keys;
 use function array_key_exists;
 use function array_map;
+use function count;
 use function implode;
 use function in_array;
 use function ksort;
@@ -27,11 +29,10 @@ class TableContent extends AbstractDriverProxy
      */
     public function columns(array $columns, string $tableCollation): array
     {
-        $commentSupported = $this->engine()->support('comment');
         $userTypes = $this->engine()->structuredTypes()[$this->utils()->lang('User types')] ?? [];
 
-        $contents = [];
-        foreach ($columns as $column) {
+        return array_map(function(ColumnDto $column) use($tableCollation, $userTypes) {
+            $commentSupported = $this->engine()->support('comment');
             $content = [
                 'name' => $this->utils()->html($column->name),
                 'type' => $this->pageUi()->getColumnType($column, $tableCollation),
@@ -48,10 +49,8 @@ class TableContent extends AbstractDriverProxy
                     $this->utils()->html($column->comment);
             }
 
-            $contents[] = new DetailDto($content);
-        }
-
-        return $contents;
+            return new DetailDto($content);
+        }, $columns);
     }
 
     /**
@@ -61,9 +60,8 @@ class TableContent extends AbstractDriverProxy
      */
     public function indexes(array $indexes): array
     {
-        $contents = [];
         // From adminer.inc.php
-        foreach ($indexes as $name => $index) {
+        return array_map(function(IndexDto $index, string $name) {
             ksort($index->columns); // enforce correct columns order
             $print = [];
             foreach ($index->columns as $key => $val) {
@@ -73,14 +71,13 @@ class TableContent extends AbstractDriverProxy
                 }
                 $print[] = $value;
             }
-            $contents[] = new DetailDto([
+
+            return new DetailDto([
                 'name' => $this->utils()->html($name),
                 'type' => $index->type,
                 'desc' => implode(', ', $print),
             ]);
-        }
-
-        return $contents;
+        }, $indexes, array_keys($indexes));
     }
 
     /**
@@ -90,10 +87,9 @@ class TableContent extends AbstractDriverProxy
      */
     public function foreignKeys(array $foreignKeys): array
     {
-        $contents = [];
         // From table.inc.php
         $keyCallback = $this->utils()->html(...);
-        foreach ($foreignKeys as $name => $foreignKey) {
+        return array_map(function(ForeignKeyDto $foreignKey, string $name) use($keyCallback) {
             $target = '';
             if ($foreignKey->database != '') {
                 $target .= '<b>' . $this->utils()->html($foreignKey->database) . '</b>.';
@@ -105,16 +101,15 @@ class TableContent extends AbstractDriverProxy
             $target = $this->utils()->html($foreignKey->table) .
                 '(' . implode(', ', $targets) . ')';
             $sources = array_map($keyCallback, $foreignKey->source);
-            $contents[] = new DetailDto([
+
+            return new DetailDto([
                 'name' => $this->utils()->html($name),
                 'source' => '<i>' . implode('</i>, <i>', $sources) . '</i>',
                 'target' => $target,
                 'onDelete' => $this->utils()->html($foreignKey->onDelete),
                 'onUpdate' => $this->utils()->html($foreignKey->onUpdate),
             ]);
-        }
-
-        return $contents;
+        }, $foreignKeys, array_keys($foreignKeys));
     }
 
     /**
@@ -124,17 +119,52 @@ class TableContent extends AbstractDriverProxy
      */
     public function triggers(array $triggers): array
     {
-        $contents = [];
-        foreach ($triggers as $name => $trigger) {
-            $contents[] = new DetailDto([
-                $this->utils()->html($trigger->timing),
-                $this->utils()->html($trigger->event),
-                $this->utils()->html($name),
-                $this->utils()->lang('Alter'),
-            ]);
+        return array_map(fn(TriggerDto $trigger, string $name) => new DetailDto([
+            $this->utils()->html($trigger->timing),
+            $this->utils()->html($trigger->event),
+            $this->utils()->html($name),
+            $this->utils()->lang('Alter'),
+        ]), $triggers, array_keys($triggers));
+    }
+
+    /**
+     * Get column types
+     *
+     * @param string $type  The type name
+     * @param array $extraTypes
+     * @param array<string,string> $foreignKeys
+     *
+     * @return array
+     */
+    private function getColumnTypes(string $type = '',
+        array $extraTypes = [], array $foreignKeys = []): array
+    {
+        // From includes/editing.inc.php
+        if ($type !== '' && !$this->engine()->typeExists($type) &&
+            !isset($foreignKeys[$type]) && !in_array($type, $extraTypes)) {
+            $extraTypes[] = $type;
         }
 
-        return $contents;
+        $structuredTypes = $this->engine()->structuredTypes();
+        if (!empty($foreignKeys)) {
+            $structuredTypes[$this->utils()->lang('Foreign keys')] = $foreignKeys;
+        }
+
+        // Change from Adminer:
+        // The $extraTypes are all kept in the first entry in the table.
+        return count($extraTypes) > 0 ? [$extraTypes, ...$structuredTypes] : $structuredTypes;
+    }
+
+    /**
+     * @param ColumnDto $column
+     * @param array<string,string> $foreignKeys
+     *
+     * @return DdInputDto
+     */
+    private function getColumnInput(ColumnDto $column, array $foreignKeys): DdInputDto
+    {
+        $types = $this->getColumnTypes($column->type, foreignKeys: $foreignKeys);
+        return new DdInputDto($column, types: $types);
     }
 
     /**
@@ -146,34 +176,29 @@ class TableContent extends AbstractDriverProxy
      */
     public function metadata(TableDto|null $status, array $columns, array $foreignKeys): array
     {
+        $collations = $this->engine()->collations();
+        $unsigned = $this->engine()->unsigned();
+
         $hasAutoIncrement = false;
-        $columns = array_map(function($column) use(&$hasAutoIncrement) {
+        foreach ($columns as $column) {
             $hasAutoIncrement = $hasAutoIncrement || $column->autoIncrement;
             if (preg_match('~^CURRENT_TIMESTAMP~i', $column->onUpdate)) {
                 $column->onUpdate = 'CURRENT_TIMESTAMP';
             }
-
-            // Todo: check that these flags are set properly.
-            // $type = $column->type;
-            $column->lengthRequired = true; // !$column->length && preg_match('~var(char|binary)$~', $type);
-            $column->collationHidden = false; // !preg_match('~(char|text|enum|set)$~', $type);
-            $column->unsignedHidden = false; // $type && !preg_match($this->engine()->numberRegex(), $type);
-            $column->onUpdateHidden = false; // !preg_match('~timestamp|datetime~', $type);
-            $column->onDeleteHidden = false; // !preg_match('~`~', $type);
-
-            return $column;
-        }, $columns);
+        }
 
         return [
             'table' => $status,
             'foreignKeys' => $foreignKeys,
-            'columns' => $columns,
+            'columns' => array_map(fn(ColumnDto $column) =>
+                $this->getColumnInput($column, $foreignKeys), $columns),
             'options' => [
                 'hasAutoIncrement' => $hasAutoIncrement,
                 'onUpdate' => ['CURRENT_TIMESTAMP' => 'CURRENT_TIMESTAMP'],
                 'onDelete' => $this->engine()->onActions(),
             ],
-            'collations' => $this->engine()->collations(),
+            'collations' => $collations,
+            'unsigned' => $unsigned,
             'engines' => $this->engine()->engines(),
             'defaults' => $this->engine()->columnDefaults(),
             'support' => [
@@ -183,7 +208,45 @@ class TableContent extends AbstractDriverProxy
                 'move_col' => $this->engine()->support('move_col'),
                 'drop_col' => $this->engine()->support('drop_col'),
             ],
-            'unsigned' => $this->engine()->unsigned(),
         ];
+    }
+
+    /**
+     * @param DdInputDto $input
+     * @param array<string,string> $foreignKeys
+     *
+     * @return DdInputDto
+     */
+    public function setInputFieldProperties(DdInputDto $input, array $foreignKeys): DdInputDto
+    {
+        // Todo: enable this
+        // $collations = $this->engine()->collations();
+        // $unsigned = $this->engine()->unsigned();
+
+        // $input->lengthRequired = $input->column->length === '' &&
+        //     preg_match('~var(char|binary)$~', $input->column->type) > 0;
+        // $input->collationEditable = count($collations) > 0 &&
+        //     preg_match('~(char|text|enum|set)$~', $input->column->type) > 0;
+        // $input->unsignedEditable = count($unsigned) > 0 && ($input->column->type &&
+        //     preg_match($this->engine()->numberRegex(), $input->column->type) > 0);
+        // $input->onUpdateEditable = $input->column->onUpdate !== '' &&
+        //     preg_match('~timestamp|datetime~', $input->column->type) > 0;
+        // $input->onDeleteEditable = count($foreignKeys) > 0 &&
+        //     preg_match('~`~', $input->column->type) > 0;
+
+        return $input;
+    }
+
+    /**
+     * Get a new table column
+     *
+     * @param array<string,string> $foreignKeys
+     * 
+     * @return DdInputDto
+     */
+    public function newColumnInput(array $foreignKeys): DdInputDto
+    {
+        $input = $this->getColumnInput(new ColumnDto(), $foreignKeys);
+        return $this->setInputFieldProperties($input, $foreignKeys);
     }
 }

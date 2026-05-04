@@ -22,11 +22,6 @@ trait ForeignKeyTrait
     private array|null $referencableColumns = null;
 
     /**
-     * @var array<string,string>
-     */
-    protected array $foreignKeys = [];
-
-    /**
      * @param string $table
      *
      * @return array<ColumnDto>
@@ -67,31 +62,35 @@ trait ForeignKeyTrait
      *
      * @param string $table     The table name
      *
-     * @return void
+     * @return array
      */
-    protected function getForeignKeys(string $table = ''): void
+    protected function getForeignKeys(string $table = ''): array
     {
-        $this->foreignKeys = [];
+        $foreignKeys = [];
         foreach ($this->referencableColumns($table) as $tableName => $column) {
             $name = str_replace("`", "``", $tableName) . "`" .
                 str_replace("`", "``", $column->name);
             // not escapeId() - used in JS
-            $this->foreignKeys[$name] = $tableName;
+            $foreignKeys[$name] = $tableName;
         }
+
+        return $foreignKeys;
     }
 
     /**
      * @param AbstractTableDto $table
      * @param DdInputDto $input
+     * @param array $foreignKeys
      *
      * @return ColumnInputDto
      */
-    private function makeColumnInput(AbstractTableDto $table, DdInputDto $input): ColumnInputDto
+    private function makeColumnInput(AbstractTableDto $table,
+        DdInputDto $input, array $foreignKeys): ColumnInputDto
     {
         $this->referencableColumns ??= $this->getReferencableColumns($this->tableName);
 
         $column = $input->makeColumn();
-        $foreignKey = $this->foreignKeys[$column->type] ?? null;
+        $foreignKey = $foreignKeys[$column->type] ?? null;
         //! can collide with user defined type
         $typeColumn = $foreignKey !== null ? $this->referencableColumns[$foreignKey] : $column;
 

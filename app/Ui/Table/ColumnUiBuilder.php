@@ -30,18 +30,26 @@ class ColumnUiBuilder
 
     /**
      * @param DdInputDto $input
-     * @param string $primaryField
+     * @param string $primaryColumn
      *
      * @return string
      */
-    public function column(DdInputDto $input, string $primaryField): string
+    public function column(DdInputDto $input, string $primaryColumn): string
     {
-        $isPrimary = $input->values()->name === $primaryField;
+        $isPrimary = $input->values()->name === $primaryColumn;
         $this->listMode = false;
         $support = $this->support();
+        $editableProps = ['unsigned', 'collation', 'onUpdate', 'onDelete'];
 
         return $this->ui->build(
             $this->ui->form(
+                // Hidden inputs for non editable properties.
+                $this->ui->each($editableProps, function(string $prop) use($input) {
+                    $attr = "{$prop}Editable";
+                    return $this->ui->when(!$input->$attr, fn() =>
+                        $this->ui->input(['name' => $prop])->setType('hidden')
+                    );
+                }),
                 $this->ui->row(
                     $this->ui->col(
                         $this->ui->text($this->trans->lang('Name'))
@@ -82,15 +90,18 @@ class ColumnUiBuilder
                     )->width(6),
                     $this->ui->col(
                         $this->getColumnLengthField($input, 'length')
+                            ->when($input->lengthRequired, fn($input) => $input->setRequired('required'))
                     )->width(3)
                 ),
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->text($this->trans->lang('Unsigned'))
-                    )->width(3),
-                    $this->ui->col(
-                        $this->getColumnUnsignedField($input, 'unsigned')
-                    )->width(8)
+                $this->ui->when($input->unsignedEditable, fn() =>
+                    $this->ui->row(
+                        $this->ui->col(
+                            $this->ui->text($this->trans->lang('Unsigned'))
+                        )->width(3),
+                        $this->ui->col(
+                            $this->getColumnUnsignedField($input, 'unsigned')
+                        )->width(8)
+                    )
                 ),
                 $this->ui->row(
                     $this->ui->col(
@@ -100,29 +111,35 @@ class ColumnUiBuilder
                         $this->getColumnDefaultField($input, 'generated', 'default')
                     )->width(9)
                 ),
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->text($this->trans->lang('Collation'))
-                    )->width(3),
-                    $this->ui->col(
-                        $this->getColumnCollationField($input, 'collation')
-                    )->width(9)
+                $this->ui->when($input->collationEditable, fn() =>
+                    $this->ui->row(
+                        $this->ui->col(
+                            $this->ui->text($this->trans->lang('Collation'))
+                        )->width(3),
+                        $this->ui->col(
+                            $this->getColumnCollationField($input, 'collation')
+                        )->width(9)
+                    )
                 ),
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->text($this->trans->lang('On Update'))
-                    )->width(3),
-                    $this->ui->col(
-                        $this->getColumnOnUpdateField($input, 'onUpdate')
-                    )->width(8)
+                $this->ui->when($input->onUpdateEditable, fn() =>
+                    $this->ui->row(
+                        $this->ui->col(
+                            $this->ui->text($this->trans->lang('On Update'))
+                        )->width(3),
+                        $this->ui->col(
+                            $this->getColumnOnUpdateField($input, 'onUpdate')
+                        )->width(8)
+                    )
                 ),
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->text($this->trans->lang('On Delete'))
-                    )->width(3),
-                    $this->ui->col(
-                        $this->getColumnOnDeleteField($input, 'onDelete')
-                    )->width(8)
+                $this->ui->when($input->onDeleteEditable, fn() =>
+                    $this->ui->row(
+                        $this->ui->col(
+                            $this->ui->text($this->trans->lang('On Delete'))
+                        )->width(3),
+                        $this->ui->col(
+                            $this->getColumnOnDeleteField($input, 'onDelete')
+                        )->width(8)
+                    )
                 ),
                 $this->ui->when($support['comment'], fn() =>
                     $this->ui->row(
@@ -175,7 +192,7 @@ class ColumnUiBuilder
                     )
                 ]
             ))
-        ) ?: '&nbsp;';
+        );
     }
 
     /**
@@ -202,8 +219,8 @@ class ColumnUiBuilder
                                 ->setId($this->getQueryDivId())
                                 ->setStyle('height: 300px;')
                         )->setStyle('padding: 0 1px;')
-                    )->look('default')
-                        ->setStyle('padding: 5px;')
+                    )->setStyle('padding: 5px;')
+                        ->look('default')
                 )->width(12)
             )
         );

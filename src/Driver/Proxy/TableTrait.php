@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
 use Exception;
 
@@ -122,26 +121,23 @@ trait TableTrait
     /**
      * Get a new column
      *
-     * @return ColumnDto
+     * @return DdInputDto
      */
-    public function newTableColumn(): ColumnDto
+    public function newColumnInput(): DdInputDto
     {
         $this->connectToSchema();
-        return $this->tableProxy()->newTableColumn();
+        return $this->tableProxy()->newColumnInput();
     }
 
     /**
-     * Get column types
+     * @param DdInputDto $input
      *
-     * @param string $type  The type name
-     *
-     * @return array
+     * @return DdInputDto
      */
-    public function getColumnTypes(string $type = ''): array
+    public function setInputFieldProperties(DdInputDto $input): DdInputDto
     {
-        // Must be called after the connection to a schema is made.
-        // $this->connectToSchema();
-        return $this->tableProxy()->getColumnTypes($type);
+        $this->connectToSchema();
+        return $this->tableProxy()->setInputFieldProperties($input);
     }
 
     /**
@@ -192,7 +188,7 @@ trait TableTrait
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<InputDto> $inputs
+     * @param array<DdInputDto> $inputs
      *
      * @return array|null
      * @throws Exception

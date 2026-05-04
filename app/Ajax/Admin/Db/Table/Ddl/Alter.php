@@ -6,7 +6,6 @@ use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Export;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\MainComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 
 /**
  * Alter a table
@@ -63,23 +62,20 @@ class Alter extends MainComponent
     /**
      * @inheritDoc
      */
+    protected function header(): string
+    {
+        return $this->tableUi
+            ->metadata($this->metadata())
+            ->header();
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function content(): string
     {
-        $metadata = $this->metadata();
-        /** @var TableDto */
-        $table = $metadata['table'];
-        $editedTable = [
-            'name' => $table->name,
-            'engine' => $table->engine,
-            'collation' => $table->collation,
-            'comment' => $table->comment,
-            'hasAutoIncrement' => $table->hasAutoIncrement,
-            'autoIncrement' => $table->autoIncrement,
-        ];
-
         return $this->tableUi
-            ->table($editedTable)
-            ->metadata($metadata)
+            ->metadata($this->metadata())
             ->wrapper();
     }
 

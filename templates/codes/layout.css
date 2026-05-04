@@ -44,7 +44,7 @@
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-right: 15px;
+  padding-right: 10px;
 }
 #jaxon-dbadmin .jaxon-dbadmin-columns-wrapper > * {
     /* Prevents children from pushing the parent */

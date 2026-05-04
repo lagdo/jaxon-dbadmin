@@ -9,16 +9,10 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableAlter;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableContent;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableCreate;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableHeader;
-use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
 use Lagdo\Facades\Logger;
 use Exception;
-
-use function array_map;
-use function compact;
-use function count;
-use function in_array;
 
 /**
  * Proxy to table functions
@@ -84,32 +78,6 @@ class TableProxy extends AbstractDriverProxy
     private function alter(): TableAlter
     {
         return $this->tableAlter ??= new TableAlter($this);
-    }
-
-    /**
-     * Get column types
-     *
-     * @param string $type  The type name
-     * @param array $extraTypes
-     *
-     * @return array
-     */
-    public function getColumnTypes(string $type = '', array $extraTypes = []): array
-    {
-        // From includes/editing.inc.php
-        if ($type !== '' && !$this->engine()->typeExists($type) &&
-            !isset($this->foreignKeys[$type]) && !in_array($type, $extraTypes)) {
-            $extraTypes[] = $type;
-        }
-
-        $structuredTypes = $this->engine()->structuredTypes();
-        if (!empty($this->foreignKeys)) {
-            $structuredTypes[$this->utils()->lang('Foreign keys')] = $this->foreignKeys;
-        }
-
-        // Change from Adminer:
-        // The $extraTypes are all kept in the first entry in the table.
-        return count($extraTypes) > 0 ? [$extraTypes, ...$structuredTypes] : $structuredTypes;
     }
 
     /**
@@ -256,27 +224,31 @@ class TableProxy extends AbstractDriverProxy
             $columns = $this->engine()->columns($table);
         }
 
-        $this->getForeignKeys($table);
+        $foreignKeys = $this->getForeignKeys($table);
 
-        $columns = array_map(function($column) {
-            $column->types = $this->getColumnTypes($column->type);
-            return $column;
-        }, $columns);
-
-        return $this->content()->metadata($status, $columns, $this->foreignKeys);
+        return $this->content()->metadata($status, $columns, $foreignKeys);
     }
 
     /**
      * Get a new table column
      *
-     * @return ColumnDto
+     * @return DdInputDto
      */
-    public function newTableColumn(): ColumnDto
+    public function newColumnInput(): DdInputDto
     {
-        $this->getForeignKeys();
-        $column = new ColumnDto();
-        $column->types = $this->getColumnTypes();
-        return $column;
+        $foreignKeys = $this->getForeignKeys();
+        return $this->content()->newColumnInput($foreignKeys);
+    }
+
+    /**
+     * @param DdInputDto $input
+     *
+     * @return DdInputDto
+     */
+    public function setInputFieldProperties(DdInputDto $input): DdInputDto
+    {
+        $foreignKeys = $this->getForeignKeys();
+        return $this->content()->setInputFieldProperties($input, $foreignKeys);
     }
 
     /**
@@ -292,7 +264,7 @@ class TableProxy extends AbstractDriverProxy
         $table = new TableCreateDto($options);
         $table = $this->create()->makeDto($table, $inputs);
         if ($table->error !== null) {
-            return[
+            return [
                 'error' => $table->error,
             ];
         }
@@ -330,19 +302,13 @@ class TableProxy extends AbstractDriverProxy
     {
         $table = new TableAlterDto($options);
         if (($table->current = $this->engine()->tableStatus($name, true)) === null) {
-            return[
+            return [
                 'error' => $this->utils()->lang('Unable to find the table.'),
             ];
         }
 
         $table = $this->alter()->makeDto($table, $inputs);
-        if ($table->error !== null) {
-            return[
-                'error' => $table->error,
-            ];
-        }
-
-        return [
+        return $table->error !== null ? ['error' => $table->error] : [
             'queries' => $this->statement()->getAlterTableQueries($table),
         ];
     }
@@ -373,20 +339,16 @@ class TableProxy extends AbstractDriverProxy
      */
     public function dropTable(string $table): array
     {
-        if ($this->engine()->tableStatus($table) === null) {
-            return [
+        return match(true) {
+            $this->engine()->tableStatus($table) === null => [
                 'error' => $this->utils()->lang('Invalid table %s.', $table),
-            ];
-        }
-
-        if (!$this->engine()->dropTables([$table])) {
-            return [
-                'error' => $this->engine()->error(),
-            ];
-        }
-
-        return [
-            'message' => $this->utils()->lang('Table has been dropped.'),
-        ];
+            ],
+            !$this->engine()->dropTables([$table]) => [
+                'error' => $this->utils()->lang('Invalid table %s.', $table),
+            ],
+            default => [
+                'message' => $this->utils()->lang('Table has been dropped.'),
+            ],
+        };
     }
 }

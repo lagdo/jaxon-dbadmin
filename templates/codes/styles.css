@@ -1,12 +1,6 @@
 #bootbox-container .modal-header {
     display: block !important;
 }
-#jaxon-dbadmin .panel-heading {
-    padding: 10px 15px;
-    border-bottom: 1px solid transparent;
-    border-top-right-radius: 3px;
-    border-top-left-radius: 3px;
-}
 #jaxon-dbadmin .btn-select {
     margin-top: 0;
     margin-bottom: 0;
@@ -60,22 +54,26 @@
     padding-left: 1px;
     padding-right: 1px;
 }
-#jaxon-dbadmin .dbadmin-edit-table-header,
-#jaxon-dbadmin .dbadmin-table-column-header {
-    padding-top: 15px;
-    padding-bottom: 0;
+#jaxon-dbadmin .dbadmin-edit-table-header {
     margin-bottom: 10px;
+}
+#jaxon-dbadmin .dbadmin-table-column-header {
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+#jaxon-dbadmin .dbadmin-table-edit-row {
+    margin-top: 2px;
+    margin-bottom: 2px;
 }
 #jaxon-dbadmin .dbadmin-table-column-left {
     padding-right: 1px;
-    margin-top: 2px;
 }
-#jaxon-dbadmin .dbadmin-table-column-default,
-#jaxon-dbadmin .dbadmin-table-column-middle,
+#jaxon-dbadmin .dbadmin-table-column-middle {
+    padding-top: 5px;
+    padding-left: 1px;
+}
 #jaxon-dbadmin .dbadmin-table-column-right {
     padding-left: 1px;
-    padding-right: 1px;
-    margin-top: 2px;
 }
 #jaxon-dbadmin .dbadmin-table-column-null,
 #jaxon-dbadmin .dbadmin-table-column-null-header {
@@ -94,10 +92,15 @@
     padding: 0 !important;
     margin-bottom: 0 !important;
 }
-#jaxon-dbadmin .nested-col {
-    margin-top: 2px !important;
+#jaxon-dbadmin .dbadmin-table-edit-column {
+    padding: 5px;
+    margin: 2px 0;
+    border-radius: 5px;
+}
+#jaxon-dbadmin .dbadmin-table-columns-form-column {
     margin-bottom: 0 !important;
 }
+
 #jaxon-dbadmin pre {
     overflow-x: auto;
     white-space: pre-wrap;

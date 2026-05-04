@@ -13,13 +13,14 @@ class CreateFunc extends FuncComponent
      */
     public function add(string $columnId = ''): void
     {
+        $input = $this->db()->setInputFieldProperties($this->newColumnInput());
         $primaryColumn = $this->getTableBag('primary', '');
 
         $tableName = $this->getCurrentTable();
         $title = $tableName === '' ? 'New column' : "New column in table $tableName";
         $content = $this->columnUi
             ->metadata($this->metadata())
-            ->column($this->newColumnInput(), $primaryColumn);
+            ->column($input, $primaryColumn);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',

@@ -134,7 +134,7 @@ class EditUiBuilder
     protected function getColumnValue(DmInputDto $input): mixed
     {
         $input = $input->valueInput;
-        return match($input['column']) {
+        return match($input['field']) {
             'enum' => $this->getEnumValueInput($input),
             'bool' => $this->getBoolValueInput($input),
             'set' => $this->getSetValueInput($input),

@@ -213,7 +213,7 @@ trait TableFieldTrait
         return $this->getCollationSelect($input->values()->collation)
             ->setName($columnName)
             ->setDataField('collation')
-            ->when($input->column->collationHidden, fn($input) => $input->setReadonly('readonly'));
+            ->when($input->collationEditable, fn($input) => $input->setReadonly('readonly'));
     }
 
     /**
@@ -234,7 +234,7 @@ trait TableFieldTrait
             )
         )->setName($columnName)
             ->setDataField('onUpdate')
-            ->when($input->column->onUpdateHidden, fn($input) => $input->setReadonly('readonly'));
+            ->when($input->onUpdateEditable, fn($input) => $input->setReadonly('readonly'));
     }
 
     /**
@@ -273,7 +273,7 @@ trait TableFieldTrait
     protected function getColumnTypeField(DdInputDto $input, string $columnName): mixed
     {
         return $this->ui->select(
-            $this->ui->each($input->column->types, fn($groupTypes, $groupName) =>
+            $this->ui->each($input->types, fn($groupTypes, $groupName) =>
                 $this->ui->pick([
                     !is_numeric($groupName),
                     fn() => $this->ui->optgroup(
@@ -313,8 +313,7 @@ trait TableFieldTrait
             ->setPlaceholder($this->trans->lang('Length'))
             ->setDataField('length')
             ->setSize('3')
-            ->setValue($input->values()->length ?: '')
-            ->when($input->column->lengthRequired, fn($input) => $input->setRequired('required'));
+            ->setValue($input->values()->length ?: '');
     }
 
     /**
@@ -351,7 +350,7 @@ trait TableFieldTrait
             )
         )->setName($columnName)
             ->setDataField('unsigned')
-            ->when($input->column->unsignedHidden, fn($input) => $input->setReadonly('readonly'));
+            ->when($input->unsignedEditable, fn($input) => $input->setReadonly('readonly'));
     }
 
     /**
@@ -373,7 +372,7 @@ trait TableFieldTrait
             )
         )->setName($columnName)
             ->setDataField('onDelete')
-            ->when($input->column->onDeleteHidden, fn($input) => $input->setReadonly('readonly'));
+            ->when($input->onDeleteEditable, fn($input) => $input->setReadonly('readonly'));
     }
 
     /**

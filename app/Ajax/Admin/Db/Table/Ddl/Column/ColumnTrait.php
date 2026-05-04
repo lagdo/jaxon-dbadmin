@@ -41,7 +41,7 @@ trait ColumnTrait
      */
     protected function newColumnInput(): DdInputDto
     {
-        return new DdInputDto($this->db()->newTableColumn());
+        return $this->db()->newColumnInput();
     }
 
     /**
@@ -58,11 +58,11 @@ trait ColumnTrait
 
         $column = DdInputDto::columnIsAdded($values) ?
             // Added column => empty column
-            $this->db()->newTableColumn() :
+            $this->db()->newColumnInput() :
             // Existing column => check the metadata
             ($this->metadata()['columns'][$values['name']] ?? null);
         // Combine the data from the database with the data from the databag.
-        return $column === null ? null : DdInputDto::newColumn($column, $values);
+        return $column?->updateValues($values) ?? null;
     }
 
     /**

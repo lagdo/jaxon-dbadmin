@@ -46,11 +46,11 @@ trait ViewTrait
      * @return array
      * @throws Exception
      */
-    public function getViewFields(string $view): array
+    public function getViewColumns(string $view): array
     {
         $this->connectToSchema();
         $this->utils()->input->table = $view;
-        return $this->viewProxy()->getViewFields($view);
+        return $this->viewProxy()->getViewColumns($view);
     }
 
     /**

@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
-
 class UpdateFunc extends FuncComponent
 {
     /**
@@ -22,6 +20,7 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
+        $input = $this->db()->setInputFieldProperties($input);
         $primaryColumn = $this->getTableBag('primary', '');
 
         $title = $input->added() ?
@@ -89,13 +88,10 @@ class UpdateFunc extends FuncComponent
 
         $columns = $this->metadata()['columns'];
         $input = $inputs[$columnId];
-        $columnName = $input->column->name;
 
         // Reset the column input with values from the database.
-        if (isset($columns[$columnName])) {
-            $input = new DdInputDto($columns[$columnName]);
-            $input->undo();
-            $inputs[$columnId] = $input;
+        if (isset($columns[$input->column->name])) {
+            $input->reset();
         }
 
         $this->cl(Wrapper::class)->show($this->metadata(), $inputs);

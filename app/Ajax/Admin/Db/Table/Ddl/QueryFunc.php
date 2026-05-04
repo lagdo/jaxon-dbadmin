@@ -20,7 +20,7 @@ class QueryFunc extends Column\FuncComponent
     public function changes(array $values): void
     {
         $title = 'Changes in table ' . $this->getCurrentTable();
-        $content = $this->columnUi->changes($this->getColumnInputs());
+        $content = $this->columnUi->changes($this->getColumnInputs()) ?: '&nbsp;';
         $buttons = [[
             'title' => 'Close',
             'class' => 'btn btn-tertiary',

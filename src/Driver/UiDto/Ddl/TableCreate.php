@@ -21,7 +21,7 @@ class TableCreate extends AbstractDriverProxy
     public function makeDto(TableCreateDto $table, array $inputs): TableCreateDto
     {
         // From create.inc.php
-        $this->getForeignKeys();
+        $foreignKeys = $this->getForeignKeys();
 
         // Auto increment
         $aiColumns = array_filter($inputs, fn($input) => $input->column->autoIncrement);
@@ -37,7 +37,7 @@ class TableCreate extends AbstractDriverProxy
 
         $table->clearColumns();
         $table->inputs['added'] = array_map(fn(DdInputDto $input) =>
-            $this->makeColumnInput($table, $input), $inputs);
+            $this->makeColumnInput($table, $input, $foreignKeys), $inputs);
 
         return $table;
     }
