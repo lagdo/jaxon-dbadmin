@@ -219,7 +219,9 @@ class TableContent extends AbstractDriverProxy
      */
     public function setInputFieldProperties(DdInputDto $input, array $foreignKeys): DdInputDto
     {
-        // Todo: enable this
+        // Todo: enable this.
+        // See the edit_type() function in the editing.inc.php file.
+
         // $collations = $this->engine()->collations();
         // $unsigned = $this->engine()->unsigned();
 

@@ -143,6 +143,17 @@ class AppFunc extends FuncComponent
     }
 
     /**
+     * @param string $server
+     *
+     * @return string
+     */
+    private function getTabTitle(string $server): string
+    {
+        $serverNames = $this->config()->getServerNames();;
+        return $serverNames[$server] ?? $this->trans()->lang('(No title)');
+    }
+
+    /**
      * @param string $name
      *
      * @return void
@@ -155,7 +166,7 @@ class AppFunc extends FuncComponent
         }
 
         $server = $tab['server'];
-        $title = $tab['title'] ?: $this->trans()->lang('(No title)');
+        $title = $tab['title'] ?: $this->getTabTitle($server);
         // Important to update the databag with the database opened in the tab here.
         $this->createTab($title);
         $this->setCurrentDb([$server, $tab['database'], $tab['schema']]);
@@ -180,8 +191,7 @@ class AppFunc extends FuncComponent
         // Get the last connected server. It's important to get this before
         // because the createTab() method modifies the databag content.
         $server = $this->getCurrentDb()[0] ?? '';
-        $title = $this->trans()->lang('(No title)');
-        $this->createTab($title);
+        $this->createTab($this->getTabTitle($server));
 
         // Connect the new tab to the provided server.
         if ($server !== '') {
