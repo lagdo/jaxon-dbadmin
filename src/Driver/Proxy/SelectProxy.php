@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\DqInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectQuery;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectResult;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectTableDto;
@@ -64,10 +64,10 @@ class SelectProxy extends AbstractDriverProxy
      * @param string $table The table name
      * @param array $queryParams The user params
      *
-     * @return DqInputDto
+     * @return SelectDqDto
      * @throws Exception
      */
-    private function prepareSelect(string $table, array $queryParams = []): DqInputDto
+    private function prepareSelect(string $table, array $queryParams = []): SelectDqDto
     {
         $table = new SelectTableDto($table);
         $table->status = $this->engine()->tableStatusOrName($table->name);
@@ -75,7 +75,7 @@ class SelectProxy extends AbstractDriverProxy
         $table->indexes = $this->engine()->indexes($table->name);
         $table->foreignKeys = $this->engine()->foreignKeys($table->name);
 
-        $input = new DqInputDto($table, $queryParams);
+        $input = new SelectDqDto($table, $queryParams);
         return $this->query()->prepareSelect($input);
     }
 
@@ -85,10 +85,10 @@ class SelectProxy extends AbstractDriverProxy
      * @param string $table The table name
      * @param array $queryParams The user params
      *
-     * @return DqInputDto
+     * @return SelectDqDto
      * @throws Exception
      */
-    public function getSelectParams(string $table, array $queryParams = []): DqInputDto
+    public function getSelectParams(string $table, array $queryParams = []): SelectDqDto
     {
         return $this->prepareSelect($table, $queryParams);
     }
@@ -116,11 +116,11 @@ class SelectProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return void
      */
-    private function executeQuery(DqInputDto $input): void
+    private function executeQuery(SelectDqDto $input): void
     {
         $this->timer->start();
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ui\Table;
+namespace Lagdo\DbAdmin\App\Ui\Table\Column;
 
 use Jaxon\Script\JsExpr;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
@@ -14,9 +14,9 @@ use function Jaxon\form;
 use function Jaxon\jq;
 use function strcasecmp;
 
-trait TableFieldTrait
+trait ColumnTrait
 {
-    use FieldMetadataTrait;
+    use MetadataTrait;
 
     /**
      * @var string
@@ -29,7 +29,7 @@ trait TableFieldTrait
     protected array $table = [];
 
     /**
-     * @var array<DdInputDto>
+     * @var array<ColumnDdDto>
      */
     protected array $inputs = [];
 
@@ -51,7 +51,15 @@ trait TableFieldTrait
     /**
      * @return string
      */
-    protected function listFormId(): string
+    protected function tableFormId(): string
+    {
+        return $this->tab()->app()->id('dbadmin-table-values-form');
+    }
+
+    /**
+     * @return string
+     */
+    protected function columnsFormId(): string
     {
         return $this->tab()->app()->id('dbadmin-table-columns-form');
     }
@@ -59,17 +67,17 @@ trait TableFieldTrait
     /**
      * @return array
      */
-    public function listFormValues(): array
+    public function tableFormValues(): array
     {
-        return form($this->listFormId());
+        return form($this->tableFormId());
     }
 
     /**
      * @return JsExpr
      */
-    public function listFormColumnCount(): JsExpr
+    public function columnsFormItemCount(): JsExpr
     {
-        $formId = $this->listFormId();
+        $formId = $this->columnsFormId();
         return jq(".{$this->formColumnClass}", "#{$formId}")->length;
     }
 
@@ -159,12 +167,12 @@ trait TableFieldTrait
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnNameField(DdInputDto $input, string $columnName): mixed
+    protected function getColumnNameField(ColumnDdDto $input, string $columnName): mixed
     {
         return $this->ui->input(['class' => 'column-name'])
             ->setName($columnName)
@@ -175,12 +183,12 @@ trait TableFieldTrait
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnPrimaryField(DdInputDto $input, string $columnName): mixed
+    protected function getColumnPrimaryField(ColumnDdDto $input, string $columnName): mixed
     {
         return $this->ui->checkbox()
             ->checked($input->values()->primary)
@@ -189,12 +197,12 @@ trait TableFieldTrait
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnAutoIncrementField(DdInputDto $input, string $columnName): mixed
+    protected function getColumnAutoIncrementField(ColumnDdDto $input, string $columnName): mixed
     {
         return $this->ui->checkbox()
             ->checked($input->values()->autoIncrement)
@@ -203,12 +211,12 @@ trait TableFieldTrait
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnCollationField(DdInputDto $input, string $columnName): mixed
+    protected function getColumnCollationField(ColumnDdDto $input, string $columnName): mixed
     {
         return $this->getCollationSelect($input->values()->collation)
             ->setName($columnName)
@@ -217,12 +225,12 @@ trait TableFieldTrait
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnOnUpdateField(DdInputDto $input, string $columnName): mixed
+    protected function getColumnOnUpdateField(ColumnDdDto $input, string $columnName): mixed
     {
         return $this->ui->select(
             $this->ui->option('(' . $this->trans->lang('ON UPDATE') . ')')
@@ -238,7 +246,7 @@ trait TableFieldTrait
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnName
      * @param string $hasFieldName
      * @param string $placeholder
@@ -246,13 +254,14 @@ trait TableFieldTrait
      *
      * @return mixed
      */
-    protected function getColumnCommentField(DdInputDto $input, string $columnName,
+    protected function getColumnCommentField(ColumnDdDto $input, string $columnName,
         string $hasFieldName, string $placeholder = '', bool $disabled = false): mixed
     {
         return $this->ui->inputGroup(
             $this->ui->checkbox()
                 ->checked($input->values()->setComment)
                 ->setName($hasFieldName)
+                ->setValue('1')
                 ->when($disabled, fn($checkbox) => $this->disable($checkbox, false)),
             $this->ui->input()
                 ->setType('text')
@@ -265,12 +274,12 @@ trait TableFieldTrait
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnTypeField(DdInputDto $input, string $columnName): mixed
+    protected function getColumnTypeField(ColumnDdDto $input, string $columnName): mixed
     {
         return $this->ui->select(
             $this->ui->each($input->types, fn($groupTypes, $groupName) =>
@@ -300,12 +309,12 @@ trait TableFieldTrait
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnLengthField(DdInputDto $input, string $columnName): mixed
+    protected function getColumnLengthField(ColumnDdDto $input, string $columnName): mixed
     {
         return $this->ui->input()
             ->setStyle('width: 100%')
@@ -317,12 +326,12 @@ trait TableFieldTrait
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnNullableField(DdInputDto $input, string $columnName): mixed
+    protected function getColumnNullableField(ColumnDdDto $input, string $columnName): mixed
     {
         return $this->ui->checkbox()
             ->checked($input->values()->nullable)
@@ -332,12 +341,12 @@ trait TableFieldTrait
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnUnsignedField(DdInputDto $input, string $columnName): mixed
+    protected function getColumnUnsignedField(ColumnDdDto $input, string $columnName): mixed
     {
         return $this->ui->select(
             $this->ui->option('(unsigned)')
@@ -354,12 +363,12 @@ trait TableFieldTrait
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnOnDeleteField(DdInputDto $input, string $columnName): mixed
+    protected function getColumnOnDeleteField(ColumnDdDto $input, string $columnName): mixed
     {
         return $this->ui->select(
             $this->ui->option('(' . $this->trans->lang('ON DELETE') . ')')
@@ -376,14 +385,14 @@ trait TableFieldTrait
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $generated     The name of the generated input field
      * @param string $default       The name of the default value input field
      * @param string $placeholder
      *
      * @return mixed
      */
-    protected function getColumnDefaultField(DdInputDto $input, string $generated,
+    protected function getColumnDefaultField(ColumnDdDto $input, string $generated,
         string $default, string $placeholder = ''): mixed
     {
         return $this->ui->inputGroup(

@@ -3,13 +3,14 @@
 namespace Lagdo\DbAdmin\App\Ui\Table;
 
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
+use Lagdo\DbAdmin\App\Ui\Table\Column\ColumnTrait;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 class ColumnUiBuilder
 {
-    use TableFieldTrait;
+    use ColumnTrait;
 
     /**
      * @param Translator $trans
@@ -29,12 +30,12 @@ class ColumnUiBuilder
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $primaryColumn
      *
      * @return string
      */
-    public function column(DdInputDto $input, string $primaryColumn): string
+    public function column(ColumnDdDto $input, string $primaryColumn): string
     {
         $isPrimary = $input->values()->name === $primaryColumn;
         $this->listMode = false;
@@ -156,14 +157,14 @@ class ColumnUiBuilder
     }
 
     /**
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      *
      * @return string
      */
     public function changes(array $inputs): string
     {
         return $this->ui->build(
-            $this->ui->each($inputs, fn(DdInputDto $input) =>
+            $this->ui->each($inputs, fn(ColumnDdDto $input) =>
                 $this->ui->pick([
                     $input->dropped(), fn() => $this->ui->row(
                         $this->ui->col($this->ui->text($input->column->name))

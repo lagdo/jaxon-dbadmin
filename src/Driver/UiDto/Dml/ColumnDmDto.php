@@ -8,7 +8,7 @@ use function implode;
 use function in_array;
 use function preg_match;
 
-class DmInputDto
+class ColumnDmDto
 {
     /**
      * @var string

@@ -14,7 +14,7 @@ class TableAlter extends AbstractDriverProxy
 
     /**
      * @param TableAlterDto $table
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      * 
      * @return TableAlterDto
      */
@@ -24,7 +24,7 @@ class TableAlter extends AbstractDriverProxy
         $foreignKeys = $this->getForeignKeys($table->name);
 
         // Auto increment
-        $aiCount = count(array_filter($inputs, fn(DdInputDto $input) =>
+        $aiCount = count(array_filter($inputs, fn(ColumnDdDto $input) =>
             $input->column->autoIncrement));
         if ($aiCount > 1) {
             $table->error = $this->utils()->lang('Only one auto-increment column is allowed.');
@@ -40,14 +40,14 @@ class TableAlter extends AbstractDriverProxy
 
         $table->clearColumns();
         $table->inputs['added'] = array_map(
-            fn(DdInputDto $input) => $this->makeColumnInput($table, $input, $foreignKeys),
-            array_filter($inputs, fn(DdInputDto $input) => $input->added()));
+            fn(ColumnDdDto $input) => $this->makeColumnInput($table, $input, $foreignKeys),
+            array_filter($inputs, fn(ColumnDdDto $input) => $input->added()));
         $table->inputs['edited'] = array_map(
-            fn(DdInputDto $input) => $this->makeColumnInput($table, $input, $foreignKeys),
-            array_filter($inputs, fn(DdInputDto $input) => $input->changed()));
+            fn(ColumnDdDto $input) => $this->makeColumnInput($table, $input, $foreignKeys),
+            array_filter($inputs, fn(ColumnDdDto $input) => $input->changed()));
         $table->droppedColumns = array_map(
-            fn(DdInputDto $input) => $input->column->name,
-            array_filter($inputs, fn(DdInputDto $input) => $input->dropped()));
+            fn(ColumnDdDto $input) => $input->column->name,
+            array_filter($inputs, fn(ColumnDdDto $input) => $input->dropped()));
 
         return $table;
     }

@@ -209,11 +209,11 @@ class ColumnValue extends AbstractDriverProxy
      * @param ColumnDto $column
      * @param array|null $rowData
      *
-     * @return DmInputDto
+     * @return ColumnDmDto
      */
-    public function getColumnInputValues(ColumnDto $column, array|null $rowData): DmInputDto
+    public function getColumnInputValues(ColumnDto $column, array|null $rowData): ColumnDmDto
     {
-        $input = new DmInputDto($column);
+        $input = new ColumnDmDto($column);
 
         // From html.inc.php: function edit_form(string $table, array $columns, $row, ?bool $update, string $error = '')
         $value = $this->getInputValue($column, $rowData);

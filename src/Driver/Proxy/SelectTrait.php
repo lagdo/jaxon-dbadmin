@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\DqInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Exception;
 
 /**
@@ -28,10 +28,10 @@ trait SelectTrait
      * @param string $table The table name
      * @param array $queryParams The user params
      *
-     * @return DqInputDto
+     * @return SelectDqDto
      * @throws Exception
      */
-    public function getSelectParams(string $table, array $queryParams = []): DqInputDto
+    public function getSelectParams(string $table, array $queryParams = []): SelectDqDto
     {
         $this->connectToSchema();
         $this->utils()->input->table = $table;

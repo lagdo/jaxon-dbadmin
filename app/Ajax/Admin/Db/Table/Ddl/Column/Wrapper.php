@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Component;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
 
 use function array_filter;
 use function array_map;
@@ -17,12 +17,12 @@ use function array_map;
 class Wrapper extends Component
 {
     /**
-     * @var array<DdInputDto>
+     * @var array<ColumnDdDto>
      */
     private $inputs;
 
     /**
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      *
      * @return void
      */
@@ -60,11 +60,11 @@ class Wrapper extends Component
     }
 
     /**
-     * @param DdInputDto|null $input
+     * @param ColumnDdDto|null $input
      *
      * @return bool
      */
-    private function inputIsValid(DdInputDto|null $input): bool
+    private function inputIsValid(ColumnDdDto|null $input): bool
     {
         if ($input === null) {
             return false;
@@ -77,7 +77,7 @@ class Wrapper extends Component
 
     /**
      * @param array $metadata
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      *
      * @return void
      */

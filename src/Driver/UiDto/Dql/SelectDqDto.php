@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dql;
 
-class DqInputDto
+class SelectDqDto
 {
     /**
      * @var array

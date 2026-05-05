@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ui\Table;
+namespace Lagdo\DbAdmin\App\Ui\Table\Column;
 
-trait FieldMetadataTrait
+trait MetadataTrait
 {
     /**
      * @var array

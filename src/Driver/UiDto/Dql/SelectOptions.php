@@ -9,11 +9,11 @@ use function intval;
 class SelectOptions extends AbstractDriverProxy
 {
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return void
      */
-    public function setDefaultOptions(DqInputDto $input): void
+    public function setDefaultOptions(SelectDqDto $input): void
     {
         $defaultOptions = [
             'columns' => [],
@@ -40,11 +40,11 @@ class SelectOptions extends AbstractDriverProxy
     /**
      * Print columns box in select
      *
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return array
      */
-    private function getColumnsOptions(DqInputDto $input): array
+    private function getColumnsOptions(SelectDqDto $input): array
     {
         return [
             'select' => $input->columns,
@@ -58,11 +58,11 @@ class SelectOptions extends AbstractDriverProxy
     /**
      * Print search box in select
      *
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return array
      */
-    private function getFiltersOptions(DqInputDto $input): array
+    private function getFiltersOptions(SelectDqDto $input): array
     {
         $fulltexts = [];
         foreach ($input->table->indexes as $i => $index) {
@@ -82,11 +82,11 @@ class SelectOptions extends AbstractDriverProxy
     /**
      * Print order box in select
      *
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return array
      */
-    private function getSortingOptions(DqInputDto $input): array
+    private function getSortingOptions(SelectDqDto $input): array
     {
         $values = [];
         $descs = (array)$input->params['desc'];
@@ -106,11 +106,11 @@ class SelectOptions extends AbstractDriverProxy
     /**
      * Print limit box in select
      *
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return array
      */
-    private function getLimitOptions(DqInputDto $input): array
+    private function getLimitOptions(SelectDqDto $input): array
     {
         return [
             'value' => $this->utils()->html($input->limit),
@@ -120,11 +120,11 @@ class SelectOptions extends AbstractDriverProxy
     /**
      * Print text length box in select
      *
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return array
      */
-    private function getLengthOptions(DqInputDto $input): array
+    private function getLengthOptions(SelectDqDto $input): array
     {
         return [
             'value' => $input->textLength === 0 ? 0 : $this->utils()->html($input->textLength),
@@ -134,11 +134,11 @@ class SelectOptions extends AbstractDriverProxy
     /**
      * Print action box in select
      *
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return array
      */
-    // private function getActionOptions(DqInputDto $input)
+    // private function getActionOptions(SelectDqDto $input)
     // {
     //     $columns = [];
     //     foreach ($input->table->indexes as $index) {
@@ -183,11 +183,11 @@ class SelectOptions extends AbstractDriverProxy
     // {}
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return void
      */
-    public function setQueryOptions(DqInputDto $input): void
+    public function setQueryOptions(SelectDqDto $input): void
     {
         $input->options = [
             'columns' => $this->getColumnsOptions($input),

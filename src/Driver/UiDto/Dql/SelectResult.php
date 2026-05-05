@@ -21,13 +21,13 @@ use function trim;
 class SelectResult extends AbstractDriverProxy
 {
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      * @param string $columnName
      * @param int $position
      *
      * @return array
      */
-    private function getResultHeaderItem(DqInputDto $input, string $columnName, int $position): array
+    private function getResultHeaderItem(SelectDqDto $input, string $columnName, int $position): array
     {
         $valueKey = key($input->columns);
         $value = $input->params["columns"][$valueKey] ?? [];
@@ -43,13 +43,13 @@ class SelectResult extends AbstractDriverProxy
     }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      * @param string $columnName
      * @param int $position
      *
      * @return array
      */
-    private function getResultHeader(DqInputDto $input, string $columnName, int $position): array
+    private function getResultHeader(SelectDqDto $input, string $columnName, int $position): array
     {
         if (isset($input->primaryColumns[$columnName])) {
             return [];
@@ -72,12 +72,12 @@ class SelectResult extends AbstractDriverProxy
     /**
      * Get the result headers from the first result row
      *
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      * @param array $queryColumns
      *
      * @return void
      */
-    public function setResultHeaders(DqInputDto $input, array $queryColumns): void
+    public function setResultHeaders(SelectDqDto $input, array $queryColumns): void
     {
         // Results headers
         $input->headers = [];
@@ -116,12 +116,12 @@ class SelectResult extends AbstractDriverProxy
     }*/
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      * @param array $row
      *
      * @return array
      */
-    private function getUniqueIds(DqInputDto $input, array $row): array
+    private function getUniqueIds(SelectDqDto $input, array $row): array
     {
         $uniqueIds = $this->utils()->uniqueIds($row, $input->table->indexes);
         if (empty($uniqueIds)) {
@@ -163,13 +163,13 @@ class SelectResult extends AbstractDriverProxy
     }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      * @param string $columnName
      * @param mixed $value
      *
      * @return mixed
      */
-    private function getRowIdValue(DqInputDto $input, string $columnName, $value): mixed
+    private function getRowIdValue(SelectDqDto $input, string $columnName, $value): mixed
     {
         $type = '';
         $collation = '';
@@ -193,12 +193,12 @@ class SelectResult extends AbstractDriverProxy
     }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      * @param array $row
      *
      * @return array
      */
-    public function getRowIds(DqInputDto $input, array $row): array
+    public function getRowIds(SelectDqDto $input, array $row): array
     {
         $uniqueIds = $this->getUniqueIds($input, $row);
         // Unique identifier to edit returned data.
@@ -222,13 +222,13 @@ class SelectResult extends AbstractDriverProxy
     }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      * @param string $columnName
      * @param mixed $value
      *
      * @return array
      */
-    private function getColumnValue(DqInputDto $input, string $columnName, $value): array
+    private function getColumnValue(SelectDqDto $input, string $columnName, $value): array
     {
         $column = $input->table->columns[$columnName] ?? new ColumnDto();
         $textLength = $input->textLength;
@@ -237,12 +237,12 @@ class SelectResult extends AbstractDriverProxy
     }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      * @param array $row
      *
      * @return array
      */
-    private function getRowValues(DqInputDto $input, array $row): array
+    private function getRowValues(SelectDqDto $input, array $row): array
     {
         $cols = [];
         foreach ($row as $columnName => $value) {
@@ -254,11 +254,11 @@ class SelectResult extends AbstractDriverProxy
     }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return array
      */
-    public function getRows(DqInputDto $input): array
+    public function getRows(SelectDqDto $input): array
     {
         return array_map(fn(array $row) => [
             // The unique identifiers to edit the result rows.

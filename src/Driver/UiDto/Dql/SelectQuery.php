@@ -59,11 +59,11 @@ class SelectQuery extends AbstractDriverProxy
     }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return void
      */
-    private function setColumnsOptions(DqInputDto $input): void
+    private function setColumnsOptions(SelectDqDto $input): void
     {
         $input->rights = []; // privilege => 0
         $input->columnNames = []; // selectable columns
@@ -84,11 +84,11 @@ class SelectQuery extends AbstractDriverProxy
     /**
      * Find out foreign keys for each column
      *
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return void
      */
-    private function setForeignKeys(DqInputDto $input): void
+    private function setForeignKeys(SelectDqDto $input): void
     {
         foreach ($input->table->foreignKeys as $foreignKey) {
             foreach ($foreignKey->source as $source) {
@@ -123,11 +123,11 @@ class SelectQuery extends AbstractDriverProxy
     // }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return void
      */
-    private function setSelectColumns(DqInputDto $input): void
+    private function setSelectColumns(SelectDqDto $input): void
     {
         // Select expressions, empty for *.
         $input->columns = [];
@@ -247,11 +247,11 @@ class SelectQuery extends AbstractDriverProxy
     }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return void
      */
-    private function setSelectWheres(DqInputDto $input): void
+    private function setSelectWheres(SelectDqDto $input): void
     {
         $inputFulltexts = $this->inputArray('fulltext');
         $inputWheres = $this->inputArray('where');
@@ -272,11 +272,11 @@ class SelectQuery extends AbstractDriverProxy
     }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return void
      */
-    private function setSelectOrders(DqInputDto $input): void
+    private function setSelectOrders(SelectDqDto $input): void
     {
         $regexp = '~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~';
         $orders = array_filter($this->inputArray('order'), fn(string $value) => $value !== '');
@@ -295,11 +295,11 @@ class SelectQuery extends AbstractDriverProxy
     }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return void
      */
-    private function setPrimaryKey(DqInputDto $input): void
+    private function setPrimaryKey(SelectDqDto $input): void
     {
         $input->primaryColumns = [];
         // Take the first index only.
@@ -325,11 +325,11 @@ class SelectQuery extends AbstractDriverProxy
     }
 
     /**
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
      * @return SelectInputDto
      */
-    private function makeSelectDto(DqInputDto $input): SelectInputDto
+    private function makeSelectDto(SelectDqDto $input): SelectInputDto
     {
         $clauses = $input->columns;
         $groups = $input->groups;
@@ -366,12 +366,12 @@ class SelectQuery extends AbstractDriverProxy
     /**
      * Get required data for select on tables
      *
-     * @param DqInputDto $input
+     * @param SelectDqDto $input
      *
-     * @return DqInputDto
+     * @return SelectDqDto
      * @throws Exception
      */
-    public function prepareSelect(DqInputDto $input): DqInputDto
+    public function prepareSelect(SelectDqDto $input): SelectDqDto
     {
         $this->options()->setDefaultOptions($input);
 

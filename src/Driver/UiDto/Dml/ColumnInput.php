@@ -45,13 +45,13 @@ class ColumnInput extends AbstractDriverProxy
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      * @param string $columnValue
      * @param string|null $enumValue
      *
      * @return bool
      */
-    private function isChecked(DmInputDto $input, string $columnValue, string|null $enumValue): bool
+    private function isChecked(ColumnDmDto $input, string $columnValue, string|null $enumValue): bool
     {
         return !is_array($input->value) ? $input->value === $enumValue :
             in_array($columnValue, $input->value);
@@ -60,9 +60,9 @@ class ColumnInput extends AbstractDriverProxy
     /**
      * Get data for enum or set input field
      * 
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      */
-    private function getItemList(DmInputDto $input, array $attrs, string $default = ""): array|null
+    private function getItemList(ColumnDmDto $input, array $attrs, string $default = ""): array|null
     {
         if ($input->type !== 'enum' && $input->type !== 'set' ) {
             // Only for enums and sets
@@ -103,12 +103,12 @@ class ColumnInput extends AbstractDriverProxy
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getEnumColumnInput(DmInputDto $input, array $attrs): array
+    private function getEnumColumnInput(ColumnDmDto $input, array $attrs): array
     {
         // From adminer.inc.php: function editInput(?string $table, array $field, string $attrs, $value): string
         $items = $this->getItemList($input, $attrs, 'NULL');
@@ -129,12 +129,12 @@ class ColumnInput extends AbstractDriverProxy
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getSetColumnInput(DmInputDto $input, array $attrs): array
+    private function getSetColumnInput(ColumnDmDto $input, array $attrs): array
     {
         if (is_string($input->value)) {
             $input->value = explode(",", $input->value);
@@ -147,12 +147,12 @@ class ColumnInput extends AbstractDriverProxy
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getBoolColumnInput(DmInputDto $input, array $attrs): array
+    private function getBoolColumnInput(ColumnDmDto $input, array $attrs): array
     {
         return [
             'field' => 'bool',
@@ -172,22 +172,22 @@ class ColumnInput extends AbstractDriverProxy
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      *
      * @return bool
      */
-    private function isBlob(DmInputDto $input): bool
+    private function isBlob(ColumnDmDto $input): bool
     {
         return $this->utils()->isBlob($input->column) && $this->utils()->iniBool("file_uploads");
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getFileColumnInput(DmInputDto $input, array $attrs): array
+    private function getFileColumnInput(ColumnDmDto $input, array $attrs): array
     {
         return [
             'field' => 'file',
@@ -199,12 +199,12 @@ class ColumnInput extends AbstractDriverProxy
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getJsonColumnInput(DmInputDto $input, array $attrs): array
+    private function getJsonColumnInput(ColumnDmDto $input, array $attrs): array
     {
         return [
             'field' => 'json',
@@ -219,22 +219,22 @@ class ColumnInput extends AbstractDriverProxy
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      *
      * @return bool
      */
-    private function textSizeIsFixed(DmInputDto $input): bool
+    private function textSizeIsFixed(ColumnDmDto $input): bool
     {
         return ($input->isText() && !$this->engine()->sqlite()) || $input->isSearch();
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getTextColumnInput(DmInputDto $input, array $attrs): array
+    private function getTextColumnInput(ColumnDmDto $input, array $attrs): array
     {
         $columnAttrs = $this->textSizeIsFixed($input) ? [
             'cols' => '50',
@@ -254,11 +254,11 @@ class ColumnInput extends AbstractDriverProxy
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      *
      * @return int
      */
-    private function getInputFieldMaxLength(DmInputDto $input): int
+    private function getInputFieldMaxLength(ColumnDmDto $input): int
     {
         $unsigned = $input->column->unsigned;
         $length = $input->column->length;
@@ -281,12 +281,12 @@ class ColumnInput extends AbstractDriverProxy
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      * @param array $attrs
      *
      * @return array
      */
-    private function getDefaultColumnInput(DmInputDto $input, array $attrs): array
+    private function getDefaultColumnInput(ColumnDmDto $input, array $attrs): array
     {
         $maxlength = $this->getInputFieldMaxLength($input);
         // type='date' and type='time' display localized value which may be confusing,
@@ -312,12 +312,12 @@ class ColumnInput extends AbstractDriverProxy
     /**
      * Get the input field for value
      *
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      * @param bool|null $autofocus
      *
      * @return array
      */
-    private function getColumnValueInput(DmInputDto $input, bool|null $autofocus): array
+    private function getColumnValueInput(ColumnDmDto $input, bool|null $autofocus): array
     {
         // From input(array $field, $value, ?string $function, ?bool $autofocus = false) in html.inc.php
         $attrs = [
@@ -350,11 +350,11 @@ class ColumnInput extends AbstractDriverProxy
     /**
      * Get the input field for function
      *
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      *
      * @return array|null
      */
-    private function getColumnFunctionInput(DmInputDto $input): array|null
+    private function getColumnFunctionInput(ColumnDmDto $input): array|null
     {
         // From html.inc.php: function input(array $field, $value, ?string $function, ?bool $autofocus = false)
         if ($input->type === 'enum' || $input->function === null) {
@@ -381,12 +381,12 @@ class ColumnInput extends AbstractDriverProxy
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      * @param bool|null $autofocus
      *
      * @return void
      */
-    public function setColumnInputValues(DmInputDto $input, bool|null $autofocus): void
+    public function setColumnInputValues(ColumnDmDto $input, bool|null $autofocus): void
     {
         $input->functionInput = $this->getColumnFunctionInput($input);
         $input->valueInput = $this->getColumnValueInput($input, $autofocus);

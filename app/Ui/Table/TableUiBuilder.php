@@ -6,8 +6,9 @@ use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 use Lagdo\DbAdmin\App\Ui\PageTrait;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
+use Lagdo\DbAdmin\App\Ui\Table\Column\ColumnTrait;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
@@ -20,7 +21,7 @@ class TableUiBuilder
 {
     use PageTrait;
     use TableTrait;
-    use TableFieldTrait;
+    use ColumnTrait;
 
     /**
      * @var array<JxnCall>
@@ -85,7 +86,7 @@ class TableUiBuilder
     }
 
     /**
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      *
      * @return self
      */
@@ -189,6 +190,7 @@ class TableUiBuilder
                         $this->ui->inputGroup(
                             $this->ui->checkbox()
                                 ->checked(false)
+                                ->setValue('1')
                                 ->setName('setComment'),
                             $this->ui->input()
                                 ->setType('text')
@@ -216,7 +218,7 @@ class TableUiBuilder
                 $this->ui->div(
                     $this->tablePropertiesForm()
                 )->setClass('dbadmin-table-edit-column')
-            )->wrapped(false)->setId($this->listFormId())
+            )->setId($this->tableFormId())
         );
     }
 
@@ -231,17 +233,17 @@ class TableUiBuilder
             )->setClass('dbadmin-table-edit-column'),
             $this->ui->form(
                 $this->ui->div()->tbnBindApp($this->rqWrapper())
-            )->wrapped(false)
+            )->setId($this->columnsFormId())
         );
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnId
      *
      * @return mixed
      */
-    protected function getColumnActionMenu(DdInputDto $input, string $columnId): mixed
+    protected function getColumnActionMenu(ColumnDdDto $input, string $columnId): mixed
     {
         $support = $this->support();
         $movableUp = $support['move_col'] && $input->position > 0;
@@ -261,11 +263,11 @@ class TableUiBuilder
                     $this->ui->list(
                         $this->ui->when($movableUp, fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Up'))
-                                ->jxnClick($this->rqMove()->up($columnId, $this->listFormValues()))
+                                ->jxnClick($this->rqMove()->up($columnId))
                         ),
                         $this->ui->when($movableDown, fn() =>
                             $this->ui->dropdownMenuItem($this->ui->text('Down'))
-                                ->jxnClick($this->rqMove()->down($columnId, $this->listFormValues()))
+                                ->jxnClick($this->rqMove()->down($columnId))
                         ),
                         $this->ui->dropdownMenuItem($this->ui->text('Add'))
                             ->jxnClick($this->rqCreate()->add($columnId)),
@@ -302,12 +304,12 @@ class TableUiBuilder
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param string $columnId
      *
      * @return mixed
      */
-    protected function columnUiInput(DdInputDto $input, string $columnId): mixed
+    protected function columnUiInput(ColumnDdDto $input, string $columnId): mixed
     {
         $editPrefix = sprintf("columns[%d]", $input->position);
         $support = $this->support();
@@ -417,11 +419,11 @@ class TableUiBuilder
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      *
      * @return mixed
      */
-    private function getColumnBgColor(DdInputDto $input): string
+    private function getColumnBgColor(ColumnDdDto $input): string
     {
         return match(true) {
             $input->added() => "background-color: #e6ffe6;",

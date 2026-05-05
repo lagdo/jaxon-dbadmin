@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
 use Exception;
 
 /**
@@ -121,20 +121,20 @@ trait TableTrait
     /**
      * Get a new column
      *
-     * @return DdInputDto
+     * @return ColumnDdDto
      */
-    public function newColumnInput(): DdInputDto
+    public function newColumnInput(): ColumnDdDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->newColumnInput();
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      *
-     * @return DdInputDto
+     * @return ColumnDdDto
      */
-    public function setInputFieldProperties(DdInputDto $input): DdInputDto
+    public function setInputFieldProperties(ColumnDdDto $input): ColumnDdDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->setInputFieldProperties($input);
@@ -144,7 +144,7 @@ trait TableTrait
      * Get SQL commands to create a table
      *
      * @param array $options     The table options
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      *
      * @return array
      */
@@ -158,7 +158,7 @@ trait TableTrait
      * Create a table
      *
      * @param array $options     The table options
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      *
      * @return array|null
      */
@@ -173,7 +173,7 @@ trait TableTrait
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      *
      * @return array
      */
@@ -188,7 +188,7 @@ trait TableTrait
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      *
      * @return array|null
      * @throws Exception

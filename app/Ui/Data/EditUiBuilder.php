@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ui\Data;
 
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\DmInputDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnDmDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -127,11 +127,11 @@ class EditUiBuilder
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      *
      * @return mixed
      */
-    protected function getColumnValue(DmInputDto $input): mixed
+    protected function getColumnValue(ColumnDmDto $input): mixed
     {
         $input = $input->valueInput;
         return match($input['field']) {
@@ -146,11 +146,11 @@ class EditUiBuilder
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      *
      * @return mixed
      */
-    private function getColumnFunction(DmInputDto $input): mixed
+    private function getColumnFunction(ColumnDmDto $input): mixed
     {
         $input = $input->functionInput;
         return $this->ui->pick(
@@ -178,11 +178,11 @@ class EditUiBuilder
     }
 
     /**
-     * @param DmInputDto $input
+     * @param ColumnDmDto $input
      *
      * @return mixed
      */
-    public function getColumnTitle(DmInputDto $input): mixed
+    public function getColumnTitle(ColumnDmDto $input): mixed
     {
         return isset($input->valueInput['attrs']['id']) ?
             $this->ui->label($input->name)
@@ -201,7 +201,7 @@ class EditUiBuilder
     }
 
     /**
-     * @param array<DmInputDto> $inputs
+     * @param array<ColumnDmDto> $inputs
      * @param string $maxHeight
      *
      * @return string
@@ -209,7 +209,7 @@ class EditUiBuilder
     public function rowDataForm(array $inputs, string $maxHeight = ''): string
     {
         $form = $this->ui->form(
-            $this->ui->each($inputs, fn(DmInputDto $input) =>
+            $this->ui->each($inputs, fn(ColumnDmDto $input) =>
                 $this->ui->row(
                     $this->ui->col(
                         $this->getColumnTitle($input)

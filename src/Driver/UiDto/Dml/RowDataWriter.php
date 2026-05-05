@@ -77,7 +77,7 @@ class RowDataWriter extends AbstractDriverProxy
      * @param array<ColumnDto> $columns
      * @param array|null $rowData
      *
-     * @return array<DmInputDto>
+     * @return array<ColumnDmDto>
      */
     public function getInputValues(array $columns, array|null $rowData = null): array
     {

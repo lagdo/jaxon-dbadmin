@@ -79,13 +79,13 @@ trait ForeignKeyTrait
 
     /**
      * @param AbstractTableDto $table
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      * @param array $foreignKeys
      *
      * @return ColumnInputDto
      */
     private function makeColumnInput(AbstractTableDto $table,
-        DdInputDto $input, array $foreignKeys): ColumnInputDto
+        ColumnDdDto $input, array $foreignKeys): ColumnInputDto
     {
         $this->referencableColumns ??= $this->getReferencableColumns($this->tableName);
 

@@ -3,8 +3,8 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ForeignKeyTrait;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DdInputDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableAlter;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableContent;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableCreate;
@@ -232,20 +232,20 @@ class TableProxy extends AbstractDriverProxy
     /**
      * Get a new table column
      *
-     * @return DdInputDto
+     * @return ColumnDdDto
      */
-    public function newColumnInput(): DdInputDto
+    public function newColumnInput(): ColumnDdDto
     {
         $foreignKeys = $this->getForeignKeys();
         return $this->content()->newColumnInput($foreignKeys);
     }
 
     /**
-     * @param DdInputDto $input
+     * @param ColumnDdDto $input
      *
-     * @return DdInputDto
+     * @return ColumnDdDto
      */
-    public function setInputFieldProperties(DdInputDto $input): DdInputDto
+    public function setInputFieldProperties(ColumnDdDto $input): ColumnDdDto
     {
         $foreignKeys = $this->getForeignKeys();
         return $this->content()->setInputFieldProperties($input, $foreignKeys);
@@ -255,7 +255,7 @@ class TableProxy extends AbstractDriverProxy
      * Get SQL command to create a table
      *
      * @param array $options     The table options
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      *
      * @return array
      */
@@ -278,7 +278,7 @@ class TableProxy extends AbstractDriverProxy
      * Create a table
      *
      * @param array $options     The table options
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      *
      * @return array
      */
@@ -294,7 +294,7 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      *
      * @return array
      */
@@ -318,7 +318,7 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param string $name       The table name
      * @param array $options     The table options
-     * @param array<DdInputDto> $inputs
+     * @param array<ColumnDdDto> $inputs
      *
      * @return array
      * @throws Exception

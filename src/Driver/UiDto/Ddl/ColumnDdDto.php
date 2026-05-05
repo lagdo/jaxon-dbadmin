@@ -10,7 +10,7 @@ use function array_map;
 /**
  * User inputs for a table column.
  */
-class DdInputDto
+class ColumnDdDto
 {
     /**
      * The column status when the table is edited
