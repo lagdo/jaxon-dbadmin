@@ -3,24 +3,21 @@
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
 use Lagdo\DbAdmin\Driver\Sql\Dto\AbstractTableDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnInputDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 
+use function array_filter;
+use function array_flip;
+use function array_map;
+use function array_values;
+use function count;
+use function is_string;
 use function str_replace;
 
 trait ForeignKeyTrait
 {
-    /**
-     * @var string
-     */
-    private string $tableName;
-
-    /**
-     * @var array|null
-     */
-    private array|null $referencableColumns = null;
-
     /**
      * @param string $table
      *
@@ -29,52 +26,44 @@ trait ForeignKeyTrait
     private function getReferencableColumns(string $table): array
     {
         // From editing.inc.php, function referencable_primary()
-        $columns = []; // table_name => column
-        foreach ($this->engine()->tableStatuses(true) as $tableName => $tableStatus) {
-            if ($tableName != $table && $this->engine()->supportForeignKeys($tableStatus)) {
-                $tableColumns = $this->engine()->columns($tableName);
-                foreach ($tableColumns as $column) {
-                    if ($column->primary) {
-                        if (isset($columns[$tableName])) { // multi column primary key
-                            unset($columns[$tableName]);
-                            break;
-                        }
-                        $columns[$tableName] = $column;
-                    }
-                }
-            }
-        }
-        return $columns;
-    }
 
-    /**
-     * @param string $table
-     *
-     * @return array<ColumnDto>
-     */
-    private function referencableColumns(string $table = ''): array
-    {
-        return $this->referencableColumns ??= $this->getReferencableColumns($table);
+        $filter = fn(TableDto $tableStatus, string $tableName) =>
+            $tableName != $table && $this->engine()->supportForeignKeys($tableStatus);
+        $tables = $this->engine()->tableStatuses(true);
+        $tables = array_filter($tables, $filter, ARRAY_FILTER_USE_BOTH);
+
+        $primaryColumns = array_map(function(TableDto $tableStatus) {
+            $columns = $this->engine()->columns($tableStatus->name);
+            $filter = fn(ColumnDto $column) => $column->primary;
+            return array_values(array_filter($columns, $filter));
+        }, $tables);
+
+        // Remove multi column primary keys
+        $filter = fn(array $columns) => count($columns) === 1;
+        $primaryColumns = array_filter($primaryColumns, $filter);
+
+        return array_map(fn(array $columns) => $columns[0], $primaryColumns);
     }
 
     /**
      * Get foreign keys
      *
-     * @param string $table     The table name
+     * @param AbstractTableDto|string $table
      *
      * @return array
      */
-    protected function getForeignKeys(string $table = ''): array
+    private function getForeignKeys(AbstractTableDto|string $table = ''): array
     {
-        $foreignKeys = [];
-        foreach ($this->referencableColumns($table) as $tableName => $column) {
-            $name = str_replace("`", "``", $tableName) . "`" .
-                str_replace("`", "``", $column->name);
-            // not escapeId() - used in JS
-            $foreignKeys[$name] = $tableName;
-        }
+        $columns = is_string($table) ?
+            $this->getReferencableColumns($table) :
+            $table->getReferencableColumns();
 
-        return $foreignKeys;
+        $replace = fn(string $name) => str_replace("`", "``", $name);
+        $convertName = fn(ColumnDto $column, string $tableName) =>
+            $replace($tableName) . "`" . $replace($column->name); // not escapeId() - used in JS
+        $foreignKeys = array_map($convertName, $columns, array_keys($columns));
+
+        return array_flip($foreignKeys);
     }
 
     /**
@@ -87,22 +76,32 @@ trait ForeignKeyTrait
     private function makeColumnInput(AbstractTableDto $table,
         ColumnDdDto $input, array $foreignKeys): ColumnInputDto
     {
-        $this->referencableColumns ??= $this->getReferencableColumns($this->tableName);
+        $values = $input->values();
 
-        $column = $input->makeColumn();
-        $foreignKey = $foreignKeys[$column->type] ?? null;
         //! can collide with user defined type
-        $typeColumn = $foreignKey !== null ? $this->referencableColumns[$foreignKey] : $column;
-
-        if ($foreignKey !== null) {
+        $foreignKey = $foreignKeys[$values->type] ?? '';
+        $typeColumn = $table->getReferencableColumns()[$foreignKey] ?? null;
+        if ($typeColumn !== null) {
             $fkColumn = new ForeignKeyDto();
             $fkColumn->table = $foreignKey;
-            $fkColumn->source = [$column->name];
+            $fkColumn->source = [$values->name];
             $fkColumn->target = [$typeColumn->name];
-            $fkColumn->onDelete = $column->onDelete;
-            $table->foreignKeys[$column->name] = $fkColumn;
+            $fkColumn->onDelete = $values->onDelete;
+
+            $table->foreignKeys[$values->name] = $fkColumn;
         }
 
-        return $this->statement()->makeColumnInput($column, $typeColumn);
+        $column = new ColumnInputDto($input->column, $typeColumn);
+        foreach ($input->attributes() as $attr) {
+            $column->$attr = $values->$attr;
+        }
+        if ($values->generated === '') {
+            $column->default = null;
+        }
+        if (!$values->setComment) {
+            $column->comment = null;
+        }
+
+        return $column;
     }
 }

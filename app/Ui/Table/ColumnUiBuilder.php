@@ -4,9 +4,14 @@ namespace Lagdo\DbAdmin\App\Ui\Table;
 
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\App\Ui\Table\Column\ColumnTrait;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
+
+use function count;
 
 class ColumnUiBuilder
 {
@@ -157,42 +162,157 @@ class ColumnUiBuilder
     }
 
     /**
-     * @param array<ColumnDdDto> $inputs
+     * @param array<ColumnDdDto> $columns
+     *
+     * @return mixed
+     */
+    private function tableColumns(array $columns): mixed
+    {
+        return $this->ui->each($columns, fn(ColumnDdDto $input) =>
+            $this->ui->pick([
+                $input->dropped(), fn() => $this->ui->row(
+                    $this->ui->col($this->ui->text($input->column->name . ':'))
+                        ->width(3),
+                    $this->ui->col($this->trans->lang('Drop'))
+                        ->width(8)
+                )
+            ], [
+                $input->changed(), fn() => $this->ui->row(
+                    $this->ui->col($this->ui->text($input->column->name . ':'))
+                        ->width(3),
+                    $this->ui->col(
+                        $this->ui->div($this->trans->lang('Alter:')),
+                        $this->ui->each($input->changes(), fn($change, $attr) =>
+                            $this->ui->div(
+                                $this->ui->html("- $attr => {$change['to']}")
+                            ))
+                    )->width(8)
+                )
+            ], [
+                $input->added(), fn() => $this->ui->row(
+                    $this->ui->col($this->ui->text($input->newName() . ':'))
+                        ->width(3),
+                    $this->ui->col($this->trans->lang('Add'))
+                        ->width(8)
+                )
+            ]
+        ));
+    }
+
+    /**
+     * @param TableCreateDto $createDto
+     * @param array<ColumnDdDto> $columns
      *
      * @return string
      */
-    public function changes(array $inputs): string
+    public function createValues(TableCreateDto $createDto, array $columns): string
     {
+        $hasEngines = count($this->engines()) > 0;
+        $hasCollations = count($this->collations()) > 0;
+        $support = $this->support();
+
         return $this->ui->build(
-            $this->ui->each($inputs, fn(ColumnDdDto $input) =>
-                $this->ui->pick([
-                    $input->dropped(), fn() => $this->ui->row(
-                        $this->ui->col($this->ui->text($input->column->name))
-                            ->width(3),
-                        $this->ui->col($this->trans->lang('Drop'))
-                            ->width(8)
-                    )
-                ], [
-                    $input->changed(), fn() => $this->ui->row(
-                        $this->ui->col($this->ui->text($input->column->name))
-                            ->width(3),
-                        $this->ui->col(
-                            $this->ui->div($this->trans->lang('Alter:')),
-                            $this->ui->each($input->changes(), fn($change, $attr) =>
-                                $this->ui->div(
-                                    $this->ui->html("- $attr => {$change['to']}")
-                                ))
-                        )->width(8)
-                    )
-                ], [
-                    $input->added(), fn() => $this->ui->row(
-                        $this->ui->col($this->ui->text($input->newName()))
-                            ->width(3),
-                        $this->ui->col($this->trans->lang('Add'))
-                            ->width(8)
-                    )
-                ]
-            ))
+            $this->ui->div('<b>' . $this->trans->lang('Table') . '</b>'),
+            $this->ui->row(
+                $this->ui->col($this->trans->lang('Name:'))
+                    ->width(3),
+                $this->ui->col($this->ui->text($createDto->name))
+                    ->width(8)
+            ),
+            $this->ui->when($createDto->hasAutoIncrement, fn() =>
+                $this->ui->row(
+                    $this->ui->col($this->trans->lang('Auto increment:'))
+                        ->width(3),
+                    $this->ui->col($this->ui->text($createDto->autoIncrement))
+                        ->width(8)
+                ),
+            ),
+            $this->ui->when($hasEngines && $createDto->engine !== '', fn() =>
+                $this->ui->row(
+                    $this->ui->col($this->trans->lang('Engine:'))
+                        ->width(3),
+                    $this->ui->col($this->ui->text($createDto->engine))
+                        ->width(8)
+                ),
+            ),
+            $this->ui->when($hasCollations && $createDto->collation !== '', fn() =>
+                $this->ui->row(
+                    $this->ui->col($this->trans->lang('Collation:'))
+                        ->width(3),
+                    $this->ui->col($this->ui->text($createDto->collation))
+                        ->width(8)
+                ),
+            ),
+            $this->ui->when($support['comment'] && $createDto->setComment, fn() =>
+                $this->ui->row(
+                    $this->ui->col($this->trans->lang('Comment:'))
+                        ->width(3),
+                    $this->ui->col($createDto->comment)
+                        ->width(8)
+                ),
+            ),
+            $this->ui->div('<b>' . $this->trans->lang('Columns') . '</b>'),
+            $this->tableColumns($columns)
+        );
+    }
+
+    /**
+     * @param TableDto $tableDto
+     * @param TableAlterDto $alterDto
+     * @param array<ColumnDdDto> $columns
+     *
+     * @return string
+     */
+    public function alterValues(TableDto $tableDto, TableAlterDto $alterDto, array $columns): string
+    {
+        $hasEngines = count($this->engines()) > 0;
+        $hasCollations = count($this->collations()) > 0;
+        $support = $this->support();
+
+        return $this->ui->build(
+            $this->ui->div('<b>' . $this->trans->lang('Table') . '</b>'),
+            $this->ui->when($alterDto->name !== $tableDto->name, fn() =>
+                $this->ui->row(
+                    $this->ui->col($this->trans->lang('Name:'))
+                        ->width(3),
+                    $this->ui->col($this->ui->text($alterDto->name))
+                        ->width(8)
+                )
+            ),
+            $this->ui->when($alterDto->hasAutoIncrement, fn() =>
+                $this->ui->row(
+                    $this->ui->col($this->trans->lang('Auto increment:'))
+                        ->width(3),
+                    $this->ui->col($this->ui->text($alterDto->autoIncrement))
+                        ->width(8)
+                ),
+            ),
+            $this->ui->when($hasEngines && $alterDto->engine !== $tableDto->engine, fn() =>
+                $this->ui->row(
+                    $this->ui->col($this->trans->lang('Engine:'))
+                        ->width(3),
+                    $this->ui->col($this->ui->text($alterDto->engine))
+                        ->width(8)
+                ),
+            ),
+            $this->ui->when($hasCollations && $alterDto->collation !== $tableDto->collation, fn() =>
+                $this->ui->row(
+                    $this->ui->col($this->trans->lang('Collation:'))
+                        ->width(3),
+                    $this->ui->col($this->ui->text($alterDto->collation))
+                        ->width(8)
+                ),
+            ),
+            $this->ui->when($support['comment'] && $alterDto->setComment, fn() =>
+                $this->ui->row(
+                    $this->ui->col($this->trans->lang('Comment:'))
+                        ->width(3),
+                    $this->ui->col($alterDto->comment)
+                        ->width(8)
+                ),
+            ),
+            $this->ui->div('<b>' . $this->trans->lang('Columns') . '</b>'),
+            $this->tableColumns($columns)
         );
     }
 

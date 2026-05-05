@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ForeignKeyTrait;
@@ -9,8 +11,6 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableAlter;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableContent;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableCreate;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableHeader;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
 use Lagdo\Facades\Logger;
 use Exception;
 
@@ -95,7 +95,7 @@ class TableProxy extends AbstractDriverProxy
     /**
      * Get details about a table
      *
-     * @param string $table     The table name
+     * @param string $table
      *
      * @return array
      */
@@ -110,7 +110,7 @@ class TableProxy extends AbstractDriverProxy
     /**
      * Get the columns of a table
      *
-     * @param string $table The table name
+     * @param string $table
      *
      * @return array
      * @throws Exception
@@ -140,7 +140,7 @@ class TableProxy extends AbstractDriverProxy
     /**
      * Get the indexes of a table
      *
-     * @param string $table     The table name
+     * @param string $table
      *
      * @return array|null
      */
@@ -162,7 +162,7 @@ class TableProxy extends AbstractDriverProxy
     /**
      * Get the foreign keys of a table
      *
-     * @param string $table     The table name
+     * @param string $table
      *
      * @return array|null
      */
@@ -184,7 +184,7 @@ class TableProxy extends AbstractDriverProxy
     /**
      * Get the triggers of a table
      *
-     * @param string $table     The table name
+     * @param string $table
      *
      * @return array|null
      */
@@ -206,7 +206,7 @@ class TableProxy extends AbstractDriverProxy
     /**
      * Get required data for create/update on tables
      *
-     * @param string $table The table name
+     * @param string $table
      *
      * @return array
      * @throws Exception
@@ -225,7 +225,6 @@ class TableProxy extends AbstractDriverProxy
         }
 
         $foreignKeys = $this->getForeignKeys($table);
-
         return $this->content()->metadata($status, $columns, $foreignKeys);
     }
 
@@ -252,80 +251,98 @@ class TableProxy extends AbstractDriverProxy
     }
 
     /**
+     * @param array $tableInputs
+     *
+     * @return TableCreateDto
+     */
+    public function getCreateTableDto(array $tableInputs): TableCreateDto
+    {
+        return new TableCreateDto($tableInputs, $this->getReferencableColumns(...));
+    }
+
+    /**
      * Get SQL command to create a table
      *
-     * @param array $options     The table options
-     * @param array<ColumnDdDto> $inputs
+     * @param array $tableInputs
+     * @param array<ColumnDdDto> $columnsInputs
      *
      * @return array
      */
-    public function getCreateTableQueries(array $options, array $inputs): array
+    public function getCreateTableQueries(array $tableInputs, array $columnsInputs): array
     {
-        $table = new TableCreateDto($options);
-        $table = $this->create()->makeDto($table, $inputs);
-        if ($table->error !== null) {
-            return [
-                'error' => $table->error,
-            ];
-        }
+        $createDto = $this->getCreateTableDto($tableInputs);
+        $createDto = $this->create()->makeDto($createDto, $columnsInputs);
 
-        return [
-            'queries' => $this->statement()->getCreateTableQueries($table),
+        return $createDto->error !== null ? [
+            'error' => $createDto->error,
+        ] : [
+            'queries' => $this->statement()->getCreateTableQueries($createDto),
         ];
     }
 
     /**
      * Create a table
      *
-     * @param array $options     The table options
-     * @param array<ColumnDdDto> $inputs
+     * @param array $tableInputs
+     * @param array<ColumnDdDto> $columnsInputs
      *
      * @return array
      */
-    public function createTable(array $options, array $inputs): array
+    public function createTable(array $tableInputs, array $columnsInputs): array
     {
-        $queries = $this->getCreateTableQueries($options, $inputs);
+        $queries = $this->getCreateTableQueries($tableInputs, $columnsInputs);
 
         return compact('success', 'error', 'message');
     }
 
     /**
+     * @param array $tableInputs
+     *
+     * @return TableAlterDto
+     */
+    public function getAlterTableDto(array $tableInputs): TableAlterDto
+    {
+        return new TableAlterDto($tableInputs, $this->getReferencableColumns(...));
+    }
+
+    /**
      * Get SQL command to alter a table
      *
-     * @param string $name       The table name
-     * @param array $options     The table options
-     * @param array<ColumnDdDto> $inputs
+     * @param string $table
+     * @param array $tableInputs
+     * @param array<ColumnDdDto> $columnsInputs
      *
      * @return array
      */
-    public function getAlterTableQueries(string $name, array $options, array $inputs): array
+    public function getAlterTableQueries(string $table, array $tableInputs, array $columnsInputs): array
     {
-        $table = new TableAlterDto($options);
-        if (($table->current = $this->engine()->tableStatus($name, true)) === null) {
+        $alterDto = $this->getAlterTableDto($tableInputs);
+        if (($currentTable = $this->engine()->tableStatus($table)) === null) {
             return [
                 'error' => $this->utils()->lang('Unable to find the table.'),
             ];
         }
 
-        $table = $this->alter()->makeDto($table, $inputs);
-        return $table->error !== null ? ['error' => $table->error] : [
-            'queries' => $this->statement()->getAlterTableQueries($table),
+        $alterDto->current = $currentTable;
+        $alterDto = $this->alter()->makeDto($alterDto, $columnsInputs);
+        return $alterDto->error !== null ? ['error' => $alterDto->error] : [
+            'queries' => $this->statement()->getAlterTableQueries($alterDto),
         ];
     }
 
     /**
      * Alter a table
      *
-     * @param string $name       The table name
-     * @param array $options     The table options
-     * @param array<ColumnDdDto> $inputs
+     * @param string $table
+     * @param array $tableInputs
+     * @param array<ColumnDdDto> $columnsInputs
      *
      * @return array
      * @throws Exception
      */
-    public function alterTable(string $name, array $options, array $inputs): array
+    public function alterTable(string $table, array $tableInputs, array $columnsInputs): array
     {
-        $queries = $this->getAlterTableQueries($name, $options, $inputs);
+        $queries = $this->getAlterTableQueries($table, $tableInputs, $columnsInputs);
 
         return compact('success', 'error', 'message');
     }
@@ -333,7 +350,7 @@ class TableProxy extends AbstractDriverProxy
     /**
      * Drop a table
      *
-     * @param string $table     The table name
+     * @param string $table
      *
      * @return array
      */

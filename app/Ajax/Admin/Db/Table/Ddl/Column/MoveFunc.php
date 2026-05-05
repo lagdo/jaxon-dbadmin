@@ -12,21 +12,19 @@ class MoveFunc extends FuncComponent
 {
     /**
      * @param string $columnId
-     * @param array  $values
      *
      * @return void
      */
-    public function up(string $columnId, array $values): void
+    public function up(string $columnId): void
     {
     }
 
     /**
      * @param string $columnId
-     * @param array  $values
      *
      * @return void
      */
-    public function down(string $columnId, array $values): void
+    public function down(string $columnId): void
     {
     }
 }

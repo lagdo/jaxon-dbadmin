@@ -2,34 +2,14 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl;
 
-use Jaxon\Attributes\Attribute\After;
-use Jaxon\Attributes\Attribute\Export;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Tables;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\MainComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 
 /**
  * Create a new table
  */
-#[After('showBreadcrumbs')]
-#[Export(['render'])]
-class Create extends MainComponent
+class Create extends TableDdl
 {
-    /**
-     * The database table data.
-     *
-     * @var array|null
-     */
-    private $metadata = null;
-
-    /**
-     * @return array
-     */
-    protected function metadata(): array
-    {
-        return $this->metadata ??= $this->db()->getTableMetadata();
-    }
-
     /**
      * @inheritDoc
      */
@@ -39,20 +19,22 @@ class Create extends MainComponent
         $this->setTableBag('columns', []);
 
         // Set main menu buttons
-        $values = $this->tableUi->listFormValues();
-        $count = $this->tableUi->listFormColumnCount();
+        $tableValues = $this->tableUi->tableFormValues();
+        $count = $this->tableUi->columnsFormItemCount();
         $actions = [
             'table-save' => [
                 'title' => $this->trans()->lang('Save'),
-                'handler' => $this->rq(TableFunc::class)->create($values)->ifgt($count, 0),
+                'handler' => $this->rq(TableFunc::class)->create($tableValues)
+                    ->ifgt($count, 0)
+                    ->elseWarning('You need to add at least one column to the table.'),
             ],
             'table-changes' => [
                 'title' => $this->trans()->lang('Changes'),
-                'handler' => $this->rq(QueryFunc::class)->changes($values),
+                'handler' => $this->rq(ChangeFunc::class)->create($tableValues),
             ],
             'table-queries' => [
                 'title' => $this->trans()->lang('Queries'),
-                'handler' => $this->rq(QueryFunc::class)->createTable($values),
+                'handler' => $this->rq(QueryFunc::class)->create($tableValues),
             ],
             'table-back' => [
                 'title' => $this->trans()->lang('Back'),
@@ -60,26 +42,6 @@ class Create extends MainComponent
             ],
         ];
         $this->cl(PageActions::class)->show($actions);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function header(): string
-    {
-        return $this->tableUi
-            ->metadata($this->metadata())
-            ->header();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function content(): string
-    {
-        return $this->tableUi
-            ->metadata($this->metadata())
-            ->wrapper();
     }
 
     /**

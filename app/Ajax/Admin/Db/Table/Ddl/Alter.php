@@ -2,33 +2,13 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl;
 
-use Jaxon\Attributes\Attribute\After;
-use Jaxon\Attributes\Attribute\Export;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\MainComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 
 /**
  * Alter a table
  */
-#[After('showBreadcrumbs')]
-#[Export(['render'])]
-class Alter extends MainComponent
+class Alter extends TableDdl
 {
-    /**
-     * The database table data.
-     *
-     * @var array|null
-     */
-    private $metadata = null;
-
-    /**
-     * @return array
-     */
-    protected function metadata(): array
-    {
-        return $this->metadata ??= $this->db()->getTableMetadata($this->getCurrentTable());
-    }
-
     /**
      * @inheritDoc
      */
@@ -36,20 +16,20 @@ class Alter extends MainComponent
     {
         // Set main menu buttons
         $table = $this->getCurrentTable();
-        $values = $this->tableUi->listFormValues();
+        $tableValues = $this->tableUi->tableFormValues();
         $actions = [
             'table-save' => [
                 'title' => $this->trans()->lang('Save'),
-                'handler' => $this->rq(TableFunc::class)->alter($values)
+                'handler' => $this->rq(TableFunc::class)->alter($tableValues)
                     ->confirm("Save changes on table $table?"),
             ],
             'table-changes' => [
                 'title' => $this->trans()->lang('Changes'),
-                'handler' => $this->rq(QueryFunc::class)->changes($values),
+                'handler' => $this->rq(ChangeFunc::class)->alter($tableValues),
             ],
             'table-queries' => [
                 'title' => $this->trans()->lang('Queries'),
-                'handler' => $this->rq(QueryFunc::class)->alterTable($values),
+                'handler' => $this->rq(QueryFunc::class)->alter($tableValues),
             ],
             'table-back' => [
                 'title' => $this->trans()->lang('Back'),
@@ -57,26 +37,6 @@ class Alter extends MainComponent
             ],
         ];
         $this->cl(PageActions::class)->show($actions);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function header(): string
-    {
-        return $this->tableUi
-            ->metadata($this->metadata())
-            ->header();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function content(): string
-    {
-        return $this->tableUi
-            ->metadata($this->metadata())
-            ->wrapper();
     }
 
     /**

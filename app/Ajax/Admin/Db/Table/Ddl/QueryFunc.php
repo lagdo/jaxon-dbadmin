@@ -8,37 +8,22 @@ use function count;
 use function implode;
 
 /**
- * Show the changes and queries on a table.
+ * Show the queries on a table.
  */
 class QueryFunc extends Column\FuncComponent
 {
     /**
-     * @param array  $values      The table values
-     *
-     * @return void
-     */
-    public function changes(array $values): void
-    {
-        $title = 'Changes in table ' . $this->getCurrentTable();
-        $content = $this->columnUi->changes($this->getColumnInputs()) ?: '&nbsp;';
-        $buttons = [[
-            'title' => 'Close',
-            'class' => 'btn btn-tertiary',
-            'click' => 'close',
-        ]];
-
-        $this->modal()->show($title, $content, $buttons);
-    }
-
-    /**
-     * @param array $formValues
+     * @param array $tableInputs
      *
      * @return array
      */
-    private function options(array $formValues): array
+    private function tableInputs(array $tableInputs): array
     {
-        $formValues['hasAutoIncrement'] = isset($formValues['hasAutoIncrement']);
-        return $formValues;
+        return [
+            ...$tableInputs,
+            'hasAutoIncrement' => isset($tableInputs['hasAutoIncrement']),
+            'setComment' => isset($tableInputs['setComment']),
+        ];
     }
 
     /**
@@ -48,20 +33,21 @@ class QueryFunc extends Column\FuncComponent
      */
     private function queryText(array $queries): string
     {
-        return count($queries) === 0 ? '' : implode(";\n\n", $queries) . ";\n";
+        return count($queries) === 0 ? '' : implode(";\n", $queries) . ";\n";
     }
 
     /**
      * Show the queries to create the table
      *
-     * @param array $formValues
+     * @param array $tableInputs
      *
      * @return void
      */
-    public function createTable(array $formValues): void
+    public function create(array $tableInputs): void
     {
-        $options = $this->options($formValues);
-        $result = $this->db()->getCreateTableQueries($options, $this->getColumnInputs());
+        $tableInputs = $this->tableInputs($tableInputs);
+        $columnsInputs = $this->getColumnInputs();
+        $result = $this->db()->getCreateTableQueries($tableInputs, $columnsInputs);
         // Show the error
         if (isset($result['error'])) {
             $this->alert()
@@ -82,7 +68,6 @@ class QueryFunc extends Column\FuncComponent
             'class' => 'btn btn-primary',
             'click' => $this->rq(Query::class)->database($queryText),
         ]];
-
         $this->modal()->show($title, $content, $buttons);
 
         $this->setupSqlEditor($this->columnUi->getQueryDivId());
@@ -91,15 +76,16 @@ class QueryFunc extends Column\FuncComponent
     /**
      * Show the queries to alter the table
      *
-     * @param array $formValues
+     * @param array $tableInputs
      *
      * @return void
      */
-    public function alterTable(array $formValues): void
+    public function alter(array $tableInputs): void
     {
         $table = $this->getCurrentTable();
-        $options = $this->options($formValues);
-        $result = $this->db()->getAlterTableQueries($table, $options, $this->getColumnInputs());
+        $tableInputs = $this->tableInputs($tableInputs);
+        $columnsInputs = $this->getColumnInputs();
+        $result = $this->db()->getAlterTableQueries($table, $tableInputs, $columnsInputs);
         // Show the error
         if(isset($result['error']))
         {
@@ -121,7 +107,6 @@ class QueryFunc extends Column\FuncComponent
             'class' => 'btn btn-primary',
             'click' => $this->rq(Query::class)->database($queryText),
         ]];
-
         $this->modal()->show($title, $content, $buttons);
 
         $this->setupSqlEditor($this->columnUi->getQueryDivId());

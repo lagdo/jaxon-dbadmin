@@ -174,7 +174,7 @@ class TableUiBuilder
                 $this->ui->col(
                     $this->ui->inputGroup(
                         $this->ui->checkbox()
-                            ->checked($table?->hasAutoIncrement ?? false)
+                            ->checked(false)
                             ->setName('hasAutoIncrement'),
                         $this->ui->input()
                             ->setName('autoIncrement')

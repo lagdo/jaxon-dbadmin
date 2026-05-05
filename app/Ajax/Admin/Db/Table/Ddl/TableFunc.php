@@ -16,40 +16,39 @@ class TableFunc extends FuncComponent
     /**
      * Create a new table
      *
-     * @param array  $values      The table values
+     * @param array  $tableInputs      The table values
      *
      * @return void
      */
     #[Before('notYetAvailable')]
-    public function create(array $values): void
+    public function create(array $tableInputs): void
     {
         // $columns = $this->getTableBag('columns');
-        // $values = array_merge($this->defaults, $values);
+        // $tableInputs = array_merge($this->defaults, $tableInputs);
 
-        // $result = $this->db()->createTable($values);
+        // $result = $this->db()->createTable($tableInputs);
         // if(!$result['success'])
         // {
         //     $this->alert()->error($result['error']);
         //     return;
         // }
 
-        // $this->show($values['name']);
+        // $this->show($tableInputs['name']);
         // $this->alert()->success($result['message']);
     }
 
     /**
-     * @param string $table      The table name
-     * @param array  $values      The table values
+     * @param array  $tableInputs      The table values
      *
      * @return void
      */
     #[Before('notYetAvailable')]
-    public function alter(string $table, array $values): void
+    public function alter(array $tableInputs): void
     {
         // $table = $this->getCurrentTable();
-        // $values = array_merge($this->defaults, $values);
+        // $tableInputs = array_merge($this->defaults, $tableInputs);
 
-        // $result = $this->db()->alterTable($table, $values);
+        // $result = $this->db()->alterTable($table, $tableInputs);
         // if(!$result['success'])
         // {
         //     $this->alert()->error($result['error']);

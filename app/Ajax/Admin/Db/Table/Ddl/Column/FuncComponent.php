@@ -37,7 +37,7 @@ abstract class FuncComponent extends BaseComponent
         if ($formValues['generated'] === '') {
             $formValues['default'] = ''; // Erase the default value.
         }
-        $formValues['comment'] = $formValues['comment'] ?? '';
+        $formValues['comment'] ??= '';
 
         return $formValues;
     }

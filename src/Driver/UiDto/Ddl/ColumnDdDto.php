@@ -190,6 +190,14 @@ class ColumnDdDto
     }
 
     /**
+     * @return array
+     */
+    public function attributes(): array
+    {
+        return self::$attributes;
+    }
+
+    /**
      * @return bool
      */
     public function columnEdited(): bool
@@ -269,24 +277,6 @@ class ColumnDdDto
             'position' => $this->position,
             'column' => $this->values(),
         ];
-    }
-
-    /**
-     * @return ColumnDto
-     */
-    public function makeColumn(): ColumnDto
-    {
-        $column = new ColumnDto();
-
-        $values = $this->values();
-        foreach (self::$attributes as $attr) {
-            $column->$attr = $values->$attr;
-        }
-        if ($values->generated === '') {
-            $column->default = null;
-        }
-
-        return $column;
     }
 
     /**

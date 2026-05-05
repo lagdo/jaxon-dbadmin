@@ -21,7 +21,7 @@ class TableAlter extends AbstractDriverProxy
     public function makeDto(TableAlterDto $table, array $inputs): TableAlterDto
     {
         // From create.inc.php
-        $foreignKeys = $this->getForeignKeys($table->name);
+        $foreignKeys = $this->getForeignKeys($table);
 
         // Auto increment
         $aiCount = count(array_filter($inputs, fn(ColumnDdDto $input) =>
@@ -33,19 +33,16 @@ class TableAlter extends AbstractDriverProxy
 
         // Todo: move fields up and down
 
-        // Required to be able to get the referencable columns.
-        $this->tableName = '';
-
         // $after = " FIRST";
 
         $table->clearColumns();
-        $table->inputs['added'] = array_map(
+        $table->columns['added'] = array_map(
             fn(ColumnDdDto $input) => $this->makeColumnInput($table, $input, $foreignKeys),
             array_filter($inputs, fn(ColumnDdDto $input) => $input->added()));
-        $table->inputs['edited'] = array_map(
+        $table->columns['edited'] = array_map(
             fn(ColumnDdDto $input) => $this->makeColumnInput($table, $input, $foreignKeys),
             array_filter($inputs, fn(ColumnDdDto $input) => $input->changed()));
-        $table->droppedColumns = array_map(
+        $table->columns['dropped'] = array_map(
             fn(ColumnDdDto $input) => $input->column->name,
             array_filter($inputs, fn(ColumnDdDto $input) => $input->dropped()));
 
