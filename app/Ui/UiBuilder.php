@@ -154,7 +154,7 @@ class UiBuilder
                     $this->ui->breadcrumbItem($this->ui->html($breadcrumb))
                         ->active($curr++ === $last)
                 )
-            )
+            )->setStyle('margin: 2px 0;')
         );
     }
 
@@ -185,14 +185,14 @@ class UiBuilder
     {
         return $this->ui->build(
             $this->ui->div(
-                $this->ui->panel(
-                    $this->ui->panelBody( 
-                        $this->ui->span(['style' => 'float:left'])
-                            ->tbnBindApp(rq(Breadcrumbs::class)),
-                        $this->ui->span(['style' => 'float:right'])
-                            ->tbnBindApp(rq(PageActions::class))
-                    )->setStyle('padding-top: 0; padding-bottom: 0;')
-                )->setStyle('margin-bottom: 10px;'),
+                $this->ui->div(
+                    $this->ui->div(
+                        $this->ui->div()->tbnBindApp(rq(Breadcrumbs::class))
+                    )->setStyle('flex: 1'),
+                    $this->ui->div(
+                        $this->ui->div()->tbnBindApp(rq(PageActions::class))
+                    )->setStyle('padding-left:5px;')
+                )->setStyle('display:flex; flex-direction:row; align-items:flex-start; margin-bottom: 10px;'),
                 $this->ui->div()
                     ->tbnBindApp(rq(Content::class))
                     ->setClass('jaxon-dbadmin-columns-wrapper page-content-wrapper')
