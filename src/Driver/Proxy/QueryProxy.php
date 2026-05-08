@@ -8,11 +8,14 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnInput;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnValue;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataReader;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataWriter;
+use stdClass;
 
 use function array_filter;
 use function array_keys;
 use function array_map;
+use function array_reduce;
 use function count;
+use function is_string;
 
 /**
  * Proxy to table query functions
@@ -162,7 +165,6 @@ class QueryProxy extends AbstractDriverProxy
         $row = $result->fetchAssoc();
         if($this->action === 'select' && (!$row || $result->fetchAssoc()))
         {
-            // $result->rowCount() != 1 isn't available in all drivers
             return [
                 'error' => $this->utils()->lang('Unable to find the edited data row.'),
             ]; // No data
@@ -351,5 +353,72 @@ class QueryProxy extends AbstractDriverProxy
         return [
             'message' => $this->utils()->lang('Item has been deleted.'),
         ];
+    }
+
+    /**
+     * Execute a set of queries, and return the number of errors
+     *
+     * @param array $queries
+     * @param bool $stopOnError
+     * @param bool $transaction
+     *
+     * @return int
+     */
+    public function executeQueries(array $queries,
+        bool $stopOnError = false, bool $transaction = false): int
+    {
+        $options = new stdClass();
+        $options->transaction = $transaction;
+        $options->stopOnError = $stopOnError || $transaction;
+        $options->stopped = false;
+        $execute = function(int $errors, string|array $query) use($options) {
+            if ($options->stopped) {
+                return $errors;
+            }
+
+            if (is_string($query)) {
+                if ($this->engine()->execute($query)) {
+                    return $errors;
+                }
+                // An error occured.
+                $options->stopped = $options->stopOnError;
+                return ++$errors;
+            }
+
+            // Special type of queries (upsert only for now).
+            [$type, [$update, $insert]] = $query;
+            if ($type !== 'upsert') {
+                return $errors; // Skip queries with unknown type.
+            }
+
+            // Execute the update query of the upsert.
+            if ($this->engine()->executeQuery($update)->hasError()) {
+                $options->stopped = $options->stopOnError;
+                return ++$errors;
+            }
+            if ($this->engine()->affectedRows() > 0) {
+                return $errors; // The update was successful.
+            }
+
+            // Execute the insert query of the upsert.
+            if ($this->engine()->executeQuery($insert)->hasError()) {
+                $options->stopped = $options->stopOnError;
+                return ++$errors;
+            }
+
+            return $errors;
+        };
+
+        if ($transaction) {
+            $this->engine()->begin();
+        }
+        $errors = array_reduce($queries, $execute, 0);
+        if ($transaction) {
+            $errors > 0 ?
+                $this->engine()->rollback() :
+                $this->engine()->commit();
+        }
+
+        return $errors;
     }
 }
