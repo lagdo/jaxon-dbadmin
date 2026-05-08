@@ -4,8 +4,10 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Query;
 
+use function array_map;
 use function count;
 use function implode;
+use function is_string;
 
 /**
  * Show the queries on a table.
@@ -31,9 +33,22 @@ class QueryFunc extends Column\FuncComponent
      *
      * @return string
      */
-    private function queryText(array $queries): string
+    private function getQueryCode(array $queries): string
     {
-        return count($queries) === 0 ? '' : implode(";\n", $queries) . ";\n";
+        if (count($queries) === 0) {
+            return '';
+        }
+
+        $queries = array_map(function(array|string $query) {
+            if (is_string($query)) {
+                return $query;
+            }
+
+            [$type, $subQueries] = $query;
+            return "-- Type: $type\n" . implode(";\n", $subQueries) . ";\n-- End: $type";
+        }, $queries);
+
+        return implode(";\n", $queries) . ";\n";
     }
 
     /**
@@ -56,9 +71,9 @@ class QueryFunc extends Column\FuncComponent
             return;
         }
 
-        $queryText = $this->queryText($result['queries']);
+        $queryCode = $this->getQueryCode($result['queries']);
         $title = $this->trans()->lang('Queries to create a new table');
-        $content = $this->columnUi->sqlCodeElement($queryText);
+        $content = $this->columnUi->sqlCodeElement($queryCode);
         $buttons = [[
             'title' => 'Close',
             'class' => 'btn btn-tertiary',
@@ -66,7 +81,7 @@ class QueryFunc extends Column\FuncComponent
         ], [
             'title' => $this->trans()->lang('Edit'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq(Query::class)->database($queryText),
+            'click' => $this->rq(Query::class)->database($queryCode),
         ]];
         $this->modal()->show($title, $content, $buttons);
 
@@ -95,9 +110,9 @@ class QueryFunc extends Column\FuncComponent
             return;
         }
 
-        $queryText = $this->queryText($result['queries']);
+        $queryCode = $this->getQueryCode($result['queries']);
         $title = $this->trans()->lang('Queries to create a new table');
-        $content = $this->columnUi->sqlCodeElement($queryText);
+        $content = $this->columnUi->sqlCodeElement($queryCode);
         $buttons = [[
             'title' => 'Close',
             'class' => 'btn btn-tertiary',
@@ -105,7 +120,7 @@ class QueryFunc extends Column\FuncComponent
         ], [
             'title' => $this->trans()->lang('Edit'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq(Query::class)->database($queryText),
+            'click' => $this->rq(Query::class)->database($queryCode),
         ]];
         $this->modal()->show($title, $content, $buttons);
 
