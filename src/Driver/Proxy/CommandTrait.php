@@ -44,4 +44,31 @@ trait CommandTrait
         $this->connectToSchema();
         return $this->commandProxy()->executeCommands($query, $limit, $errorStops, $onlyErrors);
     }
+
+    /**
+     * Get data for import
+     *
+     * @return array
+     */
+    public function getImportOptions(): array
+    {
+        $this->connectToDatabase();
+        $this->breadcrumbs(true)->item($this->utils()->lang('Import'));
+        return $this->commandProxy()->getImportOptions();
+    }
+
+    /**
+     * Run queries from uploaded files
+     *
+     * @param array  $files         The uploaded files
+     * @param bool   $errorStops    Stop executing the requests in case of error
+     * @param bool   $onlyErrors    Return only errors
+     *
+     * @return array
+     */
+    public function executeSqlFiles(array $files, bool $errorStops, bool $onlyErrors): array
+    {
+        $this->connectToSchema();
+        return $this->commandProxy()->executeSqlFiles($files, $errorStops, $onlyErrors);
+    }
 }

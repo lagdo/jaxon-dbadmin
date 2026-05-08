@@ -42,6 +42,47 @@ trait ServerTrait
     }
 
     /**
+     * Get the privilege list
+     * This feature is available only for MySQL
+     *
+     * @param string $database  The database name
+     *
+     * @return array
+     */
+    public function getPrivileges(string $database = ''): array
+    {
+        $this->connectToServer();
+        $this->breadcrumbs()->clear()->item($this->utils()->lang('Privileges'));
+        return $this->serverProxy()->getPrivileges($database);
+    }
+
+    /**
+     * Get the privileges for a new user
+     *
+     * @return array
+     */
+    public function newUserPrivileges(): array
+    {
+        $this->connectToServer();
+        return $this->serverProxy()->newUserPrivileges();
+    }
+
+    /**
+     * Get the privileges for a new user
+     *
+     * @param string $user      The user name
+     * @param string $host      The host name
+     * @param string $database  The database name
+     *
+     * @return array
+     */
+    public function getUserPrivileges(string $user, string $host, string $database): array
+    {
+        $this->connectToServer();
+        return $this->serverProxy()->getUserPrivileges($user, $host, $database);
+    }
+
+    /**
      * Get the collation list
      *
      * @return array

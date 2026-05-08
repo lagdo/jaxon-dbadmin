@@ -12,15 +12,12 @@ use Lagdo\DbAdmin\Driver\Driver;
 class DriverProxy extends AbstractDriverProxy
 {
     use Proxy\ServerTrait;
-    use Proxy\UserTrait;
     use Proxy\DatabaseTrait;
     use Proxy\TableTrait;
     use Proxy\SelectTrait;
     use Proxy\QueryTrait;
-    use Proxy\ViewTrait;
     use Proxy\CommandTrait;
     use Proxy\ExportTrait;
-    use Proxy\ImportTrait;
 
     /**
      * @var array

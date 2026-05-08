@@ -56,10 +56,6 @@ return [
                 ->setOptions($di->g('dbadmin_server_options')),
         Proxy\ExportProxy::class => fn(Container $di) =>
             new Proxy\ExportProxy($di->g(Support\Driver\DriverProxy::class)),
-        Proxy\ImportProxy::class => fn(Container $di) =>
-            (new Proxy\ImportProxy($di->g(Support\Driver\DriverProxy::class)))
-                ->setTimer($di->g(Service\TimerService::class))
-                ->setQueryLogger($di->g(Service\Admin\QueryLogger::class)),
         Proxy\QueryProxy::class => fn(Container $di) =>
             new Proxy\QueryProxy($di->g(Support\Driver\DriverProxy::class)),
         Proxy\SelectProxy::class => fn(Container $di) =>
@@ -70,10 +66,6 @@ return [
                 ->setOptions($di->g('dbadmin_server_options')),
         Proxy\TableProxy::class => fn(Container $di) =>
             new Proxy\TableProxy($di->g(Support\Driver\DriverProxy::class)),
-        Proxy\UserProxy::class => fn(Container $di) =>
-            new Proxy\UserProxy($di->g(Support\Driver\DriverProxy::class)),
-        Proxy\ViewProxy::class => fn(Container $di) =>
-            new Proxy\ViewProxy($di->g(Support\Driver\DriverProxy::class)),
 
         // Application authentication.
         'dbadmin_auth_service' => fn(Container $di) =>

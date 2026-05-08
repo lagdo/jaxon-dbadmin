@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
+use Exception;
+
 /**
  * Proxy to database functions
  */
@@ -114,5 +116,111 @@ trait DatabaseTrait
     {
         $this->connectToSchema();
         return $this->databaseProxy()->getSchemaColumns();
+    }
+
+    /**
+     * Get details about a view
+     *
+     * @param string $view      The view name
+     *
+     * @return array
+     */
+    public function getViewInfo(string $view): array
+    {
+        $this->connectToSchema();
+        $this->breadcrumbs(true)
+            ->item($this->utils()->lang('Views'))
+            ->item("<i><b>$view</b></i>");
+        $this->utils()->input->table = $view;
+        return $this->databaseProxy()->getViewInfo($view);
+    }
+
+    /**
+     * Get details about a view
+     *
+     * @param string $view The view name
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getViewColumns(string $view): array
+    {
+        $this->connectToSchema();
+        $this->utils()->input->table = $view;
+        return $this->databaseProxy()->getViewColumns($view);
+    }
+
+    /**
+     * Get the triggers of a view
+     *
+     * @param string $view      The view name
+     *
+     * @return array|null
+     */
+    public function getViewTriggers(string $view): ?array
+    {
+        $this->connectToSchema();
+        $this->utils()->input->table = $view;
+        return $this->databaseProxy()->getViewTriggers($view);
+    }
+
+    /**
+     * Get a view
+     *
+     * @param string $view The view name
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getView(string $view): array
+    {
+        $this->connectToSchema();
+        $this->utils()->input->table = $view;
+        return $this->databaseProxy()->getView($view);
+    }
+
+    /**
+     * Create a view
+     *
+     * @param array $values The view values
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function createView(array $values): array
+    {
+        $this->connectToSchema();
+        $this->utils()->input->table = $values['name'];
+        return $this->databaseProxy()->createView($values);
+    }
+
+    /**
+     * Update a view
+     *
+     * @param string $view The view name
+     * @param array $values The view values
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function updateView(string $view, array $values): array
+    {
+        $this->connectToSchema();
+        $this->utils()->input->table = $view;
+        return $this->databaseProxy()->updateView($view, $values);
+    }
+
+    /**
+     * Drop a view
+     *
+     * @param string $view The view name
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function dropView(string $view): array
+    {
+        $this->connectToSchema();
+        return $this->databaseProxy()->dropView($view);
     }
 }
