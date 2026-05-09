@@ -2,8 +2,9 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
-use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnAction;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 
 use function array_filter;
 use function count;
@@ -36,13 +37,13 @@ class TableAlter extends AbstractDriverProxy
         // $after = " FIRST";
 
         $table->clearColumns();
-        $table->columns['added'] = array_map(
+        $table->columns[ColumnAction::ADD->value] = array_map(
             fn(ColumnDdDto $input) => $this->makeColumnInput($table, $input, $foreignKeys),
             array_filter($inputs, fn(ColumnDdDto $input) => $input->added()));
-        $table->columns['edited'] = array_map(
+        $table->columns[ColumnAction::EDIT->value] = array_map(
             fn(ColumnDdDto $input) => $this->makeColumnInput($table, $input, $foreignKeys),
             array_filter($inputs, fn(ColumnDdDto $input) => $input->changed()));
-        $table->columns['dropped'] = array_map(
+        $table->columns[ColumnAction::DROP->value] = array_map(
             fn(ColumnDdDto $input) => $input->column->name,
             array_filter($inputs, fn(ColumnDdDto $input) => $input->dropped()));
 

@@ -2,8 +2,9 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
-use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnAction;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 
 use function array_filter;
 use function count;
@@ -33,7 +34,7 @@ class TableCreate extends AbstractDriverProxy
         // $after = " FIRST";
 
         $table->clearColumns();
-        $table->columns['added'] = array_map(fn(ColumnDdDto $input) =>
+        $table->columns[ColumnAction::ADD->value] = array_map(fn(ColumnDdDto $input) =>
             $this->makeColumnInput($table, $input, $foreignKeys), $inputs);
 
         return $table;

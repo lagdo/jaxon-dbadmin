@@ -52,21 +52,18 @@ abstract class FuncComponent extends BaseComponent
             }
 
             $queryField = $queryFields[$column];
-
             // The column has a simple value.
             if (isset($queryField->valueInput['value'])) {
                 $queryField->valueInput['value'] = $value;
                 continue;
             }
-
             // The column is a checkbox for a boolean.
-            if ($queryField->valueInput['column'] === 'bool') {
+            if ($queryField->valueInput['field'] === 'bool') {
                 $queryField->valueInput['checked'] = $value === '1';
                 continue;
             }
-
             // The column is a file upload.
-            if ($queryField->valueInput['column'] === 'file') {
+            if ($queryField->valueInput['field'] === 'file') {
                 continue;
             }
 

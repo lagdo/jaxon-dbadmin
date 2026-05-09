@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnAction;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 
 use function array_combine;
@@ -133,7 +134,7 @@ class ColumnDdDto
      */
     public function changed(): bool
     {
-        return $this->action === ColumnAction::CHANGE;
+        return $this->action === ColumnAction::EDIT;
     }
 
     /**
@@ -141,7 +142,7 @@ class ColumnDdDto
      */
     public function change(): void
     {
-        $this->action = ColumnAction::CHANGE;
+        $this->action = ColumnAction::EDIT;
     }
 
     /**
@@ -149,7 +150,7 @@ class ColumnDdDto
      */
     public function changeIf(): void
     {
-        $this->action = $this->columnEdited() ? ColumnAction::CHANGE : ColumnAction::NONE;
+        $this->action = $this->columnEdited() ? ColumnAction::EDIT : ColumnAction::NONE;
     }
 
     /**
