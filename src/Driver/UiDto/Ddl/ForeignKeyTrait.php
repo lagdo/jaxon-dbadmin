@@ -2,10 +2,10 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
-use Lagdo\DbAdmin\Driver\Sql\Dto\AbstractTableDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnInputDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableDdlDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 
 use function array_filter;
@@ -48,11 +48,11 @@ trait ForeignKeyTrait
     /**
      * Get foreign keys
      *
-     * @param AbstractTableDto|string $table
+     * @param TableDdlDto|string $table
      *
      * @return array
      */
-    private function getForeignKeys(AbstractTableDto|string $table = ''): array
+    private function getForeignKeys(TableDdlDto|string $table = ''): array
     {
         $columns = is_string($table) ?
             $this->getReferencableColumns($table) :
@@ -67,13 +67,13 @@ trait ForeignKeyTrait
     }
 
     /**
-     * @param AbstractTableDto $table
+     * @param TableDdlDto $table
      * @param ColumnDdDto $input
      * @param array $foreignKeys
      *
      * @return ColumnInputDto
      */
-    private function makeColumnInput(AbstractTableDto $table,
+    private function makeColumnInput(TableDdlDto $table,
         ColumnDdDto $input, array $foreignKeys): ColumnInputDto
     {
         $values = $input->values();
