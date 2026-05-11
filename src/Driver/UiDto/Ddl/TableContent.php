@@ -201,13 +201,8 @@ class TableContent extends AbstractDriverProxy
             'unsigned' => $unsigned,
             'engines' => $this->engine()->engines(),
             'defaults' => $this->engine()->columnDefaults(),
-            'support' => [
-                'columns' => $this->engine()->support('columns'),
-                'comment' => $this->engine()->support('comment'),
-                'partitioning' => $this->engine()->support('partitioning'),
-                'move_col' => $this->engine()->support('move_col'),
-                'drop_col' => $this->engine()->support('drop_col'),
-            ],
+            // Callback to call the support method.
+            'support' => $this->engine()->support(...),
         ];
     }
 

@@ -111,7 +111,7 @@ class TableUiBuilder
      */
     protected function columnsTitleBlock(): mixed
     {
-        $support = $this->support();
+        $support = $this->support(['columns']);
 
         return $this->ui->div(
             $this->ui->div(
@@ -133,8 +133,8 @@ class TableUiBuilder
     protected function tablePropertiesForm(): mixed
     {
         $hasEngines = count($this->engines()) > 0;
-        $hasCollations = count($this->collations()) > 0;
-        $support = $this->support();
+        $support = $this->support(['table_collation', 'comment']);
+        $hasCollations = $support['table_collation'] && count($this->collations()) > 0;
         /** @var TableDto|null */
         $table = $this->metadata['table'] ?? null;
 
@@ -245,7 +245,7 @@ class TableUiBuilder
      */
     protected function getColumnActionMenu(ColumnDdDto $input, string $columnId): mixed
     {
-        $support = $this->support();
+        $support = $this->support(['move_col', 'drop_col']);
         $movableUp = $support['move_col'] && $input->position > 0;
         $movableDown = $support['move_col'] &&
             $input->position < count($this->inputs) - 1;
@@ -312,7 +312,7 @@ class TableUiBuilder
     protected function columnUiInput(ColumnDdDto $input, string $columnId): mixed
     {
         $editPrefix = sprintf("columns[%d]", $input->position);
-        $support = $this->support();
+        $support = $this->support(['comment']);
 
         return $this->ui->list(
             // First line

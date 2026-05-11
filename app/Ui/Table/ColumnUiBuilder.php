@@ -44,7 +44,7 @@ class ColumnUiBuilder
     {
         $isPrimary = $input->values()->name === $primaryColumn;
         $this->listMode = false;
-        $support = $this->support();
+        $support = $this->support(['comment']);
         $editableProps = ['unsigned', 'collation', 'onUpdate', 'onDelete'];
 
         return $this->ui->build(
@@ -209,7 +209,7 @@ class ColumnUiBuilder
     {
         $hasEngines = count($this->engines()) > 0;
         $hasCollations = count($this->collations()) > 0;
-        $support = $this->support();
+        $support = $this->support(['comment']);
 
         return $this->ui->build(
             $this->ui->div('<b>' . $this->trans->lang('Table') . '</b>'),
@@ -267,7 +267,7 @@ class ColumnUiBuilder
     {
         $hasEngines = count($this->engines()) > 0;
         $hasCollations = count($this->collations()) > 0;
-        $support = $this->support();
+        $support = $this->support(['comment']);
 
         return $this->ui->build(
             $this->ui->div('<b>' . $this->trans->lang('Table') . '</b>'),

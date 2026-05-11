@@ -2,6 +2,9 @@
 
 namespace Lagdo\DbAdmin\App\Ui\Table\Column;
 
+use function array_combine;
+use function array_map;
+
 trait MetadataTrait
 {
     /**
@@ -10,11 +13,14 @@ trait MetadataTrait
     protected $metadata = [];
 
     /**
+     * @param array $features
+     *
      * @return array
      */
-    protected function support(): array
+    protected function support(array $features): array
     {
-        return $this->metadata['support'] ?? [];
+        $support = $this->metadata['support'] ?? fn() => false;
+        return array_combine($features, array_map($support, $features));
     }
 
     /**
