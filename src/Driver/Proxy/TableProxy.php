@@ -221,7 +221,7 @@ class TableProxy extends AbstractDriverProxy
             if (!$status) {
                 throw new Exception($this->utils()->lang('No tables.'));
             }
-            $columns = $this->engine()->columns($table);
+            $columns = $this->engine()->columns($status);
         }
 
         $foreignKeys = $this->getForeignKeys($table);

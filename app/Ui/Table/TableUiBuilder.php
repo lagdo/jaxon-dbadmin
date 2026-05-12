@@ -172,19 +172,22 @@ class TableUiBuilder
             )->setClass('dbadmin-table-edit-row'),
             $this->ui->row(
                 $this->ui->col(
-                    $this->ui->inputGroup(
-                        $this->ui->checkbox()
-                            ->checked(false)
-                            ->setName('hasAutoIncrement'),
-                        $this->ui->input()
-                            ->setName('autoIncrement')
-                            ->setPlaceholder('Auto Increment')
-                            ->setValue($table?->hasAutoIncrement ? $table->autoIncrement : '')
-                    )
+                    $this->ui->when($table?->hasAutoIncrement ?? false, fn() =>
+                        $this->ui->inputGroup(
+                            $this->ui->checkbox()
+                                ->checked(false)
+                                ->setName('hasAutoIncrement'),
+                            $this->ui->label($table->autoIncrementColumn),
+                            $this->ui->input()
+                                ->setName('autoIncrement')
+                                ->setPlaceholder('Auto Increment')
+                                ->setValue($table->autoIncrementValue)
+                        )
+                    ),
                 )->setClass('dbadmin-table-column-left')
-                    ->width(2),
+                    ->width(4),
                 $this->ui->col()->setClass('dbadmin-table-column-middle')
-                    ->width(3),
+                    ->width(1),
                 $this->ui->col(
                     $this->ui->when($support['comment'], fn() =>
                         $this->ui->inputGroup(
