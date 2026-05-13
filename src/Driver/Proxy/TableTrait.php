@@ -37,7 +37,7 @@ trait TableTrait
         $this->breadcrumbs(true)
             ->item($this->utils()->lang('Tables'))
             ->item("<i><b>$table</b></i>");
-        $this->utils()->input->table = $table;
+        $this->utils()->setInputTable($table);
         return $this->tableProxy()->getTableInfo($table);
     }
 
@@ -52,7 +52,7 @@ trait TableTrait
     public function getTableColumns(string $table): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
+        $this->utils()->setInputTable($table);
         return $this->tableProxy()->getTableColumns($table);
     }
 
@@ -66,7 +66,7 @@ trait TableTrait
     public function getTableIndexes(string $table): ?array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
+        $this->utils()->setInputTable($table);
         return $this->tableProxy()->getTableIndexes($table);
     }
 
@@ -80,7 +80,7 @@ trait TableTrait
     public function getTableForeignKeys(string $table): ?array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
+        $this->utils()->setInputTable($table);
         return $this->tableProxy()->getTableForeignKeys($table);
     }
 
@@ -94,7 +94,7 @@ trait TableTrait
     public function getTableTriggers(string $table): ?array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
+        $this->utils()->setInputTable($table);
         return $this->tableProxy()->getTableTriggers($table);
     }
 
@@ -116,7 +116,7 @@ trait TableTrait
             $this->breadcrumbs()->item("<i><b>$table</b></i>")
                 ->item($this->utils()->lang('Alter table'));
         }
-        $this->utils()->input->table = $table;
+        $this->utils()->setInputTable($table);
         return $this->tableProxy()->getTableMetadata($table);
     }
 

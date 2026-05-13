@@ -221,7 +221,7 @@ class TableProxy extends AbstractDriverProxy
             if (!$status) {
                 throw new Exception($this->utils()->lang('No tables.'));
             }
-            $columns = $this->engine()->columns($status);
+            $columns = $status->columns();
         }
 
         $foreignKeys = $this->getForeignKeys($table);
@@ -317,13 +317,13 @@ class TableProxy extends AbstractDriverProxy
     public function getAlterTableQueries(string $table, array $tableInputs, array $columnsInputs): array
     {
         $alterDto = $this->getAlterTableDto($tableInputs);
-        if (($currentTable = $this->engine()->tableStatus($table)) === null) {
+        if (($status = $this->engine()->tableStatus($table)) === null) {
             return [
                 'error' => $this->utils()->lang('Unable to find the table.'),
             ];
         }
 
-        $alterDto->current = $currentTable;
+        $alterDto->status = $status;
         $alterDto = $this->alter()->makeDto($alterDto, $columnsInputs);
         return $alterDto->error !== null ? ['error' => $alterDto->error] : [
             'queries' => $this->statement()->getAlterTableQueries($alterDto),

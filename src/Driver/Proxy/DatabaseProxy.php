@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TriggerDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseHeader;
@@ -248,9 +249,9 @@ class DatabaseProxy extends AbstractDriverProxy
      *
      * @param string $table
      *
-     * @return mixed
+     * @return TableDto
      */
-    protected function status(string $table)
+    protected function status(string $table): TableDto
     {
         return $this->viewStatus ??= $this->engine()->tableStatusOrName($table, true);
     }
@@ -268,7 +269,7 @@ class DatabaseProxy extends AbstractDriverProxy
         $status = $this->status($view);
         $name = $this->pageUi()->tableName($status);
         $title = ($status->engine == 'materialized view' ? $this->utils()->lang('Materialized view') :
-            $this->utils()->lang('View')) . ': ' . ($name != '' ? $name : $this->utils()->html($view));
+            $this->utils()->lang('View')) . ': ' . ($name !== '' ? $name : $this->utils()->html($view));
 
         $tabs = [
             'columns' => $this->utils()->lang('Columns'),

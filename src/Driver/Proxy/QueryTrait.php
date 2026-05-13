@@ -30,8 +30,8 @@ trait QueryTrait
     public function getInsertData(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
-        $this->utils()->input->values = $queryOptions;
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($queryOptions);
         return $this->queryProxy()->getInsertData($table, $queryOptions);
     }
 
@@ -47,8 +47,8 @@ trait QueryTrait
     public function getRowInsertQuery(string $table, array $queryOptions, array $values): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
-        $this->utils()->input->values = $values;
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($values);
         return $this->queryProxy()->getRowInsertQuery($table, $queryOptions, $values);
     }
 
@@ -64,8 +64,8 @@ trait QueryTrait
     public function insertItem(string $table, array $queryOptions, array $values): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
-        $this->utils()->input->values = $values;
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($values);
         return $this->queryProxy()->insertItem($table, $queryOptions, $values);
     }
 
@@ -80,8 +80,8 @@ trait QueryTrait
     public function getUpdateData(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
-        $this->utils()->input->values = $queryOptions;
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($queryOptions);
         return $this->queryProxy()->getUpdateData($table, $queryOptions);
     }
 
@@ -97,8 +97,8 @@ trait QueryTrait
     public function getRowUpdateQuery(string $table, array $queryOptions, array $values): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
-        $this->utils()->input->values = $values;
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($values);
         return $this->queryProxy()->getRowUpdateQuery($table, $queryOptions, $values);
     }
 
@@ -114,8 +114,8 @@ trait QueryTrait
     public function updateItem(string $table, array $queryOptions, array $values): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
-        $this->utils()->input->values = $values;
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($values);
         return $this->queryProxy()->updateItem($table, $queryOptions, $values);
     }
 
@@ -130,8 +130,8 @@ trait QueryTrait
     public function getRowDeleteQuery(string $table, array $queryOptions): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
-        $this->utils()->input->values = $queryOptions;
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($queryOptions);
         return $this->queryProxy()->getRowDeleteQuery($table, $queryOptions);
     }
 
@@ -146,8 +146,8 @@ trait QueryTrait
     public function deleteItem(string $table, array $queryOptions): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
-        $this->utils()->input->values = $queryOptions;
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($queryOptions);
         return $this->queryProxy()->deleteItem($table, $queryOptions);
     }
 }

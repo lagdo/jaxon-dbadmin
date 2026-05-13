@@ -33,9 +33,8 @@ trait ForeignKeyTrait
         $tables = array_filter($tables, $filter, ARRAY_FILTER_USE_BOTH);
 
         $primaryColumns = array_map(function(TableDto $tableStatus) {
-            $columns = $this->engine()->columns($tableStatus->name);
             $filter = fn(ColumnDto $column) => $column->primary;
-            return array_values(array_filter($columns, $filter));
+            return array_values(array_filter($tableStatus->columns(), $filter));
         }, $tables);
 
         // Remove multi column primary keys

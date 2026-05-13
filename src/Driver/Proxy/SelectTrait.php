@@ -34,8 +34,8 @@ trait SelectTrait
     public function getSelectParams(string $table, array $queryParams = []): SelectDqDto
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
-        $this->utils()->input->values = $queryParams;
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($queryParams);
         return $this->selectProxy()->getSelectParams($table, $queryParams);
     }
 
@@ -51,8 +51,8 @@ trait SelectTrait
     public function countSelect(string $table, array $queryParams = []): int
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
-        $this->utils()->input->values = $queryParams;
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($queryParams);
         return $this->selectProxy()->countSelect($table, $queryParams);
     }
 
@@ -68,8 +68,8 @@ trait SelectTrait
     public function execSelect(string $table, array $queryParams = []): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $table;
-        $this->utils()->input->values = $queryParams;
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($queryParams);
         return $this->selectProxy()->execSelect($table, $queryParams);
     }
 }

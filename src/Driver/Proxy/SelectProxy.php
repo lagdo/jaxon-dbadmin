@@ -71,7 +71,7 @@ class SelectProxy extends AbstractDriverProxy
     {
         $table = new SelectTableDto($table);
         $table->status = $this->engine()->tableStatusOrName($table->name);
-        $table->columns = $this->engine()->columns($table->name);
+        $table->columns = $table->status->columns();
         $table->indexes = $this->engine()->indexes($table->name);
         $table->foreignKeys = $this->engine()->foreignKeys($table->name);
 

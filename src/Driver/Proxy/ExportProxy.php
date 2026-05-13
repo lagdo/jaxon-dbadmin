@@ -235,11 +235,12 @@ class ExportProxy extends AbstractDriverProxy
             return $this->statement()->getExportTableQueries($table, $autoIncrement, $style);
         }
 
-        $tableName = $this->statement()->escapeTableName($table);
         $columns = $this->engine()->columns($table);
         $callback = fn(ColumnDto $column, string $columnName) =>
             $this->statement()->escapeId($columnName) . ' ' . $column->fullType;
         $columns = implode(', ', array_map($callback, $columns, array_keys($columns)));
+
+        $tableName = $this->statement()->escapeTableName($table);
         return "CREATE TABLE $tableName ($columns)";
     }
 
