@@ -163,4 +163,14 @@ class DriverProxy extends AbstractDriverProxy
         }
         return $options;
     }
+
+    /**
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function typeIsAutoIncrementable(string $type): bool
+    {
+        return $this->engine()->typeIsAutoIncrementable($type);
+    }
 }
