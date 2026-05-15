@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
+use Jaxon\Attributes\Attribute\Callback;
+
 class CreateFunc extends FuncComponent
 {
     /**
@@ -42,6 +44,7 @@ class CreateFunc extends FuncComponent
      *
      * @return void
      */
+    #[Callback('jaxon.dbadmin.bagTableForm')]
     public function save(string $columnId, array $values): void
     {
         // Create an empty input and fill with the form data.

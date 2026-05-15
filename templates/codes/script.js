@@ -163,6 +163,38 @@ jaxon.dbadmin = {};
             content?.setAttribute('style', `max-height: ${wrapperSize - 40}px`);
         }
     };
+
+    /**
+     * Jaxon javascript callback for upload requests.
+     */
+    self.upload = {
+        /**
+         * @param {object} oRequest
+         *
+         * @returns {void}
+         */
+        onInitialize: (oRequest) => {
+            // The upload field id must be associated to the current app tab id.
+            const appTabId = jaxon.bag.getEntry('dbadmin', 'tab.app') ?? '';
+            oRequest.upload = `${appTabId}_${oRequest.upload}`;
+        },
+    };
+
+    /**
+     * Save the table form values in the databag
+     */
+    self.bagTableForm = {
+        /**
+         * @returns {void}
+         */
+        onInitialize: () => {
+            const appTabId = jaxon.bag.getEntry('dbadmin', 'tab.app') ?? '';
+            const formId = `${appTabId}_dbadmin-table-values-form`;
+            const formValues = jaxon.getFormValues(formId);
+            // Save the form values in the databag.
+            jaxon.bag.setValue('dbadmin.table', 'formValues', `${appTabId}`, formValues);
+        },
+    };
 })(jaxon.dbadmin);
 
 jaxon.dom.ready(() => {

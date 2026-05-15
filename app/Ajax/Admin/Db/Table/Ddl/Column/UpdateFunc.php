@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
+use Jaxon\Attributes\Attribute\Callback;
+
 class UpdateFunc extends FuncComponent
 {
     /**
@@ -48,6 +50,7 @@ class UpdateFunc extends FuncComponent
      *
      * @return void
      */
+    #[Callback('jaxon.dbadmin.bagTableForm')]
     public function save(string $columnId, array $values): void
     {
         $inputs = $this->getColumnInputs();
@@ -75,6 +78,7 @@ class UpdateFunc extends FuncComponent
      *
      * @return void
      */
+    #[Callback('jaxon.dbadmin.bagTableForm')]
     public function cancel(string $columnId): void
     {
         $inputs = $this->getColumnInputs();

@@ -21,17 +21,17 @@ trait PageContentTrait
     abstract protected function ui(): UiBuilder;
 
     /**
-     * @return string
+     * @return string|array
      */
-    protected function header(): string
+    protected function header(): string|array
     {
         return '';
     }
 
     /**
-     * @return string
+     * @return string|array
      */
-    abstract protected function content(): string;
+    abstract protected function content(): string|array;
 
     /**
      * @return string

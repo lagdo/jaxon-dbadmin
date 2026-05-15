@@ -55,8 +55,17 @@ class Wrapper extends Component
     {
         return $this->tableUi
             ->metadata($this->get('metadata'))
+            ->dbGetter($this->db(...))
             ->inputs($this->inputs)
             ->showColumns();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function after(): void
+    {
+        $this->cl(Header::class)->render();
     }
 
     /**

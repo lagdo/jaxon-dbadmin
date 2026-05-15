@@ -17,6 +17,7 @@ class Create extends TableDdl
     {
         $this->setCurrentTable('');
         $this->setTableBag('columns', []);
+        $this->setTableBag('formValues', null);
 
         // Set main menu buttons
         $tableValues = $this->tableUi->tableFormValues();

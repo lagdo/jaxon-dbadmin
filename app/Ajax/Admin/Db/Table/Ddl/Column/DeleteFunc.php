@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
+use Jaxon\Attributes\Attribute\Callback;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
 
 class DeleteFunc extends FuncComponent
@@ -31,6 +32,7 @@ class DeleteFunc extends FuncComponent
      *
      * @return void
      */
+    #[Callback('jaxon.dbadmin.bagTableForm')]
     public function exec(string $columnId): void
     {
         $inputs = $this->getColumnInputs();
@@ -64,6 +66,7 @@ class DeleteFunc extends FuncComponent
      *
      * @return void
      */
+    #[Callback('jaxon.dbadmin.bagTableForm')]
     public function cancel(string $columnId): void
     {
         $inputs = $this->getColumnInputs();

@@ -325,20 +325,4 @@
             showInfoMessage(toast.messages.inserted);
         },
     };
-
-    /**
-     * Jaxon javascript callback for upload requests.
-     */
-    self.upload = {
-        /**
-         * @param {object} oRequest
-         *
-         * @returns {void}
-         */
-        onInitialize: (oRequest) => {
-            // The upload field id must be associated to the current app tab id.
-            const appTabId = jaxon.bag.getEntry('dbadmin', 'tab.app') ?? '';
-            oRequest.upload = `${appTabId}_${oRequest.upload}`;
-        },
-    };
 })(jaxon.dbadmin);

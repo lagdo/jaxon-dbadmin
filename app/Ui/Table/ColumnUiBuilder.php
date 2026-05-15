@@ -42,7 +42,7 @@ class ColumnUiBuilder
      */
     public function column(ColumnDdDto $input, string $primaryColumn): string
     {
-        $isPrimary = $input->values()->name === $primaryColumn;
+        $canBePrimary = true; // $input->values()->name === $primaryColumn;
         $this->listMode = false;
         $support = $this->support(['comment']);
         $editableProps = ['unsigned', 'collation', 'onUpdate', 'onDelete'];
@@ -67,8 +67,8 @@ class ColumnUiBuilder
                 $this->ui->row(
                     $this->ui->col(
                         // Show the checkbox only if this column is or can be the primary key.
-                        $this->ui->when(!$isPrimary, fn() => ''),
-                        $this->ui->when($isPrimary, fn() =>
+                        $this->ui->when(!$canBePrimary, fn() => ''),
+                        $this->ui->when($canBePrimary, fn() =>
                             $this->ui->list(
                                 $this->getColumnPrimaryField($input, 'primary'),
                                 $this->ui->span($this->ui->html('Primary'))

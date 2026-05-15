@@ -160,25 +160,38 @@ trait PageTrait
     }
 
     /**
-     * @param string $content
+     * @param string|array $content
      * @param bool $grow
      *
      * @return string
      */
-    public function panel(string $content, bool $grow): string
+    public function panel(string|array $content, bool $grow): string
     {
-        return $content === '' ? '' :
-            $this->ui->build(
-                $this->ui->div(
-                    $this->ui->panel(
-                        $this->ui->panelBody(
-                            $this->ui->div($content)
-                                ->when($grow, fn($element) =>
-                                    $element->addClass('jaxon-dbadmin-scrollable-content'))
-                        )->when($grow, fn($element) => $element->addClass('full-height'))
+        if ($content === '') {
+            return '';
+        }
+
+        $header = '';
+        $body = $content;
+        if (is_array($content)) {
+            $header = $content['header'];
+            $body = $content['body'];
+        }
+
+        return $this->ui->build(
+            $this->ui->div(
+                $this->ui->panel(
+                    $this->ui->when($header !== '', fn() =>
+                        $this->ui->panelHeader($header)
+                    ),
+                    $this->ui->panelBody(
+                        $this->ui->div($body)
+                            ->when($grow, fn($element) =>
+                                $element->addClass('jaxon-dbadmin-scrollable-content'))
                     )->when($grow, fn($element) => $element->addClass('full-height'))
-                )->when($grow, fn($element) =>
-                    $element->addClass('jaxon-dbadmin-column-flexible'))
-            );
+                )->when($grow, fn($element) => $element->addClass('full-height'))
+            )->when($grow, fn($element) =>
+                $element->addClass('jaxon-dbadmin-column-flexible'))
+        );
     }
 }

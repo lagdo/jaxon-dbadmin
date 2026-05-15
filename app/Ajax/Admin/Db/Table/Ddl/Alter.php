@@ -14,6 +14,8 @@ class Alter extends TableDdl
      */
     protected function before(): void
     {
+        $this->setTableBag('formValues', null);
+
         // Set main menu buttons
         $table = $this->getCurrentTable();
         $tableValues = $this->tableUi->tableFormValues();
