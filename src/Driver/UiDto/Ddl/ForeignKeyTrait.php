@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnAction;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnInputDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
@@ -67,12 +68,13 @@ trait ForeignKeyTrait
 
     /**
      * @param TableDdDto $table
+     * @param ColumnAction $action
      * @param ColumnDdDto $input
      * @param array $foreignKeys
      *
      * @return ColumnInputDto
      */
-    private function makeColumnInput(TableDdDto $table,
+    private function makeColumnInput(TableDdDto $table, ColumnAction $action,
         ColumnDdDto $input, array $foreignKeys): ColumnInputDto
     {
         $values = $input->values();
@@ -99,6 +101,9 @@ trait ForeignKeyTrait
         }
         if (!$values->setComment) {
             $column->comment = null;
+        }
+        if ($action === ColumnAction::ADD && $column->autoIncrement) {
+            $column->type = $this->statement()->getAutoIncrementType($column->type);
         }
 
         return $column;

@@ -123,12 +123,14 @@ trait TableTrait
     /**
      * Get a new column
      *
+     * @param array|null $values
+     *
      * @return ColumnDdDto
      */
-    public function newColumnInput(): ColumnDdDto
+    public function newColumnInput(array|null $values = null): ColumnDdDto
     {
         $this->connectToSchema();
-        return $this->tableProxy()->newColumnInput();
+        return $this->tableProxy()->newColumnInput($values);
     }
 
     /**

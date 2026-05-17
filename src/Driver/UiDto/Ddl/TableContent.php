@@ -237,13 +237,18 @@ class TableContent extends AbstractDriverProxy
     /**
      * Get a new table column
      *
+     * @param array|null $values
      * @param array<string,string> $foreignKeys
      * 
      * @return ColumnDdDto
      */
-    public function newColumnInput(array $foreignKeys): ColumnDdDto
+    public function newColumnInput(array|null $values, array $foreignKeys): ColumnDdDto
     {
         $input = $this->getColumnInput(new ColumnDto(), $foreignKeys);
+        if ($values !== null) {
+            $input->setValues($values);
+        }
+
         return $this->setInputFieldProperties($input, $foreignKeys);
     }
 }

@@ -15,7 +15,7 @@ class CreateFunc extends FuncComponent
      */
     public function add(string $columnId = ''): void
     {
-        $input = $this->db()->setInputFieldProperties($this->newColumnInput());
+        $input = $this->newColumnInput();
         $primaryColumn = $this->getTableBag('primary', '');
 
         $tableName = $this->getCurrentTable();
@@ -48,9 +48,8 @@ class CreateFunc extends FuncComponent
     public function save(string $columnId, array $values): void
     {
         // Create an empty input and fill with the form data.
-        $input = $this->newColumnInput();
+        $input = $this->newColumnInput($this->getUserFormValues($values));
         $input->add();
-        $input->setValues($this->getUserFormValues($values));
 
         $this->modal()->hide();
 

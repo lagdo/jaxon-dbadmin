@@ -7,7 +7,6 @@ use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 
 use function array_filter;
-use function count;
 
 class TableAlter extends AbstractDriverProxy
 {
@@ -24,28 +23,24 @@ class TableAlter extends AbstractDriverProxy
         // From create.inc.php
         $foreignKeys = $this->getForeignKeys($table);
 
-        // Auto increment
-        $aiCount = count(array_filter($inputs, fn(ColumnDdDto $input) =>
-            $input->column->autoIncrement));
-        if ($aiCount > 1) {
-            $table->error = $this->utils()->lang('Only one auto-increment column is allowed.');
-            return $table;
-        }
-
         // Todo: move fields up and down
-
         // $after = " FIRST";
 
         $table->clearColumns();
-        $table->columns[ColumnAction::ADD->value] = array_map(
-            fn(ColumnDdDto $input) => $this->makeColumnInput($table, $input, $foreignKeys),
+        $table->columns[ColumnAction::ADD->value] = array_map( fn(ColumnDdDto $input) =>
+            $this->makeColumnInput($table, ColumnAction::ADD, $input, $foreignKeys),
             array_filter($inputs, fn(ColumnDdDto $input) => $input->added()));
-        $table->columns[ColumnAction::EDIT->value] = array_map(
-            fn(ColumnDdDto $input) => $this->makeColumnInput($table, $input, $foreignKeys),
+        $table->columns[ColumnAction::EDIT->value] = array_map( fn(ColumnDdDto $input) =>
+            $this->makeColumnInput($table, ColumnAction::EDIT, $input, $foreignKeys),
             array_filter($inputs, fn(ColumnDdDto $input) => $input->changed()));
         $table->columns[ColumnAction::DROP->value] = array_map(
             fn(ColumnDdDto $input) => $input->column->name,
             array_filter($inputs, fn(ColumnDdDto $input) => $input->dropped()));
+
+        // Auto increment
+        if ($table->autoIncrementColumnCount() > 1) {
+            $table->error = $this->utils()->lang('Only one auto-increment column is allowed.');
+        }
 
         return $table;
     }

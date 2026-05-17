@@ -37,11 +37,13 @@ trait ColumnTrait
     }
 
     /**
+     * @param array|null $values
+     *
      * @return ColumnDdDto
      */
-    protected function newColumnInput(): ColumnDdDto
+    protected function newColumnInput(array|null $values = null): ColumnDdDto
     {
-        return $this->db()->newColumnInput();
+        return $this->db()->newColumnInput($values);
     }
 
     /**

@@ -6,9 +6,6 @@ use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnAction;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 
-use function array_filter;
-use function count;
-
 class TableCreate extends AbstractDriverProxy
 {
     use ForeignKeyTrait;
@@ -24,18 +21,16 @@ class TableCreate extends AbstractDriverProxy
         // From create.inc.php
         $foreignKeys = $this->getForeignKeys($table);
 
-        // Auto increment
-        $aiColumns = array_filter($inputs, fn($input) => $input->column->autoIncrement);
-        if (count($aiColumns) > 1) {
-            $table->error = $this->utils()->lang('Only one auto-increment column is allowed.');
-            return $table;
-        }
-
         // $after = " FIRST";
 
         $table->clearColumns();
         $table->columns[ColumnAction::ADD->value] = array_map(fn(ColumnDdDto $input) =>
-            $this->makeColumnInput($table, $input, $foreignKeys), $inputs);
+            $this->makeColumnInput($table, ColumnAction::ADD, $input, $foreignKeys), $inputs);
+
+        // Auto increment
+        if ($table->autoIncrementColumnCount() > 1) {
+            $table->error = $this->utils()->lang('Only one auto-increment column is allowed.');
+        }
 
         return $table;
     }

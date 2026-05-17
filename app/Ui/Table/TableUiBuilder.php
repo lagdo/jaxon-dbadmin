@@ -15,6 +15,7 @@ use Lagdo\UiBuilder\BuilderInterface;
 use Closure;
 
 use function array_filter;
+use function array_values;
 use function count;
 use function Jaxon\rq;
 use function sprintf;
@@ -162,15 +163,20 @@ class TableUiBuilder
     }
 
     /**
-     * @return bool
+     * @return array
      */
-    private function autoIncrementIsEditable(): bool
+    private function autoIncrementIsEditable(): array
     {
-        $primaryFilter = fn(ColumnDdDto $input) => $input->values()->primary &&
+        $primaryKeyFilter = fn(ColumnDdDto $input) => $input->values()->primary &&
             $this->db()->typeIsAutoIncrementable($input->values()->type);
+        $primaryKeyInputs = array_filter($this->inputs, $primaryKeyFilter);
+
         $autoIncrementFilter = fn(ColumnDdDto $input) => $input->values()->autoIncrement;
-        return count(array_filter($this->inputs, $primaryFilter)) === 1 ||
-            count(array_filter($this->inputs, $autoIncrementFilter)) === 1;
+        $autoIncrementInputs = array_values(array_filter($this->inputs, $autoIncrementFilter));
+        $hasAutoIncrement = count($autoIncrementInputs) === 1;
+        $autoIncrementColumn = $hasAutoIncrement ? $autoIncrementInputs[0]->values()->name : '';
+
+        return [$autoIncrementColumn, count($primaryKeyInputs) === 1 || $hasAutoIncrement];
     }
 
     /**
@@ -184,8 +190,8 @@ class TableUiBuilder
         $support = $this->support(['table_collation', 'comment']);
         $hasCollations = $support['table_collation'] && count($this->collations()) > 0;
         $table = $this->getEditedTable();
-        $aiEditable = $this->autoIncrementIsEditable();
-        $hasAutoIncrement = $table?->hasAutoIncrement ?? false;
+
+        [$autoIncrementColumn, $aiEditable] = $this->autoIncrementIsEditable();
 
         return $this->ui->build(
             $this->ui->form(
@@ -206,12 +212,11 @@ class TableUiBuilder
                                     ->setValue('1')
                                     ->setName('hasAutoIncrement')
                                     ->when(!$aiEditable, fn($input) => $this->disable($input, true)),
-                                $this->ui->label($table?->autoIncrementColumn ?? ''),
+                                $this->ui->label($autoIncrementColumn),
                                 $this->ui->input()
                                     ->setName('autoIncrement')
                                     ->setPlaceholder('Auto Incr.')
-                                    ->setValue($formValues['autoIncrement'] ??
-                                        ($hasAutoIncrement ? $table->autoIncrementValue : ''))
+                                    ->setValue($formValues['autoIncrement'] ?? $table?->autoIncrementValue ?? '')
                                     ->when(!$aiEditable, fn($input) => $this->disable($input, true))
                             )
                         )->setClass('dbadmin-table-column-middle')

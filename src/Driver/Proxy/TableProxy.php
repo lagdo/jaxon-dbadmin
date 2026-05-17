@@ -231,12 +231,14 @@ class TableProxy extends AbstractDriverProxy
     /**
      * Get a new table column
      *
+     * @param array|null $values
+     *
      * @return ColumnDdDto
      */
-    public function newColumnInput(): ColumnDdDto
+    public function newColumnInput(array|null $values = null): ColumnDdDto
     {
         $foreignKeys = $this->getForeignKeys();
-        return $this->content()->newColumnInput($foreignKeys);
+        return $this->content()->newColumnInput($values, $foreignKeys);
     }
 
     /**
