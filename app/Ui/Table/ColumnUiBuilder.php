@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\App\Ui\Table\Column\ColumnTrait;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -35,12 +35,12 @@ class ColumnUiBuilder
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $primaryColumn
      *
      * @return string
      */
-    public function column(ColumnDdDto $input, string $primaryColumn): string
+    public function column(ColumnFormDto $input, string $primaryColumn): string
     {
         $canBePrimary = true; // $input->values()->name === $primaryColumn;
         $this->listMode = false;
@@ -162,13 +162,13 @@ class ColumnUiBuilder
     }
 
     /**
-     * @param array<ColumnDdDto> $columns
+     * @param array<ColumnFormDto> $columns
      *
      * @return mixed
      */
     private function tableColumns(array $columns): mixed
     {
-        return $this->ui->each($columns, fn(ColumnDdDto $input) =>
+        return $this->ui->each($columns, fn(ColumnFormDto $input) =>
             $this->ui->pick([
                 $input->dropped(), fn() => $this->ui->row(
                     $this->ui->col($this->ui->text($input->column->name . ':'))
@@ -201,7 +201,7 @@ class ColumnUiBuilder
 
     /**
      * @param TableCreateDto $createDto
-     * @param array<ColumnDdDto> $columns
+     * @param array<ColumnFormDto> $columns
      *
      * @return string
      */
@@ -259,7 +259,7 @@ class ColumnUiBuilder
     /**
      * @param TableDto $tableDto
      * @param TableAlterDto $alterDto
-     * @param array<ColumnDdDto> $columns
+     * @param array<ColumnFormDto> $columns
      *
      * @return string
      */

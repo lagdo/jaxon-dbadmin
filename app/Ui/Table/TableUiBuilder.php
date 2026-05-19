@@ -9,7 +9,7 @@ use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\App\Ui\Table\Column\ColumnTrait;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 use Closure;
@@ -121,7 +121,7 @@ class TableUiBuilder
     }
 
     /**
-     * @param array<ColumnDdDto> $inputs
+     * @param array<ColumnFormDto> $inputs
      *
      * @return self
      */
@@ -167,11 +167,11 @@ class TableUiBuilder
      */
     private function autoIncrementIsEditable(): array
     {
-        $primaryKeyFilter = fn(ColumnDdDto $input) => $input->values()->primary &&
+        $primaryKeyFilter = fn(ColumnFormDto $input) => $input->values()->primary &&
             $this->db()->typeIsAutoIncrementable($input->values()->type);
         $primaryKeyInputs = array_filter($this->inputs, $primaryKeyFilter);
 
-        $autoIncrementFilter = fn(ColumnDdDto $input) => $input->values()->autoIncrement;
+        $autoIncrementFilter = fn(ColumnFormDto $input) => $input->values()->autoIncrement;
         $autoIncrementInputs = array_values(array_filter($this->inputs, $autoIncrementFilter));
         $hasAutoIncrement = count($autoIncrementInputs) === 1;
         $autoIncrementColumn = $hasAutoIncrement ? $autoIncrementInputs[0]->values()->name : '';
@@ -287,12 +287,12 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnId
      *
      * @return mixed
      */
-    protected function getColumnActionMenu(ColumnDdDto $input, string $columnId): mixed
+    protected function getColumnActionMenu(ColumnFormDto $input, string $columnId): mixed
     {
         $support = $this->support(['move_col', 'drop_col']);
         $movableUp = $support['move_col'] && $input->position > 0;
@@ -341,12 +341,12 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnId
      *
      * @return mixed
      */
-    protected function columnUiInput(ColumnDdDto $input, string $columnId): mixed
+    protected function columnUiInput(ColumnFormDto $input, string $columnId): mixed
     {
         $editPrefix = sprintf("columns[%d]", $input->position);
         $support = $this->support(['comment']);
@@ -471,11 +471,11 @@ class TableUiBuilder
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      *
      * @return mixed
      */
-    private function getColumnBgColor(ColumnDdDto $input): string
+    private function getColumnBgColor(ColumnFormDto $input): string
     {
         return match(true) {
             $input->added() => "background-color: #e6ffe6;",
@@ -494,7 +494,7 @@ class TableUiBuilder
 
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->each($this->inputs, fn(ColumnDdDto $input, string $columnId) =>
+                $this->ui->each($this->inputs, fn(ColumnFormDto $input, string $columnId) =>
                     $this->ui->div(
                         $this->columnUiInput($input, $columnId)
                     )->setClass('dbadmin-table-edit-column')

@@ -11,7 +11,7 @@ use function array_map;
 /**
  * User inputs for a table column.
  */
-class ColumnDdDto
+class ColumnFormDto
 {
     /**
      * The column status when the table is edited

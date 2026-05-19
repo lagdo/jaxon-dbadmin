@@ -14,7 +14,7 @@ class TableAlter extends AbstractDriverProxy
 
     /**
      * @param TableAlterDto $table
-     * @param array<ColumnDdDto> $inputs
+     * @param array<ColumnFormDto> $inputs
      * 
      * @return TableAlterDto
      */
@@ -27,15 +27,15 @@ class TableAlter extends AbstractDriverProxy
         // $after = " FIRST";
 
         $table->clearColumns();
-        $table->columns[ColumnAction::ADD->value] = array_map( fn(ColumnDdDto $input) =>
+        $table->columns[ColumnAction::ADD->value] = array_map( fn(ColumnFormDto $input) =>
             $this->makeColumnInput($table, ColumnAction::ADD, $input, $foreignKeys),
-            array_filter($inputs, fn(ColumnDdDto $input) => $input->added()));
-        $table->columns[ColumnAction::EDIT->value] = array_map( fn(ColumnDdDto $input) =>
+            array_filter($inputs, fn(ColumnFormDto $input) => $input->added()));
+        $table->columns[ColumnAction::EDIT->value] = array_map( fn(ColumnFormDto $input) =>
             $this->makeColumnInput($table, ColumnAction::EDIT, $input, $foreignKeys),
-            array_filter($inputs, fn(ColumnDdDto $input) => $input->changed()));
+            array_filter($inputs, fn(ColumnFormDto $input) => $input->changed()));
         $table->columns[ColumnAction::DROP->value] = array_map(
-            fn(ColumnDdDto $input) => $input->column->name,
-            array_filter($inputs, fn(ColumnDdDto $input) => $input->dropped()));
+            fn(ColumnFormDto $input) => $input->column->name,
+            array_filter($inputs, fn(ColumnFormDto $input) => $input->dropped()));
 
         // Auto increment
         if ($table->autoIncrementColumnCount() > 1) {

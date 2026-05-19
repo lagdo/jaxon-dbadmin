@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ui\Table\Column;
 
 use Jaxon\Script\JsExpr;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 
@@ -29,7 +29,7 @@ trait ColumnTrait
     protected array $table = [];
 
     /**
-     * @var array<ColumnDdDto>
+     * @var array<ColumnFormDto>
      */
     protected array $inputs = [];
 
@@ -167,12 +167,12 @@ trait ColumnTrait
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnNameField(ColumnDdDto $input, string $columnName): mixed
+    protected function getColumnNameField(ColumnFormDto $input, string $columnName): mixed
     {
         return $this->ui->input(['class' => 'column-name'])
             ->setName($columnName)
@@ -183,12 +183,12 @@ trait ColumnTrait
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnPrimaryField(ColumnDdDto $input, string $columnName): mixed
+    protected function getColumnPrimaryField(ColumnFormDto $input, string $columnName): mixed
     {
         return $this->ui->checkbox()
             ->checked($input->values()->primary)
@@ -197,12 +197,12 @@ trait ColumnTrait
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnAutoIncrementField(ColumnDdDto $input, string $columnName): mixed
+    protected function getColumnAutoIncrementField(ColumnFormDto $input, string $columnName): mixed
     {
         return $this->ui->checkbox()
             ->checked($input->values()->autoIncrement)
@@ -211,12 +211,12 @@ trait ColumnTrait
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnCollationField(ColumnDdDto $input, string $columnName): mixed
+    protected function getColumnCollationField(ColumnFormDto $input, string $columnName): mixed
     {
         return $this->getCollationSelect($input->values()->collation)
             ->setName($columnName)
@@ -225,12 +225,12 @@ trait ColumnTrait
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnOnUpdateField(ColumnDdDto $input, string $columnName): mixed
+    protected function getColumnOnUpdateField(ColumnFormDto $input, string $columnName): mixed
     {
         return $this->ui->select(
             $this->ui->option('(' . $this->trans->lang('ON UPDATE') . ')')
@@ -246,7 +246,7 @@ trait ColumnTrait
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnName
      * @param string $hasFieldName
      * @param string $placeholder
@@ -254,7 +254,7 @@ trait ColumnTrait
      *
      * @return mixed
      */
-    protected function getColumnCommentField(ColumnDdDto $input, string $columnName,
+    protected function getColumnCommentField(ColumnFormDto $input, string $columnName,
         string $hasFieldName, string $placeholder = '', bool $disabled = false): mixed
     {
         return $this->ui->inputGroup(
@@ -274,12 +274,12 @@ trait ColumnTrait
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnTypeField(ColumnDdDto $input, string $columnName): mixed
+    protected function getColumnTypeField(ColumnFormDto $input, string $columnName): mixed
     {
         return $this->ui->select(
             $this->ui->each($input->types, fn($groupTypes, $groupName) =>
@@ -309,12 +309,12 @@ trait ColumnTrait
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnLengthField(ColumnDdDto $input, string $columnName): mixed
+    protected function getColumnLengthField(ColumnFormDto $input, string $columnName): mixed
     {
         return $this->ui->input()
             ->setStyle('width: 100%')
@@ -326,12 +326,12 @@ trait ColumnTrait
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnNullableField(ColumnDdDto $input, string $columnName): mixed
+    protected function getColumnNullableField(ColumnFormDto $input, string $columnName): mixed
     {
         return $this->ui->checkbox()
             ->checked($input->values()->nullable)
@@ -341,12 +341,12 @@ trait ColumnTrait
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnUnsignedField(ColumnDdDto $input, string $columnName): mixed
+    protected function getColumnUnsignedField(ColumnFormDto $input, string $columnName): mixed
     {
         return $this->ui->select(
             $this->ui->option('(unsigned)')
@@ -363,12 +363,12 @@ trait ColumnTrait
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $columnName
      *
      * @return mixed
      */
-    protected function getColumnOnDeleteField(ColumnDdDto $input, string $columnName): mixed
+    protected function getColumnOnDeleteField(ColumnFormDto $input, string $columnName): mixed
     {
         return $this->ui->select(
             $this->ui->option('(' . $this->trans->lang('ON DELETE') . ')')
@@ -385,14 +385,14 @@ trait ColumnTrait
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param string $generated     The name of the generated input field
      * @param string $default       The name of the default value input field
      * @param string $placeholder
      *
      * @return mixed
      */
-    protected function getColumnDefaultField(ColumnDdDto $input, string $generated,
+    protected function getColumnDefaultField(ColumnFormDto $input, string $generated,
         string $default, string $placeholder = ''): mixed
     {
         return $this->ui->inputGroup(

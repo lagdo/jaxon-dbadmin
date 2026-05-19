@@ -12,7 +12,7 @@ class TableCreate extends AbstractDriverProxy
 
     /**
      * @param TableCreateDto $table
-     * @param array<ColumnDdDto> $inputs
+     * @param array<ColumnFormDto> $inputs
      * 
      * @return TableCreateDto
      */
@@ -24,7 +24,7 @@ class TableCreate extends AbstractDriverProxy
         // $after = " FIRST";
 
         $table->clearColumns();
-        $table->columns[ColumnAction::ADD->value] = array_map(fn(ColumnDdDto $input) =>
+        $table->columns[ColumnAction::ADD->value] = array_map(fn(ColumnFormDto $input) =>
             $this->makeColumnInput($table, ColumnAction::ADD, $input, $foreignKeys), $inputs);
 
         // Auto increment

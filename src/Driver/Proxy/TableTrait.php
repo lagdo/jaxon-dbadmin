@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Exception;
 
 /**
@@ -125,20 +125,20 @@ trait TableTrait
      *
      * @param array|null $values
      *
-     * @return ColumnDdDto
+     * @return ColumnFormDto
      */
-    public function newColumnInput(array|null $values = null): ColumnDdDto
+    public function newColumnInput(array|null $values = null): ColumnFormDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->newColumnInput($values);
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      *
-     * @return ColumnDdDto
+     * @return ColumnFormDto
      */
-    public function setInputFieldProperties(ColumnDdDto $input): ColumnDdDto
+    public function setInputFieldProperties(ColumnFormDto $input): ColumnFormDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->setInputFieldProperties($input);
@@ -158,7 +158,7 @@ trait TableTrait
      * Get SQL commands to create a table
      *
      * @param array $tableInputs
-     * @param array<ColumnDdDto> $columnsInputs
+     * @param array<ColumnFormDto> $columnsInputs
      *
      * @return array
      */
@@ -172,7 +172,7 @@ trait TableTrait
      * Create a table
      *
      * @param array $tableInputs
-     * @param array<ColumnDdDto> $columnsInputs
+     * @param array<ColumnFormDto> $columnsInputs
      *
      * @return array|null
      */
@@ -197,7 +197,7 @@ trait TableTrait
      *
      * @param string $table
      * @param array $tableInputs
-     * @param array<ColumnDdDto> $columnsInputs
+     * @param array<ColumnFormDto> $columnsInputs
      *
      * @return array
      */
@@ -212,7 +212,7 @@ trait TableTrait
      *
      * @param string $table
      * @param array $tableInputs
-     * @param array<ColumnDdDto> $columnsInputs
+     * @param array<ColumnFormDto> $columnsInputs
      *
      * @return array|null
      * @throws Exception

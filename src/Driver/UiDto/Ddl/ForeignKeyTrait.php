@@ -33,10 +33,9 @@ trait ForeignKeyTrait
         $tables = $this->engine()->tableStatuses(true);
         $tables = array_filter($tables, $filter, ARRAY_FILTER_USE_BOTH);
 
-        $primaryColumns = array_map(function(TableDto $tableStatus) {
-            $filter = fn(ColumnDto $column) => $column->primary;
-            return array_values(array_filter($tableStatus->columns(), $filter));
-        }, $tables);
+        $filter = fn(ColumnDto $column) => $column->primary;
+        $primaryColumns = array_map(fn(TableDto $tableStatus) =>
+            array_values(array_filter($tableStatus->columns(), $filter)), $tables);
 
         // Remove multi column primary keys
         $filter = fn(array $columns) => count($columns) === 1;
@@ -69,13 +68,13 @@ trait ForeignKeyTrait
     /**
      * @param TableDdDto $table
      * @param ColumnAction $action
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param array $foreignKeys
      *
      * @return ColumnInputDto
      */
     private function makeColumnInput(TableDdDto $table, ColumnAction $action,
-        ColumnDdDto $input, array $foreignKeys): ColumnInputDto
+        ColumnFormDto $input, array $foreignKeys): ColumnInputDto
     {
         $values = $input->values();
 

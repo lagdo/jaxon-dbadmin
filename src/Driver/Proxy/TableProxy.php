@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ForeignKeyTrait;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableAlter;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableContent;
@@ -233,20 +233,20 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param array|null $values
      *
-     * @return ColumnDdDto
+     * @return ColumnFormDto
      */
-    public function newColumnInput(array|null $values = null): ColumnDdDto
+    public function newColumnInput(array|null $values = null): ColumnFormDto
     {
         $foreignKeys = $this->getForeignKeys();
         return $this->content()->newColumnInput($values, $foreignKeys);
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      *
-     * @return ColumnDdDto
+     * @return ColumnFormDto
      */
-    public function setInputFieldProperties(ColumnDdDto $input): ColumnDdDto
+    public function setInputFieldProperties(ColumnFormDto $input): ColumnFormDto
     {
         $foreignKeys = $this->getForeignKeys();
         return $this->content()->setInputFieldProperties($input, $foreignKeys);
@@ -266,7 +266,7 @@ class TableProxy extends AbstractDriverProxy
      * Get SQL command to create a table
      *
      * @param array $tableInputs
-     * @param array<ColumnDdDto> $columnsInputs
+     * @param array<ColumnFormDto> $columnsInputs
      *
      * @return array
      */
@@ -286,7 +286,7 @@ class TableProxy extends AbstractDriverProxy
      * Create a table
      *
      * @param array $tableInputs
-     * @param array<ColumnDdDto> $columnsInputs
+     * @param array<ColumnFormDto> $columnsInputs
      *
      * @return array
      */
@@ -312,7 +312,7 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param string $table
      * @param array $tableInputs
-     * @param array<ColumnDdDto> $columnsInputs
+     * @param array<ColumnFormDto> $columnsInputs
      *
      * @return array
      */
@@ -337,7 +337,7 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param string $table
      * @param array $tableInputs
-     * @param array<ColumnDdDto> $columnsInputs
+     * @param array<ColumnFormDto> $columnsInputs
      *
      * @return array
      * @throws Exception

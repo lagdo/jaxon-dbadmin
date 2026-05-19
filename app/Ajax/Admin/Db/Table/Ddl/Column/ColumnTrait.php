@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnDdDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 
 trait ColumnTrait
 {
@@ -39,9 +39,9 @@ trait ColumnTrait
     /**
      * @param array|null $values
      *
-     * @return ColumnDdDto
+     * @return ColumnFormDto
      */
-    protected function newColumnInput(array|null $values = null): ColumnDdDto
+    protected function newColumnInput(array|null $values = null): ColumnFormDto
     {
         return $this->db()->newColumnInput($values);
     }
@@ -49,16 +49,16 @@ trait ColumnTrait
     /**
      * @param string $columnId
      *
-     * @return ColumnDdDto|null
+     * @return ColumnFormDto|null
      */
-    protected function getColumnInput(string $columnId): ColumnDdDto|null
+    protected function getColumnInput(string $columnId): ColumnFormDto|null
     {
         $values = $this->inputValues()[$columnId] ?? null;
         if ($values === null) {
             return null;
         }
 
-        $column = ColumnDdDto::columnIsAdded($values) ?
+        $column = ColumnFormDto::columnIsAdded($values) ?
             // Added column => empty column
             $this->db()->newColumnInput() :
             // Existing column => check the metadata
@@ -68,7 +68,7 @@ trait ColumnTrait
     }
 
     /**
-     * @return array<ColumnDdDto>
+     * @return array<ColumnFormDto>
      */
     protected function getColumnInputs(): array
     {

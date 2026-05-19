@@ -159,12 +159,12 @@ class TableContent extends AbstractDriverProxy
      * @param ColumnDto $column
      * @param array<string,string> $foreignKeys
      *
-     * @return ColumnDdDto
+     * @return ColumnFormDto
      */
-    private function getColumnInput(ColumnDto $column, array $foreignKeys): ColumnDdDto
+    private function getColumnInput(ColumnDto $column, array $foreignKeys): ColumnFormDto
     {
         $types = $this->getColumnTypes($column->type, foreignKeys: $foreignKeys);
-        return new ColumnDdDto($column, types: $types);
+        return new ColumnFormDto($column, types: $types);
     }
 
     /**
@@ -207,12 +207,12 @@ class TableContent extends AbstractDriverProxy
     }
 
     /**
-     * @param ColumnDdDto $input
+     * @param ColumnFormDto $input
      * @param array<string,string> $foreignKeys
      *
-     * @return ColumnDdDto
+     * @return ColumnFormDto
      */
-    public function setInputFieldProperties(ColumnDdDto $input, array $foreignKeys): ColumnDdDto
+    public function setInputFieldProperties(ColumnFormDto $input, array $foreignKeys): ColumnFormDto
     {
         // Todo: enable this.
         // See the edit_type() function in the editing.inc.php file.
@@ -240,9 +240,9 @@ class TableContent extends AbstractDriverProxy
      * @param array|null $values
      * @param array<string,string> $foreignKeys
      * 
-     * @return ColumnDdDto
+     * @return ColumnFormDto
      */
-    public function newColumnInput(array|null $values, array $foreignKeys): ColumnDdDto
+    public function newColumnInput(array|null $values, array $foreignKeys): ColumnFormDto
     {
         $input = $this->getColumnInput(new ColumnDto(), $foreignKeys);
         if ($values !== null) {
