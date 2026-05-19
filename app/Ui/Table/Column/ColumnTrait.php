@@ -29,11 +29,6 @@ trait ColumnTrait
     protected array $table = [];
 
     /**
-     * @var array<ColumnFormDto>
-     */
-    protected array $inputs = [];
-
-    /**
      * @var bool
      */
     protected bool $listMode = true;

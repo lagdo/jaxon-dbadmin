@@ -3,6 +3,11 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
+
+use function array_combine;
+use function array_keys;
+use function array_map;
 
 trait ColumnTrait
 {
@@ -14,13 +19,6 @@ trait ColumnTrait
     private array|null $metadata = null;
 
     /**
-     * The columns input data stored in the client.
-     *
-     * @var array|null
-     */
-    private array|null $inputValues = null;
-
-    /**
      * @return array
      */
     protected function metadata(): array
@@ -29,11 +27,11 @@ trait ColumnTrait
     }
 
     /**
-     * @return array
+     * @return TableFormDto
      */
-    protected function inputValues(): array
+    protected function tableDto(): TableFormDto
     {
-        return $this->inputValues ??= $this->getTableBag('columns', []);
+        return $this->metadata()['table'];
     }
 
     /**
@@ -48,21 +46,26 @@ trait ColumnTrait
 
     /**
      * @param string $columnId
+     * @param array|null $values
      *
      * @return ColumnFormDto|null
      */
-    protected function getColumnInput(string $columnId): ColumnFormDto|null
+    protected function getColumnInput(string $columnId, array|null $values = null): ColumnFormDto|null
     {
-        $values = $this->inputValues()[$columnId] ?? null;
+        if ($values === null) {
+            $inputs = $this->getTableBag('columns', []);
+            $values = $inputs[$columnId] ?? null;
+        }
         if ($values === null) {
             return null;
         }
 
+        $columns = $this->metadata()['table']->columns;
         $column = ColumnFormDto::columnIsAdded($values) ?
             // Added column => empty column
             $this->db()->newColumnInput() :
             // Existing column => check the metadata
-            ($this->metadata()['columns'][$values['name']] ?? null);
+            ($columns[$values['name']] ?? null);
         // Combine the data from the database with the data from the databag.
         return $column?->updateValues($values) ?? null;
     }
@@ -72,10 +75,10 @@ trait ColumnTrait
      */
     protected function getColumnInputs(): array
     {
-        $inputs = [];
-        foreach ($this->inputValues() as $columnId => $_) {
-            $inputs[$columnId] = $this->getColumnInput($columnId);
-        }
-        return $inputs;
+        $inputs = $this->getTableBag('columns', []);
+        $keys = array_keys($inputs);
+        $inputs = array_map($this->getColumnInput(...), $keys, $inputs);
+
+        return array_combine($keys, $inputs);
     }
 }

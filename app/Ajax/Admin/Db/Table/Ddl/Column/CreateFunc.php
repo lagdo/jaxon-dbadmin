@@ -48,7 +48,7 @@ class CreateFunc extends FuncComponent
     public function save(string $columnId, array $values): void
     {
         // Create an empty input and fill with the form data.
-        $input = $this->newColumnInput($this->getUserFormValues($values));
+        $input = $this->newColumnInput($this->getColumnFormValues($values));
         $input->add();
 
         $this->modal()->hide();

@@ -24,7 +24,7 @@ class DatabaseContent extends AbstractDriverProxy
                 '">' . $this->pageUi()->tableName($status) . '</div>',
             'engine' => $status->engine,
             'collation' => $status->collation,
-            'auto_increment' => $status->hasAutoIncrement ? $status->autoIncrementValue : '',
+            'auto_increment' => $status->hasAutoIncrement ? $status->autoIncrement : '',
             'data_length' => $status->dataLength ?? '',
             'index_length' => $status->indexLength ?? '',
             'data_free' => $status->dataFree ?? '',

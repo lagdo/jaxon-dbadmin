@@ -5,7 +5,9 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Component;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 
+use function array_combine;
 use function array_filter;
 use function array_map;
 
@@ -17,35 +19,38 @@ use function array_map;
 class Wrapper extends Component
 {
     /**
-     * @var array<ColumnFormDto>
+     * @param array $metadata
+     *
+     * @return TableFormDto
      */
-    private $inputs;
+    private function getTableFormDto(array $metadata): TableFormDto
+    {
+        return $metadata['table'];
+    }
 
     /**
-     * @param array<ColumnFormDto> $inputs
+     * @param array $metadata
      *
      * @return void
      */
-    private function setColumns(array $inputs): void
+    private function setMetadata(array $metadata): void
     {
-        $this->inputs = [];
+        $table = $this->getTableFormDto($metadata);
 
-        // The primary column.
-        $primaryColumn = null;
         // Set the columns positions.
+        $positions = [];
         $position = 0;
-        foreach ($inputs as $input) {
-            $input->position = $position++;
-            $this->inputs["column_$position"] = $input;
-            if ($input->values()->primary) {
-                $primaryColumn = $input->values()->name;
-            }
+        foreach ($table->columns as $column) {
+            $positions[] = "column_$position";
+            $column->position = $position++;
         }
 
+        $table->columns = array_combine($positions, $table->columns);
         // Save the columns and the primary column name in the databag.
         $callback = fn($input) => $input->toArray();
-        $this->setTableBag('columns', array_map($callback, $this->inputs));
-        $this->setTableBag('primary', $primaryColumn);
+
+        $this->set('metadata', $metadata);
+        $this->setTableBag('columns', array_map($callback, $table->columns));
     }
 
     /**
@@ -56,7 +61,6 @@ class Wrapper extends Component
         return $this->tableUi
             ->metadata($this->get('metadata'))
             ->dbGetter($this->db(...))
-            ->inputs($this->inputs)
             ->showColumns();
     }
 
@@ -69,19 +73,28 @@ class Wrapper extends Component
     }
 
     /**
+     * @param array $metadata
+     *
+     * @return void
+     */
+    public function load(array $metadata): void
+    {
+        $this->setMetadata($metadata);
+
+        $this->render();
+    }
+
+    /**
      * @param ColumnFormDto|null $input
+     * @param array<ColumnFormDto> $columns
      *
      * @return bool
      */
-    private function inputIsValid(ColumnFormDto|null $input): bool
+    private function inputIsValid(ColumnFormDto|null $input, array $columns): bool
     {
-        if ($input === null) {
-            return false;
-        }
-
-        $metadata = $this->get('metadata');
-        // Null values and columns not found in the database are discarded.
-        return $input->added() || isset($metadata['columns'][$input->column->name]);
+        return $input === null ? false :
+            // Null values and columns not found in the database are discarded.
+            $input->added() || isset($columns[$input->column->name]);
     }
 
     /**
@@ -90,24 +103,12 @@ class Wrapper extends Component
      *
      * @return void
      */
-    public function show(array $metadata, array $inputs = []): void
+    public function show(array $metadata, array $inputs): void
     {
-        $this->set('metadata', $metadata);
-        $this->setColumns(array_filter($inputs, $this->inputIsValid(...)));
-
-        $this->render();
-    }
-
-    /**
-     * @param array $metadata
-     *
-     * @return void
-     */
-    public function load(array $metadata): void
-    {
-        $this->set('metadata', $metadata);
-        $this->setColumns($metadata['columns']);
-
-        $this->render();
+        $table = $this->getTableFormDto($metadata);
+        $columns = $table->status->columns();
+        $table->columns = array_filter($inputs,
+            fn(ColumnFormDto|null $input) => $this->inputIsValid($input, $columns));
+        $this->load($metadata);
     }
 }

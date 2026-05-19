@@ -7,9 +7,9 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 use Lagdo\DbAdmin\App\Ui\PageTrait;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\App\Ui\Table\Column\ColumnTrait;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 use Closure;
@@ -121,17 +121,6 @@ class TableUiBuilder
     }
 
     /**
-     * @param array<ColumnFormDto> $inputs
-     *
-     * @return self
-     */
-    public function inputs(array $inputs): self
-    {
-        $this->inputs = $inputs;
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function wrapperTitle(): string
@@ -155,24 +144,16 @@ class TableUiBuilder
     }
 
     /**
-     * @return TableDto|null
-     */
-    private function getEditedTable(): TableDto|null
-    {
-        return $this->metadata['table'] ?? null;;
-    }
-
-    /**
      * @return array
      */
     private function autoIncrementIsEditable(): array
     {
         $primaryKeyFilter = fn(ColumnFormDto $input) => $input->values()->primary &&
             $this->db()->typeIsAutoIncrementable($input->values()->type);
-        $primaryKeyInputs = array_filter($this->inputs, $primaryKeyFilter);
+        $primaryKeyInputs = array_filter($this->inputs(), $primaryKeyFilter);
 
         $autoIncrementFilter = fn(ColumnFormDto $input) => $input->values()->autoIncrement;
-        $autoIncrementInputs = array_values(array_filter($this->inputs, $autoIncrementFilter));
+        $autoIncrementInputs = array_values(array_filter($this->inputs(), $autoIncrementFilter));
         $hasAutoIncrement = count($autoIncrementInputs) === 1;
         $autoIncrementColumn = $hasAutoIncrement ? $autoIncrementInputs[0]->values()->name : '';
 
@@ -189,7 +170,9 @@ class TableUiBuilder
         $hasEngines = count($this->engines()) > 0;
         $support = $this->support(['table_collation', 'comment']);
         $hasCollations = $support['table_collation'] && count($this->collations()) > 0;
-        $table = $this->getEditedTable();
+        /** @var TableFormDto */
+        $table = $this->metadata['table'];
+        $values = $table->values();
 
         [$autoIncrementColumn, $aiEditable] = $this->autoIncrementIsEditable();
 
@@ -201,7 +184,7 @@ class TableUiBuilder
                             $this->ui->input()
                                 ->setType('text')
                                 ->setName('name')
-                                ->setValue($formValues['name'] ?? $table?->name ?? '')
+                                ->setValue($formValues['name'] ?? $values->name)
                                 ->setPlaceholder('Name')
                         )->setClass('dbadmin-table-column-left')
                             ->width(3),
@@ -216,7 +199,7 @@ class TableUiBuilder
                                 $this->ui->input()
                                     ->setName('autoIncrement')
                                     ->setPlaceholder('Auto Incr.')
-                                    ->setValue($formValues['autoIncrement'] ?? $table?->autoIncrementValue ?? '')
+                                    ->setValue($formValues['autoIncrement'] ?? $values->autoIncrement)
                                     ->when(!$aiEditable, fn($input) => $this->disable($input, true))
                             )
                         )->setClass('dbadmin-table-column-middle')
@@ -231,7 +214,7 @@ class TableUiBuilder
                                     $this->ui->input()
                                         ->setType('text')
                                         ->setName('comment')
-                                        ->setValue($formValues['comment'] ?? $table?->comment ?? '')
+                                        ->setValue($formValues['comment'] ?? $values->comment ?? '')
                                         ->setPlaceholder($this->trans->lang('Comment'))
                                 )
                             )
@@ -242,14 +225,14 @@ class TableUiBuilder
                         $this->ui->row(
                             $this->ui->when($hasCollations, fn() =>
                                 $this->ui->col(
-                                    $this->getCollationSelect($formValues['collation'] ?? $table?->collation ?? '')
+                                    $this->getCollationSelect($formValues['collation'] ?? $values->collation)
                                         ->setName('collation')
                                 )->setClass('dbadmin-table-column-left')
                                     ->width(3)
                             ),
                             $this->ui->when($hasEngines, fn() =>
                                 $this->ui->col(
-                                    $this->getEngineSelect($formValues['engine'] ?? $table?->engine ?? '')
+                                    $this->getEngineSelect($formValues['engine'] ?? $values->engine)
                                         ->setName('engine')
                                 )->setClass(!$hasCollations ? 'dbadmin-table-column-left' :
                                     'dbadmin-table-column-middle')
@@ -297,13 +280,13 @@ class TableUiBuilder
         $support = $this->support(['move_col', 'drop_col']);
         $movableUp = $support['move_col'] && $input->position > 0;
         $movableDown = $support['move_col'] &&
-            $input->position < count($this->inputs) - 1;
+            $input->position < count($this->inputs()) - 1;
         $cancelQuestion = 'Confirm the cancellation?';
         $isAdded = $input->added();
         $removable = $isAdded || $support['drop_col'];
-        $removeText = $isAdded ? 'Cancel' : 'Remove';
-        $removeQuestion = $isAdded ? 'Remove this new colum?' :
-            "Remove the \"{$input->column->name}\" column?";
+        $removeText = $isAdded ? 'Cancel' : 'Drop';
+        $removeQuestion = $isAdded ? 'Drop this new colum?' :
+            "Drop the \"{$input->column->name}\" column?";
 
         return $this->ui->dropdown(
             $this->ui->dropdownItem()->look('primary')/*->addCaret()*/,
@@ -494,7 +477,7 @@ class TableUiBuilder
 
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->each($this->inputs, fn(ColumnFormDto $input, string $columnId) =>
+                $this->ui->each($this->inputs(), fn(ColumnFormDto $input, string $columnId) =>
                     $this->ui->div(
                         $this->columnUiInput($input, $columnId)
                     )->setClass('dbadmin-table-edit-column')

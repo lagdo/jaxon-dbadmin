@@ -53,4 +53,12 @@ abstract class TableDdl extends MainComponent
             'header' => $this->tableUi->wrapperTitle(),
         ];
     }
+
+    /**
+     * @inheritDoc
+     */
+    protected function after(): void
+    {
+        $this->cl(Column\Wrapper::class)->load($this->metadata());
+    }
 }

@@ -14,6 +14,7 @@ class Alter extends TableDdl
      */
     protected function before(): void
     {
+        // The databag entry is created here, so it can be filled by the js script.
         $this->setTableBag('formValues', null);
 
         // Set main menu buttons
@@ -27,11 +28,11 @@ class Alter extends TableDdl
             ],
             'table-changes' => [
                 'title' => $this->trans()->lang('Changes'),
-                'handler' => $this->rq(ChangeFunc::class)->alter($tableValues),
+                'handler' => $this->rq(QueryFunc::class)->showAlterChanges($tableValues),
             ],
             'table-queries' => [
                 'title' => $this->trans()->lang('Queries'),
-                'handler' => $this->rq(QueryFunc::class)->alter($tableValues),
+                'handler' => $this->rq(QueryFunc::class)->showAlterQueries($tableValues),
             ],
             'table-back' => [
                 'title' => $this->trans()->lang('Back'),
@@ -39,13 +40,5 @@ class Alter extends TableDdl
             ],
         ];
         $this->cl(PageActions::class)->show($actions);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function after(): void
-    {
-        $this->cl(Column\Wrapper::class)->load($this->metadata());
     }
 }

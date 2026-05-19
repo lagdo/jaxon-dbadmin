@@ -3,21 +3,30 @@
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnAction;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDdDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\IndexDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\TableDdDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TriggerDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 
+use function array_filter;
+use function array_flip;
 use function array_keys;
 use function array_key_exists;
 use function array_map;
+use function array_values;
 use function count;
 use function implode;
 use function in_array;
+use function is_string;
 use function ksort;
-use function preg_match;
+use function str_replace;
 
 class TableContent extends AbstractDriverProxy
 {
@@ -168,32 +177,23 @@ class TableContent extends AbstractDriverProxy
     }
 
     /**
-     * @param TableDto|null $status
-     * @param array<ColumnDto> $columns
+     * @param TableDto $status
      * @param array<string,string> $foreignKeys
      * 
      * @return array
      */
-    public function metadata(TableDto|null $status, array $columns, array $foreignKeys): array
+    public function metadata(TableDto $status, array $foreignKeys): array
     {
         $collations = $this->engine()->collations();
         $unsigned = $this->engine()->unsigned();
-
-        $hasAutoIncrement = false;
-        foreach ($columns as $column) {
-            $hasAutoIncrement = $hasAutoIncrement || $column->autoIncrement;
-            if (preg_match('~^CURRENT_TIMESTAMP~i', $column->onUpdate)) {
-                $column->onUpdate = 'CURRENT_TIMESTAMP';
-            }
-        }
+        $columns = array_map(fn(ColumnDto $column) =>
+            $this->getColumnInput($column, $foreignKeys), $status->columns());
+        $table = new TableFormDto($status, $columns);
 
         return [
-            'table' => $status,
+            'table' => $table,
             'foreignKeys' => $foreignKeys,
-            'columns' => array_map(fn(ColumnDto $column) =>
-                $this->getColumnInput($column, $foreignKeys), $columns),
             'options' => [
-                'hasAutoIncrement' => $hasAutoIncrement,
                 'onUpdate' => ['CURRENT_TIMESTAMP' => 'CURRENT_TIMESTAMP'],
                 'onDelete' => $this->engine()->onActions(),
             ],
@@ -250,5 +250,157 @@ class TableContent extends AbstractDriverProxy
         }
 
         return $this->setInputFieldProperties($input, $foreignKeys);
+    }
+
+    /**
+     * @param string $table
+     *
+     * @return array<ColumnDto>
+     */
+    private function getReferencableColumns(string $table): array
+    {
+        // From editing.inc.php, function referencable_primary()
+
+        $filter = fn(TableDto $tableStatus, string $tableName) =>
+            $tableName != $table && $this->engine()->supportForeignKeys($tableStatus);
+        $tables = $this->engine()->tableStatuses(true);
+        $tables = array_filter($tables, $filter, ARRAY_FILTER_USE_BOTH);
+
+        $filter = fn(ColumnDto $column) => $column->primary;
+        $primaryColumns = array_map(fn(TableDto $tableStatus) =>
+            array_values(array_filter($tableStatus->columns(), $filter)), $tables);
+
+        // Remove multi column primary keys
+        $filter = fn(array $columns) => count($columns) === 1;
+        $primaryColumns = array_filter($primaryColumns, $filter);
+
+        return array_map(fn(array $columns) => $columns[0], $primaryColumns);
+    }
+
+    /**
+     * Get foreign keys
+     *
+     * @param TableDdDto|string $table
+     *
+     * @return array
+     */
+    private function getForeignKeys(TableDdDto|string $table = ''): array
+    {
+        $columns = is_string($table) ?
+            $this->getReferencableColumns($table) :
+            $table->getReferencableColumns();
+
+        $replace = fn(string $name) => str_replace("`", "``", $name);
+        $convertName = fn(ColumnDto $column, string $tableName) =>
+            $replace($tableName) . "`" . $replace($column->name); // not escapeId() - used in JS
+        $foreignKeys = array_map($convertName, $columns, array_keys($columns));
+
+        return array_flip($foreignKeys);
+    }
+
+    /**
+     * @param TableDdDto $table
+     * @param ColumnAction $action
+     * @param ColumnFormDto $input
+     * @param array $foreignKeys
+     *
+     * @return ColumnDdDto
+     */
+    private function makeColumnInput(TableDdDto $table, ColumnAction $action,
+        ColumnFormDto $input, array $foreignKeys): ColumnDdDto
+    {
+        $values = $input->values();
+
+        //! can collide with user defined type
+        $foreignKey = $foreignKeys[$values->type] ?? '';
+        $typeColumn = $table->getReferencableColumns()[$foreignKey] ?? null;
+        if ($typeColumn !== null) {
+            $fkColumn = new ForeignKeyDto();
+            $fkColumn->table = $foreignKey;
+            $fkColumn->source = [$values->name];
+            $fkColumn->target = [$typeColumn->name];
+            $fkColumn->onDelete = $values->onDelete;
+
+            $table->foreignKeys[$values->name] = $fkColumn;
+        }
+
+        $column = new ColumnDdDto($input->column, $typeColumn);
+        foreach ($input->attributes() as $attr) {
+            $column->$attr = $values->$attr;
+        }
+        if ($values->generated === '') {
+            $column->default = null;
+        }
+        if (!$values->setComment) {
+            $column->comment = null;
+        }
+        if ($action === ColumnAction::ADD && $column->autoIncrement) {
+            $column->type = $this->statement()->getAutoIncrementType($column->type);
+        }
+
+        return $column;
+    }
+
+    /**
+     * @param TableFormDto $table
+     * 
+     * @return TableCreateDto
+     */
+    public function makeCreateDto(TableFormDto $table): TableCreateDto
+    {
+        $values = (array)$table->values();
+        $createDto = new TableCreateDto($values, $this->getReferencableColumns(...));
+        // From create.inc.php
+        $foreignKeys = $this->getForeignKeys();
+
+        // $after = " FIRST";
+
+        $createDto->clearColumns();
+        $createDto->columns[ColumnAction::ADD->value] = array_map(fn(ColumnFormDto $input) =>
+            $this->makeColumnInput($createDto, ColumnAction::ADD, $input, $foreignKeys),
+            array_filter($table->columns, fn(ColumnFormDto $input) => $input->added()));
+
+        // Auto increment
+        if ($createDto->autoIncrementColumnCount() > 1) {
+            $createDto->error = $this->utils()->lang('Only one auto-increment column is allowed.');
+        }
+
+        return $createDto;
+    }
+
+    /**
+     * @param TableFormDto $table
+     * 
+     * @return TableAlterDto
+     */
+    public function makeAlterDto(TableFormDto $table): TableAlterDto
+    {
+        $values = (array)$table->values();
+        $alterDto = new TableAlterDto($values, $this->getReferencableColumns(...));
+        $alterDto->status = $table->status;
+
+        // From create.inc.php
+        $foreignKeys = $this->getForeignKeys($table->status->name);
+
+        // Todo: move fields up and down
+        // $after = " FIRST";
+
+        $alterDto->clearColumns();
+        $alterDto->columns[ColumnAction::ADD->value] = array_map(fn(ColumnFormDto $input) =>
+            $this->makeColumnInput($alterDto, ColumnAction::ADD, $input, $foreignKeys),
+            array_filter($table->columns, fn(ColumnFormDto $input) => $input->added()));
+        $alterDto->columns[ColumnAction::EDIT->value] = array_map(fn(ColumnFormDto $input) =>
+            $this->makeColumnInput($alterDto, ColumnAction::EDIT, $input, $foreignKeys),
+            array_filter($table->columns, fn(ColumnFormDto $input) => $input->changed()));
+        $alterDto->columns[ColumnAction::DROP->value] = array_map(
+            fn(ColumnFormDto $input) => $input->column->name,
+            array_filter($table->columns, fn(ColumnFormDto $input) => $input->dropped()));
+
+        // Auto increment
+        if ($alterDto->autoIncrementColumnCount() > 1) {
+            $alterDto->error = $this->utils()->lang('Only one auto-increment column is allowed.');
+        }
+
+        return $alterDto;
     }
 }

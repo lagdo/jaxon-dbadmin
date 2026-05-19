@@ -2,9 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 use Exception;
 
 /**
@@ -145,82 +144,56 @@ trait TableTrait
     }
 
     /**
-     * @param array $tableInputs
-     *
-     * @return TableCreateDto
-     */
-    public function getCreateTableDto(array $tableInputs): TableCreateDto
-    {
-        return $this->tableProxy()->getCreateTableDto($tableInputs);
-    }
-
-    /**
      * Get SQL commands to create a table
      *
-     * @param array $tableInputs
-     * @param array<ColumnFormDto> $columnsInputs
+     * @param TableFormDto $table
      *
      * @return array
      */
-    public function getCreateTableQueries(array $tableInputs, array $columnsInputs): array
+    public function getCreateTableQueries(TableFormDto $table): array
     {
         $this->connectToSchema();
-        return $this->tableProxy()->getCreateTableQueries($tableInputs, $columnsInputs);
+        return $this->tableProxy()->getCreateTableQueries($table);
     }
 
     /**
      * Create a table
      *
-     * @param array $tableInputs
-     * @param array<ColumnFormDto> $columnsInputs
+     * @param TableFormDto $table
      *
      * @return array|null
      */
-    public function createTable(array $tableInputs, array $columnsInputs): ?array
+    public function createTable(TableFormDto $table): ?array
     {
         $this->connectToSchema();
-        return $this->tableProxy()->createTable($tableInputs, $columnsInputs);
-    }
-
-    /**
-     * @param array $tableInputs
-     *
-     * @return TableAlterDto
-     */
-    public function getAlterTableDto(array $tableInputs): TableAlterDto
-    {
-        return $this->tableProxy()->getAlterTableDto($tableInputs);
+        return $this->tableProxy()->createTable($table);
     }
 
     /**
      * Get SQL command to alter a table
      *
-     * @param string $table
-     * @param array $tableInputs
-     * @param array<ColumnFormDto> $columnsInputs
+     * @param TableFormDto $table
      *
      * @return array
      */
-    public function getAlterTableQueries(string $table, array $tableInputs, array $columnsInputs): array
+    public function getAlterTableQueries(TableFormDto $table): array
     {
         $this->connectToSchema();
-        return $this->tableProxy()->getAlterTableQueries($table, $tableInputs, $columnsInputs);
+        return $this->tableProxy()->getAlterTableQueries($table);
     }
 
     /**
      * Alter a table
      *
-     * @param string $table
-     * @param array $tableInputs
-     * @param array<ColumnFormDto> $columnsInputs
+     * @param TableFormDto $table
      *
      * @return array|null
      * @throws Exception
      */
-    public function alterTable(string $table, array $tableInputs, array $columnsInputs): ?array
+    public function alterTable(TableFormDto $table): ?array
     {
         $this->connectToSchema();
-        return $this->tableProxy()->alterTable($table, $tableInputs, $columnsInputs);
+        return $this->tableProxy()->alterTable($table);
     }
 
     /**

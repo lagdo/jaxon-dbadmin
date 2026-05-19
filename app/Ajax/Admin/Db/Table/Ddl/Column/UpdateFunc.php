@@ -63,7 +63,7 @@ class UpdateFunc extends FuncComponent
         }
 
         $input = $inputs[$columnId];
-        $input->setValues($this->getUserFormValues($values));
+        $input->setValues($this->getColumnFormValues($values));
         if ($input->changed() || $input->unchanged()) {
             $input->changeIf();
         }

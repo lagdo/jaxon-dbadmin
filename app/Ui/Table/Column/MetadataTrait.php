@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\App\Ui\Table\Column;
 
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
+
 use function array_combine;
 use function array_map;
 
@@ -80,5 +82,13 @@ trait MetadataTrait
     {
         $this->metadata = $metadata;
         return $this;
+    }
+
+    /**
+     * @var array<ColumnFormDto>
+     */
+    protected function inputs(): array
+    {
+        return $this->metadata['table']->columns;
     }
 }

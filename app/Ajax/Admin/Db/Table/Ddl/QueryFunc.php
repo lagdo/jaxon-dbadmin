@@ -10,22 +10,64 @@ use function implode;
 use function is_string;
 
 /**
- * Show the queries on a table.
+ * Show the changes and queries on a table.
  */
 class QueryFunc extends Column\FuncComponent
 {
     /**
      * @param array $tableInputs
      *
-     * @return array
+     * @return void
      */
-    private function tableInputs(array $tableInputs): array
+    public function showCreateChanges(array $tableInputs): void
     {
-        return [
-            ...$tableInputs,
-            'hasAutoIncrement' => isset($tableInputs['hasAutoIncrement']),
-            'setComment' => isset($tableInputs['setComment']),
-        ];
+        $this->setCurrentTable('');
+
+        $tableDto = $this->tableDto();
+        $tableDto->setValues($this->getTableFormValues($tableInputs));
+        $tableDto->columns = $this->getColumnInputs();
+
+        $title = 'Values for the new table';
+        $content = $this->columnUi
+            ->metadata($this->metadata())
+            ->createValues($tableDto);
+        $buttons = [[
+            'title' => 'Close',
+            'class' => 'btn btn-tertiary',
+            'click' => 'close',
+        ]];
+        $this->modal()->show($title, $content ?: '&nbsp;', $buttons);
+    }
+
+    /**
+     * @param array $tableInputs
+     *
+     * @return void
+     */
+    public function showAlterChanges(array $tableInputs): void
+    {
+        $tableName = $this->getCurrentTable();
+        $tableDto = $this->tableDto();
+        if ($tableDto->status->name === '') {
+            $this->alert()
+                ->title('Error')
+                ->error("Unable to find the '$tableName' table.");
+            return;
+        }
+
+        $tableDto->setValues($this->getTableFormValues($tableInputs));
+        $tableDto->columns = $this->getColumnInputs();
+
+        $title = "Changes in the table $tableName";
+        $content = $this->columnUi
+            ->metadata($this->metadata())
+            ->alterValues($tableDto);
+        $buttons = [[
+            'title' => 'Close',
+            'class' => 'btn btn-tertiary',
+            'click' => 'close',
+        ]];
+        $this->modal()->show($title, $content ?: '&nbsp;', $buttons);
     }
 
     /**
@@ -58,11 +100,15 @@ class QueryFunc extends Column\FuncComponent
      *
      * @return void
      */
-    public function create(array $tableInputs): void
+    public function showCreateQueries(array $tableInputs): void
     {
-        $tableInputs = $this->tableInputs($tableInputs);
-        $columnsInputs = $this->getColumnInputs();
-        $result = $this->db()->getCreateTableQueries($tableInputs, $columnsInputs);
+        $this->setCurrentTable('');
+
+        $tableDto = $this->tableDto();
+        $tableDto->setValues($this->getTableFormValues($tableInputs));
+        $tableDto->columns = $this->getColumnInputs();
+
+        $result = $this->db()->getCreateTableQueries($tableDto);
         // Show the error
         if (isset($result['error'])) {
             $this->alert()
@@ -95,12 +141,21 @@ class QueryFunc extends Column\FuncComponent
      *
      * @return void
      */
-    public function alter(array $tableInputs): void
+    public function showAlterQueries(array $tableInputs): void
     {
-        $table = $this->getCurrentTable();
-        $tableInputs = $this->tableInputs($tableInputs);
-        $columnsInputs = $this->getColumnInputs();
-        $result = $this->db()->getAlterTableQueries($table, $tableInputs, $columnsInputs);
+        $tableName = $this->getCurrentTable();
+        $tableDto = $this->tableDto();
+        if ($tableDto->status->name === '') {
+            $this->alert()
+                ->title('Error')
+                ->error("Unable to find the '$tableName' table.");
+            return;
+        }
+
+        $tableDto->setValues($this->getTableFormValues($tableInputs));
+        $tableDto->columns = $this->getColumnInputs();
+
+        $result = $this->db()->getAlterTableQueries($tableDto);
         // Show the error
         if(isset($result['error']))
         {
@@ -111,7 +166,7 @@ class QueryFunc extends Column\FuncComponent
         }
 
         $queryCode = $this->getQueryCode($result['queries']);
-        $title = $this->trans()->lang('Queries to create a new table');
+        $title = $this->trans()->lang("Queries to alter the '$tableName' table");
         $content = $this->columnUi->sqlCodeElement($queryCode);
         $buttons = [[
             'title' => 'Close',

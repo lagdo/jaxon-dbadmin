@@ -24,7 +24,22 @@ abstract class FuncComponent extends BaseComponent
      *
      * @return array
      */
-    protected function getUserFormValues(array $formValues): array
+    protected function getTableFormValues(array $formValues): array
+    {
+        // Todo: check the validity of the form values.
+        // Convert the boolean values
+        $formValues['hasAutoIncrement'] = isset($formValues['hasAutoIncrement']);
+        $formValues['setComment'] = isset($formValues['setComment']);
+
+        return $formValues;
+    }
+
+    /**
+     * @param array $formValues
+     *
+     * @return array
+     */
+    protected function getColumnFormValues(array $formValues): array
     {
         // Todo: check the validity of the form values.
         // Convert the boolean values

@@ -7,6 +7,7 @@ use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 
 use function array_combine;
 use function array_map;
+use function preg_match;
 
 /**
  * User inputs for a table column.
@@ -37,9 +38,9 @@ class ColumnFormDto
     /**
      * The user input values for the column
      *
-     * @var object|null
+     * @var object
      */
-    private object|null $values = null;
+    private object $values;
 
     /**
      * The attributes in the input values
@@ -76,6 +77,9 @@ class ColumnFormDto
         public bool $collationEditable = true, public bool $unsignedEditable = true,
         public bool $onUpdateEditable = true, public bool $onDeleteEditable = true)
     {
+        if (preg_match('~^CURRENT_TIMESTAMP~i', $column->onUpdate)) {
+            $column->onUpdate = 'CURRENT_TIMESTAMP';
+        }
         // Copy the table column values into the local $currValues array.
         $this->currValues = array_combine(self::$attributes,
             array_map(fn(string $attr) => $column->$attr, self::$attributes));

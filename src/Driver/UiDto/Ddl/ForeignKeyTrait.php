@@ -3,8 +3,8 @@
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnAction;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDdDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnInputDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDdDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
@@ -71,10 +71,10 @@ trait ForeignKeyTrait
      * @param ColumnFormDto $input
      * @param array $foreignKeys
      *
-     * @return ColumnInputDto
+     * @return ColumnDdDto
      */
     private function makeColumnInput(TableDdDto $table, ColumnAction $action,
-        ColumnFormDto $input, array $foreignKeys): ColumnInputDto
+        ColumnFormDto $input, array $foreignKeys): ColumnDdDto
     {
         $values = $input->values();
 
@@ -91,7 +91,7 @@ trait ForeignKeyTrait
             $table->foreignKeys[$values->name] = $fkColumn;
         }
 
-        $column = new ColumnInputDto($input->column, $typeColumn);
+        $column = new ColumnDdDto($input->column, $typeColumn);
         foreach ($input->attributes() as $attr) {
             $column->$attr = $values->$attr;
         }

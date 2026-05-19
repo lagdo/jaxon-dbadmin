@@ -17,6 +17,7 @@ class Create extends TableDdl
     {
         $this->setCurrentTable('');
         $this->setTableBag('columns', []);
+        // The databag entry is created here, so it can be filled by the js script.
         $this->setTableBag('formValues', null);
 
         // Set main menu buttons
@@ -31,11 +32,11 @@ class Create extends TableDdl
             ],
             'table-changes' => [
                 'title' => $this->trans()->lang('Changes'),
-                'handler' => $this->rq(ChangeFunc::class)->create($tableValues),
+                'handler' => $this->rq(QueryFunc::class)->showCreateChanges($tableValues),
             ],
             'table-queries' => [
                 'title' => $this->trans()->lang('Queries'),
-                'handler' => $this->rq(QueryFunc::class)->create($tableValues),
+                'handler' => $this->rq(QueryFunc::class)->showCreateQueries($tableValues),
             ],
             'table-back' => [
                 'title' => $this->trans()->lang('Back'),
@@ -43,13 +44,5 @@ class Create extends TableDdl
             ],
         ];
         $this->cl(PageActions::class)->show($actions);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function after(): void
-    {
-        $this->cl(Column\Wrapper::class)->show($this->metadata());
     }
 }
