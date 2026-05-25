@@ -357,10 +357,10 @@ While the corresponding options can also be set here, their usage is out of the 
 
 Jaxon DbAdmin uses an extensible `config reader` to read the database credentials.
 By default, the database credentials are stored in a `json`, `yaml` or `php` config file.
-Jaxon DbAdmin provides a [default `config reader`](https://github.com/lagdo/jaxon-dbadmin/blob/main/src/Config/ConfigReader.php) which is able to read these values, either from the config file content, or from environment variables.
+Jaxon DbAdmin provides a [default `config reader`](https://github.com/lagdo/jaxon-dbadmin/blob/main/src/Config/ServerConfigProvider.php) which is able to read these values, either from the config file content, or from environment variables.
 
 An alternative `config reader` can be specified in the package config options.
-Let say for example the `CustomConfigReader` class inherits from the default `config reader` and redefines some functions.
+Let say for example the `CustomServerConfigProvider` class inherits from the default `config reader` and redefines some functions.
 The `DbAdminPackage` and `DbAuditPackage` can be configured to use it as their `config reader`.
 
 ```php
@@ -370,14 +370,14 @@ The `DbAdminPackage` and `DbAuditPackage` can be configured to use it as their `
             Lagdo\DbAdmin\App\DbAdminPackage::class => [
                 // Read the database credentials with the custom config reader.
                 'config' => [
-                    'reader' => CustomConfigReader::class,
+                    'reader' => CustomServerConfigProvider::class,
                 ],
                 // ...
             ],
             Lagdo\DbAdmin\App\DbAuditPackage::class => [
                 // Read the database credentials with the custom config reader.
                 'config' => [
-                    'reader' => CustomConfigReader::class,
+                    'reader' => CustomServerConfigProvider::class,
                 ],
                 // ...
             ],
