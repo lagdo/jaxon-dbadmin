@@ -36,7 +36,7 @@ trait PageTrait
             $this->ui->button($menu['label'])
                 ->primary()
                 ->jxnClick($menu['handler']),
-            $this->ui->dropdownItem()->look('primary'),
+            $this->ui->dropdownItem()->skin('primary'),
             $this->ui->when(count($menus) > 0, fn() =>
                 $this->ui->dropdownMenu(
                     $this->ui->each($menus, fn($menu) =>
@@ -130,7 +130,7 @@ trait PageTrait
                     )
                 )
             )
-        )->responsive()->look('bordered');
+        )->responsive()->skin('bordered');
     }
 
     /**
@@ -180,11 +180,11 @@ trait PageTrait
 
         return $this->ui->build(
             $this->ui->div(
-                $this->ui->panel(
+                $this->ui->card(
                     $this->ui->when($header !== '', fn() =>
-                        $this->ui->panelHeader($header)
+                        $this->ui->cardHeader($header)
                     ),
-                    $this->ui->panelBody(
+                    $this->ui->cardBody(
                         $this->ui->div($body)
                             ->when($grow, fn($element) =>
                                 $element->addClass('jaxon-dbadmin-scrollable-content'))

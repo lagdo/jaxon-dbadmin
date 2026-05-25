@@ -68,7 +68,7 @@ class ResultUiBuilder
                             ->when($row['editId'] > 0, fn($tr) =>
                                 $tr->tbnBindApp($rqResultRow, $row['editItemId'])))
                 )
-            )->responsive(true)->look('bordered')
+            )->responsive(true)->skin('bordered')
         );
     }
 }

@@ -332,14 +332,14 @@ class ColumnUiBuilder
         return $this->ui->build(
             $this->ui->row(
                 $this->ui->col(
-                    $this->ui->panel(
-                        $this->ui->panelBody(
+                    $this->ui->card(
+                        $this->ui->cardBody(
                             $this->ui->div($queryText)
                                 ->setId($this->getQueryDivId())
                                 ->setStyle('height: 300px;')
                         )->setStyle('padding: 0 1px;')
                     )->setStyle('padding: 5px;')
-                        ->look('default')
+                        ->skin('default')
                 )->width(12)
             )
         );

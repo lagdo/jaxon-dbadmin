@@ -103,7 +103,7 @@ class AuditUiBuilder
                         $this->command($command, $categories[$command['category']] ?? '')
                     )
                 ),
-            )->responsive(true)->look('bordered')
+            )->responsive(true)->skin('bordered')
         );
     }
 

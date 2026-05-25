@@ -249,13 +249,13 @@ class EditUiBuilder
         return $this->ui->build(
             $this->ui->row(
                 $this->ui->col(
-                    $this->ui->panel(
-                        $this->ui->panelBody(
+                    $this->ui->card(
+                        $this->ui->cardBody(
                             $this->ui->div($queryText)
                                 ->setId($this->queryDivId())
                                 ->setStyle('height: 300px;')
                         )->setStyle('padding: 0 1px;')
-                    )->look('default')
+                    )->skin('default')
                         ->setStyle('padding: 5px;')
                 )->width(12)
             )

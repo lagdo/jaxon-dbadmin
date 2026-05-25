@@ -9,6 +9,7 @@ use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
 use Lagdo\DbAdmin\Support\Service\TimerService;
 use Lagdo\DbAdmin\Driver\Sql\Connection\AbstractConnection;
 use Lagdo\DbAdmin\Driver\Sql\Dto\QueryInputDto;
+use Exception;
 
 use function array_map;
 use function compact;
@@ -257,7 +258,7 @@ class CommandProxy extends AbstractDriverProxy
                 ini_set('memory_limit', max($this->utils()->iniBytes('memory_limit'),
                     2 * strlen($queries) + memory_get_usage() + 8e6));
             }
-            catch(\Exception $e) {
+            catch(Exception $e) {
                 // Do nothing if the option is not modified.
             }
         }

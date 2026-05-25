@@ -188,7 +188,7 @@ class QueryUiBuilder
     public function editorTabNavHtml(): string
     {
         return $this->ui->build(
-            $this->editorTabNav(false)
+            $this->editorTabNav(active: false)
         );
     }
 
@@ -206,14 +206,14 @@ class QueryUiBuilder
                         $this->ui->col(
                             $this->ui->row(
                                 $this->ui->col(
-                                    $this->ui->panel(
-                                        $this->ui->panelBody(
+                                    $this->ui->card(
+                                        $this->ui->cardBody(
                                             $this->ui->div()
                                                 ->setId($this->commandEditorId())
                                                 ->setClass(self::QUERY_TEXT_CLASS)
                                         )->setClass('sql-command-editor-panel')
                                             ->setStyle('padding: 0 1px;')
-                                    )->look('default')
+                                    )->skin('default')
                                         ->setStyle('padding: 5px;')
                                 )->width(12)
                             )
@@ -285,13 +285,14 @@ class QueryUiBuilder
                     ->confirm($this->trans->lang('Save this tabs in your preferences?')),
             ];
         }
+        $tabContentId = $this->editorTabContentWrapperId();
 
         return $this->ui->build(
             $this->ui->div(
                 $this->ui->div(
                     $this->buttonMenu($menuEntries),
                 )->setClass('jaxon-dbadmin-tabs-layout_button'),
-                $this->ui->col(
+                $this->ui->tabs(
                     $this->ui->tabNav(
                         $this->ui->when($this->config->queryFavoriteEnabled(), fn() =>
                             $this->ui->tabNavItem($this->trans->lang('History'))
@@ -303,10 +304,11 @@ class QueryUiBuilder
                                 ->target($this->tab()->editor()->id("tab-content-query-favorite"))
                                 ->active(false)
                         ),
-                        $this->editorTabNav(true)
+                        $this->editorTabNav(active: true)
                     )->setId($this->editorTabNavWrapperId())
                         ->setStyle('margin-bottom: 5px;')
-                )->setClass('jaxon-dbadmin-tabs-layout_header')
+                )->content($tabContentId)
+                    ->setClass('jaxon-dbadmin-tabs-layout_header')
             )->setClass('jaxon-dbadmin-tabs-layout'),
             $this->ui->tabContent(
                 $this->ui->when($this->config->queryFavoriteEnabled(), fn() =>
@@ -320,7 +322,7 @@ class QueryUiBuilder
                         ->setId($this->tab()->editor()->id("tab-content-query-favorite"))
                         ->active(false)),
                 $this->editorTabContent($rqQuery, true)
-            )->setId($this->editorTabContentWrapperId())
+            )->setId($tabContentId)
         );
     }
 }

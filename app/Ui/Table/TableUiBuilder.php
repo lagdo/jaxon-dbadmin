@@ -289,7 +289,7 @@ class TableUiBuilder
             "Drop the \"{$input->column->name}\" column?";
 
         return $this->ui->dropdown(
-            $this->ui->dropdownItem()->look('primary')/*->addCaret()*/,
+            $this->ui->dropdownItem()->skin('primary')/*->addCaret()*/,
             $this->ui->dropdownMenu(
                 $this->ui->when(!$input->dropped(), fn() =>
                     $this->ui->list(

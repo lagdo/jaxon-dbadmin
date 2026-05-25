@@ -142,11 +142,11 @@ class SelectUiBuilder
                         ),
                         $this->ui->row(
                             $this->ui->col(
-                                $this->ui->panel(
-                                    $this->ui->panelBody()
+                                $this->ui->card(
+                                    $this->ui->cardBody()
                                         ->setStyle('padding: 0 1px;')
                                         ->tbnBindApp(rq(QueryText::class))
-                                )->look('default')
+                                )->skin('default')
                                     ->setStyle('padding: 5px;')
                             )->width(12)
                         ),

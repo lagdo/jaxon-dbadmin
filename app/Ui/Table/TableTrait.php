@@ -26,22 +26,26 @@ trait TableTrait
      */
     public function mainDbTable(array $tabs): string
     {
+        $tabContentId = $this->tab()->app()->id('dbadmin-db-table');
         $firstTabId = array_key_first($tabs);
+
         return $this->ui->build(
-            $this->ui->tabNav(
-                $this->ui->each($tabs, fn($tab, $id) =>
-                    $this->ui->tabNavItem($this->ui->text($tab))
-                        ->target($this->tab()->app()->id("tab-content-$id"))
-                        ->active($firstTabId === $id)
-                )
-            )->setStyle('margin-bottom: 5px;'),
-            $this->ui->tabContent(
-                $this->ui->each($tabs, fn($_, $id) =>
-                    $this->ui->tabContentItem()
-                        ->setId($this->tab()->app()->id("tab-content-$id"))
-                        ->active($firstTabId === $id)
-                )
-            )
+            $this->ui->tabs(
+                $this->ui->tabNav(
+                    $this->ui->each($tabs, fn($tab, $id) =>
+                        $this->ui->tabNavItem($this->ui->text($tab))
+                            ->target($this->tab()->app()->id("tab-content-$id"))
+                            ->active($firstTabId === $id)
+                    )
+                )->setStyle('margin-bottom: 5px;'),
+                $this->ui->tabContent(
+                    $this->ui->each($tabs, fn($_, $id) =>
+                        $this->ui->tabContentItem()
+                            ->setId($this->tab()->app()->id("tab-content-$id"))
+                            ->active($firstTabId === $id)
+                    )
+                )->setId($tabContentId)
+            )->content($tabContentId)
         );
     }
 }

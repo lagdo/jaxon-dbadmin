@@ -24,16 +24,16 @@ trait QueryResultTrait
 
         return $this->ui->build(
             $this->ui->when(isset($results['message']), fn() =>
-                $this->ui->panel(
-                    $this->ui->panelBody($this->ui->span($results['message']))
+                $this->ui->card(
+                    $this->ui->cardBody($this->ui->span($results['message']))
                         ->setStyle('padding:5px 15px')
-                )->look('info')
+                )->skin('info')
             ),
             $this->ui->when($resultsAreTruncated, fn() =>
-                $this->ui->panel(
-                    $this->ui->panelBody($this->ui->span($truncatedMessage))
+                $this->ui->card(
+                    $this->ui->cardBody($this->ui->span($truncatedMessage))
                         ->setStyle('padding:5px 15px')
-                )->look('info')
+                )->skin('info')
             ),
             $this->ui->each($truncatedResults, function($result) {
                 $query = $result['query'];
@@ -44,20 +44,20 @@ trait QueryResultTrait
                 return $this->ui->row(
                     $this->ui->col(
                         $this->ui->when(count($errors) > 0, fn() =>
-                            $this->ui->panel(
-                                $this->ui->panelHeader($this->ui->text($query)),
-                                $this->ui->panelBody(
+                            $this->ui->card(
+                                $this->ui->cardHeader($this->ui->text($query)),
+                                $this->ui->cardBody(
                                     $this->ui->each($errors, $this->ui->span(...))
                                 )->setStyle('padding:5px 15px')
-                            )->look('danger')
+                            )->skin('danger')
                         ),
                         $this->ui->when(count($messages) > 0, fn() =>
-                            $this->ui->panel(
-                                $this->ui->panelHeader($this->ui->text($query)),
-                                $this->ui->panelBody(
+                            $this->ui->card(
+                                $this->ui->cardHeader($this->ui->text($query)),
+                                $this->ui->cardBody(
                                     $this->ui->each($messages, $this->ui->span(...))
                                 )->setStyle('padding:5px 15px')
-                            )->look('success')
+                            )->skin('success')
                         ),
                         $this->ui->when(count($select) > 0, fn() =>
                             $this->ui->table(
@@ -78,7 +78,7 @@ trait QueryResultTrait
                                     )
                                 )
                             )->responsive(true)
-                                ->look('bordered')
+                                ->skin('bordered')
                                 ->setStyle('margin-top:2px')
                         ),
                     )->width(12)

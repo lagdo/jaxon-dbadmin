@@ -76,15 +76,15 @@ class ViewUiBuilder
             $this->ui->col(
                 $this->ui->row(
                     $this->ui->col(
-                        $this->ui->panel(
-                            $this->ui->panelBody(
+                        $this->ui->card(
+                            $this->ui->cardBody(
                                 $this->ui->div(
                                     $this->ui->html($view['select'] ?? '')
                                 )->setClass(self::QUERY_FORM_CLASS)
                                     ->setId($this->queryFormId())
                             )->setClass('sql-command-editor-panel')
                                 ->setStyle('padding: 0 1px;')
-                        )->look('default')
+                        )->skin('default')
                             ->setStyle('padding: 5px;')
                     )->width(12)
                 )

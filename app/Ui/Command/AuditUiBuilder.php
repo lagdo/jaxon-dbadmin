@@ -47,7 +47,7 @@ class AuditUiBuilder
             $this->ui->button($this->trans->lang('Copy'))
                 ->primary()
                 ->setClass('dbadmin-history-query-copy'),
-            $this->ui->dropdownItem()->look('primary'),
+            $this->ui->dropdownItem()->skin('primary'),
             $this->ui->dropdownMenu(
                 $this->ui->dropdownMenuItem($this->trans->lang('Insert'))
                     ->setClass('dbadmin-history-query-insert')
@@ -111,7 +111,7 @@ class AuditUiBuilder
                             ['.dbadmin-history-query-copy', 'click', $btnCopyHandler],
                             ['.dbadmin-history-query-insert', 'click', $btnInsertHandler],
                         ])
-                )->look('bordered')
+                )->skin('bordered')
             )->setClass('jaxon-dbadmin-sql-query-wrapper')
         );
     }
@@ -147,7 +147,7 @@ class AuditUiBuilder
             $this->ui->button($this->trans->lang('Copy'))
                 ->primary()
                 ->setClass('dbadmin-favorite-query-copy'),
-            $this->ui->dropdownItem()->look('primary'),
+            $this->ui->dropdownItem()->skin('primary'),
             $this->ui->dropdownMenu(
                 $this->ui->dropdownMenuItem($this->trans->lang('Insert'))
                     ->setClass('dbadmin-favorite-query-insert'),
@@ -203,7 +203,7 @@ class AuditUiBuilder
                         ['.dbadmin-favorite-query-edit', 'click', $btnEditHandler],
                         ['.dbadmin-favorite-query-delete', 'click', $btnDeleteHandler],
                     ])
-                )->look('bordered')
+                )->skin('bordered')
             )->setClass('jaxon-dbadmin-sql-query-wrapper')
         );
     }

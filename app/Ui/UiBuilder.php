@@ -207,21 +207,24 @@ class UiBuilder
      */
     public function admin(): string
     {
+        $contentId = 'dbadmin-server-tab-content';
+
         return $this->ui->build(
             $this->ui->div(
                 $this->ui->div(
                     $this->ui->div()
                         ->jxnBind(rq(AppTabMenu::class))
                         ->setClass('jaxon-dbadmin-tabs-layout_button'),
-                    $this->ui->col(
+                    $this->ui->tabs(
                         $this->ui->tabNav(
                             $this->tabNavItem('&nbsp;', true)
                         )->setId('dbadmin-server-tab-nav')
-                    )->setClass('jaxon-dbadmin-tabs-layout_header')
+                    )->content($contentId)
+                        ->setClass('jaxon-dbadmin-tabs-layout_header')
                 )->setClass('jaxon-dbadmin-tabs-layout'),
                 $this->ui->tabContent(
                     $this->tabContentItem(true)
-                )->setId('dbadmin-server-tab-content')
+                )->setId($contentId)
                     ->addClass('full-height')
             )->setId('jaxon-dbadmin')
         );

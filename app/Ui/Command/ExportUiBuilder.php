@@ -334,7 +334,7 @@ class ExportUiBuilder
                     )
                 )
             )->responsive(true)
-                ->look('bordered')
+                ->skin('bordered')
         );
     }
 
@@ -387,7 +387,7 @@ class ExportUiBuilder
                     )
                 )
             )->responsive(true)
-                ->look('bordered')
+                ->skin('bordered')
         );
     }
 

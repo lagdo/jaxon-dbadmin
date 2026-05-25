@@ -35,8 +35,8 @@ class MenuBuilder
     {
         return $this->ui->build(
             $this->ui->col(
-                $this->ui->panel(
-                    $this->ui->panelBody($this->ui->html($user))
+                $this->ui->card(
+                    $this->ui->cardBody($this->ui->html($user))
                 ),
             )->width(12)
         );
@@ -51,8 +51,8 @@ class MenuBuilder
     {
         return $this->ui->build(
             $this->ui->col(
-                $this->ui->panel(
-                    $this->ui->panelBody($this->ui->html($server))
+                $this->ui->card(
+                    $this->ui->cardBody($this->ui->html($server))
                 )
             )->width(12)
         );
@@ -95,8 +95,7 @@ class MenuBuilder
                         ->setClass($item === $activeItem ? 'dbadmin-menu-item active' : 'dbadmin-menu-item')
                         ->jxnClick($action['handler'])
                 ),
-            )
-            ->fullWidth(),
+            )->fullWidth(),
         );
     }
 

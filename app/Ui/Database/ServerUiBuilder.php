@@ -63,7 +63,8 @@ class ServerUiBuilder
                     )->width(3),
                     $this->ui->col(
                         $this->ui->input()
-                            ->setType('text')->setName('host')
+                            ->setType('text')
+                            ->setName('host')
                             ->setDataMaxlength('60')->setValue($user['host']['value'])
                     )->width(6),
                 ),
@@ -74,7 +75,8 @@ class ServerUiBuilder
                     )->width(3),
                     $this->ui->col(
                         $this->ui->input()
-                            ->setType('text')->setName('name')
+                            ->setType('text')
+                            ->setName('name')
                             ->setDataMaxlength('80')->setValue($user['name']['value'])
                     )->width(6),
                 ),
@@ -85,24 +87,26 @@ class ServerUiBuilder
                     )->width(3),
                     $this->ui->col(
                         $this->ui->input()
-                            ->setType('text')->setName('pass')
+                            ->setType('text')
+                            ->setName('pass')
                             ->setAutocomplete('new-password')
                             ->setValue($user['pass']['value'])
                     )->width(6),
                     $this->ui->col(
                         $this->ui->checkbox()
-                            ->setName('hashed')->checked($user['hashed']['value']),
+                            ->setName('hashed')
+                            ->checked($user['hashed']['value']),
                         $this->ui->text($user['hashed']['label'])
                     )->width(3)
                         ->setClass('checkbox')
                 ),
                 $this->ui->div($this->ui->html($privileges))
-            )->wrapped(true)->setId($this->userFormId())
+            )->wrapped(true)
+                ->setId($this->userFormId())
         );
     }
 
     /**
-     * @param string $formId
      * @param array $collations
      *
      * @return string
@@ -158,7 +162,8 @@ class ServerUiBuilder
                         )->width(6)
                     )
                 )
-            )->wrapped(true)->setId($this->dbFormId())
+            )->wrapped(true)
+                ->setId($this->dbFormId())
         );
     }
 }
