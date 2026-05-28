@@ -134,7 +134,7 @@ class OptionsUiBuilder
             $this->ui->form(
                 $this->editFormButtons($rqColumns, $this->columnFormId()),
                 $this->ui->div()->tbnBindApp($rqColumns)
-            )->wrapped(false)->setId($this->columnFormId())
+            )->setId($this->columnFormId())
         );
     }
 
@@ -210,7 +210,7 @@ class OptionsUiBuilder
                 $this->editFormButtons($rqFilters, $this->filterFormId()),
                 $this->ui->div()
                     ->tbnBindApp($rqFilters)
-            )->wrapped(false)->setId($this->filterFormId())
+            )->setId($this->filterFormId())
         );
     }
 
@@ -283,8 +283,7 @@ class OptionsUiBuilder
                 $this->editFormButtons($rqSorting, $this->sortingFormId()),
                 $this->ui->div()
                     ->tbnBindApp($rqSorting)
-            )->wrapped(false)
-                ->setId($this->sortingFormId())
+            )->setId($this->sortingFormId())
         );
     }
 

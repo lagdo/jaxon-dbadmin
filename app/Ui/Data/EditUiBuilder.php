@@ -222,7 +222,7 @@ class EditUiBuilder
                     )->width(7)
                 )
             )
-        )->wrapped(false)->setId($this->queryFormId());
+        )->setId($this->queryFormId());
 
         return $maxHeight === '' ? $this->ui->build($form) :
             $this->ui->build(
@@ -255,8 +255,7 @@ class EditUiBuilder
                                 ->setId($this->queryDivId())
                                 ->setStyle('height: 300px;')
                         )->setStyle('padding: 0 1px;')
-                    )->skin('default')
-                        ->setStyle('padding: 5px;')
+                    )->setStyle('padding: 5px;')
                 )->width(12)
             )
         );

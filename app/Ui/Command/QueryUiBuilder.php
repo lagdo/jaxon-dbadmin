@@ -41,9 +41,8 @@ class QueryUiBuilder
      * @param DatabaseConfigProvider $config
      * @param Tab $tab
      */
-    public function __construct(protected Translator $trans,
-        protected BuilderInterface $ui, protected DatabaseConfigProvider $config,
-        protected Tab $tab)
+    public function __construct(protected Translator $trans, protected BuilderInterface $ui,
+        protected DatabaseConfigProvider $config, protected Tab $tab)
     {}
 
     /**
@@ -146,8 +145,7 @@ class QueryUiBuilder
                     ),
                 )->width(8)
             )
-        )->horizontal(true)
-            ->wrapped(true)
+        )->wrapped()
             ->setId($this->queryFormId());
     }
 
@@ -213,8 +211,7 @@ class QueryUiBuilder
                                                 ->setClass(self::QUERY_TEXT_CLASS)
                                         )->setClass('sql-command-editor-panel')
                                             ->setStyle('padding: 0 1px;')
-                                    )->skin('default')
-                                        ->setStyle('padding: 5px;')
+                                    )->setStyle('padding: 5px;')
                                 )->width(12)
                             )
                         )->width(12),

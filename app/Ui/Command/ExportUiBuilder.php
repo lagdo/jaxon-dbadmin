@@ -294,15 +294,15 @@ class ExportUiBuilder
     {
         return $this->ui->div(
             $this->ui->table(
-                $this->ui->thead(
-                    $this->ui->tr(
-                        $this->ui->th(
+                $this->ui->tableHead(
+                    $this->ui->tableRow(
+                        $this->ui->tableHeadCell(
                             $this->ui->checkbox()
                                 ->checked(true)
                                 ->setId($this->databaseNameId() . '-all'),
                             $this->ui->html('&nbsp;' . $databases['headers'][0])
                         ),
-                        $this->ui->th(
+                        $this->ui->tableHeadCell(
                             $this->ui->checkbox()
                                 ->checked(true)
                                 ->setId($this->databaseDataId() . '-all'),
@@ -310,10 +310,10 @@ class ExportUiBuilder
                         )
                     )
                 ),
-                $this->ui->tbody(
+                $this->ui->tableBody(
                     $this->ui->each($databases['details'], fn($database, $pos) =>
-                        $this->ui->tr(
-                            $this->ui->td(
+                        $this->ui->tableRow(
+                            $this->ui->tableDataCell(
                                 $this->ui->checkbox()
                                     ->checked(true)
                                     ->setName('database_list[]')
@@ -322,7 +322,7 @@ class ExportUiBuilder
                                     ->setDataPos($pos),
                                 $this->ui->html('&nbsp;' . $database['name'])
                             ),
-                            $this->ui->td(
+                            $this->ui->tableDataCell(
                                 $this->ui->checkbox()
                                     ->checked(true)
                                     ->setName('database_data[]')
@@ -333,8 +333,8 @@ class ExportUiBuilder
                         )
                     )
                 )
-            )->responsive(true)
-                ->skin('bordered')
+            )->responsive()
+                ->border()
         );
     }
 
@@ -347,15 +347,15 @@ class ExportUiBuilder
     {
         return $this->ui->div(
             $this->ui->table(
-                $this->ui->thead(
-                    $this->ui->tr(
-                        $this->ui->th(
+                $this->ui->tableHead(
+                    $this->ui->tableRow(
+                        $this->ui->tableHeadCell(
                             $this->ui->checkbox()
                                 ->checked(true)
                                 ->setId($this->tableNameId() . '-all'),
                             $this->ui->html('&nbsp;' . $tables['headers'][0])
                         ),
-                        $this->ui->th(
+                        $this->ui->tableHeadCell(
                             $this->ui->checkbox()
                                 ->checked(true)
                                 ->setId($this->tableDataId() . '-all'),
@@ -363,10 +363,10 @@ class ExportUiBuilder
                         )
                     )
                 ),
-                $this->ui->tbody(
+                $this->ui->tableBody(
                     $this->ui->each($tables['details'], fn($table, $pos) =>
-                        $this->ui->tr(
-                            $this->ui->td(
+                        $this->ui->tableRow(
+                            $this->ui->tableDataCell(
                                 $this->ui->checkbox()
                                     ->checked(true)
                                     ->setName('table_list[]')
@@ -375,7 +375,7 @@ class ExportUiBuilder
                                     ->setDataPos($pos),
                                 $this->ui->html('&nbsp;' . $table['name'])
                             ),
-                            $this->ui->td(
+                            $this->ui->tableDataCell(
                                 $this->ui->checkbox()
                                     ->checked(true)
                                     ->setName('table_data[]')
@@ -386,8 +386,8 @@ class ExportUiBuilder
                         )
                     )
                 )
-            )->responsive(true)
-                ->skin('bordered')
+            )->responsive()
+                ->border()
         );
     }
 
@@ -417,8 +417,7 @@ class ExportUiBuilder
                                 )->width(6)
                             )
                         )
-                    )->wrapped(false)
-                        ->setId($this->formId())
+                    )->setId($this->formId())
                 )->width(12),
                 $this->ui->col()
                     ->width(12)

@@ -101,7 +101,7 @@ class ServerUiBuilder
                         ->setClass('checkbox')
                 ),
                 $this->ui->div($this->ui->html($privileges))
-            )->wrapped(true)
+            )->wrapped()
                 ->setId($this->userFormId())
         );
     }
@@ -162,7 +162,7 @@ class ServerUiBuilder
                         )->width(6)
                     )
                 )
-            )->wrapped(true)
+            )->wrapped()
                 ->setId($this->dbFormId())
         );
     }

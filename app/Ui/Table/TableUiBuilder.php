@@ -135,7 +135,7 @@ class TableUiBuilder
                     $this->ui->when($support['columns'], fn() =>
                         $this->ui->button($this->ui->html('<i class="fa fa-plus"></i>'))
                             ->primary()
-                            ->small()
+                            ->size($this->ui->size()->small)
                             ->jxnClick($this->rqCreate()->add())
                     )
                 )->setStyle('width:50px; padding-left:5px;')
@@ -289,7 +289,8 @@ class TableUiBuilder
             "Drop the \"{$input->column->name}\" column?";
 
         return $this->ui->dropdown(
-            $this->ui->dropdownItem()->skin('primary')/*->addCaret()*/,
+            $this->ui->dropdownButton()
+                ->primary()/*->addCaret()*/,
             $this->ui->dropdownMenu(
                 $this->ui->when(!$input->dropped(), fn() =>
                     $this->ui->list(

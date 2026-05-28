@@ -36,7 +36,8 @@ trait PageTrait
             $this->ui->button($menu['label'])
                 ->primary()
                 ->jxnClick($menu['handler']),
-            $this->ui->dropdownItem()->skin('primary'),
+            $this->ui->dropdownButton()
+                ->primary(),
             $this->ui->when(count($menus) > 0, fn() =>
                 $this->ui->dropdownMenu(
                     $this->ui->each($menus, fn($menu) =>
@@ -66,10 +67,10 @@ trait PageTrait
     private function getTableCell(mixed $content): mixed
     {
         if (!is_array($content)) {
-            return $this->ui->td($this->ui->html($content));
+            return $this->ui->tableDataCell($this->ui->html($content));
         }
 
-        $element = $this->ui->td();
+        $element = $this->ui->tableDataCell();
         if(isset($content['props']))
         {
             $element->setAttributes($content['props']);
@@ -96,31 +97,31 @@ trait PageTrait
 
         return $this->ui->table(
             $this->ui->when(count($details) > 0, fn() =>
-                $this->ui->thead(
+                $this->ui->tableHead(
                     $this->ui->when($contentType !== '', fn() =>
-                        $this->ui->th(
+                        $this->ui->tableHeadCell(
                             $this->ui->checkbox()
                                 ->setId($this->tab()->app()->id("dbadmin-table-$contentType-all"))
                         )->addClass('dbadmin-table-checkbox')
                     ),
-                    $this->ui->when($hasMenu, fn() => $this->ui->th('')),
+                    $this->ui->when($hasMenu, fn() => $this->ui->tableHeadCell('')),
                     $this->ui->each($headers, fn($header) =>
-                        $this->ui->th($this->ui->html($header))
+                        $this->ui->tableHeadCell($this->ui->html($header))
                     )
-                ),
+                )
             ),
-            $this->ui->body(
+            $this->ui->tableBody(
                 $this->ui->each($details, fn(DetailDto $detail) =>
-                    $this->ui->tr(
+                    $this->ui->tableRow(
                         $this->ui->when($contentType !== '', fn() =>
-                            $this->ui->td(
+                            $this->ui->tableDataCell(
                                 $this->ui->checkbox()
                                     ->addClass("dbadmin-table-$contentType")
                                     ->setName("{$contentType}[]")
                             )->addClass('dbadmin-table-checkbox')
                         ),
                         $this->ui->when($detail->menus !== null, fn() =>
-                            $this->ui->td(
+                            $this->ui->tableDataCell(
                                 $this->_buttonMenu($detail->menus)
                             )->setStyle('width:60px;')
                         ),
@@ -130,7 +131,7 @@ trait PageTrait
                     )
                 )
             )
-        )->responsive()->skin('bordered');
+        )->responsive()->border();
     }
 
     /**

@@ -69,13 +69,13 @@ class AuditUiBuilder
     private function command(array $command, string $category): mixed
     {
         $lastUpdate = str_replace(' ', '<br/>', $command['last_update']);
-        return $this->ui->tr(
-            $this->ui->td($lastUpdate)
+        return $this->ui->tableRow(
+            $this->ui->tableDataCell($lastUpdate)
                 ->setStyle('width:120px;'),
-            $this->ui->td(
+            $this->ui->tableDataCell(
                 $command['username'] . '<br/>' . $this->trans->lang($category)
             )->setStyle('width:180px;'),
-            $this->ui->td(
+            $this->ui->tableDataCell(
                 $this->ui->div($this->commandOptions($command))
                     ->setStyle('font-weight:500;'),
                 $this->ui->div($command['query'])
@@ -98,12 +98,12 @@ class AuditUiBuilder
 
         return $this->ui->build(
             $this->ui->table(
-                $this->ui->tbody(
+                $this->ui->tableBody(
                     $this->ui->each($commands, fn($command) =>
                         $this->command($command, $categories[$command['category']] ?? '')
                     )
-                ),
-            )->responsive(true)->skin('bordered')
+                )
+            )->responsive()->border()
         );
     }
 
@@ -183,7 +183,7 @@ class AuditUiBuilder
                                 ->show(form($formId)))
                     )->width(12)
                 )->setStyle('padding-top: 10px; float:right;')
-            )->setId($formId)->horizontal(false)->wrapped(true)
+            )->setId($formId)->wrapped()
         );
     }
 }

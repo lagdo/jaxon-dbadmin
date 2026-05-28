@@ -24,64 +24,44 @@ trait QueryResultTrait
 
         return $this->ui->build(
             $this->ui->when(isset($results['message']), fn() =>
-                $this->ui->card(
-                    $this->ui->cardBody($this->ui->span($results['message']))
-                        ->setStyle('padding:5px 15px')
-                )->skin('info')
+                $this->ui->alert($results['message'])->info()->setStyle('padding:5px 15px')
             ),
             $this->ui->when($resultsAreTruncated, fn() =>
-                $this->ui->card(
-                    $this->ui->cardBody($this->ui->span($truncatedMessage))
-                        ->setStyle('padding:5px 15px')
-                )->skin('info')
+                $this->ui->alert($truncatedMessage)->info()->setStyle('padding:5px 15px')
             ),
-            $this->ui->each($truncatedResults, function($result) {
-                $query = $result['query'];
-                $messages = $result['messages'];
-                $errors = $result['errors'];
+            $this->ui->each($truncatedResults, function(array $result) {
                 $select = $result['select'] ?? []; // Data returned by select queries.
 
-                return $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->when(count($errors) > 0, fn() =>
-                            $this->ui->card(
-                                $this->ui->cardHeader($this->ui->text($query)),
-                                $this->ui->cardBody(
-                                    $this->ui->each($errors, $this->ui->span(...))
-                                )->setStyle('padding:5px 15px')
-                            )->skin('danger')
-                        ),
-                        $this->ui->when(count($messages) > 0, fn() =>
-                            $this->ui->card(
-                                $this->ui->cardHeader($this->ui->text($query)),
-                                $this->ui->cardBody(
-                                    $this->ui->each($messages, $this->ui->span(...))
-                                )->setStyle('padding:5px 15px')
-                            )->skin('success')
-                        ),
+                return $this->ui->card(
+                    $this->ui->cardBody(
+                        $this->ui->alert($result['query']),
+                        $this->ui->each($result['errors'], fn(string $error) =>
+                            $this->ui->alert($error)->danger()),
+                        $this->ui->each($result['messages'], fn(string $message) =>
+                            $this->ui->alert($message)->success()),
                         $this->ui->when(count($select) > 0, fn() =>
                             $this->ui->table(
-                                $this->ui->thead(
-                                    $this->ui->tr(
+                                $this->ui->tableHead(
+                                    $this->ui->tableRow(
                                         $this->ui->each($select['headers'], fn($header) =>
-                                            $this->ui->th($this->ui->html($header))
+                                            $this->ui->tableHeadCell($this->ui->html($header))
                                         )
                                     )
                                 ),
-                                $this->ui->tbody(
+                                $this->ui->tableBody(
                                     $this->ui->each($select['details'], fn($details) =>
-                                        $this->ui->tr(
+                                        $this->ui->tableRow(
                                             $this->ui->each($details, fn($detail) =>
-                                                $this->ui->td($this->ui->html($detail))
+                                                $this->ui->tableDataCell($this->ui->html($detail))
                                             )
                                         )
                                     )
                                 )
-                            )->responsive(true)
-                                ->skin('bordered')
+                            )->responsive()
+                                ->border()
                                 ->setStyle('margin-top:2px')
-                        ),
-                    )->width(12)
+                        )
+                    )
                 );
             })
         );

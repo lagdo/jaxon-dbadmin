@@ -339,7 +339,6 @@ class ColumnUiBuilder
                                 ->setStyle('height: 300px;')
                         )->setStyle('padding: 0 1px;')
                     )->setStyle('padding: 5px;')
-                        ->skin('default')
                 )->width(12)
             )
         );

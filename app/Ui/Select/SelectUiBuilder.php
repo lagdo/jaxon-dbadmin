@@ -146,11 +146,10 @@ class SelectUiBuilder
                                     $this->ui->cardBody()
                                         ->setStyle('padding: 0 1px;')
                                         ->tbnBindApp(rq(QueryText::class))
-                                )->skin('default')
-                                    ->setStyle('padding: 5px;')
+                                )->setStyle('padding: 5px;')
                             )->width(12)
                         ),
-                    )->wrapped(true)
+                    )->wrapped()
                         ->setId($this->formId())
                 )->width(12)
             ),

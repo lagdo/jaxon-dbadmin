@@ -25,9 +25,9 @@ class ResultUiBuilder
     private function _resultRowContent(array $row): mixed
     {
         return $this->ui->list(
-            $this->ui->td($row['menu'], ['style' => 'width:30px']),
+            $this->ui->tableDataCell($row['menu'], ['style' => 'width:30px']),
             $this->ui->each($row['cols'], fn($col) =>
-                $this->ui->td($col['value'])
+                $this->ui->tableDataCell($col['value'])
             )
         );
     }
@@ -54,21 +54,21 @@ class ResultUiBuilder
 
         return $this->ui->build(
             $this->ui->table(
-                $this->ui->thead(
-                    $this->ui->tr(
-                        $this->ui->th(['style' => 'width:30px']),
+                $this->ui->tableHead(
+                    $this->ui->tableRow(
+                        $this->ui->tableHeadCell(['style' => 'width:30px']),
                         $this->ui->each($headers, fn(array $header) =>
-                            $this->ui->th($header['title'] ?? '')
+                            $this->ui->tableHeadCell($header['title'] ?? '')
                         )
                     )
                 ),
-                $this->ui->tbody(
+                $this->ui->tableBody(
                     $this->ui->each($rows, fn(array $row) =>
-                        $this->ui->tr($this->_resultRowContent($row))
+                        $this->ui->tableRow($this->_resultRowContent($row))
                             ->when($row['editId'] > 0, fn($tr) =>
                                 $tr->tbnBindApp($rqResultRow, $row['editItemId'])))
                 )
-            )->responsive(true)->skin('bordered')
+            )->responsive()->border()
         );
     }
 }
