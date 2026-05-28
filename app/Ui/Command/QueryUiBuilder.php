@@ -4,10 +4,10 @@ namespace Lagdo\DbAdmin\App\Ui\Command;
 
 use Jaxon\Script\Call\JxnCall;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
-use Lagdo\DbAdmin\Support\Config\DatabaseConfigProvider;
-use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\PageTrait;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
+use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
+use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Component\HtmlComponent;
 

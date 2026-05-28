@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Support\Config\Server;
+namespace Lagdo\DbAdmin\Support\Provider\Config;
 
 use Jaxon\Config\Config;
 

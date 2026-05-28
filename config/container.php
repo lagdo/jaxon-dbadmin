@@ -7,8 +7,8 @@ use Jaxon\Di\Container;
 use Lagdo\DbAdmin\App\Ui;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Support;
-use Lagdo\DbAdmin\Support\Config;
 use Lagdo\DbAdmin\Support\Driver\Proxy;
+use Lagdo\DbAdmin\Support\Provider;
 use Lagdo\DbAdmin\Support\Service;
 
 // This setup needs to be applied after the config is loaded.
@@ -16,7 +16,7 @@ jaxon()->callback()->boot(function() {
     $di = jaxon()->di();
 
     // Register a driver for each database server.
-    $configProvider = $di->g(Config\DatabaseConfigProvider::class);
+    $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
     foreach($configProvider->getServerIds() as $server) {
         // The driver options
         $di->set("dbadmin_server_options_$server", fn() =>
@@ -69,11 +69,11 @@ return [
 
         // Application authentication.
         'dbadmin_auth_service' => fn(Container $di) =>
-            $di->has(Config\AuthInterface::class) ?
+            $di->has(Provider\AuthInterface::class) ?
                 // Custom auth service defined.
-                $di->get(Config\AuthInterface::class) :
+                $di->get(Provider\AuthInterface::class) :
                 // Default auth service when none is defined.
-                new class implements Config\AuthInterface {
+                new class implements Provider\AuthInterface {
                     public function user(): string
                     {
                         return '';
@@ -83,27 +83,28 @@ return [
                         return '';
                     }
                 },
-        Config\PackageConfigProvider::class => fn(Container $di) =>
-            new Config\PackageConfigProvider($di->g('dbadmin_auth_service')),
-        Config\Server\AccessConfigProvider::class => fn() => new Config\Server\AccessConfigProvider(),
-        Config\Server\ServerConfigProvider::class => function(Container $di) {
+        Provider\PackageConfigProvider::class => fn(Container $di) =>
+            new Provider\PackageConfigProvider($di->g('dbadmin_auth_service')),
+        Provider\Config\AccessConfigProvider::class =>
+            fn() => new Provider\Config\AccessConfigProvider(),
+        Provider\Config\ServerConfigProvider::class => function(Container $di) {
             $config = $di->g('server_config_provider_options');
             $accessConfigReaderClass = $config->getOption('reader.access',
-                Config\Server\AccessConfigProvider::class);
+                Provider\Config\AccessConfigProvider::class);
             $accessConfigReader = $di->get($accessConfigReaderClass);
 
-            return new Config\Server\ServerConfigProvider($accessConfigReader);
+            return new Provider\Config\ServerConfigProvider($accessConfigReader);
         },
-        Config\DatabaseConfigProvider::class => function(Container $di) {
+        Provider\DatabaseConfigProvider::class => function(Container $di) {
             $config = $di->g('server_config_provider_options');
             $serverConfigReaderClass = $config->getOption('reader.server',
-                Config\Server\ServerConfigProvider::class);
+                Provider\Config\ServerConfigProvider::class);
             $serverConfigReader = $di->get($serverConfigReaderClass);
 
-            return new Config\DatabaseConfigProvider($config, $serverConfigReader);
+            return new Provider\DatabaseConfigProvider($config, $serverConfigReader);
         },
-        Config\Server\InfisicalConfigProvider::class => function(Container $di) {
-            $auth = $di->get(Config\AuthInterface::class);
+        Provider\Secret\InfisicalConfigProvider::class => function(Container $di) {
+            $auth = $di->get(Provider\AuthInterface::class);
 
             $infisicalSdk = new InfisicalSDK(env('INFISICAL_SERVER_URL'));
             $clientId = env('INFISICAL_MACHINE_CLIENT_ID');
@@ -116,11 +117,11 @@ return [
             $projectEnv = env('INFISICAL_PROJECT_ENV', 'dev');
             $secretPath = env('INFISICAL_SECRET_PATH', '');
 
-            return new Config\Server\InfisicalConfigProvider($auth, $secrets,
+            return new Provider\Secret\InfisicalConfigProvider($auth, $secrets,
                 $projectId, $projectEnv, $secretPath);
         },
-        Config\Server\AwsSecretsConfigProvider::class => function(Container $di) {
-            $auth = $di->get(Config\AuthInterface::class);
+        Provider\Secret\AwsSecretsConfigProvider::class => function(Container $di) {
+            $auth = $di->get(Provider\AuthInterface::class);
 
             $awsAuth = match(env('AWS_SECRETS_CLIENT_AUTH')) {
                 'credentials' => [
@@ -141,7 +142,7 @@ return [
                 ...$awsAuth,
             ]);
 
-            return new Config\Server\AwsSecretsConfigProvider($auth, $client);
+            return new Provider\Secret\AwsSecretsConfigProvider($auth, $client);
         },
     ],
     'auto' => [

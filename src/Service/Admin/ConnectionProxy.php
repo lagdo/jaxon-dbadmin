@@ -2,8 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Service\Admin;
 
-use Lagdo\DbAdmin\Support\Config\AuthInterface;
-use Lagdo\DbAdmin\Support\Config\DatabaseConfigProvider;
+use Lagdo\DbAdmin\Support\Provider\AuthInterface;
+use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
 use Lagdo\DbAdmin\Support\Service\Audit;
 use Lagdo\DbAdmin\Driver\EngineInterface;
 

@@ -391,8 +391,8 @@ The setup of the required `Secrets Management` project in the Infisical server i
 The Infisical `config reader` needs to be provided with a closure which returns the key where to find each secret in the server.
 
 ```php
-use Lagdo\DbAdmin\Support\Config\AuthInterface;
-use Lagdo\DbAdmin\Support\Config\InfisicalConfigReader;
+use Lagdo\DbAdmin\Support\Provider\AuthInterface;
+use Lagdo\DbAdmin\Support\Provider\InfisicalConfigReader;
 
 $secretKetBuilder = function(string $prefix, string $option, AuthInterface $auth) {
     // Select a secret key based on the authenticated user, and the option prefix and name.
@@ -405,7 +405,7 @@ $reader->setSecretKeyBuilder($secretKeyBuilder);
 The packages can then be configured to use the Infisical `config reader`.
 
 ```php
-use Lagdo\DbAdmin\Support\Config\InfisicalConfigReader;
+use Lagdo\DbAdmin\Support\Provider\InfisicalConfigReader;
 
     'app' => [
         // ...

@@ -1,12 +1,13 @@
 <?php
 
-namespace Lagdo\DbAdmin\Support\Config\Server;
+namespace Lagdo\DbAdmin\Support\Provider\Secret;
 
 use Aws\Exception\AwsException;
 use Aws\SecretsManager\SecretsManagerClient;
-use Lagdo\DbAdmin\Support\Config\AuthInterface;
-use Closure;
+use Lagdo\DbAdmin\Support\Provider\AuthInterface;
+use Lagdo\DbAdmin\Support\Provider\Config\AccessConfigProvider;
 use Lagdo\Facades\Logger;
+use Closure;
 use RuntimeException;
 
 use function json_decode;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Support\Config;
+namespace Lagdo\DbAdmin\Support\Provider;
 
 /**
  * Get info about the authenticated user

@@ -1,11 +1,12 @@
 <?php
 
-namespace Lagdo\DbAdmin\Support\Config\Server;
+namespace Lagdo\DbAdmin\Support\Provider\Secret;
 
 use Infisical\SDK\Models\GetSecretParameters;
 use Infisical\SDK\Models\Secret;
 use Infisical\SDK\Services\SecretsService;
-use Lagdo\DbAdmin\Support\Config\AuthInterface;
+use Lagdo\DbAdmin\Support\Provider\AuthInterface;
+use Lagdo\DbAdmin\Support\Provider\Config\AccessConfigProvider;
 use Closure;
 use Exception;
 use RuntimeException;

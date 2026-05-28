@@ -4,9 +4,9 @@ use Jaxon\Di\Container;
 use Lagdo\DbAdmin\App;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Support;
-use Lagdo\DbAdmin\Support\Config;
 use Lagdo\DbAdmin\Support\Driver\DriverHelper;
 use Lagdo\DbAdmin\Support\Driver\EngineDecorator;
+use Lagdo\DbAdmin\Support\Provider;
 use Lagdo\DbAdmin\Support\Service;
 use Lagdo\Facades\Logger;
 use Lagdo\UiBuilder\AbstractBuilder;
@@ -80,7 +80,7 @@ return [
                 fn(Container $di) => $di->getPackageConfig(App\DbAdminPackage::class),
             // Options for query recording
             'queries_record_options' => function(Container $di) {
-                $configProvider = $di->g(Config\DatabaseConfigProvider::class);
+                $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
                 if (!$configProvider->hasQueryDatabaseOptions()) {
                     Logger::warning('Unable to connect to the audit database: no database connection options provided.');
                     return null;
@@ -90,7 +90,7 @@ return [
             },
             // Options for query access
             'queries_admin_options' => function(Container $di) {
-                $configProvider = $di->g(Config\DatabaseConfigProvider::class);
+                $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
                 if (!$configProvider->hasQueryDatabaseOptions()) {
                     Logger::warning('Unable to connect to the audit database: no database connection options provided.');
                     return null;
@@ -101,7 +101,7 @@ return [
             // Connection to the audit database
             Service\Admin\ConnectionProxy::class => function(Container $di) {
                 $auth = $di->g('dbadmin_auth_service');
-                $configProvider = $di->g(Config\DatabaseConfigProvider::class);
+                $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
                 $database = $configProvider->getQueryDatabaseOptions();
                 $utils = $di->g(Driver\Utils\Utils::class);
                 $driver = Driver\Driver::createDriver($utils, $database);

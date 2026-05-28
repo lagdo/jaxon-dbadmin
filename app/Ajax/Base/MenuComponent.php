@@ -6,8 +6,8 @@ use Jaxon\App\Component;
 use Jaxon\App\ComponentDataTrait;
 use Lagdo\DbAdmin\App\Ui\MenuBuilder;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
-use Lagdo\DbAdmin\Support\Config\DatabaseConfigProvider;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
+use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
 use Lagdo\DbAdmin\Support\Translator;
 
 abstract class MenuComponent extends Component

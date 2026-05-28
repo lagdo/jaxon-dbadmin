@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Support\Service\Audit;
 use Lagdo\DbAdmin\Driver\EngineInterface;
 use Lagdo\DbAdmin\Driver\Sql\Connection\AbstractConnection;
 use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface;
-use Lagdo\DbAdmin\Support\Config\DatabaseConfigProvider;
+use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
 use Lagdo\Facades\Logger;
 
 /**

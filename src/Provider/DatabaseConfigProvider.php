@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\DbAdmin\Support\Config;
+namespace Lagdo\DbAdmin\Support\Provider;
 
 use Jaxon\Config\Config;
-use Lagdo\DbAdmin\Support\Config\Server\ServerConfigProvider;
+use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 
 use function array_filter;
 use function array_keys;
