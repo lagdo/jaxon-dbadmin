@@ -13,29 +13,29 @@ use RuntimeException;
 use function json_decode;
 use function json_last_error;
 
-class AwsSecretsConfigProvider extends AccessConfigProvider
+class AwsSecretConfigProvider extends AccessConfigProvider
 {
     /**
      * @var Closure
      */
-    private Closure $secretNameBuilder;
+    private Closure $secretKeyBuilder;
 
     /**
      * @param AuthInterface $auth
-     * @param SecretsManagerClient $secretsManager
+     * @param SecretsManagerClient $secretServiceClient
      */
     public function __construct(private AuthInterface $auth,
-        private SecretsManagerClient $secretsManager)
+        private SecretsManagerClient $secretServiceClient)
     {}
 
     /**
-     * @param Closure $secretNameBuilder
+     * @param Closure $secretKeyBuilder
      *
      * @return self
      */
-    public function setSecretNameBuilder(Closure $secretNameBuilder): self
+    public function setSecretKeyBuilder(Closure $secretKeyBuilder): self
     {
-        $this->secretNameBuilder = $secretNameBuilder;
+        $this->secretKeyBuilder = $secretKeyBuilder;
         return $this;
     }
 
@@ -48,11 +48,11 @@ class AwsSecretsConfigProvider extends AccessConfigProvider
     private function getSecret(string $secretName): array
     {
         try {
-            $result = $this->secretsManager->getSecretValue([
+            $secret = $this->secretServiceClient->getSecretValue([
                 'SecretId' => $secretName,
             ]);
 
-            $secretString = $result['SecretString'] ?? '';
+            $secretString = $secret['SecretString'] ?? '';
             if (empty($secretString)) {
                 throw new RuntimeException("Secret retrieval failed: empty response");
             }
@@ -87,7 +87,7 @@ class AwsSecretsConfigProvider extends AccessConfigProvider
 
         // The username and password are stored in the same json payload.
         // The secret name is generated with the provided closure using only the prefix.
-        $secretName = ($this->secretNameBuilder)($prefix, $this->auth);
+        $secretName = ($this->secretKeyBuilder)($prefix, $this->auth);
         $secretData = $this->getSecret($secretName);
         if (!isset($secretData['username']) || !isset($secretData['password'])) {
             throw new RuntimeException("Secret retrieval failed: required field missing");

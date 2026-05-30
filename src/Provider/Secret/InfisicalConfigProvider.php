@@ -20,13 +20,13 @@ class InfisicalConfigProvider extends AccessConfigProvider
 
     /**
      * @param AuthInterface $auth
-     * @param SecretsService $secrets
+     * @param SecretsService $secretServiceClient
      * @param string $projectId
      * @param string $environment
      * @param string $secretPath
      */
     public function __construct(private AuthInterface $auth,
-        private SecretsService $secrets, private string $projectId,
+        private SecretsService $secretServiceClient, private string $projectId,
         private string $environment, private string $secretPath)
     {}
 
@@ -61,7 +61,7 @@ class InfisicalConfigProvider extends AccessConfigProvider
             if ($this->secretPath !== '') {
                 $params['secretPath'] = $this->secretPath;
             }
-            $secret = $this->secrets->get(new GetSecretParameters(...$params));
+            $secret = $this->secretServiceClient->get(new GetSecretParameters(...$params));
             if (!$secret || !isset($secret->secretValue)) {
                 throw new RuntimeException("Secret retrieval failed: invalid response");
             }
