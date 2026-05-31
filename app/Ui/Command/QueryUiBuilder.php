@@ -282,7 +282,11 @@ class QueryUiBuilder
                     ->confirm($this->trans->lang('Save this tabs in your preferences?')),
             ];
         }
-        $tabContentId = $this->editorTabContentWrapperId();
+
+        $tabsContentId = $this->editorTabContentWrapperId();
+        $queriesContentId = $this->tab()->editor()->id("tab-content-query-queries");
+        $showQueriesTab = $this->config->hasQueryDatabaseOptions() &&
+            ($this->config->queryHistoryEnabled() || $this->config->queryFavoriteEnabled());
 
         return $this->ui->build(
             $this->ui->div(
@@ -291,35 +295,25 @@ class QueryUiBuilder
                 )->setClass('jaxon-dbadmin-tabs-layout_button'),
                 $this->ui->tabs(
                     $this->ui->tabNav(
-                        $this->ui->when($this->config->queryFavoriteEnabled(), fn() =>
-                            $this->ui->tabNavItem($this->trans->lang('History'))
-                                ->target($this->tab()->editor()->id("tab-content-query-history"))
-                                ->active(false)
-                        ),
-                        $this->ui->when($this->config->queryHistoryEnabled(), fn() =>
-                            $this->ui->tabNavItem($this->trans->lang('Favorites'))
-                                ->target($this->tab()->editor()->id("tab-content-query-favorite"))
+                        $this->ui->when($showQueriesTab, fn() =>
+                            $this->ui->tabNavItem($this->trans->lang('Queries'))
+                                ->target($queriesContentId)
                                 ->active(false)
                         ),
                         $this->editorTabNav(active: true)
                     )->setId($this->editorTabNavWrapperId())
                         ->setStyle('margin-bottom: 5px;')
-                )->content($tabContentId)
+                )->content($tabsContentId)
                     ->setClass('jaxon-dbadmin-tabs-layout_header')
             )->setClass('jaxon-dbadmin-tabs-layout'),
             $this->ui->tabContent(
-                $this->ui->when($this->config->queryFavoriteEnabled(), fn() =>
+                $this->ui->when($showQueriesTab, fn() =>
                     $this->ui->tabContentItem()
-                        ->tbnBindApp(rq(Query\History::class))
-                        ->setId($this->tab()->editor()->id("tab-content-query-history"))
-                        ->active(false)),
-                $this->ui->when($this->config->queryHistoryEnabled(), fn() =>
-                    $this->ui->tabContentItem()
-                        ->tbnBindApp(rq(Query\Favorite::class))
-                        ->setId($this->tab()->editor()->id("tab-content-query-favorite"))
+                        ->tbnBindApp(rq(Query\Queries::class))
+                        ->setId($queriesContentId)
                         ->active(false)),
                 $this->editorTabContent($rqQuery, true)
-            )->setId($tabContentId)
+            )->setId($tabsContentId)
         );
     }
 }

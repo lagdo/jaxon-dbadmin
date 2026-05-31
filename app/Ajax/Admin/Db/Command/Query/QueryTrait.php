@@ -44,13 +44,14 @@ trait QueryTrait
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 
-        if ($this->config()->hasQueryDatabaseOptions()) {
-            if ($this->config()->queryHistoryEnabled()) {
-                $this->cl(History::class)->render();
-            }
-            if ($this->config()->queryFavoriteEnabled()) {
-                $this->cl(Favorite::class)->render();
-            }
+        $classToRender = match(true) {
+            !$this->config()->hasQueryDatabaseOptions() => null,
+            $this->config()->queryHistoryEnabled() => History::class,
+            $this->config()->queryFavoriteEnabled() => Favorite::class,
+            default => null,
+        };
+        if ($classToRender !== null) {
+            $this->cl($classToRender)->render();
         }
 
         // Show the SQL editor tabs.

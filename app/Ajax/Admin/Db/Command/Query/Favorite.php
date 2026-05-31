@@ -2,13 +2,18 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
 
-use Jaxon\Attributes\Attribute\Exclude;
+use Jaxon\Attributes\Attribute\Export;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Component;
 use Lagdo\DbAdmin\App\Ui\Command\AuditUiBuilder;
 
-#[Exclude]
+#[Export(['render'])]
 class Favorite extends Component
 {
+    /**
+     * @var string
+     */
+    protected string $overrides = Queries::class;
+
     /**
      * @param AuditUiBuilder $auditUi
      */

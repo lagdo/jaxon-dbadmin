@@ -62,18 +62,25 @@ class AuditUiBuilder
     public function history(): string
     {
         return $this->ui->build(
-            $this->ui->row(
-                $this->ui->col(
+            $this->ui->div(
+                $this->ui->div(
+                    $this->trans->lang('History')
+                )->setStyle('width:200px; padding:10px; font-weight: 600;'),
+                $this->ui->div(
                     $this->ui->nav()
                         ->jxnPagination(cl(Query\HistoryPage::class))
-                        ->setStyle('float:right;'))
-                    ->width(12)
-            ),
-            $this->ui->row(
-                $this->ui->col(
-                    $this->ui->div()
-                        ->tbnBindApp(rq(Query\HistoryPage::class))
-                )->width(12),
+                        ->setStyle('float:right;')
+                )->setStyle('flex: 1'),
+                $this->ui->div(
+                    $this->ui->button($this->trans->lang('Favorites'))
+                        ->primary()
+                        ->setStyle('float:right;')
+                        ->jxnClick(rq(Query\Favorite::class)->render())
+                )->setStyle('width:120px; margin: 0 10px;')
+            )->setStyle('display:flex; flex-direction:row; align-items:flex-start;'),
+            $this->ui->div(
+                $this->ui->div()
+                    ->tbnBindApp(rq(Query\HistoryPage::class))
             )
         );
     }
@@ -123,18 +130,25 @@ class AuditUiBuilder
     public function favorite(): string
     {
         return $this->ui->build(
-            $this->ui->row(
-                $this->ui->col(
+            $this->ui->div(
+                $this->ui->div(
+                    $this->trans->lang('Favorites')
+                )->setStyle('width:200px; padding:10px; font-weight: 600;'),
+                $this->ui->div(
                     $this->ui->nav()
                         ->jxnPagination(cl(Query\FavoritePage::class))
-                        ->setStyle('float:right;'))
-                    ->width(12)
-            ),
-            $this->ui->row(
-                $this->ui->col(
-                    $this->ui->div()
-                        ->tbnBindApp(rq(Query\FavoritePage::class))
-                )->width(12),
+                        ->setStyle('float:right;')
+                )->setStyle('flex: 1'),
+                $this->ui->div(
+                    $this->ui->button($this->trans->lang('History'))
+                        ->primary()
+                        ->setStyle('float:right;')
+                        ->jxnClick(rq(Query\History::class)->render())
+                )->setStyle('width:120px; margin: 0 10px;')
+            )->setStyle('display:flex; flex-direction:row; align-items:flex-start;'),
+            $this->ui->div(
+                $this->ui->div()
+                    ->tbnBindApp(rq(Query\FavoritePage::class))
             )
         );
     }
