@@ -28,8 +28,12 @@ The following features are currently available:
 - Save the current tabs in user preferences.
 - Save and show the query history.
 - Save queries in user favorites.
-- Read database credentials with an extensible config reader.
-- Read database credentials from an [Infisical](https://infisical.com/) server.
+- Read database options with an extensible config reader.
+- Read database credentials from a secret manager. Currently supported:
+  - [Infisical](https://infisical.com/)
+  - [OpenBao](https://openbao.org) (compatible with [HashiCorp Vault](https://www.hashicorp.com/fr/products/vault))
+  - [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/)
+  - [GCP Secret Manager](https://cloud.google.com/security/products/secret-manager)
 - Show tables and views details.
 - Query a table.
 - Query a view.
@@ -46,6 +50,9 @@ The following features are not yet implemented, and planned for future releases:
 - Code completion for table and field names in the SQL editor.
 - An advanced GUI-based query builder.
 - Automated tests.
+- Support more secret managers.
+  - [MS Azure Key Vault](https://azure.microsoft.com/products/key-vault)
+  - [Alibaba KMS](https://www.alibabacloud.com/en/product/kms)
 
 Howtos
 ------
@@ -357,7 +364,7 @@ While the corresponding options can also be set here, their usage is out of the 
 
 Jaxon DbAdmin uses an extensible `config reader` to read the database credentials.
 By default, the database credentials are stored in a `json`, `yaml` or `php` config file.
-Jaxon DbAdmin provides a [default `config reader`](https://github.com/lagdo/jaxon-dbadmin/blob/main/src/Config/ServerConfigProvider.php) which is able to read these values, either from the config file content, or from environment variables.
+Jaxon DbAdmin provides a [default `config reader`](https://github.com/lagdo/jaxon-dbadmin/src/Provider/Config/ServerConfigProvider.php) which is able to read these values, either from the config file content, or from environment variables.
 
 An alternative `config reader` can be specified in the package config options.
 Let say for example the `CustomServerConfigProvider` class inherits from the default `config reader` and redefines some functions.
@@ -369,21 +376,23 @@ The `DbAdminPackage` and `DbAuditPackage` can be configured to use it as their `
         'packages' => [
             Lagdo\DbAdmin\App\DbAdminPackage::class => [
                 // Read the database credentials with the custom config reader.
-                'config' => [
-                    'reader' => CustomServerConfigProvider::class,
+                'reader' => [
+                    'server' => CustomServerConfigProvider::class,
                 ],
                 // ...
             ],
             Lagdo\DbAdmin\App\DbAuditPackage::class => [
                 // Read the database credentials with the custom config reader.
-                'config' => [
-                    'reader' => CustomServerConfigProvider::class,
+                'reader' => [
+                    'server' => CustomServerConfigProvider::class,
                 ],
                 // ...
             ],
         ],
     ],
 ```
+
+In addition to the `config reader`, a custom `credential reader` can also be provided, and used to read database usernames and passwords from various secret managers.
 
 Jaxon DbAdmin includes a `config reader` for reading database credentials from an [Infisical server](https://infisical.com).
 The setup of the required `Secrets Management` project in the Infisical server is described here: [https://www.jaxon-php.org/blog/2026/01/secure-the-jaxon-dbadmin-database-credentials-with-infisical.html](https://www.jaxon-php.org/blog/2026/01/secure-the-jaxon-dbadmin-database-credentials-with-infisical.html).
@@ -392,35 +401,38 @@ The Infisical `config reader` needs to be provided with a closure which returns 
 
 ```php
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
-use Lagdo\DbAdmin\Support\Provider\InfisicalConfigReader;
+use Lagdo\DbAdmin\Support\Provider\Secret\InfisicalConfigProvider;
 
 $secretKetBuilder = function(string $prefix, string $option, AuthInterface $auth) {
     // Select a secret key based on the authenticated user, and the option prefix and name.
     return $secretKey;
 };
-$reader = jaxon()->di()->g(InfisicalConfigReader::class);
+$reader = jaxon()->di()->g(InfisicalConfigProvider::class);
 $reader->setSecretKeyBuilder($secretKeyBuilder);
 ```
 
 The packages can then be configured to use the Infisical `config reader`.
 
 ```php
-use Lagdo\DbAdmin\Support\Provider\InfisicalConfigReader;
+use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
+use Lagdo\DbAdmin\Support\Provider\Secret\InfisicalConfigProvider;
 
     'app' => [
         // ...
         'packages' => [
             Lagdo\DbAdmin\App\DbAdminPackage::class => [
                 // Read the database credentials with the custom config reader.
-                'config' => [
-                    'reader' => InfisicalConfigReader::class,
+                'reader' => [
+                    'server' => ServerConfigProvider::class,
+                    'access' => InfisicalConfigProvider::class,
                 ],
                 // ...
             ],
             Lagdo\DbAdmin\App\DbAuditPackage::class => [
                 // Read the database credentials with the custom config reader.
-                'config' => [
-                    'reader' => InfisicalConfigReader::class,
+                'reader' => [
+                    'server' => ServerConfigProvider::class,
+                    'access' => InfisicalConfigProvider::class,
                 ],
                 // ...
             ],

@@ -50,7 +50,7 @@ class OpenBaoConfigProvider extends AccessConfigProvider
             // The secret key is generated with the provided closure.
             $secretKey = ($this->secretKeyBuilder)($prefix, $option, $this->auth);
             $secret = $this->secretServiceClient
-                ->read("/{$this->projectId}/data/$secretKey")
+                ->read("/{$this->projectId}/$secretKey")
                 ->getData(); // Raw array with secret's content.
             if (!isset($secret['data']['value'])) {
                 throw new RuntimeException("Secret retrieval failed: empty value");
