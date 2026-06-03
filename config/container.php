@@ -111,8 +111,6 @@ return [
             return new Provider\DatabaseConfigProvider($config, $serverConfigReader);
         },
         Provider\Secret\InfisicalConfigProvider::class => function(Container $di) {
-            $auth = $di->get(Provider\AuthInterface::class);
-
             $infisicalSdk = new InfisicalSDK(env('INFISICAL_SERVER_URL'));
             $clientId = env('INFISICAL_MACHINE_CLIENT_ID');
             $clientSecret = env('INFISICAL_MACHINE_CLIENT_SECRET');
@@ -124,21 +122,23 @@ return [
             $projectEnv = env('INFISICAL_PROJECT_ENV', 'dev');
             $secretPath = env('INFISICAL_SECRET_PATH', '');
 
+            $auth = $di->get(Provider\AuthInterface::class);
             return new Provider\Secret\InfisicalConfigProvider($auth, $secrets,
                 $projectId, $projectEnv, $secretPath);
         },
         Provider\Secret\AwsSecretConfigProvider::class => function(Container $di) {
-            $auth = $di->get(Provider\AuthInterface::class);
-
-            $awsAuth = match(env('AWS_SECRETS_CLIENT_AUTH')) {
-                'credentials' => [
-                    'credentials' => [
-                        'key'    => env('AWS_SECRETS_CLIENT_KEY'),
-                        'secret' => env('AWS_SECRETS_CLIENT_SECRET'),
-                    ]
+            $profile = env('AWS_SECRETS_CLIENT_PROFILE');
+            $clientKey = env('AWS_SECRETS_CLIENT_KEY');
+            $clientSecret = env('AWS_SECRETS_CLIENT_SECRET');
+            $awsAuth = match(true) {
+                $profile !== null => [
+                    'profile' => $profile,
                 ],
-                'profile' => [
-                    'profile' => env('AWS_SECRETS_CLIENT_PROFILE'),
+                $clientKey !== null && $clientSecret !== null => [
+                    'credentials' => [
+                        'key' => $clientKey,
+                        'secret' => $clientSecret,
+                    ],
                 ],
                 default => [],
             };
@@ -149,11 +149,10 @@ return [
                 ...$awsAuth,
             ]);
 
+            $auth = $di->get(Provider\AuthInterface::class);
             return new Provider\Secret\AwsSecretConfigProvider($auth, $client);
         },
         Provider\Secret\GcpSecretConfigProvider::class => function(Container $di) {
-            $auth = $di->get(Provider\AuthInterface::class);
-
             $projectId = env('GCP_SECRETS_PROJECT_ID', '');
             $version = env('GCP_SECRETS_VERSION', 'latest');
             $credentials = env('GOOGLE_APPLICATION_CREDENTIALS');
@@ -167,6 +166,7 @@ return [
             }
             $client = new GcpSecretManagerClient($options);
 
+            $auth = $di->get(Provider\AuthInterface::class);
             return new Provider\Secret\GcpSecretConfigProvider($auth,
                 $client, $projectId, $version);
         },
@@ -189,17 +189,14 @@ return [
                 throw new RuntimeException("No authentication strategy defined for the OpenBao Secret manager");
             }
 
-            $auth = $di->get(Provider\AuthInterface::class);
-
-            $httpClient = new HttpClient();
-            // Reuse the PSR17 factory class from the jaxon-core library.
-            $psr17Factory = $di->g(Psr17Factory::class);
-
             $namespace = env('OPENBAO_NAMESPACE');
             $projectId = env('OPENBAO_PROJECT_ID');
             $serverPath = env('OPENBAO_SERVER_PATH');
 
             // Creating the client
+            $httpClient = new HttpClient();
+            // Reuse the PSR17 factory class from the jaxon-core library.
+            $psr17Factory = $di->g(Psr17Factory::class);
             $endpoint = $psr17Factory->createUri(env('OPENBAO_SERVER_URL'));
             $client = new OpenBaoClient($endpoint, $httpClient, $psr17Factory, $psr17Factory);
             if (($namespace)) {
@@ -212,6 +209,7 @@ return [
                 throw new RuntimeException("Authentication failure on the OpenBao Secret manager");;
             }
 
+            $auth = $di->get(Provider\AuthInterface::class);
             return new Provider\Secret\OpenBaoConfigProvider($auth, $client, $projectId);
         },
     ],
