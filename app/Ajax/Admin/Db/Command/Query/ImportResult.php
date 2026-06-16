@@ -31,7 +31,7 @@ class ImportResult extends Component
      */
     public function html(): string
     {
-        return $this->queryUi->results($this->get('results'));
+        return $this->queryUi->results($this->get('result'));
     }
 
     /**
@@ -39,6 +39,6 @@ class ImportResult extends Component
      */
     protected function after(): void
     {
-        $this->duration()->update($this->get('results')['duration']);
+        $this->duration()->update($this->get('result')->duration);
     }
 }

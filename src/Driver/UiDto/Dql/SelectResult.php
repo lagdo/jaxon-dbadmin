@@ -2,8 +2,10 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dql;
 
-use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface as QueryResult;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ResultsetDto;
 
 use function array_map;
 use function current;
@@ -75,13 +77,13 @@ class SelectResult extends AbstractDriverProxy
      * @param SelectDqDto $input
      * @param array $queryColumns
      *
-     * @return void
+     * @return array
      */
-    public function setResultHeaders(SelectDqDto $input, array $queryColumns): void
+    private function getResultHeaders(SelectDqDto $input, array $queryColumns): array
     {
         // Results headers
-        $input->headers = [];
-        // $input->functions = [];
+        $headers = [];
+        // $functions = [];
 
         $position = 1;
         foreach ($queryColumns as $columnName) {
@@ -89,8 +91,10 @@ class SelectResult extends AbstractDriverProxy
             if ($header['name'] ?? '' !== '') {
                 $position++;
             }
-            $input->headers[$columnName] = $header;
+            $headers[$columnName] = $header;
         }
+
+        return $headers;
     }
 
     /**
@@ -198,7 +202,7 @@ class SelectResult extends AbstractDriverProxy
      *
      * @return array
      */
-    public function getRowIds(SelectDqDto $input, array $row): array
+    private function getRowIds(SelectDqDto $input, array $row): array
     {
         $uniqueIds = $this->getUniqueIds($input, $row);
         // Unique identifier to edit returned data.
@@ -238,15 +242,16 @@ class SelectResult extends AbstractDriverProxy
 
     /**
      * @param SelectDqDto $input
+     * @param array $headers
      * @param array $row
      *
      * @return array
      */
-    private function getRowValues(SelectDqDto $input, array $row): array
+    private function getRowValues(SelectDqDto $input, array $headers, array $row): array
     {
         $cols = [];
         foreach ($row as $columnName => $value) {
-            if (isset($input->headers[$columnName]['name'])) {
+            if (isset($headers[$columnName]['name'])) {
                 $cols[] = $this->getColumnValue($input, $columnName, $value);
             }
         }
@@ -254,16 +259,153 @@ class SelectResult extends AbstractDriverProxy
     }
 
     /**
+     * @param QueryResult $result
      * @param SelectDqDto $input
      *
-     * @return array
-     */
-    public function getRows(SelectDqDto $input): array
+     * @return ResultsetDto
+    */
+    public function getSelectResultset(QueryResult $result, SelectDqDto $input): ResultsetDto
     {
-        return array_map(fn(array $row) => [
-            // The unique identifiers to edit the result rows.
-            'ids' => $this->getRowIds($input, $row),
-            'cols' => $this->getRowValues($input, $row),
-        ], $input->rows);
+        if ($result->hasError()) {
+            return new ResultsetDto(error: $this->engine()->errorMessage());
+        }
+
+        $row = $result->fetchAssoc();
+        if ($row === null) {
+            return new ResultsetDto(message: $this->utils()->lang('No rows.'));
+        }
+
+        $resultset = new ResultsetDto();
+
+        $resultset->headers = $this->getResultHeaders($input, array_keys($row));
+        // $backward_keys = $this->engine()->backwardKeys($table, $tableName);
+        // lengths = $this->getValuesLengths($rows, $input->queryOptions);
+
+        do {
+            if ($input->page && $this->engine()->oracle()) {
+                unset($row["RNUM"]);
+            }
+            $resultset->rows[] = [
+                // The unique identifiers to edit the result rows.
+                'ids' => $this->getRowIds($input, $row),
+                'cols' => $this->getRowValues($input, $resultset->headers, $row),
+            ];
+
+            $row = $result->fetchAssoc();
+        } while ($row !== null);
+
+        return $resultset;
+    }
+
+    /**
+     * @param QueryResult $result
+     * @param int $limit
+     *
+     * @return string
+    */
+    private function resultMessage(QueryResult $result, int $limit): string
+    {
+        $numRows = $result->rowCount();
+        $message = '';
+        if ($numRows > 0) {
+            if ($limit > 0 && $numRows > $limit) {
+                $message = $this->utils()->lang('%d / ', $limit);
+            }
+            $message .= $this->utils()->lang('%d row(s)', $numRows);
+        }
+        return $message;
+    }
+
+    /**
+     * @param mixed $value
+     * @param int $column
+     * @param array $blobs
+     * @param array $types
+     *
+     * @return string
+    */
+    private function columValue(mixed $value, int $column, array $blobs, array $types): string
+    {
+        // $link = $this->editLink($val);
+        return match(true) {
+            $value === null => '<i>NULL</i>',
+            //! link to download
+            isset($blobs[$column]) && $blobs[$column] && !$this->utils()->str->isUtf8($value) =>
+                '<i>' . $this->utils()->lang('%d byte(s)', strlen($value)) . '</i>',
+            isset($types[$column]) && $types[$column] === 254 =>
+                '<code>' . $this->utils()->html($value) . '</code>',
+            default => $this->utils()->html($value),
+        };
+    }
+
+    /**
+     * @param QueryResult $result
+     * @param int $count
+     * @param int $limit
+     *
+     * @return array|null
+     */
+    private function fetchRow(QueryResult $result, int $count, int $limit): array|null
+    {
+        return ($limit > 0 && $count >= $limit) ? null : $result->fetchRow();
+    }
+
+    /**
+     * @param QueryResult $result
+     * @param int $limit
+     *
+     * @return ResultsetDto
+    */
+    public function getQueryResultset(QueryResult $result, int $limit): ResultsetDto
+    {
+        if ($result->hasError()) {
+            return new ResultsetDto(error: $this->engine()->errorMessage());
+        }
+
+        // No resultset
+        if (!$result->hasRowset()) {
+            $affectedRows = $this->engine()->affectedRows();
+            $message = 'Query executed OK, %d row(s) affected.';
+            $message = $this->utils()->lang($message, $affectedRows); //  . "$time";
+            $resultset = new ResultsetDto(message: $message);
+            $resultset->affectedRows = $affectedRows;
+
+            return $resultset;
+        }
+
+        // Fetch the first row.
+        $row = $this->fetchRow($result, 0, $limit);
+        if ($row === null) {
+            return new ResultsetDto(message: $this->utils()->lang('No rows.'));
+        }
+
+        $resultset = new ResultsetDto(message: $this->resultMessage($result, $limit));
+
+        // Use the first row to get the table headers.
+        $blobs = []; // colno => bool - display bytes for blobs
+        $types = []; // colno => type - display char in <code>
+        // Important: the values in the row are actually not used.
+        $columns = array_map(fn($_) => $result->fetchColumn(), $row);
+        foreach ($columns as $column) {
+            $resultset->headers[] = $this->utils()->html($column->name());
+            // table => orgtable - mapping to use in EXPLAIN
+            $resultset->tables[$column->tableName()] = $column->orgTable();
+
+            // $this->indexes($column);
+            $blobs[] = $column->isBinary();
+            $types[] = $column->type(); // Some drivers don't set the type field.
+        }
+
+        // Table rows (the first was already fetched).
+        $column = 0;
+        $callback = fn($value) => $this->columValue($value, $column++, $blobs, $types);
+        do {
+            $resultset->rowCount++;
+            $resultset->rows[] = array_map($callback, $row);
+
+            $row = $this->fetchRow($result, $resultset->rowCount, $limit);
+        } while ($row !== null);
+
+        return $resultset;
     }
 }

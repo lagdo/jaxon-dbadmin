@@ -9,6 +9,7 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ForeignKeyTrait;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableContent;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableHeader;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
 use Lagdo\Facades\Logger;
 use Exception;
 
@@ -27,6 +28,11 @@ class TableProxy extends AbstractDriverProxy
     protected $tableStatus = null;
 
     /**
+     * @var QueryProcessor
+     */
+    private QueryProcessor $processor;
+
+    /**
      * @var TableHeader|null
      */
     private TableHeader|null $tableHeader = null;
@@ -35,6 +41,17 @@ class TableProxy extends AbstractDriverProxy
      * @var TableContent|null
      */
     private TableContent|null $tableContent = null;
+
+    /**
+     * @param QueryProcessor $processor
+     *
+     * @return static
+     */
+    public function setProcessor(QueryProcessor $processor): static
+    {
+        $this->processor = $processor;
+        return $this;
+    }
 
     /**
      * @return TableHeader
@@ -191,6 +208,7 @@ class TableProxy extends AbstractDriverProxy
         if (!$status) {
             throw new Exception($this->utils()->lang("No table with name $table."));
         }
+
         return $status;
     }
 
@@ -258,13 +276,13 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param TableFormDto $table
      *
-     * @return array
+     * @return ExecResultDto
      */
-    public function createTable(TableFormDto $table): array
+    public function createTable(TableFormDto $table): ExecResultDto
     {
         $queries = $this->getCreateTableQueries($table);
 
-        return compact('success', 'error', 'message');
+        return $this->processor->executeLibraryQueries($queries);
     }
 
     /**
@@ -290,14 +308,29 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param TableFormDto $table
      *
-     * @return array
-     * @throws Exception
+     * @return ExecResultDto
      */
-    public function alterTable(TableFormDto $table): array
+    public function alterTable(TableFormDto $table): ExecResultDto
     {
         $queries = $this->getAlterTableQueries($table);
 
-        return compact('success', 'error', 'message');
+        return $this->processor->executeLibraryQueries($queries);
+    }
+
+    /**
+     * Get SQL command to drop a table
+     *
+     * @param string $table
+     *
+     * @return array
+     */
+    public function getDropTableQueries(string $table): array
+    {
+        return $this->engine()->tableStatus($table) === null ? [
+            'error' => $this->utils()->lang('Invalid table %s.', $table),
+        ] : [
+            'queries' => $this->statement()->getDropTablesQueries([$table]),
+        ];
     }
 
     /**
@@ -305,20 +338,12 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param string $table
      *
-     * @return array
+     * @return ExecResultDto
      */
-    public function dropTable(string $table): array
+    public function dropTable(string $table): ExecResultDto
     {
-        return match(true) {
-            $this->engine()->tableStatus($table) === null => [
-                'error' => $this->utils()->lang('Invalid table %s.', $table),
-            ],
-            !$this->engine()->dropTables([$table]) => [
-                'error' => $this->utils()->lang('Invalid table %s.', $table),
-            ],
-            default => [
-                'message' => $this->utils()->lang('Table has been dropped.'),
-            ],
-        };
+        $queries = $this->getDropTableQueries($table);
+
+        return $this->processor->executeLibraryQueries($queries);
     }
 }

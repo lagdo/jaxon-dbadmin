@@ -80,8 +80,8 @@ trait QueryTrait
 
         $options = new ExecOptions($values['error_stops'] ?? false,
             $values['only_errors'] ?? false, intval($values['limit'] ?? 0));
-        $results = $this->db()->executeQueriesInText($queryText, $options);
+        $result = $this->db()->executeQueriesInText($queryText, $options);
 
-        $this->cl(QueryResult::class)->set('results', $results)->render();
+        $this->cl(QueryResult::class)->set('result', $result)->render();
     }
 }

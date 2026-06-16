@@ -2,20 +2,21 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Jaxon\Request\Upload\FileInterface;
+use Lagdo\DbAdmin\Driver\Sql\Dto\QueryCodeDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnInput;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnValue;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataReader;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataWriter;
-use stdClass;
+use Lagdo\DbAdmin\Support\Driver\UiDto\TableImport;
 
-use function array_filter;
 use function array_keys;
-use function array_map;
-use function array_reduce;
 use function count;
-use function is_string;
+use function explode;
+use function fgets;
 
 /**
  * Proxy to table query functions
@@ -37,9 +38,40 @@ class QueryProxy extends AbstractDriverProxy
     private string $operation;
 
     /**
+     * @var QueryProcessor
+     */
+    private QueryProcessor $processor;
+
+    /**
+     * @var RowDataReader
+     */
+    private RowDataReader $reader;
+
+    /**
+     * @var RowDataWriter
+     */
+    private RowDataWriter $writer;
+
+    /**
+     * @var TableImport
+     */
+    private TableImport $import;
+
+    /**
+     * @param QueryProcessor $processor
+     *
+     * @return static
+     */
+    public function setProcessor(QueryProcessor $processor): static
+    {
+        $this->processor = $processor;
+        return $this;
+    }
+
+    /**
      * @return RowDataWriter
      */
-    private function writer(): RowDataWriter
+    private function _writer(): RowDataWriter
     {
         $columnValue = (new ColumnValue($this))->init($this->action, $this->operation);
         $columnInput = (new ColumnInput($this))->init($this->action, $this->operation);
@@ -48,34 +80,27 @@ class QueryProxy extends AbstractDriverProxy
     }
 
     /**
+     * @return RowDataWriter
+     */
+    private function writer(): RowDataWriter
+    {
+        return $this->writer ??= $this->_writer();
+    }
+
+    /**
      * @return RowDataReader
      */
     private function reader(): RowDataReader
     {
-        return new RowDataReader($this);
+        return $this->reader ??= (new RowDataReader($this))->init($this->action, $this->operation);
     }
 
     /**
-     * Get the table columns
-     *
-     * @param string $table         The table name
-     * @param array  $options       The query options
-     *
-     * @return array
+     * @return TableImport
      */
-    private function getColumns(string $table, array $options): array
+    private function import(): TableImport
     {
-        // From edit.inc.php
-        $columns = $this->engine()->columns($table);
-        // Important: get the where clauses before filtering the columns.
-        $where = $this->operation === 'insert' ? [] :
-            $this->engine()->where($options, $columns);
-        // Remove columns without the required privilege, or that cannot be edited.
-        $columns = array_filter($columns, fn(ColumnDto $column) =>
-            isset($column->privileges[$this->operation]) &&
-            $this->pageUi()->columnName($column) !== '' && !$column->generated);
-
-        return [$columns, $where];
+        return $this->import ??= new TableImport($this);
     }
 
     /**
@@ -91,7 +116,7 @@ class QueryProxy extends AbstractDriverProxy
         $this->action = 'read';
         $this->operation = 'insert';
 
-        [$columns,] = $this->getColumns($table, $options);
+        [$columns,] = $this->reader()->getTableColumns($table, $options);
         if (empty($columns)) {
             return [
                 'error' => $this->utils()->lang('You have no privileges to update this table.'),
@@ -102,27 +127,6 @@ class QueryProxy extends AbstractDriverProxy
         return [
             'columns' => $this->writer()->getInputValues($columns, $options),
         ];
-    }
-
-    /**
-     * @param array<ColumnDto> $columns
-     *
-     * @return array
-     */
-    private function getRowSelectClauses(array $columns): array
-    {
-        // if (!$this->engine()->support('table')) {
-        //     return ['*'];
-        // }
-
-        // From edit.inc.php
-        $columns = array_filter($columns,
-            fn(ColumnDto $column) => isset($column->privileges['select']));
-        return array_map(function(ColumnDto $column, string $name) {
-            $as = $this->action === 'clone' && $column->autoIncrement ? "''" :
-                $this->statement()->convertColumn($column);
-            return ($as !== '' ? "$as AS " : '') . $this->statement()->escapeId($name);
-        }, $columns, array_keys($columns));
     }
 
     /**
@@ -139,7 +143,7 @@ class QueryProxy extends AbstractDriverProxy
         $this->operation = 'update';
 
         // From edit.inc.php
-        [$columns, $where] = $this->getColumns($table, $options);
+        [$columns, $where] = $this->reader()->getTableColumns($table, $options);
         if (empty($columns) || !$where) {
             return [
                 'error' => $this->utils()->lang('You have no privileges to update this table.'),
@@ -147,7 +151,7 @@ class QueryProxy extends AbstractDriverProxy
         }
 
         // From edit.inc.php
-        $select = $this->getRowSelectClauses($columns);
+        $select = $this->reader()->getSelectClauses($columns);
         if (count($select) === 0) {
             return [
                 'error' => $this->utils()->lang('Unable to find the edited data row.'),
@@ -184,16 +188,18 @@ class QueryProxy extends AbstractDriverProxy
      *
      * @return array
      */
-    public function getRowInsertQuery(string $table, array $options, array $values): array
+    public function getInsertRowQuery(string $table, array $options, array $values): array
     {
         $this->action = 'save';
         $this->operation = 'insert';
 
-        [$columns,] = $this->getColumns($table, $options);
+        [$columns,] = $this->reader()->getTableColumns($table, $options);
         $values = $this->reader()->getInputValues($columns, $values);
+        $query = $this->statement()->getInsertRowQuery($table, $values);
 
-        $query = $this->statement()->getRowInsertQuery($table, $values);
-        return $query !== '' ? ['query' => $query] : [
+        return $query !== '' ? [
+            'query' => $query,
+        ] : [
             'error' => $this->utils()->lang('Unable to build the SQL code for this insert query.'),
         ];
     }
@@ -205,41 +211,19 @@ class QueryProxy extends AbstractDriverProxy
      * @param array  $options       The query options
      * @param array  $values        The updated values
      *
-     * @return array
+     * @return ExecResultDto
      */
-    public function insertItem(string $table, array $options, array $values): array
+    public function insertItem(string $table, array $options, array $values): ExecResultDto
     {
-        $this->action = 'save';
-        $this->operation = 'insert';
+        $insert = $this->getInsertRowQuery($table, $options, $values);
 
-        [$columns,] = $this->getColumns($table, $options);
-        $values = $this->reader()->getInputValues($columns, $values);
-
-        if (!$this->engine()->insert($table, $values)) {
-            return [
-                'error' => $this->engine()->error(),
-            ];
+        $result = $this->processor->executeLibraryQueries($insert);
+        if ($result->error === null) {
+            $lastId = $this->engine()->lastAutoIncrementId();
+            $result->message = $this->utils()->lang('Item%s has been inserted.',
+                $lastId ? " $lastId" : '');
         }
-
-        $lastId = $this->engine()->lastAutoIncrementId();
-        return [
-            'message' => $this->utils()->lang('Item%s has been inserted.',
-                $lastId ? " $lastId" : ''),
-        ];
-    }
-
-    /**
-     * @param string $table
-     * @param array $options
-     *
-     * @return int
-     */
-    private function getQueryLimit(string $table, array $options): int
-    {
-        // From edit.inc.php
-        $indexes = $this->engine()->indexes($table);
-        $uniqueIds = $this->utils()->uniqueIds($options['where'], $indexes);
-        return count($uniqueIds ?? []) === 0 ? 1 : 0; // Limit to 1 if no unique ids are found.
+        return $result;
     }
 
     /**
@@ -251,17 +235,19 @@ class QueryProxy extends AbstractDriverProxy
      *
      * @return array
      */
-    public function getRowUpdateQuery(string $table, array $options, array $values): array
+    public function getUpdateRowQuery(string $table, array $options, array $values): array
     {
         $this->action = 'save';
         $this->operation = 'update';
 
-        [$columns, $where] = $this->getColumns($table, $options);
+        [$columns, $where] = $this->reader()->getTableColumns($table, $options);
         $values = $this->reader()->getInputValues($columns, $values);
-        $limit = $this->getQueryLimit($table, $options);
+        $limit = $this->reader()->getQueryLimit($table, $options);
 
-        $query = $this->statement()->getRowUpdateQuery($table, $values, "\nWHERE $where", $limit);
-        return $query !== '' ? ['query' => $query] : [
+        $query = $this->statement()->getUpdateRowQuery($table, $values, "\nWHERE $where", $limit);
+        return $query !== '' ? [
+            'query' => $query,
+        ] : [
             'error' => $this->utils()->lang('Unable to build the SQL code for this insert query.'),
         ];
     }
@@ -273,22 +259,35 @@ class QueryProxy extends AbstractDriverProxy
      * @param array  $options       The query options
      * @param array  $values        The updated values
      *
+     * @return ExecResultDto
+     */
+    public function updateItem(string $table, array $options, array $values): ExecResultDto
+    {
+        $update = $this->getUpdateRowQuery($table, $options, $values);
+
+        $result = $this->processor->executeLibraryQueries($update);
+        if ($result->error === null) {
+            $result->message = $this->utils()->lang('Item has been updated.');
+        }
+        return $result;
+    }
+
+    /**
+     * Update one or more items in a table
+     *
+     * @param string $table         The table name
+     * @param array  $options       The query options
+     * @param array  $values        The updated values
+     *
      * @return array
      */
-    public function updateItem(string $table, array $options, array $values): array
+    public function getUpdatedItem(string $table, array $options, array $values): array
     {
         $this->action = 'save';
         $this->operation = 'update';
 
-        [$columns, $where] = $this->getColumns($table, $options);
+        [$columns, $where] = $this->reader()->getTableColumns($table, $options);
         $values = $this->reader()->getInputValues($columns, $values);
-        $limit = $this->getQueryLimit($table, $options);
-
-        if (!$this->engine()->update($table, $values, "\nWHERE $where", $limit)) {
-            return [
-                'error' => $this->engine()->error(),
-            ];
-        }
 
         // Get the modified data
         // Todo: check if the values in the where clause are changed.
@@ -302,7 +301,6 @@ class QueryProxy extends AbstractDriverProxy
         $row = $result->fetchAssoc();
         return [
             'cols' => $this->writer()->getUpdatedRow($row, $columns, $options),
-            'message' => $this->utils()->lang('Item has been updated.'),
         ];
     }
 
@@ -314,16 +312,18 @@ class QueryProxy extends AbstractDriverProxy
      *
      * @return array
      */
-    public function getRowDeleteQuery(string $table, array $options): array
+    public function getDeleteRowQuery(string $table, array $options): array
     {
         $this->action = 'save';
         $this->operation = 'update';
 
-        [, $where] = $this->getColumns($table, $options);
-        $limit = $this->getQueryLimit($table, $options);
+        [, $where] = $this->reader()->getTableColumns($table, $options);
+        $limit = $this->reader()->getQueryLimit($table, $options);
 
-        $query = $this->statement()->getRowDeleteQuery($table, "\nWHERE $where", $limit);
-        return $query !== '' ? ['query' => $query] : [
+        $query = $this->statement()->getDeleteRowQuery($table, "\nWHERE $where", $limit);
+        return $query !== '' ? [
+            'query' => $query,
+        ] : [
             'error' => $this->utils()->lang('Unable to build the SQL code for this insert query.'),
         ];
     }
@@ -334,91 +334,113 @@ class QueryProxy extends AbstractDriverProxy
      * @param string $table         The table name
      * @param array  $options       The query options
      *
-     * @return array
+     * @return ExecResultDto
      */
-    public function deleteItem(string $table, array $options): array
+    public function deleteItem(string $table, array $options): ExecResultDto
     {
-        $this->action = 'save';
-        $this->operation = 'update';
+        $delete = $this->getDeleteRowQuery($table, $options);
 
-        [, $where] = $this->getColumns($table, $options);
-        $limit = $this->getQueryLimit($table, $options);
-
-        if (!$this->engine()->delete($table, "\nWHERE $where", $limit)) {
-            return [
-                'error' => $this->engine()->error(),
-            ];
+        $result = $this->processor->executeLibraryQueries($delete);
+        if ($result->error === null) {
+            $result->message = $this->utils()->lang('Item has been deleted.');
         }
-
-        return [
-            'message' => $this->utils()->lang('Item has been deleted.'),
-        ];
+        return $result;
     }
 
     /**
-     * Execute a set of queries, and return the number of errors
+     * Get data for import
      *
-     * @param array $queries
-     * @param bool $stopOnError
-     * @param bool $transaction
-     *
-     * @return int
+     * @return array
      */
-    public function executeQueries(array $queries,
-        bool $stopOnError = false, bool $transaction = false): int
+    public function getImportOptions(): array
     {
-        $options = new stdClass();
-        $options->transaction = $transaction;
-        $options->stopOnError = $stopOnError || $transaction;
-        $options->stopped = false;
-        $execute = function(int $errors, string|array $query) use($options) {
-            if ($options->stopped) {
-                return $errors;
-            }
+        return $this->import()->getOptions();
+    }
 
-            if (is_string($query)) {
-                if ($this->engine()->execute($query)) {
-                    return $errors;
-                }
-                // An error occured.
-                $options->stopped = $options->stopOnError;
-                return ++$errors;
-            }
-
-            // Special type of queries (upsert only for now).
-            [$type, [$update, $insert]] = $query;
-            if ($type !== 'upsert') {
-                return $errors; // Skip queries with unknown type.
-            }
-
-            // Execute the update query of the upsert.
-            if ($this->engine()->executeQuery($update)->hasError()) {
-                $options->stopped = $options->stopOnError;
-                return ++$errors;
-            }
-            if ($this->engine()->affectedRows() > 0) {
-                return $errors; // The update was successful.
-            }
-
-            // Execute the insert query of the upsert.
-            if ($this->engine()->executeQuery($insert)->hasError()) {
-                $options->stopped = $options->stopOnError;
-                return ++$errors;
-            }
-
-            return $errors;
-        };
-
-        if ($transaction) {
-            $this->engine()->begin();
-        }
-        $errors = array_reduce($queries, $execute, 0);
-        if ($transaction) {
-            $errors > 0 ?
-                $this->engine()->rollback() :
-                $this->engine()->commit();
+    /**
+     * @param QueryCodeDto $dto
+     * @param array $sqlLines
+     *
+     * @return bool
+     */
+    private function readLineFromText(QueryCodeDto $dto, array $sqlLines): bool
+    {
+        if (!isset($sqlLines[$dto->lineNumber])) {
+            return false;
         }
 
-        return $errors;
+        $dto->queryLine = $sqlLines[$dto->lineNumber++];
+        return true;
+    }
+
+    /**
+     * Execute a set of queries
+     *
+     * @param string $queries       The queries to execute
+     * @param ExecOptions $options
+     *
+     * @return ExecResultDto
+     */
+    public function executeQueriesInText(string $queries, ExecOptions $options): ExecResultDto
+    {
+        $options->setExecOptions(false, false, true);
+
+        $sqlLines = explode("\n", $queries);
+        $queryLineReader = fn(QueryCodeDto $dto) => $this->readLineFromText($dto, $sqlLines);
+        $queryDto = new QueryCodeDto($queryLineReader);
+
+        return $this->processor->executeUserQueries($queryDto, $options);
+    }
+
+    /**
+     * @param QueryCodeDto $dto
+     * @param resource $fileStream
+     *
+     * @return bool
+     */
+    private function readLineFromFile(QueryCodeDto $dto, mixed $fileStream): bool
+    {
+        if (!($queryLine = fgets($fileStream))) {
+            return false;
+        }
+
+        $dto->queryLine = $queryLine;
+        $dto->lineNumber++;
+        return true;
+    }
+
+    /**
+     * @param FileInterface $file
+     * @param bool $decompress
+     *
+     * @return resource
+     */
+    private function readFile(FileInterface $file, bool $decompress = false): mixed
+    {
+        // $compressed = preg_match('~\.gz$~', $file->path());
+        // if (!$decompress || !$compressed) {
+            //! may not be reachable because of open_basedir
+        // }
+
+        return $file->filesystem()->readStream($file->path());
+    }
+
+    /**
+     * Run queries from uploaded files
+     *
+     * @param FileInterface $file         The uploaded file
+     * @param ExecOptions $options
+     *
+     * @return ExecResultDto
+     */
+    public function executeQueriesInFile(FileInterface $file, ExecOptions $options): ExecResultDto
+    {
+        $options->setExecOptions(false, true, false);
+
+        $fileStream = $this->readFile($file, $options->decompressFile);
+        $queryLineReader = fn(QueryCodeDto $dto) => $this->readLineFromFile($dto, $fileStream);
+        $queryDto = new QueryCodeDto($queryLineReader);
+
+        return $this->processor->executeUserQueries($queryDto, $options);
     }
 }

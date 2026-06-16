@@ -67,10 +67,10 @@ class TableFunc extends FuncComponent
     public function drop(string $table): void
     {
         $result = $this->db()->dropTable($table);
-        if (isset($result['error'])) {
+        if ($result->error !== null) {
             $this->alert()
                 ->title($this->trans->lang('Error'))
-                ->error($result['error']);
+                ->error($result->error);
             return;
         }
 
@@ -79,6 +79,6 @@ class TableFunc extends FuncComponent
 
         $this->alert()
             ->title($this->trans->lang('Success'))
-            ->success($result['message']);
+            ->success($result->message);
     }
 }

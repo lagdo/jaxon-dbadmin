@@ -3,8 +3,10 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml;
 
 use Jaxon\Attributes\Attribute\Databag;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\CodeFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultRow;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\SelectBagTrait;
+use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
 
 use function count;
 use function is_array;
@@ -19,6 +21,12 @@ class Update extends FuncComponent
     use SelectBagTrait;
 
     /**
+     * @param EditUiBuilder  $editUi     The HTML UI builder
+     */
+    public function __construct(protected EditUiBuilder $editUi)
+    {}
+
+    /**
      * @param int $editId
      * @param array $rowIds
      * @param array $columns
@@ -30,6 +38,9 @@ class Update extends FuncComponent
         $title = 'Edit row in table ' . $this->getCurrentTable();
         $content = $this->editUi->rowDataForm($columns);
         $values = form($this->editUi->queryFormId());
+        // Add the select options, which are used to format the modified data
+        $rowIds['select'] = $this->getSelectBag('options', []);
+
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[
@@ -39,7 +50,8 @@ class Update extends FuncComponent
         ], [
             'title' => $this->trans()->lang('Query'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->showQueryCode($editId, $rowIds, $values),
+            'click' => $this->rq(CodeFunc::class)
+                ->showUpdateRowQuery($editId, $rowIds, $values),
         ], [
             'title' => $this->trans()->lang('Update'),
             'class' => 'btn btn-primary',
@@ -99,32 +111,35 @@ class Update extends FuncComponent
         }
 
         // Add the select options, which are used to format the modified data
+        $table = $this->getCurrentTable();
         $rowIds['select'] = $this->getSelectBag('options', []);
-        $result = $this->db()->updateItem($this->getCurrentTable(), $rowIds, $formValues);
+        $result = $this->db()->updateItem($table, $rowIds, $formValues);
         // Show the error
-        if(isset($result['error']))
+        if($result->error !== null)
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
+                ->error($result->error);
             return;
         }
-        // Show the warning
-        if(isset($result['warning']))
+
+        // Get the updated item.
+        $updatedItem = $this->db()->getUpdatedItem($table, $rowIds, $formValues);
+        if(isset($updatedItem['warning']))
         {
             $this->alert()
                 ->title($this->trans()->lang('Warning'))
-                ->warning($result['warning']);
+                ->warning($updatedItem['warning']);
             return;
         }
 
         // Update the result row.
-        $this->cl(ResultRow::class)->renderItem($editId, $result);
+        $this->cl(ResultRow::class)->renderItem($editId, $updatedItem);
 
         $this->modal()->hide();
         $this->alert()
             ->title($this->trans()->lang('Success'))
-            ->success($result['message']);
+            ->success($result->message);
     }
 
     /**
@@ -155,49 +170,5 @@ class Update extends FuncComponent
 
         $columns = $this->getEditedFormValues($updateData['columns'], $formValues);
         $this->showQueryDataDialog($editId, $rowIds, $columns);
-    }
-
-    /**
-     * Show the update query
-     *
-     * @param int   $editId
-     * @param array $rowIds
-     * @param array $formValues
-     *
-     * @return void
-     */
-    public function showQueryCode(int $editId, array $rowIds, array $formValues): void
-    {
-        if(!is_array($rowIds['where'] ?? 0) ||
-            count($rowIds['where']) === 0 || $editId <= 0)
-        {
-            $this->alert()
-                ->title($this->trans()->lang('Error'))
-                ->error('Invalid query data');
-            return;
-        }
-
-        // Add the select options, which are used to format the modified data
-        $rowIds['select'] = $this->getSelectBag('options', []);
-        $tableName = $this->getCurrentTable();
-        $result = $this->db()->getRowUpdateQuery($tableName, $rowIds, $formValues);
-        // Show the error
-        if(isset($result['error']))
-        {
-            $this->alert()
-                ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
-            return;
-        }
-
-        // Show the query in a modal dialog.
-        $this->modal()->hide();
-
-        $buttons = [[
-            'title' => $this->trans()->lang('Back'),
-            'class' => 'btn btn-primary',
-            'click' => $this->rq()->showQueryForm($editId, $rowIds, $formValues),
-        ]];
-        $this->showQueryCodeDialog('SQL query for update', $result['query'], $buttons);
     }
 }

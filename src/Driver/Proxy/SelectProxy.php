@@ -5,12 +5,11 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectQuery;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectResult;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectTableDto;
-use Lagdo\DbAdmin\Support\Service\TimerService;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
 use Exception;
 
-use function array_keys;
 use function count;
 
 /**
@@ -24,25 +23,9 @@ class SelectProxy extends AbstractDriverProxy
     private SelectQuery $selectQuery;
 
     /**
-     * @var SelectResult
+     * @var QueryProcessor
      */
-    private SelectResult $selectResult;
-
-    /**
-     * @var TimerService
-     */
-    protected TimerService $timer;
-
-    /**
-     * @param TimerService $timer
-     *
-     * @return static
-     */
-    public function setTimer(TimerService $timer): static
-    {
-        $this->timer = $timer;
-        return $this;
-    }
+    private QueryProcessor $processor;
 
     /**
      * @return SelectQuery
@@ -53,11 +36,14 @@ class SelectProxy extends AbstractDriverProxy
     }
 
     /**
-     * @return SelectResult
+     * @param QueryProcessor $processor
+     *
+     * @return static
      */
-    private function result(): SelectResult
+    public function setProcessor(QueryProcessor $processor): static
     {
-        return $this->selectResult ??= new SelectResult($this);
+        $this->processor = $processor;
+        return $this;
     }
 
     /**
@@ -116,72 +102,23 @@ class SelectProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param SelectDqDto $input
-     *
-     * @return void
-     */
-    private function executeQuery(SelectDqDto $input): void
-    {
-        $this->timer->start();
-
-        // From driver.inc.php
-        $result = $this->engine()->executeQuery($input->query);
-        $input->duration = $this->timer->duration();
-        $input->rows = [];
-
-        // From adminer.inc.php
-        if ($result->hasError()) {
-            $input->error = $this->engine()->error();
-            return;
-        }
-
-        // From select.inc.php
-        $input->rows = [];
-        while (($row = $result->fetchAssoc())) {
-            if ($input->page && $this->engine()->oracle()) {
-                unset($row["RNUM"]);
-            }
-            $input->rows[] = $row;
-        }
-    }
-
-    /**
      * Get required data for create/update on tables
      *
      * @param string $table The table name
      * @param array $queryParams The user params
      *
-     * @return array
+     * @return ExecResultDto
      * @throws Exception
      */
-    public function execSelect(string $table, array $queryParams): array
+    public function execSelect(string $table, array $queryParams): ExecResultDto
     {
-        $input = $this->prepareSelect($table, $queryParams);
-        $this->executeQuery($input);
+        $options = new ExecOptions();
+        $options->select = $this->prepareSelect($table, $queryParams);
+        $options->setExecOptions(false, false, true);
 
-        if ($input->error !== null) {
-            return [
-                'message' => $input->error,
-            ];
-        }
-        if (count($input->rows) === 0) {
-            return [
-                'message' => $this->utils()->lang('No rows.'),
-            ];
-        }
-
-        // $backward_keys = $this->engine()->backwardKeys($table, $tableName);
-        // lengths = $this->getValuesLengths($rows, $input->queryOptions);
-
-        $queryColumns = array_keys($input->rows[0]);
-        $this->result()->setResultHeaders($input, $queryColumns);
-
-        return [
-            'headers' => $input->headers,
-            'query' => $input->query,
-            'limit' => $input->limit,
-            'duration' => $input->duration,
-            'rows' => $this->result()->getRows($input),
-        ];
+        return $this->processor
+            ->withTimer(true)
+            ->withLogger(false)
+            ->executeQueries([$options->select->query], $options);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\CodeFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\Delete;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\Update;
 
@@ -37,7 +38,8 @@ trait RowMenuTrait
                 ->confirm($this->trans()->lang('Delete this item?')),
         ], [
             'label' => $this->trans->lang('Delete query'),
-            'handler' => $this->rq(Delete::class)->showQueryCode($editId, $bagEntryValue),
+            'handler' => $this->rq(CodeFunc::class)
+                ->showDeleteRowQuery($editId, $bagEntryValue),
         ]]);
     }
 }

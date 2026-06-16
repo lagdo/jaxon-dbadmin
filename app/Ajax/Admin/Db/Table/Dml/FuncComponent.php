@@ -2,23 +2,13 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml;
 
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Query;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\FuncComponent as BaseComponent;
-use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
 
 use function in_array;
 use function is_array;
 
 abstract class FuncComponent extends BaseComponent
 {
-    /**
-     * The constructor
-     *
-     * @param EditUiBuilder  $editUi     The HTML UI builder
-     */
-    public function __construct(protected EditUiBuilder $editUi)
-    {}
-
     /**
      * Build the form data with the edited values
      *
@@ -37,7 +27,6 @@ abstract class FuncComponent extends BaseComponent
             }
 
             $queryField = $queryFields[$column];
-
             if (isset($queryField->functionInput['select'])) {
                 $queryField->functionInput['select']['value'] = $function;
             }
@@ -76,34 +65,5 @@ abstract class FuncComponent extends BaseComponent
         }
 
         return $queryFields;
-    }
-
-    /**
-     * @param string $title
-     * @param string $query
-     * @param array $buttons
-     *
-     * @return void
-     */
-    protected function showQueryCodeDialog(string $title, string $query, array $buttons = []): void
-    {
-        // Show the query in a modal dialog.
-        $title = $this->trans()->lang($title);
-        $content = $this->editUi->sqlCodeElement($query);
-        // Bootbox options
-        $options = ['size' => 'large'];
-        $buttons = [[
-            'title' => $this->trans()->lang('Close'),
-            'class' => 'btn btn-tertiary',
-            'click' => 'close',
-        ], [
-            'title' => $this->trans()->lang('Edit'),
-            'class' => 'btn btn-primary',
-            'click' => $this->rq(Query::class)->database($query),
-        ], ...$buttons];
-
-        $this->modal()->show($title, $content, $buttons, $options);
-
-        $this->setupSqlEditor($this->editUi->queryDivId());
     }
 }

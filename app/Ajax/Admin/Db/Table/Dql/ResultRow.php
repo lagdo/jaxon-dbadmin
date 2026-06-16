@@ -4,23 +4,17 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\App\Ui\Select\ResultUiBuilder;
+use Lagdo\DbAdmin\App\Ajax\Base\Component;
 
 /**
  * This class displays a row of a select query resultset.
  */
 #[Exclude]
-class ResultRow extends MainComponent
+class ResultRow extends Component
 {
     use RowMenuTrait;
 
     /**
-     * @var string
-     */
-    protected string $overrides = '';
-
-    /**
-     * The constructor
-     *
      * @param ResultUiBuilder   $resultUi   The HTML UI builder
      */
     public function __construct(protected ResultUiBuilder $resultUi)
@@ -29,7 +23,7 @@ class ResultRow extends MainComponent
     /**
      * @inheritDoc
      */
-    protected function content(): string
+    public function html(): string
     {
         return $this->resultUi->resultRowContent($this->get('row'));
     }

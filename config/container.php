@@ -54,25 +54,28 @@ jaxon()->callback()->boot(function() {
 return [
     'set' => [
         // Proxies to the DB driver features
-        Proxy\CommandProxy::class => fn(Container $di) =>
-            (new Proxy\CommandProxy($di->g(Support\Driver\DriverProxy::class)))
+        Proxy\QueryProcessor::class => fn(Container $di) =>
+            (new Proxy\QueryProcessor($di->g(Support\Driver\DriverProxy::class)))
                 ->setTimer($di->g(Service\TimerService::class))
                 ->setQueryLogger($di->g(Service\Admin\QueryLogger::class)),
+        Proxy\ServerProxy::class => fn(Container $di) =>
+            (new Proxy\ServerProxy($di->g(Support\Driver\DriverProxy::class)))
+                ->setOptions($di->g('dbadmin_server_options')),
         Proxy\DatabaseProxy::class => fn(Container $di) =>
             (new Proxy\DatabaseProxy($di->g(Support\Driver\DriverProxy::class)))
+                ->setProcessor($di->g(Proxy\QueryProcessor::class))
                 ->setOptions($di->g('dbadmin_server_options')),
         Proxy\ExportProxy::class => fn(Container $di) =>
             new Proxy\ExportProxy($di->g(Support\Driver\DriverProxy::class)),
         Proxy\QueryProxy::class => fn(Container $di) =>
-            new Proxy\QueryProxy($di->g(Support\Driver\DriverProxy::class)),
+            (new Proxy\QueryProxy($di->g(Support\Driver\DriverProxy::class)))
+                ->setProcessor($di->g(Proxy\QueryProcessor::class)),
+        Proxy\TableProxy::class => fn(Container $di) =>
+            (new Proxy\TableProxy($di->g(Support\Driver\DriverProxy::class)))
+                ->setProcessor($di->g(Proxy\QueryProcessor::class)),
         Proxy\SelectProxy::class => fn(Container $di) =>
             (new Proxy\SelectProxy($di->g(Support\Driver\DriverProxy::class)))
-                ->setTimer($di->g(Service\TimerService::class)),
-        Proxy\ServerProxy::class => fn(Container $di) =>
-            (new Proxy\ServerProxy($di->g(Support\Driver\DriverProxy::class)))
-                ->setOptions($di->g('dbadmin_server_options')),
-        Proxy\TableProxy::class => fn(Container $di) =>
-            new Proxy\TableProxy($di->g(Support\Driver\DriverProxy::class)),
+                ->setProcessor($di->g(Proxy\QueryProcessor::class)),
 
         // Application authentication.
         'dbadmin_auth_service' => fn(Container $di) =>

@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
 use Exception;
 
 /**
@@ -172,9 +173,9 @@ trait TableTrait
      *
      * @param TableFormDto $table
      *
-     * @return array
+     * @return ExecResultDto
      */
-    public function createTable(TableFormDto $table): array
+    public function createTable(TableFormDto $table): ExecResultDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->createTable($table);
@@ -198,12 +199,25 @@ trait TableTrait
      *
      * @param TableFormDto $table
      *
-     * @return array
+     * @return ExecResultDto
      */
-    public function alterTable(TableFormDto $table): array
+    public function alterTable(TableFormDto $table): ExecResultDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->alterTable($table);
+    }
+
+    /**
+     * Get SQL command to drop a table
+     *
+     * @param string $table
+     *
+     * @return array
+     */
+    public function getDropTableQueries(string $table): array
+    {
+        $this->connectToSchema();
+        return $this->tableProxy()->getDropTableQueries($table);
     }
 
     /**
@@ -211,9 +225,9 @@ trait TableTrait
      *
      * @param string $table
      *
-     * @return array
+     * @return ExecResultDto
      */
-    public function dropTable(string $table): array
+    public function dropTable(string $table): ExecResultDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->dropTable($table);
@@ -259,10 +273,10 @@ trait TableTrait
      * @param string $table The table name
      * @param array $queryParams The user params
      *
-     * @return array
+     * @return ExecResultDto
      * @throws Exception
      */
-    public function execSelect(string $table, array $queryParams = []): array
+    public function execSelect(string $table, array $queryParams = []): ExecResultDto
     {
         $this->connectToSchema();
         $this->utils()->setInputTable($table);

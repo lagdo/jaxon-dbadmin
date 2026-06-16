@@ -3,7 +3,9 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml;
 
 use Jaxon\Attributes\Attribute\Databag;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\CodeFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
+use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
 
 use function Jaxon\form;
 
@@ -13,6 +15,12 @@ use function Jaxon\form;
 #[Databag('dbadmin.select')]
 class Insert extends FuncComponent
 {
+    /**
+     * @param EditUiBuilder  $editUi     The HTML UI builder
+     */
+    public function __construct(protected EditUiBuilder $editUi)
+    {}
+
     /**
      * @param bool $fromSelect
      * @param array $columns
@@ -33,7 +41,7 @@ class Insert extends FuncComponent
         ], [
             'title' => $this->trans()->lang('Query'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->showQueryCode($fromSelect, $values),
+            'click' => $this->rq(CodeFunc::class)->showInsertRowQuery($fromSelect, $values),
         ], [
             'title' => $this->trans()->lang('Insert'),
             'class' => 'btn btn-primary',
@@ -77,11 +85,11 @@ class Insert extends FuncComponent
         // No specific options for inserts.
         $result = $this->db()->insertItem($this->getCurrentTable(), [], $formValues);
         // Show the error
-        if(isset($result['error']))
+        if($result->error !== null)
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
+                ->error($result->error);
             return;
         }
 
@@ -93,7 +101,7 @@ class Insert extends FuncComponent
         $this->modal()->hide();
         $this->alert()
             ->title($this->trans()->lang('Success'))
-            ->success($result['message']);
+            ->success($result->message);
     }
 
     /**
@@ -122,37 +130,5 @@ class Insert extends FuncComponent
 
         $columns = $this->getEditedFormValues($insertData['columns'], $formValues);
         $this->showQueryDataDialog($fromSelect, $columns);
-    }
-
-    /**
-     * Show the insert query
-     *
-     * @param bool $fromSelect
-     * @param array $formValues
-     *
-     * @return void
-     */
-    public function showQueryCode(bool $fromSelect, array $formValues): void
-    {
-        // No specific options for inserts.
-        $result = $this->db()->getRowInsertQuery($this->getCurrentTable(), [], $formValues);
-        // Show the error
-        if(isset($result['error']))
-        {
-            $this->alert()
-                ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
-            return;
-        }
-
-        // Show the query in a modal dialog.
-        $this->modal()->hide();
-
-        $buttons = [[
-            'title' => $this->trans()->lang('Back'),
-            'class' => 'btn btn-primary',
-            'click' => $this->rq()->showQueryForm($fromSelect, $formValues),
-        ]];
-        $this->showQueryCodeDialog('SQL query for insert', $result['query'], $buttons);
     }
 }

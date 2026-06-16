@@ -65,19 +65,17 @@ class ViewFunc extends FuncComponent
     }
 
     /**
-     * Drop a given view
-     *
-     * @param string $view        The view name
+     * @param string $view
      *
      * @return void
      */
     public function drop(string $view): void
     {
         $result = $this->db()->dropView($view);
-        if (isset($result['error'])) {
+        if ($result->error !== null) {
             $this->alert()
                 ->title($this->trans->lang('Error'))
-                ->error($result['error']);
+                ->error($result->error);
             return;
         }
 
@@ -86,6 +84,6 @@ class ViewFunc extends FuncComponent
 
         $this->alert()
             ->title($this->trans->lang('Success'))
-            ->success($result['message']);
+            ->success($result->message);
     }
 }

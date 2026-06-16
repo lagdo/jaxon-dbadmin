@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
 use Lagdo\DbAdmin\App\Ui\Select\ResultUiBuilder;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ResultsetDto;
 
 use function array_map;
 use function count;
@@ -46,11 +47,11 @@ class ResultSet extends PageComponent
     }
 
     /**
-     * @param array $results
+     * @param ResultsetDto $resultset
      *
      * @return array
      */
-    private function rows(array $results): array
+    private function rows(ResultsetDto $resultset): array
     {
         $editId = 0;
         $editIds = [];
@@ -70,7 +71,7 @@ class ResultSet extends PageComponent
             }
 
             return $row;
-        }, $results['rows']);
+        }, $resultset->rows);
 
         $this->bag($this->tabBag('dbadmin.edit'))->set('row.ids', $editIds);
 
@@ -87,17 +88,21 @@ class ResultSet extends PageComponent
 
         // Select options
         $options = $this->getOptions();
-        $results = $this->db()->execSelect($this->getCurrentTable(), $options);
+        $result = $this->db()->execSelect($this->getCurrentTable(), $options);
 
-        // The 'message' key is set when an error occurs, or when the query returns no data.
-        if (isset($results['message'])) {
+        if ($result->error !== null) {
             $this->set('duration', null);
-            return $results['message'];
+            return $result->error;
         }
 
-        $this->set('duration', $results['duration']);
+        $this->set('duration', $result->duration);
+        // The message field is set when the query returned no rows.
+        if (count($result->resultsets) === 0) {
+            return $result->message;
+        }
 
-        return $this->resultUi->resultSet($results['headers'], $this->rows($results));
+        $resultset = $result->resultsets[0];
+        return $this->resultUi->resultSet($resultset->headers, $this->rows($resultset));
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto;
 
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
+
 class ExecOptions
 {
     /**
@@ -28,6 +30,11 @@ class ExecOptions
      * @var float
      */
     public float $duration = 0;
+
+    /**
+     * @var SelectDqDto|null
+     */
+    public SelectDqDto|null $select = null;
 
     /**
      * @param bool $stopOnError

@@ -51,7 +51,7 @@ class QueryText extends Component
      */
     public function refresh(): void
     {
-        $this->stash()->set('select.query', $this->getRowSelectQuery());
+        $this->stash()->set('select.query', $this->getSelectRowQuery());
         $this->render();
     }
 }

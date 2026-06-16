@@ -9,6 +9,7 @@ use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseHeader;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseContent;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
 use Exception;
 
 use function array_filter;
@@ -23,6 +24,11 @@ use function is_array;
  */
 class DatabaseProxy extends AbstractDriverProxy
 {
+    /**
+     * @var QueryProcessor
+     */
+    private QueryProcessor $processor;
+
     /**
      * The final schema list
      *
@@ -68,6 +74,17 @@ class DatabaseProxy extends AbstractDriverProxy
     private function content(): DatabaseContent
     {
         return $this->databaseContent ??= new DatabaseContent($this);
+    }
+
+    /**
+     * @param QueryProcessor $processor
+     *
+     * @return static
+     */
+    public function setProcessor(QueryProcessor $processor): static
+    {
+        $this->processor = $processor;
+        return $this;
     }
 
     /**
@@ -436,25 +453,32 @@ class DatabaseProxy extends AbstractDriverProxy
     }
 
     /**
+     * Get SQL command to drop a view
+     *
+     * @param string $view
+     *
+     * @return array
+     */
+    public function getDropViewQueries(string $view): array
+    {
+        return $this->engine()->tableStatus($view) === null ? [
+            'error' => $this->utils()->lang('Invalid view %s.', $view),
+        ] : [
+            'queries' => $this->statement()->getDropViewsQueries([$view]),
+        ];
+    }
+
+    /**
      * Drop a view
      *
      * @param string $view The view name
      *
-     * @return array
-     * @throws Exception
+     * @return ExecResultDto
      */
-    public function dropView(string $view): array
+    public function dropView(string $view): ExecResultDto
     {
-        return match(true) {
-            !$this->engine()->tableStatus($view) => [
-                'error' => $this->utils()->lang('Invalid view %s.', $view),
-            ],
-            !$this->engine()->dropView($view) => [
-                'error' => $this->engine()->error(),
-            ],
-            default => [
-                'message' => $this->utils()->lang('View has been dropped.'),
-            ],
-        };
+        $queries = $this->getDropViewQueries($view);
+
+        return $this->processor->executeLibraryQueries($queries);
     }
 }

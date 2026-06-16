@@ -69,8 +69,8 @@ trait ImportTrait
 
         $options = new ExecOptions($formValues['error_stops'] ?? false,
             $formValues['only_errors'] ?? false);
-        $results = $this->db()->executeQueriesInFile($files[0], $options);
+        $result = $this->db()->executeQueriesInFile($files[0], $options);
 
-        $this->cl(Query\ImportResult::class)->set('results', $results)->render();
+        $this->cl(Query\ImportResult::class)->set('result', $result)->render();
     }
 }

@@ -38,11 +38,11 @@ class Delete extends FuncComponent
 
         $result = $this->db()->deleteItem($this->getCurrentTable(), $rowIds);
         // Show the error
-        if(isset($result['error']))
+        if($result->error !== null)
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
+                ->error($result->error);
             return;
         }
 
@@ -52,39 +52,6 @@ class Delete extends FuncComponent
         $this->modal()->hide();
         $this->alert()
             ->title($this->trans()->lang('Success'))
-            ->success($result['message']);
-    }
-
-    /**
-     * Show the delete query
-     *
-     * @param int   $editId
-     * @param array $rowIds
-     *
-     * @return void
-     */
-    public function showQueryCode(int $editId, array $rowIds): void
-    {
-        if(!is_array($rowIds['where'] ?? 0) ||
-            count($rowIds['where']) === 0 || $editId <= 0)
-        {
-            $this->alert()
-                ->title($this->trans()->lang('Error'))
-                ->error('Invalid query data');
-            return;
-        }
-
-        $result = $this->db()->getRowDeleteQuery($this->getCurrentTable(), $rowIds);
-        // Show the error
-        if(isset($result['error']))
-        {
-            $this->alert()
-                ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
-            return;
-        }
-
-        // Show the query in a modal dialog.
-        $this->showQueryCodeDialog('SQL query for delete', $result['query']);
+            ->success($result->message);
     }
 }
