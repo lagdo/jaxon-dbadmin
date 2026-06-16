@@ -7,6 +7,7 @@ use Jaxon\Attributes\Attribute\Callback;
 use Jaxon\Attributes\Attribute\Upload;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ui\Command\ImportUiBuilder;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
 
 trait ImportTrait
 {
@@ -23,7 +24,7 @@ trait ImportTrait
         $importOptions = $this->db()->getImportOptions();
         $handlers = [
             'webFileBtn' => $this->rq()->executeWebFile(),
-            'sqlFilesBtn' => $this->rq()->executeSqlFiles($this->importUi->formValues()),
+            'sqlFilesBtn' => $this->rq()->executeQueriesInFile($this->importUi->formValues()),
         ];
 
         // Set main menu buttons
@@ -58,7 +59,7 @@ trait ImportTrait
      */
     #[Callback('jaxon.dbadmin.upload')]
     #[Upload('dbadmin-import-sql-files-input')]
-    public function executeSqlFiles(array $formValues): void
+    public function executeQueriesInFile(array $formValues): void
     {
         if(!($files = $this->files()['sql_files'] ?? []))
         {
@@ -66,9 +67,9 @@ trait ImportTrait
             return;
         }
 
-        $errorStops = $formValues['error_stops'] ?? false;
-        $onlyErrors = $formValues['only_errors'] ?? false;
-        $results = $this->db()->executeSqlFiles($files, $errorStops, $onlyErrors);
+        $options = new ExecOptions($formValues['error_stops'] ?? false,
+            $formValues['only_errors'] ?? false);
+        $results = $this->db()->executeQueriesInFile($files[0], $options);
 
         $this->cl(Query\ImportResult::class)->set('results', $results)->render();
     }

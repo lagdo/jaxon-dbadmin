@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Exception;
 
 /**
@@ -21,6 +22,16 @@ trait TableTrait
     protected function tableProxy(): TableProxy
     {
         return $this->di()->g(TableProxy::class);
+    }
+
+    /**
+     * Get the proxy
+     *
+     * @return SelectProxy
+     */
+    protected function selectProxy(): SelectProxy
+    {
+        return $this->di()->g(SelectProxy::class);
     }
 
     /**
@@ -161,9 +172,9 @@ trait TableTrait
      *
      * @param TableFormDto $table
      *
-     * @return array|null
+     * @return array
      */
-    public function createTable(TableFormDto $table): ?array
+    public function createTable(TableFormDto $table): array
     {
         $this->connectToSchema();
         return $this->tableProxy()->createTable($table);
@@ -187,10 +198,9 @@ trait TableTrait
      *
      * @param TableFormDto $table
      *
-     * @return array|null
-     * @throws Exception
+     * @return array
      */
-    public function alterTable(TableFormDto $table): ?array
+    public function alterTable(TableFormDto $table): array
     {
         $this->connectToSchema();
         return $this->tableProxy()->alterTable($table);
@@ -207,5 +217,56 @@ trait TableTrait
     {
         $this->connectToSchema();
         return $this->tableProxy()->dropTable($table);
+    }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string $table The table name
+     * @param array $queryParams The user params
+     *
+     * @return SelectDqDto
+     * @throws Exception
+     */
+    public function getSelectParams(string $table, array $queryParams = []): SelectDqDto
+    {
+        $this->connectToSchema();
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($queryParams);
+        return $this->selectProxy()->getSelectParams($table, $queryParams);
+    }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string $table The table name
+     * @param array $queryParams The user params
+     *
+     * @return int
+     * @throws Exception
+     */
+    public function countSelect(string $table, array $queryParams = []): int
+    {
+        $this->connectToSchema();
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($queryParams);
+        return $this->selectProxy()->countSelect($table, $queryParams);
+    }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string $table The table name
+     * @param array $queryParams The user params
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function execSelect(string $table, array $queryParams = []): array
+    {
+        $this->connectToSchema();
+        $this->utils()->setInputTable($table);
+        $this->utils()->setInputValues($queryParams);
+        return $this->selectProxy()->execSelect($table, $queryParams);
     }
 }

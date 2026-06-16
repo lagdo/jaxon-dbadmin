@@ -34,7 +34,7 @@ class TableContent extends AbstractDriverProxy
      * @param array<ColumnDto> $columns
      * @param string $tableCollation
      *
-     * @return array
+     * @return array<DetailDto>
      */
     public function columns(array $columns, string $tableCollation): array
     {
@@ -65,7 +65,7 @@ class TableContent extends AbstractDriverProxy
     /**
      * @param array<IndexDto> $indexes
      *
-     * @return array
+     * @return array<DetailDto>
      */
     public function indexes(array $indexes): array
     {
@@ -92,7 +92,7 @@ class TableContent extends AbstractDriverProxy
     /**
      * @param array<ForeignKeyDto> $foreignKeys
      *
-     * @return array
+     * @return array<DetailDto>
      */
     public function foreignKeys(array $foreignKeys): array
     {
@@ -124,7 +124,7 @@ class TableContent extends AbstractDriverProxy
     /**
      * @param array<TriggerDto> $triggers
      *
-     * @return array
+     * @return array<DetailDto>
      */
     public function triggers(array $triggers): array
     {

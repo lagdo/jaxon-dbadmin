@@ -39,7 +39,6 @@ class ImportResult extends Component
      */
     protected function after(): void
     {
-        $this->cl(History::class)->render();
         $this->duration()->update($this->get('results')['duration']);
     }
 }

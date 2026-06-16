@@ -38,7 +38,7 @@ trait ExportTrait
             'triggers' => isset($formValues['triggers']),
         ];
 
-        foreach($this->db()->getSelectValues() as $name => $values) {
+        foreach($this->db()->getExportSelection() as $name => $values) {
             if(isset($formValues[$name])) {
                 $value = trim($formValues[$name]);
                 if (!in_array($value, $values)) {

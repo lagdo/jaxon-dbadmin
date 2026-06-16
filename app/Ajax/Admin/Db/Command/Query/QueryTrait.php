@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ui\Command\QueryUiBuilder;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
 
 use function intval;
 use function trim;
@@ -61,26 +62,25 @@ trait QueryTrait
     /**
      * Execute an SQL query and display the results
      *
-     * @param string $query
+     * @param string $queryText
      * @param array $values
      *
      * @return void
      */
-    public function exec(string $query, array $values): void
+    public function exec(string $queryText, array $values): void
     {
-        $query = trim($query);
-        if(!$query)
+        $queryText = trim($queryText);
+        if(!$queryText)
         {
             $this->alert()->title('Error')->error('The query string is empty!');
             return;
         }
 
-        $this->db()->prepareCommand();
+        $this->db()->prepareQueryExec();
 
-        $limit = intval($values['limit'] ?? 0);
-        $errorStops = $values['error_stops'] ?? false;
-        $onlyErrors = $values['only_errors'] ?? false;
-        $results = $this->db()->executeCommands($query, $limit, $errorStops, $onlyErrors);
+        $options = new ExecOptions($values['error_stops'] ?? false,
+            $values['only_errors'] ?? false, intval($values['limit'] ?? 0));
+        $results = $this->db()->executeQueriesInText($queryText, $options);
 
         $this->cl(QueryResult::class)->set('results', $results)->render();
     }

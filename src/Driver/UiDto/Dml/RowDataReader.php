@@ -6,6 +6,9 @@ use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\UserTypeDto;
 
+use function array_filter;
+use function array_keys;
+use function array_map;
 use function count;
 use function implode;
 use function is_array;
@@ -20,9 +23,32 @@ use function substr;
 class RowDataReader extends AbstractDriverProxy
 {
     /**
+     * @var string
+     */
+    private string $action;
+
+    /**
+     * @var string
+     */
+    private string $operation;
+
+    /**
      * @var array<UserTypeDto>|null
      */
     private array|null $userTypes = null;
+
+    /**
+     * @param string $action
+     * @param string $operation
+     *
+     * @return self
+     */
+    public function init(string $action, string $operation): self
+    {
+        $this->action = $action;
+        $this->operation = $operation;
+        return $this;
+    }
 
     /**
      * @param ColumnDto $column
@@ -123,5 +149,66 @@ class RowDataReader extends AbstractDriverProxy
         }
 
         return $values;
+    }
+
+    /**
+     * Get the table columns
+     *
+     * @param string $table         The table name
+     * @param array  $options       The query options
+     *
+     * @return array
+     */
+    public function getTableColumns(string $table, array $options): array
+    {
+        // From edit.inc.php
+        $columns = $this->engine()->columns($table);
+        // Important: get the where clauses before filtering the columns.
+        $where = $this->operation === 'insert' ? [] :
+            $this->engine()->where($options, $columns);
+        // Remove columns without the required privilege, or that cannot be edited.
+        $columns = array_filter($columns, fn(ColumnDto $column) =>
+            isset($column->privileges[$this->operation]) &&
+            $this->pageUi()->columnName($column) !== '' &&
+            !$column->generated);
+
+        return [$columns, $where];
+    }
+
+    /**
+     * @param array<ColumnDto> $columns
+     *
+     * @return array
+     */
+    public function getSelectClauses(array $columns): array
+    {
+        // if (!$this->engine()->support('table')) {
+        //     return ['*'];
+        // }
+
+        // From edit.inc.php
+        $columns = array_filter($columns,
+            fn(ColumnDto $column) => isset($column->privileges['select']));
+        return array_map(function(ColumnDto $column, string $name) {
+            $as = $this->action === 'clone' && $column->autoIncrement ? "''" :
+                $this->statement()->convertColumn($column);
+            return ($as !== '' ? "$as AS " : '') . $this->statement()->escapeId($name);
+        }, $columns, array_keys($columns));
+    }
+
+    /**
+     * @param string $table
+     * @param array $options
+     *
+     * @return int
+     */
+    public function getQueryLimit(string $table, array $options): int
+    {
+        // From edit.inc.php
+        $indexes = $this->engine()->indexes($table);
+        $uniqueIds = $this->utils()->uniqueIds($options['where'], $indexes);
+
+        // Limit to 1 if no unique ids are found.
+        return count($uniqueIds ?? []) === 0 ? 1 : 0;
     }
 }

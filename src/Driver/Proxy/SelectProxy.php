@@ -19,14 +19,14 @@ use function count;
 class SelectProxy extends AbstractDriverProxy
 {
     /**
-     * @var SelectQuery|null
+     * @var SelectQuery
      */
-    private SelectQuery|null $selectQuery = null;
+    private SelectQuery $selectQuery;
 
     /**
-     * @var SelectResult|null
+     * @var SelectResult
      */
-    private SelectResult|null $selectResult = null;
+    private SelectResult $selectResult;
 
     /**
      * @var TimerService

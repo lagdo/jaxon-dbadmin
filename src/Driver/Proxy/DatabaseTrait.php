@@ -14,11 +14,172 @@ trait DatabaseTrait
     /**
      * Get the proxy
      *
+     * @return ServerProxy
+     */
+    protected function serverProxy(): ServerProxy
+    {
+        return $this->di()->g(ServerProxy::class);
+    }
+
+    /**
+     * Get the proxy
+     *
      * @return DatabaseProxy
      */
     protected function databaseProxy()
     {
         return $this->di()->g(DatabaseProxy::class);
+    }
+
+    /**
+     * @return array
+     */
+    public function getServerInfo(): array
+    {
+        $this->connectToServer();
+        return $this->serverProxy()->getServerInfo();
+    }
+
+    /**
+     * Check if a feature is supported
+     *
+     * @param string $feature
+     *
+     * @return bool
+     */
+    public function support(string $feature): bool
+    {
+        $this->connectToServer();
+        return $this->serverProxy()->support($feature);
+    }
+
+    /**
+     * Get the privilege list
+     * This feature is available only for MySQL
+     *
+     * @param string $database  The database name
+     *
+     * @return array
+     */
+    public function getPrivileges(string $database = ''): array
+    {
+        $this->connectToServer();
+        $this->breadcrumbs()->clear()->item($this->utils()->lang('Privileges'));
+        return $this->serverProxy()->getPrivileges($database);
+    }
+
+    /**
+     * Get the privileges for a new user
+     *
+     * @return array
+     */
+    public function newUserPrivileges(): array
+    {
+        $this->connectToServer();
+        return $this->serverProxy()->newUserPrivileges();
+    }
+
+    /**
+     * Get the privileges for a new user
+     *
+     * @param string $user      The user name
+     * @param string $host      The host name
+     * @param string $database  The database name
+     *
+     * @return array
+     */
+    public function getUserPrivileges(string $user, string $host, string $database): array
+    {
+        $this->connectToServer();
+        return $this->serverProxy()->getUserPrivileges($user, $host, $database);
+    }
+
+    /**
+     * Get the collation list
+     *
+     * @return array
+     */
+    public function getCollations(): array
+    {
+        $this->connectToServer();
+        return $this->serverProxy()->getCollations();
+    }
+
+    /**
+     * Get the database list
+     *
+     * @param bool $schemaAccess
+     *
+     * @return array
+     */
+    public function getDatabases(bool $schemaAccess): array
+    {
+        $this->connectToServer();
+        $this->breadcrumbs()->clear()->item($this->utils()->lang('Databases'));
+        return $this->serverProxy()->getDatabases($schemaAccess);
+    }
+
+    /**
+     * Get the processes
+     *
+     * @return array
+     */
+    public function getProcesses(): array
+    {
+        $this->connectToServer();
+        $this->breadcrumbs()->clear()->item($this->utils()->lang('Process list'));
+        return $this->serverProxy()->getProcesses();
+    }
+
+    /**
+     * Get the variables
+     *
+     * @return array
+     */
+    public function getVariables(): array
+    {
+        $this->connectToServer();
+        $this->breadcrumbs()->clear()->item($this->utils()->lang('Variables'));
+        return $this->serverProxy()->getVariables();
+    }
+
+    /**
+     * Get the server status
+     *
+     * @return array
+     */
+    public function getStatus(): array
+    {
+        $this->connectToServer();
+        $this->breadcrumbs()->clear()->item($this->utils()->lang('Status'));
+        return $this->serverProxy()->getStatus();
+    }
+
+    /**
+     * Create a database
+     *
+     * @param string $database  The database name
+     * @param string $collation The database collation
+     *
+     * @return bool
+     */
+    public function createDatabase(string $database, string $collation = ''): bool
+    {
+        $this->connectToServer();
+        return $this->serverProxy()->createDatabase($database, $collation);
+    }
+
+    /**
+     * Drop a database
+     *
+     * @param string $database  The database name
+     *
+     * @return bool
+     */
+    public function dropDatabase(string $database): bool
+    {
+        $this->connectToServer();
+        return $this->serverProxy()->dropDatabase($database);
     }
 
     /**

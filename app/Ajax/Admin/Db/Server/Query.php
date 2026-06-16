@@ -37,7 +37,7 @@ class Query extends Component
 
         // Set the current database, but do not update the databag.
         $this->db()->setCurrentDbName('');
-        $this->db()->prepareCommand();
+        $this->db()->prepareQueryExec();
     }
 
     /**

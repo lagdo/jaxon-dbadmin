@@ -399,7 +399,7 @@ class ExportProxy extends AbstractDriverProxy
     /**
      * @return array
      */
-    public function getSelectValues(): array
+    public function getExportSelection(): array
     {
         $export = $this->export();
         return [

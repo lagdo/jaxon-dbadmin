@@ -11,13 +11,9 @@ use Lagdo\DbAdmin\Driver\Driver;
  */
 class DriverProxy extends AbstractDriverProxy
 {
-    use Proxy\ServerTrait;
     use Proxy\DatabaseTrait;
     use Proxy\TableTrait;
-    use Proxy\SelectTrait;
     use Proxy\QueryTrait;
-    use Proxy\CommandTrait;
-    use Proxy\ExportTrait;
 
     /**
      * @var array
@@ -59,6 +55,7 @@ class DriverProxy extends AbstractDriverProxy
                 $this->breadcrumbs->item("<i><b>{$this->db()->name}</b></i>");
             }
         }
+
         return $this->breadcrumbs;
     }
 
@@ -161,6 +158,7 @@ class DriverProxy extends AbstractDriverProxy
         if ($this->db()->schema !== '') {
             $options['schema'] = $this->db()->schema;
         }
+
         return $options;
     }
 
