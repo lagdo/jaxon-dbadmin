@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\App\Ui\Select\ResultUiBuilder;
 use Lagdo\DbAdmin\App\Ajax\Base\Component;
 
 /**
- * This class displays a row of a select query resultset.
+ * This class displays a row of a select query rowset.
  */
 #[Exclude]
 class ResultRow extends Component

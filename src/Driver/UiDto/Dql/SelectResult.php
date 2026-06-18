@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dql;
 use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface as QueryResult;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ResultsetDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\RowsetDto;
 
 use function array_map;
 use function current;
@@ -262,22 +262,22 @@ class SelectResult extends AbstractDriverProxy
      * @param QueryResult $result
      * @param SelectDqDto $input
      *
-     * @return ResultsetDto
+     * @return RowsetDto
     */
-    public function getSelectResultset(QueryResult $result, SelectDqDto $input): ResultsetDto
+    public function getSelectRowset(QueryResult $result, SelectDqDto $input): RowsetDto
     {
         if ($result->hasError()) {
-            return new ResultsetDto(error: $this->engine()->errorMessage());
+            return new RowsetDto(error: $this->engine()->errorMessage());
         }
 
         $row = $result->fetchAssoc();
         if ($row === null) {
-            return new ResultsetDto(message: $this->utils()->lang('No rows.'));
+            return new RowsetDto(message: $this->utils()->lang('No rows.'));
         }
 
-        $resultset = new ResultsetDto();
+        $rowset = new RowsetDto();
 
-        $resultset->headers = $this->getResultHeaders($input, array_keys($row));
+        $rowset->headers = $this->getResultHeaders($input, array_keys($row));
         // $backward_keys = $this->engine()->backwardKeys($table, $tableName);
         // lengths = $this->getValuesLengths($rows, $input->queryOptions);
 
@@ -285,16 +285,16 @@ class SelectResult extends AbstractDriverProxy
             if ($input->page && $this->engine()->oracle()) {
                 unset($row["RNUM"]);
             }
-            $resultset->rows[] = [
+            $rowset->rows[] = [
                 // The unique identifiers to edit the result rows.
                 'ids' => $this->getRowIds($input, $row),
-                'cols' => $this->getRowValues($input, $resultset->headers, $row),
+                'cols' => $this->getRowValues($input, $rowset->headers, $row),
             ];
 
             $row = $result->fetchAssoc();
         } while ($row !== null);
 
-        return $resultset;
+        return $rowset;
     }
 
     /**
@@ -354,32 +354,32 @@ class SelectResult extends AbstractDriverProxy
      * @param QueryResult $result
      * @param int $limit
      *
-     * @return ResultsetDto
+     * @return RowsetDto
     */
-    public function getQueryResultset(QueryResult $result, int $limit): ResultsetDto
+    public function getQueryRowset(QueryResult $result, int $limit): RowsetDto
     {
         if ($result->hasError()) {
-            return new ResultsetDto(error: $this->engine()->errorMessage());
+            return new RowsetDto(error: $this->engine()->errorMessage());
         }
 
-        // No resultset
+        // No rowset
         if (!$result->hasRowset()) {
             $affectedRows = $this->engine()->affectedRows();
             $message = 'Query executed OK, %d row(s) affected.';
             $message = $this->utils()->lang($message, $affectedRows); //  . "$time";
-            $resultset = new ResultsetDto(message: $message);
-            $resultset->affectedRows = $affectedRows;
+            $rowset = new RowsetDto(message: $message);
+            $rowset->affectedRows = $affectedRows;
 
-            return $resultset;
+            return $rowset;
         }
 
         // Fetch the first row.
         $row = $this->fetchRow($result, 0, $limit);
         if ($row === null) {
-            return new ResultsetDto(message: $this->utils()->lang('No rows.'));
+            return new RowsetDto(message: $this->utils()->lang('No rows.'));
         }
 
-        $resultset = new ResultsetDto(message: $this->resultMessage($result, $limit));
+        $rowset = new RowsetDto(message: $this->resultMessage($result, $limit));
 
         // Use the first row to get the table headers.
         $blobs = []; // colno => bool - display bytes for blobs
@@ -387,9 +387,9 @@ class SelectResult extends AbstractDriverProxy
         // Important: the values in the row are actually not used.
         $columns = array_map(fn($_) => $result->fetchColumn(), $row);
         foreach ($columns as $column) {
-            $resultset->headers[] = $this->utils()->html($column->name());
+            $rowset->headers[] = $this->utils()->html($column->name());
             // table => orgtable - mapping to use in EXPLAIN
-            $resultset->tables[$column->tableName()] = $column->orgTable();
+            $rowset->tables[$column->tableName()] = $column->orgTable();
 
             // $this->indexes($column);
             $blobs[] = $column->isBinary();
@@ -400,12 +400,12 @@ class SelectResult extends AbstractDriverProxy
         $column = 0;
         $callback = fn($value) => $this->columValue($value, $column++, $blobs, $types);
         do {
-            $resultset->rowCount++;
-            $resultset->rows[] = array_map($callback, $row);
+            $rowset->rowCount++;
+            $rowset->rows[] = array_map($callback, $row);
 
-            $row = $this->fetchRow($result, $resultset->rowCount, $limit);
+            $row = $this->fetchRow($result, $rowset->rowCount, $limit);
         } while ($row !== null);
 
-        return $resultset;
+        return $rowset;
     }
 }

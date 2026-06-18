@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
 use Lagdo\DbAdmin\App\Ui\Select\ResultUiBuilder;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ResultsetDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\RowsetDto;
 
 use function array_map;
 use function count;
@@ -47,11 +47,11 @@ class ResultSet extends PageComponent
     }
 
     /**
-     * @param ResultsetDto $resultset
+     * @param RowsetDto $rowset
      *
      * @return array
      */
-    private function rows(ResultsetDto $resultset): array
+    private function rows(RowsetDto $rowset): array
     {
         $editId = 0;
         $editIds = [];
@@ -71,7 +71,7 @@ class ResultSet extends PageComponent
             }
 
             return $row;
-        }, $resultset->rows);
+        }, $rowset->rows);
 
         $this->bag($this->tabBag('dbadmin.edit'))->set('row.ids', $editIds);
 
@@ -97,12 +97,12 @@ class ResultSet extends PageComponent
 
         $this->set('duration', $result->duration);
         // The message field is set when the query returned no rows.
-        if (count($result->resultsets) === 0) {
+        if (count($result->rowsets) === 0) {
             return $result->message;
         }
 
-        $resultset = $result->resultsets[0];
-        return $this->resultUi->resultSet($resultset->headers, $this->rows($resultset));
+        $rowset = $result->rowsets[0];
+        return $this->resultUi->resultSet($rowset->headers, $this->rows($rowset));
     }
 
     /**

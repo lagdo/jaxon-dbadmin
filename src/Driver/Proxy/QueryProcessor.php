@@ -8,10 +8,12 @@ use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectResult;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\RowsetDto;
 use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
 use Lagdo\DbAdmin\Support\Service\TimerService;
 use Generator;
 
+use function count;
 use function is_array;
 use function preg_match;
 
@@ -53,6 +55,11 @@ class QueryProcessor extends AbstractDriverProxy
      * @var bool
      */
     private bool $loggerEnabled = false;
+
+    /**
+     * @var int
+     */
+    private int $batchSize = 20;
 
     /**
      * @param TimerService $timer
@@ -175,6 +182,25 @@ class QueryProcessor extends AbstractDriverProxy
     }
 
     /**
+     * @param ExecResultDto $resultDto
+     *
+     * @return void
+     */
+    public function executeQueryBatch(ExecResultDto $resultDto): void
+    {
+        if (count($resultDto->batchBuffer) === 0) {
+            return;
+        }
+
+        $queries = implode(";", $resultDto->batchBuffer);
+        $resultDto->batchBuffer = [];
+        $result = $this->engine()->executeMultiQuery($queries);
+        if ($result->hasError()) {
+            $resultDto->errors++;
+        }
+    }
+
+    /**
      * Execute a query.
      *
      * @param string|array $query
@@ -191,9 +217,19 @@ class QueryProcessor extends AbstractDriverProxy
             return;
         }
 
+        $resultDto->queries++;
         $this->executeUseStatement($options, $query);
 
-        $resultDto->queries++;
+        if ($options->inBatch) {
+            $resultDto->batchBuffer[] = $query;
+            if ($this->batchSize > 0 && count($resultDto->batchBuffer) >= $this->batchSize) {
+                // Execute the batched queries.
+                $this->executeQueryBatch($resultDto);
+            }
+
+            return;
+        }
+
         $result = $this->engine()->executeQuery($query);
         if ($result->hasError()) {
             $resultDto->errors++;
@@ -203,11 +239,19 @@ class QueryProcessor extends AbstractDriverProxy
             return;
         }
 
-        $resultset = $options->select !== null ?
-            $this->result()->getSelectResultset($result, $options->select) :
-            $this->result()->getQueryResultset($result, $options->limit);
-        $resultset->query = $query;
-        $resultDto->resultsets[] = $resultset;
+        $rowset = match(true) {
+            $result->hasError() =>
+                new RowsetDto(error: $this->engine()->errorMessage()),
+            $options->onlyErrors => null, // Rowset skipped.
+            $options->select !== null =>
+                $this->result()->getSelectRowset($result, $options->select),
+            default =>
+                $this->result()->getQueryRowset($result, $options->limit),
+        };
+        if ($rowset !== null) {
+            $rowset->query = $query;
+            $resultDto->rowsets[] = $rowset;
+        }
     }
 
     /**
@@ -287,8 +331,14 @@ class QueryProcessor extends AbstractDriverProxy
     public function executeUserQueries(QueryCodeDto $queryDto, ExecOptions $options): ExecResultDto
     {
         $queries = $this->statement()->splitQueries($queryDto);
-        return $this->withTimer(true)
+        $result = $this->withTimer(true)
             ->withLogger(true)
             ->executeQueries($queries, $options);
+        // There might be some remaining queries in the batch buffer.
+        if ($options->inBatch) {
+            $this->executeQueryBatch($result);
+        }
+
+        return $result;
     }
 }

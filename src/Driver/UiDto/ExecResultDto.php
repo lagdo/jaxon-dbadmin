@@ -20,9 +20,9 @@ class ExecResultDto
     public float $duration = 0;
 
     /**
-     * @var array<ResultsetDto>
+     * @var array<RowsetDto>
      */
-    public array $resultsets = [];
+    public array $rowsets = [];
 
     /**
      * @var string|null
@@ -33,4 +33,9 @@ class ExecResultDto
      * @var string|null
      */
     public string|null $message = null;
+
+    /**
+     * @var array<string>
+     */
+    public array $batchBuffer = [];
 }

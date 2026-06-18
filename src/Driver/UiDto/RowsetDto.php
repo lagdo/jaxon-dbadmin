@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto;
 
-class ResultsetDto
+class RowsetDto
 {
     /**
      * @var array
