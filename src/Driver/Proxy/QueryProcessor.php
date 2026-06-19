@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Driver\Sql\Connection\AbstractConnection;
-use Lagdo\DbAdmin\Driver\Sql\Dto\QueryCodeDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\QueryStreamDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectResult;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
@@ -323,14 +323,14 @@ class QueryProcessor extends AbstractDriverProxy
     }
 
     /**
-     * @param QueryCodeDto $queryDto
+     * @param QueryStreamDto $stream
      * @param ExecOptions $options
      *
      * @return ExecResultDto
      */
-    public function executeUserQueries(QueryCodeDto $queryDto, ExecOptions $options): ExecResultDto
+    public function executeUserQueries(QueryStreamDto $stream, ExecOptions $options): ExecResultDto
     {
-        $queries = $this->statement()->splitQueries($queryDto);
+        $queries = $this->statement()->splitQueries($stream);
         $result = $this->withTimer(true)
             ->withLogger(true)
             ->executeQueries($queries, $options);

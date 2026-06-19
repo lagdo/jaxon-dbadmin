@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Jaxon\Request\Upload\FileInterface;
-use Lagdo\DbAdmin\Driver\Sql\Dto\QueryCodeDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\QueryStreamDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
@@ -358,18 +358,18 @@ class QueryProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param QueryCodeDto $dto
+     * @param QueryStreamDto $stream
      * @param array $sqlLines
      *
      * @return bool
      */
-    private function readLineFromText(QueryCodeDto $dto, array $sqlLines): bool
+    private function readLineFromArray(QueryStreamDto $stream, array $sqlLines): bool
     {
-        if (!isset($sqlLines[$dto->lineNumber])) {
+        if (!isset($sqlLines[$stream->lineNumber])) {
             return false;
         }
 
-        $dto->queryLine = $sqlLines[$dto->lineNumber++];
+        $stream->queryLine = $sqlLines[$stream->lineNumber++];
         return true;
     }
 
@@ -386,26 +386,27 @@ class QueryProxy extends AbstractDriverProxy
         $options->setExecOptions(false, false, true);
 
         $sqlLines = explode("\n", $queries);
-        $queryLineReader = fn(QueryCodeDto $dto) => $this->readLineFromText($dto, $sqlLines);
-        $queryDto = new QueryCodeDto($queryLineReader);
+        $queryLineReader = fn(QueryStreamDto $stream) =>
+            $this->readLineFromArray($stream, $sqlLines);
+        $stream = new QueryStreamDto($queryLineReader);
 
-        return $this->processor->executeUserQueries($queryDto, $options);
+        return $this->processor->executeUserQueries($stream, $options);
     }
 
     /**
-     * @param QueryCodeDto $dto
+     * @param QueryStreamDto $stream
      * @param resource $fileStream
      *
      * @return bool
      */
-    private function readLineFromFile(QueryCodeDto $dto, mixed $fileStream): bool
+    private function readLineFromFile(QueryStreamDto $stream, mixed $fileStream): bool
     {
         if (!($queryLine = fgets($fileStream))) {
             return false;
         }
 
-        $dto->queryLine = $queryLine;
-        $dto->lineNumber++;
+        $stream->queryLine = $queryLine;
+        $stream->lineNumber++;
         return true;
     }
 
@@ -438,9 +439,10 @@ class QueryProxy extends AbstractDriverProxy
         $options->setExecOptions(false, true, false);
 
         $fileStream = $this->readFile($file, $options->decompressFile);
-        $queryLineReader = fn(QueryCodeDto $dto) => $this->readLineFromFile($dto, $fileStream);
-        $queryDto = new QueryCodeDto($queryLineReader);
+        $queryLineReader = fn(QueryStreamDto $stream) =>
+            $this->readLineFromFile($stream, $fileStream);
+        $stream = new QueryStreamDto($queryLineReader);
 
-        return $this->processor->executeUserQueries($queryDto, $options);
+        return $this->processor->executeUserQueries($stream, $options);
     }
 }
