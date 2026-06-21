@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl;
 use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\MainComponent;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\Insert;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\InsertFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 
@@ -24,7 +24,7 @@ class Table extends MainComponent
             ],
             'insert-table' => [
                 'title' => $this->trans()->lang('New item'),
-                'handler' => $this->rq(Insert::class)->show(false),
+                'handler' => $this->rq(InsertFunc::class)->show(false),
             ],
             'edit-table' => [
                 'title' => $this->trans()->lang('Alter table'),

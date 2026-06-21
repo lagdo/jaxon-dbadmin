@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml;
 
 use Jaxon\Attributes\Attribute\Databag;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\CodeFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
 
@@ -13,7 +12,7 @@ use function Jaxon\form;
  * This class provides insert and update query features on tables.
  */
 #[Databag('dbadmin.select')]
-class Insert extends FuncComponent
+class InsertFunc extends FuncComponent
 {
     /**
      * @param EditUiBuilder  $editUi     The HTML UI builder
@@ -41,7 +40,7 @@ class Insert extends FuncComponent
         ], [
             'title' => $this->trans()->lang('Query'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq(CodeFunc::class)->showInsertRowQuery($fromSelect, $values),
+            'click' => $this->rq(SqlCodeFunc::class)->showInsertRowQuery($fromSelect, $values),
         ], [
             'title' => $this->trans()->lang('Insert'),
             'class' => 'btn btn-primary',

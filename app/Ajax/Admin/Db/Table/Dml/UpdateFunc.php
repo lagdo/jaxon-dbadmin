@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml;
 
 use Jaxon\Attributes\Attribute\Databag;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\CodeFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultRow;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\SelectBagTrait;
 use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
@@ -16,7 +15,7 @@ use function Jaxon\form;
  * This class provides insert and update query features on tables.
  */
 #[Databag('dbadmin.select')]
-class Update extends FuncComponent
+class UpdateFunc extends FuncComponent
 {
     use SelectBagTrait;
 
@@ -50,7 +49,7 @@ class Update extends FuncComponent
         ], [
             'title' => $this->trans()->lang('Query'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq(CodeFunc::class)
+            'click' => $this->rq(SqlCodeFunc::class)
                 ->showUpdateRowQuery($editId, $rowIds, $values),
         ], [
             'title' => $this->trans()->lang('Update'),

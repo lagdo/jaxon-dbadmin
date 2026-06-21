@@ -32,11 +32,11 @@ class Create extends TableDdl
             ],
             'table-changes' => [
                 'title' => $this->trans()->lang('Changes'),
-                'handler' => $this->rq(QueryFunc::class)->showCreateChanges($tableValues),
+                'handler' => $this->rq(SqlCodeFunc::class)->showCreateChanges($tableValues),
             ],
             'table-queries' => [
                 'title' => $this->trans()->lang('Queries'),
-                'handler' => $this->rq(QueryFunc::class)->showCreateQueries($tableValues),
+                'handler' => $this->rq(SqlCodeFunc::class)->showCreateQueries($tableValues),
             ],
             'table-back' => [
                 'title' => $this->trans()->lang('Back'),

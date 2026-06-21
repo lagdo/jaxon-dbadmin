@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Database;
 
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\CodeFunc;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\SqlCodeFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Ddl\Form;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Ddl\View;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Ddl\ViewFunc;
@@ -45,7 +45,7 @@ class Views extends MainComponent
                 'handler' => $this->rq(View::class)->show($name),
             ], [
                 'label' => $this->trans->lang('Drop query'),
-                'handler' => $this->rq(CodeFunc::class)->showDropViewQuery($name),
+                'handler' => $this->rq(SqlCodeFunc::class)->showDropViewQuery($name),
             ], [
                 'label' => $this->trans->lang('Drop'),
                 'handler' => $this->rq(ViewFunc::class)->drop($name)

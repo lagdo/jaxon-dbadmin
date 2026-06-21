@@ -8,6 +8,7 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectQuery;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectTableDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Exception;
 
 use function count;
@@ -116,9 +117,9 @@ class SelectProxy extends AbstractDriverProxy
         $options->select = $this->prepareSelect($table, $queryParams);
         $options->setExecOptions(false, false, true);
 
-        return $this->processor
-            ->withTimer(true)
-            ->withLogger(false)
-            ->executeQueries([$options->select->query], $options);
+        $queryList = new QueryListDto(queries: [$options->select->query]);
+        $queryList->withTimer = true;
+
+        return $this->processor->executeQueryList($queryList, $options);
     }
 }

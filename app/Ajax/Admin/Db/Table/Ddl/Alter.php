@@ -28,11 +28,11 @@ class Alter extends TableDdl
             ],
             'table-changes' => [
                 'title' => $this->trans()->lang('Changes'),
-                'handler' => $this->rq(QueryFunc::class)->showAlterChanges($tableValues),
+                'handler' => $this->rq(SqlCodeFunc::class)->showAlterChanges($tableValues),
             ],
             'table-queries' => [
                 'title' => $this->trans()->lang('Queries'),
-                'handler' => $this->rq(QueryFunc::class)->showAlterQueries($tableValues),
+                'handler' => $this->rq(SqlCodeFunc::class)->showAlterQueries($tableValues),
             ],
             'table-back' => [
                 'title' => $this->trans()->lang('Back'),

@@ -9,7 +9,9 @@ use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseHeader;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseContent;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Exception;
 
 use function array_filter;
@@ -426,7 +428,7 @@ class DatabaseProxy extends AbstractDriverProxy
     {
         return [
             'success' => $this->engine()->createView($values),
-            'message' => $this->utils()->lang('View has been created.'),
+            'message' => $this->utils()->lang('The view was created.'),
             'error' => $this->engine()->error(),
         ];
     }
@@ -447,7 +449,7 @@ class DatabaseProxy extends AbstractDriverProxy
 
         return [
             'success' => !$error,
-            'message' => $this->utils()->lang("View has been $result."),
+            'message' => $this->utils()->lang("The view was $result."),
             'error' => $error,
         ];
     }
@@ -457,15 +459,13 @@ class DatabaseProxy extends AbstractDriverProxy
      *
      * @param string $view
      *
-     * @return array
+     * @return QueryListDto
      */
-    public function getDropViewQueries(string $view): array
+    public function getDropViewQueries(string $view): QueryListDto
     {
-        return $this->engine()->tableStatus($view) === null ? [
-            'error' => $this->utils()->lang('Invalid view %s.', $view),
-        ] : [
-            'queries' => $this->statement()->getDropViewsQueries([$view]),
-        ];
+        return $this->engine()->tableStatus($view) === null ?
+            new QueryListDto(error: $this->utils()->lang('Invalid view %s.', $view)) :
+            new QueryListDto(queries: $this->statement()->getDropViewsQueries([$view]));
     }
 
     /**
@@ -477,8 +477,15 @@ class DatabaseProxy extends AbstractDriverProxy
      */
     public function dropView(string $view): ExecResultDto
     {
-        $queries = $this->getDropViewQueries($view);
+        $options = new ExecOptions(true, true);
+        $options->setExecOptions(true, false, false);
 
-        return $this->processor->executeLibraryQueries($queries);
+        $queries = $this->getDropViewQueries($view);
+        $result = $this->processor->executeQueryList($queries, $options);
+        if ($result->error === null) {
+            $result->message = $this->utils()->lang('The view was dropped.');
+        }
+
+        return $result;
     }
 }

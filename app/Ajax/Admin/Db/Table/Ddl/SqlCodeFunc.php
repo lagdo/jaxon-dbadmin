@@ -12,7 +12,7 @@ use function is_string;
 /**
  * Show the changes and queries on a table.
  */
-class QueryFunc extends Column\FuncComponent
+class SqlCodeFunc extends Column\FuncComponent
 {
     /**
      * @param array $tableInputs
@@ -110,14 +110,14 @@ class QueryFunc extends Column\FuncComponent
 
         $result = $this->db()->getCreateTableQueries($tableDto);
         // Show the error
-        if (isset($result['error'])) {
+        if ($result->error !== null) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
+                ->error($result->error);
             return;
         }
 
-        $queryCode = $this->getQueryCode($result['queries']);
+        $queryCode = $this->getQueryCode($result->queries);
         $title = $this->trans()->lang('Queries to create a new table');
         $content = $this->columnUi->sqlCodeElement($queryCode);
         $buttons = [[
@@ -157,15 +157,14 @@ class QueryFunc extends Column\FuncComponent
 
         $result = $this->db()->getAlterTableQueries($tableDto);
         // Show the error
-        if(isset($result['error']))
-        {
+        if($result->error !== null) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
+                ->error($result->error);
             return;
         }
 
-        $queryCode = $this->getQueryCode($result['queries']);
+        $queryCode = $this->getQueryCode($result->queries);
         $title = $this->trans()->lang("Queries to alter the '$tableName' table");
         $content = $this->columnUi->sqlCodeElement($queryCode);
         $buttons = [[

@@ -30,14 +30,13 @@ class ViewFunc extends FuncComponent
         // $values['materialized'] = isset($values['materialized']);
 
         // $result = $this->db()->createView($values);
-        // if(!$result['success'])
-        // {
-        //     $this->alert()->error($result['error']);
+        // if($result->error !== null) {
+        //     $this->alert()->error($result->error);
         //     return;
         // }
 
         // $this->cl(Views::class)->show();
-        // $this->alert()->success($result['message']);
+        // $this->alert()->success($result->message);
     }
 
     /**
@@ -54,14 +53,13 @@ class ViewFunc extends FuncComponent
         // $values['materialized'] = isset($values['materialized']);
 
         // $result = $this->db()->updateView($view, $values);
-        // if(!$result['success'])
-        // {
-        //     $this->alert()->error($result['error']);
+        // if($result->error !== null) {
+        //     $this->alert()->error($result->error);
         //     return;
         // }
 
         // $this->show($view);
-        // $this->alert()->success($result['message']);
+        // $this->alert()->success($result->message);
     }
 
     /**

@@ -36,7 +36,7 @@ class UpdateFunc extends FuncComponent
             'class' => 'btn btn-tertiary',
             'click' => 'close',
         ],[
-            'title' => 'Save',
+            'title' => 'Edit',
             'class' => 'btn btn-primary',
             'click' => $this->rq()->save($columnId, $this->columnUi->editFormValues()),
         ]];

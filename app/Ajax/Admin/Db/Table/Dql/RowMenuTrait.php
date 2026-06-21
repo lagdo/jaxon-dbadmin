@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\CodeFunc;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\Delete;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\Update;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\DeleteFunc;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\UpdateFunc;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\SqlCodeFunc;
 
 use function Jaxon\jo;
 
@@ -31,14 +31,14 @@ trait RowMenuTrait
             'row.ids', $this->bagValueKey($editId), null);
         return $this->ui()->buttonMenu([[
             'label' => $this->trans->lang('Edit'),
-            'handler' => $this->rq(Update::class)->edit($editId, $bagEntryValue),
+            'handler' => $this->rq(UpdateFunc::class)->edit($editId, $bagEntryValue),
         ], [
             'label' => $this->trans->lang('Delete'),
-            'handler' => $this->rq(Delete::class)->exec($editId, $bagEntryValue)
+            'handler' => $this->rq(DeleteFunc::class)->exec($editId, $bagEntryValue)
                 ->confirm($this->trans()->lang('Delete this item?')),
         ], [
             'label' => $this->trans->lang('Delete query'),
-            'handler' => $this->rq(CodeFunc::class)
+            'handler' => $this->rq(SqlCodeFunc::class)
                 ->showDeleteRowQuery($editId, $bagEntryValue),
         ]]);
     }

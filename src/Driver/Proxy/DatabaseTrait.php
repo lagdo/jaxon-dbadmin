@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 
 use Exception;
 
@@ -378,9 +379,9 @@ trait DatabaseTrait
      *
      * @param string $view
      *
-     * @return array
+     * @return QueryListDto
      */
-    public function getDropViewQueries(string $view): array
+    public function getDropViewQueries(string $view): QueryListDto
     {
         $this->connectToSchema();
         return $this->databaseProxy()->getDropViewQueries($view);

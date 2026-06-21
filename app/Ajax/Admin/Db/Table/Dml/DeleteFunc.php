@@ -13,7 +13,7 @@ use function is_array;
  * This class provides insert and update query features on tables.
  */
 #[Databag('dbadmin.select')]
-class Delete extends FuncComponent
+class DeleteFunc extends FuncComponent
 {
     use SelectBagTrait;
 

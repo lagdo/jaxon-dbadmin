@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 use Jaxon\Request\Upload\FileInterface;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 
 /**
  * Proxy to table query functions
@@ -56,9 +57,9 @@ trait QueryTrait
      * @param array  $queryOptions  The query options
      * @param array  $values        The updated values
      *
-     * @return array
+     * @return QueryListDto
      */
-    public function getInsertRowQuery(string $table, array $queryOptions, array $values): array
+    public function getInsertRowQuery(string $table, array $queryOptions, array $values): QueryListDto
     {
         $this->connectToSchema();
         $this->utils()->setInputTable($table);
@@ -106,9 +107,9 @@ trait QueryTrait
      * @param array  $queryOptions  The query options
      * @param array  $values        The updated values
      *
-     * @return array
+     * @return QueryListDto
      */
-    public function getUpdateRowQuery(string $table, array $queryOptions, array $values): array
+    public function getUpdateRowQuery(string $table, array $queryOptions, array $values): QueryListDto
     {
         $this->connectToSchema();
         $this->utils()->setInputTable($table);
@@ -153,9 +154,9 @@ trait QueryTrait
      * @param string $table         The table name
      * @param array  $queryOptions  The query options
      *
-     * @return array
+     * @return QueryListDto
      */
-    public function getDeleteRowQuery(string $table, array $queryOptions): array
+    public function getDeleteRowQuery(string $table, array $queryOptions): QueryListDto
     {
         $this->connectToSchema();
         $this->utils()->setInputTable($table);

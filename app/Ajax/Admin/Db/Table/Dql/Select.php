@@ -8,7 +8,7 @@ use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Query as QueryEdit;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Table;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\Insert;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\InsertFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
 
@@ -56,7 +56,7 @@ class Select extends MainComponent
         $actions = [
             'insert-table' => [
                 'title' => $this->trans()->lang('New item'),
-                'handler' => $this->rq(Insert::class)->show(true),
+                'handler' => $this->rq(InsertFunc::class)->show(true),
             ],
             'show-table' => [
                 'title' => $this->trans()->lang('Show table'),

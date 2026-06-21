@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Database;
 
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\CodeFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Create;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Table;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\SqlCodeFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\TableFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
@@ -45,7 +45,7 @@ class Tables extends MainComponent
                 'handler' => $this->rq(Table::class)->show($name),
             ], [
                 'label' => $this->trans->lang('Drop query'),
-                'handler' => $this->rq(CodeFunc::class)->showDropTableQuery($name),
+                'handler' => $this->rq(SqlCodeFunc::class)->showDropTableQuery($name),
             ], [
                 'label' => $this->trans->lang('Drop'),
                 'handler' => $this->rq(TableFunc::class)->drop($name)

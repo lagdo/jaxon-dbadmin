@@ -1,18 +1,17 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table;
+namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Query;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\Insert;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\Update;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\FuncComponent as BaseComponent;
 use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 
 use function count;
 use function implode;
 use function is_array;
 
-class CodeFunc extends BaseComponent
+class SqlCodeFunc extends BaseComponent
 {
     /**
      * @param EditUiBuilder  $editUi
@@ -22,16 +21,31 @@ class CodeFunc extends BaseComponent
 
     /**
      * @param string $title
-     * @param string $query
+     * @param QueryListDto $queryList
      * @param array $buttons
+     * @param bool $hideModal
      *
      * @return void
      */
-    private function showQueryCodeDialog(string $title, string $query, array $buttons = []): void
+    private function showQueryCodeDialog(string $title, QueryListDto $queryList,
+        array $buttons = [], bool $hideModal = false): void
     {
+        // Show the error
+        if($queryList->error !== null) {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error($queryList->error);
+            return;
+        }
+
+        if ($hideModal) {
+            $this->modal()->hide();
+        }
+
         // Show the query in a modal dialog.
+        $queryCode = implode("\n", $queryList->queries);
         $title = $this->trans()->lang($title);
-        $content = $this->editUi->sqlCodeElement($query);
+        $content = $this->editUi->sqlCodeElement($queryCode);
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[
@@ -41,7 +55,7 @@ class CodeFunc extends BaseComponent
         ], [
             'title' => $this->trans()->lang('Edit'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq(Query::class)->database($query),
+            'click' => $this->rq(Query::class)->database($queryCode),
         ], ...$buttons];
 
         $this->modal()->show($title, $content, $buttons, $options);
@@ -60,25 +74,14 @@ class CodeFunc extends BaseComponent
     public function showInsertRowQuery(bool $fromSelect, array $formValues): void
     {
         // No specific options for inserts.
-        $result = $this->db()->getInsertRowQuery($this->getCurrentTable(), [], $formValues);
-        // Show the error
-        if(isset($result['error']))
-        {
-            $this->alert()
-                ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
-            return;
-        }
-
-        // Show the query in a modal dialog.
-        $this->modal()->hide();
+        $queryList = $this->db()->getInsertRowQuery($this->getCurrentTable(), [], $formValues);
 
         $buttons = [[
             'title' => $this->trans()->lang('Back'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq(Insert::class)->showQueryForm($fromSelect, $formValues),
+            'click' => $this->rq(InsertFunc::class)->showQueryForm($fromSelect, $formValues),
         ]];
-        $this->showQueryCodeDialog('SQL query for insert', $result['query'], $buttons);
+        $this->showQueryCodeDialog('SQL query for insert', $queryList, $buttons, true);
     }
 
     /**
@@ -93,8 +96,7 @@ class CodeFunc extends BaseComponent
     public function showUpdateRowQuery(int $editId, array $rowIds, array $formValues): void
     {
         if(!is_array($rowIds['where'] ?? 0) ||
-            count($rowIds['where']) === 0 || $editId <= 0)
-        {
+            count($rowIds['where']) === 0 || $editId <= 0) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
                 ->error('Invalid query data');
@@ -102,25 +104,14 @@ class CodeFunc extends BaseComponent
         }
 
         $tableName = $this->getCurrentTable();
-        $result = $this->db()->getUpdateRowQuery($tableName, $rowIds, $formValues);
-        // Show the error
-        if(isset($result['error']))
-        {
-            $this->alert()
-                ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
-            return;
-        }
-
-        // Show the query in a modal dialog.
-        $this->modal()->hide();
+        $queryList = $this->db()->getUpdateRowQuery($tableName, $rowIds, $formValues);
 
         $buttons = [[
             'title' => $this->trans()->lang('Back'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq(Update::class)->showQueryForm($editId, $rowIds, $formValues),
+            'click' => $this->rq(UpdateFunc::class)->showQueryForm($editId, $rowIds, $formValues),
         ]];
-        $this->showQueryCodeDialog('SQL query for update', $result['query'], $buttons);
+        $this->showQueryCodeDialog('SQL query for update', $queryList, $buttons, true);
     }
 
     /**
@@ -142,18 +133,10 @@ class CodeFunc extends BaseComponent
             return;
         }
 
-        $result = $this->db()->getDeleteRowQuery($this->getCurrentTable(), $rowIds);
-        // Show the error
-        if(isset($result['error']))
-        {
-            $this->alert()
-                ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
-            return;
-        }
+        $queryList = $this->db()->getDeleteRowQuery($this->getCurrentTable(), $rowIds);
 
         // Show the query in a modal dialog.
-        $this->showQueryCodeDialog('SQL query for delete', $result['query']);
+        $this->showQueryCodeDialog('SQL query for delete', $queryList);
     }
 
     /**
@@ -163,19 +146,10 @@ class CodeFunc extends BaseComponent
      */
     public function showDropTableQuery(string $table): void
     {
-        $result = $this->db()->getDropTableQueries($table);
-        // Show the error
-        if(isset($result['error']))
-        {
-            $this->alert()
-                ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
-            return;
-        }
+        $queryList = $this->db()->getDropTableQueries($table);
 
         // Show the query in a modal dialog.
-        $queries = implode("\n", $result['queries']);
-        $this->showQueryCodeDialog('SQL query for table drop', $queries);
+        $this->showQueryCodeDialog('SQL query for table drop', $queryList);
     }
 
     /**
@@ -185,18 +159,9 @@ class CodeFunc extends BaseComponent
      */
     public function showDropViewQuery(string $view): void
     {
-        $result = $this->db()->getDropViewQueries($view);
-        // Show the error
-        if(isset($result['error']))
-        {
-            $this->alert()
-                ->title($this->trans()->lang('Error'))
-                ->error($result['error']);
-            return;
-        }
+        $queryList = $this->db()->getDropViewQueries($view);
 
         // Show the query in a modal dialog.
-        $queries = implode("\n", $result['queries']);
-        $this->showQueryCodeDialog('SQL query for view drop', $queries);
+        $this->showQueryCodeDialog('SQL query for view drop', $queryList);
     }
 }

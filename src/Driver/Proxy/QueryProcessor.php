@@ -8,6 +8,7 @@ use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectResult;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\RowsetDto;
 use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
 use Lagdo\DbAdmin\Support\Service\TimerService;
@@ -197,6 +198,7 @@ class QueryProcessor extends AbstractDriverProxy
         $result = $this->engine()->executeMultiQuery($queries);
         if ($result->hasError()) {
             $resultDto->errors++;
+            $resultDto->error = $this->engine()->errorMessage();
         }
     }
 
@@ -233,6 +235,7 @@ class QueryProcessor extends AbstractDriverProxy
         $result = $this->engine()->executeQuery($query);
         if ($result->hasError()) {
             $resultDto->errors++;
+            $resultDto->error = $this->engine()->errorMessage();
         }
 
         if (!$options->saveResults) {
@@ -241,7 +244,7 @@ class QueryProcessor extends AbstractDriverProxy
 
         $rowset = match(true) {
             $result->hasError() =>
-                new RowsetDto(error: $this->engine()->errorMessage()),
+                new RowsetDto(error: $resultDto->error),
             $options->onlyErrors => null, // Rowset skipped.
             $options->select !== null =>
                 $this->result()->getSelectRowset($result, $options->select),
@@ -262,7 +265,7 @@ class QueryProcessor extends AbstractDriverProxy
      *
      * @return ExecResultDto
      */
-    public function executeQueries(array|Generator $queries, ExecOptions $options): ExecResultDto
+    private function executeQueries(array|Generator $queries, ExecOptions $options): ExecResultDto
     {
         // The second connection must be created before executing the queries.
         $this->openNewConnection();
@@ -292,6 +295,11 @@ class QueryProcessor extends AbstractDriverProxy
             }
         }
 
+        // There might be some remaining queries in the batch buffer.
+        if ($options->inBatch) {
+            $this->executeQueryBatch($resultDto);
+        }
+
         if ($options->inTransaction) {
             $resultDto->errors > 0 ? $this->engine()->rollback() : $this->engine()->commit();
         }
@@ -300,45 +308,39 @@ class QueryProcessor extends AbstractDriverProxy
     }
 
     /**
-     * Execute a set of queries from the library.
-     *
-     * @param array $queries
-     *
-     * @return ExecResultDto
-     */
-    public function executeLibraryQueries(array $queries): ExecResultDto
-    {
-        if (isset($queries['error'])) {
-            $resultDto = new ExecResultDto();
-            $resultDto->errors = 1;
-            $resultDto->error = $queries['error'];
-            return $resultDto;
-        }
-
-        $options = new ExecOptions(true, true);
-        $options->setExecOptions(true, false, false);
-        return $this->withTimer(false)
-            ->withLogger(false)
-            ->executeQueries($queries['queries'] ?? [$queries['query']], $options);
-    }
-
-    /**
      * @param QueryStreamDto $stream
      * @param ExecOptions $options
      *
      * @return ExecResultDto
      */
-    public function executeUserQueries(QueryStreamDto $stream, ExecOptions $options): ExecResultDto
+    public function executeQueryStream(QueryStreamDto $stream, ExecOptions $options): ExecResultDto
     {
         $queries = $this->statement()->splitQueries($stream);
-        $result = $this->withTimer(true)
+        return $this->withTimer(true)
             ->withLogger(true)
             ->executeQueries($queries, $options);
-        // There might be some remaining queries in the batch buffer.
-        if ($options->inBatch) {
-            $this->executeQueryBatch($result);
+    }
+
+    /**
+     * Execute a listt of queries.
+     *
+     * @param QueryListDto $list
+     * @param ExecOptions $options
+     *
+     * @return ExecResultDto
+     */
+    public function executeQueryList(QueryListDto $list, ExecOptions $options): ExecResultDto
+    {
+        if ($list->error !== null || empty($list->queries)) {
+            $resultDto = new ExecResultDto();
+            $resultDto->errors = 1;
+            $resultDto->error = $list->error ?? $this->utils()
+                ->lang('Cannot execute an empty query list.');
+            return $resultDto;
         }
 
-        return $result;
+        return $this->withTimer($list->withTimer)
+            ->withLogger($list->withLogger)
+            ->executeQueries($list->queries, $options);
     }
 }

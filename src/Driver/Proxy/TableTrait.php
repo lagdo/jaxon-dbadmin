@@ -6,6 +6,7 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Exception;
 
 /**
@@ -160,9 +161,9 @@ trait TableTrait
      *
      * @param TableFormDto $table
      *
-     * @return array
+     * @return QueryListDto
      */
-    public function getCreateTableQueries(TableFormDto $table): array
+    public function getCreateTableQueries(TableFormDto $table): QueryListDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->getCreateTableQueries($table);
@@ -186,9 +187,9 @@ trait TableTrait
      *
      * @param TableFormDto $table
      *
-     * @return array
+     * @return QueryListDto
      */
-    public function getAlterTableQueries(TableFormDto $table): array
+    public function getAlterTableQueries(TableFormDto $table): QueryListDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->getAlterTableQueries($table);
@@ -212,9 +213,9 @@ trait TableTrait
      *
      * @param string $table
      *
-     * @return array
+     * @return QueryListDto
      */
-    public function getDropTableQueries(string $table): array
+    public function getDropTableQueries(string $table): QueryListDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->getDropTableQueries($table);

@@ -11,6 +11,7 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnInput;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnValue;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataReader;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataWriter;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\TableImport;
 
 use function array_keys;
@@ -186,9 +187,9 @@ class QueryProxy extends AbstractDriverProxy
      * @param array  $options       The query options
      * @param array  $values        The updated values
      *
-     * @return array
+     * @return QueryListDto
      */
-    public function getInsertRowQuery(string $table, array $options, array $values): array
+    public function getInsertRowQuery(string $table, array $options, array $values): QueryListDto
     {
         $this->action = 'save';
         $this->operation = 'insert';
@@ -197,11 +198,9 @@ class QueryProxy extends AbstractDriverProxy
         $values = $this->reader()->getInputValues($columns, $values);
         $query = $this->statement()->getInsertRowQuery($table, $values);
 
-        return $query !== '' ? [
-            'query' => $query,
-        ] : [
-            'error' => $this->utils()->lang('Unable to build the SQL code for this insert query.'),
-        ];
+        return $query !== '' ? new QueryListDto(queries: [$query]) :
+            new QueryListDto(error: $this->utils()
+                ->lang('Unable to build the SQL code for this insert query.'));
     }
 
     /**
@@ -215,14 +214,18 @@ class QueryProxy extends AbstractDriverProxy
      */
     public function insertItem(string $table, array $options, array $values): ExecResultDto
     {
-        $insert = $this->getInsertRowQuery($table, $options, $values);
+        $execOptions = new ExecOptions(true, true);
+        $execOptions->setExecOptions(true, true, false);
 
-        $result = $this->processor->executeLibraryQueries($insert);
+        $insert = $this->getInsertRowQuery($table, $options, $values);
+        $insert->withLogger = true;
+        $result = $this->processor->executeQueryList($insert, $execOptions);
         if ($result->error === null) {
             $lastId = $this->engine()->lastAutoIncrementId();
-            $result->message = $this->utils()->lang('Item%s has been inserted.',
+            $result->message = $this->utils()->lang('The item%s was inserted.',
                 $lastId ? " $lastId" : '');
         }
+
         return $result;
     }
 
@@ -233,9 +236,9 @@ class QueryProxy extends AbstractDriverProxy
      * @param array  $options       The query options
      * @param array  $values        The updated values
      *
-     * @return array
+     * @return QueryListDto
      */
-    public function getUpdateRowQuery(string $table, array $options, array $values): array
+    public function getUpdateRowQuery(string $table, array $options, array $values): QueryListDto
     {
         $this->action = 'save';
         $this->operation = 'update';
@@ -245,11 +248,9 @@ class QueryProxy extends AbstractDriverProxy
         $limit = $this->reader()->getQueryLimit($table, $options);
 
         $query = $this->statement()->getUpdateRowQuery($table, $values, "\nWHERE $where", $limit);
-        return $query !== '' ? [
-            'query' => $query,
-        ] : [
-            'error' => $this->utils()->lang('Unable to build the SQL code for this insert query.'),
-        ];
+        return $query !== '' ? new QueryListDto(queries: [$query]) :
+            new QueryListDto(error: $this->utils()
+                ->lang('Unable to build the SQL code for this insert query.'));
     }
 
     /**
@@ -263,12 +264,16 @@ class QueryProxy extends AbstractDriverProxy
      */
     public function updateItem(string $table, array $options, array $values): ExecResultDto
     {
-        $update = $this->getUpdateRowQuery($table, $options, $values);
+        $execOptions = new ExecOptions(true, true);
+        $execOptions->setExecOptions(true, true, false);
 
-        $result = $this->processor->executeLibraryQueries($update);
+        $update = $this->getUpdateRowQuery($table, $options, $values);
+        $update->withLogger = true;
+        $result = $this->processor->executeQueryList($update, $execOptions);
         if ($result->error === null) {
-            $result->message = $this->utils()->lang('Item has been updated.');
+            $result->message = $this->utils()->lang('The item was updated.');
         }
+
         return $result;
     }
 
@@ -310,9 +315,9 @@ class QueryProxy extends AbstractDriverProxy
      * @param string $table         The table name
      * @param array  $options       The query options
      *
-     * @return array
+     * @return QueryListDto
      */
-    public function getDeleteRowQuery(string $table, array $options): array
+    public function getDeleteRowQuery(string $table, array $options): QueryListDto
     {
         $this->action = 'save';
         $this->operation = 'update';
@@ -321,11 +326,9 @@ class QueryProxy extends AbstractDriverProxy
         $limit = $this->reader()->getQueryLimit($table, $options);
 
         $query = $this->statement()->getDeleteRowQuery($table, "\nWHERE $where", $limit);
-        return $query !== '' ? [
-            'query' => $query,
-        ] : [
-            'error' => $this->utils()->lang('Unable to build the SQL code for this insert query.'),
-        ];
+        return $query !== '' ? new QueryListDto(queries: [$query]) :
+            new QueryListDto(error: $this->utils()
+                ->lang('Unable to build the SQL code for this insert query.'));
     }
 
     /**
@@ -338,12 +341,16 @@ class QueryProxy extends AbstractDriverProxy
      */
     public function deleteItem(string $table, array $options): ExecResultDto
     {
-        $delete = $this->getDeleteRowQuery($table, $options);
+        $execOptions = new ExecOptions(true, true);
+        $execOptions->setExecOptions(true, true, false);
 
-        $result = $this->processor->executeLibraryQueries($delete);
+        $delete = $this->getDeleteRowQuery($table, $options);
+        $delete->withLogger = true;
+        $result = $this->processor->executeQueryList($delete, $execOptions);
         if ($result->error === null) {
-            $result->message = $this->utils()->lang('Item has been deleted.');
+            $result->message = $this->utils()->lang('The item was deleted.');
         }
+
         return $result;
     }
 
@@ -390,7 +397,7 @@ class QueryProxy extends AbstractDriverProxy
             $this->readLineFromArray($stream, $sqlLines);
         $stream = new QueryStreamDto($queryLineReader);
 
-        return $this->processor->executeUserQueries($stream, $options);
+        return $this->processor->executeQueryStream($stream, $options);
     }
 
     /**
@@ -443,6 +450,6 @@ class QueryProxy extends AbstractDriverProxy
             $this->readLineFromFile($stream, $fileStream);
         $stream = new QueryStreamDto($queryLineReader);
 
-        return $this->processor->executeUserQueries($stream, $options);
+        return $this->processor->executeQueryStream($stream, $options);
     }
 }
