@@ -404,7 +404,7 @@ class ServerProxy extends AbstractDriverProxy
                 'name' => $this->utils()->html($database),
                 'collation' => $this->utils()->html($this->engine()->databaseCollation($database, $collations)),
                 'tables' => array_key_exists($database, $tables) ? $tables[$database] : 0,
-                'size' => $this->utils()->trans->formatNumber($this->engine()->databaseSize($database)),
+                'size' => $this->utils()->formatNumber($this->engine()->databaseSize($database)),
             ]);
         }
 

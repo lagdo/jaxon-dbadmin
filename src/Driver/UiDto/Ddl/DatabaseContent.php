@@ -13,6 +13,16 @@ use function array_map;
 class DatabaseContent extends AbstractDriverProxy
 {
     /**
+     * @param int|null $number
+     *
+     * @return string
+     */
+    private function formatNumber(int|null $number): string
+    {
+        return $number === null ? '' : $this->utils()->formatNumber($number);
+    }
+
+    /**
      * @param array<TableDto> $tables
      *
      * @return array
@@ -25,10 +35,10 @@ class DatabaseContent extends AbstractDriverProxy
             'engine' => $status->engine,
             'collation' => $status->collation,
             'auto_increment' => $status->hasAutoIncrement ? $status->autoIncrement : '',
-            'data_length' => $status->dataLength ?? '',
-            'index_length' => $status->indexLength ?? '',
-            'data_free' => $status->dataFree ?? '',
-            'row_count' => $status->rowCount ?? '',
+            'data_length' => $this->formatNumber($status->dataLength),
+            'index_length' => $this->formatNumber($status->indexLength),
+            'data_free' => $this->formatNumber($status->dataFree),
+            'row_count' => $this->formatNumber($status->rowCount),
         ]), $tables);
     }
 
@@ -43,9 +53,9 @@ class DatabaseContent extends AbstractDriverProxy
             'name' => '<div title="' . $this->utils()->html($status->comment ?? '') .
                 '">' . $this->pageUi()->tableName($status) . '</div>',
             'engine' => $status->engine,
-            'data_length' => $status->dataLength ?? '',
-            'index_length' => $status->indexLength ?? '',
-            'row_count' => $status->rowCount ?? '',
+            'data_length' => $this->formatNumber($status->dataLength),
+            'index_length' => $this->formatNumber($status->indexLength),
+            'row_count' => $this->formatNumber($status->rowCount),
         ]), $views);
     }
 
