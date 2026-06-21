@@ -12,55 +12,11 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 class Table extends MainComponent
 {
     /**
-     * Print links after select heading
-     * Copied from selectLinks() in adminer.inc.php
-     *
-     * @param bool $new New item options, false for no new item
-     *
-     * @return array
-     */
-    // protected function getTableLinks(bool $new = true): array
-    // {
-    //     $links = [
-    //         'select' => $this->trans()->lang('Select data'),
-    //     ];
-    //     if ($this->db()->support('table') || $this->db()->support('indexes')) {
-    //         $links['table'] = $this->trans()->lang('Show structure');
-    //     }
-    //     if ($this->db()->support('table')) {
-    //         $links['alter'] = $this->trans()->lang('Alter table');
-    //     }
-    //     if ($new) {
-    //         $links['edit'] = $this->trans()->lang('New item');
-    //     }
-    //     // $links['docs'] = \doc_link([$this->db()->jush() => $this->db()->tableHelp($name)], '?');
-
-    //     return $links;
-    // }
-
-    /**
      * @inheritDoc
      */
     protected function before(): void
     {
         $table = $this->getCurrentTable();
-
-        // Set main menu buttons
-        // $actions = $this->getTableLinks();
-
-        // $actions = [
-        //     'create' => $this->trans()->lang('Alter indexes'),
-        // ];
-
-        // // From table.inc.php
-        // $actions = [
-        //     $this->trans()->lang('Add foreign key'),
-        // ];
-
-        // $actions = [
-        //     $this->trans()->lang('Add trigger'),
-        // ];
-
         $actions = [
             'select-table' => [
                 'title' => $this->trans()->lang('Select'),
@@ -125,22 +81,19 @@ class Table extends MainComponent
         $this->showTab($columns, $this->tabId('tab-content-columns'));
 
         // Show indexes
-        $indexes = $this->db()->getTableIndexes($table);
-        if($indexes !== null)
+        if(($indexes = $this->db()->getTableIndexes($table)) !== null)
         {
             $this->showTab($indexes, $this->tabId('tab-content-indexes'));
         }
 
         // Show foreign keys
-        $foreignKeys = $this->db()->getTableForeignKeys($table);
-        if($foreignKeys !== null)
+        if(($foreignKeys = $this->db()->getTableForeignKeys($table)) !== null)
         {
             $this->showTab($foreignKeys, $this->tabId('tab-content-foreign-keys'));
         }
 
         // Show triggers
-        $triggers = $this->db()->getTableTriggers($table);
-        if($triggers !== null)
+        if(($triggers = $this->db()->getTableTriggers($table)) !== null)
         {
             $this->showTab($triggers, $this->tabId('tab-content-triggers'));
         }

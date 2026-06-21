@@ -2,16 +2,14 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl;
 
-use Jaxon\Attributes\Attribute\Before;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Tables;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\FuncComponent;
 
 /**
  * Create, alter or drop a table
  */
 #[Databag('dbadmin.table')]
-class TableFunc extends FuncComponent
+class TableFunc extends Column\FuncComponent
 {
     /**
      * Create a new table
@@ -20,21 +18,27 @@ class TableFunc extends FuncComponent
      *
      * @return void
      */
-    #[Before('notYetAvailable')]
     public function create(array $tableInputs): void
     {
-        // $columns = $this->getTableBag('columns');
-        // $tableInputs = array_merge($this->defaults, $tableInputs);
+        $this->setCurrentTable('');
 
-        // $result = $this->db()->createTable($tableInputs);
-        // if(!$result['success'])
-        // {
-        //     $this->alert()->error($result['error']);
-        //     return;
-        // }
+        $tableDto = $this->tableDto();
+        $tableDto->setValues($this->getTableFormValues($tableInputs));
+        $tableDto->columns = $this->getColumnInputs();
 
-        // $this->show($tableInputs['name']);
-        // $this->alert()->success($result['message']);
+        $result = $this->db()->createTable($tableDto);
+        if($result->error !== null)
+        {
+            $this->alert()->error($result->error);
+            return;
+        }
+
+        $this->cl(Table::class)->show($tableDto->values()->name);
+        $this->showBreadcrumbs();
+
+        $this->alert()
+            ->title($this->trans->lang('Success'))
+            ->success($result->message);
     }
 
     /**
@@ -42,21 +46,32 @@ class TableFunc extends FuncComponent
      *
      * @return void
      */
-    #[Before('notYetAvailable')]
     public function alter(array $tableInputs): void
     {
-        // $table = $this->getCurrentTable();
-        // $tableInputs = array_merge($this->defaults, $tableInputs);
+        $tableName = $this->getCurrentTable();
+        $tableDto = $this->tableDto();
+        if ($tableDto->status->name === '') {
+            $this->alert()
+                ->title('Error')
+                ->error("Unable to find the '$tableName' table.");
+            return;
+        }
 
-        // $result = $this->db()->alterTable($table, $tableInputs);
-        // if(!$result['success'])
-        // {
-        //     $this->alert()->error($result['error']);
-        //     return;
-        // }
+        $tableDto->setValues($this->getTableFormValues($tableInputs));
+        $tableDto->columns = $this->getColumnInputs();
 
-        // $this->cl(Table::class)->render();
-        // $this->alert()->success($result['message']);
+        $result = $this->db()->alterTable($tableDto);
+        if($result->error !== null)
+        {
+            $this->alert()->error($result->error);
+            return;
+        }
+
+        $this->cl(Alter::class)->render();
+
+        $this->alert()
+            ->title($this->trans->lang('Success'))
+            ->success($result->message);
     }
 
     /**
