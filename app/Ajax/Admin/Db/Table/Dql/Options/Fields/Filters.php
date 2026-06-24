@@ -6,6 +6,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options\Fields;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options\FuncComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\QueryText;
 
+use function array_filter;
 use function Jaxon\form;
 
 /**
@@ -47,6 +48,8 @@ class Filters extends FuncComponent
     public function save(array $values): void
     {
         // Save the new values in the databag.
+        $delete = fn(array $value) => empty($value['delete']);
+        $values['filters'] = array_filter($values['filters'], $delete);
         $this->setSelectBag('filters', $values);
 
         // Hide the dialog

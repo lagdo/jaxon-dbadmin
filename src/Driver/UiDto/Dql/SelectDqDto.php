@@ -5,14 +5,39 @@ namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dql;
 class SelectDqDto
 {
     /**
-     * @var array
+     * Select columns, empty for *.
+     *
+     * @var array<string>
      */
-    public array $columns;
+    public array $columns = []; // Columns in the SQL SELECT clause.
 
     /**
+     * @var bool
+     */
+    public bool $grouped = false;
+
+    /**
+     * Expressions without aggregation.
+     * Will be used for GROUP BY if an aggregation function is used.
+     *
      * @var array
      */
-    public array $columnNames; // Selectable columns.
+    public array $groupBy = [];
+
+    /**
+     * @var array<string>
+     */
+    public array $selectableColumns = [];
+
+    /**
+     * @var array<string>
+     */
+    public array $filterableColumns = [];
+
+    /**
+     * @var array<string>
+     */
+    public array $sortableColumns = [];
 
     /**
      * @var array
@@ -23,41 +48,6 @@ class SelectDqDto
      * @var array
      */
     public array $foreignKeys;
-
-    /**
-     * @var array
-     */
-    public array $rights;
-
-    /**
-     * @var int
-     */
-    public int $textLength;
-
-    /**
-     * @var array
-     */
-    public array $groups;
-
-    /**
-     * @var array
-     */
-    public array $wheres;
-
-    /**
-     * @var array
-     */
-    public array $orders;
-
-    /**
-     * @var int
-     */
-    public int $limit;
-
-    /**
-     * @var int
-     */
-    public int $page;
  
     /**
      * @var string
@@ -67,32 +57,48 @@ class SelectDqDto
     /**
      * @var array
      */
-    public array $options;
+    public array $filters;
 
     /**
      * @var array
      */
-    public array $rows;
-
-    /**
-     * @var float
-     */
-    public float $duration;
+    public array $sorters;
 
     /**
      * @var array
      */
-    public array $headers;
+    public array $indexes;
 
     /**
-     * @var string|null
+     * @var array
      */
-    public string|null $error = null;
+    public array $functions;
+
+    /**
+     * @var array
+     */
+    public array $grouping;
+
+    /**
+     * @var array
+     */
+    public array $operators;
+
+    /**
+     * @var array
+     */
+    public array $fullTexts;
+
+    /**
+     * @var SelectDqInputDto
+     */
+    public SelectDqInputDto $input;
 
     /**
      * @param SelectTableDto $table
-     * @param array $params
      */
-    public function __construct(public SelectTableDto $table, public array $params)
-    {}
+    public function __construct(public SelectTableDto $table)
+    {
+        $this->input = new SelectDqInputDto();
+    }
 }

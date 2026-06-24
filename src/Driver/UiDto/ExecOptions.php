@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto;
 
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
-
 class ExecOptions
 {
     /**
@@ -27,14 +25,14 @@ class ExecOptions
     public bool $decompressFile = false;
 
     /**
-     * @var float
+     * @var bool
      */
-    public float $duration = 0;
+    public bool $withTimer = false;
 
     /**
-     * @var SelectDqDto|null
+     * @var bool
      */
-    public SelectDqDto|null $select = null;
+    public bool $withLogger = false;
 
     /**
      * @param bool $stopOnError

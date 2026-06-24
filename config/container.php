@@ -219,8 +219,6 @@ return [
     'auto' => [
         // The string manipulation class
         Driver\Utils\Str::class,
-        // The user input
-        Driver\Utils\Input::class,
         // The utils class
         Driver\Utils\Utils::class,
         // The PageUi class

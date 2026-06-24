@@ -49,7 +49,6 @@ trait TableTrait
         $this->breadcrumbs(true)
             ->item($this->utils()->lang('Tables'))
             ->item("<i><b>$table</b></i>");
-        $this->utils()->setInputTable($table);
         return $this->tableProxy()->getTableInfo($table);
     }
 
@@ -64,7 +63,6 @@ trait TableTrait
     public function getTableColumns(string $table): array
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
         return $this->tableProxy()->getTableColumns($table);
     }
 
@@ -78,7 +76,6 @@ trait TableTrait
     public function getTableIndexes(string $table): ?array
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
         return $this->tableProxy()->getTableIndexes($table);
     }
 
@@ -92,7 +89,6 @@ trait TableTrait
     public function getTableForeignKeys(string $table): ?array
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
         return $this->tableProxy()->getTableForeignKeys($table);
     }
 
@@ -106,7 +102,6 @@ trait TableTrait
     public function getTableTriggers(string $table): ?array
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
         return $this->tableProxy()->getTableTriggers($table);
     }
 
@@ -128,7 +123,6 @@ trait TableTrait
             $this->breadcrumbs()->item("<i><b>$table</b></i>")
                 ->item($this->utils()->lang('Alter table'));
         }
-        $this->utils()->setInputTable($table);
         return $this->tableProxy()->getTableMetadata($table);
     }
 
@@ -246,42 +240,34 @@ trait TableTrait
     public function getSelectParams(string $table, array $queryParams = []): SelectDqDto
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
-        $this->utils()->setInputValues($queryParams);
         return $this->selectProxy()->getSelectParams($table, $queryParams);
     }
 
     /**
      * Get required data for create/update on tables
      *
-     * @param string $table The table name
-     * @param array $queryParams The user params
+     * @param SelectDqDto $select
      *
      * @return int
      * @throws Exception
      */
-    public function countSelect(string $table, array $queryParams = []): int
+    public function countSelect(SelectDqDto $select): int
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
-        $this->utils()->setInputValues($queryParams);
-        return $this->selectProxy()->countSelect($table, $queryParams);
+        return $this->selectProxy()->countSelect($select);
     }
 
     /**
      * Get required data for create/update on tables
      *
-     * @param string $table The table name
-     * @param array $queryParams The user params
+     * @param SelectDqDto $select
      *
      * @return ExecResultDto
      * @throws Exception
      */
-    public function execSelect(string $table, array $queryParams = []): ExecResultDto
+    public function execSelect(SelectDqDto $select): ExecResultDto
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
-        $this->utils()->setInputValues($queryParams);
-        return $this->selectProxy()->execSelect($table, $queryParams);
+        return $this->selectProxy()->execSelect($select);
     }
 }

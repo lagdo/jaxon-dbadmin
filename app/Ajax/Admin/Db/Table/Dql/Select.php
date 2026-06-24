@@ -32,7 +32,7 @@ class Select extends MainComponent
         // The columns, filters and sorting values are reset.
         $this->setSelectBag('columns', []);
         $this->setSelectBag('filters', []);
-        $this->setSelectBag('sorting', []);
+        $this->setSelectBag('sorters', []);
         // While the options values are kept.
         $options = $this->getSelectBag('options', []);
 
@@ -46,9 +46,9 @@ class Select extends MainComponent
         // Save select queries options
         $select = $this->db()->getSelectParams($table, $options);
         $this->setSelectBag('options', [
-            'limit' => (int)($select->options['limit']['value'] ?? 0),
-            'total' => (bool)($options['total'] ?? true), // Keep the same value.
-            'length' => (int)($select->options['length']['value'] ?: 100),
+            'limit' => $select->input->limit,
+            'total' => $select->input->total,
+            'length' => $select->input->textLength,
         ]);
         $this->stash()->set('select.query', $select->query);
 

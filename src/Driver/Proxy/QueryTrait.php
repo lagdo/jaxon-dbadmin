@@ -45,8 +45,6 @@ trait QueryTrait
     public function getInsertData(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
-        $this->utils()->setInputValues($queryOptions);
         return $this->queryProxy()->getInsertData($table, $queryOptions);
     }
 
@@ -62,8 +60,6 @@ trait QueryTrait
     public function getInsertRowQuery(string $table, array $queryOptions, array $values): QueryListDto
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
-        $this->utils()->setInputValues($values);
         return $this->queryProxy()->getInsertRowQuery($table, $queryOptions, $values);
     }
 
@@ -79,8 +75,6 @@ trait QueryTrait
     public function insertItem(string $table, array $queryOptions, array $values): ExecResultDto
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
-        $this->utils()->setInputValues($values);
         return $this->queryProxy()->insertItem($table, $queryOptions, $values);
     }
 
@@ -92,12 +86,10 @@ trait QueryTrait
      *
      * @return array
      */
-    public function getUpdateData(string $table, array $queryOptions = []): array
+    public function getRowForUpdate(string $table, array $queryOptions = []): array
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
-        $this->utils()->setInputValues($queryOptions);
-        return $this->queryProxy()->getUpdateData($table, $queryOptions);
+        return $this->queryProxy()->getRowForUpdate($table, $queryOptions);
     }
 
     /**
@@ -112,8 +104,6 @@ trait QueryTrait
     public function getUpdateRowQuery(string $table, array $queryOptions, array $values): QueryListDto
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
-        $this->utils()->setInputValues($values);
         return $this->queryProxy()->getUpdateRowQuery($table, $queryOptions, $values);
     }
 
@@ -126,12 +116,10 @@ trait QueryTrait
      *
      * @return ExecResultDto
      */
-    public function updateItem(string $table, array $queryOptions, array $values): ExecResultDto
+    public function updateRow(string $table, array $queryOptions, array $values): ExecResultDto
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
-        $this->utils()->setInputValues($values);
-        return $this->queryProxy()->updateItem($table, $queryOptions, $values);
+        return $this->queryProxy()->updateRow($table, $queryOptions, $values);
     }
 
     /**
@@ -143,9 +131,9 @@ trait QueryTrait
      *
      * @return array
      */
-    public function getUpdatedItem(string $table, array $queryOptions, array $values): array
+    public function getUpdatedRow(string $table, array $queryOptions, array $values): array
     {
-        return $this->queryProxy()->getUpdatedItem($table, $queryOptions, $values);
+        return $this->queryProxy()->getUpdatedRow($table, $queryOptions, $values);
     }
 
     /**
@@ -159,8 +147,6 @@ trait QueryTrait
     public function getDeleteRowQuery(string $table, array $queryOptions): QueryListDto
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
-        $this->utils()->setInputValues($queryOptions);
         return $this->queryProxy()->getDeleteRowQuery($table, $queryOptions);
     }
 
@@ -172,12 +158,10 @@ trait QueryTrait
      *
      * @return ExecResultDto
      */
-    public function deleteItem(string $table, array $queryOptions): ExecResultDto
+    public function deleteRow(string $table, array $queryOptions): ExecResultDto
     {
         $this->connectToSchema();
-        $this->utils()->setInputTable($table);
-        $this->utils()->setInputValues($queryOptions);
-        return $this->queryProxy()->deleteItem($table, $queryOptions);
+        return $this->queryProxy()->deleteRow($table, $queryOptions);
     }
 
     /**

@@ -36,7 +36,7 @@ class DeleteFunc extends FuncComponent
             return;
         }
 
-        $result = $this->db()->deleteItem($this->getCurrentTable(), $rowIds);
+        $result = $this->db()->deleteRow($this->getCurrentTable(), $rowIds);
         // Show the error
         if($result->error !== null)
         {

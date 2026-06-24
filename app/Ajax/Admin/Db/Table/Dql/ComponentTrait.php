@@ -22,7 +22,7 @@ trait ComponentTrait
         $defaults['options'] ??= ['limit' => 50, 'total' => true, 'length' => 100];
         $defaults['columns'] ??= [];
         $defaults['filters'] ??= [];
-        $defaults['sorting'] ??= [];
+        $defaults['sorters'] ??= [];
 
         $this->bag('dbadmin.select')->set($currentTab, $defaults);
     }

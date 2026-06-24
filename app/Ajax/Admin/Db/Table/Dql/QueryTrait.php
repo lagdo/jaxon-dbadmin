@@ -26,21 +26,15 @@ trait QueryTrait
 
         // Columns options
         $columns = $this->getSelectBag('columns', []);
-        $options['columns'] = $columns['column'] ?? [];
+        $options['columns'] = $columns['columns'] ?? [];
 
         // Filter options
         $filters = $this->getSelectBag('filters', []);
-        $options['where'] = $filters['where'] ?? [];
+        $options['filters'] = $filters['filters'] ?? [];
 
         // Sorting options
-        $sorting = $this->getSelectBag('sorting', []);
-        $options['order'] = $sorting['order'] ?? [];
-        $options['desc'] = $sorting['desc'] ?? [];
-
-        // Pagination options
-        if (($options['page'] ?? 0) < 0) {
-            $options['page'] = 0;
-        }
+        $sorters = $this->getSelectBag('sorters', []);
+        $options['sorters'] = $sorters['sorters'] ?? [];
 
         return $options;
     }

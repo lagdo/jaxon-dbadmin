@@ -78,7 +78,7 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $updateData = $this->db()->getUpdateData($this->getCurrentTable(),  $rowIds);
+        $updateData = $this->db()->getRowForUpdate($this->getCurrentTable(),  $rowIds);
         // Show the error
         if(isset($updateData['error']))
         {
@@ -112,7 +112,7 @@ class UpdateFunc extends FuncComponent
         // Add the select options, which are used to format the modified data
         $table = $this->getCurrentTable();
         $rowIds['select'] = $this->getSelectBag('options', []);
-        $result = $this->db()->updateItem($table, $rowIds, $formValues);
+        $result = $this->db()->updateRow($table, $rowIds, $formValues);
         // Show the error
         if($result->error !== null)
         {
@@ -123,7 +123,7 @@ class UpdateFunc extends FuncComponent
         }
 
         // Get the updated item.
-        $updatedItem = $this->db()->getUpdatedItem($table, $rowIds, $formValues);
+        $updatedItem = $this->db()->getUpdatedRow($table, $rowIds, $formValues);
         if(isset($updatedItem['warning']))
         {
             $this->alert()
@@ -154,7 +154,7 @@ class UpdateFunc extends FuncComponent
     {
         $tableName = $this->getCurrentTable();
         // We need the table columns to be able to go back to the update form.
-        $updateData = $this->db()->getUpdateData($tableName,  $rowIds);
+        $updateData = $this->db()->getRowForUpdate($tableName,  $rowIds);
         // Show the error
         if(isset($updateData['error']))
         {

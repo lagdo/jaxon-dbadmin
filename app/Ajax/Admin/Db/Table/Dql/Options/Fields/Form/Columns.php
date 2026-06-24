@@ -2,15 +2,26 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options\Fields\Form;
 
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options\Component;
-
 use function count;
 
 /**
  * This class provides select query features on tables.
  */
-class Columns extends Component
+class Columns extends AbstractForm
 {
+    /**
+     * @var string
+     */
+    protected string $fieldId = 'columns';
+
+    /**
+     * @return array
+     */
+    protected function newEntry(): array
+    {
+        return ['func' => '', 'column' => '', 'delete' => false];
+    }
+
     /**
      * @inheritDoc
      */
@@ -24,39 +35,12 @@ class Columns extends Component
             $options = $this->getSelectBag('options');
             $select = $this->db()->getSelectParams($this->getCurrentTable(), $options);
             $options = [
-                'functions' => $select->options['columns']['functions'] ?? [],
-                'grouping' => $select->options['columns']['grouping'] ?? [],
-                'columns' => $select->options['columns']['columns'] ?? [],
+                'functions' => $select->functions,
+                'grouping' => $select->grouping,
+                'columns' => $select->selectableColumns,
             ];
         }
 
         return $this->optionsUi->formColumns($values, $options);
-    }
-
-    public function show(): void
-    {
-        // Render the component with the values from the databag.
-        $values = $this->getSelectBag('columns', []);
-
-        $this->stash()->set('values', $values);
-        $this->render();
-    }
-
-    public function add(array $values): void
-    {
-        $columns = $values['column'] ?? [];
-        $columns[] = ['fun' => '', 'col' => '']; // New value
-        $values['column'] = $columns;
-        $values['del'] = []; // Do not delete anything.
-
-        $this->stash()->set('values', $values);
-        $this->render();
-    }
-
-    public function del(array $values): void
-    {
-        // By default, deleted values are not rendered.
-        $this->stash()->set('values', $values);
-        $this->render();
     }
 }

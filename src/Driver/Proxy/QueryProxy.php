@@ -3,12 +3,13 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Jaxon\Request\Upload\FileInterface;
+use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface;
+use Lagdo\DbAdmin\Driver\Sql\Dto\QueryClauseDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\QueryStreamDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\SelectDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnInput;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnValue;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataReader;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataWriter;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
@@ -24,20 +25,6 @@ use function fgets;
  */
 class QueryProxy extends AbstractDriverProxy
 {
-    /**
-     * @var string
-     * read => edit action for single row insert, update or delete
-     * save => save action for insert, update or delete
-     * select => edit action for bulk update
-     * clone => clone a selected set of data rows
-     */
-    private string $action;
-
-    /**
-     * @var string
-     */
-    private string $operation;
-
     /**
      * @var QueryProcessor
      */
@@ -70,30 +57,31 @@ class QueryProxy extends AbstractDriverProxy
     }
 
     /**
+     * @param string $action
+     * read => edit action for single row insert, update or delete
+     * save => save action for insert, update or delete
+     * select => edit action for bulk update
+     * clone => clone a selected set of data rows
+     * @param string $operation
+     *
      * @return RowDataWriter
      */
-    private function _writer(): RowDataWriter
+    private function writer(string $action, string $operation): RowDataWriter
     {
-        $columnValue = (new ColumnValue($this))->init($this->action, $this->operation);
-        $columnInput = (new ColumnInput($this))->init($this->action, $this->operation);
-        return (new RowDataWriter($this))->init($this->action, $this->operation,
-            $columnValue, $columnInput);
+        $this->writer ??= (new RowDataWriter($this))->init();
+        return $this->writer->action($action, $operation);
     }
 
     /**
-     * @return RowDataWriter
-     */
-    private function writer(): RowDataWriter
-    {
-        return $this->writer ??= $this->_writer();
-    }
-
-    /**
+     * @param string $action
+     * @param string $operation
+     *
      * @return RowDataReader
      */
-    private function reader(): RowDataReader
+    private function reader(string $action, string $operation): RowDataReader
     {
-        return $this->reader ??= (new RowDataReader($this))->init($this->action, $this->operation);
+        $this->reader ??= new RowDataReader($this);
+        return $this->reader->action($action, $operation);
     }
 
     /**
@@ -114,10 +102,10 @@ class QueryProxy extends AbstractDriverProxy
      */
     public function getInsertData(string $table, array $options = []): array
     {
-        $this->action = 'read';
-        $this->operation = 'insert';
+        $action = 'read';
+        $operation = 'insert';
 
-        [$columns,] = $this->reader()->getTableColumns($table, $options);
+        [$columns,] = $this->reader($action, $operation)->getTableColumns($table, $options);
         if (empty($columns)) {
             return [
                 'error' => $this->utils()->lang('You have no privileges to update this table.'),
@@ -126,7 +114,7 @@ class QueryProxy extends AbstractDriverProxy
 
         // No data when inserting a new row
         return [
-            'columns' => $this->writer()->getInputValues($columns, $options),
+            'columns' => $this->writer($action, $operation)->getInputValues($columns, $options),
         ];
     }
 
@@ -138,45 +126,35 @@ class QueryProxy extends AbstractDriverProxy
      *
      * @return array
      */
-    public function getUpdateData(string $table, array $options = []): array
+    public function getRowForUpdate(string $table, array $options = []): array
     {
-        $this->action = 'read';
-        $this->operation = 'update';
+        $action = 'read';
+        $operation = 'update';
 
         // From edit.inc.php
-        [$columns, $where] = $this->reader()->getTableColumns($table, $options);
+        [$columns, $where] = $this->reader($action, $operation)->getTableColumns($table, $options);
         if (empty($columns) || !$where) {
             return [
                 'error' => $this->utils()->lang('You have no privileges to update this table.'),
             ];
         }
 
-        // From edit.inc.php
-        $select = $this->reader()->getSelectClauses($columns);
+        $select = $this->reader($action, $operation)->getSelectClauses($columns);
         if (count($select) === 0) {
             return [
-                'error' => $this->utils()->lang('Unable to find the edited data row.'),
+                'error' => $this->utils()->lang('Unable to find the data row.'),
             ]; // No data
         }
 
-        $result = $this->engine()->select($table, $select, [$where],
-            $select, [], $this->action === 'select' ? 2 : 1);
-        if ($result->hasError()) {
+        $result = $this->findRow($table, $select, [$where]);
+        if ($result->hasError() || !($row = $result->fetchAssoc())) {
             return [
-                'error' => $this->engine()->error(),
+                'error' => $this->utils()->lang('Unable to find the data row.'),
             ]; // Error
         }
 
-        $row = $result->fetchAssoc();
-        if($this->action === 'select' && (!$row || $result->fetchAssoc()))
-        {
-            return [
-                'error' => $this->utils()->lang('Unable to find the edited data row.'),
-            ]; // No data
-        }
-
         return [
-            'columns' => $this->writer()->getInputValues($columns, $row),
+            'columns' => $this->writer($action, $operation)->getInputValues($columns, $row),
         ];
     }
 
@@ -191,11 +169,11 @@ class QueryProxy extends AbstractDriverProxy
      */
     public function getInsertRowQuery(string $table, array $options, array $values): QueryListDto
     {
-        $this->action = 'save';
-        $this->operation = 'insert';
+        $action = 'save';
+        $operation = 'insert';
 
-        [$columns,] = $this->reader()->getTableColumns($table, $options);
-        $values = $this->reader()->getInputValues($columns, $values);
+        [$columns,] = $this->reader($action, $operation)->getTableColumns($table, $options);
+        $values = $this->reader($action, $operation)->getInputValues($columns, $values);
         $query = $this->statement()->getInsertRowQuery($table, $values);
 
         return $query !== '' ? new QueryListDto(queries: [$query]) :
@@ -216,9 +194,9 @@ class QueryProxy extends AbstractDriverProxy
     {
         $execOptions = new ExecOptions(true, true);
         $execOptions->setExecOptions(true, true, false);
+        $execOptions->withLogger = true;
 
         $insert = $this->getInsertRowQuery($table, $options, $values);
-        $insert->withLogger = true;
         $result = $this->processor->executeQueryList($insert, $execOptions);
         if ($result->error === null) {
             $lastId = $this->engine()->lastAutoIncrementId();
@@ -240,12 +218,12 @@ class QueryProxy extends AbstractDriverProxy
      */
     public function getUpdateRowQuery(string $table, array $options, array $values): QueryListDto
     {
-        $this->action = 'save';
-        $this->operation = 'update';
+        $action = 'save';
+        $operation = 'update';
 
-        [$columns, $where] = $this->reader()->getTableColumns($table, $options);
-        $values = $this->reader()->getInputValues($columns, $values);
-        $limit = $this->reader()->getQueryLimit($table, $options);
+        [$columns, $where] = $this->reader($action, $operation)->getTableColumns($table, $options);
+        $values = $this->reader($action, $operation)->getInputValues($columns, $values);
+        $limit = $this->reader($action, $operation)->getQueryLimit($table, $options);
 
         $query = $this->statement()->getUpdateRowQuery($table, $values, "\nWHERE $where", $limit);
         return $query !== '' ? new QueryListDto(queries: [$query]) :
@@ -262,19 +240,41 @@ class QueryProxy extends AbstractDriverProxy
      *
      * @return ExecResultDto
      */
-    public function updateItem(string $table, array $options, array $values): ExecResultDto
+    public function updateRow(string $table, array $options, array $values): ExecResultDto
     {
         $execOptions = new ExecOptions(true, true);
         $execOptions->setExecOptions(true, true, false);
+        $execOptions->withLogger = true;
 
         $update = $this->getUpdateRowQuery($table, $options, $values);
-        $update->withLogger = true;
         $result = $this->processor->executeQueryList($update, $execOptions);
         if ($result->error === null) {
             $result->message = $this->utils()->lang('The item was updated.');
         }
 
         return $result;
+    }
+
+    /**
+     * @param string $table
+     * @param array $columns
+     * @param array $filters
+     *
+     * @return QueryResultInterface
+     */
+    private function findRow(string $table, array $columns, array $filters): QueryResultInterface
+    {
+        $tableName = [$this->statement()->escapeTableName($table)];
+        $clauses = [
+            new QueryClauseDto('SELECT', ', ', $columns),
+            new QueryClauseDto('FROM', ', ', $tableName),
+            new QueryClauseDto('WHERE', ' AND ', $filters),
+        ];
+
+        $select = new SelectDto($clauses, limit: 1, offset: 0);
+        $query = $this->statement()->getTableSelectQuery($select);
+
+        return $this->engine()->executeQuery($query);
     }
 
     /**
@@ -286,26 +286,25 @@ class QueryProxy extends AbstractDriverProxy
      *
      * @return array
      */
-    public function getUpdatedItem(string $table, array $options, array $values): array
+    public function getUpdatedRow(string $table, array $options, array $values): array
     {
-        $this->action = 'save';
-        $this->operation = 'update';
+        $action = 'save';
+        $operation = 'update';
 
-        [$columns, $where] = $this->reader()->getTableColumns($table, $options);
-        $values = $this->reader()->getInputValues($columns, $values);
+        [$columns, $where] = $this->reader($action, $operation)->getTableColumns($table, $options);
+        $values = $this->reader($action, $operation)->getInputValues($columns, $values);
 
         // Get the modified data
         // Todo: check if the values in the where clause are changed.
-        $result = $this->engine()->select($table, array_keys($values), [$where]);
-        if ($result->hasError()) {
+        $result = $this->findRow($table, array_keys($values), [$where]);
+        if ($result->hasError() || !($row = $result->fetchAssoc())) {
             return [
                 'warning' => $this->utils()->lang('Unable to read the updated row.'),
             ];
         }
 
-        $row = $result->fetchAssoc();
         return [
-            'cols' => $this->writer()->getUpdatedRow($row, $columns, $options),
+            'cols' => $this->writer($action, $operation)->getUpdatedRow($row, $columns, $options),
         ];
     }
 
@@ -319,11 +318,11 @@ class QueryProxy extends AbstractDriverProxy
      */
     public function getDeleteRowQuery(string $table, array $options): QueryListDto
     {
-        $this->action = 'save';
-        $this->operation = 'update';
+        $action = 'save';
+        $operation = 'update';
 
-        [, $where] = $this->reader()->getTableColumns($table, $options);
-        $limit = $this->reader()->getQueryLimit($table, $options);
+        [, $where] = $this->reader($action, $operation)->getTableColumns($table, $options);
+        $limit = $this->reader($action, $operation)->getQueryLimit($table, $options);
 
         $query = $this->statement()->getDeleteRowQuery($table, "\nWHERE $where", $limit);
         return $query !== '' ? new QueryListDto(queries: [$query]) :
@@ -339,13 +338,13 @@ class QueryProxy extends AbstractDriverProxy
      *
      * @return ExecResultDto
      */
-    public function deleteItem(string $table, array $options): ExecResultDto
+    public function deleteRow(string $table, array $options): ExecResultDto
     {
         $execOptions = new ExecOptions(true, true);
         $execOptions->setExecOptions(true, true, false);
+        $execOptions->withLogger = true;
 
         $delete = $this->getDeleteRowQuery($table, $options);
-        $delete->withLogger = true;
         $result = $this->processor->executeQueryList($delete, $execOptions);
         if ($result->error === null) {
             $result->message = $this->utils()->lang('The item was deleted.');

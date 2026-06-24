@@ -10,12 +10,12 @@ class RowsetDto
     public array $tables = []; // This data is not yet used.
 
     /**
-     * @var array
+     * @var array<string>
      */
     public array $headers = [];
 
     /**
-     * @var array
+     * @var array<array<string>>
      */
     public array $rows = [];
 

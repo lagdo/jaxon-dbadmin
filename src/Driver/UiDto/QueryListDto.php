@@ -5,16 +5,6 @@ namespace Lagdo\DbAdmin\Support\Driver\UiDto;
 class QueryListDto
 {
     /**
-     * @var bool
-     */
-    public bool $withTimer = false;
-
-    /**
-     * @var bool
-     */
-    public bool $withLogger = false;
-
-    /**
      * @param string|null $error
      * @param array|null $queries
      */

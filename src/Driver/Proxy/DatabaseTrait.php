@@ -295,7 +295,6 @@ trait DatabaseTrait
         $this->breadcrumbs(true)
             ->item($this->utils()->lang('Views'))
             ->item("<i><b>$view</b></i>");
-        $this->utils()->input->table = $view;
         return $this->databaseProxy()->getViewInfo($view);
     }
 
@@ -310,7 +309,6 @@ trait DatabaseTrait
     public function getViewColumns(string $view): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $view;
         return $this->databaseProxy()->getViewColumns($view);
     }
 
@@ -324,7 +322,6 @@ trait DatabaseTrait
     public function getViewTriggers(string $view): ?array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $view;
         return $this->databaseProxy()->getViewTriggers($view);
     }
 
@@ -339,7 +336,6 @@ trait DatabaseTrait
     public function getView(string $view): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $view;
         return $this->databaseProxy()->getView($view);
     }
 
@@ -354,7 +350,6 @@ trait DatabaseTrait
     public function createView(array $values): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $values['name'];
         return $this->databaseProxy()->createView($values);
     }
 
@@ -370,7 +365,6 @@ trait DatabaseTrait
     public function updateView(string $view, array $values): array
     {
         $this->connectToSchema();
-        $this->utils()->input->table = $view;
         return $this->databaseProxy()->updateView($view, $values);
     }
 

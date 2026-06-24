@@ -282,9 +282,9 @@ class TableProxy extends AbstractDriverProxy
     {
         $options = new ExecOptions(true, true);
         $options->setExecOptions(true, true, false);
+        $options->withLogger = true;
 
         $queries = $this->getCreateTableQueries($table);
-        $queries->withLogger = true;
         $result = $this->processor->executeQueryList($queries, $options);
         if ($result->error === null) {
             $result->message = $this->utils()->lang('The table was created.');
@@ -320,9 +320,9 @@ class TableProxy extends AbstractDriverProxy
     {
         $options = new ExecOptions(true, true);
         $options->setExecOptions(true, true, false);
+        $options->withLogger = true;
 
         $queries = $this->getAlterTableQueries($table);
-        $queries->withLogger = true;
         $result = $this->processor->executeQueryList($queries, $options);
         if ($result->error === null) {
             $result->message = $this->utils()->lang('The table was altered.');
@@ -356,9 +356,9 @@ class TableProxy extends AbstractDriverProxy
     {
         $options = new ExecOptions(true, true);
         $options->setExecOptions(true, true, false);
+        $options->withLogger = true;
 
         $queries = $this->getDropTableQueries($table);
-        $queries->withLogger = true;
         $result = $this->processor->executeQueryList($queries, $options);
         if ($result->error === null) {
             $result->message = $this->utils()->lang('The table was dropped.');

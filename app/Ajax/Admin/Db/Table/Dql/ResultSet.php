@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
 use Lagdo\DbAdmin\App\Ui\Select\ResultUiBuilder;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\RowsetDto;
 
 use function array_map;
@@ -22,12 +23,24 @@ class ResultSet extends PageComponent
     private int|null $_count = null;
 
     /**
-     * The constructor
-     *
+     * @var SelectDqDto
+     */
+    private SelectDqDto $select;
+
+    /**
      * @param ResultUiBuilder   $resultUi   The HTML UI builder
      */
     public function __construct(protected ResultUiBuilder $resultUi)
     {}
+
+    /**
+     * @return SelectDqDto
+     */
+    private function select(): SelectDqDto
+    {
+        return $this->select ??= $this->db()
+            ->getSelectParams($this->getCurrentTable(), $this->getOptions());
+    }
 
     /**
      * @inheritDoc
@@ -42,8 +55,7 @@ class ResultSet extends PageComponent
             return $this->_count = -1;
         }
 
-        $table = $this->getCurrentTable();
-        return $this->_count = $this->db()->countSelect($table, $options);
+        return $this->_count = $this->db()->countSelect($this->select());
     }
 
     /**
@@ -86,9 +98,7 @@ class ResultSet extends PageComponent
         // Save the current page in the databag
         $this->savePageNumber($this->currentPage());
 
-        // Select options
-        $options = $this->getOptions();
-        $result = $this->db()->execSelect($this->getCurrentTable(), $options);
+        $result = $this->db()->execSelect($this->select());
 
         if ($result->error !== null) {
             $this->set('duration', null);

@@ -58,11 +58,10 @@ class PageUi
      * Field caption used in select and edit
      *
      * @param ColumnDto $column Single column returned from columns()
-     * @param int $order Order of column in select
      *
      * @return string
      */
-    public function columnName(ColumnDto $column, int $order = 0): string
+    public function columnName(ColumnDto $column): string
     {
         $fullType = $this->utils()->html($column->fullType);
         $name = $this->utils()->html($column->name);

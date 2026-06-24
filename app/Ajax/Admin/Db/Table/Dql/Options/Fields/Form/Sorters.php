@@ -7,19 +7,19 @@ use function count;
 /**
  * This class provides select query features on tables.
  */
-class Filters extends AbstractForm
+class Sorters extends AbstractForm
 {
     /**
      * @var string
      */
-    protected string $fieldId = 'filters';
+    protected string $fieldId = 'sorters';
 
     /**
      * @return array
      */
     protected function newEntry(): array
     {
-        return ['column' => '', 'operator' => '', 'operand' => '', 'delete' => false];
+        return ['desc' => false, 'column' => '', 'delete' => false];
     }
 
     /**
@@ -28,18 +28,17 @@ class Filters extends AbstractForm
     public function html(): string
     {
         $values = $this->stash()->get('values', []);
-        // Filters options
-        $options = ['columns' => [], 'operators' => []];
+        // Sorting options
+        $options = ['columns' => []];
         if(count($values) > 0)
         {
             $options = $this->getSelectBag('options');
             $select = $this->db()->getSelectParams($this->getCurrentTable(), $options);
             $options = [
-                'columns' => $select->filterableColumns,
-                'operators' => $select->operators,
+                'columns' => $select->sortableColumns,
             ];
         }
 
-        return  $this->optionsUi->formFilters($values, $options);
+        return $this->optionsUi->formSorters($values, $options);
     }
 }

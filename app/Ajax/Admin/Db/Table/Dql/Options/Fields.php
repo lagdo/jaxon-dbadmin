@@ -15,7 +15,7 @@ class Fields extends Component
         return $this->optionsUi->optionsFields([
             'columns' => $this->getSelectBag('columns', []),
             'filters' => $this->getSelectBag('filters', []),
-            'sorting' => $this->getSelectBag('sorting', []),
+            'sorters' => $this->getSelectBag('sorters', []),
         ]);
     }
 }

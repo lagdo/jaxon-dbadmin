@@ -4,13 +4,13 @@ namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dql;
 
 use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface as QueryResult;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\SelectColumnDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\RowsetDto;
 
+use function array_combine;
 use function array_map;
-use function current;
 use function is_string;
-use function key;
 use function md5;
 use function preg_match;
 use function strlen;
@@ -23,81 +23,6 @@ use function trim;
 class SelectResult extends AbstractDriverProxy
 {
     /**
-     * @param SelectDqDto $input
-     * @param string $columnName
-     * @param int $position
-     *
-     * @return array
-     */
-    private function getResultHeaderItem(SelectDqDto $input, string $columnName, int $position): array
-    {
-        $valueKey = key($input->columns);
-        $value = $input->params["columns"][$valueKey] ?? [];
-
-        $fun = $value["fun"] ?? '';
-        $columnKey = !$input->columns ? $columnName :
-            ($value["col"] ?? current($input->columns));
-        $column = $input->table->columns[$columnKey];
-        $name = !$column ? ($fun ? "*" : $columnName) :
-            $this->pageUi()->columnName($column, $position);
-
-        return [$fun, $name, $column];
-    }
-
-    /**
-     * @param SelectDqDto $input
-     * @param string $columnName
-     * @param int $position
-     *
-     * @return array
-     */
-    private function getResultHeader(SelectDqDto $input, string $columnName, int $position): array
-    {
-        if (isset($input->primaryColumns[$columnName])) {
-            return [];
-        }
-
-        [$fun, $name, $column] = $this->getResultHeaderItem($input, $columnName, $position);
-        $header = ['column' => $column, 'name' => $name];
-        if ($name !== '') {
-            // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($columnName);
-            // $desc = "&desc%5B0%5D=1";
-            $header['column'] = $this->statement()->escapeId($columnName);
-            // $header['key'] = $this->utils()->html($this->statement()->bracketEscape($columnName));
-            //! columns looking like functions
-            $header['title'] = $this->pageUi()->applySqlFunction($fun, $name);
-        }
-
-        return $header;
-    }
-
-    /**
-     * Get the result headers from the first result row
-     *
-     * @param SelectDqDto $input
-     * @param array $queryColumns
-     *
-     * @return array
-     */
-    private function getResultHeaders(SelectDqDto $input, array $queryColumns): array
-    {
-        // Results headers
-        $headers = [];
-        // $functions = [];
-
-        $position = 1;
-        foreach ($queryColumns as $columnName) {
-            $header = $this->getResultHeader($input, $columnName, $position);
-            if ($header['name'] ?? '' !== '') {
-                $position++;
-            }
-            $headers[$columnName] = $header;
-        }
-
-        return $headers;
-    }
-
-    /**
      * @param array $rows
      * @param array $queryOptions
      *
@@ -106,7 +31,7 @@ class SelectResult extends AbstractDriverProxy
     /*private function getValuesLengths(array $rows, array $queryOptions): array
     {
         $lengths = [];
-        if($queryOptions["modify"])
+        if($queryOptions['modify'])
         {
             foreach($rows as $row)
             {
@@ -120,14 +45,14 @@ class SelectResult extends AbstractDriverProxy
     }*/
 
     /**
-     * @param SelectDqDto $input
+     * @param SelectDqDto $select
      * @param array $row
      *
      * @return array
      */
-    private function getUniqueIds(SelectDqDto $input, array $row): array
+    private function getUniqueIds(SelectDqDto $select, array $row): array
     {
-        $uniqueIds = $this->utils()->uniqueIds($row, $input->table->indexes);
+        $uniqueIds = $this->utils()->uniqueIds($row, $select->table->indexes);
         if (empty($uniqueIds)) {
             $pattern = '~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)' .
                 '|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~';
@@ -167,19 +92,19 @@ class SelectResult extends AbstractDriverProxy
     }
 
     /**
-     * @param SelectDqDto $input
+     * @param SelectDqDto $select
      * @param string $columnName
      * @param mixed $value
      *
      * @return mixed
      */
-    private function getRowIdValue(SelectDqDto $input, string $columnName, $value): mixed
+    private function getRowIdValue(SelectDqDto $select, string $columnName, $value): mixed
     {
         $type = '';
         $collation = '';
-        if (isset($input->table->columns[$columnName])) {
-            $type = $input->table->columns[$columnName]->type;
-            $collation = $input->table->columns[$columnName]->collation;
+        if (isset($select->table->columns[$columnName])) {
+            $type = $select->table->columns[$columnName]->type;
+            $collation = $select->table->columns[$columnName]->collation;
         }
         if ($this->shouldEncodeRowId($type, $value)) {
             if (!strpos($columnName, '(')) {
@@ -197,20 +122,20 @@ class SelectResult extends AbstractDriverProxy
     }
 
     /**
-     * @param SelectDqDto $input
+     * @param SelectDqDto $select
      * @param array $row
      *
      * @return array
      */
-    private function getRowIds(SelectDqDto $input, array $row): array
+    private function getRowIds(SelectDqDto $select, array $row): array
     {
-        $uniqueIds = $this->getUniqueIds($input, $row);
+        $uniqueIds = $this->getUniqueIds($select, $row);
         // Unique identifier to edit returned data.
         // $unique_idf = "";
         $rowIds = ['where' => [], 'null' => []];
         foreach ($uniqueIds as $columnName => $value) {
             $columnName = trim($columnName);
-            $value = $this->getRowIdValue($input, $columnName, $value);
+            $value = $this->getRowIdValue($select, $columnName, $value);
             $columnName = $this->statement()->bracketEscape($columnName);
 
             // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" .
@@ -226,69 +151,126 @@ class SelectResult extends AbstractDriverProxy
     }
 
     /**
-     * @param SelectDqDto $input
+     * @param SelectDqDto $select
      * @param string $columnName
      * @param mixed $value
      *
      * @return array
      */
-    private function getColumnValue(SelectDqDto $input, string $columnName, $value): array
+    private function getColumnValue(SelectDqDto $select, string $columnName, $value): array
     {
-        $column = $input->table->columns[$columnName] ?? new ColumnDto();
-        $textLength = $input->textLength;
+        $column = $select->table->columns[$columnName] ?? new ColumnDto();
+        $textLength = $select->input->textLength;
         $value = $this->engine()->convertValue($value, $column);
         return $this->pageUi()->getColumnValue($column, $textLength, $value);
     }
 
     /**
-     * @param SelectDqDto $input
+     * @param SelectDqDto $select
      * @param array $headers
      * @param array $row
      *
      * @return array
      */
-    private function getRowValues(SelectDqDto $input, array $headers, array $row): array
+    private function getRowValues(SelectDqDto $select, array $headers, array $row): array
     {
         $cols = [];
         foreach ($row as $columnName => $value) {
             if (isset($headers[$columnName]['name'])) {
-                $cols[] = $this->getColumnValue($input, $columnName, $value);
+                $cols[] = $this->getColumnValue($select, $columnName, $value);
             }
         }
         return $cols;
     }
 
     /**
+     * @param SelectDqDto $select
+     * @param string $dbField
+     * @param string|null $sqlField
+     * @param SelectColumnDto|null $uiColumn
+     *
+     * @return array
+     */
+    private function getResultHeader(SelectDqDto $select, string $dbField,
+        string|null $sqlField, SelectColumnDto|null $uiColumn): array
+    {
+        // if (isset($select->primaryColumns[$dbField])) {
+        //     return [];
+        // }
+
+        $function = $uiColumn?->func ?? '';
+        $columnKey = !$select->columns ? $dbField : ($uiColumn?->columnName ?? $sqlField);
+        $column = $select->table->columns[$columnKey] ?? null;
+        $name = $column === null ? ($function ? '*' : $dbField) :
+            $this->pageUi()->columnName($column);
+
+        if ($name === '') {
+            return [
+                'column' => $this->statement()->escapeId($dbField),
+                'name' => $name,
+            ];
+        }
+
+        // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($dbField);
+        // $desc = '&desc%5B0%5D=1';
+        return [
+            'column' => $this->statement()->escapeId($dbField),
+            // 'key' => $this->utils()->html($this->statement()->bracketEscape($dbField)),
+            'name' => $name,
+            //! columns looking like functions
+            'title' => $this->pageUi()->applySqlFunction($function, $name),
+        ];
+    }
+
+    /**
+     * Get the result headers from the first result row
+     *
+     * @param SelectDqDto $select
+     * @param array $fields
+     *
+     * @return array
+     */
+    private function getResultHeaders(SelectDqDto $select, array $fields): array
+    {
+        $builder = fn($dbField, $sqlField, $uiColumn) =>
+            $this->getResultHeader($select, $dbField, $sqlField, $uiColumn);
+        $headers = array_map($builder, $fields, $select->columns, $select->input->columns);
+
+        return array_combine($fields, $headers);
+    }
+
+    /**
      * @param QueryResult $result
-     * @param SelectDqDto $input
+     * @param SelectDqDto $select
      *
      * @return RowsetDto
     */
-    public function getSelectRowset(QueryResult $result, SelectDqDto $input): RowsetDto
+    public function getSelectRowset(QueryResult $result, SelectDqDto $select): RowsetDto
     {
         if ($result->hasError()) {
             return new RowsetDto(error: $this->engine()->errorMessage());
         }
 
+        // Fetch the first result row.
         $row = $result->fetchAssoc();
         if ($row === null) {
             return new RowsetDto(message: $this->utils()->lang('No rows.'));
         }
 
         $rowset = new RowsetDto();
-
-        $rowset->headers = $this->getResultHeaders($input, array_keys($row));
+        $rowset->headers = $this->getResultHeaders($select, array_keys($row));
         // $backward_keys = $this->engine()->backwardKeys($table, $tableName);
-        // lengths = $this->getValuesLengths($rows, $input->queryOptions);
+        // lengths = $this->getValuesLengths($rows, $select->queryOptions);
 
+        // Process the result rows. The first is already fetched.
         do {
-            if ($input->page && $this->engine()->oracle()) {
-                unset($row["RNUM"]);
-            }
+            // if ($select->input->page && $this->engine()->oracle()) {
+            //     unset($row["RNUM"]);
+            // }
             $rowset->rows[] = [
                 // The unique identifiers to edit the result rows.
-                'ids' => $this->getRowIds($input, $row),
-                'cols' => $this->getRowValues($input, $rowset->headers, $row),
+                'ids' => $this->getRowIds($select, $row),
+                'cols' => $this->getRowValues($select, $rowset->headers, $row),
             ];
 
             $row = $result->fetchAssoc();
@@ -389,7 +371,7 @@ class SelectResult extends AbstractDriverProxy
         foreach ($columns as $column) {
             $rowset->headers[] = $this->utils()->html($column->name());
             // table => orgtable - mapping to use in EXPLAIN
-            $rowset->tables[$column->tableName()] = $column->orgTable();
+            // $rowset->tables[$column->tableName()] = $column->orgTable();
 
             // $this->indexes($column);
             $blobs[] = $column->isBinary();

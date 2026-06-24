@@ -14,16 +14,6 @@ use function array_keys;
 class RowDataWriter extends AbstractDriverProxy
 {
     /**
-     * @var string
-     */
-    private string $action;
-
-    /**
-     * @var string
-     */
-    private string $operation;
-
-    /**
      * @var ColumnValue
      */
     private ColumnValue $columnValue;
@@ -39,20 +29,25 @@ class RowDataWriter extends AbstractDriverProxy
     private bool|null $autofocus;
 
     /**
+     * @return self
+     */
+    public function init(): self
+    {
+        $this->columnValue = new ColumnValue($this);
+        $this->columnInput = new ColumnInput($this);
+        return $this;
+    }
+
+    /**
      * @param string $action
      * @param string $operation
-     * @param ColumnValue $columnValue
-     * @param ColumnInput $columnInput
      *
      * @return self
      */
-    public function init(string $action, string $operation,
-        ColumnValue $columnValue, ColumnInput $columnInput): self
+    public function action(string $action, string $operation): self
     {
-        $this->action = $action;
-        $this->operation = $operation;
-        $this->columnValue = $columnValue;
-        $this->columnInput = $columnInput;
+        $this->columnValue->action($action, $operation);
+        $this->columnInput->action($action, $operation);
         return $this;
     }
 
@@ -82,7 +77,7 @@ class RowDataWriter extends AbstractDriverProxy
     public function getInputValues(array $columns, array|null $rowData = null): array
     {
         // From html.inc.php (function edit_form($table, $columns, $rowData, $update))
-        $this->autofocus = $this->action !== 'save';
+        $this->autofocus = false;
 
         return array_map(function(ColumnDto $column) use($rowData) {
             $input = $this->columnValue->getColumnInputValues($column, $rowData);

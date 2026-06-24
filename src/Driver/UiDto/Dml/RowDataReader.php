@@ -43,7 +43,7 @@ class RowDataReader extends AbstractDriverProxy
      *
      * @return self
      */
-    public function init(string $action, string $operation): self
+    public function action(string $action, string $operation): self
     {
         $this->action = $action;
         $this->operation = $operation;
@@ -161,11 +161,10 @@ class RowDataReader extends AbstractDriverProxy
      */
     public function getTableColumns(string $table, array $options): array
     {
-        // From edit.inc.php
         $columns = $this->engine()->columns($table);
         // Important: get the where clauses before filtering the columns.
-        $where = $this->operation === 'insert' ? [] :
-            $this->engine()->where($options, $columns);
+        $where = $this->engine()->where($options, $columns);
+
         // Remove columns without the required privilege, or that cannot be edited.
         $columns = array_filter($columns, fn(ColumnDto $column) =>
             isset($column->privileges[$this->operation]) &&
@@ -190,8 +189,9 @@ class RowDataReader extends AbstractDriverProxy
         $columns = array_filter($columns,
             fn(ColumnDto $column) => isset($column->privileges['select']));
         return array_map(function(ColumnDto $column, string $name) {
-            $as = $this->action === 'clone' && $column->autoIncrement ? "''" :
-                $this->statement()->convertColumn($column);
+            // $as = $this->action === 'clone' && $column->autoIncrement ? "''" :
+            //     $this->statement()->convertColumn($column);
+            $as = $this->statement()->convertColumn($column);
             return ($as !== '' ? "$as AS " : '') . $this->statement()->escapeId($name);
         }, $columns, array_keys($columns));
     }

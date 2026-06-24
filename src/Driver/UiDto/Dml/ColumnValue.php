@@ -44,7 +44,7 @@ class ColumnValue extends AbstractDriverProxy
      *
      * @return self
      */
-    public function init(string $action, string $operation): self
+    public function action(string $action, string $operation): self
     {
         $this->action = $action;
         $this->operation = $operation;

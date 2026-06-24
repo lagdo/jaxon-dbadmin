@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectQuery;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectTableDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
@@ -11,13 +12,16 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Exception;
 
-use function count;
-
 /**
  * Proxy to table select functions
  */
 class SelectProxy extends AbstractDriverProxy
 {
+    /**
+     * @var SelectOptions
+     */
+    private SelectOptions $selectOptions;
+
     /**
      * @var SelectQuery
      */
@@ -27,6 +31,14 @@ class SelectProxy extends AbstractDriverProxy
      * @var QueryProcessor
      */
     private QueryProcessor $processor;
+
+    /**
+     * @return SelectOptions
+     */
+    private function options(): SelectOptions
+    {
+        return $this->selectOptions ??= new SelectOptions($this);
+    }
 
     /**
      * @return SelectQuery
@@ -49,12 +61,12 @@ class SelectProxy extends AbstractDriverProxy
 
     /**
      * @param string $table The table name
-     * @param array $queryParams The user params
+     * @param array $queryParams The user inputs
      *
      * @return SelectDqDto
      * @throws Exception
      */
-    private function prepareSelect(string $table, array $queryParams = []): SelectDqDto
+    private function prepareSelect(string $table, array $queryParams): SelectDqDto
     {
         $table = new SelectTableDto($table);
         $table->status = $this->engine()->tableStatusOrName($table->name);
@@ -62,8 +74,8 @@ class SelectProxy extends AbstractDriverProxy
         $table->indexes = $this->engine()->indexes($table->name);
         $table->foreignKeys = $this->engine()->foreignKeys($table->name);
 
-        $input = new SelectDqDto($table, $queryParams);
-        return $this->query()->prepareSelect($input);
+        $select = $this->options()->createSelectDto($table, $queryParams);
+        return $this->query()->prepareSelect($select);
     }
 
     /**
@@ -83,19 +95,15 @@ class SelectProxy extends AbstractDriverProxy
     /**
      * Get required data for create/update on tables
      *
-     * @param string $table The table name
-     * @param array $queryParams The user params
+     * @param SelectDqDto $select
      *
      * @return int
      */
-    public function countSelect(string $table, array $queryParams): int
+    public function countSelect(SelectDqDto $select): int
     {
-        $input = $this->prepareSelect($table, $queryParams);
-        $hasGroupsInColumns = count($input->groups) < count($input->columns);
-
         try {
-            $query = $this->statement()->getRowCountQuery($table, $input->wheres,
-                $hasGroupsInColumns, $input->groups);
+            $query = $this->statement()->getRowCountQuery($select->table->name,
+                $select->filters, $select->grouped, $select->groupBy);
             return (int)$this->engine()->columnValue($query);
         } catch(Exception) {
             return -1;
@@ -105,21 +113,19 @@ class SelectProxy extends AbstractDriverProxy
     /**
      * Get required data for create/update on tables
      *
-     * @param string $table The table name
-     * @param array $queryParams The user params
+     * @param SelectDqDto $select
      *
      * @return ExecResultDto
      * @throws Exception
      */
-    public function execSelect(string $table, array $queryParams): ExecResultDto
+    public function execSelect(SelectDqDto $select): ExecResultDto
     {
         $options = new ExecOptions();
-        $options->select = $this->prepareSelect($table, $queryParams);
         $options->setExecOptions(false, false, true);
+        $options->withTimer = true;
 
-        $queryList = new QueryListDto(queries: [$options->select->query]);
-        $queryList->withTimer = true;
+        $queryList = new QueryListDto(queries: [$select->query]);
 
-        return $this->processor->executeQueryList($queryList, $options);
+        return $this->processor->executeQueryList($queryList, $options, $select);
     }
 }
