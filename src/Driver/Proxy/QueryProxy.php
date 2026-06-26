@@ -5,7 +5,6 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 use Jaxon\Request\Upload\FileInterface;
 use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface;
 use Lagdo\DbAdmin\Driver\Sql\Dto\QueryClauseDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\QueryStreamDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\SelectDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
@@ -14,6 +13,7 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataReader;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataWriter;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\TableImport;
+use Lagdo\DbAdmin\Support\Service\Query\QueryStream;
 
 use function array_keys;
 use function count;
@@ -364,12 +364,12 @@ class QueryProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param QueryStreamDto $stream
+     * @param QueryStream $stream
      * @param array $sqlLines
      *
      * @return bool
      */
-    private function readLineFromArray(QueryStreamDto $stream, array $sqlLines): bool
+    private function readLineFromArray(QueryStream $stream, array $sqlLines): bool
     {
         if (!isset($sqlLines[$stream->lineNumber])) {
             return false;
@@ -392,20 +392,20 @@ class QueryProxy extends AbstractDriverProxy
         $options->setExecOptions(false, false, true);
 
         $sqlLines = explode("\n", $queries);
-        $queryLineReader = fn(QueryStreamDto $stream) =>
+        $queryLineReader = fn(QueryStream $stream) =>
             $this->readLineFromArray($stream, $sqlLines);
-        $stream = new QueryStreamDto($queryLineReader);
+        $stream = new QueryStream($queryLineReader);
 
         return $this->processor->executeQueryStream($stream, $options);
     }
 
     /**
-     * @param QueryStreamDto $stream
+     * @param QueryStream $stream
      * @param resource $fileStream
      *
      * @return bool
      */
-    private function readLineFromFile(QueryStreamDto $stream, mixed $fileStream): bool
+    private function readLineFromFile(QueryStream $stream, mixed $fileStream): bool
     {
         if (!($queryLine = fgets($fileStream))) {
             return false;
@@ -445,9 +445,9 @@ class QueryProxy extends AbstractDriverProxy
         $options->setExecOptions(false, true, false);
 
         $fileStream = $this->readFile($file, $options->decompressFile);
-        $queryLineReader = fn(QueryStreamDto $stream) =>
+        $queryLineReader = fn(QueryStream $stream) =>
             $this->readLineFromFile($stream, $fileStream);
-        $stream = new QueryStreamDto($queryLineReader);
+        $stream = new QueryStream($queryLineReader);
 
         return $this->processor->executeQueryStream($stream, $options);
     }

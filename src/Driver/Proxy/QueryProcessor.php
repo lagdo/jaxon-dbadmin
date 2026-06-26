@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Driver\Sql\Connection\AbstractConnection;
-use Lagdo\DbAdmin\Driver\Sql\Dto\QueryStreamDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectResult;
@@ -12,6 +11,8 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\RowsetDto;
 use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
+use Lagdo\DbAdmin\Support\Service\Query\QuerySplitter;
+use Lagdo\DbAdmin\Support\Service\Query\QueryStream;
 use Lagdo\DbAdmin\Support\Service\TimerService;
 use Generator;
 
@@ -32,6 +33,11 @@ class QueryProcessor extends AbstractDriverProxy
      * @var AbstractConnection
      */
     private $connection = null;
+
+    /**
+     * @var QuerySplitter
+     */
+    private QuerySplitter $querySplitter;
 
     /**
      * @var TimerService
@@ -62,6 +68,17 @@ class QueryProcessor extends AbstractDriverProxy
      * @var int
      */
     private int $batchSize = 20;
+
+    /**
+     * @param QuerySplitter $querySplitter
+     *
+     * @return static
+     */
+    public function setQuerySplitter(QuerySplitter $querySplitter): static
+    {
+        $this->querySplitter = $querySplitter;
+        return $this;
+    }
 
     /**
      * @param TimerService $timer
@@ -303,14 +320,14 @@ class QueryProcessor extends AbstractDriverProxy
     }
 
     /**
-     * @param QueryStreamDto $stream
+     * @param QueryStream $stream
      * @param ExecOptions $options
      *
      * @return ExecResultDto
      */
-    public function executeQueryStream(QueryStreamDto $stream, ExecOptions $options): ExecResultDto
+    public function executeQueryStream(QueryStream $stream, ExecOptions $options): ExecResultDto
     {
-        $queries = $this->statement()->splitQueries($stream);
+        $queries = $this->querySplitter->splitQueries($stream);
         return $this->withTimer(true)
             ->withLogger(true)
             ->executeQueries($queries, $options);

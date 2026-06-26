@@ -56,6 +56,7 @@ return [
         // Proxies to the DB driver features
         Proxy\QueryProcessor::class => fn(Container $di) =>
             (new Proxy\QueryProcessor($di->g(Support\Driver\DriverProxy::class)))
+                ->setQuerySplitter($di->g(Service\Query\QuerySplitter::class))
                 ->setTimer($di->g(Service\TimerService::class))
                 ->setQueryLogger($di->g(Service\Admin\QueryLogger::class)),
         Proxy\ServerProxy::class => fn(Container $di) =>
@@ -227,6 +228,8 @@ return [
         Support\Translator::class,
         // The proxy to the database features
         Support\Driver\DriverProxy::class,
+        // The query splitter
+        Service\Query\QuerySplitter::class,
         // The Breadcrumbs service
         Service\Breadcrumbs::class,
         // The Timer service
