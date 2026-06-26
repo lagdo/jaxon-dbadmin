@@ -165,6 +165,29 @@ jaxon.dbadmin = {};
     };
 
     /**
+     * Show or hide database table column fields.
+     *
+     * @param {string} containerId
+     * @param {string} toggleClass
+     *
+     * @returns {void}
+     */
+    self.toggleVisibility = (containerId, toggleClass) => {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            return;
+        }
+        const elements = Array.from(container.getElementsByClassName(toggleClass));
+        if (elements.length === 0) {
+            return;
+        }
+
+        // Get the new display value from the first element.
+        const displayValue = elements[0].style.display === 'none' ? 'flex' : 'none';
+        elements.forEach(element => element.style.display = displayValue);
+    };
+
+    /**
      * Jaxon javascript callback for upload requests.
      */
     self.upload = {

@@ -34,7 +34,7 @@ abstract class TableDdl extends MainComponent
     protected function header(): array
     {
         return [
-            'header' => $this->trans()->lang('Table'),
+            'header' => $this->tableUi->headerTitle(),
             'body' => $this->tableUi
                 ->metadata($this->metadata())
                 ->header(),
@@ -47,10 +47,10 @@ abstract class TableDdl extends MainComponent
     protected function content(): array
     {
         return [
+            'header' => $this->tableUi->wrapperTitle(),
             'body' => $this->tableUi
                 ->metadata($this->metadata())
                 ->wrapper(),
-            'header' => $this->tableUi->wrapperTitle(),
         ];
     }
 

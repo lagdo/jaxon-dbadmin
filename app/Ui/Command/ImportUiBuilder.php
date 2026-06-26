@@ -193,7 +193,9 @@ class ImportUiBuilder
     {
         return $this->ui->build(
             $this->ui->row(
-                $this->ui->col()->width(12)->setId($this->tab()->app()->id('dbadmin-command-details')),
+                $this->ui->col()
+                    ->width(12)
+                    ->setId($this->tab()->app()->id('dbadmin-command-details')),
                 $this->ui->col(
                     $this->ui->form(
                         $this->ui->row(

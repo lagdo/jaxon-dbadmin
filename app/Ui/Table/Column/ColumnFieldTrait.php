@@ -6,7 +6,7 @@ use Jaxon\Script\JsExpr;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\UiBuilder\BuilderInterface;
-use Lagdo\UiBuilder\Component\HtmlComponent;
+use Lagdo\UiBuilder\HtmlComponent;
 
 use function is_array;
 use function is_string;
@@ -14,7 +14,7 @@ use function Jaxon\form;
 use function Jaxon\jq;
 use function strcasecmp;
 
-trait ColumnTrait
+trait ColumnFieldTrait
 {
     use MetadataTrait;
 
@@ -57,6 +57,16 @@ trait ColumnTrait
     protected function columnsFormId(): string
     {
         return $this->tab()->app()->id('dbadmin-table-columns-form');
+    }
+
+    /**
+     * @param string $columnId
+     *
+     * @return string
+     */
+    public function columnDivId(string $columnId): string
+    {
+        return $this->tab()->app()->id("dbadmin-table-column-$columnId");
     }
 
     /**
@@ -278,26 +288,28 @@ trait ColumnTrait
     {
         return $this->ui->select(
             $this->ui->each($input->types, fn($groupTypes, $groupName) =>
-                $this->ui->pick([
-                    !is_numeric($groupName),
-                    fn() => $this->ui->optgroup(
+                $this->ui->pick(
+                    $this->ui->when(!is_numeric($groupName), fn() =>
+                        $this->ui->optgroup(
+                            $this->ui->each($groupTypes, fn($type, $key) =>
+                                $this->ui->option($type)
+                                    ->selected($input->values()->type === $type)
+                                    ->when(!is_numeric($key), fn($input) => $input->setValue($key))
+                            )
+                        )->setLabel($groupName)
+                    ),
+                    $this->ui->when(is_array($groupTypes), fn() =>
                         $this->ui->each($groupTypes, fn($type, $key) =>
                             $this->ui->option($type)
                                 ->selected($input->values()->type === $type)
                                 ->when(!is_numeric($key), fn($input) => $input->setValue($key))
                         )
-                    )->setLabel($groupName)
-                ], [
-                    is_array($groupTypes),
-                    fn() => $this->ui->each($groupTypes, fn($type, $key) =>
+                    ),
+                    $this->ui->when(!!($type = $groupTypes) /* Assign, always true */, fn() =>
                         $this->ui->option($type)
                             ->selected($input->values()->type === $type)
-                            ->when(!is_numeric($key), fn($input) => $input->setValue($key)))
-                ], [
-                    $type = $groupTypes, // Always true
-                    $this->ui->option($type)
-                        ->selected($input->values()->type === $type)
-                ])
+                    )
+                )
             )
         )->setName($columnName)
             ->setDataField('type');
@@ -397,12 +409,12 @@ trait ColumnTrait
                         ->selected($input->values()->generated === $default))
             )->setName($generated)
                 ->setDataField('generated')
-                ->setStyle('width: 25%;')
+                ->setStyle('width: 30%;')
                 ->when($this->listMode, fn($input) => $this->disable($input, false)),
             $this->ui->input()
                 ->setName($default)
                 ->setDataField('default')
-                ->setStyle('width: 75%;')
+                ->setStyle('width: 70%;')
                 ->when($placeholder !== '', fn($input) => $input->setPlaceholder($placeholder))
                 ->setValue($input->values()->default)
                 ->when($this->listMode, fn($input) => $this->disable($input))

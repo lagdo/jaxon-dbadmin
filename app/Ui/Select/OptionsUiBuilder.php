@@ -67,53 +67,48 @@ class OptionsUiBuilder
      */
     public function formColumns(array $values, array $options): string
     {
-        $columns = $values['column'] ?? [];
-        $count = count($columns);
-        $formRows = [];
-
-        for ($curId = 0, $newId = 0; $curId < $count; $curId++) {
-            // Do not render deleted items
-            if (isset($values['del'][$curId])) {
-                continue;
-            }
-
-            $formRows[] = $this->ui->row(
+        $newId = 0;
+        $rows = array_map(function(array $column) use($options, &$newId) {
+            $row = $this->ui->row(
                 $this->ui->col(
                     $this->ui->select(
                         $this->ui->option('')->selected(false),
                         $this->ui->optgroup(
                             $this->ui->each($options['functions'], fn($function) =>
                                 $this->ui->option($function)
-                                    ->selected($columns[$curId]['fun'] == $function)
+                                    ->selected($column['func'] === $function)
                             )
                         )->setLabel($this->trans->lang('Functions')),
                         $this->ui->optgroup(
                             $this->ui->each($options['grouping'], fn($grouping) =>
                                 $this->ui->option($grouping)
-                                    ->selected($columns[$curId]['fun'] == $grouping)
+                                    ->selected($column['func'] === $grouping)
                             )
                         )->setLabel($this->trans->lang('Aggregation')),
-                    )->setName("column[$newId][fun]")
+                    )->setName("columns[$newId][func]")
                 )
                 ->width(6),
                 $this->ui->col(
                     $this->ui->select(
-                        $this->ui->each($options['columns'], fn($column) =>
-                            $this->ui->option($column)
-                                ->selected($columns[$curId]['col'] == $column)
+                        $this->ui->option(''),
+                        $this->ui->each($options['columns'], fn($columnName) =>
+                            $this->ui->option($columnName)
+                                ->selected($column['column'] == $columnName)
                         )
-                    )->setName("column[$newId][col]")
+                    )->setName("columns[$newId][column]")
                 )->width(5),
                 $this->ui->col(
                     $this->ui->checkbox()
-                        ->checked(false)
-                        ->setName("del[$newId]")
-                        ->setClass("columns-item-checkbox")
+                        ->checked($column['delete'] ?? false)
+                        ->setName("columns[$newId][delete]")
                 )->width(1)
             );
             $newId++;
-        }
-        return $this->ui->build($this->ui->form(...$formRows));
+
+            return $row;
+        }, $values['columns'] ?? []);
+
+        return $this->ui->build($this->ui->form(...$rows));
     }
 
     /**
@@ -146,49 +141,43 @@ class OptionsUiBuilder
      */
     public function formFilters(array $values, array $options): string
     {
-        $wheres = $values['where'] ?? [];
-        $count = count($wheres);
-        $formRows = [];
-
-        for ($curId = 0, $newId = 0; $curId < $count; $curId++) {
-            // Do not render deleted items
-            if (isset($values['del'][$curId])) {
-                continue;
-            }
-
-            $formRows[] = $this->ui->row(
+        $newId = 0;
+        $rows = array_map(function(array $filter) use($options, &$newId) {
+            $row = $this->ui->row(
                 $this->ui->col(
                     $this->ui->select(
                         $this->ui->option('(' . $this->trans->lang('anywhere') . ')'),
-                        $this->ui->each($options['columns'], fn($column) =>
-                            $this->ui->option($column)
-                                ->selected($wheres[$curId]['col'] == $column)
+                        $this->ui->each($options['columns'], fn($columnName) =>
+                            $this->ui->option($columnName)
+                                ->selected($filter['column'] === $columnName)
                         )
-                    )->setName("where[$newId][col]")
+                    )->setName("filters[$newId][column]")
                 )->width(4),
                 $this->ui->col(
                     $this->ui->select(
                         $this->ui->each($options['operators'], fn($operator) =>
                             $this->ui->option($operator)
-                                ->selected($wheres[$curId]['op'] == $operator)
+                                ->selected($filter['operator'] === $operator)
                         )
-                    )->setName("where[$newId][op]")
+                    )->setName("filters[$newId][operator]")
                 )->width(3),
                 $this->ui->col(
                     $this->ui->input()
-                        ->setName("where[$newId][val]")
-                        ->setValue($wheres[$curId]['val'])
+                        ->setName("filters[$newId][operand]")
+                        ->setValue($filter['operand'])
                 )->width(4),
                 $this->ui->col(
                     $this->ui->checkbox()
-                        ->checked(false)
-                        ->setName("del[$newId]")
-                        ->setClass("filters-item-checkbox")
+                        ->checked($filter['delete'] ?? false)
+                        ->setName("filters[$newId][delete]")
                 )->width(1)
             );
             $newId++;
-        }
-        return $this->ui->build($this->ui->form(...$formRows));
+
+            return $row;
+        }, $values['filters'] ?? []);
+
+        return $this->ui->build($this->ui->form(...$rows));
     }
 
     /**
@@ -220,26 +209,19 @@ class OptionsUiBuilder
      *
      * @return string
      */
-    public function formSorting(array $values, array $options): string
+    public function formSorters(array $values, array $options): string
     {
-        $orders = $values['order'] ?? [];
-        $count = count($orders);
-        $formRows = [];
-
-        for ($curId = 0, $newId = 0; $curId < $count; $curId++) {
-            // Do not render deleted items
-            if (isset($values['del'][$curId])) {
-                continue;
-            }
-
-            $formRows[] = $this->ui->row(
+        $newId = 0;
+        $newId = 0;
+        $rows = array_map(function(array $sorter) use($options, &$newId) {
+            $row = $this->ui->row(
                 $this->ui->col(
                     $this->ui->select(
-                        $this->ui->each($options['columns'], fn($column) =>
-                            $this->ui->option($column)
-                                ->selected($orders[$curId] == $column)
+                        $this->ui->each($options['columns'], fn($columnName) =>
+                            $this->ui->option($columnName)
+                                ->selected($sorter['column'] === $columnName)
                         )
-                    )->setName("order[]")
+                    )->setName("sorters[$newId][column]")
                 )->width(6),
                 $this->ui->col(
                     $this->ui->inputGroup(
@@ -247,43 +229,45 @@ class OptionsUiBuilder
                             $this->ui->text($this->trans->lang('descending'))
                         ),
                         $this->ui->checkbox()
-                            ->checked(isset($values['desc'][$curId]))
-                            ->setName("desc[$newId]")
+                            ->checked($sorter['desc'] ?? false)
+                            ->setName("sorters[$newId][desc]")
                             ->setValue('1')
                     )
                 )->width(5),
                 $this->ui->col(
                     $this->ui->checkbox()
-                        ->checked(false)
-                        ->setName("del[$newId]")
-                        ->setClass("sorting-item-checkbox")
+                        ->checked($sorter['delete'] ?? false)
+                        ->setName("sorters[$newId][delete]")
                 )->width(1)
             );
             $newId++;
-        }
-        return $this->ui->build($this->ui->form(...$formRows));
+
+            return $row;
+        }, $values['sorters'] ?? []);
+
+        return $this->ui->build($this->ui->form(...$rows));
     }
 
     /**
      * @return string
      */
-    public function sortingFormId(): string
+    public function sorterFormId(): string
     {
-        return $this->tab()->app()->id('dbadmin-table-select-sorting-form');
+        return $this->tab()->app()->id('dbadmin-table-select-sorters-form');
     }
 
     /**
      * @return string
      */
-    public function editSorting(): string
+    public function editSorters(): string
     {
-        $rqSorting = rq(Options\Fields\Form\Sorting::class);
+        $rqSorters = rq(Options\Fields\Form\Sorters::class);
         return $this->ui->build(
             $this->ui->form(
-                $this->editFormButtons($rqSorting, $this->sortingFormId()),
+                $this->editFormButtons($rqSorters, $this->sorterFormId()),
                 $this->ui->div()
-                    ->tbnBindApp($rqSorting)
-            )->setId($this->sortingFormId())
+                    ->tbnBindApp($rqSorters)
+            )->setId($this->sorterFormId())
         );
     }
 
@@ -294,16 +278,16 @@ class OptionsUiBuilder
      */
     public function optionsFields(array $options): string
     {
-        $columnCount = count($options['columns']['column'] ?? []);
-        $filterCount = count($options['filters']['where'] ?? []);
-        $sortingCount = count($options['sorting']['order'] ?? []);
+        $columnCount = count($options['columns']['columns'] ?? []);
+        $filterCount = count($options['filters']['filters'] ?? []);
+        $sorterCount = count($options['sorters']['sorters'] ?? []);
 
         return $this->ui->build(
             $this->ui->buttonGroup(
                 $this->ui->button(
                     $this->ui->text($this->trans->lang('Columns ')),
                     $this->ui->when($columnCount > 0, fn() =>
-                        $this->ui->badge((string)$columnCount)->type('secondary'))
+                        $this->ui->badge((string)$columnCount)->primary())
                 )->outline()
                     ->secondary()
                     ->fullWidth()
@@ -311,19 +295,19 @@ class OptionsUiBuilder
                 $this->ui->button(
                     $this->ui->text($this->trans->lang('Filters ')),
                     $this->ui->when($filterCount > 0, fn() =>
-                        $this->ui->badge((string)$filterCount)->type('secondary'))
+                        $this->ui->badge((string)$filterCount)->primary())
                 )->outline()
                     ->secondary()
                     ->fullWidth()
                     ->jxnClick(rq(Options\Fields\Filters::class)->edit()),
                 $this->ui->button(
                     $this->ui->text($this->trans->lang('Order ')),
-                    $this->ui->when($sortingCount > 0, fn() =>
-                        $this->ui->badge((string)$sortingCount)->type('secondary'))
+                    $this->ui->when($sorterCount > 0, fn() =>
+                        $this->ui->badge((string)$sorterCount)->primary())
                 )->outline()
                     ->secondary()
                     ->fullWidth()
-                    ->jxnClick(rq(Options\Fields\Sorting::class)->edit())
+                    ->jxnClick(rq(Options\Fields\Sorters::class)->edit())
             )->fullWidth()
         );
     }

@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ui\Table;
 
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
-use Lagdo\DbAdmin\App\Ui\Table\Column\ColumnTrait;
+use Lagdo\DbAdmin\App\Ui\Table\Column\ColumnFieldTrait;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 use Lagdo\DbAdmin\Support\Translator;
@@ -13,7 +13,7 @@ use function count;
 
 class ColumnUiBuilder
 {
-    use ColumnTrait;
+    use ColumnFieldTrait;
 
     /**
      * @param Translator $trans
