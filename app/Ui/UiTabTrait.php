@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbUser;
 use Lagdo\DbAdmin\App\Ajax\Admin\Sidebar as AdminSidebar;
 use Lagdo\DbAdmin\App\Ajax\Admin\Wrapper as AdminWrapper;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
-use Lagdo\UiBuilder\Component\HtmlComponent;
+use Lagdo\UiBuilder\HtmlComponent;
 
 use function Jaxon\cl;
 use function Jaxon\form;

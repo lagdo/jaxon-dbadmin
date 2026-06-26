@@ -167,34 +167,39 @@ class ColumnUiBuilder
     private function tableColumns(array $columns): mixed
     {
         return $this->ui->each($columns, fn(ColumnFormDto $input) =>
-            $this->ui->pick([
-                $input->dropped(), fn() => $this->ui->row(
-                    $this->ui->col($this->ui->text($input->column->name . ':'))
-                        ->width(3),
-                    $this->ui->col($this->trans->lang('Drop'))
-                        ->width(8)
+            $this->ui->pick(
+                $this->ui->when($input->dropped(), fn() =>
+                    $this->ui->row(
+                        $this->ui->col($this->ui->text($input->column->name . ':'))
+                            ->width(3),
+                        $this->ui->col($this->trans->lang('Drop'))
+                            ->width(8)
+                    )
+                ),
+                $this->ui->when($input->changed(), fn() =>
+                    $this->ui->row(
+                        $this->ui->col($this->ui->text($input->column->name . ':'))
+                            ->width(3),
+                        $this->ui->col(
+                            $this->ui->div($this->trans->lang('Alter:')),
+                            $this->ui->each($input->changes(), fn($change, $attr) =>
+                                $this->ui->div(
+                                    $this->ui->html("- $attr => {$change['to']}")
+                                )
+                            )
+                        )->width(8)
+                    )
+                ),
+                $this->ui->when($input->added(), fn() =>
+                    $this->ui->row(
+                        $this->ui->col($this->ui->text($input->newName() . ':'))
+                            ->width(3),
+                        $this->ui->col($this->trans->lang('Add'))
+                            ->width(8)
+                    )
                 )
-            ], [
-                $input->changed(), fn() => $this->ui->row(
-                    $this->ui->col($this->ui->text($input->column->name . ':'))
-                        ->width(3),
-                    $this->ui->col(
-                        $this->ui->div($this->trans->lang('Alter:')),
-                        $this->ui->each($input->changes(), fn($change, $attr) =>
-                            $this->ui->div(
-                                $this->ui->html("- $attr => {$change['to']}")
-                            ))
-                    )->width(8)
-                )
-            ], [
-                $input->added(), fn() => $this->ui->row(
-                    $this->ui->col($this->ui->text($input->newName() . ':'))
-                        ->width(3),
-                    $this->ui->col($this->trans->lang('Add'))
-                        ->width(8)
-                )
-            ]
-        ));
+            )
+        );
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ui\Tab;
 
 use Jaxon\Plugin\Response\Databag\DatabagPlugin;
-use Lagdo\UiBuilder\Component\HtmlComponent;
+use Lagdo\UiBuilder\HtmlComponent;
 use LogicException;
 
 class Tab

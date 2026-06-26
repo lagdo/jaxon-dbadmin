@@ -33,18 +33,16 @@ class EditUiBuilder
      */
     protected function getEnumValueInput(array $input): mixed
     {
-        return $this->ui->list(
-            $this->ui->each($input['items'], fn($item) =>
-                $this->ui->label(
-                    $this->ui->radio($item['attrs'])
-                        ->setValue($item['value'], false)
-                        ->when($item['checked'], fn($radio) =>
-                            $radio->setAttribute('checked', 'checked'))
-                        ->setStyle('margin-right:3px;'),
-                    $this->ui->span($item['label'])
-                )->setFor($this->tab()->app()->id($item['attrs']['id']))
-                    ->setStyle('margin-right:7px;')
-            )
+        return $this->ui->each($input['items'], fn($item) =>
+            $this->ui->label(
+                $this->ui->radio($item['attrs'])
+                    ->setValue($item['value'], false)
+                    ->when($item['checked'], fn($radio) =>
+                        $radio->setAttribute('checked', 'checked'))
+                    ->setStyle('margin-right:3px;'),
+                $this->ui->span($item['label'])
+            )->setFor($this->tab()->app()->id($item['attrs']['id']))
+                ->setStyle('margin-right:7px;')
         );
     }
 
@@ -154,15 +152,19 @@ class EditUiBuilder
     {
         $input = $input->functionInput;
         return $this->ui->pick(
-            [isset($input['label']), fn() => $this->ui->span($input['label'])],
-            [isset($input['select']), fn() => $this->ui->select(
-                $input['select']['attrs'],
-                $this->ui->each($input['select']['options'], fn($option) =>
-                    $this->ui->option($option)
-                        ->selected($option === $input['select']['value'])
+            $this->ui->when(isset($input['label']), fn() =>
+                $this->ui->span($input['label'])
+            ),
+            $this->ui->when(isset($input['select']), fn() =>
+                $this->ui->select(
+                    $input['select']['attrs'],
+                    $this->ui->each($input['select']['options'], fn($option) =>
+                        $this->ui->option($option)
+                            ->selected($option === $input['select']['value'])
+                    )
                 )
-            )],
-            [true, fn() => $this->ui->html('')],
+            ),
+            $this->ui->when(true, fn() => $this->ui->html('')),
         );
         // return $this->ui->list(match(true) {
         //     isset($input['label']) => $this->ui->span($input['label']),

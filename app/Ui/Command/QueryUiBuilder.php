@@ -9,7 +9,7 @@ use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
-use Lagdo\UiBuilder\Component\HtmlComponent;
+use Lagdo\UiBuilder\HtmlComponent;
 
 use function Jaxon\form;
 use function Jaxon\jo;

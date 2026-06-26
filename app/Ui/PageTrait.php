@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\App\Ui;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 use Lagdo\UiBuilder\BuilderInterface;
-use Lagdo\UiBuilder\Component\HtmlComponent;
+use Lagdo\UiBuilder\HtmlComponent;
 
 use function array_shift;
 use function array_values;
@@ -131,7 +131,8 @@ trait PageTrait
                     )
                 )
             )
-        )->responsive()->border();
+        )->responsive()
+            ->border();
     }
 
     /**

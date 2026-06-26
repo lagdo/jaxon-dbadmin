@@ -9,7 +9,6 @@ use Lagdo\DbAdmin\Support\Driver\EngineDecorator;
 use Lagdo\DbAdmin\Support\Provider;
 use Lagdo\DbAdmin\Support\Service;
 use Lagdo\Facades\Logger;
-use Lagdo\UiBuilder\AbstractBuilder;
 use Lagdo\UiBuilder\BuilderInterface;
 
 $base = require __DIR__ . '/base.php';
@@ -166,7 +165,7 @@ return [
             BuilderInterface::class => function(BuilderInterface $builder,
                     Container $di): BuilderInterface {
                 $tab = $di->g(App\Ui\Tab\Tab::class);
-                $builder->registerHelper('tbn', AbstractBuilder::TARGET_COMPONENT, $tab->helper(...));
+                $builder->registerComponentHelper('tbn', $tab->helper(...));
                 return $builder;
             },
         ],

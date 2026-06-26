@@ -113,25 +113,28 @@ class ServerUiBuilder
      */
     public function addDbForm(array $collations): string
     {
+        $count = count($collations);
         return $this->ui->build(
             $this->ui->form(
                 $this->ui->row(
                     $this->ui->col(
                         $this->ui->label($this->ui->text('Name'))
-                                ->setFor('name')
+                            ->setFor('name')
                     )->width(3),
                     $this->ui->col(
                         $this->ui->input()
-                            ->setType('text')->setName('name')
+                            ->setType('text')
+                            ->setName('name')
                             ->setPlaceholder('Name')
                     )->width(6)
                 ),
-                $this->ui->when(count($collations) === 0, fn() =>
+                $this->ui->when($count === 0, fn() =>
                     $this->ui->input()
                         ->setType('hidden')
                         ->setName('collation')
-                        ->setValue('')),
-                $this->ui->when(count($collations) > 0, fn() =>
+                        ->setValue('')
+                ),
+                $this->ui->when($count > 0, fn() =>
                     $this->ui->row(
                         $this->ui->col(
                             $this->ui->label($this->ui->text('Collation'))
@@ -142,19 +145,15 @@ class ServerUiBuilder
                                 $this->ui->option('(collation)')
                                     ->setValue('')
                                     ->selected(true),
-                                $this->ui->each($collations, fn($_collations, $group) =>
-                                    $this->ui->list(
-                                        $this->ui->when($group !== '', fn() =>
-                                            $this->ui->optgroup(
-                                                $this->ui->each($_collations, fn($collation) =>
-                                                    $this->ui->option($collation)
-                                                )
-                                            )->setLabel($group)
-                                        ),
+                                $this->ui->each($collations, fn(array $groupCollations, $group) =>
+                                    $this->ui->pick(
                                         $this->ui->when($group === '', fn() =>
-                                            $this->ui->each($_collations, fn($collation) =>
-                                                $this->ui->option($collation)
-                                            )
+                                            $this->ui->each($groupCollations, $this->ui->option(...))
+                                        ),
+                                        $this->ui->when(true, fn() =>
+                                            $this->ui->optgroup(
+                                                $this->ui->each($groupCollations, $this->ui->option(...))
+                                            )->setLabel($group)
                                         )
                                     )
                                 )
