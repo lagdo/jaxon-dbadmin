@@ -75,8 +75,12 @@ class AuditUiBuilder
                     $this->ui->button($this->trans->lang('Favorites'))
                         ->primary()
                         ->setStyle('float:right;')
-                        ->jxnClick(rq(Query\Favorite::class)->render())
-                )->setStyle('width:120px; margin: 0 10px;')
+                        ->jxnClick(rq(Query\Favorite::class)->render()),
+                    $this->ui->button($this->trans->lang('Refresh'))
+                        ->primary()
+                        ->setStyle('float:right; margin-right: 5px;')
+                        ->jxnClick(rq(Query\HistoryPage::class)->page())
+                )->setStyle('width:220px; margin: 0 10px;')
             )->setStyle('display:flex; flex-direction:row; align-items:flex-start;'),
             $this->ui->div(
                 $this->ui->div()
@@ -143,8 +147,12 @@ class AuditUiBuilder
                     $this->ui->button($this->trans->lang('History'))
                         ->primary()
                         ->setStyle('float:right;')
-                        ->jxnClick(rq(Query\History::class)->render())
-                )->setStyle('width:120px; margin: 0 10px;')
+                        ->jxnClick(rq(Query\History::class)->render()),
+                    $this->ui->button($this->trans->lang('Refresh'))
+                        ->primary()
+                        ->setStyle('float:right; margin-right: 5px;')
+                        ->jxnClick(rq(Query\FavoritePage::class)->page())
+                )->setStyle('width:220px; margin: 0 10px;')
             )->setStyle('display:flex; flex-direction:row; align-items:flex-start;'),
             $this->ui->div(
                 $this->ui->div()
