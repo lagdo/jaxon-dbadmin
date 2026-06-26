@@ -1,14 +1,9 @@
 <?php
 
-namespace Lagdo\DbAdmin\Support\Driver\UiDto;
+namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dql;
 
-class RowsetDto
+class QueryRowsetDto
 {
-    /**
-     * @var array
-     */
-    public array $tables = []; // This data is not yet used.
-
     /**
      * @var array<string>
      */

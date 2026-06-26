@@ -4,12 +4,16 @@ namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dql;
 
 use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface as QueryResult;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\SelectColumnDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
-use Lagdo\DbAdmin\Support\Driver\UiDto\RowsetDto;
 
 use function array_combine;
+use function array_filter;
+use function array_keys;
 use function array_map;
+use function array_values;
+use function count;
 use function is_string;
 use function md5;
 use function preg_match;
@@ -22,28 +26,6 @@ use function trim;
  */
 class SelectResult extends AbstractDriverProxy
 {
-    /**
-     * @param array $rows
-     * @param array $queryOptions
-     *
-     * @return array
-     */
-    /*private function getValuesLengths(array $rows, array $queryOptions): array
-    {
-        $lengths = [];
-        if($queryOptions['modify'])
-        {
-            foreach($rows as $row)
-            {
-                foreach($row as $columnName => $value)
-                {
-                    $lengths[$columnName] = \max($lengths[$columnName], \min(40, strlen(\utf8_decode($value))));
-                }
-            }
-        }
-        return $lengths;
-    }*/
-
     /**
      * @param SelectDqDto $select
      * @param array $row
@@ -129,10 +111,19 @@ class SelectResult extends AbstractDriverProxy
      */
     private function getRowIds(SelectDqDto $select, array $row): array
     {
+        if ($select->grouped) {
+            return [null, null];
+        }
+
         $uniqueIds = $this->getUniqueIds($select, $row);
+        if (count($uniqueIds) === 0) {
+            return [null, null];
+        }
+
         // Unique identifier to edit returned data.
         // $unique_idf = "";
-        $rowIds = ['where' => [], 'null' => []];
+        $editValues = null;
+        $nullValues = null;
         foreach ($uniqueIds as $columnName => $value) {
             $columnName = trim($columnName);
             $value = $this->getRowIdValue($select, $columnName, $value);
@@ -142,45 +133,31 @@ class SelectResult extends AbstractDriverProxy
             // $columnName . "]") . "=" .
             // \urlencode($value) : \urlencode("null[]") . "=" . \urlencode($columnName));
             if ($value === null) {
-                $rowIds['null'][] = $columnName;
+                $nullValues ??= [];
+                $nullValues[] = $columnName;
                 continue;
             }
-            $rowIds['where'][$columnName] = $value;
+
+            $editValues ??= [];
+            $editValues[$columnName] = $value;
         }
-        return $rowIds;
+
+        return [$editValues, $nullValues];
     }
 
     /**
      * @param SelectDqDto $select
-     * @param string $columnName
-     * @param mixed $value
+     * @param ColumnDto $column
      *
-     * @return array
+     * @return ForeignKeyDto|null
      */
-    private function getColumnValue(SelectDqDto $select, string $columnName, $value): array
+    private function getColumnForeignKey(SelectDqDto $select, ColumnDto $column): ForeignKeyDto|null
     {
-        $column = $select->table->columns[$columnName] ?? new ColumnDto();
-        $textLength = $select->input->textLength;
-        $value = $this->engine()->convertValue($value, $column);
-        return $this->pageUi()->getColumnValue($column, $textLength, $value);
-    }
+        $filter = fn(ForeignKeyDto $key) =>
+            count($key->target) === 1 && $key->target[0] === $column->name;
+        $foreignKeys = array_filter($select->table->foreignKeys, $filter);
 
-    /**
-     * @param SelectDqDto $select
-     * @param array $headers
-     * @param array $row
-     *
-     * @return array
-     */
-    private function getRowValues(SelectDqDto $select, array $headers, array $row): array
-    {
-        $cols = [];
-        foreach ($row as $columnName => $value) {
-            if (isset($headers[$columnName]['name'])) {
-                $cols[] = $this->getColumnValue($select, $columnName, $value);
-            }
-        }
-        return $cols;
+        return (array_values($foreignKeys))[0] ?? null;
     }
 
     /**
@@ -189,37 +166,40 @@ class SelectResult extends AbstractDriverProxy
      * @param string|null $sqlField
      * @param SelectColumnDto|null $uiColumn
      *
-     * @return array
+     * @return QueryResultHeaderDto
      */
     private function getResultHeader(SelectDqDto $select, string $dbField,
-        string|null $sqlField, SelectColumnDto|null $uiColumn): array
+        string|null $sqlField, SelectColumnDto|null $uiColumn): QueryResultHeaderDto
     {
         // if (isset($select->primaryColumns[$dbField])) {
         //     return [];
         // }
 
+        $header = new QueryResultHeaderDto();
+
         $function = $uiColumn?->func ?? '';
         $columnKey = !$select->columns ? $dbField : ($uiColumn?->columnName ?? $sqlField);
         $column = $select->table->columns[$columnKey] ?? null;
-        $name = $column === null ? ($function ? '*' : $dbField) :
-            $this->pageUi()->columnName($column);
+        if ($column === null) {
+            $header->column = new ColumnDto();
+            // The SQL clause in the select query.
+            $header->field = $function ? '*' : $dbField;
+        } else {
+            $header->column = $column;
+            $header->foreignKey = $this->getColumnForeignKey($select, $column);
+            // The SQL clause in the select query.
+            $header->field = $this->pageUi()->columnName($column);
+        }
 
-        if ($name === '') {
-            return [
-                'column' => $this->statement()->escapeId($dbField),
-                'name' => $name,
-            ];
+        if ($header->field === '') {
+            return $header;
         }
 
         // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($dbField);
         // $desc = '&desc%5B0%5D=1';
-        return [
-            'column' => $this->statement()->escapeId($dbField),
-            // 'key' => $this->utils()->html($this->statement()->bracketEscape($dbField)),
-            'name' => $name,
-            //! columns looking like functions
-            'title' => $this->pageUi()->applySqlFunction($function, $name),
-        ];
+        // 'key' => $this->utils()->html($this->statement()->bracketEscape($dbField)),
+        $header->title = $this->pageUi()->applySqlFunction($function, $header->field);
+        return $header;
     }
 
     /**
@@ -240,25 +220,59 @@ class SelectResult extends AbstractDriverProxy
     }
 
     /**
+     * @param SelectDqDto $select
+     * @param QueryResultHeaderDto $header
+     * @param mixed $value
+     *
+     * @return array
+     */
+    private function getColumnValue(SelectDqDto $select, QueryResultHeaderDto $header, $value): array
+    {
+        $value = $this->engine()->convertValue($value, $header->column);
+        $textLength = $select->input->textLength;
+
+        return $this->pageUi()->getColumnValue($header->column, $textLength, $value);
+    }
+
+    /**
+     * @param SelectDqDto $select
+     * @param array<QueryResultHeaderDto> $headers
+     * @param array $values
+     *
+     * @return array
+     */
+    private function getRowValues(SelectDqDto $select, array $headers, array $values): array
+    {
+        // Unlike Adminer, we have only SQL query results.
+        // So all the rows have the same columns => no need to filter the values.
+        // $filter = fn(string $columnName) => isset($headers[$columnName]);
+        // $values = array_filter($values, $filter, ARRAY_FILTER_USE_KEY);
+        $callback = fn($value, string $columnName) =>
+            $this->getColumnValue($select, $headers[$columnName], $value);
+
+        return array_map($callback, $values, array_keys($values));
+    }
+
+    /**
      * @param QueryResult $result
      * @param SelectDqDto $select
      *
-     * @return RowsetDto
+     * @return SelectRowsetDto
     */
-    public function getSelectRowset(QueryResult $result, SelectDqDto $select): RowsetDto
+    public function getSelectRowset(QueryResult $result, SelectDqDto $select): SelectRowsetDto
     {
         if ($result->hasError()) {
-            return new RowsetDto(error: $this->engine()->errorMessage());
+            return new SelectRowsetDto(error: $this->engine()->errorMessage());
         }
 
         // Fetch the first result row.
-        $row = $result->fetchAssoc();
-        if ($row === null) {
-            return new RowsetDto(message: $this->utils()->lang('No rows.'));
+        $values = $result->fetchAssoc();
+        if ($values === null) {
+            return new SelectRowsetDto(message: $this->utils()->lang('No rows.'));
         }
 
-        $rowset = new RowsetDto();
-        $rowset->headers = $this->getResultHeaders($select, array_keys($row));
+        $rowset = new SelectRowsetDto();
+        $rowset->headers = $this->getResultHeaders($select, array_keys($values));
         // $backward_keys = $this->engine()->backwardKeys($table, $tableName);
         // lengths = $this->getValuesLengths($rows, $select->queryOptions);
 
@@ -267,14 +281,13 @@ class SelectResult extends AbstractDriverProxy
             // if ($select->input->page && $this->engine()->oracle()) {
             //     unset($row["RNUM"]);
             // }
-            $rowset->rows[] = [
-                // The unique identifiers to edit the result rows.
-                'ids' => $this->getRowIds($select, $row),
-                'cols' => $this->getRowValues($select, $rowset->headers, $row),
-            ];
+            $row = new QueryResultRowDto();
+            // The unique identifiers to edit the result rows.
+            [$row->editValues, $row->nullValues] = $this->getRowIds($select, $values);
+            $row->columns = $this->getRowValues($select, $rowset->headers, $values);
 
-            $row = $result->fetchAssoc();
-        } while ($row !== null);
+            $rowset->rows[] = $row;
+        } while (($values = $result->fetchAssoc()) !== null);
 
         return $rowset;
     }
@@ -308,7 +321,6 @@ class SelectResult extends AbstractDriverProxy
     */
     private function columValue(mixed $value, int $column, array $blobs, array $types): string
     {
-        // $link = $this->editLink($val);
         return match(true) {
             $value === null => '<i>NULL</i>',
             //! link to download
@@ -336,12 +348,12 @@ class SelectResult extends AbstractDriverProxy
      * @param QueryResult $result
      * @param int $limit
      *
-     * @return RowsetDto
+     * @return QueryRowsetDto
     */
-    public function getQueryRowset(QueryResult $result, int $limit): RowsetDto
+    public function getQueryRowset(QueryResult $result, int $limit): QueryRowsetDto
     {
         if ($result->hasError()) {
-            return new RowsetDto(error: $this->engine()->errorMessage());
+            return new QueryRowsetDto(error: $this->engine()->errorMessage());
         }
 
         // No rowset
@@ -349,7 +361,7 @@ class SelectResult extends AbstractDriverProxy
             $affectedRows = $this->engine()->affectedRows();
             $message = 'Query executed OK, %d row(s) affected.';
             $message = $this->utils()->lang($message, $affectedRows); //  . "$time";
-            $rowset = new RowsetDto(message: $message);
+            $rowset = new QueryRowsetDto(message: $message);
             $rowset->affectedRows = $affectedRows;
 
             return $rowset;
@@ -358,10 +370,10 @@ class SelectResult extends AbstractDriverProxy
         // Fetch the first row.
         $row = $this->fetchRow($result, 0, $limit);
         if ($row === null) {
-            return new RowsetDto(message: $this->utils()->lang('No rows.'));
+            return new QueryRowsetDto(message: $this->utils()->lang('No rows.'));
         }
 
-        $rowset = new RowsetDto(message: $this->resultMessage($result, $limit));
+        $rowset = new QueryRowsetDto(message: $this->resultMessage($result, $limit));
 
         // Use the first row to get the table headers.
         $blobs = []; // colno => bool - display bytes for blobs
@@ -384,9 +396,7 @@ class SelectResult extends AbstractDriverProxy
         do {
             $rowset->rowCount++;
             $rowset->rows[] = array_map($callback, $row);
-
-            $row = $this->fetchRow($result, $rowset->rowCount, $limit);
-        } while ($row !== null);
+        } while (($this->fetchRow($result, $rowset->rowCount, $limit)) !== null);
 
         return $rowset;
     }

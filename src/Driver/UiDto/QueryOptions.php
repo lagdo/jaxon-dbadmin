@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto;
 
-class ExecOptions
+class QueryOptions
 {
     /**
      * @var bool
@@ -17,7 +17,7 @@ class ExecOptions
     /**
      * @var bool
      */
-    public bool $saveResults = false;
+    public bool $getRowsets = false;
 
     /**
      * @var bool
@@ -46,14 +46,14 @@ class ExecOptions
     /**
      * @param bool $inTransaction
      * @param bool $inBatch
-     * @param bool $saveResults
+     * @param bool $getRowsets
      *
      * @return void
      */
-    public function setExecOptions(bool $inTransaction, bool $inBatch, bool $saveResults): void
+    public function setExecOptions(bool $inTransaction, bool $inBatch, bool $getRowsets): void
     {
         $this->inTransaction = $inTransaction;
         $this->inBatch = $inBatch;
-        $this->saveResults = $saveResults;
+        $this->getRowsets = $getRowsets;
     }
 }

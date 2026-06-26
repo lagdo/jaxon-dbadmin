@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ui\Command\QueryUiBuilder;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
 
 use function intval;
 use function trim;
@@ -78,7 +78,7 @@ trait QueryTrait
 
         $this->db()->prepareQueryExec();
 
-        $options = new ExecOptions($values['error_stops'] ?? false,
+        $options = new QueryOptions($values['error_stops'] ?? false,
             $values['only_errors'] ?? false, intval($values['limit'] ?? 0));
         $result = $this->db()->executeQueriesInText($queryText, $options);
 

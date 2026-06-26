@@ -139,7 +139,6 @@ class RowDataReader extends AbstractDriverProxy
      */
     public function getInputValues(array $columns, array $inputs): array
     {
-        // From edit.inc.php
         $values = [];
         foreach ($columns as $name => $column) {
             $value = $this->getInputValue($column, $inputs);
@@ -152,26 +151,51 @@ class RowDataReader extends AbstractDriverProxy
     }
 
     /**
+     * @param string $columnName
+     * @param string $table
+     *
+     * @return array<string|null>
+     */
+    private function errorValue(string $columnName, string $table): array
+    {
+        return [
+            null,
+            null,
+            $this->utils()->lang("No column %s in table %s.", $columnName, $table),
+        ];
+    }
+
+    /**
      * Get the table columns
      *
      * @param string $table         The table name
-     * @param array  $options       The query options
+     * @param array  $rowIdValues       The query options
      *
      * @return array
      */
-    public function getTableColumns(string $table, array $options): array
+    public function getTableColumns(string $table, array $rowIdValues = []): array
     {
         $columns = $this->engine()->columns($table);
+        foreach (($rowIdValues['where'] ?? []) as $columnName => $_) {
+            if (!isset($columns[$columnName])) {
+                return $this->errorValue($columnName, $table);
+            }
+        }
+        foreach (($rowIdValues['null'] ?? []) as $columnName) {
+            if (!isset($columns[$columnName])) {
+                return $this->errorValue($columnName, $table);
+            }
+        }
+
         // Important: get the where clauses before filtering the columns.
-        $where = $this->engine()->where($options, $columns);
+        $where = $this->engine()->where($rowIdValues, $columns);
 
         // Remove columns without the required privilege, or that cannot be edited.
         $columns = array_filter($columns, fn(ColumnDto $column) =>
-            isset($column->privileges[$this->operation]) &&
-            $this->pageUi()->columnName($column) !== '' &&
-            !$column->generated);
+            !$column->generated && isset($column->privileges[$this->operation]) &&
+                $this->pageUi()->columnName($column) !== '');
 
-        return [$columns, $where];
+        return [$columns, $where, null];
     }
 
     /**
@@ -185,28 +209,28 @@ class RowDataReader extends AbstractDriverProxy
         //     return ['*'];
         // }
 
-        // From edit.inc.php
         $columns = array_filter($columns,
             fn(ColumnDto $column) => isset($column->privileges['select']));
-        return array_map(function(ColumnDto $column, string $name) {
+        return array_map(function(ColumnDto $column, string $columnName) {
             // $as = $this->action === 'clone' && $column->autoIncrement ? "''" :
             //     $this->statement()->convertColumn($column);
             $as = $this->statement()->convertColumn($column);
-            return ($as !== '' ? "$as AS " : '') . $this->statement()->escapeId($name);
+            $columnName = $this->statement()->escapeId($columnName);
+
+            return $as !== '' ? "$as AS $columnName" : $columnName;
         }, $columns, array_keys($columns));
     }
 
     /**
      * @param string $table
-     * @param array $options
+     * @param array $rowIdValues
      *
      * @return int
      */
-    public function getQueryLimit(string $table, array $options): int
+    public function getQueryLimit(string $table, array $rowIdValues): int
     {
-        // From edit.inc.php
         $indexes = $this->engine()->indexes($table);
-        $uniqueIds = $this->utils()->uniqueIds($options['where'], $indexes);
+        $uniqueIds = $this->utils()->uniqueIds($rowIdValues['where'], $indexes);
 
         // Limit to 1 if no unique ids are found.
         return count($uniqueIds ?? []) === 0 ? 1 : 0;

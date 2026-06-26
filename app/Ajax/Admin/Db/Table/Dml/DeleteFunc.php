@@ -20,15 +20,15 @@ class DeleteFunc extends FuncComponent
     /**
      * Execute the delete query
      *
-     * @param int   $editId
-     * @param array $rowIds
+     * @param int   $rowId
+     * @param array $rowIdValues
      *
      * @return void
      */
-    public function exec(int $editId, array $rowIds): void
+    public function exec(int $rowId, array $rowIdValues): void
     {
-        if(!is_array($rowIds['where'] ?? 0) ||
-            count($rowIds['where']) === 0 || $editId <= 0)
+        if(!is_array($rowIdValues['where'] ?? 0) ||
+            count($rowIdValues['where']) === 0 || $rowId <= 0)
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
@@ -36,7 +36,7 @@ class DeleteFunc extends FuncComponent
             return;
         }
 
-        $result = $this->db()->deleteRow($this->getCurrentTable(), $rowIds);
+        $result = $this->db()->deleteRow($this->getCurrentTable(), $rowIdValues);
         // Show the error
         if($result->error !== null)
         {

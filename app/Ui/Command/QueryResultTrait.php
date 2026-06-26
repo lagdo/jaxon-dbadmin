@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ui\Command;
 
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\RowsetDto;
 
 use function array_slice;
@@ -11,18 +11,17 @@ use function count;
 trait QueryResultTrait
 {
     /**
-     * @param ExecResultDto $result
+     * @param QueryResultDto $result
      *
      * @return string
      */
-    public function results(ExecResultDto $result): string
+    public function results(QueryResultDto $result): string
     {
-        $resulsets = $result->rowsets;
-        $truncatedRowsets = $resulsets;
+        $truncatedRowsets = $result->rowsets;
         $truncatedMessage = $this->trans->lang('Showing the %d first entries in the results.', 20);
         $resultsAreTruncated = false;
-        if (count($resulsets) > 12) {
-            $truncatedRowsets = array_slice($resulsets, 0, 10);
+        if (count($result->rowsets) > 12) {
+            $truncatedRowsets = array_slice($result->rowsets, 0, 10);
             $resultsAreTruncated = true;
         }
 

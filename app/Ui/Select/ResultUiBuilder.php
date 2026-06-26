@@ -3,6 +3,8 @@
 namespace Lagdo\DbAdmin\App\Ui\Select;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultRow;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultHeaderDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultRowDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
@@ -18,33 +20,33 @@ class ResultUiBuilder
     {}
 
     /**
-     * @param array $row
+     * @param QueryResultRowDto $row
      *
      * @return mixed
      */
-    private function _resultRowContent(array $row): mixed
+    private function _resultRowContent(QueryResultRowDto $row): mixed
     {
         return $this->ui->list(
-            $this->ui->tableDataCell($row['menu'], ['style' => 'width:30px']),
-            $this->ui->each($row['cols'], fn($col) =>
-                $this->ui->tableDataCell($col['value'])
+            $this->ui->tableDataCell($row->rowMenu, ['style' => 'width:30px']),
+            $this->ui->each($row->columns, fn(array $column) =>
+                $this->ui->tableDataCell($column['value'])
             )
         );
     }
 
     /**
-     * @param array $row
+     * @param QueryResultRowDto $row
      *
      * @return string
      */
-    public function resultRowContent(array $row): string
+    public function resultRowContent(QueryResultRowDto $row): string
     {
         return $this->ui->build($this->_resultRowContent($row));
     }
 
     /**
-     * @param array $headers
-     * @param array $rows
+     * @param array<QueryResultHeaderDto> $headers
+     * @param array<QueryResultRowDto> $rows
      *
      * @return string
      */
@@ -57,16 +59,16 @@ class ResultUiBuilder
                 $this->ui->tableHead(
                     $this->ui->tableRow(
                         $this->ui->tableHeadCell(['style' => 'width:30px']),
-                        $this->ui->each($headers, fn(array $header) =>
-                            $this->ui->tableHeadCell($header['title'] ?? '')
+                        $this->ui->each($headers, fn(QueryResultHeaderDto $header) =>
+                            $this->ui->tableHeadCell($header->title)
                         )
                     )
                 ),
                 $this->ui->tableBody(
-                    $this->ui->each($rows, fn(array $row) =>
+                    $this->ui->each($rows, fn(QueryResultRowDto $row) =>
                         $this->ui->tableRow($this->_resultRowContent($row))
-                            ->when($row['editId'] > 0, fn($tr) =>
-                                $tr->tbnBindApp($rqResultRow, $row['editItemId'])))
+                            ->when($row->editValues !== null, fn($tr) =>
+                                $tr->tbnBindApp($rqResultRow, $row->bagId)))
                 )
             )->responsive()->border()
         );

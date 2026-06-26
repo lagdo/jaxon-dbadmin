@@ -43,11 +43,6 @@ class SelectDqDto
      * @var array
      */
     public array $primaryColumns;
-
-    /**
-     * @var array
-     */
-    public array $foreignKeys;
  
     /**
      * @var string
@@ -83,11 +78,6 @@ class SelectDqDto
      * @var array
      */
     public array $operators;
-
-    /**
-     * @var array
-     */
-    public array $fullTexts;
 
     /**
      * @var SelectDqInputDto

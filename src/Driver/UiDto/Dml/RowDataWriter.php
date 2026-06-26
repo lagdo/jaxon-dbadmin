@@ -54,13 +54,13 @@ class RowDataWriter extends AbstractDriverProxy
     /**
      * @param array $values
      * @param array<string, ColumnDto> $columns
-     * @param array $options
+     * @param array $rowIdValues
      *
      * @return array
      */
-    public function getUpdatedRow(array $values, array $columns, array $options): array
+    public function getUpdatedRow(array $values, array $columns, array $rowIdValues): array
     {
-        $textLength = $options['select']['length'];
+        $textLength = $rowIdValues['select']['length'];
         return array_map(function($value, $columnName) use($columns, $textLength) {
             $column = $columns[$columnName];
             $value = $this->engine()->convertValue($value, $column);

@@ -4,12 +4,13 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Driver\Sql\Connection\AbstractConnection;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryRowsetDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectResult;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectRowsetDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\RowsetDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
 use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
 use Lagdo\DbAdmin\Support\Service\Query\QuerySplitter;
 use Lagdo\DbAdmin\Support\Service\Query\QueryStream;
@@ -153,11 +154,11 @@ class QueryProcessor extends AbstractDriverProxy
      * Execute a query, and return the number of errors
      *
      * @param array $query
-     * @param ExecResultDto $resultDto
+     * @param QueryResultDto $resultDto
      *
      * @return void
      */
-    private function executeSpecialQuery(array $query, ExecResultDto $resultDto): void
+    private function executeSpecialQuery(array $query, QueryResultDto $resultDto): void
     {
         // Special type of queries (upsert only for now).
         [$type, [$update, $insert]] = $query;
@@ -196,11 +197,11 @@ class QueryProcessor extends AbstractDriverProxy
     }
 
     /**
-     * @param ExecResultDto $resultDto
+     * @param QueryResultDto $resultDto
      *
      * @return void
      */
-    public function executeQueryBatch(ExecResultDto $resultDto): void
+    public function executeQueryBatch(QueryResultDto $resultDto): void
     {
         if (count($resultDto->batchBuffer) === 0) {
             return;
@@ -217,14 +218,14 @@ class QueryProcessor extends AbstractDriverProxy
 
     /**
      * @param string|array $query
-     * @param ExecOptions $options
-     * @param ExecResultDto $resultDto
+     * @param QueryOptions $options
+     * @param QueryResultDto $resultDto
      * @param SelectDqDto|null $select
      *
      * @return void
      */
-    private function executeQuery(string|array $query, ExecOptions $options,
-        ExecResultDto $resultDto, SelectDqDto|null $select): void
+    private function executeQuery(string|array $query, QueryOptions $options,
+        QueryResultDto $resultDto, SelectDqDto|null $select): void
     {
         if (is_array($query)) {
             $this->executeSpecialQuery($query, $resultDto);
@@ -253,12 +254,14 @@ class QueryProcessor extends AbstractDriverProxy
             $resultDto->error = $this->engine()->errorMessage();
         }
 
-        if (!$options->saveResults) {
+        if (!$options->getRowsets) {
             return;
         }
 
         $rowset = match(true) {
-            $result->hasError() => new RowsetDto(error: $resultDto->error),
+            $result->hasError() => $select === null ?
+                new QueryRowsetDto(error: $resultDto->error) :
+                new SelectRowsetDto(error: $resultDto->error),
             $options->onlyErrors => null, // Rowset skipped.
             $select !== null => $this->result()->getSelectRowset($result, $select),
             default => $this->result()->getQueryRowset($result, $options->limit),
@@ -271,13 +274,13 @@ class QueryProcessor extends AbstractDriverProxy
 
     /**
      * @param array|Generator $queries
-     * @param ExecOptions $options
+     * @param QueryOptions $options
      * @param SelectDqDto|null $select
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
     private function executeQueries(array|Generator $queries,
-        ExecOptions $options, SelectDqDto|null $select = null): ExecResultDto
+        QueryOptions $options, SelectDqDto|null $select = null): QueryResultDto
     {
         // The second connection must be created before executing the queries.
         $this->openNewConnection();
@@ -291,7 +294,7 @@ class QueryProcessor extends AbstractDriverProxy
             $this->queryLogger->setCategoryToEditor();
         }
 
-        $resultDto = new ExecResultDto();
+        $resultDto = new QueryResultDto();
         foreach ($queries as $query) {
             if ($this->timerEnabled && $this->timer !== null) {
                 $this->timer->start();
@@ -321,11 +324,11 @@ class QueryProcessor extends AbstractDriverProxy
 
     /**
      * @param QueryStream $stream
-     * @param ExecOptions $options
+     * @param QueryOptions $options
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function executeQueryStream(QueryStream $stream, ExecOptions $options): ExecResultDto
+    public function executeQueryStream(QueryStream $stream, QueryOptions $options): QueryResultDto
     {
         $queries = $this->querySplitter->splitQueries($stream);
         return $this->withTimer(true)
@@ -335,16 +338,16 @@ class QueryProcessor extends AbstractDriverProxy
 
     /**
      * @param QueryListDto $list
-     * @param ExecOptions $options
+     * @param QueryOptions $options
      * @param SelectDqDto|null $select
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
     public function executeQueryList(QueryListDto $list,
-        ExecOptions $options, SelectDqDto|null $select = null): ExecResultDto
+        QueryOptions $options, SelectDqDto|null $select = null): QueryResultDto
     {
         if ($list->error !== null || count($list->queries ?? []) === 0) {
-            $resultDto = new ExecResultDto();
+            $resultDto = new QueryResultDto();
             $resultDto->errors = 1;
             $resultDto->error = $list->error ?? $this->utils()
                 ->lang('Cannot execute an empty query list.');

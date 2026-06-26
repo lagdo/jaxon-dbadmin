@@ -2,8 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
 
 use Exception;
 
@@ -386,9 +386,9 @@ trait DatabaseTrait
      *
      * @param string $view The view name
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function dropView(string $view): ExecResultDto
+    public function dropView(string $view): QueryResultDto
     {
         $this->connectToSchema();
         return $this->databaseProxy()->dropView($view);

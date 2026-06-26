@@ -7,7 +7,7 @@ use Jaxon\Attributes\Attribute\Callback;
 use Jaxon\Attributes\Attribute\Upload;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ui\Command\ImportUiBuilder;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
 
 trait ImportTrait
 {
@@ -67,7 +67,7 @@ trait ImportTrait
             return;
         }
 
-        $options = new ExecOptions($formValues['error_stops'] ?? false,
+        $options = new QueryOptions($formValues['error_stops'] ?? false,
             $formValues['only_errors'] ?? false);
         $result = $this->db()->executeQueriesInFile($files[0], $options);
 

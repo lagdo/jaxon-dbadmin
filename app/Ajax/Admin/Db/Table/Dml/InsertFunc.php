@@ -82,7 +82,7 @@ class InsertFunc extends FuncComponent
     public function save(bool $fromSelect, array $formValues): void
     {
         // No specific options for inserts.
-        $result = $this->db()->insertItem($this->getCurrentTable(), [], $formValues);
+        $result = $this->db()->insertItem($this->getCurrentTable(), $formValues);
         // Show the error
         if($result->error !== null)
         {

@@ -26,19 +26,19 @@ class UpdateFunc extends FuncComponent
     {}
 
     /**
-     * @param int $editId
-     * @param array $rowIds
+     * @param int $rowId
+     * @param array $rowIdValues
      * @param array $columns
      *
      * @return void
      */
-    private function showQueryDataDialog(int $editId, array $rowIds, array $columns): void
+    private function showQueryDataDialog(int $rowId, array $rowIdValues, array $columns): void
     {
         $title = 'Edit row in table ' . $this->getCurrentTable();
         $content = $this->editUi->rowDataForm($columns);
         $values = form($this->editUi->queryFormId());
         // Add the select options, which are used to format the modified data
-        $rowIds['select'] = $this->getSelectBag('options', []);
+        $rowIdValues['select'] = $this->getSelectBag('options', []);
 
         // Bootbox options
         $options = ['size' => 'large'];
@@ -50,11 +50,11 @@ class UpdateFunc extends FuncComponent
             'title' => $this->trans()->lang('Query'),
             'class' => 'btn btn-primary',
             'click' => $this->rq(SqlCodeFunc::class)
-                ->showUpdateRowQuery($editId, $rowIds, $values),
+                ->showUpdateRowQuery($rowId, $rowIdValues, $values),
         ], [
             'title' => $this->trans()->lang('Update'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save($editId, $rowIds, $values)
+            'click' => $this->rq()->save($rowId, $rowIdValues, $values)
                 ->confirm($this->trans()->lang('Save this item?')),
         ]];
 
@@ -62,15 +62,15 @@ class UpdateFunc extends FuncComponent
     }
 
     /**
-     * @param int $editId
-     * @param array $rowIds
+     * @param int $rowId
+     * @param array $rowIdValues
      *
      * @return void
      */
-    public function edit(int $editId, array $rowIds): void
+    public function edit(int $rowId, array $rowIdValues): void
     {
-        if(!is_array($rowIds['where'] ?? 0) ||
-            count($rowIds['where']) === 0 || $editId <= 0)
+        if(!is_array($rowIdValues['where'] ?? 0) ||
+            count($rowIdValues['where']) === 0 || $rowId <= 0)
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
@@ -78,7 +78,7 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $updateData = $this->db()->getRowForUpdate($this->getCurrentTable(),  $rowIds);
+        $updateData = $this->db()->getRowForUpdate($this->getCurrentTable(),  $rowIdValues);
         // Show the error
         if(isset($updateData['error']))
         {
@@ -88,20 +88,20 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $this->showQueryDataDialog($editId, $rowIds, $updateData['columns']);
+        $this->showQueryDataDialog($rowId, $rowIdValues, $updateData['columns']);
     }
 
     /**
-     * @param int   $editId
-     * @param array $rowIds
+     * @param int   $rowId
+     * @param array $rowIdValues
      * @param array $formValues
      *
      * @return void
      */
-    public function save(int $editId, array $rowIds, array $formValues): void
+    public function save(int $rowId, array $rowIdValues, array $formValues): void
     {
-        if(!is_array($rowIds['where'] ?? 0) ||
-            count($rowIds['where']) === 0 || $editId <= 0)
+        if(!is_array($rowIdValues['where'] ?? 0) ||
+            count($rowIdValues['where']) === 0 || $rowId <= 0)
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
@@ -111,8 +111,8 @@ class UpdateFunc extends FuncComponent
 
         // Add the select options, which are used to format the modified data
         $table = $this->getCurrentTable();
-        $rowIds['select'] = $this->getSelectBag('options', []);
-        $result = $this->db()->updateRow($table, $rowIds, $formValues);
+        $rowIdValues['select'] = $this->getSelectBag('options', []);
+        $result = $this->db()->updateRow($table, $rowIdValues, $formValues);
         // Show the error
         if($result->error !== null)
         {
@@ -122,18 +122,8 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        // Get the updated item.
-        $updatedItem = $this->db()->getUpdatedRow($table, $rowIds, $formValues);
-        if(isset($updatedItem['warning']))
-        {
-            $this->alert()
-                ->title($this->trans()->lang('Warning'))
-                ->warning($updatedItem['warning']);
-            return;
-        }
-
         // Update the result row.
-        $this->cl(ResultRow::class)->renderItem($editId, $updatedItem);
+        $this->cl(ResultRow::class)->refreshItem($rowId, $rowIdValues);
 
         $this->modal()->hide();
         $this->alert()
@@ -144,17 +134,17 @@ class UpdateFunc extends FuncComponent
     /**
      * Back to the update form
      *
-     * @param int $editId
-     * @param array $rowIds
+     * @param int $rowId
+     * @param array $rowIdValues
      * @param array $formValues
      *
      * @return void
      */
-    public function showQueryForm(int $editId, array $rowIds, array $formValues): void
+    public function showQueryForm(int $rowId, array $rowIdValues, array $formValues): void
     {
         $tableName = $this->getCurrentTable();
         // We need the table columns to be able to go back to the update form.
-        $updateData = $this->db()->getRowForUpdate($tableName,  $rowIds);
+        $updateData = $this->db()->getRowForUpdate($tableName,  $rowIdValues);
         // Show the error
         if(isset($updateData['error']))
         {
@@ -168,6 +158,6 @@ class UpdateFunc extends FuncComponent
         $this->modal()->hide();
 
         $columns = $this->getEditedFormValues($updateData['columns'], $formValues);
-        $this->showQueryDataDialog($editId, $rowIds, $columns);
+        $this->showQueryDataDialog($rowId, $rowIdValues, $columns);
     }
 }

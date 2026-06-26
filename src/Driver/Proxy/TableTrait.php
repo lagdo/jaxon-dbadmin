@@ -5,8 +5,9 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectRowsetDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
 use Exception;
 
 /**
@@ -168,9 +169,9 @@ trait TableTrait
      *
      * @param TableFormDto $table
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function createTable(TableFormDto $table): ExecResultDto
+    public function createTable(TableFormDto $table): QueryResultDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->createTable($table);
@@ -194,9 +195,9 @@ trait TableTrait
      *
      * @param TableFormDto $table
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function alterTable(TableFormDto $table): ExecResultDto
+    public function alterTable(TableFormDto $table): QueryResultDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->alterTable($table);
@@ -220,9 +221,9 @@ trait TableTrait
      *
      * @param string $table
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function dropTable(string $table): ExecResultDto
+    public function dropTable(string $table): QueryResultDto
     {
         $this->connectToSchema();
         return $this->tableProxy()->dropTable($table);
@@ -262,10 +263,10 @@ trait TableTrait
      *
      * @param SelectDqDto $select
      *
-     * @return ExecResultDto
+     * @return QueryResultDto<SelectRowsetDto>
      * @throws Exception
      */
-    public function execSelect(SelectDqDto $select): ExecResultDto
+    public function execSelect(SelectDqDto $select): QueryResultDto
     {
         $this->connectToSchema();
         return $this->selectProxy()->execSelect($select);

@@ -33,23 +33,6 @@ class SelectQuery extends AbstractDriverProxy
     private string $sorterRegexp = '~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~';
 
     /**
-     * Find out foreign keys for each column
-     *
-     * @param SelectDqDto $select
-     *
-     * @return void
-     */
-    private function setForeignKeys(SelectDqDto $select): void
-    {
-        foreach ($select->table->foreignKeys as $foreignKey) {
-            foreach ($foreignKey->source as $source) {
-                $select->foreignKeys[$source] ??= [];
-                $select->foreignKeys[$source][] = $foreignKey;
-            }
-        }
-    }
-
-    /**
      * @param SelectFilterDto $filter
      *
      * @return string
@@ -298,8 +281,6 @@ class SelectQuery extends AbstractDriverProxy
     }
 
     /**
-     * Get required data for select on tables
-     *
      * @param SelectDqDto $select
      *
      * @return SelectDqDto
@@ -316,7 +297,6 @@ class SelectQuery extends AbstractDriverProxy
         $this->setSelectFilters($select);
         $this->setSelectSorters($select);
         $this->setPrimaryKey($select);
-        $this->setForeignKeys($select);
 
         // $set = null;
         // if(isset($rights["insert"]) || !this->driver->support("table")) {
@@ -332,6 +312,17 @@ class SelectQuery extends AbstractDriverProxy
         // }
         // $this->pageUi()->selectLinks($tableStatus, $set);
 
+        return $select;
+    }
+
+    /**
+     * @param SelectDqDto $select
+     *
+     * @return SelectDqDto
+     * @throws Exception
+     */
+    public function makeSelect(SelectDqDto $select): SelectDqDto
+    {
         $selectDto = $this->makeSelectDto($select);
         $query = $this->statement()->getTableSelectQuery($selectDto);
         $select->query = str_replace("\n", " ", $query);

@@ -9,9 +9,9 @@ use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseHeader;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseContent;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
 use Exception;
 
 use function array_filter;
@@ -473,11 +473,11 @@ class DatabaseProxy extends AbstractDriverProxy
      *
      * @param string $view The view name
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function dropView(string $view): ExecResultDto
+    public function dropView(string $view): QueryResultDto
     {
-        $options = new ExecOptions(true, true);
+        $options = new QueryOptions(true, true);
         $options->setExecOptions(true, false, false);
 
         $queries = $this->getDropViewQueries($view);

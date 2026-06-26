@@ -87,16 +87,16 @@ class SqlCodeFunc extends BaseComponent
     /**
      * Show the update query
      *
-     * @param int   $editId
-     * @param array $rowIds
+     * @param int   $rowId
+     * @param array $rowIdValues
      * @param array $formValues
      *
      * @return void
      */
-    public function showUpdateRowQuery(int $editId, array $rowIds, array $formValues): void
+    public function showUpdateRowQuery(int $rowId, array $rowIdValues, array $formValues): void
     {
-        if(!is_array($rowIds['where'] ?? 0) ||
-            count($rowIds['where']) === 0 || $editId <= 0) {
+        if(!is_array($rowIdValues['where'] ?? 0) ||
+            count($rowIdValues['where']) === 0 || $rowId <= 0) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
                 ->error('Invalid query data');
@@ -104,12 +104,12 @@ class SqlCodeFunc extends BaseComponent
         }
 
         $tableName = $this->getCurrentTable();
-        $queryList = $this->db()->getUpdateRowQuery($tableName, $rowIds, $formValues);
+        $queryList = $this->db()->getUpdateRowQuery($tableName, $rowIdValues, $formValues);
 
         $buttons = [[
             'title' => $this->trans()->lang('Back'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq(UpdateFunc::class)->showQueryForm($editId, $rowIds, $formValues),
+            'click' => $this->rq(UpdateFunc::class)->showQueryForm($rowId, $rowIdValues, $formValues),
         ]];
         $this->showQueryCodeDialog('SQL query for update', $queryList, $buttons, true);
     }
@@ -117,15 +117,15 @@ class SqlCodeFunc extends BaseComponent
     /**
      * Show the delete query
      *
-     * @param int   $editId
-     * @param array $rowIds
+     * @param int   $rowId
+     * @param array $rowIdValues
      *
      * @return void
      */
-    public function showDeleteRowQuery(int $editId, array $rowIds): void
+    public function showDeleteRowQuery(int $rowId, array $rowIdValues): void
     {
-        if(!is_array($rowIds['where'] ?? 0) ||
-            count($rowIds['where']) === 0 || $editId <= 0)
+        if(!is_array($rowIdValues['where'] ?? 0) ||
+            count($rowIdValues['where']) === 0 || $rowId <= 0)
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
@@ -133,7 +133,7 @@ class SqlCodeFunc extends BaseComponent
             return;
         }
 
-        $queryList = $this->db()->getDeleteRowQuery($this->getCurrentTable(), $rowIds);
+        $queryList = $this->db()->getDeleteRowQuery($this->getCurrentTable(), $rowIdValues);
 
         // Show the query in a modal dialog.
         $this->showQueryCodeDialog('SQL query for delete', $queryList);

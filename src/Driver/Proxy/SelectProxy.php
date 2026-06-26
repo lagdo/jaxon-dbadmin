@@ -6,10 +6,11 @@ use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectQuery;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectRowsetDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectTableDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
 use Exception;
 
 /**
@@ -60,25 +61,6 @@ class SelectProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param string $table The table name
-     * @param array $queryParams The user inputs
-     *
-     * @return SelectDqDto
-     * @throws Exception
-     */
-    private function prepareSelect(string $table, array $queryParams): SelectDqDto
-    {
-        $table = new SelectTableDto($table);
-        $table->status = $this->engine()->tableStatusOrName($table->name);
-        $table->columns = $table->status->columns();
-        $table->indexes = $this->engine()->indexes($table->name);
-        $table->foreignKeys = $this->engine()->foreignKeys($table->name);
-
-        $select = $this->options()->createSelectDto($table, $queryParams);
-        return $this->query()->prepareSelect($select);
-    }
-
-    /**
      * Get required data for create/update on tables
      *
      * @param string $table The table name
@@ -89,7 +71,21 @@ class SelectProxy extends AbstractDriverProxy
      */
     public function getSelectParams(string $table, array $queryParams = []): SelectDqDto
     {
-        return $this->prepareSelect($table, $queryParams);
+        $table = new SelectTableDto($table);
+        $table->status = $this->engine()->tableStatusOrName($table->name);
+        $table->columns = $table->status->columns();
+        $table->indexes = $this->engine()->indexes($table->name);
+        $table->foreignKeys = $this->engine()->foreignKeys($table->name);
+
+        $select = $this->options()->createSelectDto($table, $queryParams);
+        $select = $this->query()->prepareSelect($select);
+
+        // Fetching the changed data after a successful update.
+        if (isset($queryParams['updated'])) {
+            $select->filters[] = $this->engine()->where($queryParams['updated'], $table->columns);
+        }
+
+        return $this->query()->makeSelect($select);
     }
 
     /**
@@ -115,12 +111,12 @@ class SelectProxy extends AbstractDriverProxy
      *
      * @param SelectDqDto $select
      *
-     * @return ExecResultDto
+     * @return QueryResultDto<SelectRowsetDto>
      * @throws Exception
      */
-    public function execSelect(SelectDqDto $select): ExecResultDto
+    public function execSelect(SelectDqDto $select): QueryResultDto
     {
-        $options = new ExecOptions();
+        $options = new QueryOptions();
         $options->setExecOptions(false, false, true);
         $options->withTimer = true;
 

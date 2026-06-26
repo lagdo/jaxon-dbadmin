@@ -4,9 +4,8 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
 use Lagdo\DbAdmin\App\Ui\Select\ResultUiBuilder;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\RowsetDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectRowsetDto;
 
-use function array_map;
 use function count;
 
 /**
@@ -23,11 +22,6 @@ class ResultSet extends PageComponent
     private int|null $_count = null;
 
     /**
-     * @var SelectDqDto
-     */
-    private SelectDqDto $select;
-
-    /**
      * @param ResultUiBuilder   $resultUi   The HTML UI builder
      */
     public function __construct(protected ResultUiBuilder $resultUi)
@@ -38,8 +32,7 @@ class ResultSet extends PageComponent
      */
     private function select(): SelectDqDto
     {
-        return $this->select ??= $this->db()
-            ->getSelectParams($this->getCurrentTable(), $this->getOptions());
+        return $this->db()->getSelectParams($this->getCurrentTable(), $this->getOptions());
     }
 
     /**
@@ -59,35 +52,19 @@ class ResultSet extends PageComponent
     }
 
     /**
-     * @param RowsetDto $rowset
+     * @param SelectRowsetDto $rowset
      *
      * @return array
      */
-    private function rows(RowsetDto $rowset): array
+    private function rows(SelectRowsetDto $rowset): array
     {
-        $editId = 0;
-        $editIds = [];
-        $rows = array_map(function($row) use(&$editId, &$editIds): array {
-            $editId++; // The edit ids start from 1.
-            $editItemId = $this->bagValueKey($editId);
+        $rowId = 0;
+        foreach ($rowset->rows as $row) {
+            $row->bagId = $this->bagValueKey(++$rowId); // The edit ids start from 1.
+            $row->rowMenu = $this->getRowMenu($rowId, $row);
+        }
 
-            $editIds[$editItemId] = $row['ids'];
-
-            $row['editId'] = 0;
-            $row['menu'] = '';
-            // The row is editable when the editId value is greated than 0.
-            if (count($row['ids']['where'] ?? []) > 0) {
-                $row['editId'] = $editId;
-                $row['editItemId'] = $editItemId;
-                $row['menu'] = $this->getRowMenu($editId);
-            }
-
-            return $row;
-        }, $rowset->rows);
-
-        $this->bag($this->tabBag('dbadmin.edit'))->set('row.ids', $editIds);
-
-        return $rows;
+        return $rowset->rows;
     }
 
     /**
@@ -98,7 +75,7 @@ class ResultSet extends PageComponent
         // Save the current page in the databag
         $this->savePageNumber($this->currentPage());
 
-        $result = $this->db()->execSelect($this->select());
+        $result = $this->db()->execSelect($select = $this->select());
 
         if ($result->error !== null) {
             $this->set('duration', null);
@@ -124,7 +101,7 @@ class ResultSet extends PageComponent
         $this->cl(Duration::class)->update($this->get('duration'));
 
         $duration =  $this->get('duration', null);
-        ($duration === null) || $this->_count > 0 && $this->_count <= $this->limit() ?
+        $duration === null || $this->_count > 0 && $this->_count <= $this->limit() ?
             $this->cl(GotoPage::class)->clear() :
             $this->cl(GotoPage::class)->set('page', $this->currentPage())->render();
 

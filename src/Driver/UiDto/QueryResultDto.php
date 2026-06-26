@@ -2,7 +2,10 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto;
 
-class ExecResultDto
+/**
+ * @template RowsetDto
+ */
+class QueryResultDto
 {
     /**
      * @var int

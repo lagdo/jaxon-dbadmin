@@ -3,9 +3,9 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Jaxon\Request\Upload\FileInterface;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
 
 /**
  * Proxy to table query functions
@@ -37,131 +37,114 @@ trait QueryTrait
     /**
      * Get data for insert on a table
      *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
+     * @param string $table
      *
      * @return array
      */
-    public function getInsertData(string $table, array $queryOptions = []): array
+    public function getInsertData(string $table): array
     {
         $this->connectToSchema();
-        return $this->queryProxy()->getInsertData($table, $queryOptions);
+        return $this->queryProxy()->getInsertData($table);
     }
 
     /**
      * Build the SQL query to insert a new item in a table
      *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
-     * @param array  $values        The updated values
+     * @param string $table
+     * @param array  $values
      *
      * @return QueryListDto
      */
-    public function getInsertRowQuery(string $table, array $queryOptions, array $values): QueryListDto
+    public function getInsertRowQuery(string $table, array $values): QueryListDto
     {
         $this->connectToSchema();
-        return $this->queryProxy()->getInsertRowQuery($table, $queryOptions, $values);
+        return $this->queryProxy()->getInsertRowQuery($table, $values);
     }
 
     /**
      * Insert a new item in a table
      *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
-     * @param array  $values        The updated values
+     * @param string $table
+     * @param array  $values
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function insertItem(string $table, array $queryOptions, array $values): ExecResultDto
+    public function insertItem(string $table, array $values): QueryResultDto
     {
         $this->connectToSchema();
-        return $this->queryProxy()->insertItem($table, $queryOptions, $values);
+        return $this->queryProxy()->insertItem($table, $values);
     }
 
     /**
      * Get data for update/delete in a table
      *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
+     * @param string $table
+     * @param array  $rowIdValues
      *
      * @return array
      */
-    public function getRowForUpdate(string $table, array $queryOptions = []): array
+    public function getRowForUpdate(string $table, array $rowIdValues = []): array
     {
         $this->connectToSchema();
-        return $this->queryProxy()->getRowForUpdate($table, $queryOptions);
+        return $this->queryProxy()->getRowForUpdate($table, $rowIdValues);
     }
 
     /**
      * Build the SQL query to update one or more items in a table
      *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
-     * @param array  $values        The updated values
+     * @param string $table
+     * @param array  $rowIdValues
+     * @param array  $values
      *
      * @return QueryListDto
      */
-    public function getUpdateRowQuery(string $table, array $queryOptions, array $values): QueryListDto
+    public function getUpdateRowQuery(string $table, array $rowIdValues, array $values): QueryListDto
     {
         $this->connectToSchema();
-        return $this->queryProxy()->getUpdateRowQuery($table, $queryOptions, $values);
+        return $this->queryProxy()->getUpdateRowQuery($table, $rowIdValues, $values);
     }
 
     /**
      * Update one or more items in a table
      *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
-     * @param array  $values        The updated values
+     * @param string $table
+     * @param array  $rowIdValues
+     * @param array  $values
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function updateRow(string $table, array $queryOptions, array $values): ExecResultDto
+    public function updateRow(string $table, array $rowIdValues, array $values): QueryResultDto
     {
         $this->connectToSchema();
-        return $this->queryProxy()->updateRow($table, $queryOptions, $values);
-    }
-
-    /**
-     * Update one or more items in a table
-     *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
-     * @param array  $values        The updated values
-     *
-     * @return array
-     */
-    public function getUpdatedRow(string $table, array $queryOptions, array $values): array
-    {
-        return $this->queryProxy()->getUpdatedRow($table, $queryOptions, $values);
+        return $this->queryProxy()->updateRow($table, $rowIdValues, $values);
     }
 
     /**
      * Build the SQL query to delete one or more items in a table
      *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
+     * @param string $table
+     * @param array  $rowIdValues
      *
      * @return QueryListDto
      */
-    public function getDeleteRowQuery(string $table, array $queryOptions): QueryListDto
+    public function getDeleteRowQuery(string $table, array $rowIdValues): QueryListDto
     {
         $this->connectToSchema();
-        return $this->queryProxy()->getDeleteRowQuery($table, $queryOptions);
+        return $this->queryProxy()->getDeleteRowQuery($table, $rowIdValues);
     }
 
     /**
      * Delete one or more items in a table
      *
-     * @param string $table         The table name
-     * @param array  $queryOptions  The query options
+     * @param string $table
+     * @param array  $rowIdValues
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function deleteRow(string $table, array $queryOptions): ExecResultDto
+    public function deleteRow(string $table, array $rowIdValues): QueryResultDto
     {
         $this->connectToSchema();
-        return $this->queryProxy()->deleteRow($table, $queryOptions);
+        return $this->queryProxy()->deleteRow($table, $rowIdValues);
     }
 
     /**
@@ -178,11 +161,11 @@ trait QueryTrait
      * Execute the queries in a string
      *
      * @param string $queryText       The queries to execute
-     * @param ExecOptions $options
+     * @param QueryOptions $options
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function executeQueriesInText(string $queryText, ExecOptions $options): ExecResultDto
+    public function executeQueriesInText(string $queryText, QueryOptions $options): QueryResultDto
     {
         $this->connectToSchema();
         return $this->queryProxy()->executeQueriesInText($queryText, $options);
@@ -204,11 +187,11 @@ trait QueryTrait
      * Execute the queries in an uploaded file
      *
      * @param FileInterface $file The uploaded file
-     * @param ExecOptions $options
+     * @param QueryOptions $options
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function executeQueriesInFile(FileInterface $file, ExecOptions $options): ExecResultDto
+    public function executeQueriesInFile(FileInterface $file, QueryOptions $options): QueryResultDto
     {
         $this->connectToSchema();
         return $this->queryProxy()->executeQueriesInFile($file, $options);

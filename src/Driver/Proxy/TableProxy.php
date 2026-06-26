@@ -9,9 +9,9 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ForeignKeyTrait;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableContent;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableHeader;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecOptions;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ExecResultDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
+use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
 use Lagdo\Facades\Logger;
 use Exception;
 
@@ -276,11 +276,11 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param TableFormDto $table
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function createTable(TableFormDto $table): ExecResultDto
+    public function createTable(TableFormDto $table): QueryResultDto
     {
-        $options = new ExecOptions(true, true);
+        $options = new QueryOptions(true, true);
         $options->setExecOptions(true, true, false);
         $options->withLogger = true;
 
@@ -314,11 +314,11 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param TableFormDto $table
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function alterTable(TableFormDto $table): ExecResultDto
+    public function alterTable(TableFormDto $table): QueryResultDto
     {
-        $options = new ExecOptions(true, true);
+        $options = new QueryOptions(true, true);
         $options->setExecOptions(true, true, false);
         $options->withLogger = true;
 
@@ -350,11 +350,11 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param string $table
      *
-     * @return ExecResultDto
+     * @return QueryResultDto
      */
-    public function dropTable(string $table): ExecResultDto
+    public function dropTable(string $table): QueryResultDto
     {
-        $options = new ExecOptions(true, true);
+        $options = new QueryOptions(true, true);
         $options->setExecOptions(true, true, false);
         $options->withLogger = true;
 
