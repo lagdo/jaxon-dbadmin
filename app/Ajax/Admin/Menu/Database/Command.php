@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Export;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Import;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Query;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\QueryEditor;
 use Lagdo\DbAdmin\App\Ajax\Base\MenuComponent;
 
 use function Jaxon\rq;
@@ -19,7 +19,7 @@ class Command extends MenuComponent
         $actions = [
             'database-query' => [
                 'title' => $this->trans()->lang('Query'),
-                'handler' => rq(Query::class)->database(),
+                'handler' => rq(QueryEditor::class)->database(),
             ],
             'database-import' => [
                 'title' => $this->trans()->lang('Import'),

@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options\Fields\Form;
+namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields\Form;
 
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options\Component;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Component;
 
 use function array_filter;
 
@@ -24,9 +24,9 @@ abstract class AbstractForm extends Component
     public function show(): void
     {
         // Render the component with the values from the databag.
-        $values = $this->getSelectBag($this->fieldId, []);
-
-        $this->stash()->set('values', $values);
+        $this->stash()->set('values', [
+            $this->fieldId => $this->getParamValue($this->fieldId),
+        ]);
         $this->render();
     }
 
@@ -39,7 +39,10 @@ abstract class AbstractForm extends Component
     {
         $newEntry = $this->newEntry();
         $newEntry['delete'] = false;
-        $values[$this->fieldId] = [...($values[$this->fieldId] ?? []), $newEntry];
+        $values[$this->fieldId] = [
+            ...($values[$this->fieldId] ?? []),
+            $newEntry,
+        ];
 
         $this->stash()->set('values', $values);
         $this->render();

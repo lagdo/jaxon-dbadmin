@@ -2,8 +2,8 @@
 
 namespace Lagdo\DbAdmin\App\Ui\Command;
 
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryRowsetDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\RowsetDto;
 
 use function array_slice;
 use function count;
@@ -32,7 +32,7 @@ trait QueryResultTrait
             $this->ui->when($resultsAreTruncated, fn() =>
                 $this->ui->alert($truncatedMessage)->info()->setStyle('padding:5px 15px')
             ),
-            $this->ui->each($truncatedRowsets, fn(RowsetDto $rowset) =>
+            $this->ui->each($truncatedRowsets, fn(QueryRowsetDto $rowset) =>
                 $this->ui->card(
                     $this->ui->cardBody(
                         $this->ui->alert($rowset->query),

@@ -15,8 +15,6 @@ class EditorFunc extends FuncComponent
     use EditorTrait;
 
     /**
-     * The constructor
-     *
      * @param QueryUiBuilder $queryUi
      * @param Preference|null $preference
      */
@@ -30,7 +28,7 @@ class EditorFunc extends FuncComponent
     protected function setEditorPage(): void
     {
         $this->tab()->editor()->setPage('sv');
-        $this->queryClass = Query::class;
+        $this->queryClass = QueryEditor::class;
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options;
+namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\GotoPage;
@@ -17,8 +17,7 @@ class Values extends Component
      */
     public function html(): string
     {
-        $options = $this->getSelectBag('options', []);
-        return $this->optionsUi->optionsValues($options);
+        return $this->optionsUi->optionsValues($this->getBuilderParams());
     }
 
     /**
@@ -40,10 +39,7 @@ class Values extends Component
      */
     public function saveSelectLimit(int $limit): void
     {
-        // Select options
-        $options = $this->getSelectBag('options');
-        $options['limit'] = $limit;
-        $this->setSelectBag('options', $options);
+        $this->saveParamValue('limit', $limit);
 
         // Display the new query
         $this->cl(QueryText::class)->refresh();
@@ -61,10 +57,7 @@ class Values extends Component
      */
     public function saveSelectTotal(bool $total): void
     {
-        // Select options
-        $options = $this->getSelectBag('options');
-        $options['total'] = $total;
-        $this->setSelectBag('options', $options);
+        $this->saveParamValue('total', $total);
 
         $this->render();
         // Clear the result components
@@ -80,11 +73,8 @@ class Values extends Component
      */
     public function saveTextLength(int $length): void
     {
-        // Select options
-        $options = $this->getSelectBag('options');
         // Fix the text length value.
-        $options['length'] = $length > 0 ? $length : 100;
-        $this->setSelectBag('options', $options);
+        $this->saveParamValue('length', $length > 0 ? $length : 100);
 
         $this->render();
         // Clear the result components

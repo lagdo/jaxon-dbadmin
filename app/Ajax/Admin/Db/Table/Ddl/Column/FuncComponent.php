@@ -12,8 +12,6 @@ abstract class FuncComponent extends BaseComponent
     use ColumnTrait;
 
     /**
-     * The constructor
-     *
      * @param ColumnUiBuilder   $columnUi   The HTML UI builder
      */
     public function __construct(protected ColumnUiBuilder $columnUi)

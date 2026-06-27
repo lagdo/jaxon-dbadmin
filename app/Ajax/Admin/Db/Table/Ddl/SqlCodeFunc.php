@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl;
 
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Query;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\QueryEditor;
 
 use function array_map;
 use function count;
@@ -127,7 +127,7 @@ class SqlCodeFunc extends Column\FuncComponent
         ], [
             'title' => $this->trans()->lang('Edit'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq(Query::class)->database($queryCode),
+            'click' => $this->rq(QueryEditor::class)->database($queryCode),
         ]];
         $this->modal()->show($title, $content, $buttons);
 
@@ -174,7 +174,7 @@ class SqlCodeFunc extends Column\FuncComponent
         ], [
             'title' => $this->trans()->lang('Edit'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq(Query::class)->database($queryCode),
+            'click' => $this->rq(QueryEditor::class)->database($queryCode),
         ]];
         $this->modal()->show($title, $content, $buttons);
 

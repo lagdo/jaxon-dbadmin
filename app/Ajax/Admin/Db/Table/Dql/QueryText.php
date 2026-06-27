@@ -14,11 +14,7 @@ use function html_entity_decode;
 #[Exclude]
 class QueryText extends Component
 {
-    use QueryTrait;
-
     /**
-     * The constructor
-     *
      * @param Utils           $utils
      * @param SelectUiBuilder $selectUi The HTML UI builder
      */
@@ -51,7 +47,7 @@ class QueryText extends Component
      */
     public function refresh(): void
     {
-        $this->stash()->set('select.query', $this->getSelectRowQuery());
+        $this->stash()->set('select.query', $this->getBuilderSqlQuery());
         $this->render();
     }
 }

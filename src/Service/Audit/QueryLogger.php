@@ -16,8 +16,6 @@ class QueryLogger
     private int $limit;
 
     /**
-     * The constructor
-     *
      * @param ConnectionProxy $proxy
      * @param array $options
      */

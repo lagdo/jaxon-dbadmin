@@ -11,7 +11,7 @@ use function Jaxon\form;
 /**
  * This class provides insert and update query features on tables.
  */
-#[Databag('dbadmin.select')]
+#[Databag('dbadmin.builder')]
 class InsertFunc extends FuncComponent
 {
     /**

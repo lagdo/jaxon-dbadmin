@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml;
 
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\SelectBagTrait;
 
 use function count;
 use function is_array;
@@ -12,11 +11,9 @@ use function is_array;
 /**
  * This class provides insert and update query features on tables.
  */
-#[Databag('dbadmin.select')]
+#[Databag('dbadmin.builder')]
 class DeleteFunc extends FuncComponent
 {
-    use SelectBagTrait;
-
     /**
      * Execute the delete query
      *

@@ -11,8 +11,6 @@ use function Jaxon\form;
 class Database extends FuncComponent
 {
     /**
-     * The constructor
-     *
      * @param ServerUiBuilder $serverUi The HTML UI builder
      */
     public function __construct(protected ServerUiBuilder $serverUi)

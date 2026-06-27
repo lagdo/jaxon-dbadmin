@@ -3,9 +3,9 @@
 namespace Lagdo\DbAdmin\App\Ui\Select;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query\FavoriteFunc;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Duration;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\GotoPage;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Select;
@@ -134,10 +134,10 @@ class SelectUiBuilder
                             $this->ui->row(
                                 $this->ui->col()
                                     ->width(6)
-                                    ->tbnBindApp(rq(Options\Fields::class)),
+                                    ->tbnBindApp(rq(QueryBuilder\Fields::class)),
                                 $this->ui->col()
                                     ->width(6)
-                                    ->tbnBindApp(rq(Options\Values::class))
+                                    ->tbnBindApp(rq(QueryBuilder\Values::class))
                             )
                         ),
                         $this->ui->row(

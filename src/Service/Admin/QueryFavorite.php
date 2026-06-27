@@ -20,8 +20,6 @@ class QueryFavorite
     private int $favoriteLimit;
 
     /**
-     * The constructor
-     *
      * @param ConnectionProxy $proxy
      * @param array $options
      */

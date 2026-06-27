@@ -19,8 +19,6 @@ class Preference
     private bool $preferencesEnabled;
 
     /**
-     * The constructor
-     *
      * @param ConnectionProxy $proxy
      * @param array $options
      */

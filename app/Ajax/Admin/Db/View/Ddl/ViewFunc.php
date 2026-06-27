@@ -10,8 +10,6 @@ use Lagdo\DbAdmin\App\Ui\Table\ViewUiBuilder;
 class ViewFunc extends FuncComponent
 {
     /**
-     * The constructor
-     *
      * @param ViewUiBuilder  $viewUi     The HTML UI builder
      */
     public function __construct(protected ViewUiBuilder $viewUi)

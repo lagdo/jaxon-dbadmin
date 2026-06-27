@@ -21,8 +21,6 @@ abstract class MainComponent extends Component
     protected string $overrides = Content::class;
 
     /**
-     * The constructor
-     *
      * @param TableUiBuilder $tableUi   The HTML UI builder
      */
     public function __construct(protected TableUiBuilder $tableUi)

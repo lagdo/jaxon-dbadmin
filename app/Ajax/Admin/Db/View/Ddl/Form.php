@@ -21,8 +21,6 @@ class Form extends Component
     protected string $overrides = Content::class;
 
     /**
-     * The constructor
-     *
      * @param ViewUiBuilder  $viewUi     The HTML UI builder
      */
     public function __construct(protected ViewUiBuilder $viewUi)

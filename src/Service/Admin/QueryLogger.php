@@ -23,8 +23,6 @@ class QueryLogger
     private int $category = Options::CAT_BUILDER;
 
     /**
-     * The constructor
-     *
      * @param ConnectionProxy $proxy
      * @param array $options
      * @param Closure $database

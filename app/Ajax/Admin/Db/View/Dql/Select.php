@@ -4,13 +4,13 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Dql;
 
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Inject;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Query as QueryEdit;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\QueryEditor;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Views;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\QueryBuilderTrait;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Values;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\MainComponent;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options\Fields;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options\Values;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\QueryText;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\QueryTrait;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Ddl\Form;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Ddl\View;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
@@ -21,7 +21,7 @@ use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
  */
 class Select extends MainComponent
 {
-    use QueryTrait;
+    use QueryBuilderTrait;
 
     /**
      * @var QueryLogger|null
@@ -33,18 +33,6 @@ class Select extends MainComponent
      */
     protected function before(): void
     {
-        // The columns, filters and sorting values are reset.
-        $this->setSelectBag('columns', []);
-        $this->setSelectBag('filters', []);
-        $this->setSelectBag('sorters', []);
-        // While the options values are kept.
-        $this->newSelectBag('options', [
-            'limit' => 50,
-            'total' => true,
-            'length' => 100,
-        ]);
-        $options = $this->getSelectBag('options');
-
         $table = $this->getCurrentTable();
         // Set the breadcrumbs
         $this->db->breadcrumbs(true)
@@ -53,8 +41,7 @@ class Select extends MainComponent
             ->item($this->trans()->lang('Select'));
 
         // Save select queries options
-        $select = $this->db()->getSelectParams($table, $options);
-        $this->stash()->set('select.query', $select->query);
+        $this->stash()->set('select.query', $this->getBuilderSqlQuery());
 
         // Set main menu buttons
         $actions = [
@@ -116,6 +103,7 @@ class Select extends MainComponent
     {
         // Save the table name in the databag.
         $this->setCurrentTable($table);
+        $this->initBuilderParams();
 
         $this->render();
     }
@@ -128,6 +116,6 @@ class Select extends MainComponent
     #[After('showBreadcrumbs')]
     public function edit(): void
     {
-        $this->cl(QueryEdit::class)->database($this->getSelectRowQuery());
+        $this->cl(QueryEditor::class)->database($this->getBuilderSqlQuery());
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options\Fields\Form;
+namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields\Form;
 
 use function count;
 
@@ -32,8 +32,7 @@ class Columns extends AbstractForm
         $options = ['functions' => [], 'grouping' => [], 'columns' => []];
         if(count($values) > 0)
         {
-            $options = $this->getSelectBag('options');
-            $select = $this->db()->getSelectParams($this->getCurrentTable(), $options);
+            $select = $this->getSelectQueryParams();
             $options = [
                 'functions' => $select->functions,
                 'grouping' => $select->grouping,

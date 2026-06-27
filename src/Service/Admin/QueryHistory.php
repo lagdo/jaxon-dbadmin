@@ -25,8 +25,6 @@ class QueryHistory
     private int $historyLimit;
 
     /**
-     * The constructor
-     *
      * @param ConnectionProxy $proxy
      * @param array $options
      */

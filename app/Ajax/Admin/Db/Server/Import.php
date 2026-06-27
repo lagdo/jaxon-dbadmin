@@ -11,8 +11,6 @@ class Import extends Component
     use ImportTrait;
 
     /**
-     * The constructor
-     *
      * @param ImportUiBuilder $importUi The HTML UI builder
      */
     public function __construct(protected ImportUiBuilder $importUi)

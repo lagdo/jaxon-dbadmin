@@ -19,8 +19,6 @@ class ConnectionProxy
     private AbstractConnection|null $connection = null;
 
     /**
-     * The constructor
-     *
      * @param EngineInterface $engine
      * @param DatabaseConfigProvider $configProvider
      */

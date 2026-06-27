@@ -189,6 +189,17 @@ jaxon.dbadmin = {};
 
     /**
      * Jaxon javascript callback for upload requests.
+     *
+     * @param {string} bagName
+     * @param {array} entryNames
+     *
+     * @returns {void}
+     */
+    self.unsetBagEntries = (bagName, entryNames) => entryNames.
+        forEach(entryName => jaxon.bag.setEntry(bagName, entryName, undefined));
+
+    /**
+     * Jaxon javascript callback for upload requests.
      */
     self.upload = {
         /**
@@ -198,7 +209,7 @@ jaxon.dbadmin = {};
          */
         onInitialize: (oRequest) => {
             // The upload field id must be associated to the current app tab id.
-            const appTabId = jaxon.bag.getEntry('dbadmin', 'tab.app') ?? '';
+            const appTabId = jaxon.bag.getEntry('dbadmin.app', 'tab') ?? '';
             oRequest.upload = `${appTabId}_${oRequest.upload}`;
         },
     };
@@ -211,11 +222,15 @@ jaxon.dbadmin = {};
          * @returns {void}
          */
         onInitialize: () => {
-            const appTabId = jaxon.bag.getEntry('dbadmin', 'tab.app') ?? '';
+            const appTabId = jaxon.bag.getEntry('dbadmin.app', 'tab') ?? '';
             const formId = `${appTabId}_dbadmin-table-values-form`;
             const formValues = jaxon.getFormValues(formId);
             // Save the form values in the databag.
-            jaxon.bag.setValue('dbadmin.table', 'formValues', `${appTabId}`, formValues);
+            const entryValues = jaxon.bag.setEntry('dbadmin.table', appTabId);
+            jaxon.bag.setEntry('dbadmin.table', appTabId, {
+                ...entryValues,
+                formValues,
+            });
         },
     };
 })(jaxon.dbadmin);

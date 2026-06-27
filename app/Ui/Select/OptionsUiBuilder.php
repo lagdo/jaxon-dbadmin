@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ui\Select;
 
 use Jaxon\Script\Call\JxnCall;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
@@ -124,7 +124,7 @@ class OptionsUiBuilder
      */
     public function editColumns(): string
     {
-        $rqColumns = rq(Options\Fields\Form\Columns::class);
+        $rqColumns = rq(QueryBuilder\Fields\Form\Columns::class);
         return $this->ui->build(
             $this->ui->form(
                 $this->editFormButtons($rqColumns, $this->columnFormId()),
@@ -193,7 +193,7 @@ class OptionsUiBuilder
      */
     public function editFilters(): string
     {
-        $rqFilters = rq(Options\Fields\Form\Filters::class);
+        $rqFilters = rq(QueryBuilder\Fields\Form\Filters::class);
         return $this->ui->build(
             $this->ui->form(
                 $this->editFormButtons($rqFilters, $this->filterFormId()),
@@ -261,7 +261,7 @@ class OptionsUiBuilder
      */
     public function editSorters(): string
     {
-        $rqSorters = rq(Options\Fields\Form\Sorters::class);
+        $rqSorters = rq(QueryBuilder\Fields\Form\Sorters::class);
         return $this->ui->build(
             $this->ui->form(
                 $this->editFormButtons($rqSorters, $this->sorterFormId()),
@@ -278,9 +278,9 @@ class OptionsUiBuilder
      */
     public function optionsFields(array $options): string
     {
-        $columnCount = count($options['columns']['columns'] ?? []);
-        $filterCount = count($options['filters']['filters'] ?? []);
-        $sorterCount = count($options['sorters']['sorters'] ?? []);
+        $columnCount = count($options['columns'] ?? []);
+        $filterCount = count($options['filters'] ?? []);
+        $sorterCount = count($options['sorters'] ?? []);
 
         return $this->ui->build(
             $this->ui->buttonGroup(
@@ -291,7 +291,7 @@ class OptionsUiBuilder
                 )->outline()
                     ->secondary()
                     ->fullWidth()
-                    ->jxnClick(rq(Options\Fields\Columns::class)->edit()),
+                    ->jxnClick(rq(QueryBuilder\Fields\Columns::class)->edit()),
                 $this->ui->button(
                     $this->ui->text($this->trans->lang('Filters ')),
                     $this->ui->when($filterCount > 0, fn() =>
@@ -299,7 +299,7 @@ class OptionsUiBuilder
                 )->outline()
                     ->secondary()
                     ->fullWidth()
-                    ->jxnClick(rq(Options\Fields\Filters::class)->edit()),
+                    ->jxnClick(rq(QueryBuilder\Fields\Filters::class)->edit()),
                 $this->ui->button(
                     $this->ui->text($this->trans->lang('Order ')),
                     $this->ui->when($sorterCount > 0, fn() =>
@@ -307,7 +307,7 @@ class OptionsUiBuilder
                 )->outline()
                     ->secondary()
                     ->fullWidth()
-                    ->jxnClick(rq(Options\Fields\Sorters::class)->edit())
+                    ->jxnClick(rq(QueryBuilder\Fields\Sorters::class)->edit())
             )->fullWidth()
         );
     }
@@ -322,7 +322,7 @@ class OptionsUiBuilder
         $optionsLimitId = $this->tab()->app()->id('dbadmin-table-select-options-form-limit');
         $optionsTotalId = $this->tab()->app()->id('dbadmin-table-select-options-form-total');
         $optionsLengthId = $this->tab()->app()->id('dbadmin-table-select-options-form-length');
-        $rqOptionsValues = rq(Options\Values::class);
+        $rqOptionsValues = rq(QueryBuilder\Values::class);
         $selectLimitValue = input($optionsLimitId)->toInt();
         $selectTotalValue = checked($optionsTotalId);
         $textLengthValue = input($optionsLengthId)->toInt();

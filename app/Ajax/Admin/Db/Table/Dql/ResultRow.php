@@ -11,7 +11,6 @@ use Lagdo\DbAdmin\App\Ui\Select\ResultUiBuilder;
 #[Exclude]
 class ResultRow extends Component
 {
-    use QueryTrait;
     use RowMenuTrait;
 
     /**
@@ -36,12 +35,12 @@ class ResultRow extends Component
      */
     public function refreshItem(int $rowId, array $rowIdValues): void
     {
-        $options = $this->getOptions();
+        $params = $this->getBuilderParams();
         // Set the options to fetch pnly the updated item.
-        $options['page'] = 0;
-        $options['limit'] = 1;
-        $options['updated'] = $rowIdValues;
-        $select = $this->db()->getSelectParams($this->getCurrentTable(), $options);
+        $params['page'] = 0;
+        $params['limit'] = 1;
+        $params['updated'] = $rowIdValues;
+        $select = $this->db()->getSelectParams($this->getCurrentTable(), $params);
 
         $result = $this->db()->execSelect($select);
 

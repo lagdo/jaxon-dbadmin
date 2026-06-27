@@ -14,8 +14,6 @@ abstract class FuncComponent extends BaseComponent
     use ComponentTrait;
 
     /**
-     * The constructor
-     *
      * @param TableUiBuilder $tableUi   The HTML UI builder
      */
     public function __construct(protected TableUiBuilder $tableUi)

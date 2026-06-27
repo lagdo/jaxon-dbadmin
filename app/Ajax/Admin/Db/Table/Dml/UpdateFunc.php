@@ -3,8 +3,8 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml;
 
 use Jaxon\Attributes\Attribute\Databag;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\QueryBuilderTrait;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultRow;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\SelectBagTrait;
 use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
 
 use function count;
@@ -14,10 +14,10 @@ use function Jaxon\form;
 /**
  * This class provides insert and update query features on tables.
  */
-#[Databag('dbadmin.select')]
+#[Databag('dbadmin.builder')]
 class UpdateFunc extends FuncComponent
 {
-    use SelectBagTrait;
+    use QueryBuilderTrait;
 
     /**
      * @param EditUiBuilder  $editUi     The HTML UI builder
@@ -37,8 +37,6 @@ class UpdateFunc extends FuncComponent
         $title = 'Edit row in table ' . $this->getCurrentTable();
         $content = $this->editUi->rowDataForm($columns);
         $values = form($this->editUi->queryFormId());
-        // Add the select options, which are used to format the modified data
-        $rowIdValues['select'] = $this->getSelectBag('options', []);
 
         // Bootbox options
         $options = ['size' => 'large'];
@@ -109,9 +107,7 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        // Add the select options, which are used to format the modified data
         $table = $this->getCurrentTable();
-        $rowIdValues['select'] = $this->getSelectBag('options', []);
         $result = $this->db()->updateRow($table, $rowIdValues, $formValues);
         // Show the error
         if($result->error !== null)

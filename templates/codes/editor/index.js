@@ -49,7 +49,7 @@
      *
      * @returns {void}
      */
-    self.onAppTabClick = (appTabId) => jaxon.bag.setEntry('dbadmin', 'tab.app', appTabId);
+    self.onAppTabClick = (appTabId) => jaxon.bag.setEntry('dbadmin.app', 'tab', appTabId);
 
     /**
      * @param {string} appTabId

@@ -11,8 +11,6 @@ use Lagdo\DbAdmin\App\Ui\Command\QueryUiBuilder;
 class ImportResult extends Component
 {
     /**
-     * The constructor
-     *
      * @param QueryUiBuilder $queryUi   The HTML UI builder
      */
     public function __construct(protected QueryUiBuilder $queryUi)

@@ -13,7 +13,6 @@ use function count;
  */
 class ResultSet extends PageComponent
 {
-    use QueryTrait;
     use RowMenuTrait;
 
     /**
@@ -32,7 +31,8 @@ class ResultSet extends PageComponent
      */
     private function select(): SelectDqDto
     {
-        return $this->db()->getSelectParams($this->getCurrentTable(), $this->getOptions());
+        $options = $this->getBuilderParams();
+        return $this->db()->getSelectParams($this->getCurrentTable(), $options);
     }
 
     /**
@@ -42,7 +42,7 @@ class ResultSet extends PageComponent
     {
         // Save the count value in the $_count attribute.
 
-        $options = $this->getOptions();
+        $options = $this->getBuilderParams();
         if (!($options['total'] ?? true)) {
             // Do not query the total number of items.
             return $this->_count = -1;
@@ -75,7 +75,7 @@ class ResultSet extends PageComponent
         // Save the current page in the databag
         $this->savePageNumber($this->currentPage());
 
-        $result = $this->db()->execSelect($select = $this->select());
+        $result = $this->db()->execSelect($this->select());
 
         if ($result->error !== null) {
             $this->set('duration', null);

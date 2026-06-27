@@ -16,7 +16,7 @@ trait ComponentTrait
     protected function setDefaultSelectOptions(): void
     {
         $currentTab = $this->tab()->app()->current();
-        $defaults = $this->bag('dbadmin.select')->get($currentTab, []);
+        $defaults = $this->bag('dbadmin.builder')->get($currentTab, []);
 
         // Do not change the values if they are already set.
         $defaults['options'] ??= ['limit' => 50, 'total' => true, 'length' => 100];
@@ -24,6 +24,6 @@ trait ComponentTrait
         $defaults['filters'] ??= [];
         $defaults['sorters'] ??= [];
 
-        $this->bag('dbadmin.select')->set($currentTab, $defaults);
+        $this->bag('dbadmin.builder')->set($currentTab, $defaults);
     }
 }

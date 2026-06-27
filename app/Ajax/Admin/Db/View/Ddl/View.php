@@ -15,8 +15,6 @@ use function is_array;
 class View extends FuncComponent
 {
     /**
-     * The constructor
-     *
      * @param ViewUiBuilder  $viewUi     The HTML UI builder
      */
     public function __construct(protected ViewUiBuilder $viewUi)

@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options\Fields;
+namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields;
 
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options\Fields;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Options\FuncComponent;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\FuncComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\QueryText;
 
 use function array_filter;
@@ -12,34 +12,34 @@ use function Jaxon\form;
 /**
  * This class provides select query features on tables.
  */
-class Filters extends FuncComponent
+class Columns extends FuncComponent
 {
     /**
-     * Change the query filters
+     * Change the query columns
      *
      * @return void
      */
     public function edit(): void
     {
-        $title = 'Edit filters';
-        $content = $this->optionsUi->editFilters();
+        $title = 'Edit columns';
+        $content = $this->optionsUi->editColumns();
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
             'click' => 'close',
-        ], [
+        ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(form($this->optionsUi->filterFormId())),
+            'click' => $this->rq()->save(form($this->optionsUi->columnFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
 
         // Display the current values in the form.
-        $this->cl(Form\Filters::class)->show();
+        $this->cl(Form\Columns::class)->show();
     }
 
     /**
-     * Change the query filters
+     * Change the query columns
      *
      * @param array  $values  The form values
      *
@@ -49,8 +49,8 @@ class Filters extends FuncComponent
     {
         // Save the new values in the databag.
         $delete = fn(array $value) => empty($value['delete']);
-        $values['filters'] = array_filter($values['filters'], $delete);
-        $this->setSelectBag('filters', $values);
+        $columns = array_filter($values['columns'] ?? [], $delete);
+        $this->saveParamValue('columns', $columns);
 
         // Hide the dialog
         $this->modal()->hide();

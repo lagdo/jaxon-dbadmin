@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml;
 
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Query;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\QueryEditor;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\FuncComponent as BaseComponent;
 use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
@@ -55,7 +55,7 @@ class SqlCodeFunc extends BaseComponent
         ], [
             'title' => $this->trans()->lang('Edit'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq(Query::class)->database($queryCode),
+            'click' => $this->rq(QueryEditor::class)->database($queryCode),
         ], ...$buttons];
 
         $this->modal()->show($title, $content, $buttons, $options);

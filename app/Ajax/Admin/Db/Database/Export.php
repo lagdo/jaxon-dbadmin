@@ -13,8 +13,6 @@ class Export extends Component
     use ExportTrait;
 
     /**
-     * The constructor
-     *
      * @param ExportUiBuilder $exportUi The HTML UI builder
      */
     public function __construct(protected ExportUiBuilder $exportUi)

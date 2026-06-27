@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Server;
+namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Database;
 
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Databag;
@@ -8,7 +8,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query\QueryTrait;
 use Lagdo\DbAdmin\App\Ui\Command\QueryUiBuilder;
 
 #[Databag('dbadmin.tab')]
-class Query extends Component
+class QueryEditor extends Component
 {
     use QueryTrait;
 
@@ -18,8 +18,6 @@ class Query extends Component
     private string $query = '';
 
     /**
-     * The constructor
-     *
      * @param QueryUiBuilder $queryUi    The HTML UI builder
      */
     public function __construct(protected QueryUiBuilder $queryUi)
@@ -30,13 +28,14 @@ class Query extends Component
      */
     protected function before(): void
     {
-        $this->activateServerCommandMenu('server-query');
+        $this->activateDatabaseCommandMenu('database-query');
 
         $this->editorClass = EditorFunc::class;
         $this->cl(EditorFunc::class)->initTab();
 
         // Set the current database, but do not update the databag.
-        $this->db()->setCurrentDbName('');
+        [, $database] = $this->getCurrentDb();
+        $this->db()->setCurrentDbName($database);
         $this->db()->prepareQueryExec();
     }
 
@@ -49,15 +48,17 @@ class Query extends Component
     }
 
     /**
-     * Show the SQL query form for a server
+     * Show the SQL command form for a database
      *
      * @param string $query       The SQL query to display
      *
      * @return void
      */
     #[After('showBreadcrumbs')]
-    public function server(string $query = ''): void
+    public function database(string $query = ''): void
     {
+        // The request might come from a modal dialog.
+        $this->modal()->hide();
         $this->query = $query;
         $this->render();
     }
