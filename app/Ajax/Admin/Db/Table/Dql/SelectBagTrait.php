@@ -19,6 +19,17 @@ trait SelectBagTrait
      * @param string $key
      * @param mixed $value
      *
+     * @return void
+     */
+    protected function newSelectBag(string $key, $value): void
+    {
+        $this->newBag('dbadmin.select', $key, $value);
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $value
+     *
      * @return mixed
      */
     protected function getSelectBag(string $key, $value = null): mixed

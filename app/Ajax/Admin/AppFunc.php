@@ -111,10 +111,10 @@ class AppFunc extends FuncComponent
         $appTab = $this->tab()->app();
 
         $name = $appTab->newId();
-        $this->bag('dbadmin')->set('tab.app', $name);
+        $this->bag('dbadmin.app')->set('tab', $name);
 
-        $names = $this->bag('dbadmin.tab')->get('app.names', []);
-        $this->bag('dbadmin.tab')->set('app.names', [...$names, $name]);
+        $names = $this->bag('dbadmin.app')->get('tabs', []);
+        $this->bag('dbadmin.app')->set('tabs', [...$names, $name]);
         $this->setBag('dbadmin.tab', 'editor.names.sv', []);
         $this->setBag('dbadmin.tab', 'editor.names.db', []);
 
@@ -180,7 +180,7 @@ class AppFunc extends FuncComponent
         // Back to the first tab.
         $appTab = $this->tab()->app();
         $this->response()->jo('jaxon.dbadmin')->activateTab($appTab->zeroTitleId());
-        $this->bag('dbadmin')->set('tab.app', $appTab->zero());
+        $this->bag('dbadmin.app')->set('tab', $appTab->zero());
     }
 
     /**
@@ -206,8 +206,8 @@ class AppFunc extends FuncComponent
     {
         $appTab = $this->tab()->app();
 
-        $names = $this->bag('dbadmin.tab')->get('app.names', []);
-        $current = $this->bag('dbadmin')->get('tab.app', '');
+        $names = $this->bag('dbadmin.app')->get('tabs', []);
+        $current = $this->bag('dbadmin.app')->get('tab', '');
         if ($current === $appTab->zero() || count($names) === 0) {
             $this->alert()->title('Error')->error('Cannot delete the current tab.');
             return;
@@ -224,14 +224,14 @@ class AppFunc extends FuncComponent
         $this->response()->jo('jaxon.dbadmin')->delAppEditors($appTab->current());
 
         // Update the databag contents.
-        $this->bag('dbadmin.tab')->set('app.names',
+        $this->bag('dbadmin.app')->set('tabs',
             array_filter($names, fn(string $name) => $name !== $current));
         $this->unsetCurrentDb();
         $this->unsetBag('dbadmin.tab', 'editor.names.sv');
         $this->unsetBag('dbadmin.tab', 'editor.names.db');
 
         // Set the first tab as the current.
-        $this->bag('dbadmin')->set('tab.app', $appTab->zero());
+        $this->bag('dbadmin.app')->set('tab', $appTab->zero());
     }
 
     /**

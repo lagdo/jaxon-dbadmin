@@ -19,6 +19,7 @@ use function array_filter;
 /**
  * Common functions for component classes
  */
+#[Databag('dbadmin.app')]
 #[Databag('dbadmin')]
 trait ComponentTrait
 {
@@ -127,6 +128,14 @@ trait ComponentTrait
     }
 
     /**
+     * @return string
+     */
+    private function tabKey(): string
+    {
+        return $this->tab()->app()->current();
+    }
+
+    /**
      * @param string $bag
      * @param string $key
      * @param mixed $value
@@ -135,8 +144,8 @@ trait ComponentTrait
      */
     protected function getBag(string $bag, string $key, mixed $value = null): mixed
     {
-        $currentValues = $this->bag($bag)->get($key, []);
-        return $currentValues[$this->tab()->app()->current()] ?? $value;
+        $bagValues = $this->bag($bag)->get($this->tabKey(), []);
+        return $bagValues[$key] ?? $value;
     }
 
     /**
@@ -148,10 +157,11 @@ trait ComponentTrait
      */
     protected function setBag(string $bag, string $key, mixed $value): void
     {
-        $currentValues = $this->bag($bag)->get($key, []);
-        $this->bag($bag)->set($key, [
-            ...$currentValues,
-            $this->tab()->app()->current() => $value,
+        $tabKey = $this->tabKey();
+        $bagValues = $this->bag($bag)->get($tabKey, []);
+        $this->bag($bag)->set($tabKey, [
+            ...$bagValues,
+            $key => $value,
         ]);
     }
 
@@ -163,10 +173,29 @@ trait ComponentTrait
      */
     protected function unsetBag(string $bag, string $key): void
     {
-        $currentTab = $this->tab()->app()->current();
-        $nextValues = array_filter($this->bag($bag)->get($key, []),
-            fn(string $tab) => $tab !== $currentTab, ARRAY_FILTER_USE_KEY);
-        $this->bag($bag)->set($key, $nextValues);
+        $tabKey = $this->tabKey();
+        $nextValues = array_filter($this->bag($bag)->get($tabKey, []),
+            fn(string $tab) => $tab !== $key, ARRAY_FILTER_USE_KEY);
+        $this->bag($bag)->set($tabKey, $nextValues);
+    }
+
+    /**
+     * @param string $bag
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return void
+     */
+    protected function newBag(string $bag, string $key, mixed $value): void
+    {
+        $tabKey = $this->tabKey();
+        $bagValues = $this->bag($bag)->get($tabKey, []);
+        if (!isset($bagValues[$key])) {
+            $this->bag($bag)->set($tabKey, [
+                ...$bagValues,
+                $key => $value,
+            ]);
+        }
     }
 
     /**

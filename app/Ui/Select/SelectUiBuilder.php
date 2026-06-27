@@ -158,7 +158,7 @@ class SelectUiBuilder
                     $this->ui->buttonGroup(
                         $this->ui->button($this->ui->text($this->trans->lang('Execute')))
                             ->fullWidth()->primary()
-                            ->jxnClick(rq(ResultSet::class)->page()),
+                            ->jxnClick(rq(ResultSet::class)->page(1)),
                         $this->ui->button($this->ui->text($this->trans->lang('Edit')))
                             ->outline()->secondary()->fullWidth()
                             ->jxnClick(rq(Select::class)->edit()),

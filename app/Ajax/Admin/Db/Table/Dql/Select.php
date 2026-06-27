@@ -34,7 +34,12 @@ class Select extends MainComponent
         $this->setSelectBag('filters', []);
         $this->setSelectBag('sorters', []);
         // While the options values are kept.
-        $options = $this->getSelectBag('options', []);
+        $this->newSelectBag('options', [
+            'limit' => 50,
+            'total' => true,
+            'length' => 100,
+        ]);
+        $options = $this->getSelectBag('options');
 
         $table = $this->getCurrentTable();
         // Set the breadcrumbs
@@ -45,11 +50,6 @@ class Select extends MainComponent
 
         // Save select queries options
         $select = $this->db()->getSelectParams($table, $options);
-        $this->setSelectBag('options', [
-            'limit' => $select->input->limit,
-            'total' => $select->input->total,
-            'length' => $select->input->textLength,
-        ]);
         $this->stash()->set('select.query', $select->query);
 
         // Set main menu buttons
@@ -94,6 +94,7 @@ class Select extends MainComponent
         // Show the select options
         $this->cl(Options\Fields::class)->render();
         $this->cl(Options\Values::class)->render();
+
         // Show the query
         $this->cl(QueryText::class)->render();
     }
@@ -112,8 +113,6 @@ class Select extends MainComponent
     {
         // Save the table name in the databag.
         $this->setCurrentTable($table);
-        // Save the current page in the databag
-        $this->savePageNumber(1);
 
         $this->render();
     }

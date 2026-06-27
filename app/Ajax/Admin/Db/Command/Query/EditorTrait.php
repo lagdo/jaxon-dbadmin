@@ -198,13 +198,13 @@ trait EditorTrait
         }
 
         // Delete the current tab. This script also activates the first tab.
-        $this->response()->jo('jaxon.dbadmin')
-            ->delTab($this->tab()->editor()->titleId(), $this->tab()->editor()->wrapperId(), $this->tab()->editor()->zeroTitleId());
-        $this->response()->jo('jaxon.dbadmin')
-            ->deleteQueryEditor($this->tab()->app()->current(), $this->tab()->editor()->current());
+        $this->response()->jo('jaxon.dbadmin')->delTab($this->tab()->editor()->titleId(),
+            $this->tab()->editor()->wrapperId(), $this->tab()->editor()->zeroTitleId());
+        $this->response()->jo('jaxon.dbadmin')->deleteQueryEditor($this->tab()->app()->current(),
+            $this->tab()->editor()->current());
 
         // Update the databag contents.
-        $this->setBag('dbadmin.tab', $this->tab()->editor()->names(), array_filter($names,
-            fn(string $name) => $name !== $current));
+        $this->setBag('dbadmin.tab', $this->tab()->editor()->names(),
+            array_filter($names, fn(string $name) => $name !== $current));
     }
 }
