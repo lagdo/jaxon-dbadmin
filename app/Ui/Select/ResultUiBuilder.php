@@ -39,10 +39,11 @@ class ResultUiBuilder
         $foreignKey = $column['foreign'];
         $tableName = $foreignKey->table;
         $columnName = $foreignKey->target[0];
+        $columnValue = $column['value'];
 
         return $this->ui->a($html)
             ->setHref('javascript:void(0)')
-            ->jxnClick(rq(Select::class)->follow($tableName, $columnName, $html));
+            ->jxnClick(rq(Select::class)->follow($tableName, $columnName, $columnValue));
     }
 
     /**

@@ -7,7 +7,7 @@ use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\App\Ui\AuditUiBuilder;
 
 #[Exclude]
-class Wrapper extends Component
+class Content extends Component
 {
     /**
      * @param AuditUiBuilder $uiBuider;
@@ -20,6 +20,6 @@ class Wrapper extends Component
      */
     public function html(): string
     {
-        return $this->uiBuider->wrapper();
+        return $this->uiBuider->content();
     }
 }

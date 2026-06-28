@@ -5,7 +5,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppTabMenu;
 use Lagdo\DbAdmin\App\Ajax\Base\FuncComponent;
-use Lagdo\DbAdmin\App\Ajax\Base\PageContentFixHeightTrait;
 use Lagdo\DbAdmin\Support\Service\Admin\Preference;
 
 use function array_filter;
@@ -19,8 +18,6 @@ use function trim;
 #[Databag('dbadmin.tab')]
 class AppFunc extends FuncComponent
 {
-    use PageContentFixHeightTrait;
-
     /**
      * @param Preference|null $preference
      */
@@ -38,7 +35,6 @@ class AppFunc extends FuncComponent
     {
         $this->cl(DbFunc::class)->server($server);
         $this->showBreadcrumbs();
-        $this->fixPageContentHeight();
     }
 
     /**

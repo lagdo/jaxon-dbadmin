@@ -163,11 +163,11 @@ trait PageTrait
 
     /**
      * @param string|array $content
-     * @param bool $grow
+     * @param string|null $style
      *
      * @return string
      */
-    public function panel(string|array $content, bool $grow): string
+    public function panel(string|array $content, string|null $style = null): string
     {
         if ($content === '') {
             return '';
@@ -186,14 +186,9 @@ trait PageTrait
                     $this->ui->when($header !== '', fn() =>
                         $this->ui->cardHeader($header)
                     ),
-                    $this->ui->cardBody(
-                        $this->ui->div($body)
-                            ->when($grow, fn($element) =>
-                                $element->addClass('jaxon-dbadmin-scrollable-content'))
-                    )->when($grow, fn($element) => $element->addClass('full-height'))
-                )->when($grow, fn($element) => $element->addClass('full-height'))
-            )->when($grow, fn($element) =>
-                $element->addClass('jaxon-dbadmin-column-flexible'))
+                    $this->ui->cardBody($this->ui->div($body))
+                )
+            )->when($style !== null, fn($element) => $element->setStyle($style))
         );
     }
 }

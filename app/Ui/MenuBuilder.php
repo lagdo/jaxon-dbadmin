@@ -34,11 +34,9 @@ class MenuBuilder
     public function user(string $user): string
     {
         return $this->ui->build(
-            $this->ui->col(
-                $this->ui->card(
-                    $this->ui->cardBody($this->ui->html($user))
-                ),
-            )->width(12)
+            $this->ui->card(
+                $this->ui->cardBody($this->ui->html($user))
+            )
         );
     }
 
@@ -50,11 +48,9 @@ class MenuBuilder
     public function server(string $server): string
     {
         return $this->ui->build(
-            $this->ui->col(
-                $this->ui->card(
-                    $this->ui->cardBody($this->ui->html($server))
-                )
-            )->width(12)
+            $this->ui->card(
+                $this->ui->cardBody($this->ui->html($server))
+            )
         );
     }
 

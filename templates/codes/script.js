@@ -146,25 +146,6 @@ jaxon.dbadmin = {};
     };
 
     /**
-     * Fix the page content height, so the CSS yaxis overflow can work properly.
-     *
-     * @param {string} tabContentId 
-     * @param {string} wrapperClass
-     * @param {string} contentClass
-     *
-     * @returns {void}
-     */
-    self.fixPageContentHeight = (tabContentId, wrapperClass, contentClass) => {
-        const wrapper = document.querySelector(`#${tabContentId} .${wrapperClass}`);
-        const wrapperSize = wrapper?.clientHeight ?? 0;
-        if (wrapperSize > 40) {
-            const content = document.querySelector(`#${tabContentId} .${contentClass}`);
-            // 40 is the sum of top and bottom paddings in the panel body.
-            content?.setAttribute('style', `max-height: ${wrapperSize - 40}px`);
-        }
-    };
-
-    /**
      * Show or hide database table column fields.
      *
      * @param {string} containerId

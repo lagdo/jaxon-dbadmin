@@ -10,7 +10,6 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Schemas as MenuSchemas;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ajax\Base\FuncComponent;
-use Lagdo\DbAdmin\App\Ajax\Base\PageContentFixHeightTrait;
 
 use function count;
 use function is_array;
@@ -19,8 +18,6 @@ use function is_array;
 #[After('showBreadcrumbs')]
 class DbFunc extends FuncComponent
 {
-    use PageContentFixHeightTrait;
-
     /**
      * Connect to a database server.
      *

@@ -12,8 +12,8 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppTabMenu;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\Content;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
+use Lagdo\DbAdmin\App\Ajax\Audit\Content as AuditContent;
 use Lagdo\DbAdmin\App\Ajax\Audit\Sidebar as AuditSidebar;
-use Lagdo\DbAdmin\App\Ajax\Audit\Wrapper as AuditWrapper;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
@@ -69,34 +69,6 @@ class UiBuilder
 
     /**
      * @param array<string> $servers
-     * @param string $default
-     *
-     * @return mixed
-     */
-    private function getHostSelectCol(array $servers, string $default): mixed
-    {
-        return $this->ui->col(
-            $this->ui->form(
-                $this->ui->inputGroup(
-                    $this->ui->select(
-                        $this->ui->each($servers, fn($serverName, $serverId) =>
-                            $this->ui->option($serverName)
-                                ->selected($serverId === $default)
-                                ->setValue($serverId)
-                        )
-                    )->setId($this->hostSelectId()),
-                    $this->ui->button($this->ui->text('Show'))
-                        ->primary()
-                        ->setClass('btn-select')
-                        ->jxnClick(rq(DbFunc::class)
-                            ->server(select($this->hostSelectId())))
-                )
-            )
-        );
-    }
-
-    /**
-     * @param array<string> $servers
      * @param bool $serverAccess
      * @param string $default
      *
@@ -105,37 +77,41 @@ class UiBuilder
     public function sidebar(array $servers, bool $serverAccess, string $default): string
     {
         return $this->ui->build(
-            $this->ui->row(
-                $this->getHostSelectCol($servers, $default)
-                    ->width(12)
-            ),
-            $this->ui->when($serverAccess, fn() =>
-                $this->ui->row(
-                    $this->ui->col()
-                        ->width(12)
-                        ->tbnBindApp(rq(ServerCommand::class))
+            $this->ui->div(
+                $this->ui->form(
+                    $this->ui->inputGroup(
+                        $this->ui->select(
+                            $this->ui->each($servers, fn($serverName, $serverId) =>
+                                $this->ui->option($serverName)
+                                    ->selected($serverId === $default)
+                                    ->setValue($serverId)
+                            )
+                        )->setId($this->hostSelectId()),
+                        $this->ui->button($this->ui->text('Show'))
+                            ->primary()
+                            ->setClass('btn-select')
+                            ->jxnClick(rq(DbFunc::class)
+                                ->server(select($this->hostSelectId())))
+                    )
                 )
+            )->setStyle('margin-bottom: 10px;'),
+            $this->ui->when($serverAccess, fn() =>
+                $this->ui->div()
+                    ->setStyle('margin-bottom: 10px;')
+                    ->tbnBindApp(rq(ServerCommand::class))
             ),
-            $this->ui->row(
-                $this->ui->col()
-                    ->width(12)
-                    ->tbnBindApp(rq(MenuDatabases::class))
-            ),
-            $this->ui->row(
-                $this->ui->col()
-                    ->width(12)
-                    ->tbnBindApp(rq(MenuSchemas::class))
-            ),
-            $this->ui->row(
-                $this->ui->col()
-                    ->width(12)
-                    ->tbnBindApp(rq(DatabaseCommand::class))
-            ),
-            $this->ui->row(
-                $this->ui->col()
-                    ->width(12)
-                    ->tbnBindApp(rq(MenuSections::class))
-            )
+            $this->ui->div()
+                ->setStyle('margin-bottom: 10px;')
+                ->tbnBindApp(rq(MenuDatabases::class)),
+            $this->ui->div()
+                ->setStyle('margin-bottom: 10px;')
+                ->tbnBindApp(rq(MenuSchemas::class)),
+            $this->ui->div()
+                ->setStyle('margin-bottom: 10px;')
+                ->tbnBindApp(rq(DatabaseCommand::class)),
+            $this->ui->div()
+                ->setStyle('margin-bottom: 10px;')
+                ->tbnBindApp(rq(MenuSections::class))
         );
     }
 
@@ -181,22 +157,22 @@ class UiBuilder
     /**
      * @return string
      */
-    public function wrapper(): string
+    public function content(): string
     {
         return $this->ui->build(
             $this->ui->div(
                 $this->ui->div(
                     $this->ui->div(
                         $this->ui->div()->tbnBindApp(rq(Breadcrumbs::class))
-                    )->setStyle('flex: 1'),
+                    )->setClass('jaxon-dbadmin-server-header-breadcrumbs'),
                     $this->ui->div(
                         $this->ui->div()->tbnBindApp(rq(PageActions::class))
-                    )->setStyle('padding-left:5px;')
-                )->setStyle('display:flex; flex-direction:row; align-items:flex-start; margin-bottom: 10px;'),
+                    )->setClass('jaxon-dbadmin-server-header-actions')
+                )->setClass('jaxon-dbadmin-server-header'),
                 $this->ui->div()
+                    ->setClass('jaxon-dbadmin-server-wrapper')
                     ->tbnBindApp(rq(Content::class))
-                    ->setClass('jaxon-dbadmin-columns-wrapper page-content-wrapper')
-            )->setClass('jaxon-dbadmin-columns-wrapper full-height')
+            )->setClass('jaxon-dbadmin-server-wrapper')
         );
     }
 
@@ -212,20 +188,22 @@ class UiBuilder
         return $this->ui->build(
             $this->ui->div(
                 $this->ui->div(
-                    $this->ui->div()
-                        ->jxnBind(rq(AppTabMenu::class))
-                        ->setClass('jaxon-dbadmin-tabs-layout_button'),
+                    $this->ui->div(
+                        $this->ui->text('Jaxon DbAdmin')
+                    )->setClass('jaxon-dbadmin-page-header_title'),
                     $this->ui->tabs(
                         $this->ui->tabNav(
                             $this->tabNavItem('&nbsp;', true)
                         )->setId('dbadmin-server-tab-nav')
                     )->content($contentId)
-                        ->setClass('jaxon-dbadmin-tabs-layout_header')
-                )->setClass('jaxon-dbadmin-tabs-layout'),
+                        ->setClass('jaxon-dbadmin-page-header_items'),
+                    $this->ui->div()
+                        ->jxnBind(rq(AppTabMenu::class))
+                        ->setClass('jaxon-dbadmin-page-header_menus')
+                )->setClass('jaxon-dbadmin-page-header'),
                 $this->ui->tabContent(
                     $this->tabContentItem(true)
                 )->setId($contentId)
-                    ->addClass('full-height')
             )->setId('jaxon-dbadmin')
         );
     }
@@ -241,16 +219,24 @@ class UiBuilder
             $this->ui->div(
                 $this->ui->div(
                     $this->ui->div(
-                        $this->ui->div(
-                            cl(AuditSidebar::class)->html()
-                        )->jxnBind(rq(AuditSidebar::class))
-                    )->setClass('jaxon-dbadmin-content-layout_sidebar'),
+                        $this->ui->text('Jaxon DbAdmin Audit Logs')
+                    )->setClass('jaxon-dbadmin-page-header_title'),
+                    $this->ui->div('&nbsp;')
+                        ->setClass('jaxon-dbadmin-page-header_spacer'),
+                )->setClass('jaxon-dbadmin-page-header'),
+                $this->ui->div(
                     $this->ui->div(
                         $this->ui->div(
-                            cl(AuditWrapper::class)->html()
-                        )->jxnBind(rq(AuditWrapper::class))
-                    )->setClass('jaxon-dbadmin-content-layout_wrapper')
-                )->setClass('jaxon-dbadmin-content-layout')
+                            cl(AuditSidebar::class)->html()
+                        )->setClass('jaxon-dbadmin-page-sidebar_block')
+                            ->jxnBind(rq(AuditSidebar::class))
+                    )->setClass('jaxon-dbadmin-page-sidebar'),
+                    $this->ui->div(
+                        $this->ui->div(
+                            cl(AuditContent::class)->html()
+                        )->jxnBind(rq(AuditContent::class))
+                    )->setClass('jaxon-dbadmin-page-content')
+                )->setClass('jaxon-dbadmin-page-wrapper')
             )->setId('jaxon-dbadmin')
         );
     }

@@ -26,24 +26,26 @@ class AuditUiBuilder
     /**
      * @return string
      */
-    public function wrapper(): string
+    public function content(): string
     {
         return $this->ui->build(
-            $this->ui->row(
-                $this->ui->col($this->ui->h3($this->trans->lang('Commands'))
-                    ->setStyle('font-size:18px; margin:5px 0;')
-                )->width(3),
-                $this->ui->col(
-                    $this->ui->nav()
-                        ->jxnPagination(cl(Commands::class))
-                        ->setStyle('float:right;')
-                )->width(9)
-            ),
-            $this->ui->row(
-                $this->ui->col()
-                    ->jxnBind(rq(Commands::class))
-                    ->width(12)
-            )
+            $this->ui->div(
+                $this->ui->row(
+                    $this->ui->col($this->ui->h3($this->trans->lang('Commands'))
+                        ->setStyle('font-size: 18px; margin: 5px 0;')
+                    )->width(3),
+                    $this->ui->col(
+                        $this->ui->nav()
+                            ->jxnPagination(cl(Commands::class))
+                            ->setStyle('float: right;')
+                    )->width(9)
+                ),
+                $this->ui->div(
+                    $this->ui->col()
+                        ->jxnBind(rq(Commands::class))
+                        ->width(12)
+                )
+            )->setStyle('margin-right: 10px;')
         );
     }
 
@@ -117,73 +119,53 @@ class AuditUiBuilder
         $formId = 'dbadmin-sidebar-audit-form';
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->label($this->trans->lang('Category'))
-                            ->setFor('category')
-                    )->width(12),
-                    $this->ui->col(
-                        $this->ui->select(
-                            $this->ui->option('')
-                                ->selected(false)->setValue(0),
-                            $this->ui->each($categories, fn($category, $id) =>
-                                $this->ui->option($this->trans->lang($category))
-                                    ->setValue($id)
-                            )
-                        )->setName('category')
-                    )->width(12)
-                ),
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->label($this->trans->lang('User'))
-                            ->setFor('username')
-                    )->width(12),
-                    $this->ui->col(
-                        $this->ui->input()->setType('text')
-                            ->setName('username')
-                    )->width(12)
-                ),
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->label($this->trans->lang('From'))
-                            ->setFor('from_date')
-                    )->width(12),
-                    $this->ui->col(
-                        $this->ui->input()
-                            ->setType('date')->setName('from_date')
-                    )->width(7)
-                        ->setStyle('padding-right:1px'),
-                    $this->ui->col(
-                        $this->ui->input()
-                            ->setType('time')->setName('from_time')
-                    )->width(5)
-                        ->setStyle('padding-left:1px')
-                ),
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->label($this->trans->lang('To'))
-                            ->setFor('to_date')
-                    )->width(12),
-                    $this->ui->col(
-                        $this->ui->input()
-                            ->setType('date')->setName('to_date')
-                    )->width(7)
-                        ->setStyle('padding-right:1px'),
-                    $this->ui->col(
-                        $this->ui->input()
-                            ->setType('time')->setName('to_time')
-                    )->width(5)
-                        ->setStyle('padding-left:1px')
-                ),
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->button($this->trans->lang('Show'))
-                            ->primary()
-                            ->jxnClick(rq(Commands::class)
-                                ->show(form($formId)))
-                    )->width(12)
-                )->setStyle('padding-top: 10px; float:right;')
-            )->setId($formId)->wrapped()
+                $this->ui->div(
+                    $this->ui->label($this->trans->lang('Category'))
+                        ->setFor('category'),
+                    $this->ui->select(
+                        $this->ui->option('')
+                            ->selected(false)->setValue(0),
+                        $this->ui->each($categories, fn($category, $id) =>
+                            $this->ui->option($this->trans->lang($category))
+                                ->setValue($id)
+                        )
+                    )->setName('category')
+                )->setStyle('margin-bottom: 10px;'),
+                $this->ui->div(
+                    $this->ui->label($this->trans->lang('User'))
+                        ->setFor('username'),
+                    $this->ui->input()
+                        ->setType('text')
+                        ->setName('username')
+                )->setStyle('margin-bottom: 10px;'),
+                $this->ui->div(
+                    $this->ui->label($this->trans->lang('From'))
+                        ->setFor('from_date'),
+                    $this->ui->input()
+                        ->setType('date')
+                        ->setName('from_date'),
+                    $this->ui->input()
+                        ->setType('time')
+                        ->setName('from_time')
+                        ->setStyle('margin-top: 5px;')
+                )->setStyle('margin-bottom: 10px;'),
+                $this->ui->div(
+                    $this->ui->label($this->trans->lang('To'))
+                        ->setFor('to_date'),
+                    $this->ui->input()
+                        ->setType('date')
+                        ->setName('to_date'),
+                    $this->ui->input()
+                        ->setType('time')
+                        ->setName('to_time')
+                        ->setStyle('margin-top: 5px;')
+                )->setStyle('margin-bottom: 10px;'),
+                $this->ui->div(
+                    $this->ui->button($this->trans->lang('Show'))
+                        ->primary()
+                        ->jxnClick(rq(Commands::class)->show(form($formId)))
+                )->setStyle('float:right;')
+            )->setId($formId)
         );
     }
 }

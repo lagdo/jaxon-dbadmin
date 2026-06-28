@@ -13,8 +13,6 @@ use function trim;
  */
 trait PageContentTrait
 {
-    use PageContentFixHeightTrait;
-
     /**
      * @return UiBuilder
      */
@@ -47,9 +45,9 @@ trait PageContentTrait
     public function html(): string
     {
         return implode("\n", array_filter([
-            $this->ui()->panel($this->header(), false),
-            $this->ui()->panel($this->content(), true),
-            $this->ui()->panel($this->footer(), false),
+            $this->ui()->panel($this->header(), 'margin-bottom: 10px;'),
+            $this->ui()->panel($this->content()),
+            $this->ui()->panel($this->footer(), 'margin-top: 10px;'),
         ], fn(string $html) => trim($html) !== ''));
     }
 }

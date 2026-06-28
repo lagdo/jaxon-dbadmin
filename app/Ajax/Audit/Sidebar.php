@@ -12,7 +12,7 @@ class Sidebar extends Component
 {
     /**
      * @param QueryLogger $queryLogger
-     * @param AuditUiBuilder $uiBuider;
+     * @param AuditUiBuilder $uiBuider
      */
     public function __construct(private QueryLogger $queryLogger,
         private AuditUiBuilder $uiBuider)

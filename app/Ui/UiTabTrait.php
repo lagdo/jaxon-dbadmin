@@ -4,8 +4,8 @@ namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbServer;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbUser;
+use Lagdo\DbAdmin\App\Ajax\Admin\Content as AdminContent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Sidebar as AdminSidebar;
-use Lagdo\DbAdmin\App\Ajax\Admin\Wrapper as AdminWrapper;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\HtmlComponent;
 
@@ -60,17 +60,24 @@ trait UiTabTrait
                 $this->ui->div(
                     $this->ui->div(
                         cl(AdminSidebar::class)->html()
-                    )->tbnBindApp(rq(AdminSidebar::class)),
-                    $this->ui->row()->tbnBindApp(rq(DbUser::class)),
-                    $this->ui->row()->tbnBindApp(rq(DbServer::class))
-                )->setClass('jaxon-dbadmin-content-layout_sidebar'),
+                    )->setClass('jaxon-dbadmin-page-sidebar_block')
+                        ->tbnBindApp(rq(AdminSidebar::class)),
+                    $this->ui->div('&nbsp;')
+                        ->setClass('jaxon-dbadmin-page-sidebar_spacer'),
+                    $this->ui->div(
+                        $this->ui->div()
+                            ->setStyle('margin-bottom: 10px;')
+                            ->tbnBindApp(rq(DbUser::class)),
+                        $this->ui->div()
+                            ->tbnBindApp(rq(DbServer::class))
+                    )->setClass('jaxon-dbadmin-page-sidebar_block')
+                )->setClass('jaxon-dbadmin-page-sidebar'),
                 $this->ui->div(
                     $this->ui->div(
-                        cl(AdminWrapper::class)->html()
-                    )->tbnBindApp(rq(AdminWrapper::class))
-                        ->setClass('jaxon-dbadmin-columns-wrapper')
-                )->setClass('jaxon-dbadmin-content-layout_wrapper')
-            )->setClass('jaxon-dbadmin-content-layout')
+                        cl(AdminContent::class)->html()
+                    )->tbnBindApp(rq(AdminContent::class))
+                )->setClass('jaxon-dbadmin-page-content')
+            )->setClass('jaxon-dbadmin-page-wrapper')
         )->setId($this->tab()->app()->wrapperId())
             ->active($active);
     }

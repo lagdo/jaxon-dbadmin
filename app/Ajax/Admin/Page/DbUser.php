@@ -6,6 +6,7 @@ use Jaxon\App\ComponentDataTrait;
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\App\Ajax\Base\MenuComponent;
 
+#[Exclude]
 class DbUser extends MenuComponent
 {
     use ComponentDataTrait;
@@ -23,7 +24,6 @@ class DbUser extends MenuComponent
      *
      * @return void
      */
-    #[Exclude]
     public function show(string $user): void
     {
         $this->set('user', $user);

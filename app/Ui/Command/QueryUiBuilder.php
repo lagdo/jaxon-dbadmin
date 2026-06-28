@@ -290,9 +290,6 @@ class QueryUiBuilder
 
         return $this->ui->build(
             $this->ui->div(
-                $this->ui->div(
-                    $this->buttonMenu($menuEntries),
-                )->setClass('jaxon-dbadmin-tabs-layout_button'),
                 $this->ui->tabs(
                     $this->ui->tabNav(
                         $this->ui->when($showQueriesTab, fn() =>
@@ -304,8 +301,11 @@ class QueryUiBuilder
                     )->setId($this->editorTabNavWrapperId())
                         ->setStyle('margin-bottom: 5px;')
                 )->content($tabsContentId)
-                    ->setClass('jaxon-dbadmin-tabs-layout_header')
-            )->setClass('jaxon-dbadmin-tabs-layout'),
+                    ->setClass('jaxon-dbadmin-page-header_items'),
+                $this->ui->div(
+                    $this->buttonMenu($menuEntries),
+                )->setClass('jaxon-dbadmin-page-header_menus')
+            )->setClass('jaxon-dbadmin-page-header'),
             $this->ui->tabContent(
                 $this->ui->when($showQueriesTab, fn() =>
                     $this->ui->tabContentItem()
