@@ -41,8 +41,9 @@ class Values extends Component
     {
         $this->saveParamValue('limit', $limit);
 
-        // Display the new query
+        // Show the new query
         $this->cl(QueryText::class)->refresh();
+
         $this->render();
         // Clear the result components
         $this->clearResults();

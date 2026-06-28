@@ -5,8 +5,10 @@ namespace Lagdo\DbAdmin\Support\Service\Query;
 use Generator;
 
 use function array_filter;
+use function array_reverse;
 use function implode;
 use function preg_match;
+use function preg_match_all;
 use function preg_quote;
 use function preg_replace_callback;
 use function strlen;
@@ -134,21 +136,19 @@ class QuerySplitter
         // Copy the start of the line to the buffer.
         $stream->queryBuffer[] = substr($stream->queryLine, 0, $offset);
         // Truncate the start of the line.
-        $offset += strlen($stream->queryDelimiter);
-        $stream->queryLine = substr($stream->queryLine, $offset);
-        $stream->inputLine = substr($stream->inputLine, $offset);
+        $this->truncateStartOfLine($stream, $offset + strlen($stream->queryDelimiter));
     }
 
     /**
      * @param QueryStream $stream
-     * @param int $offset
+     * @param int $length
      *
      * @return void
      */
-    private function truncateStartOfLine(QueryStream $stream, int $offset): void
+    private function truncateStartOfLine(QueryStream $stream, int $length): void
     {
-        $stream->queryLine = substr($stream->queryLine, $offset);
-        $stream->inputLine = substr($stream->inputLine, $offset);
+        $stream->queryLine = substr($stream->queryLine, $length);
+        $stream->inputLine = substr($stream->inputLine, $length);
     }
 
     /**
@@ -161,6 +161,21 @@ class QuerySplitter
     {
         $stream->queryLine = substr($stream->queryLine, 0, $offset);
         $stream->inputLine = substr($stream->inputLine, 0, $offset);
+    }
+
+    /**
+     * @param QueryStream $stream
+     * @param int $offset
+     * @param int $length
+     *
+     * @return void
+     */
+    private function truncatePartOfLine(QueryStream $stream, int $offset, int $length): void
+    {
+        $stream->queryLine = substr($stream->queryLine, 0, $offset) .
+            substr($stream->queryLine, $offset + $length);
+        $stream->inputLine = substr($stream->inputLine, 0, $offset) .
+            substr($stream->inputLine, $offset + $length);
     }
 
     /**
@@ -338,6 +353,25 @@ class QuerySplitter
     /**
      * @param QueryStream $stream
      *
+     * @return void
+     */
+    private function removeSingleLineStarComments(QueryStream $stream): void
+    {
+        $regex = "/\/\*.*?\*\//s";
+        $flags = PREG_OFFSET_CAPTURE;
+        if (!preg_match_all($regex, $stream->inputLine, $matches, $flags)) {
+            // Middle of a multiline function. Add the line to the buffer.
+            return;
+        }
+
+        foreach (array_reverse($matches[0]) as $match) {
+            $this->truncatePartOfLine($stream, $match[1], strlen($match[0]));
+        }
+    }
+
+    /**
+     * @param QueryStream $stream
+     *
      * @return bool
      */
     private function makeInputLine(QueryStream $stream): bool
@@ -380,10 +414,8 @@ class QuerySplitter
             return false;
         }
 
-        // Mask comments in "/*  */".
-        $this->maskTokens($stream, [
-            "\/\*.*?\*\/",
-        ]);
+        // Remove comments in "/*  */".
+        $this->removeSingleLineStarComments($stream);
 
         // Mask function in "$x$  $x$".
         $this->maskTokens($stream, [
