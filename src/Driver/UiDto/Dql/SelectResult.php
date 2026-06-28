@@ -154,7 +154,7 @@ class SelectResult extends AbstractDriverProxy
     private function getColumnForeignKey(SelectDqDto $select, ColumnDto $column): ForeignKeyDto|null
     {
         $filter = fn(ForeignKeyDto $key) =>
-            count($key->target) === 1 && $key->target[0] === $column->name;
+            count($key->source) === 1 && $key->source[0] === $column->name;
         $foreignKeys = array_filter($select->table->foreignKeys, $filter);
 
         return (array_values($foreignKeys))[0] ?? null;
@@ -231,7 +231,10 @@ class SelectResult extends AbstractDriverProxy
         $value = $this->engine()->convertValue($value, $header->column);
         $textLength = $select->input->textLength;
 
-        return $this->pageUi()->getColumnValue($header->column, $textLength, $value);
+        $value = $this->pageUi()->getColumnValue($header->column, $textLength, $value);
+        $value['foreign'] = $header->foreignKey;
+
+        return $value;
     }
 
     /**

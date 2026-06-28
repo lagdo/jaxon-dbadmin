@@ -123,14 +123,14 @@ class PageUi
      *
      * @return string
      */
-    public function selectValue(ColumnDto $column, int $textLength, mixed $value): string
+    private function getColumnHtmlValue(ColumnDto $column, int $textLength, mixed $value): string
     {
         // if (\is_array($value)) {
         //     $expression = '';
         //     foreach ($value as $k => $v) {
         //         $expression .= '<tr>' . ($value != \array_values($value) ?
         //             '<th>' . $this->utils()->html($k) :
-        //             '') . '<td>' . $this->selectValue($column, $v, $textLength);
+        //             '') . '<td>' . $this->getColumnHtmlValue($column, $v, $textLength);
         //     }
         //     return "<table cellspacing='0'>$expression</table>";
         // }
@@ -169,8 +169,9 @@ class PageUi
         }*/
         return [
             // 'id',
-            'text' => preg_match('~text|lob~', $column->type),
-            'value' => $this->selectValue($column, $textLength, $value),
+            // 'text' => preg_match('~text|lob~', $column->type),
+            'html' => $this->getColumnHtmlValue($column, $textLength, $value),
+            'value' => $value,
             // 'editable' => false,
         ];
     }

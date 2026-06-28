@@ -3,10 +3,14 @@
 namespace Lagdo\DbAdmin\App\Ui\Select;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultRow;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Select;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultHeaderDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultRowDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
+use Lagdo\UiBuilder\Html\Component\Component;
+use Lagdo\UiBuilder\Html\Element\Element;
 
 use function Jaxon\rq;
 
@@ -20,6 +24,28 @@ class ResultUiBuilder
     {}
 
     /**
+     * @param array $column
+     *
+     * @return Element|Component
+     */
+    private function tableDataCellValue(array $column): Element|Component
+    {
+        $html = $column['html'];
+        if ($column['value'] === null || !isset($column['foreign'])) {
+            return $this->ui->html($html);
+        }
+
+        /** @var ForeignKeyDto */
+        $foreignKey = $column['foreign'];
+        $tableName = $foreignKey->table;
+        $columnName = $foreignKey->target[0];
+
+        return $this->ui->a($html)
+            ->setHref('javascript:void(0)')
+            ->jxnClick(rq(Select::class)->follow($tableName, $columnName, $html));
+    }
+
+    /**
      * @param QueryResultRowDto $row
      *
      * @return mixed
@@ -29,7 +55,7 @@ class ResultUiBuilder
         return $this->ui->list(
             $this->ui->tableDataCell($row->rowMenu, ['style' => 'width:30px']),
             $this->ui->each($row->columns, fn(array $column) =>
-                $this->ui->tableDataCell($column['value'])
+                $this->ui->tableDataCell($this->tableDataCellValue($column))
             )
         );
     }

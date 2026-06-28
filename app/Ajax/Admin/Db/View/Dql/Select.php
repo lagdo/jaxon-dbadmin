@@ -54,7 +54,7 @@ class Select extends MainComponent
                 'handler' => $this->rq(Form::class)->edit($table),
             ],
             'back-tables' => [
-                'title' => $this->trans()->lang('Back'),
+                'title' => $this->trans()->lang('Views'),
                 'handler' => $this->rq(Views::class)->show(),
             ],
         ];
@@ -102,8 +102,7 @@ class Select extends MainComponent
     public function show(string $table): void
     {
         // Save the table name in the databag.
-        $this->setCurrentTable($table);
-        $this->initBuilderParams();
+        $this->initBuilderParams($table);
 
         $this->render();
     }

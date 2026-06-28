@@ -6,7 +6,6 @@ use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 
 use function array_map;
-use function array_keys;
 
 /**
  * Reads data from the database for the row insert and update user forms.
@@ -52,23 +51,6 @@ class RowDataWriter extends AbstractDriverProxy
     }
 
     /**
-     * @param array $values
-     * @param array<string, ColumnDto> $columns
-     * @param array $rowIdValues
-     *
-     * @return array
-     */
-    public function getUpdatedRow(array $values, array $columns, array $rowIdValues): array
-    {
-        $textLength = $rowIdValues['select']['length'];
-        return array_map(function($value, $columnName) use($columns, $textLength) {
-            $column = $columns[$columnName];
-            $value = $this->engine()->convertValue($value, $column);
-            return $this->pageUi()->getColumnValue($column, $textLength, $value);
-        }, $values, array_keys($values));
-    }
-
-    /**
      * @param array<ColumnDto> $columns
      * @param array|null $rowData
      *
@@ -81,7 +63,6 @@ class RowDataWriter extends AbstractDriverProxy
 
         return array_map(function(ColumnDto $column) use($rowData) {
             $input = $this->columnValue->getColumnInputValues($column, $rowData);
-
             if ($this->autofocus !== false) {
                 $this->autofocus = match(true) {
                     $column->autoIncrement => null,
@@ -93,7 +74,6 @@ class RowDataWriter extends AbstractDriverProxy
 
             // Format the data columns for the user input form.
             $this->columnInput->setColumnInputValues($input, $this->autofocus);
-
             if ($this->autofocus) {
                 $this->autofocus = false;
             }

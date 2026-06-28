@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
+use Jaxon\App\ComponentDataTrait;
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Databag;
 use Jaxon\Attributes\Attribute\Inject;
@@ -20,6 +21,7 @@ use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
  */
 class Select extends MainComponent
 {
+    use ComponentDataTrait;
     use QueryBuilderTrait;
 
     /**
@@ -53,7 +55,7 @@ class Select extends MainComponent
                 'handler' => $this->rq(Table::class)->show($table),
             ],
             'back-tables' => [
-                'title' => $this->trans()->lang('Back'),
+                'title' => $this->trans()->lang('Tables'),
                 'handler' => $this->rq(Tables::class)->show(),
             ],
         ];
@@ -65,7 +67,9 @@ class Select extends MainComponent
      */
     protected function header(): string
     {
-        return $this->selectUi->header($this->config()->canSaveQuery());
+        $canSaveQuery = $this->config()->canSaveQuery();
+        $canGoBack = $this->countBuilderParams() > 1;
+        return $this->selectUi->header($canSaveQuery, $canGoBack);
     }
 
     /**
@@ -87,6 +91,9 @@ class Select extends MainComponent
 
         // Show the query
         $this->cl(QueryText::class)->render();
+
+        // Also run the query.
+        $this->cl(ResultSet::class)->page($this->get('page', 1));
     }
 
     /**
@@ -101,11 +108,43 @@ class Select extends MainComponent
     #[Inject(attr: 'queryLogger')]
     public function show(string $table): void
     {
-        // Save the table name in the databag.
-        $this->setCurrentTable($table);
-        $this->initBuilderParams();
+        $this->initBuilderParams($table);
 
         $this->render();
+    }
+
+    /**
+     * Show a table following a foreign key
+     *
+     * @param string $table       The table name
+     * @param string $column      The foreign column
+     * @param string $value       The foreign $value
+     *
+     * @return void
+     */
+    #[After('showBreadcrumbs')]
+    // Injecting the query logger here makes it possible to check if the audit db connection is active.
+    #[Inject(attr: 'queryLogger')]
+    public function follow(string $table, string $column, string|int $value): void
+    {
+        $this->prependBuilderParams($table, $column, $value);
+
+        $this->render();
+    }
+
+    /**
+     * Go back to the previous table
+     *
+     * @return void
+     */
+    #[After('showBreadcrumbs')]
+    // Injecting the query logger here makes it possible to check if the audit db connection is active.
+    #[Inject(attr: 'queryLogger')]
+    public function back(): void
+    {
+        if ($this->removeBuilderParams()) {
+            $this->render();
+        }
     }
 
     /**

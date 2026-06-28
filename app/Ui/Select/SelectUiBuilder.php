@@ -121,10 +121,11 @@ class SelectUiBuilder
 
     /**
      * @param bool $canSaveQuery
+     * @param bool $canGoBack
      *
      * @return string
      */
-    public function header(bool $canSaveQuery): string
+    public function header(bool $canSaveQuery, bool $canGoBack = false): string
     {
         return $this->ui->build(
             $this->ui->row(
@@ -171,7 +172,20 @@ class SelectUiBuilder
                 )->width(4),
                 $this->ui->col()
                     ->width(2)
-                    ->tbnBindApp(rq(Duration::class))
+                    ->tbnBindApp(rq(Duration::class)),
+                $this->ui->col()
+                    ->width(4),
+                $this->ui->col(
+                    $this->ui->when($canGoBack, fn() =>
+                        $this->ui->div(
+                            $this->ui->button(
+                                $this->ui->html('<i class="fa fa-arrow-left"></i>&nbsp;'),
+                                $this->ui->text($this->trans->lang('Back'))
+                            )->primary()
+                                ->jxnClick(rq(Select::class)->back())
+                        )->setStyle('float:right;')
+                    )
+                )->width(2)
             )->setStyle('margin-bottom: 0;')
         );
     }

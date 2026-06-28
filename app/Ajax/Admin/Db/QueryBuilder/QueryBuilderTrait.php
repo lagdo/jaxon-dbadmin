@@ -4,6 +4,9 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder;
 
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 
+use function count;
+use function array_shift;
+
 /**
  * This trait provides databag features for the Query Builder.
  */
@@ -29,17 +32,6 @@ trait QueryBuilderTrait
      * @param string $key
      * @param mixed $value
      *
-     * @return void
-     */
-    protected function newBuilderBag(string $key, $value): void
-    {
-        $this->newBag('dbadmin.builder', $key, $value);
-    }
-
-    /**
-     * @param string $key
-     * @param mixed $value
-     *
      * @return mixed
      */
     protected function getBuilderBag(string $key, $value = null): mixed
@@ -48,10 +40,14 @@ trait QueryBuilderTrait
     }
 
     /**
+     * @param string $table
+     *
      * @return void
      */
-    protected function initBuilderParams(): void
+    protected function initBuilderParams(string $table): void
     {
+        $this->setCurrentTable($table);
+
         $params = $this->getBuilderBag('params', []);
         // The table, columns, filters and sorting values are reset,
         // while the options values are kept.
@@ -60,11 +56,62 @@ trait QueryBuilderTrait
             'total' => true,
             'length' => 100,
             ...($params[0] ?? []),
-            'table' => $this->getCurrentTable(),
+            'table' => $table,
             'columns' => [],
             'filters' => [],
             'sorters' => [],
         ]]);
+    }
+
+    /**
+     * @param string $table
+     * @param string $column
+     * @param string|int $value
+     *
+     * @return void
+     */
+    protected function prependBuilderParams(string $table, string $column, string|int $value): void
+    {
+        $this->setCurrentTable($table);
+
+        $params = $this->getBuilderBag('params', []);
+        // Prepend a new entry into the params array.
+        $this->setBuilderBag('params', [[
+            'limit' => 50,
+            'total' => true,
+            'length' => 100,
+            'table' => $table,
+            'columns' => [],
+            'filters' => [[
+                'column' => $column,
+                'operator' => '=',
+                'operand' => $value,
+            ]],
+            'sorters' => [],
+        ], ...$params]);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function removeBuilderParams(): bool
+    {
+        $params = $this->getBuilderBag('params', []);
+        // There should be at least 2 entries in the params array.
+        if (count($params) < 2) {
+            return false;
+        }
+
+        // Remove the first entry in the params array.
+        array_shift($params);
+
+        // Back to the same page number on the rpevious table.
+        $this->setCurrentTable($params[0]['table']);
+        $this->set('page', $params[0]['page']);
+
+        $this->setBuilderBag('params', $params);
+
+        return true;
     }
 
     /**
@@ -105,12 +152,10 @@ trait QueryBuilderTrait
     protected function saveParamValue(string $name, mixed $value): void
     {
         $params = $this->getBuilderBag('params', []);
-        // The table, columns, filters and sorting values are reset,
-        // while the options values are kept.
-        $this->setBuilderBag('params', [[
-            ...($params[0] ?? []),
-            $name => $value,
-        ]]);
+        if (isset($params[0])) {
+            $params[0][$name] = $value;
+            $this->setBuilderBag('params', $params);
+        }
     }
 
     /**
@@ -140,5 +185,13 @@ trait QueryBuilderTrait
     protected function getBuilderSqlQuery(): string
     {
         return $this->getSelectQueryParams()->query;
+    }
+
+    /**
+     * @return int
+     */
+    protected function countBuilderParams(): int
+    {
+        return count($this->getBuilderBag('params', []));
     }
 }
