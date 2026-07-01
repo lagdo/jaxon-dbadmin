@@ -16,17 +16,17 @@ class DbUser extends MenuComponent
      */
     public function html(): string
     {
-        return $this->ui()->user($this->get('user'));
+        return $this->ui()->dbUser($this->get('user'));
     }
 
     /**
-     * @param string $user
+     * @param array $dbServer
      *
      * @return void
      */
-    public function show(string $user): void
+    public function show(array $dbServer): void
     {
-        $this->set('user', $user);
+        $this->set('user', $dbServer['user']);
         $this->render();
     }
 }

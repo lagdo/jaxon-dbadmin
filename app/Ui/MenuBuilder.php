@@ -4,6 +4,8 @@ namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\DbFunc;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
+use Lagdo\DbAdmin\Support\Provider\AuthInterface;
+use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\select;
@@ -12,10 +14,13 @@ use function Jaxon\rq;
 class MenuBuilder
 {
     /**
-     * @param BuilderInterface $ui
+     * @param Translator $trans
      * @param Tab $tab
+     * @param BuilderInterface $ui
+     * @param AuthInterface $auth
      */
-    public function __construct(protected BuilderInterface $ui, protected Tab $tab)
+    public function __construct(private Translator $trans, private Tab $tab,
+        private BuilderInterface $ui, private AuthInterface $auth)
     {}
 
     /**
@@ -27,30 +32,83 @@ class MenuBuilder
     }
 
     /**
-     * @param string $user
-     *
      * @return string
      */
-    public function user(string $user): string
+    public function appUser(): string
     {
+        $name = $this->auth->name();
+        $user = $this->auth->user();
+        $logout = $this->auth->logout();
+        if ($name === '' && $user === '' && $logout === '') {
+            return '';
+        }
+
         return $this->ui->build(
             $this->ui->card(
-                $this->ui->cardBody($this->ui->html($user))
-            )
+                $this->ui->cardBody(
+                    $this->ui->div(
+                        $this->ui->pick(
+                            $this->ui->when($name !== '', fn() =>
+                                $this->ui->span(
+                                    $this->trans->lang('Hello, %s.', $this->ui->html("<b>$name</b>"))
+                                )
+                            ),
+                            $this->ui->when($user !== '', fn() =>
+                                $this->ui->span(
+                                    $this->trans->lang($this->ui->html("<b>$user</b>"))
+                                )
+                            )
+                        ),
+                        $this->ui->when($logout !== '', fn() =>
+                            $this->ui->span(
+                                $this->ui->a($this->trans->lang('Logout'))
+                                    ->setHref($logout)
+                            )
+                        )
+                    )->setStyle('display: flex; justify-content: space-between;')
+                )
+            )->setStyle('margin-top: 10px;')
         );
     }
 
     /**
-     * @param string $server
+     * @param string $user
      *
      * @return string
      */
-    public function server(string $server): string
+    public function dbUser(string $user): string
+    {
+        return $user === '' ? '' : $this->ui->build(
+            $this->ui->card(
+                $this->ui->cardBody(
+                    $this->trans->lang('Logged as: %s.', $this->ui->html("<b>$user</b>"))
+                )
+            )->setStyle('margin-top: 10px;')
+        );
+    }
+
+    /**
+     * @param string $engine
+     * @param string $version
+     * @param string $extension
+     *
+     * @return string
+     */
+    public function dbServer(string $engine, string $version, string $extension): string
     {
         return $this->ui->build(
             $this->ui->card(
-                $this->ui->cardBody($this->ui->html($server))
-            )
+                $this->ui->cardBody(
+                    $this->ui->div(
+                        $this->trans->lang('%s version: %s.',
+                            $engine, $this->ui->html("<b>$version</b>"))
+                    ),
+                    $this->ui->div(
+                        $this->trans->lang('PHP extension %s.',
+                            $this->ui->html("<b>$extension</b>"))
+                    )
+                )
+            )->setStyle('margin-top: 10px;')
         );
     }
 

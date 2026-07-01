@@ -16,17 +16,19 @@ class DbServer extends MenuComponent
      */
     public function html(): string
     {
-        return $this->ui()->server($this->get('server'));
+        $dbServer = $this->get('dbServer');
+        return $this->ui()->dbServer($dbServer['engine'],
+            $dbServer['version'], $dbServer['extension']);
     }
 
     /**
-     * @param string $server
+     * @param array $dbServer
      *
      * @return void
      */
-    public function show(string $server): void
+    public function show(array $dbServer): void
     {
-        $this->set('server', $server);
+        $this->set('dbServer', $dbServer);
         $this->render();
     }
 }

@@ -335,18 +335,17 @@ class ServerProxy extends AbstractDriverProxy
     }
 
     /**
-     * Connect to a database server
+     * Get the connected database server details.
      *
      * @return array
      */
     public function getServerInfo(): array
     {
         return [
-            'user' => $this->utils()->lang('Logged as: %s.',
-                "<b>" . $this->utils()->html($this->engine()->user()) . "</b>"),
-            'server' => $this->utils()->lang('%s version: %s.', $this->engine()->name(),
-                "<b>" . $this->utils()->html($this->engine()->serverInfo()) . "</b>") . '<br/>' .
-                $this->utils()->lang('PHP extension %s.',"<b>{$this->engine()->extension()}</b>"),
+            'user' => $this->engine()->user(),
+            'engine' => $this->engine()->name(),
+            'version' => $this->engine()->serverInfo(),
+            'extension' => $this->engine()->extension(),
         ];
     }
 

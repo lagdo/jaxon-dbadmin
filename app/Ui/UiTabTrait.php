@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Content as AdminContent;
+use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppUser;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbServer;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbUser;
@@ -84,10 +85,11 @@ trait UiTabTrait
                         ->setClass('jaxon-dbadmin-page-sidebar_spacer'),
                     $this->ui->div(
                         $this->ui->div()
-                            ->setStyle('margin-bottom: 10px;')
                             ->tbnBindApp(rq(DbUser::class)),
                         $this->ui->div()
-                            ->tbnBindApp(rq(DbServer::class))
+                            ->tbnBindApp(rq(DbServer::class)),
+                        $this->ui->div()
+                            ->tbnBindApp(rq(AppUser::class))
                     )->setClass('jaxon-dbadmin-page-sidebar_block')
                 )->setClass('jaxon-dbadmin-page-sidebar'),
                 $this->ui->div(

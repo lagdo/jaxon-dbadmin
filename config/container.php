@@ -89,7 +89,15 @@ return [
                     {
                         return '';
                     }
+                    public function name(): string
+                    {
+                        return '';
+                    }
                     public function role(): string
+                    {
+                        return '';
+                    }
+                    public function logout(): string
                     {
                         return '';
                     }

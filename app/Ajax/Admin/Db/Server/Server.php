@@ -8,6 +8,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\FuncComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Command as ServerCommand;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Databases as MenuDatabases;
+use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppUser;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbServer;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbUser;
 use Lagdo\DbAdmin\App\Ajax\Admin\Sidebar;
@@ -31,9 +32,10 @@ class Server extends FuncComponent
         // Save the selected server in the databag
         $this->setCurrentDb([$server, '', '']);
 
+        $this->cl(AppUser::class)->render();
         $serverInfo = $this->db()->getServerInfo();
-        $this->cl(DbUser::class)->show($serverInfo['user']);
-        $this->cl(DbServer::class)->show($serverInfo['server']);
+        $this->cl(DbUser::class)->show($serverInfo);
+        $this->cl(DbServer::class)->show($serverInfo);
 
         // Refresh the sidebar content
         $this->cl(Sidebar::class)->refresh($server);
