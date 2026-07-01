@@ -10,7 +10,6 @@ use function array_filter;
 use function in_array;
 use function json_decode;
 use function json_encode;
-use function Jaxon\cl;
 use function Jaxon\form;
 use function Jaxon\rq;
 
@@ -30,16 +29,6 @@ class AuditUiBuilder
     {
         return $this->ui->build(
             $this->ui->div(
-                $this->ui->row(
-                    $this->ui->col($this->ui->h3($this->trans->lang('Commands'))
-                        ->setStyle('font-size: 18px; margin: 5px 0;')
-                    )->width(3),
-                    $this->ui->col(
-                        $this->ui->nav()
-                            ->jxnPagination(cl(Commands::class))
-                            ->setStyle('float: right;')
-                    )->width(9)
-                ),
                 $this->ui->div(
                     $this->ui->col()
                         ->jxnBind(rq(Commands::class))
@@ -105,7 +94,7 @@ class AuditUiBuilder
                         $this->command($command, $categories[$command['category']] ?? '')
                     )
                 )
-            )->responsive()->border()
+            )->border()
         );
     }
 

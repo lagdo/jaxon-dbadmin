@@ -4,20 +4,14 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Database;
 
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Before;
-use Lagdo\DbAdmin\App\Ajax\Admin\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Admin\Page\ContentTrait;
 use Lagdo\DbAdmin\App\Ajax\Base\Component as BaseComponent;
-use Lagdo\DbAdmin\App\Ajax\Base\PageContentTrait;
 
 #[Before('checkDatabaseAccess')]
 #[After('showBreadcrumbs')]
 abstract class MainComponent extends BaseComponent
 {
-    use PageContentTrait;
-
-    /**
-     * @var string
-     */
-    protected string $overrides = Content::class;
+    use ContentTrait;
 
     /**
      * Check if the user has access to a server
@@ -38,15 +32,6 @@ abstract class MainComponent extends BaseComponent
         $pageContent = $this->get('content');
         $counterId = $this->get('counterId');
         return $this->ui()->pageContent($pageContent, $counterId);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function footer(): string
-    {
-        $counterId = $this->get('counterId');
-        return $this->ui()->pageFooter($counterId);
     }
 
     /**

@@ -125,35 +125,29 @@ class SelectUiBuilder
      *
      * @return string
      */
-    public function header(bool $canSaveQuery, bool $canGoBack = false): string
+    public function content(bool $canSaveQuery, bool $canGoBack = false): string
     {
         return $this->ui->build(
-            $this->ui->row(
-                $this->ui->col(
-                    $this->ui->form(
-                        $this->ui->div(
-                            $this->ui->row(
-                                $this->ui->col()
-                                    ->width(6)
-                                    ->tbnBindApp(rq(QueryBuilder\Fields::class)),
-                                $this->ui->col()
-                                    ->width(6)
-                                    ->tbnBindApp(rq(QueryBuilder\Values::class))
-                            )
-                        ),
-                        $this->ui->row(
-                            $this->ui->col(
-                                $this->ui->card(
-                                    $this->ui->cardBody()
-                                        ->setStyle('padding: 0 1px;')
-                                        ->tbnBindApp(rq(QueryText::class))
-                                )->setStyle('padding: 5px;')
-                            )->width(12)
-                        ),
-                    )->wrapped()
-                        ->setId($this->formId())
-                )->width(12)
-            ),
+            $this->ui->form(
+                $this->ui->row(
+                    $this->ui->col()
+                        ->width(6)
+                        ->tbnBindApp(rq(QueryBuilder\Fields::class)),
+                    $this->ui->col()
+                        ->width(6)
+                        ->tbnBindApp(rq(QueryBuilder\Values::class))
+                ),
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->card(
+                            $this->ui->cardBody()
+                                ->setStyle('padding: 0 1px;')
+                                ->tbnBindApp(rq(QueryText::class))
+                        )->setStyle('padding: 5px;')
+                    )->width(12)
+                ),
+            )->wrapped()
+                ->setId($this->formId()),
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->buttonGroup(
@@ -171,10 +165,17 @@ class SelectUiBuilder
                     )->fullWidth()
                 )->width(4),
                 $this->ui->col()
-                    ->width(2)
+                    ->width(1)
                     ->tbnBindApp(rq(Duration::class)),
                 $this->ui->col()
-                    ->width(4),
+                    ->width(2)
+                    ->tbnBindApp(rq(GotoPage::class)),
+                $this->ui->col(
+                    $this->ui->nav()
+                        ->jxnPagination(cl(ResultSet::class))
+                        ->setId($this->tab()->app()->id('jaxon-dbadmin-resulset-pagination'))
+                )->width(4)
+                    ->setStyle('overflow:hidden'),
                 $this->ui->col(
                     $this->ui->when($canGoBack, fn() =>
                         $this->ui->div(
@@ -185,33 +186,13 @@ class SelectUiBuilder
                                 ->jxnClick(rq(Select::class)->back())
                         )->setStyle('float:right;')
                     )
-                )->width(2)
-            )->setStyle('margin-bottom: 0;')
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function content(): string
-    {
-        return $this->ui->build(
-            $this->ui->row(
-                $this->ui->col()
-                    ->width(2)
-                    ->tbnBindApp(rq(GotoPage::class)),
-                $this->ui->col(
-                    $this->ui->nav()
-                        ->jxnPagination(cl(ResultSet::class))
-                        ->setId($this->tab()->app()->id('jaxon-dbadmin-resulset-pagination'))
-                )->width(10)
-                    ->setStyle('overflow:hidden'),
+                )->width(1)
             ),
             $this->ui->row(
                 $this->ui->col()
                     ->width(12)
                     ->tbnBindApp(rq(ResultSet::class))
-            )
+            )->setStyle('margin-top: 20px;')
         );
     }
 }

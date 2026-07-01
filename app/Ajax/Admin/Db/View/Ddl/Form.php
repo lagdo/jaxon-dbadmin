@@ -6,19 +6,13 @@ use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Component;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Views;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Dql\Select;
-use Lagdo\DbAdmin\App\Ajax\Admin\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Admin\Page\ContentTrait;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
-use Lagdo\DbAdmin\App\Ajax\Base\PageContentTrait;
 use Lagdo\DbAdmin\App\Ui\Table\ViewUiBuilder;
 
 class Form extends Component
 {
-    use PageContentTrait;
-
-    /**
-     * @var string
-     */
-    protected string $overrides = Content::class;
+    use ContentTrait;
 
     /**
      * @param ViewUiBuilder  $viewUi     The HTML UI builder

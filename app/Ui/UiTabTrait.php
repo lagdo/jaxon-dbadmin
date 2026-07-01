@@ -2,9 +2,11 @@
 
 namespace Lagdo\DbAdmin\App\Ui;
 
+use Lagdo\DbAdmin\App\Ajax\Admin\Content as AdminContent;
+use Lagdo\DbAdmin\App\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbServer;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbUser;
-use Lagdo\DbAdmin\App\Ajax\Admin\Content as AdminContent;
+use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ajax\Admin\Sidebar as AdminSidebar;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\HtmlComponent;
@@ -58,10 +60,26 @@ trait UiTabTrait
         return $this->ui->tabContentItem(
             $this->ui->div(
                 $this->ui->div(
+                    cl(AdminContent::class)->html()
+                )->setClass('jaxon-dbadmin-main-header_sidebar')
+                    ->tbnBindApp(rq(AdminSidebar::class), 'header'),
+                $this->ui->div(
+                    $this->ui->div(
+                        $this->ui->div(
+                            $this->ui->div()->tbnBindApp(rq(Breadcrumbs::class))
+                        )->setClass('jaxon-dbadmin-server-header-breadcrumbs'),
+                        $this->ui->div(
+                            $this->ui->div()->tbnBindApp(rq(PageActions::class))
+                        )->setClass('jaxon-dbadmin-server-header-actions')
+                    )->setClass('jaxon-dbadmin-server-header'),
+                )->setClass('jaxon-dbadmin-main-header_content'),
+            )->setClass('jaxon-dbadmin-main-header'),
+            $this->ui->div(
+                $this->ui->div(
                     $this->ui->div(
                         cl(AdminSidebar::class)->html()
                     )->setClass('jaxon-dbadmin-page-sidebar_block')
-                        ->tbnBindApp(rq(AdminSidebar::class)),
+                        ->tbnBindApp(rq(AdminSidebar::class), 'content'),
                     $this->ui->div('&nbsp;')
                         ->setClass('jaxon-dbadmin-page-sidebar_spacer'),
                     $this->ui->div(

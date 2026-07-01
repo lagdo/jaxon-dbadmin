@@ -97,7 +97,7 @@ class ResultUiBuilder
                             ->when($row->editValues !== null, fn($tr) =>
                                 $tr->tbnBindApp($rqResultRow, $row->bagId)))
                 )
-            )->responsive()->border()
+            )->border()
         );
     }
 }

@@ -333,8 +333,7 @@ class ExportUiBuilder
                         )
                     )
                 )
-            )->responsive()
-                ->border()
+            )->border()
         );
     }
 
@@ -386,8 +385,7 @@ class ExportUiBuilder
                         )
                     )
                 )
-            )->responsive()
-                ->border()
+            )->border()
         );
     }
 

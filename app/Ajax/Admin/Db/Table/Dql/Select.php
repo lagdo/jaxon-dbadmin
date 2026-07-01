@@ -65,19 +65,11 @@ class Select extends MainComponent
     /**
      * @inheritDoc
      */
-    protected function header(): string
+    protected function content(): string
     {
         $canSaveQuery = $this->config()->canSaveQuery();
         $canGoBack = $this->countBuilderParams() > 1;
-        return $this->selectUi->header($canSaveQuery, $canGoBack);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function content(): string
-    {
-        return $this->selectUi->content();
+        return $this->selectUi->content($canSaveQuery, $canGoBack);
     }
 
     /**

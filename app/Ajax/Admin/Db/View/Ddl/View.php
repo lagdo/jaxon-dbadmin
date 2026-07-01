@@ -3,22 +3,32 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Ddl;
 
 use Jaxon\Attributes\Attribute\After;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Component;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Views;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\FuncComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Dql\Select;
-use Lagdo\DbAdmin\App\Ajax\Admin\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Admin\Page\ContentTrait;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ui\Table\ViewUiBuilder;
 
 use function is_array;
 
-class View extends FuncComponent
+class View extends Component
 {
+    use ContentTrait;
+
     /**
      * @param ViewUiBuilder  $viewUi     The HTML UI builder
      */
     public function __construct(protected ViewUiBuilder $viewUi)
     {}
+
+    /**
+     * @inheritDoc
+     */
+    protected function content(): string
+    {
+        return $this->get('content');
+    }
 
     /**
      * Display the content of a tab
@@ -34,34 +44,6 @@ class View extends FuncComponent
     }
 
     /**
-     * Print links after select heading
-     * Copied from selectLinks() in adminer.inc.php
-     *
-     * @param bool $new New item options, NULL for no new item
-     *
-     * @return array
-     */
-    // protected function getViewLinks(bool $new = false): array
-    // {
-    //     $links = [
-    //         'select' => $this->trans()->lang('Select data'),
-    //     ];
-    //     if ($this->db()->support('indexes')) {
-    //         $links['table'] = $this->trans()->lang('Show structure');
-    //     }
-    //     if ($this->db()->support('table')) {
-    //         $links['table'] = $this->trans()->lang('Show structure');
-    //         $links['alter'] = $this->trans()->lang('Alter view');
-    //     }
-    //     if ($new) {
-    //         $links['edit'] = $this->trans()->lang('New item');
-    //     }
-    //     // $links['docs'] = \doc_link([$this->db()->jush() => $this->db()->tableHelp($name)], '?');
-
-    //     return $links;
-    // }
-
-    /**
      * Show detailed info of a given view
      *
      * @param string $view        The view name
@@ -72,13 +54,6 @@ class View extends FuncComponent
     public function show(string $view): void
     {
         $viewInfo = $this->db()->getViewInfo($view);
-
-        // Set main menu buttons
-        // $actions = [
-        //     $this->trans()->lang('Add trigger'),
-        // ];
-
-        // $actions = $this->getViewLinks();
 
         $actions = [
             'select-view' => [
@@ -102,7 +77,7 @@ class View extends FuncComponent
         $this->cl(PageActions::class)->show($actions);
 
         $content = $this->viewUi->mainDbTable($viewInfo['tabs']);
-        $this->cl(Content::class)->set('html', $content)->render();
+        $this->set('content', $content)->render();
 
         // Show columns
         $columns = $this->db()->getViewColumns($view);

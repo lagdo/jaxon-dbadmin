@@ -92,9 +92,26 @@
     padding: 0 !important;
     margin-bottom: 0 !important;
 }
+
+#jaxon-dbadmin .dbadmin-table-edit-header {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    margin-right: 20px;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    border-bottom: solid 1px #dee2e6;
+}
+#jaxon-dbadmin .dbadmin-table-edit-header-title {
+    flex: 1;
+    font-weight: 600;
+}
+#jaxon-dbadmin .dbadmin-table-edit-header-buttons {
+    width: 80px;
+    padding-left: 5px;
+}
 #jaxon-dbadmin .dbadmin-table-edit-column {
     padding: 5px;
-    margin: 2px 0;
     border-radius: 5px;
 }
 #jaxon-dbadmin .dbadmin-table-columns-form-column {

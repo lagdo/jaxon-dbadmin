@@ -84,6 +84,21 @@ trait PageTrait
     }
 
     /**
+     * @param string $contentType
+     *
+     * @return string
+     */
+    private function counter(string $contentType = ''): string
+    {
+        if ($contentType === '') {
+            return '';
+        }
+
+        $countId = $this->tab()->app()->id("dbadmin-table-{$contentType}-count");
+        return "(<span id=\"{$countId}\">0</span>)";
+    }
+
+    /**
      * @param array $content
      * @param string $contentType
      *
@@ -104,7 +119,9 @@ trait PageTrait
                                 ->setId($this->tab()->app()->id("dbadmin-table-$contentType-all"))
                         )->addClass('dbadmin-table-checkbox')
                     ),
-                    $this->ui->when($hasMenu, fn() => $this->ui->tableHeadCell('')),
+                    $this->ui->when($hasMenu, fn() =>
+                        $this->ui->tableHeadCell($this->ui->html($this->counter($contentType)))
+                    ),
                     $this->ui->each($headers, fn($header) =>
                         $this->ui->tableHeadCell($this->ui->html($header))
                     )
@@ -131,8 +148,7 @@ trait PageTrait
                     )
                 )
             )
-        )->responsive()
-            ->border();
+        )->border();
     }
 
     /**
@@ -147,48 +163,19 @@ trait PageTrait
     }
 
     /**
-     * @param string $contentType
+     * @param string $content
      *
      * @return string
      */
-    public function pageFooter(string $contentType = ''): string
+    public function panel(string $content): string
     {
-        if ($contentType === '') {
-            return '';
-        }
-
-        $countId = $this->tab()->app()->id("dbadmin-table-{$contentType}-count");
-        return $this->ui->html("Selected (<span id=\"{$countId}\">0</span>)");
-    }
-
-    /**
-     * @param string|array $content
-     * @param string|null $style
-     *
-     * @return string
-     */
-    public function panel(string|array $content, string|null $style = null): string
-    {
-        if ($content === '') {
-            return '';
-        }
-
-        $header = '';
-        $body = $content;
-        if (is_array($content)) {
-            $header = $content['header'];
-            $body = $content['body'];
-        }
-
         return $this->ui->build(
-            $this->ui->div(
-                $this->ui->card(
-                    $this->ui->when($header !== '', fn() =>
-                        $this->ui->cardHeader($header)
-                    ),
-                    $this->ui->cardBody($this->ui->div($body))
-                )
-            )->when($style !== null, fn($element) => $element->setStyle($style))
+            $this->ui->card(
+                $this->ui->cardBody(
+                    $this->ui->div($content)
+                        ->setClass('jaxon-dbadmin-main-content')
+                )->setClass('jaxon-dbadmin-main-wrapper')
+            )
         );
     }
 }

@@ -10,15 +10,18 @@ use Lagdo\DbAdmin\App\Ui\Command\AuditUiBuilder;
 class Favorite extends Component
 {
     /**
-     * @var string
-     */
-    protected string $overrides = Queries::class;
-
-    /**
      * @param AuditUiBuilder $auditUi
      */
     public function __construct(private AuditUiBuilder $auditUi)
     {}
+
+    /**
+     * @inheritDoc
+     */
+    protected function overrides(): string
+    {
+        return Queries::class;
+    }
 
     /**
      * @return string

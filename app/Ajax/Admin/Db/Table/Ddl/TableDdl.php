@@ -31,27 +31,11 @@ abstract class TableDdl extends MainComponent
     /**
      * @inheritDoc
      */
-    protected function header(): array
+    protected function content(): string
     {
-        return [
-            'header' => $this->tableUi->headerTitle(),
-            'body' => $this->tableUi
-                ->metadata($this->metadata())
-                ->header(),
-        ];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function content(): array
-    {
-        return [
-            'header' => $this->tableUi->wrapperTitle(),
-            'body' => $this->tableUi
-                ->metadata($this->metadata())
-                ->wrapper(),
-        ];
+        return $this->tableUi
+            ->metadata($this->metadata())
+            ->content();
     }
 
     /**

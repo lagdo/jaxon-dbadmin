@@ -64,17 +64,10 @@ class Select extends MainComponent
     /**
      * @inheritDoc
      */
-    protected function header(): string
-    {
-        return $this->selectUi->header($this->config()->canSaveQuery());
-    }
-
-    /**
-     * @inheritDoc
-     */
     protected function content(): string
     {
-        return $this->selectUi->content();
+        $canSaveQuery = $this->config()->canSaveQuery();
+        return $this->selectUi->content($canSaveQuery);
     }
 
     /**

@@ -132,57 +132,6 @@ class TableUiBuilder
     }
 
     /**
-     * @return string
-     */
-    public function headerTitle(): string
-    {
-        return $this->ui->build(
-            $this->ui->div(
-                $this->ui->div(
-                    $this->trans->lang('Table')
-                )->setStyle('flex: 1'),
-                $this->ui->div(
-                    $this->ui->button($this->ui->html('<i class="fa fa-expand"></i>'))
-                        ->primary()
-                        ->small()
-                        ->jxnClick(jo('jaxon.dbadmin')->toggleVisibility(
-                            $this->tableFormId(), self::tableToggleClass))
-                )->setStyle('width:100px; padding-left:5px;')
-            )->setStyle('display:flex; flex-direction:row; align-items:flex-start;')
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function wrapperTitle(): string
-    {
-        $support = $this->support(['columns']);
-        return $this->ui->build(
-            $this->ui->div(
-                $this->ui->div(
-                    $this->trans->lang('Columns')
-                )->setStyle('flex: 1'),
-                $this->ui->div(
-                    $this->ui->when($support['columns'], fn() =>
-                        $this->ui->buttonGroup(
-                            $this->ui->button($this->ui->html('<i class="fa fa-expand"></i>'))
-                                ->primary()
-                                ->small()
-                                ->jxnClick(jo('jaxon.dbadmin')->toggleVisibility(
-                                    $this->columnsFormId(), self::columnToggleClass)),
-                            $this->ui->button($this->ui->html('<i class="fa fa-plus"></i>'))
-                                ->primary()
-                                ->small()
-                                ->jxnClick($this->rqCreate()->add())
-                        )
-                    )
-                )->setStyle('width:100px; padding-left:5px;')
-            )->setStyle('display:flex; flex-direction:row; align-items:flex-start;')
-        );
-    }
-
-    /**
      * @return array
      */
     private function autoIncrementIsEditable(): array
@@ -293,21 +242,43 @@ class TableUiBuilder
     /**
      * @return string
      */
-    public function header(): string
+    public function content(): string
     {
+        $support = $this->support(['columns']);
+
         return $this->ui->build(
+            $this->ui->div(
+                $this->ui->div(
+                    $this->trans->lang('Table')
+                )->setClass('dbadmin-table-edit-header-title'),
+                $this->ui->div(
+                    $this->ui->button($this->ui->html('<i class="fa fa-expand"></i>'))
+                        ->primary()
+                        ->jxnClick(jo('jaxon.dbadmin')->toggleVisibility(
+                            $this->tableFormId(), self::tableToggleClass))
+                )->setClass('dbadmin-table-edit-header-buttons')
+            )->setClass('dbadmin-table-edit-header'),
             $this->ui->div()
                 ->setClass('dbadmin-table-edit-column')
-                ->tbnBindApp($this->rqHeader())
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function wrapper(): string
-    {
-        return $this->ui->build(
+                ->tbnBindApp($this->rqHeader()),
+            $this->ui->div(
+                $this->ui->div(
+                    $this->trans->lang('Columns')
+                )->setClass('dbadmin-table-edit-header-title'),
+                $this->ui->div(
+                    $this->ui->when($support['columns'], fn() =>
+                        $this->ui->buttonGroup(
+                            $this->ui->button($this->ui->html('<i class="fa fa-expand"></i>'))
+                                ->primary()
+                                ->jxnClick(jo('jaxon.dbadmin')->toggleVisibility(
+                                    $this->columnsFormId(), self::columnToggleClass)),
+                            $this->ui->button($this->ui->html('<i class="fa fa-plus"></i>'))
+                                ->primary()
+                                ->jxnClick($this->rqCreate()->add())
+                        )
+                    )
+                )->setClass('dbadmin-table-edit-header-buttons')
+            )->setClass('dbadmin-table-edit-header'),
             $this->ui->form(
                 $this->ui->div()->tbnBindApp($this->rqWrapper())
             )->setId($this->columnsFormId())
