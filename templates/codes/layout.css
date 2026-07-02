@@ -83,7 +83,7 @@
 }
 #jaxon-dbadmin .jaxon-dbadmin-main-content {
   min-height: 0;
-  height: calc(100vh - 126px);
+  height: calc(100vh - 127px);
   padding: 10px;
   overflow: auto;
 }
