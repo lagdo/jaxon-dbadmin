@@ -90,11 +90,10 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $columns = $this->metadata()['columns'];
         $input = $inputs[$columnId];
-
         // Reset the column input with values from the database.
-        if (isset($columns[$input->column->name])) {
+        $tableDto = $this->tableDto();
+        if (isset($tableDto->columns[$input->column->name])) {
             $input->reset();
         }
 
