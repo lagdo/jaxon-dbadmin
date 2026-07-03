@@ -146,7 +146,8 @@ class OptionsUiBuilder
             $row = $this->ui->row(
                 $this->ui->col(
                     $this->ui->select(
-                        $this->ui->option('(' . $this->trans->lang('anywhere') . ')'),
+                        $this->ui->option('(' . $this->trans->lang('anywhere') . ')')
+                            ->setValue(''),
                         $this->ui->each($options['columns'], fn($columnName) =>
                             $this->ui->option($columnName)
                                 ->selected($filter['column'] === $columnName)
