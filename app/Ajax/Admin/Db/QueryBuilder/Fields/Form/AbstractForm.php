@@ -24,7 +24,7 @@ abstract class AbstractForm extends Component
     public function show(): void
     {
         // Render the component with the values from the databag.
-        $this->stash()->set('values', [
+        $this->set('values', [
             $this->fieldId => $this->getParamValue($this->fieldId),
         ]);
         $this->render();
@@ -44,7 +44,7 @@ abstract class AbstractForm extends Component
             $newEntry,
         ];
 
-        $this->stash()->set('values', $values);
+        $this->set('values', $values);
         $this->render();
     }
 
@@ -58,7 +58,7 @@ abstract class AbstractForm extends Component
         $delete = fn(array $value) => empty($value['delete']);
         $values[$this->fieldId] = array_filter($values[$this->fieldId], $delete);
 
-        $this->stash()->set('values', $values);
+        $this->set('values', $values);
         $this->render();
     }
 }

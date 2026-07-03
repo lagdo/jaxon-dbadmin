@@ -19,7 +19,7 @@ class Sorters extends AbstractForm
      */
     protected function newEntry(): array
     {
-        return ['desc' => false, 'column' => '', 'delete' => false];
+        return ['column' => '', 'desc' => false, 'delete' => false];
     }
 
     /**
@@ -27,7 +27,7 @@ class Sorters extends AbstractForm
      */
     public function html(): string
     {
-        $values = $this->stash()->get('values', []);
+        $values = $this->get('values', []);
         // Sorting options
         $options = ['columns' => []];
         if(count($values) > 0)

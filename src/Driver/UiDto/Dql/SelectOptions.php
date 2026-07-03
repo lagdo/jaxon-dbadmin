@@ -256,7 +256,7 @@ class SelectOptions extends AbstractDriverProxy
             }
 
             if (!isset($select->selectableColumns[$column->columnName])) {
-                throw new Exception("No access to column {$column->columnName}.");
+                throw new Exception("Invalid column name {$column->columnName}.");
             }
 
             $column->column = $this->findColumnDto($columns, $column->columnName);

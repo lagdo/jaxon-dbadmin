@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\FuncComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\QueryText;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
 
 use function array_filter;
 use function Jaxon\form;
@@ -59,5 +60,65 @@ class Sorters extends FuncComponent
         $this->cl(QueryText::class)->refresh();
 
         $this->cl(Fields::class)->render();
+    }
+
+    /**
+     * @param string $column
+     * @param bool $desc
+     *
+     * @return array
+     */
+    private function upsertSort(string $column, bool $desc): array
+    {
+        $sorters = $this->getParamValue('sorters');
+        foreach ($sorters as &$sorter) {
+            if ($sorter['column'] === $column) {
+                $sorter['desc'] = $desc;
+                // Found.
+                return $sorters;
+            }
+        }
+
+        $newEntry = ['column' => $column, 'desc' => $desc, 'delete' => false];
+        return [...$sorters, $newEntry];
+    }
+
+    /**
+     * @param string $column
+     * @param bool $desc
+     *
+     * @return void
+     */
+    public function upsert(string $column, bool $desc): void
+    {
+        $this->saveParamValue('sorters', $this->upsertSort($column, $desc));
+
+        // Display the new query
+        $this->cl(QueryText::class)->refresh();
+
+        $this->cl(Fields::class)->render();
+
+        // Execute the new query
+        $this->cl(ResultSet::class)->page($this->getParamValue('page'));
+    }
+
+    /**
+     * @param string $column
+     *
+     * @return void
+     */
+    public function remove(string $column): void
+    {
+        $sorters = $this->getParamValue('sorters');
+        $filter = fn(array $value) => $value['column'] !== $column;
+        $this->saveParamValue('sorters', array_filter($sorters, $filter));
+
+        // Display the new query
+        $this->cl(QueryText::class)->refresh();
+
+        $this->cl(Fields::class)->render();
+
+        // Execute the new query
+        $this->cl(ResultSet::class)->page($this->getParamValue('page'));
     }
 }

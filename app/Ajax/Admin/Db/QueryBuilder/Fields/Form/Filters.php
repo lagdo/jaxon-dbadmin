@@ -27,7 +27,7 @@ class Filters extends AbstractForm
      */
     public function html(): string
     {
-        $values = $this->stash()->get('values', []);
+        $values = $this->get('values', []);
         // Filters options
         $options = ['columns' => [], 'operators' => []];
         if(count($values) > 0)

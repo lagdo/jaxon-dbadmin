@@ -27,7 +27,7 @@ class Columns extends AbstractForm
      */
     public function html(): string
     {
-        $values = $this->stash()->get('values', []);
+        $values = $this->get('values', []);
         // Columns options
         $options = ['functions' => [], 'grouping' => [], 'columns' => []];
         if(count($values) > 0)

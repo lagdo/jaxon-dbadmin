@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ui\Select;
 
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields\Sorters;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultRow;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Select;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
@@ -10,7 +11,6 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultRowDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Html\Component\Component;
-use Lagdo\UiBuilder\Html\Element\Element;
 
 use function Jaxon\rq;
 
@@ -24,40 +24,32 @@ class ResultUiBuilder
     {}
 
     /**
-     * @param array $column
-     *
-     * @return Element|Component
-     */
-    private function tableDataCellValue(array $column): Element|Component
-    {
-        $html = $column['html'];
-        if ($column['value'] === null || !isset($column['foreign'])) {
-            return $this->ui->html($html);
-        }
-
-        /** @var ForeignKeyDto */
-        $foreignKey = $column['foreign'];
-        $tableName = $foreignKey->table;
-        $columnName = $foreignKey->target[0];
-        $columnValue = $column['value'];
-
-        return $this->ui->a($html)
-            ->setHref('javascript:void(0)')
-            ->jxnClick(rq(Select::class)->follow($tableName, $columnName, $columnValue));
-    }
-
-    /**
      * @param QueryResultRowDto $row
      *
-     * @return mixed
+     * @return Component
      */
-    private function _resultRowContent(QueryResultRowDto $row): mixed
+    private function _resultRowContent(QueryResultRowDto $row): Component
     {
         return $this->ui->list(
             $this->ui->tableDataCell($row->rowMenu, ['style' => 'width:30px']),
-            $this->ui->each($row->columns, fn(array $column) =>
-                $this->ui->tableDataCell($this->tableDataCellValue($column))
-            )
+            $this->ui->each($row->columns, function(array $column) {
+                $html = $column['html'];
+                if ($column['value'] === null || !isset($column['foreign'])) {
+                    return $this->ui->tableDataCell($this->ui->html($html));
+                }
+
+                /** @var ForeignKeyDto */
+                $foreignKey = $column['foreign'];
+                $tableName = $foreignKey->table;
+                $columnName = $foreignKey->target[0];
+                $columnValue = $column['value'];
+
+                return $this->ui->tableDataCell(
+                    $this->ui->a($html)
+                        ->setHref('javascript:void(0)')
+                        ->jxnClick(rq(Select::class)->follow($tableName, $columnName, $columnValue))
+                );
+            })
         );
     }
 
@@ -69,6 +61,40 @@ class ResultUiBuilder
     public function resultRowContent(QueryResultRowDto $row): string
     {
         return $this->ui->build($this->_resultRowContent($row));
+    }
+
+    /**
+     * @param QueryResultHeaderDto $header
+     *
+     * @return Component
+     */
+    private function tableHeadCell(QueryResultHeaderDto $header): Component
+    {
+        $rqSorter = rq(Sorters::class);
+
+        return $this->ui->tableHeadCell(
+            $this->ui->div($this->ui->html($header->title)),
+            $this->ui->when($header->column->name !== '', fn() =>
+                $this->ui->list(
+                    $this->ui->div(
+                        $this->ui->a($this->ui->html('&#9651;'))
+                            ->setAttributes(['href' => 'javascript:void(0)'])
+                            ->setStyle('text-decoration: none;')
+                            ->jxnClick($rqSorter->upsert($header->column->name, false)),
+                        $this->ui->html('&nbsp;'),
+                        $this->ui->a($this->ui->html('&#9661;'))
+                            ->setAttributes(['href' => 'javascript:void(0)'])
+                            ->setStyle('text-decoration: none;')
+                            ->jxnClick($rqSorter->upsert($header->column->name, true)),
+                        $this->ui->html('&nbsp;'),
+                        $this->ui->a($this->ui->html('&#8553;'))
+                            ->setAttributes(['href' => 'javascript:void(0)'])
+                            ->setStyle('text-decoration: none;')
+                            ->jxnClick($rqSorter->remove($header->column->name))
+                    )
+                )
+            )
+        );
     }
 
     /**
@@ -86,9 +112,7 @@ class ResultUiBuilder
                 $this->ui->tableHead(
                     $this->ui->tableRow(
                         $this->ui->tableHeadCell(['style' => 'width:30px']),
-                        $this->ui->each($headers, fn(QueryResultHeaderDto $header) =>
-                            $this->ui->tableHeadCell($header->title)
-                        )
+                        $this->ui->each($headers, $this->tableHeadCell(...))
                     )
                 ),
                 $this->ui->tableBody(
