@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder;
 
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Duration;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Foreigns;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\GotoPage;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
@@ -26,6 +27,7 @@ class Values extends Component
     private function clearResults(): void
     {
         $this->cl(Duration::class)->clear();
+        $this->cl(Foreigns::class)->clear();
         $this->cl(GotoPage::class)->clear();
         $this->cl(ResultSet::class)->clear();
     }

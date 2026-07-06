@@ -5,10 +5,12 @@ namespace Lagdo\DbAdmin\App\Ui\Select;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query\FavoriteFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Duration;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Foreigns;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\GotoPage;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Select;
+use Lagdo\DbAdmin\App\Ui\PageTrait;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
@@ -21,6 +23,8 @@ use function sprintf;
 
 class SelectUiBuilder
 {
+    use PageTrait;
+
     /**
      * @var string
      */
@@ -120,6 +124,21 @@ class SelectUiBuilder
     }
 
     /**
+     * @param bool $checked
+     *
+     * @return string
+     */
+    public function toggleForeigns(bool $checked): string
+    {
+        return $this->ui->build(
+            $this->ui->switch()
+                ->checked($checked)
+                ->label($this->trans->lang('Foreigns'))
+                ->jxnClick(rq(QueryBuilder\Fields\Foreigns::class)->toggle())
+        );
+    }
+
+    /**
      * @param bool $canSaveQuery
      * @param bool $canGoBack
      *
@@ -127,6 +146,21 @@ class SelectUiBuilder
      */
     public function content(bool $canSaveQuery, bool $canGoBack = false): string
     {
+        $queryActions = [[
+            'label' => $this->trans->lang('Execute'),
+            'handler' => rq(ResultSet::class)->page(1),
+        ], [
+            'label' => $this->trans->lang('Edit'),
+            'handler' => rq(Select::class)->edit(),
+        ]];
+        if ($canSaveQuery) {
+            $queryActions[] = [
+                'label' => $this->trans->lang('Save'),
+                'handler' => rq(FavoriteFunc::class)
+                    ->add(jo('jaxon.dbadmin')->getSelectQuery(), false),
+            ];
+        }
+
         return $this->ui->build(
             $this->ui->form(
                 $this->ui->row(
@@ -150,23 +184,15 @@ class SelectUiBuilder
                 ->setId($this->formId()),
             $this->ui->row(
                 $this->ui->col(
-                    $this->ui->buttonGroup(
-                        $this->ui->button($this->ui->text($this->trans->lang('Execute')))
-                            ->fullWidth()->primary()
-                            ->jxnClick(rq(ResultSet::class)->page(1)),
-                        $this->ui->button($this->ui->text($this->trans->lang('Edit')))
-                            ->outline()->secondary()->fullWidth()
-                            ->jxnClick(rq(Select::class)->edit()),
-                        $this->ui->when($canSaveQuery, fn() =>
-                            $this->ui->button($this->ui->text($this->trans->lang('Save')))
-                                ->outline()->secondary()->fullWidth()
-                                ->jxnClick(rq(FavoriteFunc::class)->add(jo('jaxon.dbadmin')->getSelectQuery(), false))
-                        )
-                    )->fullWidth()
-                )->width(4),
+                    $this->_buttonMenu($queryActions)
+                )->width(2),
                 $this->ui->col()
                     ->width(1)
                     ->tbnBindApp(rq(Duration::class)),
+                $this->ui->col()
+                    ->width(2)
+                    ->tbnBindApp(rq(Foreigns::class))
+                    ->setStyle('display: flex; align-items: center; justify-content: flex-end;'),
                 $this->ui->col()
                     ->width(2)
                     ->tbnBindApp(rq(GotoPage::class)),

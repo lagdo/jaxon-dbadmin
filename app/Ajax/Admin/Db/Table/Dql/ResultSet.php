@@ -3,9 +3,11 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
 use Lagdo\DbAdmin\App\Ui\Select\ResultUiBuilder;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultHeaderDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectRowsetDto;
 
+use function array_filter;
 use function count;
 
 /**
@@ -76,7 +78,6 @@ class ResultSet extends PageComponent
         $this->savePageNumber($this->currentPage());
 
         $result = $this->db()->execSelect($this->select());
-
         if ($result->error !== null) {
             $this->set('duration', null);
             return $result->error;
@@ -89,6 +90,15 @@ class ResultSet extends PageComponent
         }
 
         $rowset = $result->rowsets[0];
+        $this->set('countForeigns', count(array_filter($rowset->headers,
+            fn(QueryResultHeaderDto $header) => $header->foreignKey !== null)));
+        if ((bool)$this->getParamValue('foreigns')) {
+            $textLength = $this->getParamValue('length');
+            if ($this->db()->setForeignKeyLabels($rowset, $textLength) === 0) {
+                $this->saveParamValue('foreigns', false);
+            }
+        }
+
         return $this->resultUi->resultSet($rowset->headers, $this->rows($rowset));
     }
 
@@ -103,7 +113,15 @@ class ResultSet extends PageComponent
         $duration =  $this->get('duration', null);
         $duration === null || $this->_count > 0 && $this->_count <= $this->limit() ?
             $this->cl(GotoPage::class)->clear() :
-            $this->cl(GotoPage::class)->set('page', $this->currentPage())->render();
+            $this->cl(GotoPage::class)
+                ->set('page', $this->currentPage())
+                ->render();
+
+        $this->get('countForeigns', 0) === 0 ?
+            $this->cl(Foreigns::class)->clear() :
+            $this->cl(Foreigns::class)
+                ->set('loaded', (bool)$this->getParamValue('foreigns'))
+                ->render();
 
         // Reset the count value.
         $this->_count = null;

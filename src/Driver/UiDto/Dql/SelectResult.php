@@ -399,7 +399,7 @@ class SelectResult extends AbstractDriverProxy
         do {
             $rowset->rowCount++;
             $rowset->rows[] = array_map($callback, $row);
-        } while (($this->fetchRow($result, $rowset->rowCount, $limit)) !== null);
+        } while (($row = $this->fetchRow($result, $rowset->rowCount, $limit)) !== null);
 
         return $rowset;
     }

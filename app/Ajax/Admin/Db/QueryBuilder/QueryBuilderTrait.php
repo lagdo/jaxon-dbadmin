@@ -49,7 +49,7 @@ trait QueryBuilderTrait
         $this->setCurrentTable($table);
 
         $params = $this->getBuilderBag('params', []);
-        // The table, columns, filters and sorting values are reset,
+        // The table, columns, filters, sorting and foreigns values are reset,
         // while the options values are kept.
         $this->setBuilderBag('params', [[
             'limit' => 50,
@@ -60,6 +60,7 @@ trait QueryBuilderTrait
             'columns' => [],
             'filters' => [],
             'sorters' => [],
+            'foreigns' => false,
         ]]);
     }
 
@@ -88,6 +89,7 @@ trait QueryBuilderTrait
                 'operand' => $value,
             ]],
             'sorters' => [],
+            'foreigns' => false,
         ], ...$params]);
     }
 
@@ -105,7 +107,7 @@ trait QueryBuilderTrait
         // Remove the first entry in the params array.
         array_shift($params);
 
-        // Back to the same page number on the rpevious table.
+        // Back to the same page number on the previous table.
         $this->setCurrentTable($params[0]['table']);
         $this->set('page', $params[0]['page']);
 
@@ -129,6 +131,7 @@ trait QueryBuilderTrait
             'columns' => [],
             'filters' => [],
             'sorters' => [],
+            'foreigns' => false,
             ...($params[0] ?? []),
         ];
     }

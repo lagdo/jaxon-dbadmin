@@ -45,7 +45,7 @@ class ResultUiBuilder
                 $columnValue = $column['value'];
 
                 return $this->ui->tableDataCell(
-                    $this->ui->a($html)
+                    $this->ui->a($column['foreignLabel'] ?? $html)
                         ->setHref('javascript:void(0)')
                         ->jxnClick(rq(Select::class)->follow($tableName, $columnName, $columnValue))
                 );

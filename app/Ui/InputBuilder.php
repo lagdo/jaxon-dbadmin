@@ -51,8 +51,7 @@ class InputBuilder
                         ->checked($value['checked'])->setName($name)
                 );
             })
-        )
-        ->setClass('checkbox');
+        )->setClass('checkbox');
     }
 
     /**
