@@ -43,8 +43,8 @@ class DeleteFunc extends FuncComponent
             return;
         }
 
-        // Refresh the result set.
-        $this->cl(ResultSet::class)->page();
+        // Refresh the result set. Stay on the same page.
+        $this->cl(ResultSet::class)->page($this->getParamValue('page'));
 
         $this->modal()->hide();
         $this->alert()

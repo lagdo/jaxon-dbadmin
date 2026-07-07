@@ -122,17 +122,17 @@ class QueryProxy extends AbstractDriverProxy
      * Get data for update/delete of a single row.
      *
      * @param string $table
-     * @param array  $rowIdValues
+     * @param array  $rowIds
      *
      * @return array
      */
-    public function getRowForUpdate(string $table, array $rowIdValues = []): array
+    public function getRowForUpdate(string $table, array $rowIds = []): array
     {
         $action = 'read';
         $operation = 'update';
 
         $reader = $this->reader($action, $operation);
-        [$columns, $where, $error] = $reader->getTableColumns($table, $rowIdValues);
+        [$columns, $where, $error] = $reader->getTableColumns($table, $rowIds);
         if ($error !== null) {
             return ['error' => $error];
         }
@@ -210,24 +210,24 @@ class QueryProxy extends AbstractDriverProxy
      * Build the SQL query to update one or more items in a table
      *
      * @param string $table
-     * @param array  $rowIdValues
+     * @param array  $rowIds
      * @param array  $values        
      *
      * @return QueryListDto
      */
-    public function getUpdateRowQuery(string $table, array $rowIdValues, array $values): QueryListDto
+    public function getUpdateRowQuery(string $table, array $rowIds, array $values): QueryListDto
     {
         $action = 'save';
         $operation = 'update';
 
         $reader = $this->reader($action, $operation);
-        [$columns, $where, $error] = $reader->getTableColumns($table, $rowIdValues);
+        [$columns, $where, $error] = $reader->getTableColumns($table, $rowIds);
         if ($error !== null) {
             return new QueryListDto(error: $error);
         }
 
         $values = $reader->getInputValues($columns, $values);
-        $limit = $reader->getQueryLimit($table, $rowIdValues);
+        $limit = $reader->getQueryLimit($table, $rowIds);
         $query = $this->statement()->getUpdateRowQuery($table, $values, "\nWHERE $where", $limit);
 
         return $query !== '' ? new QueryListDto(queries: [$query]) :
@@ -239,18 +239,18 @@ class QueryProxy extends AbstractDriverProxy
      * Update one or more items in a table
      *
      * @param string $table
-     * @param array  $rowIdValues
+     * @param array  $rowIds
      * @param array  $values        
      *
      * @return QueryResultDto
      */
-    public function updateRow(string $table, array $rowIdValues, array $values): QueryResultDto
+    public function updateRow(string $table, array $rowIds, array $values): QueryResultDto
     {
         $options = new QueryOptions(true, true);
         $options->setExecOptions(true, true, false);
         $options->withLogger = true;
 
-        $update = $this->getUpdateRowQuery($table, $rowIdValues, $values);
+        $update = $this->getUpdateRowQuery($table, $rowIds, $values);
         $result = $this->processor->executeQueryList($update, $options);
         if ($result->error === null) {
             $result->message = $this->utils()->lang('The item was updated.');
@@ -285,22 +285,22 @@ class QueryProxy extends AbstractDriverProxy
      * Build the SQL query to delete one or more items in a table
      *
      * @param string $table
-     * @param array  $rowIdValues
+     * @param array  $rowIds
      *
      * @return QueryListDto
      */
-    public function getDeleteRowQuery(string $table, array $rowIdValues): QueryListDto
+    public function getDeleteRowQuery(string $table, array $rowIds): QueryListDto
     {
         $action = 'save';
         $operation = 'update';
 
         $reader = $this->reader($action, $operation);
-        [, $where, $error] = $reader->getTableColumns($table, $rowIdValues);
+        [, $where, $error] = $reader->getTableColumns($table, $rowIds);
         if ($error !== null) {
             return new QueryListDto(error: $error);
         }
 
-        $limit = $reader->getQueryLimit($table, $rowIdValues);
+        $limit = $reader->getQueryLimit($table, $rowIds);
         $query = $this->statement()->getDeleteRowQuery($table, "\nWHERE $where", $limit);
 
         return $query !== '' ? new QueryListDto(queries: [$query]) :
@@ -312,17 +312,17 @@ class QueryProxy extends AbstractDriverProxy
      * Delete one or more items in a table
      *
      * @param string $table
-     * @param array  $rowIdValues
+     * @param array  $rowIds
      *
      * @return QueryResultDto
      */
-    public function deleteRow(string $table, array $rowIdValues): QueryResultDto
+    public function deleteRow(string $table, array $rowIds): QueryResultDto
     {
         $options = new QueryOptions(true, true);
         $options->setExecOptions(true, true, false);
         $options->withLogger = true;
 
-        $delete = $this->getDeleteRowQuery($table, $rowIdValues);
+        $delete = $this->getDeleteRowQuery($table, $rowIds);
         $result = $this->processor->executeQueryList($delete, $options);
         if ($result->error === null) {
             $result->message = $this->utils()->lang('The item was deleted.');

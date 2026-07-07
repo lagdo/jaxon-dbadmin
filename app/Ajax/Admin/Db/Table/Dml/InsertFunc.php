@@ -92,9 +92,9 @@ class InsertFunc extends FuncComponent
             return;
         }
 
-        // Refresh the result set.
+        // Refresh the result set. Stay on the same page.
         if ($fromSelect) {
-            $this->cl(ResultSet::class)->page();
+            $this->cl(ResultSet::class)->page($this->getParamValue('page'));
         }
 
         $this->modal()->hide();

@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml;
 
 use Jaxon\Attributes\Attribute\Databag;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\QueryBuilderTrait;
 use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
 
 use function count;
@@ -17,8 +16,6 @@ use function trim;
 #[Databag('dbadmin.builder')]
 class SearchFunc extends FuncComponent
 {
-    use QueryBuilderTrait;
-
     /**
      * @param EditUiBuilder  $editUi
      */

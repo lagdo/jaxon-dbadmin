@@ -2,13 +2,17 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml;
 
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\QueryBuilderTrait;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\FuncComponent as BaseComponent;
 
+use function array_map;
 use function in_array;
 use function is_array;
 
 abstract class FuncComponent extends BaseComponent
 {
+    use QueryBuilderTrait;
+
     /**
      * Build the form data with the edited values
      *
@@ -58,9 +62,10 @@ abstract class FuncComponent extends BaseComponent
 
             // The column has an array value (set or enum).
             if (isset($queryField->valueInput['items']) && is_array($value)) {
-                foreach ($queryField->valueInput['items'] as &$item) {
-                    $item['checked'] = in_array($item['value'], $value);
-                }
+                $queryField->valueInput['items'] = array_map(
+                    fn(array $item) => [...$item, 'checked' => in_array($item['value'], $value)],
+                    $queryField->valueInput['items']
+                );
             }
         }
 

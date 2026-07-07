@@ -169,26 +169,26 @@ class RowDataReader extends AbstractDriverProxy
      * Get the table columns
      *
      * @param string $table         The table name
-     * @param array  $rowIdValues       The query options
+     * @param array  $rowIds       The query options
      *
      * @return array
      */
-    public function getTableColumns(string $table, array $rowIdValues = []): array
+    public function getTableColumns(string $table, array $rowIds = []): array
     {
         $columns = $this->engine()->columns($table);
-        foreach (($rowIdValues['where'] ?? []) as $columnName => $_) {
+        foreach (($rowIds['where'] ?? []) as $columnName => $_) {
             if (!isset($columns[$columnName])) {
                 return $this->errorValue($columnName, $table);
             }
         }
-        foreach (($rowIdValues['null'] ?? []) as $columnName) {
+        foreach (($rowIds['null'] ?? []) as $columnName) {
             if (!isset($columns[$columnName])) {
                 return $this->errorValue($columnName, $table);
             }
         }
 
         // Important: get the where clauses before filtering the columns.
-        $where = $this->engine()->where($rowIdValues, $columns);
+        $where = $this->engine()->where($rowIds, $columns);
 
         // Remove columns without the required privilege, or that cannot be edited.
         $columns = array_filter($columns, fn(ColumnDto $column) =>
@@ -223,14 +223,14 @@ class RowDataReader extends AbstractDriverProxy
 
     /**
      * @param string $table
-     * @param array $rowIdValues
+     * @param array $rowIds
      *
      * @return int
      */
-    public function getQueryLimit(string $table, array $rowIdValues): int
+    public function getQueryLimit(string $table, array $rowIds): int
     {
         $indexes = $this->engine()->indexes($table);
-        $uniqueIds = $this->utils()->uniqueIds($rowIdValues['where'], $indexes);
+        $uniqueIds = $this->utils()->uniqueIds($rowIds['where'], $indexes);
 
         // Limit to 1 if no unique ids are found.
         return count($uniqueIds ?? []) === 0 ? 1 : 0;

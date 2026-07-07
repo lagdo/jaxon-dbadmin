@@ -79,72 +79,72 @@ trait QueryTrait
      * Get data for update/delete in a table
      *
      * @param string $table
-     * @param array  $rowIdValues
+     * @param array  $rowIds
      *
      * @return array
      */
-    public function getRowForUpdate(string $table, array $rowIdValues = []): array
+    public function getRowForUpdate(string $table, array $rowIds = []): array
     {
         $this->connectToSchema();
-        return $this->queryProxy()->getRowForUpdate($table, $rowIdValues);
+        return $this->queryProxy()->getRowForUpdate($table, $rowIds);
     }
 
     /**
      * Build the SQL query to update one or more items in a table
      *
      * @param string $table
-     * @param array  $rowIdValues
+     * @param array  $rowIds
      * @param array  $values
      *
      * @return QueryListDto
      */
-    public function getUpdateRowQuery(string $table, array $rowIdValues, array $values): QueryListDto
+    public function getUpdateRowQuery(string $table, array $rowIds, array $values): QueryListDto
     {
         $this->connectToSchema();
-        return $this->queryProxy()->getUpdateRowQuery($table, $rowIdValues, $values);
+        return $this->queryProxy()->getUpdateRowQuery($table, $rowIds, $values);
     }
 
     /**
      * Update one or more items in a table
      *
      * @param string $table
-     * @param array  $rowIdValues
+     * @param array  $rowIds
      * @param array  $values
      *
      * @return QueryResultDto
      */
-    public function updateRow(string $table, array $rowIdValues, array $values): QueryResultDto
+    public function updateRow(string $table, array $rowIds, array $values): QueryResultDto
     {
         $this->connectToSchema();
-        return $this->queryProxy()->updateRow($table, $rowIdValues, $values);
+        return $this->queryProxy()->updateRow($table, $rowIds, $values);
     }
 
     /**
      * Build the SQL query to delete one or more items in a table
      *
      * @param string $table
-     * @param array  $rowIdValues
+     * @param array  $rowIds
      *
      * @return QueryListDto
      */
-    public function getDeleteRowQuery(string $table, array $rowIdValues): QueryListDto
+    public function getDeleteRowQuery(string $table, array $rowIds): QueryListDto
     {
         $this->connectToSchema();
-        return $this->queryProxy()->getDeleteRowQuery($table, $rowIdValues);
+        return $this->queryProxy()->getDeleteRowQuery($table, $rowIds);
     }
 
     /**
      * Delete one or more items in a table
      *
      * @param string $table
-     * @param array  $rowIdValues
+     * @param array  $rowIds
      *
      * @return QueryResultDto
      */
-    public function deleteRow(string $table, array $rowIdValues): QueryResultDto
+    public function deleteRow(string $table, array $rowIds): QueryResultDto
     {
         $this->connectToSchema();
-        return $this->queryProxy()->deleteRow($table, $rowIdValues);
+        return $this->queryProxy()->deleteRow($table, $rowIds);
     }
 
     /**
