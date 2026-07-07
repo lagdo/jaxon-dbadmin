@@ -11,6 +11,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\QueryBuilderTrait;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Values;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\MainComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\QueryText;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Ddl\Form;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Ddl\View;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
@@ -78,8 +79,11 @@ class Select extends MainComponent
         // Show the select options
         $this->cl(Fields::class)->render();
         $this->cl(Values::class)->render();
+
         // Show the query
         $this->cl(QueryText::class)->render();
+        // Also run the query.
+        $this->cl(ResultSet::class)->page($this->get('page', 1));
     }
 
     /**
