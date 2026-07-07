@@ -241,7 +241,7 @@ class EditUiBuilder
                 ->setPlaceholder('Search')
                 ->setAutocomplete('off')
                 ->jxnOn('input', rq(SearchFunc::class)->search($table, $idColumn,
-                    $labelColumn, $columnName, input($inputId))),
+                    $labelColumn, $columnName, input($inputId))->debounce('search')),
             $this->ui->div()
                 ->setAttribute('popover', '')
                 ->setId($this->searchListId($columnName))
