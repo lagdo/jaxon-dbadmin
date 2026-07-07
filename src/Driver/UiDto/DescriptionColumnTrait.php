@@ -23,7 +23,7 @@ trait DescriptionColumnTrait
         // Take the first varchar or text column.
         foreach ($this->engine()->columns($table) as $column) {
             // if (preg_match("~varchar|character varying~", $column->type)) {
-            if (preg_match("~char|text~", $column->type)) {
+            if (!$column->primary && preg_match("~char|text~", $column->type)) {
                 return $column->name;
             }
         }
