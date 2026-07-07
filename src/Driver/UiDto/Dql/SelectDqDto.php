@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dql;
 
+use Closure;
+
 class SelectDqDto
 {
     /**
@@ -43,11 +45,16 @@ class SelectDqDto
      * @var array
      */
     public array $primaryColumns;
- 
+
     /**
      * @var string
      */
     public string $query;
+
+    /**
+     * @var Closure
+     */
+    public Closure $queryBuilder;
 
     /**
      * @var array
@@ -90,5 +97,13 @@ class SelectDqDto
     public function __construct(public SelectTableDto $table)
     {
         $this->input = new SelectDqInputDto();
+    }
+
+    /**
+     * @return string
+     */
+    public function query(): string
+    {
+        return $this->query ??= ($this->queryBuilder)();
     }
 }

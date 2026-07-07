@@ -172,12 +172,14 @@ class QueryUiBuilder
      */
     private function editorTabNav(bool $active): HtmlComponent
     {
+        $appTabId = $this->tab()->app()->current();
+        $editorTabId = $this->tab()->editor()->current();
+
         return $this->ui->tabNavItem($this->trans->lang('Editor'))
             ->target($this->tab()->editor()->wrapperId())
             ->setId($this->tab()->editor()->titleId())
             ->active($active)
-            ->jxnOn('click', jo('jaxon.dbadmin')
-                ->onEditorTabClick($this->tab()->app()->current(), $this->tab()->editor()->current()));
+            ->jxnClick(jo('jaxon.dbadmin')->onEditorTabClick($appTabId, $editorTabId));
     }
 
     /**

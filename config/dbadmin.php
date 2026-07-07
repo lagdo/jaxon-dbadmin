@@ -2,6 +2,7 @@
 
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\App;
+use Lagdo\DbAdmin\App\Ajax\Admin;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Support;
 use Lagdo\DbAdmin\Support\Driver\DriverHelper;
@@ -22,7 +23,7 @@ return [
             'namespace' => 'Lagdo\\DbAdmin\\App\\Ajax\\Admin',
             'autoload' => false,
             'classes' => [
-                App\Ajax\Admin\AppFunc::class => [
+                Admin\AppFunc::class => [
                     'functions' => [
                         'start' => [
                             'mode' => "'synchronous'",
@@ -33,7 +34,14 @@ return [
                         'addSavedTab' => [
                             'mode' => "'synchronous'",
                         ],
-                    ]
+                    ],
+                ],
+                Admin\Db\Table\Dml\SearchFunc::class => [
+                    'functions' => [
+                        'search' => [
+                            'mode' => "'synchronous'",
+                        ],
+                    ],
                 ],
             ],
         ],

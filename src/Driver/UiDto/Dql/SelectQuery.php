@@ -212,7 +212,7 @@ class SelectQuery extends AbstractDriverProxy
      *
      * @return SelectDto
      */
-    private function makeSelectDto(SelectDqDto $select): SelectDto
+    private function buildSelectDto(SelectDqDto $select): SelectDto
     {
         $columns = $select->columns;
         $groupBy = $select->groupBy;
@@ -283,6 +283,20 @@ class SelectQuery extends AbstractDriverProxy
     /**
      * @param SelectDqDto $select
      *
+     * @return string
+     * @throws Exception
+     */
+    private function buildSelect(SelectDqDto $select): string
+    {
+        $selectDto = $this->buildSelectDto($select);
+        $query = $this->statement()->getTableSelectQuery($selectDto);
+
+        return str_replace("\n", " ", $query);
+    }
+
+    /**
+     * @param SelectDqDto $select
+     *
      * @return SelectDqDto
      * @throws Exception
      */
@@ -298,6 +312,9 @@ class SelectQuery extends AbstractDriverProxy
         $this->setSelectSorters($select);
         $this->setPrimaryKey($select);
 
+        // Set the select query builder.
+        $select->queryBuilder = fn() => $this->buildSelect($select);
+
         // $set = null;
         // if(isset($rights["insert"]) || !this->driver->support("table")) {
         //     $set = "";
@@ -311,21 +328,6 @@ class SelectQuery extends AbstractDriverProxy
         //     }
         // }
         // $this->pageUi()->selectLinks($tableStatus, $set);
-
-        return $select;
-    }
-
-    /**
-     * @param SelectDqDto $select
-     *
-     * @return SelectDqDto
-     * @throws Exception
-     */
-    public function makeSelect(SelectDqDto $select): SelectDqDto
-    {
-        $selectDto = $this->makeSelectDto($select);
-        $query = $this->statement()->getTableSelectQuery($selectDto);
-        $select->query = str_replace("\n", " ", $query);
 
         return $select;
     }

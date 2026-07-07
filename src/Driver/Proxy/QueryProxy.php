@@ -114,7 +114,7 @@ class QueryProxy extends AbstractDriverProxy
         // No data when inserting a new row
         $writer = $this->writer($action, $operation);
         return [
-            'columns' => $writer->getInputValues($columns),
+            'columns' => $writer->getInputValues($table, $columns),
         ];
     }
 
@@ -154,7 +154,7 @@ class QueryProxy extends AbstractDriverProxy
         }
 
         $writer = $this->writer($action, $operation);
-        return ['columns' => $writer->getInputValues($columns, $row)];
+        return ['columns' => $writer->getInputValues($table, $columns, $row)];
     }
 
     /**
@@ -198,8 +198,9 @@ class QueryProxy extends AbstractDriverProxy
         $result = $this->processor->executeQueryList($insert, $options);
         if ($result->error === null) {
             $lastId = $this->engine()->lastAutoIncrementId();
-            $lastId = $lastId ? " $lastId" : '';
-            $result->message = $this->utils()->lang('The item%s was inserted.', $lastId);
+            $result->message = !$lastId ?
+                $this->utils()->lang('The item was inserted.') :
+                $this->utils()->lang('The item %s was inserted.', $lastId);
         }
 
         return $result;

@@ -149,3 +149,21 @@
     min-height: 20px;
     resize: vertical;
 }
+
+.jaxon-dbadmin-foreign-column-search-list {
+    border: none;
+    border-radius: 5px;
+    position-area: y-end span-x-end;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input.no-arrows::-webkit-outer-spin-button,
+input.no-arrows::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input.no-arrows[type=number] {
+  -moz-appearance: textfield;
+}

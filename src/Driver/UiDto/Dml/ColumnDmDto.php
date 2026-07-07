@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dml;
 
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 
 use function implode;
 use function in_array;
@@ -64,6 +65,11 @@ class ColumnDmDto
      * @var bool|null
      */
     public bool|null $isText = null;
+
+    /**
+     * @var ForeignKeyDmDto|null
+     */
+    public ForeignKeyDmDto|null $foreignKey = null;
 
     /**
      * @param ColumnDto $column

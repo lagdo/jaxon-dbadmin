@@ -187,7 +187,7 @@ trait QueryBuilderTrait
      */
     protected function getBuilderSqlQuery(): string
     {
-        return $this->getSelectQueryParams()->query;
+        return $this->getSelectQueryParams()->query();
     }
 
     /**

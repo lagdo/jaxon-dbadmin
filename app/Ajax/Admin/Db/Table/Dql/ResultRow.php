@@ -51,14 +51,22 @@ class ResultRow extends Component
             return;
         }
 
-        $row = $result->rowsets[0]?->rows[0] ?? null;
-        if ($row === null) {
+        $rowset = $result->rowsets[0] ?? null;
+        if ($rowset === null || !isset($rowset?->rows[0])) {
             $this->alert()
                 ->title($this->trans()->lang('Warning'))
                 ->warning($this->trans()->lang('Unable to read the updated row.'));
             return;
         }
 
+        if ((bool)$this->getParamValue('foreigns')) {
+            $textLength = $this->getParamValue('length');
+            if ($this->db()->setForeignKeyLabels($rowset, $textLength) === 0) {
+                $this->saveParamValue('foreigns', false);
+            }
+        }
+
+        $row = $rowset->rows[0];
         $row->bagId = $this->bagValueKey($rowId);
         $row->rowMenu = $this->getRowMenu($rowId, $row);
         $this->set('row', $row);

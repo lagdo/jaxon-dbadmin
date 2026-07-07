@@ -2,16 +2,22 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dml;
 
-use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\DescriptionColumnTrait;
 
+use function array_filter;
 use function array_map;
+use function count;
 
 /**
  * Reads data from the database for the row insert and update user forms.
  */
 class RowDataWriter extends AbstractDriverProxy
 {
+    use DescriptionColumnTrait;
+
     /**
      * @var ColumnValue
      */
@@ -51,17 +57,37 @@ class RowDataWriter extends AbstractDriverProxy
     }
 
     /**
+     * @param ForeignKeyDto $foreignKey
+     *
+     * @return ForeignKeyDmDto|null
+     */
+    private function makeForeignKeyDto(ForeignKeyDto $foreignKey): ForeignKeyDmDto|null
+    {
+        if (count($foreignKey->source) !== 1) {
+            return null;
+        }
+
+        $labelColumn = $this->getDescriptionColumn($foreignKey->table);
+        if ($labelColumn === '') {
+            return null;
+        }
+
+        return new ForeignKeyDmDto($foreignKey->table, $foreignKey->target[0], $labelColumn);
+    }
+
+    /**
+     * @param string $table
      * @param array<ColumnDto> $columns
      * @param array|null $rowData
      *
      * @return array<ColumnDmDto>
      */
-    public function getInputValues(array $columns, array|null $rowData = null): array
+    public function getInputValues(string $table, array $columns, array|null $rowData = null): array
     {
         // From html.inc.php (function edit_form($table, $columns, $rowData, $update))
         $this->autofocus = false;
 
-        return array_map(function(ColumnDto $column) use($rowData) {
+        $inputColumns = array_map(function(ColumnDto $column) use($rowData) {
             $input = $this->columnValue->getColumnInputValues($column, $rowData);
             if ($this->autofocus !== false) {
                 $this->autofocus = match(true) {
@@ -80,5 +106,14 @@ class RowDataWriter extends AbstractDriverProxy
 
             return $input;
         }, $columns);
+
+        foreach ($this->engine()->foreignKeys($table) as $foreignKey) {
+            $source = $foreignKey->source[0];
+            if (isset($inputColumns[$source])) {
+                $inputColumns[$source]->foreignKey = $this->makeForeignKeyDto($foreignKey);
+            }
+        }
+
+        return $inputColumns;
     }
 }

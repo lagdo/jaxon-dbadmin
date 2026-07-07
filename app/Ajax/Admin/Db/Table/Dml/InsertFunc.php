@@ -26,7 +26,7 @@ class InsertFunc extends FuncComponent
      *
      * @return void
      */
-    private function showQueryDataDialog(bool $fromSelect, array $columns): void
+    private function showDataInsertDialog(bool $fromSelect, array $columns): void
     {
         $title = 'New item in table ' . $this->getCurrentTable();
         $content = $this->editUi->rowDataForm($columns);
@@ -68,7 +68,7 @@ class InsertFunc extends FuncComponent
             return;
         }
 
-        $this->showQueryDataDialog($fromSelect, $insertData['columns']);
+        $this->showDataInsertDialog($fromSelect, $insertData['columns']);
     }
 
     /**
@@ -128,6 +128,6 @@ class InsertFunc extends FuncComponent
         $this->modal()->hide();
 
         $columns = $this->getEditedFormValues($insertData['columns'], $formValues);
-        $this->showQueryDataDialog($fromSelect, $columns);
+        $this->showDataInsertDialog($fromSelect, $columns);
     }
 }

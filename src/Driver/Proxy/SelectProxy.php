@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\UiDto\DescriptionColumnTrait;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\ForeignRowsetDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultHeaderDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryRowsetDto;
@@ -27,6 +28,8 @@ use function count;
  */
 class SelectProxy extends AbstractDriverProxy
 {
+    use DescriptionColumnTrait;
+
     /**
      * @var SelectOptions
      */
@@ -94,7 +97,7 @@ class SelectProxy extends AbstractDriverProxy
             $select->filters[] = $this->engine()->where($queryParams['updated'], $table->columns);
         }
 
-        return $this->query()->makeSelect($select);
+        return $select;
     }
 
     /**
@@ -119,35 +122,20 @@ class SelectProxy extends AbstractDriverProxy
      * Get required data for create/update on tables
      *
      * @param SelectDqDto $select
+     * @param bool $withTimer
      *
      * @return QueryResultDto<SelectRowsetDto>
      * @throws Exception
      */
-    public function execSelect(SelectDqDto $select): QueryResultDto
+    public function execSelect(SelectDqDto $select, bool $withTimer = true): QueryResultDto
     {
         $options = new QueryOptions();
         $options->setExecOptions(false, false, true);
-        $options->withTimer = true;
+        $options->withTimer = $withTimer;
 
-        $queryList = new QueryListDto(queries: [$select->query]);
+        $queryList = new QueryListDto(queries: [$select->query()]);
 
         return $this->processor->executeQueryList($queryList, $options, $select);
-    }
-
-    /**
-     * @param string $table
-     *
-     * @return string
-     */
-    private function getDescriptionColumn(string $table): string
-    {
-        // Take the first varchar column.
-        foreach ($this->engine()->columns($table) as $column) {
-            if (preg_match("~varchar|character|text~", $column->type)) {
-                return $column->name;
-            }
-        }
-        return '';
     }
 
     /**

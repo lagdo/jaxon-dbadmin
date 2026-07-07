@@ -169,7 +169,7 @@ jaxon.dbadmin = {};
     };
 
     /**
-     * Jaxon javascript callback for upload requests.
+     * Unset databag entries.
      *
      * @param {string} bagName
      * @param {array} entryNames
@@ -188,6 +188,16 @@ jaxon.dbadmin = {};
         const appTabId = jaxon.bag.getEntry('dbadmin.app', 'tab') ?? '';
         return appTabId === '' ? id : `${appTabId}_${id}`;
     };
+
+    /**
+     * Set an input value from a foreign column.
+     *
+     * @param {string} inputId
+     * @param {string} inputValue
+     *
+     * @returns {void}
+     */
+    self.setForeignColumnValue = (inputId, inputValue) => $(`#${inputId}`).val(inputValue);
 
     /**
      * Jaxon javascript callback for upload requests.

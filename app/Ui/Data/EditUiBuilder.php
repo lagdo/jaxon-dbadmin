@@ -2,10 +2,17 @@
 
 namespace Lagdo\DbAdmin\App\Ui\Data;
 
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\SearchFunc;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnDmDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultRowDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectRowsetDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
+
+use function Jaxon\input;
+use function Jaxon\jo;
+use function Jaxon\rq;
 
 class EditUiBuilder
 {
@@ -121,7 +128,8 @@ class EditUiBuilder
     protected function getDefaultValueInput(array $input): mixed
     {
         return $this->ui->input($input['attrs'])
-            ->setValue($input['value'], false);
+            ->setValue($input['value'], false)
+            ->addClass('no-arrows');
     }
 
     /**
@@ -184,7 +192,7 @@ class EditUiBuilder
      *
      * @return mixed
      */
-    public function getColumnTitle(ColumnDmDto $input): mixed
+    private function getColumnTitle(ColumnDmDto $input): mixed
     {
         return isset($input->valueInput['attrs']['id']) ?
             $this->ui->label($input->name)
@@ -192,6 +200,75 @@ class EditUiBuilder
                 ->setTitle($input->type) :
             $this->ui->span($input->name)
                 ->setTitle($input->type);
+    }
+
+    /**
+     * @return string
+     */
+    public function searchListId(string $columnName): string
+    {
+        return $this->tab()->app()->id("dbadmin-table-foreign-search_list_$columnName");
+    }
+
+    /**
+     * @return string
+     */
+    public function searchValueId(string $columnName): string
+    {
+        return $this->tab()->app()->id("dbadmin-table-foreign-search_value_$columnName");
+    }
+
+    /**
+     * @param ColumnDmDto $input
+     *
+     * @return mixed
+     */
+    private function getAutocompleteColumn(ColumnDmDto $input): mixed
+    {
+        $columnName = $input->column->name;
+        $inputId = $this->tab()->app()->id("dbadmin-table-foreign-search_input_$columnName");
+
+        $table = $input->foreignKey->table;
+        $idColumn = $input->foreignKey->idColumn;
+        $labelColumn = $input->foreignKey->labelColumn;
+
+        return $this->ui->div(
+            $this->ui->input()
+                ->setType('text')
+                ->setId($inputId)
+                ->setClass('search-box')
+                ->setStyle("anchor-name: --anchor-$columnName;")
+                ->setPlaceholder('Search')
+                ->setAutocomplete('off')
+                ->jxnOn('input', rq(SearchFunc::class)->search($table, $idColumn,
+                    $labelColumn, $columnName, input($inputId))),
+            $this->ui->div()
+                ->setAttribute('popover', '')
+                ->setId($this->searchListId($columnName))
+                ->addClass('jaxon-dbadmin-foreign-column-search-list')
+                ->setStyle("position-anchor: --anchor-$columnName;")
+        )->setClass('autocomplete-search-box');
+    }
+
+    /**
+     * @param SelectRowsetDto $rowset
+     * @param string $columnName
+     *
+     * @return string
+     */
+    public function getAutocompleteList(SelectRowsetDto $rowset, string $columnName): string
+    {
+        $valueId = $this->searchValueId($columnName);
+
+        return $this->ui->build(
+            $this->ui->menu(
+                $this->ui->each($rowset->rows, fn(QueryResultRowDto $row) =>
+                    $this->ui->menuItem($this->ui->html($row->columns[1]['html']))
+                        ->jxnClick(jo('jaxon.dbadmin')
+                            ->setForeignColumnValue($valueId, $row->columns[0]['value']))
+                )
+            )->setClass('search-result')
+        );
     }
 
     /**
@@ -213,15 +290,28 @@ class EditUiBuilder
         $form = $this->ui->form(
             $this->ui->each($inputs, fn(ColumnDmDto $input) =>
                 $this->ui->row(
-                    $this->ui->col(
-                        $this->getColumnTitle($input)
-                    )->width(3),
-                    $this->ui->col(
-                        $this->getColumnFunction($input)
-                    )->width(2),
-                    $this->ui->col(
-                        $this->getColumnValue($input)
-                    )->width(7)
+                    $this->ui->col($this->getColumnTitle($input))
+                        ->width(3),
+                    $this->ui->col($this->getColumnFunction($input))
+                        ->setStyle('padding-left: 1px; padding-right: 1px;')
+                        ->width(2),
+                    $this->ui->when($input->foreignKey === null, fn() =>
+                        $this->ui->col($this->getColumnValue($input))
+                            ->setStyle('padding-left: 1px;')
+                            ->width(7)
+                    ),
+                    $this->ui->when($input->foreignKey !== null, fn() =>
+                        $this->ui->list(
+                            $this->ui->col(
+                                $this->getColumnValue($input)
+                                    ->setId($this->searchValueId($input->column->name))
+                            )->setStyle('padding-left: 1px; padding-right: 1px;')
+                                ->width(2),
+                            $this->ui->col($this->getAutocompleteColumn($input))
+                                ->setStyle('padding-left: 1px;')
+                                ->width(5)
+                        )
+                    ),
                 )
             )
         )->setId($this->queryFormId());

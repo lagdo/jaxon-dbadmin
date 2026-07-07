@@ -32,7 +32,7 @@ class UpdateFunc extends FuncComponent
      *
      * @return void
      */
-    private function showQueryDataDialog(int $rowId, array $rowIdValues, array $columns): void
+    private function showDataUpdateDialog(int $rowId, array $rowIdValues, array $columns): void
     {
         $title = 'Edit row in table ' . $this->getCurrentTable();
         $content = $this->editUi->rowDataForm($columns);
@@ -86,7 +86,7 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $this->showQueryDataDialog($rowId, $rowIdValues, $updateData['columns']);
+        $this->showDataUpdateDialog($rowId, $rowIdValues, $updateData['columns']);
     }
 
     /**
@@ -154,6 +154,6 @@ class UpdateFunc extends FuncComponent
         $this->modal()->hide();
 
         $columns = $this->getEditedFormValues($updateData['columns'], $formValues);
-        $this->showQueryDataDialog($rowId, $rowIdValues, $columns);
+        $this->showDataUpdateDialog($rowId, $rowIdValues, $columns);
     }
 }

@@ -43,14 +43,11 @@ class ResultSet extends PageComponent
     protected function count(): int
     {
         // Save the count value in the $_count attribute.
+        // Do not query the total number of items when the "total" option is not set.
+        $this->_count = !$this->getParamValue('total') ? -1 :
+            $this->db()->countSelect($this->select());
 
-        $options = $this->getBuilderParams();
-        if (!($options['total'] ?? true)) {
-            // Do not query the total number of items.
-            return $this->_count = -1;
-        }
-
-        return $this->_count = $this->db()->countSelect($this->select());
+        return $this->_count;
     }
 
     /**
