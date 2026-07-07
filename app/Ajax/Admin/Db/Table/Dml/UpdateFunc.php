@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\QueryBuilderTrait;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultRow;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
 
 use function count;
@@ -26,13 +27,13 @@ class UpdateFunc extends FuncComponent
     {}
 
     /**
-     * @param int $rowId
-     * @param array $rowIdValues
+     * @param int $uiRowId
+     * @param array $dbRowIds
      * @param array $columns
      *
      * @return void
      */
-    private function showDataUpdateDialog(int $rowId, array $rowIdValues, array $columns): void
+    private function showDataUpdateDialog(int $uiRowId, array $dbRowIds, array $columns): void
     {
         $title = 'Edit row in table ' . $this->getCurrentTable();
         $content = $this->editUi->rowDataForm($columns);
@@ -48,11 +49,11 @@ class UpdateFunc extends FuncComponent
             'title' => $this->trans()->lang('Query'),
             'class' => 'btn btn-primary',
             'click' => $this->rq(SqlCodeFunc::class)
-                ->showUpdateRowQuery($rowId, $rowIdValues, $values),
+                ->showUpdateRowQuery($uiRowId, $dbRowIds, $values),
         ], [
             'title' => $this->trans()->lang('Update'),
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save($rowId, $rowIdValues, $values)
+            'click' => $this->rq()->save($uiRowId, $dbRowIds, $values)
                 ->confirm($this->trans()->lang('Save this item?')),
         ]];
 
@@ -60,15 +61,15 @@ class UpdateFunc extends FuncComponent
     }
 
     /**
-     * @param int $rowId
-     * @param array $rowIdValues
+     * @param int $uiRowId
+     * @param array $dbRowIds
      *
      * @return void
      */
-    public function edit(int $rowId, array $rowIdValues): void
+    public function edit(int $uiRowId, array $dbRowIds): void
     {
-        if(!is_array($rowIdValues['where'] ?? 0) ||
-            count($rowIdValues['where']) === 0 || $rowId <= 0)
+        if(!is_array($dbRowIds['where'] ?? 0) ||
+            count($dbRowIds['where']) === 0 || $uiRowId <= 0)
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
@@ -76,7 +77,7 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $updateData = $this->db()->getRowForUpdate($this->getCurrentTable(),  $rowIdValues);
+        $updateData = $this->db()->getRowForUpdate($this->getCurrentTable(),  $dbRowIds);
         // Show the error
         if(isset($updateData['error']))
         {
@@ -86,20 +87,20 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $this->showDataUpdateDialog($rowId, $rowIdValues, $updateData['columns']);
+        $this->showDataUpdateDialog($uiRowId, $dbRowIds, $updateData['columns']);
     }
 
     /**
-     * @param int   $rowId
-     * @param array $rowIdValues
-     * @param array $formValues
+     * @param int   $uiRowId
+     * @param array $dbRowIds
+     * @param array $rowValues
      *
      * @return void
      */
-    public function save(int $rowId, array $rowIdValues, array $formValues): void
+    public function save(int $uiRowId, array $dbRowIds, array $rowValues): void
     {
-        if(!is_array($rowIdValues['where'] ?? 0) ||
-            count($rowIdValues['where']) === 0 || $rowId <= 0)
+        if(!is_array($dbRowIds['where'] ?? 0) ||
+            count($dbRowIds['where']) === 0 || $uiRowId <= 0)
         {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
@@ -108,7 +109,7 @@ class UpdateFunc extends FuncComponent
         }
 
         $table = $this->getCurrentTable();
-        $result = $this->db()->updateRow($table, $rowIdValues, $formValues);
+        $result = $this->db()->updateRow($table, $dbRowIds, $rowValues);
         // Show the error
         if($result->error !== null)
         {
@@ -118,8 +119,25 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        // Update the result row.
-        $this->cl(ResultRow::class)->refreshItem($rowId, $rowIdValues);
+        $newRowIdsKnown = true;
+        foreach ($dbRowIds['where'] as $column => &$value) {
+            if ($rowValues['input_values'][$column] !== $value) {
+                if ($rowValues['input_functions'][$column] === '') {
+                    // The row ids has changed to a known value.
+                    $value = $rowValues['input_values'][$column];
+                    continue;
+                }
+                // The row ids has changed to an unknown value.
+                $newRowIdsKnown = false;
+                break;
+            }
+        }
+
+        $newRowIdsKnown ?
+            // Refresh the result row.
+            $this->cl(ResultRow::class)->refreshItem($uiRowId, $dbRowIds) :
+            // Refresh all the result page.
+            $this->cl(ResultSet::class)->page($this->getParamValue('page'));
 
         $this->modal()->hide();
         $this->alert()
@@ -130,17 +148,17 @@ class UpdateFunc extends FuncComponent
     /**
      * Back to the update form
      *
-     * @param int $rowId
-     * @param array $rowIdValues
-     * @param array $formValues
+     * @param int $uiRowId
+     * @param array $dbRowIds
+     * @param array $rowValues
      *
      * @return void
      */
-    public function showQueryForm(int $rowId, array $rowIdValues, array $formValues): void
+    public function showQueryForm(int $uiRowId, array $dbRowIds, array $rowValues): void
     {
         $tableName = $this->getCurrentTable();
         // We need the table columns to be able to go back to the update form.
-        $updateData = $this->db()->getRowForUpdate($tableName,  $rowIdValues);
+        $updateData = $this->db()->getRowForUpdate($tableName,  $dbRowIds);
         // Show the error
         if(isset($updateData['error']))
         {
@@ -153,7 +171,7 @@ class UpdateFunc extends FuncComponent
         // Show the query in a modal dialog.
         $this->modal()->hide();
 
-        $columns = $this->getEditedFormValues($updateData['columns'], $formValues);
-        $this->showDataUpdateDialog($rowId, $rowIdValues, $columns);
+        $columns = $this->getEditedFormValues($updateData['columns'], $rowValues);
+        $this->showDataUpdateDialog($uiRowId, $dbRowIds, $columns);
     }
 }

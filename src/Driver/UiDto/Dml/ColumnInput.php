@@ -76,7 +76,6 @@ class ColumnInput extends AbstractDriverProxy
             $items[] = [
                 'attrs' => [
                     ...$attrs,
-                    'id' => "{$attrs['id']}_null", // Overwrite the id value in the $attrs array.
                 ],
                 'label' => "<i>$default</i>",
                 'value' => 'null',
@@ -91,7 +90,6 @@ class ColumnInput extends AbstractDriverProxy
             $items[] = [
                 'attrs' => [
                     ...$attrs,
-                    'id' => "{$attrs['id']}_{$enumValue}", // Overwrite the id value in the $attrs array.
                 ],
                 'label' => $this->utils()->html($enumValue),
                 'value' => $this->utils()->html($columnValue),
@@ -159,7 +157,6 @@ class ColumnInput extends AbstractDriverProxy
             'attrs' => [
                 'hidden' => [
                     ...$attrs,
-                    'id' => '', // Unset the id value in the $attrs array
                     'value' => '0',
                 ],
                 'checkbox' => [
@@ -192,7 +189,6 @@ class ColumnInput extends AbstractDriverProxy
         return [
             'field' => 'file',
             'attrs' => [
-                'id' => $attrs['id'],
                 'name' => "fields-{$input->name}",
             ],
         ];
@@ -321,7 +317,6 @@ class ColumnInput extends AbstractDriverProxy
     {
         // From input(array $field, $value, ?string $function, ?bool $autofocus = false) in html.inc.php
         $attrs = [
-            'id' => "fields_{$input->name}",
             'name' => $input->isEnum() || $input->isSet() ?
                 "input_values[{$input->name}][]" : "input_values[{$input->name}]",
         ];
