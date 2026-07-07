@@ -61,6 +61,6 @@ class Tab
             return $this->editorTab->bind($component, ...$arguments);
         }
 
-        throw new LogicException("Call to undefined method \"{$method}()\" in the TabApp helper.");
+        throw new LogicException("Call to undefined method \"{$method}()\" in the Tab helper.");
     }
 }

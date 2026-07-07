@@ -51,7 +51,7 @@ class SearchFunc extends FuncComponent
             'operand' => $searchValue,
         ]];
         $options = [
-            'limit' => 10,
+            'limit' => 15,
             'total' => false,
             'length' => $length,
             'columns' => [[

@@ -238,12 +238,12 @@ class EditUiBuilder
                 ->setId($inputId)
                 ->setClass('search-box')
                 ->setStyle("anchor-name: --anchor-$columnName;")
-                ->setPlaceholder('Search')
+                ->setPlaceholder("Search in table $table")
                 ->setAutocomplete('off')
                 ->jxnOn('input', rq(SearchFunc::class)->search($table, $idColumn,
                     $labelColumn, $columnName, input($inputId))->debounce('search')),
             $this->ui->div()
-                ->setAttribute('popover', '')
+                ->setPopover('')
                 ->setId($this->searchListId($columnName))
                 ->addClass('jaxon-dbadmin-foreign-column-search-list')
                 ->setStyle("position-anchor: --anchor-$columnName;")
@@ -311,7 +311,7 @@ class EditUiBuilder
                                 ->setStyle('padding-left: 1px;')
                                 ->width(5)
                         )
-                    ),
+                    )
                 )
             )
         )->setId($this->queryFormId());
