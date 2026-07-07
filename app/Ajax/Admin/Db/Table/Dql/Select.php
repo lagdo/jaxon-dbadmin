@@ -116,7 +116,7 @@ class Select extends MainComponent
     #[After('showBreadcrumbs')]
     // Injecting the query logger here makes it possible to check if the audit db connection is active.
     #[Inject(attr: 'queryLogger')]
-    public function follow(string $table, string $column, string|int $value): void
+    public function foreign(string $table, string $column, string|int $value): void
     {
         $this->prependBuilderParams($table, $column, $value);
 
