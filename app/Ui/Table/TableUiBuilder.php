@@ -406,7 +406,7 @@ class TableUiBuilder
                                     )
                                 )->setStyle('flex: 1'),
                                 $this->ui->div(
-                                    $this->_buttonMenu($this->getColumnMenuEntries($input, $columnId))
+                                    $this->buttonMenuComponent($this->getColumnMenuEntries($input, $columnId))
                                         ->setClass('dbadmin-table-column-buttons')
                                 )->setStyle('width:90px; padding-left:5px;')
                             )->setStyle('display:flex; flex-direction:row; align-items:flex-start;')

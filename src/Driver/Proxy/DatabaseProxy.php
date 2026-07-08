@@ -164,6 +164,12 @@ class DatabaseProxy extends AbstractDriverProxy
         return [
             'headers' => $this->header()->tables(),
             'details' => $this->content()->tables($tables),
+            'numbers' => [
+                'data_length' => true,
+                'index_length' => true,
+                'data_free' => true,
+                'row_count' => true,
+            ],
         ];
     }
 
@@ -181,6 +187,11 @@ class DatabaseProxy extends AbstractDriverProxy
         return [
             'headers' => $this->header()->views(),
             'details' => $this->content()->views($views),
+            'numbers' => [
+                'data_length' => true,
+                'index_length' => true,
+                'row_count' => true,
+            ],
         ];
     }
 

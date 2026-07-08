@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 
+use function array_combine;
 use function array_filter;
 use function array_intersect;
 use function array_keys;
@@ -84,10 +85,9 @@ class ServerProxy extends AbstractDriverProxy
 
         return [
             'headers' => [
-                $this->utils()->lang('Username'),
-                $this->utils()->lang('Server'),
-                '',
-                '',
+                'user' => $this->utils()->lang('Username'),
+                'host' => $this->utils()->lang('Server'),
+                'grants' => '',
             ],
             'details' => $details,
         ];
@@ -397,26 +397,26 @@ class ServerProxy extends AbstractDriverProxy
         $databases = $this->databases($schemaAccess);
         $tables = $this->engine()->countTables($databases);
         $collations = $this->engine()->collations();
-        $details = [];
-        foreach ($databases as $database) {
-            $details[$database] = new DetailDto([
-                'name' => $this->utils()->html($database),
-                'collation' => $this->utils()->html($this->engine()->databaseCollation($database, $collations)),
-                'tables' => array_key_exists($database, $tables) ? $tables[$database] : 0,
-                'size' => $this->utils()->formatNumber($this->engine()->databaseSize($database)),
-            ]);
-        }
+        $makeDetail = fn($database) => new DetailDto([
+            'name' => $this->utils()->html($database),
+            'collation' => $this->utils()->html($this->engine()->databaseCollation($database, $collations)),
+            'tables' => array_key_exists($database, $tables) ? $tables[$database] : 0,
+            'size' => $this->utils()->formatNumber($this->engine()->databaseSize($database)),
+        ]);
 
         return [
             'headers' => [
-                $this->utils()->lang('Database'),
-                $this->utils()->lang('Collation'),
-                $this->utils()->lang('Tables'),
-                $this->utils()->lang('Size'),
-                '',
+                'name' => $this->utils()->lang('Database'),
+                'collation' => $this->utils()->lang('Collation'),
+                'tables' => $this->utils()->lang('Tables'),
+                'size' => $this->utils()->lang('Size'),
+            ],
+            'numbers' => [
+                'tables' => true,
+                'size' => true,
             ],
             'databases' => $databases,
-            'details' => $details,
+            'details' => array_combine($databases, array_map($makeDetail, $databases)),
         ];
     }
 
@@ -427,26 +427,24 @@ class ServerProxy extends AbstractDriverProxy
      */
     public function getProcesses(): array
     {
-        // From processlist.inc.php
         $processes = $this->engine()->processes();
 
-        // From processlist.inc.php
         // TODO: Add a kill column in the headers
         $headers = [];
-        $details = [];
         if (($process = reset($processes)) !== false) {
             // Set the keys of the first entry as headers
-            $headers = array_keys($process);
+            $values = array_keys($process);
+            $headers = array_combine($values, $values);
         }
-        foreach ($processes as $process) {
-            $attrs = [];
-            foreach ($process as $key => $val) {
-                $attrs[] = is_string($val) ? $this->statement()->processAttr($process, $key, $val) : '(null)';
-            }
-            $details[] = new DetailDto($attrs);
-        }
+        $processAttr = fn($value, $key) => !is_string($value) ? '(null)' :
+            $this->statement()->processAttr($process, $key, $value);
+        $makeDetail = fn($process) =>
+            new DetailDto(array_map($processAttr, $process, array_keys($process)));
 
-        return ['headers' => $headers, 'details' => $details];
+        return [
+            'headers' => $headers,
+            'details' => array_values(array_map($makeDetail, $processes)),
+        ];
     }
 
     /**
@@ -456,18 +454,16 @@ class ServerProxy extends AbstractDriverProxy
      */
     public function getVariables(): array
     {
-        // From variables.inc.php
         $variables = $this->engine()->variables();
-        $details = [];
-        // From variables.inc.php
-        foreach ($variables as $key => $val) {
-            $details[] = new DetailDto([
-                $this->utils()->html($key),
-                is_string($val) ? $this->utils()->str->shortenUtf8($val, 50) : '(null)',
-            ]);
-        }
+        $makeDetail = fn($variable, $name) => new DetailDto([
+            $this->utils()->html($name),
+            is_string($variable) ? $this->utils()->str->shortenUtf8($variable, 50) : '(null)',
+        ]);
 
-        return ['headers' => false, 'details' => $details];
+        return [
+            'headers' => false,
+            'details' => array_map($makeDetail, $variables, array_keys($variables)),
+        ];
     }
 
     /**
@@ -477,17 +473,15 @@ class ServerProxy extends AbstractDriverProxy
      */
     public function getStatus(): array
     {
-        // From variables.inc.php
         $status = $this->engine()->statusVariables();
-        $details = [];
-        // From variables.inc.php
-        foreach ($status as $key => $val) {
-            $details[] = new DetailDto([
-                $this->utils()->html($key),
-                is_string($val) ? $this->utils()->html($val) : '(null)',
-            ]);
-        }
+        $makeDetail = fn($value, $key) =>  new DetailDto([
+            $this->utils()->html($key),
+            is_string($value) ? $this->utils()->html($value) : '(null)',
+        ]);
 
-        return ['headers' => false, 'details' => $details];
+        return [
+            'headers' => false,
+            'details' => array_map($makeDetail, $status, array_keys($status)),
+        ];
     }
 }

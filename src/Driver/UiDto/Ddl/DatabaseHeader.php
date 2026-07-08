@@ -12,14 +12,14 @@ class DatabaseHeader extends AbstractDriverProxy
     public function tables(): array
     {
         return [
-            $this->utils()->lang('Table'),
-            $this->utils()->lang('Engine'),
-            $this->utils()->lang('Collation'),
-            $this->utils()->lang('Auto Increment'),
-            $this->utils()->lang('Data Length'),
-            $this->utils()->lang('Index Length'),
-            $this->utils()->lang('Data Free'),
-            $this->utils()->lang('Rows'),
+            'name' => $this->utils()->lang('Table'),
+            'engine' => $this->utils()->lang('Engine'),
+            'collation' => $this->utils()->lang('Collation'),
+            'auto_increment' => $this->utils()->lang('Auto Increment'),
+            'data_length' => $this->utils()->lang('Data Length'),
+            'index_length' => $this->utils()->lang('Index Length'),
+            'data_free' => $this->utils()->lang('Data Free'),
+            'row_count' => $this->utils()->lang('Rows'),
         ];
     }
 
@@ -29,11 +29,11 @@ class DatabaseHeader extends AbstractDriverProxy
     public function views(): array
     {
         return [
-            $this->utils()->lang('View'),
-            $this->utils()->lang('Engine'),
-            $this->utils()->lang('Data Length'),
-            $this->utils()->lang('Index Length'),
-            $this->utils()->lang('Rows'),
+            'name' => $this->utils()->lang('View'),
+            'engine' => $this->utils()->lang('Engine'),
+            'data_length' => $this->utils()->lang('Data Length'),
+            'index_length' => $this->utils()->lang('Index Length'),
+            'row_count' => $this->utils()->lang('Rows'),
         ];
     }
 

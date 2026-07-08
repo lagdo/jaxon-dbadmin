@@ -184,7 +184,7 @@ class SelectUiBuilder
                 ->setId($this->formId()),
             $this->ui->row(
                 $this->ui->col(
-                    $this->_buttonMenu($queryActions)
+                    $this->buttonMenuComponent($queryActions)
                 )->width(2),
                 $this->ui->col()
                     ->width(1)

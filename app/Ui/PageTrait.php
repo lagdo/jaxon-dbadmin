@@ -29,7 +29,7 @@ trait PageTrait
      *
      * @return HtmlComponent
      */
-    private function _buttonMenu(array $menus): HtmlComponent
+    private function buttonMenuComponent(array $menus): HtmlComponent
     {
         $menu = array_shift($menus);
         return $this->ui->buttonGroup(
@@ -56,7 +56,7 @@ trait PageTrait
      */
     public function buttonMenu(array $menus): string
     {
-        return $this->ui->build($this->_buttonMenu($menus));
+        return $this->ui->build($this->buttonMenuComponent($menus));
     }
 
     /**
@@ -108,6 +108,7 @@ trait PageTrait
     {
         $headers = $content['headers'] ?: [];
         $details = $content['details'] ?? [];
+        $numbers = $content['numbers'] ?? [];
         $hasMenu = (array_values($details)[0] ?? null)?->menus !== null;
 
         return $this->ui->table(
@@ -122,8 +123,11 @@ trait PageTrait
                     $this->ui->when($hasMenu, fn() =>
                         $this->ui->tableHeadCell($this->ui->html($this->counter($contentType)))
                     ),
-                    $this->ui->each($headers, fn($header) =>
+                    $this->ui->each($headers, fn($header, $key) =>
                         $this->ui->tableHeadCell($this->ui->html($header))
+                            ->when(isset($numbers[$key]), fn(HtmlComponent $elt) =>
+                                $elt->setStyle('text-align: right;')
+                            )
                     )
                 )
             ),
@@ -137,13 +141,18 @@ trait PageTrait
                                     ->setName("{$contentType}[]")
                             )->addClass('dbadmin-table-checkbox')
                         ),
-                        $this->ui->when($detail->menus !== null, fn() =>
+                        $this->ui->when($hasMenu, fn() =>
                             $this->ui->tableDataCell(
-                                $this->_buttonMenu($detail->menus)
+                                $this->ui->when($detail->menus !== null, fn() => 
+                                    $this->buttonMenuComponent($detail->menus)
+                                )
                             )->setStyle('width:60px;')
                         ),
-                        $this->ui->each($detail->items, fn($detailItem) =>
+                        $this->ui->each($detail->items, fn($detailItem, $key) =>
                             $this->getTableCell($detailItem ?? '')
+                                ->when(isset($numbers[$key]), fn(HtmlComponent $elt) =>
+                                    $elt->setStyle('text-align: right;')
+                                )
                         )
                     )
                 )
