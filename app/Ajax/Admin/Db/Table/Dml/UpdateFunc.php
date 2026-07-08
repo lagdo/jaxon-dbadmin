@@ -35,8 +35,9 @@ class UpdateFunc extends FuncComponent
      */
     private function showDataUpdateDialog(int $uiRowId, array $dbRowIds, array $columns): void
     {
-        $title = 'Edit row in table ' . $this->getCurrentTable();
-        $content = $this->editUi->rowDataForm($columns);
+        $tableName = $this->getCurrentTable();
+        $title = "Edit row in table $tableName";
+        $content = $this->editUi->rowDataForm($tableName, $columns);
         $values = form($this->editUi->queryFormId());
 
         // Bootbox options

@@ -63,9 +63,8 @@ class EditUiBuilder
         return $this->ui->each($input['items'], fn($item) =>
             $this->ui->label(
                 $this->ui->checkbox($item['attrs'])
+                    ->checked($item['checked'])
                     ->setValue($item['value'], false)
-                    ->when($item['checked'], fn($checkbox) =>
-                        $checkbox->setAttribute('checked', 'checked'))
                     ->setStyle('margin-right:3px;'),
                 $this->ui->span($item['label'])
             )->setFor($this->tab()->app()->id($item['attrs']['id']))
@@ -84,8 +83,7 @@ class EditUiBuilder
             $this->ui->input($input['attrs']['hidden'])
                 ->setType('hidden'),
             $this->ui->checkbox($input['attrs']['checkbox'])
-                ->when($input['checked'], fn($checkbox) =>
-                    $checkbox->setAttribute('checked', 'checked'))
+                ->checked($input['checked'])
         );
     }
 
@@ -174,17 +172,6 @@ class EditUiBuilder
             ),
             $this->ui->when(true, fn() => $this->ui->html('')),
         );
-        // return $this->ui->list(match(true) {
-        //     isset($input['label']) => $this->ui->span($input['label']),
-        //     isset($input['select']) => $this->ui->select(
-        //         $input['select']['attrs'],
-        //         $this->ui->each($input['select']['options'], fn($option) =>
-        //             $this->ui->option($option)
-        //                 ->selected($option === $input['select']['value'])
-        //         )
-        //     ),
-        //     default => $this->ui->text(''),
-        // });
     }
 
     /**
@@ -219,18 +206,15 @@ class EditUiBuilder
     }
 
     /**
+     * @param string $table
      * @param ColumnDmDto $input
      *
      * @return mixed
      */
-    private function getAutocompleteColumn(ColumnDmDto $input): mixed
+    private function getAutocompleteColumn(string $table, ColumnDmDto $input): mixed
     {
         $columnName = $input->column->name;
         $inputId = $this->tab()->app()->id("dbadmin-table-foreign-search_input_$columnName");
-
-        $table = $input->foreignKey->table;
-        $idColumn = $input->foreignKey->idColumn;
-        $labelColumn = $input->foreignKey->labelColumn;
 
         return $this->ui->div(
             $this->ui->input()
@@ -238,10 +222,10 @@ class EditUiBuilder
                 ->setId($inputId)
                 ->setClass('search-box')
                 ->setStyle("anchor-name: --anchor-$columnName;")
-                ->setPlaceholder("Search in table $table")
+                ->setPlaceholder("Search in table {$input->foreignKey->table}")
                 ->setAutocomplete('off')
-                ->jxnOn('input', rq(SearchFunc::class)->search($table, $idColumn,
-                    $labelColumn, $columnName, input($inputId))->debounce('search')),
+                ->jxnOn('input', rq(SearchFunc::class)->search($table,
+                    $columnName, input($inputId))->debounce('search')),
             $this->ui->div()
                 ->setPopover('')
                 ->setId($this->searchListId($columnName))
@@ -280,47 +264,43 @@ class EditUiBuilder
     }
 
     /**
+     * @param string $table
      * @param array<ColumnDmDto> $inputs
-     * @param string $maxHeight
      *
      * @return string
      */
-    public function rowDataForm(array $inputs, string $maxHeight = ''): string
+    public function rowDataForm(string $table, array $inputs): string
     {
-        $form = $this->ui->form(
-            $this->ui->each($inputs, fn(ColumnDmDto $input) =>
-                $this->ui->row(
-                    $this->ui->col($this->getColumnTitle($input))
-                        ->width(3),
-                    $this->ui->col($this->getColumnFunction($input))
-                        ->setStyle('padding-left: 1px; padding-right: 1px;')
-                        ->width(2),
-                    $this->ui->when($input->foreignKey === null, fn() =>
-                        $this->ui->col($this->getColumnValue($input))
-                            ->setStyle('padding-left: 1px;')
-                            ->width(7)
-                    ),
-                    $this->ui->when($input->foreignKey !== null, fn() =>
-                        $this->ui->list(
-                            $this->ui->col(
-                                $this->getColumnValue($input)
-                                    ->setId($this->searchValueId($input->column->name))
-                            )->setStyle('padding-left: 1px; padding-right: 1px;')
-                                ->width(2),
-                            $this->ui->col($this->getAutocompleteColumn($input))
+        return $this->ui->build(
+            $this->ui->form(
+                $this->ui->each($inputs, fn(ColumnDmDto $input) =>
+                    $this->ui->row(
+                        $this->ui->col($this->getColumnTitle($input))
+                            ->width(3),
+                        $this->ui->col($this->getColumnFunction($input))
+                            ->setStyle('padding-left: 1px; padding-right: 1px;')
+                            ->width(2),
+                        $this->ui->when($input->foreignKey === null, fn() =>
+                            $this->ui->col($this->getColumnValue($input))
                                 ->setStyle('padding-left: 1px;')
-                                ->width(5)
+                                ->width(7)
+                        ),
+                        $this->ui->when($input->foreignKey !== null, fn() =>
+                            $this->ui->list(
+                                $this->ui->col(
+                                    $this->getColumnValue($input)
+                                        ->setId($this->searchValueId($input->column->name))
+                                )->setStyle('padding-left: 1px; padding-right: 1px;')
+                                    ->width(2),
+                                $this->ui->col($this->getAutocompleteColumn($table, $input))
+                                    ->setStyle('padding-left: 1px;')
+                                    ->width(5)
+                            )
                         )
                     )
                 )
-            )
-        )->setId($this->queryFormId());
-
-        return $maxHeight === '' ? $this->ui->build($form) :
-            $this->ui->build(
-                $this->ui->div($form)
-                    ->setStyle("max-height:$maxHeight; overflow-x:hidden; overflow-y:scroll;")
-            );
+            )->setId($this->queryFormId())
+        );
     }
 
     /**

@@ -284,4 +284,21 @@ trait TableTrait
         $this->connectToSchema();
         return $this->selectProxy()->setForeignKeyLabels($rowset, $textLength);
     }
+
+    /**
+     * Search in the column referenced by a foreign key.
+     *
+     * @param string $table
+     * @param string $column
+     * @param string $search
+     * @param array $queryParams
+     *
+     * @return QueryResultDto<SelectRowsetDto>
+     */
+    public function searchInForeignColumn(string $table, string $column,
+        string $search, array $queryParams): QueryResultDto
+    {
+        $this->connectToSchema();
+        return $this->selectProxy()->searchInForeignColumn($table, $column, $search, $queryParams);
+    }
 }

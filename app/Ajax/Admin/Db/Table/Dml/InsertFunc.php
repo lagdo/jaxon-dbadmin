@@ -28,8 +28,9 @@ class InsertFunc extends FuncComponent
      */
     private function showDataInsertDialog(bool $fromSelect, array $columns): void
     {
-        $title = 'New item in table ' . $this->getCurrentTable();
-        $content = $this->editUi->rowDataForm($columns);
+        $tableName = $this->getCurrentTable();
+        $title = "New row in table $tableName";
+        $content = $this->editUi->rowDataForm($tableName, $columns);
         $values = form($this->editUi->queryFormId());
         // Bootbox options
         $options = ['size' => 'large'];

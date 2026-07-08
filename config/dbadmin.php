@@ -83,7 +83,7 @@ return [
 
                 return new Driver\Driver($engine, $driver->statement);
             },
-            'server_config_provider_options' =>
+            'dbadmin_package_config' =>
                 fn(Container $di) => $di->getPackageConfig(App\DbAdminPackage::class),
             // Options for query recording
             'queries_record_options' => function(Container $di) {

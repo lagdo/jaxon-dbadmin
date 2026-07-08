@@ -67,9 +67,9 @@ class ColumnDmDto
     public bool|null $isText = null;
 
     /**
-     * @var ForeignKeyDmDto|null
+     * @var ForeignKeyDto|null
      */
-    public ForeignKeyDmDto|null $foreignKey = null;
+    public ForeignKeyDto|null $foreignKey = null;
 
     /**
      * @param ColumnDto $column

@@ -7,7 +7,6 @@ use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
 
 use function count;
 use function strtolower;
-use function str_replace;
 use function trim;
 
 /**
@@ -24,66 +23,39 @@ class SearchFunc extends FuncComponent
 
     /**
      * @param string $table
-     * @param string $idColumn
-     * @param string $labelColumn
-     * @param string $sourceColumn
-     * @param string $searchValue
+     * @param string $column
+     * @param string $search
      *
      * @return void
      */
-    public function search(string $table, string $idColumn, string $labelColumn,
-        string $sourceColumn, string $searchValue): void
+    public function search(string $table, string $column, string $search): void
     {
-        $searchListId = $this->editUi->searchListId($sourceColumn);
-        $searchValue = strtolower(trim($searchValue));
-        if ($searchValue === '') {
+        $searchListId = $this->editUi->searchListId($column);
+        $search = strtolower(trim($search));
+        if ($search === '') {
             $this->response()->je($searchListId)->hidePopover();
             return;
         }
 
-        $length = $this->getParamValue('length');
-        $filters = [[
-            'column' => $labelColumn,
-            'operator' => 'LIKE %%',
-            'operand' => $searchValue,
-        ]];
         $options = [
-            'limit' => 15,
+            'limit' => 10,
             'total' => false,
-            'length' => $length,
-            'columns' => [[
-                'func' => '',
-                'column' => $idColumn,
-            ], [
-                'func' => '',
-                'column' => $labelColumn,
-            ]],
-            'filters' => $filters,
-            'sorters' => [[
-                'desc' => false,
-                'column' => $labelColumn,
-            ]],
+            'length' => $this->getParamValue('length'),
             'foreigns' => false,
         ];
-        $select = $this->db()->getSelectParams($table, $options);
-        if (count($select->columns) !== 2) {
-            // Todo: display an error message.
+        $result = $this->db()->searchInForeignColumn($table, $column, $search, $options);
+        if ($result->error !== null) {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error($result->error);
             return;
         }
-
-        // Apply SQL functions to the label column.
-        $columnName = $select->columns[1];
-        $filter = $select->filters[0];
-        $select->filters[0] = str_replace($columnName, "LOWER($columnName)", $filter);
-        $select->columns[1] = "SUBSTR($columnName, 1, $length)";
-        $result = $this->db()->execSelect($select);
-        if ($result->error !== null || count($result->rowsets) === 0) {
-            // Todo: display an error message.
+        if (count($result->rowsets) === 0) {
             return;
         }
 
         $rowset = $result->rowsets[0];
-        $searchListHtml = $this->editUi->getAutocompleteList($rowset, $sourceColumn);
+        $searchListHtml = $this->editUi->getAutocompleteList($rowset, $column);
 
         $this->response()->html($searchListId, $searchListHtml);
         $this->response()->je($searchListId)->showPopover();

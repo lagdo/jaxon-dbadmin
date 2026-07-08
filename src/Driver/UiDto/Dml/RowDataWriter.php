@@ -2,12 +2,12 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dml;
 
+use Jaxon\Config\Config;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
-use Lagdo\DbAdmin\Support\Driver\UiDto\DescriptionColumnTrait;
+use Lagdo\DbAdmin\Support\Driver\UiDto\ForeignColumnTrait;
 
-use function array_filter;
 use function array_map;
 use function count;
 
@@ -16,7 +16,12 @@ use function count;
  */
 class RowDataWriter extends AbstractDriverProxy
 {
-    use DescriptionColumnTrait;
+    use ForeignColumnTrait;
+
+    /**
+     * @var Config
+     */
+    private Config $packageConfig;
 
     /**
      * @var ColumnValue
@@ -34,10 +39,19 @@ class RowDataWriter extends AbstractDriverProxy
     private bool|null $autofocus;
 
     /**
-     * @return self
+     * @return Config
      */
-    public function init(): self
+    protected function config(): Config
     {
+        return $this->packageConfig;
+    }
+
+    /**
+     * @return static
+     */
+    public function init(Config $packageConfig): static
+    {
+        $this->packageConfig = $packageConfig;
         $this->columnValue = new ColumnValue($this);
         $this->columnInput = new ColumnInput($this);
         return $this;
@@ -47,9 +61,9 @@ class RowDataWriter extends AbstractDriverProxy
      * @param string $action
      * @param string $operation
      *
-     * @return self
+     * @return static
      */
-    public function action(string $action, string $operation): self
+    public function action(string $action, string $operation): static
     {
         $this->columnValue->action($action, $operation);
         $this->columnInput->action($action, $operation);
@@ -59,20 +73,17 @@ class RowDataWriter extends AbstractDriverProxy
     /**
      * @param ForeignKeyDto $foreignKey
      *
-     * @return ForeignKeyDmDto|null
+     * @return ForeignKeyDto|null
      */
-    private function makeForeignKeyDto(ForeignKeyDto $foreignKey): ForeignKeyDmDto|null
+    private function searchableForeignKey(ForeignKeyDto $foreignKey): ForeignKeyDto|null
     {
         if (count($foreignKey->source) !== 1) {
             return null;
         }
 
-        $labelColumn = $this->getDescriptionColumn($foreignKey->table);
-        if ($labelColumn === '') {
-            return null;
-        }
-
-        return new ForeignKeyDmDto($foreignKey->table, $foreignKey->target[0], $labelColumn);
+        // Make sure the referenced column is setup, and a filter clause is defined.
+        [$idColumn, , $filter] = $this->getForeignKeyColumn($foreignKey);
+        return $idColumn === '' || $filter === null ? null : $foreignKey;
     }
 
     /**
@@ -84,7 +95,6 @@ class RowDataWriter extends AbstractDriverProxy
      */
     public function getInputValues(string $table, array $columns, array|null $rowData = null): array
     {
-        // From html.inc.php (function edit_form($table, $columns, $rowData, $update))
         $this->autofocus = false;
 
         $inputColumns = array_map(function(ColumnDto $column) use($rowData) {
@@ -110,7 +120,7 @@ class RowDataWriter extends AbstractDriverProxy
         foreach ($this->engine()->foreignKeys($table) as $foreignKey) {
             $source = $foreignKey->source[0];
             if (isset($inputColumns[$source])) {
-                $inputColumns[$source]->foreignKey = $this->makeForeignKeyDto($foreignKey);
+                $inputColumns[$source]->foreignKey = $this->searchableForeignKey($foreignKey);
             }
         }
 

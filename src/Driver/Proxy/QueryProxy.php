@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
+use Jaxon\Config\Config;
 use Jaxon\Request\Upload\FileInterface;
 use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface;
 use Lagdo\DbAdmin\Driver\Sql\Dto\QueryClauseDto;
@@ -25,6 +26,11 @@ use function fgets;
 class QueryProxy extends AbstractDriverProxy
 {
     /**
+     * @var Config
+     */
+    private Config $packageConfig;
+
+    /**
      * @var QueryProcessor
      */
     private QueryProcessor $processor;
@@ -43,6 +49,17 @@ class QueryProxy extends AbstractDriverProxy
      * @var TableImport
      */
     private TableImport $import;
+
+    /**
+     * @param Config $packageConfig
+     *
+     * @return static
+     */
+    public function setPackageConfig(Config $packageConfig): static
+    {
+        $this->packageConfig = $packageConfig;
+        return $this;
+    }
 
     /**
      * @param QueryProcessor $processor
@@ -67,7 +84,7 @@ class QueryProxy extends AbstractDriverProxy
      */
     private function writer(string $action, string $operation): RowDataWriter
     {
-        $this->writer ??= (new RowDataWriter($this))->init();
+        $this->writer ??= (new RowDataWriter($this))->init($this->packageConfig);
         return $this->writer->action($action, $operation);
     }
 

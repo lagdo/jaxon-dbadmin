@@ -23,7 +23,7 @@ return [
         ...$container,
         'set' => [
             ...$container['set'],
-            'server_config_provider_options' => function(Container $di) {
+            'dbadmin_package_config' => function(Container $di) {
                 $config = $di->getPackageConfig(App\DbAuditPackage::class);
                 // Move the "database" and "audit" options under the "queries" key.
                 // Needed by the ConfigProvider class.

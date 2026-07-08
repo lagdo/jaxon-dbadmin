@@ -70,13 +70,15 @@ return [
             new Proxy\ExportProxy($di->g(Support\Driver\DriverProxy::class)),
         Proxy\QueryProxy::class => fn(Container $di) =>
             (new Proxy\QueryProxy($di->g(Support\Driver\DriverProxy::class)))
-                ->setProcessor($di->g(Proxy\QueryProcessor::class)),
+                ->setProcessor($di->g(Proxy\QueryProcessor::class))
+                ->setPackageConfig($di->g('dbadmin_package_config')),
         Proxy\TableProxy::class => fn(Container $di) =>
             (new Proxy\TableProxy($di->g(Support\Driver\DriverProxy::class)))
                 ->setProcessor($di->g(Proxy\QueryProcessor::class)),
         Proxy\SelectProxy::class => fn(Container $di) =>
             (new Proxy\SelectProxy($di->g(Support\Driver\DriverProxy::class)))
-                ->setProcessor($di->g(Proxy\QueryProcessor::class)),
+                ->setProcessor($di->g(Proxy\QueryProcessor::class))
+                ->setPackageConfig($di->g('dbadmin_package_config')),
 
         // Application authentication.
         'dbadmin_auth_service' => fn(Container $di) =>
@@ -107,7 +109,7 @@ return [
         Provider\Config\AccessConfigProvider::class =>
             fn() => new Provider\Config\AccessConfigProvider(),
         Provider\Config\ServerConfigProvider::class => function(Container $di) {
-            $config = $di->g('server_config_provider_options');
+            $config = $di->g('dbadmin_package_config');
             $accessConfigReaderClass = $config->getOption('reader.access',
                 Provider\Config\AccessConfigProvider::class);
             $accessConfigReader = $di->get($accessConfigReaderClass);
@@ -115,7 +117,7 @@ return [
             return new Provider\Config\ServerConfigProvider($accessConfigReader);
         },
         Provider\DatabaseConfigProvider::class => function(Container $di) {
-            $config = $di->g('server_config_provider_options');
+            $config = $di->g('dbadmin_package_config');
             $serverConfigReaderClass = $config->getOption('reader.server',
                 Provider\Config\ServerConfigProvider::class);
             $serverConfigReader = $di->get($serverConfigReaderClass);
