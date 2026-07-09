@@ -9,9 +9,10 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultRowDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectRowsetDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
+use Lagdo\UiBuilder\HtmlComponent;
 
-use function Jaxon\input;
 use function Jaxon\jo;
+use function Jaxon\pm;
 use function Jaxon\rq;
 
 class EditUiBuilder
@@ -48,8 +49,9 @@ class EditUiBuilder
                         $radio->setAttribute('checked', 'checked'))
                     ->setStyle('margin-right:3px;'),
                 $this->ui->span($item['label'])
-            )->setFor($this->tab()->app()->id($item['attrs']['id']))
-                ->setStyle('margin-right:7px;')
+            )->when(isset($item['attrs']['id']), fn(HtmlComponent $label) =>
+                $label->setFor($this->tab()->app()->id($item['attrs']['id']))
+            )->setStyle('margin-right:7px;')
         );
     }
 
@@ -67,8 +69,9 @@ class EditUiBuilder
                     ->setValue($item['value'], false)
                     ->setStyle('margin-right:3px;'),
                 $this->ui->span($item['label'])
-            )->setFor($this->tab()->app()->id($item['attrs']['id']))
-                ->setStyle('margin-right:7px;')
+            )->when(isset($item['attrs']['id']), fn(HtmlComponent $label) =>
+                $label->setFor($this->tab()->app()->id($item['attrs']['id']))
+            )->setStyle('margin-right:7px;')
         );
     }
 
@@ -225,7 +228,7 @@ class EditUiBuilder
                 ->setPlaceholder("Search in table {$input->foreignKey->table}")
                 ->setAutocomplete('off')
                 ->jxnOn('input', rq(SearchFunc::class)->search($table,
-                    $columnName, input($inputId))->debounce('search')),
+                    $columnName, pm()->input($inputId))->debounce('search')),
             $this->ui->div()
                 ->setPopover('')
                 ->setId($this->searchListId($columnName))
