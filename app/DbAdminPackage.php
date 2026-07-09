@@ -52,7 +52,9 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
             $this->view()->render('dbadmin::codes::spin.css') .
             "\n/* DbAdmin CSS code. */\n" .
             $this->view()->render('dbadmin::codes::layout.css') .
-            $this->view()->render('dbadmin::codes::styles.css');
+            $this->view()->render('dbadmin::codes::styles.css') .
+            "\n/* DbAdmin tables CSS code. */\n" .
+            $this->view()->render('dbadmin::codes::table.css');
 
         return new CssCode(sCode: $code, sHtml: $html);
     }

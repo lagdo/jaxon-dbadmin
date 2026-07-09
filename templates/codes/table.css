@@ -1,0 +1,39 @@
+#jaxon-dbadmin table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 350px;
+}
+#jaxon-dbadmin table tr th,
+#jaxon-dbadmin table tr td {
+  border-right: 1px solid #bbb;
+  border-bottom: 1px solid #bbb;
+  padding: 5px;
+}
+#jaxon-dbadmin table tr th:first-child,
+#jaxon-dbadmin table tr td:first-child {
+  border-left: 1px solid #bbb;
+}
+#jaxon-dbadmin table tr th {
+  background: #eee;
+  border-top: 1px solid #bbb;
+}
+
+/* top-left border-radius */
+#jaxon-dbadmin table tr:first-child th:first-child {
+  border-top-left-radius: 5px;
+}
+
+/* top-right border-radius */
+#jaxon-dbadmin table tr:first-child th:last-child {
+  border-top-right-radius: 5px;
+}
+
+/* bottom-left border-radius */
+#jaxon-dbadmin table tr:last-child td:first-child {
+  border-bottom-left-radius: 5px;
+}
+
+/* bottom-right border-radius */
+#jaxon-dbadmin table tr:last-child td:last-child {
+  border-bottom-right-radius: 5px;
+}
