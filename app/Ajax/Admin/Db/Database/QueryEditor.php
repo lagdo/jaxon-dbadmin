@@ -35,8 +35,8 @@ class QueryEditor extends Component
 
         // Set the current database, but do not update the databag.
         [, $database] = $this->getCurrentDb();
-        $this->db()->setCurrentDbName($database);
-        $this->db()->prepareQueryExec();
+        $this->driver()->setCurrentDbName($database);
+        $this->driver()->prepareQueryExec();
     }
 
     /**

@@ -35,7 +35,7 @@ class TableUiBuilder
     /**
      * @var Closure
      */
-    private Closure $dbGetter;
+    private Closure $typeIsAutoIncrementable;
 
     /**
      * @var string
@@ -113,22 +113,14 @@ class TableUiBuilder
     }
 
     /**
-     * @param Closure $dbGetter
+     * @param Closure $autoIncrementChecker
      *
      * @return self
      */
-    public function dbGetter(Closure $dbGetter): self
+    public function setAutoIncrementChecker(Closure $autoIncrementChecker): self
     {
-        $this->dbGetter = $dbGetter;
+        $this->typeIsAutoIncrementable = $autoIncrementChecker;
         return $this;
-    }
-
-    /**
-     * @return DriverProxy
-     */
-    protected function db(): DriverProxy
-    {
-        return ($this->dbGetter)();
     }
 
     /**
@@ -137,7 +129,7 @@ class TableUiBuilder
     private function autoIncrementIsEditable(): array
     {
         $primaryKeyFilter = fn(ColumnFormDto $input) => $input->values()->primary &&
-            $this->db()->typeIsAutoIncrementable($input->values()->type);
+            ($this->typeIsAutoIncrementable)($input->values()->type);
         $primaryKeyInputs = array_filter($this->inputs(), $primaryKeyFilter);
 
         $autoIncrementFilter = fn(ColumnFormDto $input) => $input->values()->autoIncrement;

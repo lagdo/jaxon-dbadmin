@@ -42,7 +42,7 @@ class Table extends MainComponent
         ];
         $this->cl(PageActions::class)->show($actions);
 
-        $this->set('metadata', $this->db()->getTableInfo($table));
+        $this->set('metadata', $this->driver()->getTableInfo($table));
     }
 
     /**
@@ -77,23 +77,23 @@ class Table extends MainComponent
         $table = $this->getCurrentTable();
 
         // Show columns
-        $columns = $this->db()->getTableColumns($table);
+        $columns = $this->driver()->getTableColumns($table);
         $this->showTab($columns, $this->tabId('tab-content-columns'));
 
         // Show indexes
-        if(($indexes = $this->db()->getTableIndexes($table)) !== null)
+        if(($indexes = $this->driver()->getTableIndexes($table)) !== null)
         {
             $this->showTab($indexes, $this->tabId('tab-content-indexes'));
         }
 
         // Show foreign keys
-        if(($foreignKeys = $this->db()->getTableForeignKeys($table)) !== null)
+        if(($foreignKeys = $this->driver()->getTableForeignKeys($table)) !== null)
         {
             $this->showTab($foreignKeys, $this->tabId('tab-content-foreign-keys'));
         }
 
         // Show triggers
-        if(($triggers = $this->db()->getTableTriggers($table)) !== null)
+        if(($triggers = $this->driver()->getTableTriggers($table)) !== null)
         {
             $this->showTab($triggers, $this->tabId('tab-content-triggers'));
         }

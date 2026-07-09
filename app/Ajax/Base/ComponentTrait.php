@@ -35,7 +35,7 @@ trait ComponentTrait
      * @var DriverProxy
      */
     #[Inject]
-    protected DriverProxy $db;
+    protected DriverProxy $driver;
 
     /**
      * @var Translator
@@ -66,9 +66,9 @@ trait ComponentTrait
     /**
      * @return DriverProxy
      */
-    protected function db(): DriverProxy
+    protected function driver(): DriverProxy
     {
-        return $this->db;
+        return $this->driver;
     }
 
     /**

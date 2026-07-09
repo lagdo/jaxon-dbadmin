@@ -47,7 +47,7 @@ class Databases extends MainComponent
     public function show(): void
     {
         $systemAccess = $this->config()->getOption('access.system', false);
-        $pageContent = $this->db()->getDatabases($systemAccess);
+        $pageContent = $this->driver()->getDatabases($systemAccess);
         // Set the database dropdown list
         $this->cl(MenuDatabases::class)
             ->set('databases', $pageContent['databases'])

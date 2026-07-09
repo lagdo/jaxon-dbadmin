@@ -29,7 +29,7 @@ class DbFunc extends FuncComponent
     {
         $this->logger()->info('Connecting to server', ['server' => $server]);
         // Set the selected server
-        $this->db()->selectDatabase($server);
+        $this->driver()->selectDatabase($server);
 
         $this->cl(Server::class)->connect($server);
     }
@@ -74,10 +74,10 @@ class DbFunc extends FuncComponent
     {
         [$server,] = $this->getCurrentDb();
         // Set the selected server.
-        $this->db()->selectDatabase($server, $database);
+        $this->driver()->selectDatabase($server, $database);
 
         $systemAccess = $this->config()->getOption('access.system', false);
-        $databaseInfo = $this->db()->getDatabaseInfo($systemAccess);
+        $databaseInfo = $this->driver()->getDatabaseInfo($systemAccess);
 
         // Set main menu buttons.
         $this->cl(PageActions::class)->clear();
@@ -96,7 +96,7 @@ class DbFunc extends FuncComponent
         }
 
         // The current schema might have changed. Reselect the database.
-        $this->db()->selectDatabase($server, $database, $schema);
+        $this->driver()->selectDatabase($server, $database, $schema);
         // Save the selection in the databag.
         $this->setCurrentDb([$server, $database, $schema]);
 

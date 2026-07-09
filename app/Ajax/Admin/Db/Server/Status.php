@@ -34,7 +34,7 @@ class Status extends MainComponent
     #[After('showBreadcrumbs')]
     public function show(): void
     {
-        $this->set('content', $this->db()->getStatus());
+        $this->set('content', $this->driver()->getStatus());
 
         $this->render();
     }

@@ -116,14 +116,7 @@ class SelectProxy extends AbstractDriverProxy
         $table->foreignKeys = $this->engine()->foreignKeys($table->name);
 
         $select = $this->options()->createSelectDto($table, $queryParams);
-        $select = $this->query()->prepareSelect($select);
-
-        // Fetching the changed data after a successful update.
-        if (isset($queryParams['updated'])) {
-            $select->filters[] = $this->engine()->where($queryParams['updated'], $table->columns);
-        }
-
-        return $select;
+        return $this->query()->prepareSelect($select);
     }
 
     /**
@@ -316,6 +309,7 @@ FROM $tableName WHERE $idColumn IN ($idValues)";
                 'desc' => false,
                 'column' => $rowset->idColumn,
             ]],
+            'foreigns' => false,
         ];
         $foreignTable = new SelectTableDto($foreignKey->table);
         $foreignTable->status = $this->engine()->tableStatusOrName($foreignTable->name);

@@ -34,6 +34,6 @@ abstract class Component extends BaseComponent
         {
             $schema = $db[2];
         }
-        $this->db()->selectDatabase($server, $database, $schema);
+        $this->driver()->selectDatabase($server, $database, $schema);
     }
 }

@@ -25,7 +25,7 @@ abstract class TableDdl extends MainComponent
      */
     protected function metadata(): array
     {
-        return $this->metadata ??= $this->db()->getTableMetadata($this->getCurrentTable());
+        return $this->metadata ??= $this->driver()->getTableMetadata($this->getCurrentTable());
     }
 
     /**

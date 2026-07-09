@@ -97,7 +97,7 @@ class FavoriteFunc extends FuncComponent
         $values = $this->validate($formValues);
 
         // Get the driver name from the package config options.
-        $server = $this->db()->getServerName();
+        $server = $this->driver()->getServerName();
         $values['driver'] = $this->config()->getServerDriver($server);
         $this->queryFavorite->createQuery($values);
 
@@ -161,7 +161,7 @@ class FavoriteFunc extends FuncComponent
         $values = $this->validate($formValues);
 
         // Get the driver name from the package config options.
-        $server = $this->db()->getServerName();
+        $server = $this->driver()->getServerName();
         $values['driver'] = $this->config()->getServerDriver($server);
         $this->queryFavorite->updateQuery($queryId, $values);
 

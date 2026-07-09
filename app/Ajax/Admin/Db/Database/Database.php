@@ -23,7 +23,7 @@ class Database extends FuncComponent
      */
     public function add(): void
     {
-        $collations = $this->db()->getCollations();
+        $collations = $this->driver()->getCollations();
 
         $title = 'Create a database';
         $content = $this->serverUi->addDbForm($collations);
@@ -51,7 +51,7 @@ class Database extends FuncComponent
         $database = $formValues['name'];
         $collation = $formValues['collation'];
 
-        if(!$this->db()->createDatabase($database, $collation))
+        if(!$this->driver()->createDatabase($database, $collation))
         {
             $this->alert()->error("Cannot create database $database.");
             return;
@@ -72,7 +72,7 @@ class Database extends FuncComponent
      */
     public function drop(string $database): void
     {
-        if(!$this->db()->dropDatabase($database))
+        if(!$this->driver()->dropDatabase($database))
         {
             $this->alert()->error("Cannot delete database $database.");
             return;

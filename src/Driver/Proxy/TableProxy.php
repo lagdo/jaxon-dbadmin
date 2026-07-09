@@ -113,9 +113,9 @@ class TableProxy extends AbstractDriverProxy
         if (empty($columns)) {
             Logger::warning('Unable to get columns from table.', [
                 'table' => $table,
-                'schema' => $this->db()->schema,
-                'database' => $this->db()->name,
-                'server' => $this->db()->server,
+                'schema' => $this->currentDb()->schema,
+                'database' => $this->currentDb()->name,
+                'server' => $this->currentDb()->server,
             ]);
             throw new Exception($this->engine()->error());
         }

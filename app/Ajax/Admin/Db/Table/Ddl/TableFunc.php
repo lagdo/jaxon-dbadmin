@@ -26,7 +26,7 @@ class TableFunc extends Column\FuncComponent
         $tableDto->setValues($this->getTableFormValues($tableInputs));
         $tableDto->columns = $this->getColumnInputs();
 
-        $result = $this->db()->createTable($tableDto);
+        $result = $this->driver()->createTable($tableDto);
         if($result->error !== null)
         {
             $this->alert()->error($result->error);
@@ -60,7 +60,7 @@ class TableFunc extends Column\FuncComponent
         $tableDto->setValues($this->getTableFormValues($tableInputs));
         $tableDto->columns = $this->getColumnInputs();
 
-        $result = $this->db()->alterTable($tableDto);
+        $result = $this->driver()->alterTable($tableDto);
         if($result->error !== null)
         {
             $this->alert()->error($result->error);
@@ -81,7 +81,7 @@ class TableFunc extends Column\FuncComponent
      */
     public function drop(string $table): void
     {
-        $result = $this->db()->dropTable($table);
+        $result = $this->driver()->dropTable($table);
         if ($result->error !== null) {
             $this->alert()
                 ->title($this->trans->lang('Error'))

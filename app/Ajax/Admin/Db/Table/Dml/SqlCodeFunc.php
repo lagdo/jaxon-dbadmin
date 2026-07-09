@@ -74,7 +74,7 @@ class SqlCodeFunc extends BaseComponent
     public function showInsertRowQuery(bool $fromSelect, array $formValues): void
     {
         // No specific options for inserts.
-        $queryList = $this->db()->getInsertRowQuery($this->getCurrentTable(), [], $formValues);
+        $queryList = $this->driver()->getInsertRowQuery($this->getCurrentTable(), [], $formValues);
 
         $buttons = [[
             'title' => $this->trans()->lang('Back'),
@@ -104,7 +104,7 @@ class SqlCodeFunc extends BaseComponent
         }
 
         $tableName = $this->getCurrentTable();
-        $queryList = $this->db()->getUpdateRowQuery($tableName, $rowIdValues, $formValues);
+        $queryList = $this->driver()->getUpdateRowQuery($tableName, $rowIdValues, $formValues);
 
         $buttons = [[
             'title' => $this->trans()->lang('Back'),
@@ -133,7 +133,7 @@ class SqlCodeFunc extends BaseComponent
             return;
         }
 
-        $queryList = $this->db()->getDeleteRowQuery($this->getCurrentTable(), $rowIdValues);
+        $queryList = $this->driver()->getDeleteRowQuery($this->getCurrentTable(), $rowIdValues);
 
         // Show the query in a modal dialog.
         $this->showQueryCodeDialog('SQL query for delete', $queryList);
@@ -146,7 +146,7 @@ class SqlCodeFunc extends BaseComponent
      */
     public function showDropTableQuery(string $table): void
     {
-        $queryList = $this->db()->getDropTableQueries($table);
+        $queryList = $this->driver()->getDropTableQueries($table);
 
         // Show the query in a modal dialog.
         $this->showQueryCodeDialog('SQL query for table drop', $queryList);
@@ -159,7 +159,7 @@ class SqlCodeFunc extends BaseComponent
      */
     public function showDropViewQuery(string $view): void
     {
-        $queryList = $this->db()->getDropViewQueries($view);
+        $queryList = $this->driver()->getDropViewQueries($view);
 
         // Show the query in a modal dialog.
         $this->showQueryCodeDialog('SQL query for view drop', $queryList);

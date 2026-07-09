@@ -34,6 +34,6 @@ class FuncComponent extends BaseComponent
         {
             $schema = $db[2];
         }
-        $this->db()->selectDatabase($server, $database, $schema);
+        $this->driver()->selectDatabase($server, $database, $schema);
     }
 }

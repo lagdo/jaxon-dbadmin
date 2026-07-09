@@ -78,7 +78,7 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $updateData = $this->db()->getRowForUpdate($this->getCurrentTable(),  $dbRowIds);
+        $updateData = $this->driver()->getRowForUpdate($this->getCurrentTable(),  $dbRowIds);
         // Show the error
         if(isset($updateData['error']))
         {
@@ -110,7 +110,7 @@ class UpdateFunc extends FuncComponent
         }
 
         $table = $this->getCurrentTable();
-        $result = $this->db()->updateRow($table, $dbRowIds, $rowValues);
+        $result = $this->driver()->updateRow($table, $dbRowIds, $rowValues);
         // Show the error
         if($result->error !== null)
         {
@@ -159,7 +159,7 @@ class UpdateFunc extends FuncComponent
     {
         $tableName = $this->getCurrentTable();
         // We need the table columns to be able to go back to the update form.
-        $updateData = $this->db()->getRowForUpdate($tableName,  $dbRowIds);
+        $updateData = $this->driver()->getRowForUpdate($tableName,  $dbRowIds);
         // Show the error
         if(isset($updateData['error']))
         {

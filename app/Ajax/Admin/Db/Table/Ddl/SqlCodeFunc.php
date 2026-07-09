@@ -108,7 +108,7 @@ class SqlCodeFunc extends Column\FuncComponent
         $tableDto->setValues($this->getTableFormValues($tableInputs));
         $tableDto->columns = $this->getColumnInputs();
 
-        $result = $this->db()->getCreateTableQueries($tableDto);
+        $result = $this->driver()->getCreateTableQueries($tableDto);
         // Show the error
         if ($result->error !== null) {
             $this->alert()
@@ -155,7 +155,7 @@ class SqlCodeFunc extends Column\FuncComponent
         $tableDto->setValues($this->getTableFormValues($tableInputs));
         $tableDto->columns = $this->getColumnInputs();
 
-        $result = $this->db()->getAlterTableQueries($tableDto);
+        $result = $this->driver()->getAlterTableQueries($tableDto);
         // Show the error
         if($result->error !== null) {
             $this->alert()

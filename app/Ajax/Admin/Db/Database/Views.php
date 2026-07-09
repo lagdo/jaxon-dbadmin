@@ -34,7 +34,7 @@ class Views extends MainComponent
      */
     public function show(): void
     {
-        $viewsInfo = $this->db()->getViews();
+        $viewsInfo = $this->driver()->getViews();
 
         foreach($viewsInfo['details'] as $name => $detail) {
             $detail->menus = [[

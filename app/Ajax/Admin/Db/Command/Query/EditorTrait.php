@@ -47,7 +47,8 @@ trait EditorTrait
         // Create the SQL editor in the new tab.
         $containerId = $this->queryUi->commandEditorId();
         // The query completion is enabled only in the database editor.
-        $schema = $this->tab()->editor()->onPage('db') ? $this->db()->getSchemaColumns() : [];
+        $schema = $this->tab()->editor()->onPage('db') ?
+            $this->driver()->getSchemaColumns() : [];
         $this->response()->jo('jaxon.dbadmin')->createQueryEditor($containerId, $driver,
             $schema, $this->tab()->app()->current(), $this->tab()->editor()->page(),
             $this->tab()->editor()->current());

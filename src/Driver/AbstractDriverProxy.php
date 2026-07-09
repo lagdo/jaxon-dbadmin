@@ -37,7 +37,7 @@ abstract class AbstractDriverProxy
     /**
      * @return CurrentDbDto
      */
-    public function db(): CurrentDbDto
+    public function currentDb(): CurrentDbDto
     {
         return $this->currentDb;
     }

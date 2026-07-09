@@ -21,7 +21,7 @@ class Export extends Component
     protected function setDatabase(): void
     {
         [, $database] = $this->getCurrentDb();
-        $this->db()->setCurrentDbName($database);
+        $this->driver()->setCurrentDbName($database);
     }
 
     /**

@@ -46,8 +46,8 @@ class Form extends Component
     #[After('showBreadcrumbs')]
     public function add(): void
     {
-        $this->set('data', ['materialized' => $this->db()->support('materializedview')]);
-        $this->db()->breadcrumbs(true)
+        $this->set('data', ['materialized' => $this->driver()->support('materializedview')]);
+        $this->driver()->breadcrumbs(true)
             ->item($this->trans->lang('Views'))
             ->item($this->trans->lang('Create view'));
 
@@ -69,8 +69,8 @@ class Form extends Component
     #[After('showBreadcrumbs')]
     public function edit(string $view): void
     {
-        $this->set('data', $this->db()->getView($view));
-        $this->db()->breadcrumbs(true)
+        $this->set('data', $this->driver()->getView($view));
+        $this->driver()->breadcrumbs(true)
             ->item($this->trans->lang('Views'))
             ->item("<i><b>$view</b></i>")
             ->item($this->trans->lang('Edit view'));

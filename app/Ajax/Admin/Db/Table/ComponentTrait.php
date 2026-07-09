@@ -12,7 +12,7 @@ trait ComponentTrait
     protected function checkDatabaseAccess(): void
     {
         [$server, $database, $schema] = $this->getCurrentDb();
-        $this->db()->selectDatabase($server, $database, $schema);
+        $this->driver()->selectDatabase($server, $database, $schema);
     }
 
     /**

@@ -28,6 +28,6 @@ class UserTypes extends MainComponent
      */
     public function show(): void
     {
-        $this->showSection($this->db()->getUserTypes());
+        $this->showSection($this->driver()->getUserTypes());
     }
 }

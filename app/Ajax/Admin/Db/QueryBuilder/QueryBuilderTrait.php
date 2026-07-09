@@ -179,7 +179,7 @@ trait QueryBuilderTrait
         $table = $this->getCurrentTable();
         $params = $this->getBuilderParams();
 
-        return $this->db()->getSelectParams($table, $params);
+        return $this->driver()->getSelectParams($table, $params);
     }
 
     /**

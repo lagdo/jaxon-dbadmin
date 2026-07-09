@@ -18,7 +18,7 @@ trait ForeignColumnTrait
     /**
      * @return CurrentDbDto
      */
-    abstract protected function db(): CurrentDbDto;
+    abstract protected function currentDb(): CurrentDbDto;
 
     /**
      * @return Config
@@ -53,9 +53,9 @@ trait ForeignColumnTrait
      */
     private function getForeignColumnOptions(ForeignKeyDto $foreignKey): array|null
     {
-        $server = $this->db()->server;
-        $database = $foreignKey->database ?: $this->db()->name;
-        $schema = $foreignKey->schema ?: $this->db()->schema;
+        $server = $this->currentDb()->server;
+        $database = $foreignKey->database ?: $this->currentDb()->name;
+        $schema = $foreignKey->schema ?: $this->currentDb()->schema;
         $table = $foreignKey->table;
         $idColumn = $foreignKey->target[0];
         if (!$this->engine()->support('scheme')) {
@@ -132,7 +132,8 @@ trait ForeignColumnTrait
                 return [
                     $idColumn,
                     fn(int $textLength) => "SUBSTR($columnName, 1, $textLength)",
-                    fn(string $search) => "LOWER($columnName) LIKE $search",
+                    fn(string $search) => $this->engine()->pgsql() ?
+                        "$columnName ILIKE $search" : "LOWER($columnName) LIKE $search",
                 ];
             }
         }

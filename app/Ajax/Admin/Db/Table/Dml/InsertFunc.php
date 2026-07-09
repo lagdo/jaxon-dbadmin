@@ -59,7 +59,7 @@ class InsertFunc extends FuncComponent
      */
     public function show(bool $fromSelect): void
     {
-        $insertData = $this->db()->getInsertData($this->getCurrentTable());
+        $insertData = $this->driver()->getInsertData($this->getCurrentTable());
         // Show the error
         if(isset($insertData['error']))
         {
@@ -83,7 +83,7 @@ class InsertFunc extends FuncComponent
     public function save(bool $fromSelect, array $formValues): void
     {
         // No specific options for inserts.
-        $result = $this->db()->insertItem($this->getCurrentTable(), $formValues);
+        $result = $this->driver()->insertItem($this->getCurrentTable(), $formValues);
         // Show the error
         if($result->error !== null)
         {
@@ -115,7 +115,7 @@ class InsertFunc extends FuncComponent
     public function showQueryForm(bool $fromSelect, array $formValues): void
     {
         // We need the table columns to be able to go back to the update form.
-        $insertData = $this->db()->getInsertData($this->getCurrentTable());
+        $insertData = $this->driver()->getInsertData($this->getCurrentTable());
         // Show the error
         if(isset($insertData['error']))
         {

@@ -384,7 +384,7 @@ class ExportProxy extends AbstractDriverProxy
     public function getExportOptions(string $table = ''): array
     {
         $export = $this->export();
-        $database = $this->db()->name;
+        $database = $this->currentDb()->name;
         return $database === '' ? [
             'databases' => $export->getDatabases(),
             'options' => $export->getBaseOptions($database, $table),

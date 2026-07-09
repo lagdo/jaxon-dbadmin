@@ -34,7 +34,7 @@ class ResultSet extends PageComponent
     private function select(): SelectDqDto
     {
         $options = $this->getBuilderParams();
-        return $this->db()->getSelectParams($this->getCurrentTable(), $options);
+        return $this->driver()->getSelectParams($this->getCurrentTable(), $options);
     }
 
     /**
@@ -45,7 +45,7 @@ class ResultSet extends PageComponent
         // Save the count value in the $_count attribute.
         // Do not query the total number of items when the "total" option is not set.
         $this->_count = !$this->getParamValue('total') ? -1 :
-            $this->db()->countSelect($this->select());
+            $this->driver()->countSelect($this->select());
 
         return $this->_count;
     }
@@ -74,7 +74,7 @@ class ResultSet extends PageComponent
         // Save the current page in the databag
         $this->savePageNumber($this->currentPage());
 
-        $result = $this->db()->execSelect($this->select());
+        $result = $this->driver()->execSelect($this->select());
         if ($result->error !== null) {
             $this->set('duration', null);
             return $result->error;
@@ -91,7 +91,7 @@ class ResultSet extends PageComponent
             fn(QueryResultHeaderDto $header) => $header->foreignKey !== null)));
         if ((bool)$this->getParamValue('foreigns')) {
             $textLength = $this->getParamValue('length');
-            if ($this->db()->setForeignKeyLabels($rowset, $textLength) === 0) {
+            if ($this->driver()->setForeignKeyLabels($rowset, $textLength) === 0) {
                 $this->saveParamValue('foreigns', false);
             }
         }

@@ -24,7 +24,7 @@ class Databases extends MenuComponent
     public function change(string $database): void
     {
         $systemAccess = $this->config()->getOption('access.system', false);
-        $databases = $this->db()->getDatabases($systemAccess)['databases'];
+        $databases = $this->driver()->getDatabases($systemAccess)['databases'];
         $this->set('databases', $databases)->set('selected', $database)->render();
 
         // Change the value of the select field in the component content.

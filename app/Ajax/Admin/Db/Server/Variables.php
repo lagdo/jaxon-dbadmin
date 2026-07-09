@@ -34,7 +34,7 @@ class Variables extends MainComponent
     #[After('showBreadcrumbs')]
     public function show(): void
     {
-        $this->set('content', $this->db()->getVariables());
+        $this->set('content', $this->driver()->getVariables());
 
         $this->render();
     }

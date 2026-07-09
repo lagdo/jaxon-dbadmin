@@ -3,8 +3,9 @@
 namespace Lagdo\DbAdmin\Support\Driver;
 
 use Jaxon\Di\Container;
-use Lagdo\DbAdmin\Support\Service\Breadcrumbs;
 use Lagdo\DbAdmin\Driver\Driver;
+use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Support\Service\Breadcrumbs;
 
 /**
  * Proxy to calls to the database functions, for the UI components.
@@ -37,7 +38,7 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function getServerName(): string
     {
-        return $this->db()->server;
+        return $this->currentDb()->server;
     }
 
     /**
@@ -51,8 +52,8 @@ class DriverProxy extends AbstractDriverProxy
     {
         if ($withDb) {
             $this->breadcrumbs->clear();
-            if ($this->db()->name) {
-                $this->breadcrumbs->item("<i><b>{$this->db()->name}</b></i>");
+            if ($this->currentDb()->name) {
+                $this->breadcrumbs->item("<i><b>{$this->currentDb()->name}</b></i>");
             }
         }
 
@@ -78,9 +79,9 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function selectDatabase(string $server, string $database = '', string $schema = '')
     {
-        $this->db()->server = $server;
-        $this->db()->name = $database;
-        $this->db()->schema = $schema;
+        $this->currentDb()->setServer($server);
+        $this->currentDb()->setName($database);
+        $this->currentDb()->setSchema($schema);
 
         // Save the selected server in the di container.
         $this->di->val('dbadmin_config_server', $server);
@@ -97,7 +98,7 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function setCurrentDbName(string $database)
     {
-        $this->db()->name = $database;
+        $this->currentDb()->setName($database);
     }
 
     /**
@@ -126,7 +127,7 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function connectToServer()
     {
-        $this->connect($this->db()->server);
+        $this->connect($this->currentDb()->server);
     }
 
     /**
@@ -134,7 +135,7 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function connectToDatabase()
     {
-        $this->connect($this->db()->server, $this->db()->name);
+        $this->connect($this->currentDb()->server, $this->currentDb()->name);
     }
 
     /**
@@ -142,7 +143,8 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function connectToSchema()
     {
-        $this->connect($this->db()->server, $this->db()->name, $this->db()->schema);
+        $this->connect($this->currentDb()->server,
+            $this->currentDb()->name, $this->currentDb()->schema);
     }
 
     /**
@@ -152,11 +154,11 @@ class DriverProxy extends AbstractDriverProxy
      */
     public function getDatabaseOptions(array $options): array
     {
-        if ($this->db()->name !== '') {
-            $options['database'] = $this->db()->name;
+        if ($this->currentDb()->name !== '') {
+            $options['database'] = $this->currentDb()->name;
         }
-        if ($this->db()->schema !== '') {
-            $options['schema'] = $this->db()->schema;
+        if ($this->currentDb()->schema !== '') {
+            $options['schema'] = $this->currentDb()->schema;
         }
 
         return $options;
@@ -170,5 +172,16 @@ class DriverProxy extends AbstractDriverProxy
     public function typeIsAutoIncrementable(string $type): bool
     {
         return $this->engine()->typeIsAutoIncrementable($type);
+    }
+
+    /**
+     * @param array $where
+     * @param array<ColumnDto> $columns
+     *
+     * @return string
+     */
+    public function getSelectWhereClause(array $where, array $columns = []): string
+    {
+        return $this->engine()->where($where, $columns);
     }
 }

@@ -17,21 +17,21 @@ abstract class MenuComponent extends Component
 
     /**
      * @param MenuBuilder $ui
-     * @param DriverProxy $db
+     * @param DriverProxy $driver
      * @param Translator $trans
      * @param DatabaseConfigProvider $config
      * @param Tab $tab
      */
-    public function __construct(private MenuBuilder $ui, private DriverProxy $db,
+    public function __construct(private MenuBuilder $ui, private DriverProxy $driver,
         private Translator $trans, private DatabaseConfigProvider $config, private Tab $tab)
     {}
 
     /**
      * @return DriverProxy
      */
-    protected function db(): DriverProxy
+    protected function driver(): DriverProxy
     {
-        return $this->db;
+        return $this->driver;
     }
 
     /**

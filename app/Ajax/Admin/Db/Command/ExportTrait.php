@@ -38,7 +38,7 @@ trait ExportTrait
             'triggers' => isset($formValues['triggers']),
         ];
 
-        foreach($this->db()->getExportSelection() as $name => $values) {
+        foreach($this->driver()->getExportSelection() as $name => $values) {
             if(isset($formValues[$name])) {
                 $value = trim($formValues[$name]);
                 if (!in_array($value, $values)) {
@@ -60,7 +60,7 @@ trait ExportTrait
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 
-        $options = $this->db()->getExportOptions();
+        $options = $this->driver()->getExportOptions();
         return $this->exportUi->export($this->rq(), $options);
     }
 
@@ -82,7 +82,7 @@ trait ExportTrait
         }
 
         $options = $this->options($formValues);
-        $results = $this->db()->exportDatabases($databases, $options);
+        $results = $this->driver()->exportDatabases($databases, $options);
         if(is_string($results))
         {
             $this->alert()->title('Error')->error($results);

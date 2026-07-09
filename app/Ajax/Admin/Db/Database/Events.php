@@ -28,6 +28,6 @@ class Events extends MainComponent
      */
     public function show(): void
     {
-        $this->showSection($this->db()->getEvents());
+        $this->showSection($this->driver()->getEvents());
     }
 }

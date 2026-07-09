@@ -50,7 +50,7 @@ class Privileges extends MainComponent
     #[After('showBreadcrumbs')]
     public function show(): void
     {
-        $pageContent = $this->db()->getPrivileges();
+        $pageContent = $this->driver()->getPrivileges();
 
         // Add links, classes and data values to privileges.
         $database = jq()->parent()->parent()->find("option.database-item:selected")->val();

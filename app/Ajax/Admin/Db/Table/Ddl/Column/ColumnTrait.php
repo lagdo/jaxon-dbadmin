@@ -23,7 +23,7 @@ trait ColumnTrait
      */
     protected function metadata(): array
     {
-        return $this->metadata ??= $this->db()->getTableMetadata($this->getCurrentTable());
+        return $this->metadata ??= $this->driver()->getTableMetadata($this->getCurrentTable());
     }
 
     /**
@@ -41,7 +41,7 @@ trait ColumnTrait
      */
     protected function newColumnInput(array|null $values = null): ColumnFormDto
     {
-        return $this->db()->newColumnInput($values);
+        return $this->driver()->newColumnInput($values);
     }
 
     /**
@@ -63,7 +63,7 @@ trait ColumnTrait
         $columns = $this->metadata()['table']->columns;
         $column = ColumnFormDto::columnIsAdded($values) ?
             // Added column => empty column
-            $this->db()->newColumnInput() :
+            $this->driver()->newColumnInput() :
             // Existing column => check the metadata
             ($columns[$values['name']] ?? null);
         // Combine the data from the database with the data from the databag.

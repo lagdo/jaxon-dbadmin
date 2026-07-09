@@ -36,14 +36,14 @@ class ResultRow extends Component
     public function refreshItem(int $rowId, array $rowIdValues): void
     {
         $params = $this->getBuilderParams();
-        // Set the options to fetch pnly the updated item.
+        // Set the options to fetch only the updated item.
         $params['page'] = 0;
         $params['limit'] = 1;
-        $params['updated'] = $rowIdValues;
-        $select = $this->db()->getSelectParams($this->getCurrentTable(), $params);
+        $select = $this->driver()->getSelectParams($this->getCurrentTable(), $params);
+        $columns = $select->table->columns;
+        $select->filters[] = $this->driver()->getSelectWhereClause($rowIdValues, $columns);
 
-        $result = $this->db()->execSelect($select);
-
+        $result = $this->driver()->execSelect($select);
         if ($result->error !== null) {
             $this->alert()
                 ->title($this->trans()->lang('Warning'))
@@ -61,7 +61,7 @@ class ResultRow extends Component
 
         if ((bool)$this->getParamValue('foreigns')) {
             $textLength = $this->getParamValue('length');
-            if ($this->db()->setForeignKeyLabels($rowset, $textLength) === 0) {
+            if ($this->driver()->setForeignKeyLabels($rowset, $textLength) === 0) {
                 $this->saveParamValue('foreigns', false);
             }
         }

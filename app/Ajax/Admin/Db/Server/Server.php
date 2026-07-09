@@ -33,7 +33,7 @@ class Server extends FuncComponent
         $this->setCurrentDb([$server, '', '']);
 
         $this->cl(AppUser::class)->render();
-        $serverInfo = $this->db()->getServerInfo();
+        $serverInfo = $this->driver()->getServerInfo();
         $this->cl(DbUser::class)->show($serverInfo);
         $this->cl(DbServer::class)->show($serverInfo);
 
@@ -42,7 +42,7 @@ class Server extends FuncComponent
 
         // Always show the database list.
         $systemAccess = $this->config()->getOption('access.system', false);
-        $databases = $this->db()->getDatabases($systemAccess)['databases'];
+        $databases = $this->driver()->getDatabases($systemAccess)['databases'];
         $this->cl(MenuDatabases::class)->set('databases', $databases)->render();
 
         $hasServerAccess = $this->config()->getServerAccess($server);

@@ -36,7 +36,7 @@ class Select extends MainComponent
     {
         $table = $this->getCurrentTable();
         // Set the breadcrumbs
-        $this->db()->breadcrumbs(true)
+        $this->driver()->breadcrumbs(true)
             ->item($this->trans->lang('Tables'))
             ->item("<i><b>$table</b></i>")
             ->item($this->trans->lang('Select'));

@@ -15,7 +15,7 @@ class Breadcrumbs extends Component
     {
         [$server,] = $this->getCurrentDb();
         $serverName = $this->config()->getServerName($server);
-        $breadcrumbs = [$serverName, ...$this->db->breadcrumbs()->items()];
+        $breadcrumbs = [$serverName, ...$this->driver()->breadcrumbs()->items()];
         return $this->ui()->breadcrumbs($breadcrumbs);
     }
 }

@@ -22,7 +22,7 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $input = $this->db()->setInputFieldProperties($input);
+        $input = $this->driver()->setInputFieldProperties($input);
         $primaryColumn = $this->getTableBag('primary', '');
 
         $title = $input->added() ?

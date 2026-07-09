@@ -34,7 +34,7 @@ class Processes extends MainComponent
     #[After('showBreadcrumbs')]
     public function show(): void
     {
-        $this->set('content', $this->db()->getProcesses());
+        $this->set('content', $this->driver()->getProcesses());
 
         $this->render();
     }

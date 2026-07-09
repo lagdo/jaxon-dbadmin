@@ -27,7 +27,7 @@ class ViewFunc extends FuncComponent
     {
         // $values['materialized'] = isset($values['materialized']);
 
-        // $result = $this->db()->createView($values);
+        // $result = $this->driver()->createView($values);
         // if($result->error !== null) {
         //     $this->alert()->error($result->error);
         //     return;
@@ -50,7 +50,7 @@ class ViewFunc extends FuncComponent
     {
         // $values['materialized'] = isset($values['materialized']);
 
-        // $result = $this->db()->updateView($view, $values);
+        // $result = $this->driver()->updateView($view, $values);
         // if($result->error !== null) {
         //     $this->alert()->error($result->error);
         //     return;
@@ -67,7 +67,7 @@ class ViewFunc extends FuncComponent
      */
     public function drop(string $view): void
     {
-        $result = $this->db()->dropView($view);
+        $result = $this->driver()->dropView($view);
         if ($result->error !== null) {
             $this->alert()
                 ->title($this->trans->lang('Error'))

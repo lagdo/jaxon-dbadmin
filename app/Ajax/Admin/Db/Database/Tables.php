@@ -34,7 +34,7 @@ class Tables extends MainComponent
      */
     public function show(): void
     {
-        $tablesInfo = $this->db()->getTables();
+        $tablesInfo = $this->driver()->getTables();
 
         foreach($tablesInfo['details'] as $name => $detail) {
             $detail->menus = [[

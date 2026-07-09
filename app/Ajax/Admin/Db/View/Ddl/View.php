@@ -53,7 +53,7 @@ class View extends Component
     #[After('showBreadcrumbs')]
     public function show(string $view): void
     {
-        $viewInfo = $this->db()->getViewInfo($view);
+        $viewInfo = $this->driver()->getViewInfo($view);
 
         $actions = [
             'select-view' => [
@@ -80,11 +80,11 @@ class View extends Component
         $this->set('content', $content)->render();
 
         // Show columns
-        $columns = $this->db()->getViewColumns($view);
+        $columns = $this->driver()->getViewColumns($view);
         $this->showTab($columns, $this->tabId('tab-content-columns'));
 
         // Show triggers
-        $triggers = $this->db()->getViewTriggers($view);
+        $triggers = $this->driver()->getViewTriggers($view);
         if(is_array($triggers))
         {
             $this->showTab($triggers, $this->tabId('tab-content-triggers'));

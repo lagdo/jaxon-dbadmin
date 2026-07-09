@@ -28,6 +28,6 @@ class Sequences extends MainComponent
      */
     public function show(): void
     {
-        $this->showSection($this->db()->getSequences());
+        $this->showSection($this->driver()->getSequences());
     }
 }

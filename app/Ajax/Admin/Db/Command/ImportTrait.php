@@ -21,7 +21,7 @@ trait ImportTrait
      */
     protected function content(): string
     {
-        $importOptions = $this->db()->getImportOptions();
+        $importOptions = $this->driver()->getImportOptions();
         $handlers = [
             'webFileBtn' => $this->rq()->executeWebFile(),
             'sqlFilesBtn' => $this->rq()->executeQueriesInFile($this->importUi->formValues()),
@@ -69,7 +69,7 @@ trait ImportTrait
 
         $options = new QueryOptions($formValues['error_stops'] ?? false,
             $formValues['only_errors'] ?? false);
-        $result = $this->db()->executeQueriesInFile($files[0], $options);
+        $result = $this->driver()->executeQueriesInFile($files[0], $options);
 
         $this->cl(Query\ImportResult::class)->set('result', $result)->render();
     }

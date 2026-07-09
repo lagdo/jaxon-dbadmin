@@ -24,7 +24,7 @@ class Privilege extends FuncComponent
      */
     public function add(): void
     {
-        $userInfo = $this->db()->newUserPrivileges();
+        $userInfo = $this->driver()->newUserPrivileges();
 
         $title = 'Add user privileges';
         $privileges = $this->serverUi->pageContent($userInfo);
@@ -67,7 +67,7 @@ class Privilege extends FuncComponent
      */
     public function edit(string $username, string $hostname, string $database): void
     {
-        $userInfo = $this->db()->getUserPrivileges($username, $hostname, $database);
+        $userInfo = $this->driver()->getUserPrivileges($username, $hostname, $database);
 
         $title = 'Edit user privileges';
         $privileges = $this->serverUi->pageContent($userInfo);

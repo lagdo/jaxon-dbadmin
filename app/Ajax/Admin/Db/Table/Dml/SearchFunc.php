@@ -41,9 +41,8 @@ class SearchFunc extends FuncComponent
             'limit' => 10,
             'total' => false,
             'length' => $this->getParamValue('length'),
-            'foreigns' => false,
         ];
-        $result = $this->db()->searchInForeignColumn($table, $column, $search, $options);
+        $result = $this->driver()->searchInForeignColumn($table, $column, $search, $options);
         if ($result->error !== null) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))

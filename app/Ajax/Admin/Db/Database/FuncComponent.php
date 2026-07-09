@@ -22,6 +22,6 @@ abstract class FuncComponent extends BaseComponent
             throw new DbException('Access to server data is not allowed.');
         }
 
-        $this->db()->selectDatabase($server, $database, $schema);
+        $this->driver()->selectDatabase($server, $database, $schema);
     }
 }

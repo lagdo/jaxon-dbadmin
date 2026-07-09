@@ -60,7 +60,7 @@ class Wrapper extends Component
     {
         return $this->tableUi
             ->metadata($this->get('metadata'))
-            ->dbGetter($this->db(...))
+            ->setAutoIncrementChecker($this->driver()->typeIsAutoIncrementable(...))
             ->showColumns();
     }
 

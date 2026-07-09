@@ -76,11 +76,11 @@ trait QueryTrait
             return;
         }
 
-        $this->db()->prepareQueryExec();
+        $this->driver()->prepareQueryExec();
 
         $options = new QueryOptions($values['error_stops'] ?? false,
             $values['only_errors'] ?? false, intval($values['limit'] ?? 0));
-        $result = $this->db()->executeQueriesInText($queryText, $options);
+        $result = $this->driver()->executeQueriesInText($queryText, $options);
 
         $this->cl(QueryResult::class)->set('result', $result)->render();
     }
