@@ -121,7 +121,6 @@ class SelectResult extends AbstractDriverProxy
         }
 
         // Unique identifier to edit returned data.
-        // $unique_idf = "";
         $editValues = null;
         $nullValues = null;
         foreach ($uniqueIds as $columnName => $value) {
@@ -129,9 +128,6 @@ class SelectResult extends AbstractDriverProxy
             $value = $this->getRowIdValue($select, $columnName, $value);
             $columnName = $this->statement()->bracketEscape($columnName);
 
-            // $unique_idf .= "&" . ($value !== null ? \urlencode("where[" .
-            // $columnName . "]") . "=" .
-            // \urlencode($value) : \urlencode("null[]") . "=" . \urlencode($columnName));
             if ($value === null) {
                 $nullValues ??= [];
                 $nullValues[] = $columnName;
@@ -171,10 +167,6 @@ class SelectResult extends AbstractDriverProxy
     private function getResultHeader(SelectDqDto $select, string $dbField,
         string|null $sqlField, SelectColumnDto|null $uiColumn): QueryResultHeaderDto
     {
-        // if (isset($select->primaryColumns[$dbField])) {
-        //     return [];
-        // }
-
         $header = new QueryResultHeaderDto();
 
         $function = $uiColumn?->func ?? '';
@@ -195,9 +187,6 @@ class SelectResult extends AbstractDriverProxy
             return $header;
         }
 
-        // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($dbField);
-        // $desc = '&desc%5B0%5D=1';
-        // 'key' => $this->utils()->html($this->statement()->bracketEscape($dbField)),
         $header->title = $this->pageUi()->applySqlFunction($function, $header->field);
         return $header;
     }
@@ -230,11 +219,7 @@ class SelectResult extends AbstractDriverProxy
     {
         $value = $this->engine()->convertValue($value, $header->column);
         $textLength = $select->input->textLength;
-
-        $value = $this->pageUi()->getColumnValue($header->column, $textLength, $value);
-        $value['foreign'] = $header->foreignKey;
-
-        return $value;
+        return $this->pageUi()->getColumnValue($header->column, $textLength, $value);
     }
 
     /**
@@ -250,10 +235,10 @@ class SelectResult extends AbstractDriverProxy
         // So all the rows have the same columns => no need to filter the values.
         // $filter = fn(string $columnName) => isset($headers[$columnName]);
         // $values = array_filter($values, $filter, ARRAY_FILTER_USE_KEY);
-        $callback = fn($value, string $columnName) =>
-            $this->getColumnValue($select, $headers[$columnName], $value);
+        $callback = fn(QueryResultHeaderDto $header, $value) =>
+            $this->getColumnValue($select, $header, $value);
 
-        return array_map($callback, $values, array_keys($values));
+        return array_combine(array_keys($values), array_map($callback, $headers, $values));
     }
 
     /**

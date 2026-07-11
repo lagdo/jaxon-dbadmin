@@ -24,7 +24,7 @@ class ResultRow extends Component
      */
     public function html(): string
     {
-        return $this->resultUi->resultRowContent($this->get('row'));
+        return $this->resultUi->resultRowContent($this->get('rowset'));
     }
 
     /**
@@ -35,11 +35,8 @@ class ResultRow extends Component
      */
     public function refreshItem(int $rowId, array $rowIdValues): void
     {
-        $params = $this->getBuilderParams();
         // Set the options to fetch only the updated item.
-        $params['page'] = 0;
-        $params['limit'] = 1;
-        $select = $this->driver()->getSelectParams($this->getCurrentTable(), $params);
+        $select = $this->select(['page' => 0, 'limit' => 1]);
         $columns = $select->table->columns;
         $select->filters[] = $this->driver()->getSelectWhereClause($rowIdValues, $columns);
 
@@ -59,17 +56,9 @@ class ResultRow extends Component
             return;
         }
 
-        if ((bool)$this->getParamValue('foreigns')) {
-            $textLength = $this->getParamValue('length');
-            if ($this->driver()->setForeignKeyLabels($rowset, $textLength) === 0) {
-                $this->saveParamValue('foreigns', false);
-            }
-        }
-
-        $row = $rowset->rows[0];
-        $row->bagId = $this->bagValueKey($rowId);
-        $row->rowMenu = $this->getRowMenu($rowId, $row);
-        $this->set('row', $row);
+        $rowset->rows[0]->bagId = $this->bagValueKey($rowId);
+        $rowset->rows[0]->rowMenu = $this->getRowMenu($rowId, $rowset->rows[0]);
+        $this->set('rowset', $rowset);
 
         $this->item($this->bagValueKey($rowId))->render();
     }

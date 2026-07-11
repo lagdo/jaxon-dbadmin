@@ -4,11 +4,10 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Jaxon\Config\Config;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
+use Lagdo\DbAdmin\Driver\Sql\Dto\SelectColumnDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ForeignColumnTrait;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\ForeignRowsetDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultHeaderDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryRowsetDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\ForeignColumnDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\ForeignColumnTrait;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectQuery;
@@ -19,11 +18,11 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
 use Exception;
 
-use function array_combine;
 use function array_filter;
 use function array_map;
 use function array_values;
 use function count;
+use function implode;
 
 /**
  * Proxy to table select functions
@@ -99,6 +98,25 @@ class SelectProxy extends AbstractDriverProxy
     }
 
     /**
+     * @param string $table
+     * @param array $queryParams
+     *
+     * @return SelectDqDto
+     * @throws Exception
+     */
+    private function createSelectDto(string $table, array $queryParams): SelectDqDto
+    {
+        $table = new SelectTableDto($table);
+        $table->status = $this->engine()->tableStatusOrName($table->name);
+        $table->columns = $table->status->columns();
+        $table->indexes = $this->engine()->indexes($table->name);
+        $table->foreignKeys = [];
+
+        $select = $this->options()->createSelectDto($table, $queryParams);
+        return $this->query()->prepareSelect($select);
+    }
+
+    /**
      * Get required data for create/update on tables
      *
      * @param string $table The table name
@@ -109,14 +127,10 @@ class SelectProxy extends AbstractDriverProxy
      */
     public function getSelectParams(string $table, array $queryParams = []): SelectDqDto
     {
-        $table = new SelectTableDto($table);
-        $table->status = $this->engine()->tableStatusOrName($table->name);
-        $table->columns = $table->status->columns();
-        $table->indexes = $this->engine()->indexes($table->name);
-        $table->foreignKeys = $this->engine()->foreignKeys($table->name);
+        $select = $this->createSelectDto($table, $queryParams);
+        $select->table->foreignKeys = $this->engine()->foreignKeys($table);
 
-        $select = $this->options()->createSelectDto($table, $queryParams);
-        return $this->query()->prepareSelect($select);
+        return $select;
     }
 
     /**
@@ -138,6 +152,93 @@ class SelectProxy extends AbstractDriverProxy
     }
 
     /**
+     * @param ForeignColumnDto $query
+     * @param string $tableName
+     * @param int $textLength
+     *
+     * @return array
+     */
+    private function getForeignColumnQuery(ForeignColumnDto $query,
+        string $tableName, int $textLength): array
+    {
+        $source = $query->fkey->source[0];
+        $target = $query->fkey->target[0];
+        $id = $this->statement()->escapeId($source);
+        $targetId = $this->statement()->escapeId($target);
+        $targetLabel = ($query->select)($textLength);
+        $targetTable = $this->statement()->escapeId($query->fkey->table);
+        $cteFrom = implode(' ', [$targetTable, ...$query->joins]);
+
+        $cte = "{$source}_cte";
+        $cteId = "_dbadmin_cte_{$source}_id";
+        $cteLabel = "_dbadmin_cte_{$source}_label";
+        $cteName = $this->statement()->escapeId($cte);
+        $cteQuery = "SELECT $targetId as $cteId, $targetLabel as $cteLabel FROM $cteFrom";
+        $cteId = $this->statement()->escapeId($cteId);
+        $cteLabel = $this->statement()->escapeId($cteLabel);
+
+        return [
+            'cte' => "$cte AS ($cteQuery)",
+            'label' => "$cteName.$cteLabel",
+            'join' => "LEFT OUTER JOIN $cteName on $tableName.$id=$cteName.$cteId",
+        ];
+    }
+
+    /**
+     * @param SelectDqDto $select
+     * @param ForeignKeyDto $foreignKey
+     *
+     * @return bool
+     */
+    private function foreignKeysIsSelectable(SelectDqDto $select, ForeignKeyDto $foreignKey): bool
+    {
+        if (count($foreignKey->source) !== 1) {
+            return false;
+        }
+        // The source column must be selectable.
+        if (!isset($select->selectableColumns[$foreignKey->source[0]])) {
+            return false;
+        }
+        // In case of SELECT *.
+        if (count($select->columns) === 0) {
+            return true;
+        }
+
+        // The foreign key is among the selected columns.
+        $filter = fn(SelectColumnDto $input) => $input->column?->name === $foreignKey->source[0];
+        return count(array_filter($select->input->columns, $filter)) > 0;
+    }
+
+    /**
+     * @param SelectDqDto $select
+     *
+     * @return string
+     */
+    private function getQueryWithCteClauses(SelectDqDto $select): string
+    {
+        $foreignKeys = $select->table->foreignKeys;
+        $foreignKeys = array_filter($foreignKeys, fn(ForeignKeyDto $foreignKey) =>
+                $this->foreignKeysIsSelectable($select, $foreignKey));
+        $foreignColumns = array_map($this->getForeignKeyColumn(...), $foreignKeys);
+        $foreignColumns = array_filter($foreignColumns, fn($item) => $item !== null);
+        if (count($foreignColumns) === 0) {
+            return $select->query();
+        }
+
+        $tableName = $this->statement()->escapeTableName($select->table->name);
+        $queryGetter = fn(ForeignColumnDto $query) =>
+            $this->getForeignColumnQuery($query, $tableName, $select->input->textLength);
+        $queries = array_map($queryGetter, $foreignColumns);
+
+        $columns = array_map(fn(array $query) => $query['label'], $queries);
+        $select->cteColumns = array_values($columns);
+        $select->joins = array_values(array_map(fn(array $query) => $query['join'], $queries));
+        $ctes = array_values(array_map(fn(array $query) => $query['cte'], $queries));
+
+        return 'WITH ' . implode(', ', $ctes) . ' ' . $select->query();
+    }
+
+    /**
      * Get required data for create/update on tables
      *
      * @param SelectDqDto $select
@@ -152,114 +253,11 @@ class SelectProxy extends AbstractDriverProxy
         $options->setExecOptions(false, false, true);
         $options->withTimer = $withTimer;
 
-        $queryList = new QueryListDto(queries: [$select->query()]);
+        $query = !$select->input->loadForeigns || count($select->table->foreignKeys) === 0 ?
+            $select->query() : $this->getQueryWithCteClauses($select);
+        $queryList = new QueryListDto(queries: [$query]);
 
         return $this->processor->executeQueryList($queryList, $options, $select);
-    }
-
-    /**
-     * @param ForeignKeyDto $foreignKey
-     *
-     * @return ForeignRowsetDto|null
-     */
-    private function getForeignTableRowset(ForeignKeyDto $foreignKey): ForeignRowsetDto|null
-    {
-        if (count($foreignKey->target) !== 1) {
-            return null;
-        }
-
-        [$idColumn, $select, $filter] = $this->getForeignKeyColumn($foreignKey);
-        if ($idColumn === '') {
-            return null;
-        }
-
-        $rowset = new ForeignRowsetDto($foreignKey);
-        $rowset->idColumn = $idColumn;
-        $rowset->select = $select;
-        $rowset->filter = $filter;
-        return $rowset;
-    }
-
-    /**
-     * @param ForeignRowsetDto $rowset
-     * @param int $textLength
-     *
-     * @return string
-     */
-    private function getForeignRowsetQuery(ForeignRowsetDto $rowset, int $textLength): string
-    {
-        $tableName = $this->statement()->escapeId($rowset->fkey->table);
-        $idColumn = $this->statement()->escapeId($rowset->fkey->target[0]);
-        $labelColumn = ($rowset->select)($textLength);
-        $idValues = implode(', ', array_map($this->engine()->quote(...), $rowset->values));
-
-        return "SELECT $idColumn as id, $labelColumn as label
-FROM $tableName WHERE $idColumn IN ($idValues)";
-    }
-
-    /**
-     * @param SelectRowsetDto $rowset
-     * @param int $textLength
-     *
-     * @return int
-     */
-    public function setForeignKeyLabels(SelectRowsetDto $rowset, int $textLength): int
-    {
-        $notNull = fn($item) => $item !== null;
-        $foreignKeyGetter = fn(QueryResultHeaderDto $header) => $header->foreignKey;
-        $foreignKeys = array_filter(array_map($foreignKeyGetter, $rowset->headers), $notNull);
-        if (count($foreignKeys) === 0) {
-            return 0;
-        }
-
-        $foreignRowsetGetter = $this->getForeignTableRowset(...);
-        $foreignRowsets = array_filter(array_map($foreignRowsetGetter, $foreignKeys), $notNull);
-        // Key by table names
-        $tableNameGetter = fn(ForeignRowsetDto $rowset) => $rowset->fkey->table;
-        $tableNames = array_map($tableNameGetter, $foreignRowsets);
-        $foreignRowsets = array_combine($tableNames, $foreignRowsets);
-        $foreignRowsetCount = count($foreignRowsets);
-        if ($foreignRowsetCount === 0) {
-            return 0;
-        }
-
-        $filterRowset = fn(array $column) => $column['foreign'] !== null &&
-            $column['value'] !== null && isset($foreignRowsets[$column['foreign']->table]);
-
-        // Get the referenced ids in the foreign tables.
-        foreach ($rowset->rows as $row) {
-            foreach (array_filter($row->columns, $filterRowset) as $column) {
-                $foreignRowsets[$column['foreign']->table]
-                    ->values[$column['value']] = $column['value'];
-            }
-        }
-
-        // Fetch the foreign tables data.
-        $queryGetter = fn(ForeignRowsetDto $rowset) =>
-            $this->getForeignRowsetQuery($rowset, $textLength);
-        $queryList = new QueryListDto(queries: array_map($queryGetter, $foreignRowsets));
-        $options = new QueryOptions();
-        $options->setExecOptions(false, false, true);
-        $options->withTimer = false;
-        $result = $this->processor->executeQueryList($queryList, $options);
-
-        $setForeignValues = fn(ForeignRowsetDto $foreign, QueryRowsetDto $query) =>
-            $foreign->values = array_combine(
-                array_map(fn(array $row) => $row[0], $query->rows),
-                array_map(fn(array $row) => $row[1], $query->rows)
-            );
-        array_map($setForeignValues, $foreignRowsets, $result->rowsets);
-
-        foreach ($rowset->rows as $row) {
-            foreach ($row->columns as &$column) {
-                if ($filterRowset($column)) {
-                    $table = $foreignRowsets[$column['foreign']->table] ?? null;
-                    $column['foreignLabel'] = $table?->values[$column['value']] ?? null;
-                }
-            }
-        }
-
-        return $foreignRowsetCount;
     }
 
     /**
@@ -294,36 +292,32 @@ FROM $tableName WHERE $idColumn IN ($idValues)";
         if (($foreignKey = $foreignKeys[0] ?? null) === null) {
             return $this->errorResult($this->utils()->lang('Unable to find the foreign key.'));
         }
-        if (($rowset = $this->getForeignTableRowset($foreignKey)) === null) {
-            return $this->errorResult($this->utils()->lang('Cannot select the foreign column.'));
+
+        $foreignColumn = $this->getForeignKeyColumn($foreignKey);
+        if ($foreignColumn === null || $foreignColumn->search === null) {
+            return $this->errorResult($this->utils()->lang('Cannot search in the foreign column.'));
         }
 
         $queryParams = [
             ...$queryParams,
-            'columns' => [[
-                'func' => '',
-                'column' => $rowset->idColumn,
-            ]],
+            'columns' => [],
             'filters' => [],
             'sorters' => [[
                 'desc' => false,
-                'column' => $rowset->idColumn,
+                'column' => $foreignColumn->idColumn,
             ]],
             'foreigns' => false,
         ];
-        $foreignTable = new SelectTableDto($foreignKey->table);
-        $foreignTable->status = $this->engine()->tableStatusOrName($foreignTable->name);
-        $foreignTable->columns = $foreignTable->status->columns();
-        $foreignTable->indexes = $this->engine()->indexes($foreignTable->name);
-        $foreignTable->foreignKeys = []; // No need to have foreign keys here.
-
-        $select = $this->options()->createSelectDto($foreignTable, $queryParams);
-        $select = $this->query()->prepareSelect($select);
+        $select = $this->createSelectDto($foreignKey->table, $queryParams);
 
         // Set the search clauses.
-        $select->columns[] = ($rowset->select)($queryParams['length']);
-        $select->filters[] = ($rowset->filter)($this->engine()->quote("%{$search}%"));
+        $select->joins = $foreignColumn->joins;
+        $select->columns = [
+            $this->statement()->escapeId($foreignColumn->idColumn) . ' AS id',
+            ($foreignColumn->select)($queryParams['length']) . ' AS label',
+        ];
+        $select->filters[] = ($foreignColumn->search)($this->engine()->quote("%{$search}%"));
 
-        return $this->execSelect($select);
+        return $this->execSelect($select, false);
     }
 }

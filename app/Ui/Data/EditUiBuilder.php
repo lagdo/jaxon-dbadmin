@@ -250,9 +250,9 @@ class EditUiBuilder
         return $this->ui->build(
             $this->ui->menu(
                 $this->ui->each($rowset->rows, fn(QueryResultRowDto $row) =>
-                    $this->ui->menuItem($this->ui->html($row->columns[1]['html']))
+                    $this->ui->menuItem($this->ui->html($row->columns['label']['html']))
                         ->jxnClick(jo('jaxon.dbadmin')
-                            ->setForeignColumnValue($valueId, $row->columns[0]['value']))
+                            ->setForeignColumnValue($valueId, $row->columns['id']['value']))
                 )
             )->setClass('search-result')
         );

@@ -52,4 +52,9 @@ class SelectDqInputDto
      * @var int
      */
     public int $page;
- }
+
+    /**
+     * @var bool
+     */
+    public bool $loadForeigns;
+}

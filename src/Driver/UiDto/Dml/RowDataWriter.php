@@ -4,12 +4,11 @@ namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dml;
 
 use Jaxon\Config\Config;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
-use Lagdo\DbAdmin\Support\Driver\UiDto\ForeignColumnTrait;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\ForeignColumnTrait;
 
-use function array_map;
 use function count;
+use function array_map;
 
 /**
  * Reads data from the database for the row insert and update user forms.
@@ -71,22 +70,6 @@ class RowDataWriter extends AbstractDriverProxy
     }
 
     /**
-     * @param ForeignKeyDto $foreignKey
-     *
-     * @return ForeignKeyDto|null
-     */
-    private function searchableForeignKey(ForeignKeyDto $foreignKey): ForeignKeyDto|null
-    {
-        if (count($foreignKey->source) !== 1) {
-            return null;
-        }
-
-        // Make sure the referenced column is setup, and a filter clause is defined.
-        [$idColumn, , $filter] = $this->getForeignKeyColumn($foreignKey);
-        return $idColumn === '' || $filter === null ? null : $foreignKey;
-    }
-
-    /**
      * @param string $table
      * @param array<ColumnDto> $columns
      * @param array|null $rowData
@@ -118,9 +101,11 @@ class RowDataWriter extends AbstractDriverProxy
         }, $columns);
 
         foreach ($this->engine()->foreignKeys($table) as $foreignKey) {
-            $source = $foreignKey->source[0];
-            if (isset($inputColumns[$source])) {
-                $inputColumns[$source]->foreignKey = $this->searchableForeignKey($foreignKey);
+            $source = $foreignKey->source[0] ?? '';
+            if (count($foreignKey->source) === 1 && isset($inputColumns[$source])) {
+                $foreignColumn = $this->getForeignKeyColumn($foreignKey);
+                $isSearchable = ($foreignColumn?->search ?? null) !== null;
+                $inputColumns[$source]->foreignKey = $isSearchable ? $foreignKey : null;
             }
         }
 

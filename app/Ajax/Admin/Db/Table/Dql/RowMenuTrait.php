@@ -6,6 +6,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\DeleteFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\UpdateFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\SqlCodeFunc;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultRowDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 
 use function count;
 
@@ -58,5 +59,16 @@ trait RowMenuTrait
             'label' => $this->trans->lang('Delete query'),
             'handler' => $this->rq(SqlCodeFunc::class)->showDeleteRowQuery($rowId, $rowIdValues),
         ]]);
+    }
+
+    /**
+     * @param array $defaultOptions
+     *
+     * @return SelectDqDto
+     */
+    private function select(array $defaultOptions = []): SelectDqDto
+    {
+        $options = [...$this->getBuilderParams(), ...$defaultOptions];
+        return $this->driver()->getSelectParams($this->getCurrentTable(), $options);
     }
 }

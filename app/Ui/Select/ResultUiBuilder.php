@@ -5,47 +5,63 @@ namespace Lagdo\DbAdmin\App\Ui\Select;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields\Sorters;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultRow;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\Select;
-use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultHeaderDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultRowDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectRowsetDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Html\Component\Component;
+use Closure;
 
+use function array_filter;
 use function Jaxon\rq;
+use function preg_match;
 
 class ResultUiBuilder
 {
+    /**
+     * Filter for CTE columns in select results.
+     *
+     * @var Closure
+     */
+    private Closure $cteFilter;
+
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
      */
     public function __construct(protected Translator $trans, protected BuilderInterface $ui)
-    {}
+    {
+        $this->cteFilter = fn(string $column) => !preg_match('/^_dbadmin_cte_/', $column);
+    }
 
     /**
+     * @param array<QueryResultHeaderDto> $headers
      * @param QueryResultRowDto $row
      *
      * @return Component
      */
-    private function _resultRowContent(QueryResultRowDto $row): Component
+    private function _resultRowContent(array $headers, QueryResultRowDto $row): Component
     {
+        $columns = array_filter($row->columns, $this->cteFilter, ARRAY_FILTER_USE_KEY);
+
         return $this->ui->list(
             $this->ui->tableDataCell($row->rowMenu, ['style' => 'width:30px']),
-            $this->ui->each($row->columns, function(array $column) {
+            $this->ui->each($columns, function(array $column, string $name) use($headers, $row) {
                 $html = $column['html'];
-                if ($column['value'] === null || !isset($column['foreign'])) {
+                $header = $headers[$name] ?? null;
+                if ($column['value'] === null || $header?->foreignKey === null) {
                     return $this->ui->tableDataCell($this->ui->html($html));
                 }
 
-                /** @var ForeignKeyDto */
-                $foreignKey = $column['foreign'];
+                $foreignKey = $header->foreignKey;
                 $tableName = $foreignKey->table;
                 $columnName = $foreignKey->target[0];
                 $columnValue = $column['value'];
+                $cteColumn = $row->columns["_dbadmin_cte_{$name}_label"] ?? null;
 
                 return $this->ui->tableDataCell(
-                    $this->ui->a($column['foreignLabel'] ?? $html)
+                    $this->ui->a($cteColumn['html'] ?? $html)
                         ->setHref('javascript:void(0)')
                         ->jxnClick(rq(Select::class)->foreign($tableName, $columnName, $columnValue))
                 );
@@ -54,13 +70,13 @@ class ResultUiBuilder
     }
 
     /**
-     * @param QueryResultRowDto $row
+     * @param SelectRowsetDto $rowset
      *
      * @return string
      */
-    public function resultRowContent(QueryResultRowDto $row): string
+    public function resultRowContent(SelectRowsetDto $rowset): string
     {
-        return $this->ui->build($this->_resultRowContent($row));
+        return $this->ui->build($this->_resultRowContent($rowset->headers, $rowset->rows[0]));
     }
 
     /**
@@ -106,18 +122,19 @@ class ResultUiBuilder
     public function resultSet(array $headers, array $rows): string
     {
         $rqResultRow = rq(ResultRow::class);
+        $tableHeaders = array_filter($headers, $this->cteFilter, ARRAY_FILTER_USE_KEY);
 
         return $this->ui->build(
             $this->ui->table(
                 $this->ui->tableHead(
                     $this->ui->tableRow(
                         $this->ui->tableHeadCell(['style' => 'width:30px']),
-                        $this->ui->each($headers, $this->tableHeadCell(...))
+                        $this->ui->each($tableHeaders, $this->tableHeadCell(...))
                     )
                 ),
                 $this->ui->tableBody(
                     $this->ui->each($rows, fn(QueryResultRowDto $row) =>
-                        $this->ui->tableRow($this->_resultRowContent($row))
+                        $this->ui->tableRow($this->_resultRowContent($headers, $row))
                             ->when($row->editValues !== null, fn($tr) =>
                                 $tr->tbnBindApp($rqResultRow, $row->bagId)))
                 )

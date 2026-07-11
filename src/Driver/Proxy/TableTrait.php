@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\ForeignRowsetDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectRowsetDto;
@@ -271,18 +270,6 @@ trait TableTrait
     {
         $this->connectToSchema();
         return $this->selectProxy()->execSelect($select);
-    }
-
-    /**
-     * @param SelectRowsetDto $rowset
-     * @param int $textLength
-     *
-     * @return int
-     */
-    public function setForeignKeyLabels(SelectRowsetDto $rowset, int $textLength): int
-    {
-        $this->connectToSchema();
-        return $this->selectProxy()->setForeignKeyLabels($rowset, $textLength);
     }
 
     /**

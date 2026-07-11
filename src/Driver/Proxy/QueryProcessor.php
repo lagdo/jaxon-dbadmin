@@ -343,8 +343,8 @@ class QueryProcessor extends AbstractDriverProxy
      *
      * @return QueryResultDto
      */
-    public function executeQueryList(QueryListDto $list,
-        QueryOptions $options, SelectDqDto|null $select = null): QueryResultDto
+    public function executeQueryList(QueryListDto $list, QueryOptions $options,
+        SelectDqDto|null $select = null): QueryResultDto
     {
         if ($list->error !== null || count($list->queries ?? []) === 0) {
             $resultDto = new QueryResultDto();

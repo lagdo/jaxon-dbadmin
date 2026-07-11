@@ -4,8 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
 use Jaxon\App\ComponentDataTrait;
 use Jaxon\Attributes\Attribute\After;
-use Jaxon\Attributes\Attribute\Databag;
-use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\QueryEditor;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields;
@@ -14,7 +12,6 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Values;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Table;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\InsertFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
-use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
 
 /**
  * This class provides select query features on tables.
@@ -23,11 +20,6 @@ class Select extends MainComponent
 {
     use ComponentDataTrait;
     use QueryBuilderTrait;
-
-    /**
-     * @var QueryLogger|null
-     */
-    protected QueryLogger|null $queryLogger = null;
 
     /**
      * @inheritDoc
@@ -95,8 +87,6 @@ class Select extends MainComponent
      * @return void
      */
     #[After('showBreadcrumbs')]
-    // Injecting the query logger here makes it possible to check if the audit db connection is active.
-    #[Inject(attr: 'queryLogger')]
     public function show(string $table): void
     {
         $this->initBuilderParams($table);
@@ -114,8 +104,6 @@ class Select extends MainComponent
      * @return void
      */
     #[After('showBreadcrumbs')]
-    // Injecting the query logger here makes it possible to check if the audit db connection is active.
-    #[Inject(attr: 'queryLogger')]
     public function foreign(string $table, string $column, string|int $value): void
     {
         $this->prependBuilderParams($table, $column, $value);
@@ -129,8 +117,6 @@ class Select extends MainComponent
      * @return void
      */
     #[After('showBreadcrumbs')]
-    // Injecting the query logger here makes it possible to check if the audit db connection is active.
-    #[Inject(attr: 'queryLogger')]
     public function back(): void
     {
         if ($this->removeBuilderParams()) {
@@ -144,7 +130,6 @@ class Select extends MainComponent
      * @return void
      */
     #[After('showBreadcrumbs')]
-    #[Databag('dbadmin.tab')]
     public function edit(): void
     {
         $this->cl(QueryEditor::class)->database($this->getBuilderSqlQuery());

@@ -7,11 +7,21 @@ use Closure;
 class SelectDqDto
 {
     /**
+     * @var array<string>
+     */
+    public array $joins = [];
+
+    /**
      * Select columns, empty for *.
      *
      * @var array<string>
      */
     public array $columns = []; // Columns in the SQL SELECT clause.
+
+    /**
+     * @var array<string>
+     */
+    public array $cteColumns = [];
 
     /**
      * @var bool
@@ -47,9 +57,9 @@ class SelectDqDto
     public array $primaryColumns;
 
     /**
-     * @var string
+     * @var string|null
      */
-    public string $query;
+    public string|null $query;
 
     /**
      * @var Closure

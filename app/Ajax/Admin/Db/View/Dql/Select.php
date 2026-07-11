@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Dql;
 
 use Jaxon\Attributes\Attribute\After;
-use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\QueryEditor;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Views;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields;
@@ -15,7 +14,6 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Ddl\Form;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\View\Ddl\View;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
-use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
 
 /**
  * This class provides select query features on tables.
@@ -25,18 +23,13 @@ class Select extends MainComponent
     use QueryBuilderTrait;
 
     /**
-     * @var QueryLogger|null
-     */
-    protected QueryLogger|null $queryLogger = null;
-
-    /**
      * @inheritDoc
      */
     protected function before(): void
     {
         $table = $this->getCurrentTable();
         // Set the breadcrumbs
-        $this->db->breadcrumbs(true)
+        $this->driver()->breadcrumbs(true)
             ->item($this->trans()->lang('Views'))
             ->item("<i><b>$table</b></i>")
             ->item($this->trans()->lang('Select'));
@@ -94,11 +87,8 @@ class Select extends MainComponent
      * @return void
      */
     #[After('showBreadcrumbs')]
-    // Injecting the query logger here makes it possible to check if the audit db connection is active.
-    #[Inject(attr: 'queryLogger')]
     public function show(string $table): void
     {
-        // Save the table name in the databag.
         $this->initBuilderParams($table);
 
         $this->render();

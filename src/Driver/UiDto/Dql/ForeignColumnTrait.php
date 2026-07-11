@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Support\Driver\UiDto;
+namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dql;
 
 use Jaxon\Config\Config;
 use Lagdo\DbAdmin\Driver\EngineInterface;
@@ -8,7 +8,6 @@ use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Driver\StatementInterface;
 use Lagdo\DbAdmin\Support\Driver\CurrentDbDto;
-use Closure;
 
 use function is_array;
 use function preg_match;
@@ -111,33 +110,34 @@ trait ForeignColumnTrait
     /**
      * @param ForeignKeyDto $foreignKey
      *
-     * @return array<string|Closure|null>
+     * @return ForeignColumnDto|null
      */
-    public function getForeignKeyColumn(ForeignKeyDto $foreignKey): array
+    public function getForeignKeyColumn(ForeignKeyDto $foreignKey): ForeignColumnDto|null
     {
         $idColumn = $foreignKey->target[0];
         $columns = $this->engine()->columns($foreignKey->table);
         if (!$this->foreignIdColumnIsValid($idColumn, $columns)) {
-            return ['', null, null];
+            return null;
         }
 
         $config = $this->getForeignColumnOptions($foreignKey);
         if (is_array($config)) {
-            return [$idColumn, $config['select'] ?? null, $config['filter'] ?? null];
+            $select = $config['select'];
+            $search = $config['search'] ?? null;
+            $joins = $config['joins'] ?? [];
+            return new ForeignColumnDto($foreignKey, $idColumn, $select, $search, $joins);
         }
 
         foreach ($columns as $column) {
             if ($this->foreignColumnIsSearchable($column)) {
                 $columnName = $this->statement()->escapeId($column->name);
-                return [
-                    $idColumn,
-                    fn(int $textLength) => "SUBSTR($columnName, 1, $textLength)",
-                    fn(string $search) => $this->engine()->pgsql() ?
-                        "$columnName ILIKE $search" : "LOWER($columnName) LIKE $search",
-                ];
+                $select = fn(int $textLength) => "SUBSTR($columnName, 1, $textLength)";
+                $search = fn(string $search) => $this->engine()->pgsql() ?
+                    "$columnName ILIKE $search" : "LOWER($columnName) LIKE $search";
+                return new ForeignColumnDto($foreignKey, $idColumn, $select, $search);
             }
         }
 
-        return ['', null, null];
+        return null;
     }
 }

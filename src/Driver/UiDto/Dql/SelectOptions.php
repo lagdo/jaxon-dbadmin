@@ -192,6 +192,7 @@ class SelectOptions extends AbstractDriverProxy
         $select->input->limit = $this->inputInt($inputs, 'limit', 50);
         $select->input->total = $this->inputBool($inputs, 'total', true);
         $select->input->textLength = $this->inputInt($inputs, 'length', 100);
+        $select->input->loadForeigns = $this->inputBool($inputs, 'foreigns', false);
 
         $this->setFieldsOptions($select);
         $this->setSelectColumns($select, $inputs);

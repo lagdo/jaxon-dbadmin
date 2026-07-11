@@ -218,7 +218,11 @@ class SelectQuery extends AbstractDriverProxy
         $groupBy = $select->groupBy;
 
         if (count($columns) === 0) {
-            $columns[] = "*";
+            $columns[] = '*';
+            if (count($select->cteColumns) > 0) {
+                $tableName = $this->statement()->escapeTableName($select->table->name);
+                $columns[0] = "$tableName.*";
+            }
             $names = array_keys($select->selectableColumns);
             $convert_columns = $this->statement()
                 ->convertColumns($names, $select->table->columns, $select->columns);
@@ -244,11 +248,12 @@ class SelectQuery extends AbstractDriverProxy
             }
         }
 
-        $tableName = [$this->statement()->escapeTableName($select->table->name)];
+        $tableName = $this->statement()->escapeTableName($select->table->name);
         $clauses = [
-            new QueryClauseDto('SELECT', ', ', $columns),
-            new QueryClauseDto('FROM', ', ', $tableName),
-            new QueryClauseDto('WHERE', ' AND ', $select->filters),
+            new QueryClauseDto('SELECT', ', ', [...$columns, ...$select->cteColumns]),
+            new QueryClauseDto('FROM', ' ', [$tableName, ...$select->joins]),
+            count($select->filters) === 0 ? null :
+                new QueryClauseDto('WHERE', ' AND ', $select->filters),
             !$select->grouped || count($groupBy) === 0 ? null :
                 new QueryClauseDto('GROUP BY', ', ', $groupBy),
             new QueryClauseDto('ORDER BY', ', ', $select->sorters),

@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
 use Lagdo\DbAdmin\App\Ui\Select\ResultUiBuilder;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultHeaderDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectRowsetDto;
 
 use function array_filter;
@@ -27,15 +26,6 @@ class ResultSet extends PageComponent
      */
     public function __construct(protected ResultUiBuilder $resultUi)
     {}
-
-    /**
-     * @return SelectDqDto
-     */
-    private function select(): SelectDqDto
-    {
-        $options = $this->getBuilderParams();
-        return $this->driver()->getSelectParams($this->getCurrentTable(), $options);
-    }
 
     /**
      * @inheritDoc
@@ -74,7 +64,8 @@ class ResultSet extends PageComponent
         // Save the current page in the databag
         $this->savePageNumber($this->currentPage());
 
-        $result = $this->driver()->execSelect($this->select());
+        $select = $this->select();
+        $result = $this->driver()->execSelect($select);
         if ($result->error !== null) {
             $this->set('duration', null);
             return $result->error;
@@ -89,12 +80,6 @@ class ResultSet extends PageComponent
         $rowset = $result->rowsets[0];
         $this->set('countForeigns', count(array_filter($rowset->headers,
             fn(QueryResultHeaderDto $header) => $header->foreignKey !== null)));
-        if ((bool)$this->getParamValue('foreigns')) {
-            $textLength = $this->getParamValue('length');
-            if ($this->driver()->setForeignKeyLabels($rowset, $textLength) === 0) {
-                $this->saveParamValue('foreigns', false);
-            }
-        }
 
         return $this->resultUi->resultSet($rowset->headers, $this->rows($rowset));
     }
@@ -107,7 +92,7 @@ class ResultSet extends PageComponent
         $this->cl(QueryText::class)->refresh();
         $this->cl(Duration::class)->update($this->get('duration'));
 
-        $duration =  $this->get('duration', null);
+        $duration = $this->get('duration', null);
         $duration === null || $this->_count > 0 && $this->_count <= $this->limit() ?
             $this->cl(GotoPage::class)->clear() :
             $this->cl(GotoPage::class)
