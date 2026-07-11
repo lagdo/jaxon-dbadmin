@@ -164,9 +164,9 @@ class SelectProxy extends AbstractDriverProxy
         $source = $query->fkey->source[0];
         $target = $query->fkey->target[0];
         $id = $this->statement()->escapeId($source);
-        $targetId = $this->statement()->escapeId($target);
-        $targetLabel = ($query->select)($textLength);
         $targetTable = $this->statement()->escapeId($query->fkey->table);
+        $targetId = "$targetTable." . $this->statement()->escapeId($target);
+        $targetLabel = ($query->select)($textLength);
         $cteFrom = implode(' ', [$targetTable, ...$query->joins]);
 
         $cte = "{$source}_cte";
