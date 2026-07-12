@@ -73,9 +73,7 @@ class Select extends MainComponent
         $this->cl(Fields::class)->render();
         $this->cl(Values::class)->render();
 
-        // Show the query
-        $this->cl(QueryText::class)->render();
-        // Also run the query.
+        // Run the query.
         $this->cl(ResultSet::class)->page($this->get('page', 1));
     }
 

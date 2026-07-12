@@ -83,8 +83,8 @@ return [
 
                 return new Driver\Driver($engine, $driver->statement);
             },
-            'dbadmin_package_config' =>
-                fn(Container $di) => $di->getPackageConfig(App\DbAdminPackage::class),
+            'dbadmin_package_config' => fn(Container $di) =>
+                $di->getPackageConfig(App\DbAdminPackage::class),
             // Options for query recording
             'queries_record_options' => function(Container $di) {
                 $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
@@ -127,8 +127,8 @@ return [
                  * to delay the access to its value until it is actually needed.
                  */
                 // User database, different from the audit database.
-                $serverOptions = fn() => $di->g('dbadmin_server_options');
                 $dbProxy = $di->g(Support\Driver\DriverProxy::class);
+                $serverOptions = fn() => $di->g('dbadmin_server_options');
                 $database = fn() => $dbProxy->getDatabaseOptions($serverOptions());
 
                 $proxy = $di->g(Service\Admin\ConnectionProxy::class);

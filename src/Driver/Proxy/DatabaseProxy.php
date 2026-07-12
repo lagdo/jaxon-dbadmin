@@ -98,7 +98,7 @@ class DatabaseProxy extends AbstractDriverProxy
     {
         // Set the user schemas, if defined.
         if (is_array(($userSchemas = $options['access']['schemas'] ?? null))) {
-            $this->userSchemas = $userSchemas;
+            $this->userSchemas = array_values($userSchemas);
         }
         return $this;
     }
@@ -106,11 +106,11 @@ class DatabaseProxy extends AbstractDriverProxy
     /**
      * Get the schemas from the connected database
      *
-     * @param bool $schemaAccess
+     * @param bool $systemAccess
      *
      * @return array
      */
-    protected function schemas(bool $schemaAccess): array
+    protected function schemas(bool $systemAccess): array
     {
         // Get the schema lists
         if ($this->finalSchemas === null) {
@@ -121,21 +121,21 @@ class DatabaseProxy extends AbstractDriverProxy
             }
         }
 
-        return $schemaAccess ? $this->finalSchemas :
+        return $systemAccess ? $this->finalSchemas :
             array_filter($this->finalSchemas, $this->engine()->isUserSchema(...));
     }
 
     /**
      * Connect to a database server
      *
-     * @param bool $schemaAccess
+     * @param bool $systemAccess
      *
      * @return array
      */
-    public function getDatabaseInfo(bool $schemaAccess): array
+    public function getDatabaseInfo(bool $systemAccess): array
     {
         // From db.inc.php
-        $schemas = $this->engine()->support("scheme") ? $this->schemas($schemaAccess) : null;
+        $schemas = $this->engine()->support("scheme") ? $this->schemas($systemAccess) : null;
 
         // $tables_list = $this->engine()->tables();
         // $tables = [];

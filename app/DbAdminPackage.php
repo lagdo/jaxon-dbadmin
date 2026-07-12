@@ -11,7 +11,6 @@ use Lagdo\DbAdmin\App\Ajax\Admin\AppFunc;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
 
 use function realpath;
-use function Jaxon\jaxon;
 use function Jaxon\rq;
 
 /**

@@ -46,7 +46,7 @@ class ServerProxy extends AbstractDriverProxy
     {
         // Set the user databases, if defined.
         if (is_array(($userDatabases = $options['access']['databases'] ?? null))) {
-            $this->userDatabases = $userDatabases;
+            $this->userDatabases = array_values($userDatabases);
         }
         return $this;
     }

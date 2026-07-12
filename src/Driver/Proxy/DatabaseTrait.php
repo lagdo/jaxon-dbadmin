@@ -111,15 +111,15 @@ trait DatabaseTrait
     /**
      * Get the database list
      *
-     * @param bool $schemaAccess
+     * @param bool $systemAccess
      *
      * @return array
      */
-    public function getDatabases(bool $schemaAccess): array
+    public function getDatabases(bool $systemAccess): array
     {
         $this->connectToServer();
         $this->breadcrumbs()->clear()->item($this->utils()->lang('Databases'));
-        return $this->serverProxy()->getDatabases($schemaAccess);
+        return $this->serverProxy()->getDatabases($systemAccess);
     }
 
     /**
@@ -188,15 +188,15 @@ trait DatabaseTrait
     /**
      * Connect to a database server
      *
-     * @param bool $schemaAccess
+     * @param bool $systemAccess
      *
      * @return array
      */
-    public function getDatabaseInfo(bool $schemaAccess)
+    public function getDatabaseInfo(bool $systemAccess)
     {
         $this->connectToDatabase();
         $this->breadcrumbs(true);
-        return $this->databaseProxy()->getDatabaseInfo($schemaAccess);
+        return $this->databaseProxy()->getDatabaseInfo($systemAccess);
     }
 
     /**

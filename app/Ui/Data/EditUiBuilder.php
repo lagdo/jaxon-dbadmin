@@ -223,7 +223,7 @@ class EditUiBuilder
             $this->ui->input()
                 ->setType('text')
                 ->setId($inputId)
-                ->setClass('search-box')
+                ->addClass('search-box')
                 ->setStyle("anchor-name: --anchor-$columnName;")
                 ->setPlaceholder("Search in table {$input->foreignKey->table}")
                 ->setAutocomplete('off')
