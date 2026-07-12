@@ -6,12 +6,12 @@ use Infisical\SDK\Models\GetSecretParameters;
 use Infisical\SDK\Models\Secret;
 use Infisical\SDK\Services\SecretsService;
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
-use Lagdo\DbAdmin\Support\Provider\Config\AccessConfigProvider;
+use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Closure;
 use Exception;
 use RuntimeException;
 
-class InfisicalConfigProvider extends AccessConfigProvider
+class InfisicalConfigProvider extends SecretConfigProvider
 {
     /**
      * @var Closure

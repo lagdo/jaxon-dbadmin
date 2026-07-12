@@ -7,20 +7,10 @@ class ServerConfigProvider
     use ConfigProviderTrait;
 
     /**
-     * @param AccessConfigProvider $accessConfig
+     * @param SecretConfigProvider $secret
      */
-    public function __construct(protected AccessConfigProvider $accessConfig)
+    public function __construct(protected SecretConfigProvider $secret)
     {}
-
-    /**
-     * @param string $prefix
-     *
-     * @return string
-     */
-    protected function getDirectory(string $prefix): string
-    {
-        return $this->getOptionValue($prefix, 'directory');
-    }
 
     /**
      * @param string $prefix
@@ -30,20 +20,28 @@ class ServerConfigProvider
     public function readServerConfig(string $prefix): array
     {
         $config = $this->config();
-        $options = [
-            'name' => $config->getOption("$prefix.name", ''),
-            'driver' => $config->getOption("$prefix.driver", ''),
-        ];
-        if ($options['driver'] === 'sqlite') {
-            if ($config->hasOption("$prefix.directory")) {
-                $options['directory'] = $this->getDirectory($prefix);
-            }
-            return $options;
+        $driver = $config->getOption("$prefix.driver", '');
+        if ($driver === 'sqlite') {
+            return !$config->hasOption("$prefix.directory") ? [
+                'name' => $config->getOption("$prefix.name", ''),
+                'driver' => $driver,
+                'access' => $config->getOption("$prefix.access", []),
+            ] : [
+                'name' => $config->getOption("$prefix.name", ''),
+                'driver' => $driver,
+                'directory' => $this->getOptionValue($prefix, 'directory'),
+                'access' => $config->getOption("$prefix.access", []),
+            ];
         }
 
+        $port = (int)$this->getOptionValue($prefix, 'port', -1);
         return [
-            ...$options,
-            ...$this->accessConfig->with($config)->readAccessConfig($prefix),
+            'name' => $config->getOption("$prefix.name", ''),
+            'driver' => $driver,
+            'host' => $this->getOptionValue($prefix, 'host'),
+            ...($port < 0 ? [] : ['port' => $port]),
+            ...$this->secret->with($config)->getCredentials($prefix),
+            'access' => $config->getOption("$prefix.access", []),
         ];
     }
 }

@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Support\Provider\Secret;
 use Aws\Exception\AwsException;
 use Aws\SecretsManager\SecretsManagerClient;
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
-use Lagdo\DbAdmin\Support\Provider\Config\AccessConfigProvider;
+use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\Facades\Logger;
 use Closure;
 use RuntimeException;
@@ -13,7 +13,7 @@ use RuntimeException;
 use function json_decode;
 use function json_last_error;
 
-class AwsSecretConfigProvider extends AccessConfigProvider
+class AwsSecretConfigProvider extends SecretConfigProvider
 {
     /**
      * @var Closure
@@ -75,16 +75,8 @@ class AwsSecretConfigProvider extends AccessConfigProvider
      *
      * @return array
      */
-    public function readAccessConfig(string $prefix): array
+    public function getCredentials(string $prefix): array
     {
-        $options = [];
-        if(($host = $this->getHost($prefix)) !== '') {
-            $options['host'] = $host;
-        }
-        if ($this->config()->hasOption("$prefix.port")) {
-            $options['port'] = $this->getPort($prefix);
-        }
-
         // The username and password are stored in the same json payload.
         // The secret name is generated with the provided closure using only the prefix.
         $secretName = ($this->secretKeyBuilder)($prefix, $this->auth);
@@ -94,7 +86,6 @@ class AwsSecretConfigProvider extends AccessConfigProvider
         }
 
         return [
-            ...$options,
             'username' => $secretData['username'],
             'password' => $secretData['password'],
         ];
