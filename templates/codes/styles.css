@@ -151,8 +151,8 @@
 }
 
 #jaxon-dbadmin .dbadmin-query-builder-options {
-    display:flex;
-    flex-direction:row;
+    display: flex;
+    flex-direction: row;
     margin-bottom: 7px;
     justify-content: space-between;
 }
@@ -170,7 +170,7 @@
     padding: 7px;
 }
 #jaxon-dbadmin .dbadmin-query-builder-actions {
-    display:flex;
+    display: flex;
     flex-direction:row;
     gap: 7px;
     margin-top: 7px;
@@ -179,7 +179,7 @@
     flex-grow: 1;
 }
 #jaxon-dbadmin input.dbadmin-number-input {
-    width: 60px;
+    width: 70px;
 }
 #jaxon-dbadmin .dbadmin-query-builder-results {
     margin-top: 20px;

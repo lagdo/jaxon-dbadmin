@@ -11,8 +11,8 @@ use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\HtmlComponent;
 
-use function Jaxon\form;
 use function Jaxon\jo;
+use function Jaxon\pm;
 use function Jaxon\rq;
 
 class QueryUiBuilder
@@ -80,20 +80,20 @@ class QueryUiBuilder
     private function queryButtons(JxnCall $rqQuery): mixed
     {
         $queryText = jo('jaxon.dbadmin')->getQueryText();
-        $queryValues = form($this->queryFormId());
+        $execute = $rqQuery->exec($queryText, pm()->form($this->queryFormId()));
 
-        return $this->ui->buttonGroup(
+        return !$this->canSaveQuery ?
             $this->ui->button(
                 $this->ui->text($this->trans->lang('Execute'))
             )->primary()
-                ->jxnClick($rqQuery->exec($queryText, $queryValues)),
-            $this->ui->when($this->canSaveQuery, fn() =>
-                $this->ui->button(
-                    $this->ui->text($this->trans->lang('Save'))
-                )->outline()->secondary()
-                    ->jxnClick(rq(Query\FavoriteFunc::class)->add($queryText))
-            )
-        )->fullWidth();
+                ->jxnClick($execute) :
+            $this->buttonMenuComponent([[
+                'label' => $this->trans->lang('Execute'),
+                'handler' => $execute,
+            ], [
+                'label' => $this->trans->lang('Save'),
+                'handler' => rq(Query\FavoriteFunc::class)->add($queryText),
+            ]]);
     }
 
     /**
@@ -104,58 +104,46 @@ class QueryUiBuilder
     private function actions(JxnCall $rqQuery): mixed
     {
         return $this->ui->form(
-            $this->ui->row(
-                $this->ui->col(
+            $this->ui->div(
+                $this->ui->div(
                     $this->queryButtons($rqQuery)
-                )->width(3),
-                $this->ui->col()
-                    ->width(1)
+                ),
+                $this->ui->div()
+                    ->setStyle('flex-grow: 1;')
                     ->tbnBindEditor(rq(Query\QueryDuration::class)),
-                $this->ui->col(
-                    $this->ui->row(
-                        $this->ui->col(
-                            $this->ui->inputGroup(
-                                $this->ui->label(
-                                    $this->ui->text($this->trans->lang('Limit rows'))
-                                ),
-                                $this->ui->input()
-                                    ->setName('limit')
-                                    ->setType('number')
-                                    ->setValue($this->defaultLimit)
-                                    ->addClass('dbadmin-number-input dbadmin-no-arrows')
-                            )
-                        )->width(4),
-                        $this->ui->col(
-                            $this->ui->inputGroup(
-                                $this->ui->label(
-                                    $this->ui->text($this->trans->lang('Stop on error'))
-                                ),
-                                $this->ui->checkbox()
-                                    ->setName('error_stops')
-                            )
-                        )->width(4),
-                        $this->ui->col(
-                            $this->ui->inputGroup(
-                                $this->ui->label(
-                                    $this->ui->text($this->trans->lang('Show only errors'))
-                                ),
-                                $this->ui->checkbox()
-                                    ->setName('only_errors')
-                            )
-                        )->width(4)
-                    ),
-                )->width(8)
-            )
+                $this->ui->div(
+                    $this->ui->inputGroup(
+                        $this->ui->label(
+                            $this->ui->text($this->trans->lang('Limit rows'))
+                        ),
+                        $this->ui->input()
+                            ->setName('limit')
+                            ->setType('number')
+                            ->setValue($this->defaultLimit)
+                            ->addClass('dbadmin-number-input dbadmin-no-arrows')
+                    )
+                ),
+                $this->ui->div(
+                    $this->ui->inputGroup(
+                        $this->ui->label(
+                            $this->ui->text($this->trans->lang('Stop on error'))
+                        ),
+                        $this->ui->checkbox()
+                            ->setName('error_stops')
+                    )
+                ),
+                $this->ui->div(
+                    $this->ui->inputGroup(
+                        $this->ui->label(
+                            $this->ui->text($this->trans->lang('Show only errors'))
+                        ),
+                        $this->ui->checkbox()
+                            ->setName('only_errors')
+                    )
+                )
+            )->setStyle('display: flex; flex-direction: row; gap: 7px;')
         )->wrapped()
             ->setId($this->queryFormId());
-    }
-
-    /**
-     * @return string
-     */
-    public function commandDetailsId(): string
-    {
-        return $this->tab()->editor()->id('dbadmin-main-command-details');
     }
 
     /**
@@ -202,31 +190,24 @@ class QueryUiBuilder
     private function editorTabContent(JxnCall $rqQuery, bool $active): HtmlComponent
     {
         return $this->ui->tabContentItem(
-                    $this->ui->row(
-                        $this->ui->col()->width(12)->setId($this->commandDetailsId()),
-                        $this->ui->col(
-                            $this->ui->row(
-                                $this->ui->col(
-                                    $this->ui->card(
-                                        $this->ui->cardBody(
-                                            $this->ui->div()
-                                                ->setId($this->commandEditorId())
-                                                ->setClass(self::QUERY_TEXT_CLASS)
-                                        )->setClass('sql-command-editor-panel')
-                                            ->setStyle('padding: 0 1px;')
-                                    )->setStyle('padding: 5px;')
-                                )->width(12)
-                            )
-                        )->width(12),
-                        $this->ui->col(
-                            $this->actions($rqQuery)
-                        )->width(12),
-                        $this->ui->col()
-                            ->width(12)
-                            ->tbnBindEditor(rq(Query\QueryResult::class))
-                    )
-                )->setId($this->tab()->editor()->wrapperId())
-                    ->active($active);
+            $this->ui->div(
+                $this->ui->card(
+                    $this->ui->cardBody(
+                        $this->ui->div()
+                            ->setId($this->commandEditorId())
+                            ->setClass(self::QUERY_TEXT_CLASS)
+                    )->setClass('sql-command-editor-panel')
+                        ->setStyle('padding: 0 1px;')
+                )->setStyle('padding: 5px;')
+            ),
+            $this->ui->div(
+                $this->actions($rqQuery)
+            )->setStyle('margin-top: 7px;'),
+            $this->ui->div()
+                ->setStyle('margin-top: 15px;')
+                ->tbnBindEditor(rq(Query\QueryResult::class))
+        )->setId($this->tab()->editor()->wrapperId())
+            ->active($active);
     }
 
     /**

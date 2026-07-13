@@ -41,7 +41,7 @@ class EditUiBuilder
      */
     protected function getEnumValueInput(array $input): mixed
     {
-        return $this->ui->each($input['items'], fn($item) =>
+        return $this->ui->each($input['items'], fn(array $item) =>
             $this->ui->label(
                 $this->ui->radio($item['attrs'])
                     ->setValue($item['value'], false)

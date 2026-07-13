@@ -27,20 +27,26 @@ trait QueryResultTrait
 
         return $this->ui->build(
             $this->ui->when($result->message !== null, fn() =>
-                $this->ui->alert($result->message)->info()->setStyle('padding:5px 15px')
+                $this->ui->alert($result->message)
+                    ->info()
+                    ->setStyle('padding: 5px;')
             ),
             $this->ui->when($resultsAreTruncated, fn() =>
-                $this->ui->alert($truncatedMessage)->info()->setStyle('padding:5px 15px')
+                $this->ui->alert($truncatedMessage)
+                    ->info()
+                    ->setStyle('padding: 5px;')
             ),
             $this->ui->each($truncatedRowsets, fn(QueryRowsetDto $rowset) =>
                 $this->ui->div(
                     $this->ui->when($rowset->error !== null, fn() =>
                         $this->ui->alert("{$rowset->query}<br/>{$rowset->error}")
                             ->danger()
+                            ->setStyle('padding: 5px; margin-bottom: 7px;')
                     ),
                     $this->ui->when($rowset->message !== null, fn() =>
                         $this->ui->alert("{$rowset->query}<br/>{$rowset->message}")
                             ->success()
+                            ->setStyle('padding: 5px; margin-bottom: 7px;')
                     ),
                     $this->ui->when($rowset->rowCount > 0, fn() =>
                         $this->ui->table(

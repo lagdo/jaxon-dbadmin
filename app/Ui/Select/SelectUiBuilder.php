@@ -193,14 +193,14 @@ class SelectUiBuilder
                     $this->ui->div()
                         ->tbnBindApp(rq(Duration::class)),
                     $this->ui->div()
-                        ->tbnBindApp(rq(Foreigns::class)),
-                    $this->ui->div()
                         ->tbnBindApp(rq(GotoPage::class)),
                     $this->ui->div(
                         $this->ui->nav()
                             ->jxnPagination(cl(ResultSet::class))
                             ->setId($this->tab()->app()->id('jaxon-dbadmin-resulset-pagination'))
                     )->setClass('dbadmin-query-builder-pagination'),
+                    $this->ui->div()
+                        ->tbnBindApp(rq(Foreigns::class)),
                     $this->ui->div(
                         $this->ui->when($canGoBack, fn() =>
                             $this->ui->div(
