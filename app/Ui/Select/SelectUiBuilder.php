@@ -79,6 +79,7 @@ class SelectUiBuilder
         return $this->ui->build(
             $this->ui->inputGroup(
                 $this->ui->label(sprintf('%.4f&nbsp;s', $duration))
+                    ->addClass('white-background')
             )
         );
     }
@@ -100,16 +101,16 @@ class SelectUiBuilder
     {
         $pageInputId = $this->tab()->app()->id('jaxon-dbadmin-resulset-goto-page');
         $pageNumber = input($pageInputId)->toInt();
-        return $this->ui->build(
-            $this->ui->form(
+        return $this->ui->inForm(fn() =>
+            $this->ui->build(
                 $this->ui->inputGroup(
                     $this->ui->label(
                         $this->ui->text($this->trans->lang('Page'))
                     ),
                     $this->ui->input()
-                        // ->setType('number')
                         ->setId($pageInputId)
-                        ->setValue($page),
+                        ->setValue($page)
+                        ->addClass('dbadmin-number-input'),
                     $this->ui->button()
                         ->outline()
                         ->secondary()
@@ -130,11 +131,20 @@ class SelectUiBuilder
      */
     public function toggleForeigns(bool $checked): string
     {
-        return $this->ui->build(
-            $this->ui->switch()
-                ->checked($checked)
-                ->label($this->trans->lang('Foreigns'))
-                ->jxnClick(rq(QueryBuilder\Fields\Foreigns::class)->toggle())
+        return $this->ui->inForm(fn() =>
+            $this->ui->build(
+                $this->ui->inputGroup(
+                    $this->ui->label(
+                        $this->ui->text($this->trans->lang('Foreigns'))
+                    ),
+                    $this->ui->label(
+                        $this->ui->switch()
+                            ->checked($checked)
+                            ->jxnClick(rq(QueryBuilder\Fields\Foreigns::class)->toggle())
+                    )->addClass('white-background')
+                        ->setStyle('padding: 4px 5px 0 9px;')
+                )
+            )
         );
     }
 
@@ -163,62 +173,51 @@ class SelectUiBuilder
 
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->row(
-                    $this->ui->col()
-                        ->width(6)
+                $this->ui->div(
+                    $this->ui->div()
+                        ->setClass('dbadmin-query-builder-fields')
                         ->tbnBindApp(rq(QueryBuilder\Fields::class)),
-                    $this->ui->col()
-                        ->width(6)
+                    $this->ui->div()
+                        ->setClass('dbadmin-query-builder-values')
                         ->tbnBindApp(rq(QueryBuilder\Values::class))
+                )->setClass('dbadmin-query-builder-options'),
+                $this->ui->div(
+                    $this->ui->card(
+                        $this->ui->cardBody()
+                            ->setStyle('padding: 0 1px;')
+                            ->tbnBindApp(rq(QueryText::class))
+                    )->setClass('dbadmin-query-builder-text-wrapper')
                 ),
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->card(
-                            $this->ui->cardBody()
-                                ->setStyle('padding: 0 1px;')
-                                ->tbnBindApp(rq(QueryText::class))
-                        )->setStyle('padding: 5px;')
-                    )->width(12)
-                ),
+                $this->ui->div(
+                    $this->ui->div($this->buttonMenuComponent($queryActions)),
+                    $this->ui->div()
+                        ->tbnBindApp(rq(Duration::class)),
+                    $this->ui->div()
+                        ->tbnBindApp(rq(Foreigns::class)),
+                    $this->ui->div()
+                        ->tbnBindApp(rq(GotoPage::class)),
+                    $this->ui->div(
+                        $this->ui->nav()
+                            ->jxnPagination(cl(ResultSet::class))
+                            ->setId($this->tab()->app()->id('jaxon-dbadmin-resulset-pagination'))
+                    )->setClass('dbadmin-query-builder-pagination'),
+                    $this->ui->div(
+                        $this->ui->when($canGoBack, fn() =>
+                            $this->ui->div(
+                                $this->ui->button(
+                                    $this->ui->html('<i class="fa fa-arrow-left"></i>&nbsp;'),
+                                    $this->ui->text($this->trans->lang('Back'))
+                                )->primary()
+                                    ->jxnClick(rq(Select::class)->back())
+                            )
+                        )
+                    )
+                )->setClass('dbadmin-query-builder-actions')
             )->wrapped()
                 ->setId($this->formId()),
-            $this->ui->row(
-                $this->ui->col(
-                    $this->buttonMenuComponent($queryActions)
-                )->width(2),
-                $this->ui->col()
-                    ->width(1)
-                    ->tbnBindApp(rq(Duration::class)),
-                $this->ui->col()
-                    ->width(2)
-                    ->tbnBindApp(rq(Foreigns::class))
-                    ->setStyle('display: flex; align-items: center; justify-content: flex-end;'),
-                $this->ui->col()
-                    ->width(2)
-                    ->tbnBindApp(rq(GotoPage::class)),
-                $this->ui->col(
-                    $this->ui->nav()
-                        ->jxnPagination(cl(ResultSet::class))
-                        ->setId($this->tab()->app()->id('jaxon-dbadmin-resulset-pagination'))
-                )->width(4)
-                    ->setStyle('overflow:hidden'),
-                $this->ui->col(
-                    $this->ui->when($canGoBack, fn() =>
-                        $this->ui->div(
-                            $this->ui->button(
-                                $this->ui->html('<i class="fa fa-arrow-left"></i>&nbsp;'),
-                                $this->ui->text($this->trans->lang('Back'))
-                            )->primary()
-                                ->jxnClick(rq(Select::class)->back())
-                        )->setStyle('float:right;')
-                    )
-                )->width(1)
-            ),
-            $this->ui->row(
-                $this->ui->col()
-                    ->width(12)
-                    ->tbnBindApp(rq(ResultSet::class))
-            )->setStyle('margin-top: 20px;')
+            $this->ui->div()
+                ->tbnBindApp(rq(ResultSet::class))
+                ->addClass('dbadmin-query-builder-results')
         );
     }
 }

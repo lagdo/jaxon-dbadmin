@@ -122,6 +122,7 @@ class QueryUiBuilder
                                     ->setName('limit')
                                     ->setType('number')
                                     ->setValue($this->defaultLimit)
+                                    ->addClass('dbadmin-number-input dbadmin-no-arrows')
                             )
                         )->width(4),
                         $this->ui->col(
@@ -301,13 +302,13 @@ class QueryUiBuilder
                         ),
                         $this->editorTabNav(active: true)
                     )->setId($this->editorTabNavWrapperId())
-                        ->setStyle('margin-bottom: 5px;')
                 )->content($tabsContentId)
                     ->setClass('jaxon-dbadmin-page-header_items'),
                 $this->ui->div(
                     $this->buttonMenu($menuEntries),
                 )->setClass('jaxon-dbadmin-page-header_menus')
-            )->setClass('jaxon-dbadmin-page-header'),
+            )->setClass('jaxon-dbadmin-page-header')
+                ->setStyle('margin-bottom: 5px;'),
             $this->ui->tabContent(
                 $this->ui->when($showQueriesTab, fn() =>
                     $this->ui->tabContentItem()

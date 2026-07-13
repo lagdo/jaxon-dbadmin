@@ -328,61 +328,59 @@ class OptionsUiBuilder
         $selectTotalValue = checked($optionsTotalId);
         $textLengthValue = input($optionsLengthId)->toInt();
 
-        return $this->ui->build(
-            $this->ui->form(
+        return $this->ui->inForm(fn() =>
+            $this->ui->build(
                 $this->ui->div(
-                    $this->ui->div(
-                        $this->ui->inputGroup(
-                            $this->ui->label(
-                                $this->ui->text($this->trans->lang('Limit'))
-                            ),
-                            $this->ui->input()
-                                ->setId($optionsLimitId)
-                                // ->setType('number')
-                                ->setName('limit')
-                                ->setValue($options['limit']),
-                            $this->ui->button()
-                                ->outline()
-                                ->secondary()
-                                ->addIcon('ok')
-                                ->jxnClick($rqOptionsValues->saveSelectLimit($selectLimitValue))
-                        )
-                    )->setStyle('width:30%;'),
-                    $this->ui->div(
-                        $this->ui->inputGroup(
-                            $this->ui->label(
-                                $this->ui->text($this->trans->lang('Total'))
-                            ),
-                            $this->ui->checkbox()
-                                ->setId($optionsTotalId)
-                                ->setName('total')
-                                ->checked($options['total'])
-                                ->setValue('1'),
-                            $this->ui->button()
-                                ->outline()
-                                ->secondary()
-                                ->addIcon('ok')
-                                ->jxnClick($rqOptionsValues->saveSelectTotal($selectTotalValue))
-                        )
-                    )->setStyle('width:auto; margin:auto;'),
-                    $this->ui->div(
-                        $this->ui->inputGroup(
-                            $this->ui->label(
-                                $this->ui->text($this->trans->lang('Text length'))
-                            ),
-                            $this->ui->input()
-                                ->setId($optionsLengthId)
-                                // ->setType('number')
-                                ->setName('length')
-                                ->setValue($options['length']),
-                            $this->ui->button()
-                                ->outline()
-                                ->secondary()
-                                ->addIcon('ok')
-                                ->jxnClick($rqOptionsValues->saveTextLength($textLengthValue))
-                        )
-                    )->setStyle('width:40%;')
-                )->setStyle('display:flex; flex-direction:row; align-items:flex-start;')
+                    $this->ui->inputGroup(
+                        $this->ui->label(
+                            $this->ui->text($this->trans->lang('Limit'))
+                        ),
+                        $this->ui->input()
+                            ->setId($optionsLimitId)
+                            ->setName('limit')
+                            ->setValue($options['limit'])
+                            ->addClass('dbadmin-number-input'),
+                        $this->ui->button()
+                            ->outline()
+                            ->secondary()
+                            ->addIcon('ok')
+                            ->jxnClick($rqOptionsValues->saveSelectLimit($selectLimitValue))
+                    )
+                ),
+                $this->ui->div(
+                    $this->ui->inputGroup(
+                        $this->ui->label(
+                            $this->ui->text($this->trans->lang('Total'))
+                        ),
+                        $this->ui->checkbox()
+                            ->setId($optionsTotalId)
+                            ->setName('total')
+                            ->checked($options['total'])
+                            ->setValue('1'),
+                        $this->ui->button()
+                            ->outline()
+                            ->secondary()
+                            ->addIcon('ok')
+                            ->jxnClick($rqOptionsValues->saveSelectTotal($selectTotalValue))
+                    )
+                ),
+                $this->ui->div(
+                    $this->ui->inputGroup(
+                        $this->ui->label(
+                            $this->ui->text($this->trans->lang('Text length'))
+                        ),
+                        $this->ui->input()
+                            ->setId($optionsLengthId)
+                            ->setName('length')
+                            ->setValue($options['length'])
+                            ->addClass('dbadmin-number-input'),
+                        $this->ui->button()
+                            ->outline()
+                            ->secondary()
+                            ->addIcon('ok')
+                            ->jxnClick($rqOptionsValues->saveTextLength($textLengthValue))
+                    )
+                )
             )
         );
     }

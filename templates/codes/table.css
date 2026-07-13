@@ -28,6 +28,21 @@
   border-top-right-radius: 5px;
 }
 
+/* no header first row */
+#jaxon-dbadmin table.no-header tr:first-child td {
+  border-top: 1px solid #bbb;
+}
+
+/* no header first row top-left border-radius */
+#jaxon-dbadmin table.no-header tr:first-child td:first-child {
+  border-top-left-radius: 5px;
+}
+
+/* no header first row top-right border-radius */
+#jaxon-dbadmin table.no-header tr:first-child td:last-child {
+  border-top-right-radius: 5px;
+}
+
 /* bottom-left border-radius */
 #jaxon-dbadmin table tr:last-child td:first-child {
   border-bottom-left-radius: 5px;

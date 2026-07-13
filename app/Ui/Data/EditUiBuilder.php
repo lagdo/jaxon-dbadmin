@@ -130,7 +130,7 @@ class EditUiBuilder
     {
         return $this->ui->input($input['attrs'])
             ->setValue($input['value'], false)
-            ->addClass('no-arrows');
+            ->addClass('dbadmin-no-arrows');
     }
 
     /**

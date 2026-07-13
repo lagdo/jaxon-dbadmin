@@ -7,7 +7,6 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 use Lagdo\DbAdmin\App\Ui\PageTrait;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\App\Ui\Table\Column\ColumnFieldTrait;
-use Lagdo\DbAdmin\Support\Driver\DriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 use Lagdo\DbAdmin\Support\Translator;

@@ -95,22 +95,19 @@ class ResultUiBuilder
                     $this->ui->div(
                         $this->ui->a($this->ui->html('&#9651;'))
                             ->setAttributes(['href' => 'javascript:void(0)'])
-                            ->setStyle('text-decoration: none;')
                             ->jxnClick($rqSorter->upsert($header->column->name, false)),
                         $this->ui->html('&nbsp;'),
                         $this->ui->a($this->ui->html('&#9661;'))
                             ->setAttributes(['href' => 'javascript:void(0)'])
-                            ->setStyle('text-decoration: none;')
                             ->jxnClick($rqSorter->upsert($header->column->name, true)),
                         $this->ui->html('&nbsp;'),
                         $this->ui->a($this->ui->html('&#8553;'))
                             ->setAttributes(['href' => 'javascript:void(0)'])
-                            ->setStyle('text-decoration: none;')
                             ->jxnClick($rqSorter->remove($header->column->name))
                     )
                 )
             )
-        );
+        )->addClass('table-header');
     }
 
     /**

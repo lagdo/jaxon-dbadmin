@@ -150,6 +150,53 @@
     resize: vertical;
 }
 
+#jaxon-dbadmin .dbadmin-query-builder-options {
+    display:flex;
+    flex-direction:row;
+    margin-bottom: 7px;
+    justify-content: space-between;
+}
+#jaxon-dbadmin .dbadmin-query-builder-options .dbadmin-query-builder-fields {
+    width: 50%;
+}
+#jaxon-dbadmin .dbadmin-query-builder-options .dbadmin-query-builder-values {
+    padding-left: 7px;
+    display: flex;
+    flex-direction: row;
+    gap: 7px;
+    align-items: flex-start;
+}
+#jaxon-dbadmin .dbadmin-query-builder-text-wrapper {
+    padding: 7px;
+}
+#jaxon-dbadmin .dbadmin-query-builder-actions {
+    display:flex;
+    flex-direction:row;
+    gap: 7px;
+    margin-top: 7px;
+}
+#jaxon-dbadmin .dbadmin-query-builder-actions .dbadmin-query-builder-pagination {
+    flex-grow: 1;
+}
+#jaxon-dbadmin input.dbadmin-number-input {
+    width: 60px;
+}
+#jaxon-dbadmin .dbadmin-query-builder-results {
+    margin-top: 20px;
+}
+#jaxon-dbadmin .dbadmin-query-builder-results .table-header {
+    color: #3B3B3B;
+}
+#jaxon-dbadmin .dbadmin-query-builder-results .table-header a {
+    text-decoration: none;
+    color: #3B3B3B;
+    font-size: 12px;
+}
+#jaxon-dbadmin div.input-group-text, /* Bootstrap 5 specific */
+#jaxon-dbadmin .white-background{
+    background-color: white;
+}
+
 .jaxon-dbadmin-foreign-column-search-list {
     border: none;
     border-radius: 5px;
@@ -157,13 +204,13 @@
 }
 
 /* Chrome, Safari, Edge, Opera */
-input.no-arrows::-webkit-outer-spin-button,
-input.no-arrows::-webkit-inner-spin-button {
+input.dbadmin-no-arrows::-webkit-outer-spin-button,
+input.dbadmin-no-arrows::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
 /* Firefox */
-input.no-arrows[type=number] {
+input.dbadmin-no-arrows[type=number] {
   -moz-appearance: textfield;
 }

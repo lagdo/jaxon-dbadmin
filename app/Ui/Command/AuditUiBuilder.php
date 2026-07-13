@@ -124,6 +124,7 @@ class AuditUiBuilder
                             ['.dbadmin-history-query-insert', 'click', $btnInsertHandler],
                         ])
                 )->border()
+                    ->setClass('no-header')
             )->setClass('jaxon-dbadmin-sql-query-wrapper')
         );
     }
@@ -228,6 +229,7 @@ class AuditUiBuilder
                         ['.dbadmin-favorite-query-delete', 'click', $btnDeleteHandler],
                     ])
                 )->border()
+                    ->setClass('no-header')
             )->setClass('jaxon-dbadmin-sql-query-wrapper')
         );
     }
