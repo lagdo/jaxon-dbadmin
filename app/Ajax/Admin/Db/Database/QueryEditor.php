@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Database;
 
+use Jaxon\App\ComponentDataTrait;
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query\QueryTrait;
@@ -10,12 +11,8 @@ use Lagdo\DbAdmin\App\Ui\Command\QueryUiBuilder;
 #[Databag('dbadmin.tab')]
 class QueryEditor extends Component
 {
+    use ComponentDataTrait;
     use QueryTrait;
-
-    /**
-     * @var string
-     */
-    private string $query = '';
 
     /**
      * @param QueryUiBuilder $queryUi    The HTML UI builder
@@ -44,7 +41,7 @@ class QueryEditor extends Component
      */
     private function showEditorTabs(): void
     {
-        $this->cl(EditorFunc::class)->showTabs($this->query);
+        $this->cl(EditorFunc::class)->showTabs($this->get('query'));
     }
 
     /**
@@ -59,7 +56,8 @@ class QueryEditor extends Component
     {
         // The request might come from a modal dialog.
         $this->modal()->hide();
-        $this->query = $query;
+
+        $this->set('query', $query);
         $this->render();
     }
 }

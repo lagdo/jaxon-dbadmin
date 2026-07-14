@@ -117,7 +117,8 @@ class EditorTab
      */
     public function current(): string
     {
-        return $this->databag->bag('dbadmin')->get('tab.editor', $this->zero());
+        $currentAppTab = $this->appTab->current();
+        return $this->databag->bag('dbadmin.app')->get("tab.ed_$currentAppTab", $this->zero());
     }
 
     /**

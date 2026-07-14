@@ -102,7 +102,7 @@ jaxon.dbadmin = {};
     };
 
     /**
-     * @param {string} tabNavId 
+     * @param {string} tabNavId
      *
      * @returns {void}
      */
@@ -113,7 +113,7 @@ jaxon.dbadmin = {};
      * @param {string} tabNavHtml
      * @param {string} tabContentWrapper
      * @param {string} tabContentHtml
-     * @param {string} activeTab 
+     * @param {string} activeTab
      *
      * @returns {void}
      */
@@ -129,9 +129,9 @@ jaxon.dbadmin = {};
     };
 
     /**
-     * @param {string} tabNavId 
-     * @param {string} tabContentId 
-     * @param {string} activeTab 
+     * @param {string} tabNavId
+     * @param {string} tabContentId
+     * @param {string} activeTab
      *
      * @returns {void}
      */
@@ -185,7 +185,7 @@ jaxon.dbadmin = {};
      * @returns {string}
      */
     const getIdForTab = (id) => {
-        const appTabId = jaxon.bag.getEntry('dbadmin.app', 'tab') ?? '';
+        const appTabId = jaxon.bag.getEntry('dbadmin.app', 'tab.app') ?? '';
         return appTabId === '' ? id : `${appTabId}_${id}`;
     };
 
@@ -225,7 +225,7 @@ jaxon.dbadmin = {};
             const formId = getIdForTab('dbadmin-table-values-form');
             const formValues = jaxon.getFormValues(formId);
             // Save the form values in the databag.
-            const appTabId = jaxon.bag.getEntry('dbadmin.app', 'tab') ?? '';
+            const appTabId = jaxon.bag.getEntry('dbadmin.app', 'tab.app') ?? '';
             const entryValues = jaxon.bag.getEntry('dbadmin.table', appTabId);
             jaxon.bag.setEntry('dbadmin.table', appTabId, {
                 ...entryValues,

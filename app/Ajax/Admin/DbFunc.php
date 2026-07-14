@@ -39,8 +39,8 @@ class DbFunc extends FuncComponent
      */
     private function setBags(): void
     {
-        if (!$this->bag('dbadmin.app')->get('tab')) {
-            $this->bag('dbadmin.app')->set('tab', $this->tab()->app()->current());
+        if (!$this->bag('dbadmin.app')->get('tab.app')) {
+            $this->bag('dbadmin.app')->set('tab.app', $this->tab()->app()->current());
         }
         // Initially clear all the tabs.
         $this->setBag('dbadmin.tab', 'editor.names.sv', []);

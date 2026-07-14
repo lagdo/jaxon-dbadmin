@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
 use Jaxon\App\ComponentDataTrait;
 use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\QueryEditor;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields;
@@ -128,6 +129,7 @@ class Select extends MainComponent
      * @return void
      */
     #[After('showBreadcrumbs')]
+    #[Databag('dbadmin.tab')]
     public function edit(): void
     {
         $this->cl(QueryEditor::class)->database($this->getBuilderSqlQuery());

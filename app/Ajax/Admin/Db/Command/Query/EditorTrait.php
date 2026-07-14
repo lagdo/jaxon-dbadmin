@@ -4,8 +4,10 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
 
 use Jaxon\Attributes\Attribute\Exclude;
 use Lagdo\DbAdmin\App\Ui\Command\QueryUiBuilder;
+use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 
 use function array_filter;
+use function array_shift;
 use function count;
 use function in_array;
 
@@ -27,15 +29,9 @@ trait EditorTrait
     abstract protected function setEditorPage(): void;
 
     /**
-     * @return void
+     * @return Tab
      */
-    #[Exclude]
-    public function initTab(): void
-    {
-        // Always start with tab zero.
-        $this->setEditorPage();
-        $this->bag('dbadmin')->set('tab.editor', $this->tab()->editor()->zero());
-    }
+    abstract protected function tab(): Tab;
 
     /**
      * @return void
@@ -55,13 +51,27 @@ trait EditorTrait
     }
 
     /**
+     * @return void
+     */
+    #[Exclude]
+    public function initTab(): void
+    {
+        // Always start with tab zero.
+        $this->setEditorPage();
+        $appTab = $this->tab()->app()->current();
+        $editorTab = $this->tab()->editor()->zero();
+        $this->bag('dbadmin.app')->set("tab.ed_$appTab", $editorTab);
+    }
+
+    /**
      * @param string $name
      *
      * @return void
      */
     private function addEditorTab(string $name): void
     {
-        $this->bag('dbadmin')->set('tab.editor', $name);
+        $appTab = $this->tab()->app()->current();
+        $this->bag('dbadmin.app')->set("tab.ed_$appTab", $name);
 
         $navId = $this->queryUi->editorTabNavWrapperId();
         $nav = $this->queryUi->editorTabNavHtml();
@@ -69,10 +79,12 @@ trait EditorTrait
 
         $content = $this->queryUi->canSaveQuery($this->config()->canSaveQuery())
             ->editorTabContentHtml($this->rq($this->queryClass));
-
         $this->response()->jo('jaxon.dbadmin')->addTab($navId, $nav, $contentId, $content);
 
         $this->setupNewTab();
+        // Activate the created tab.
+        $titleId = $this->tab()->editor()->titleId();
+        $this->response()->jo('jaxon.dbadmin')->activateTab($titleId);
     }
 
     /**
@@ -81,37 +93,49 @@ trait EditorTrait
     abstract protected function getSavedTabs(): array;
 
     /**
-     * @return int
+     * Recreate the saved tabs.
+     *
+     * @return bool
      */
-    private function _showTabs(): int
+    private function createSavedTabs(): bool
+    {
+        $savedId = $this->tab()->editor()->saved();
+        if (!$this->getBag('dbadmin.tab', $savedId, true)) {
+            return false;
+        }
+
+        $this->setBag('dbadmin.tab', $savedId, false);
+        $savedTabs = $this->getSavedTabs();
+        if (count($savedTabs) > 0) {
+            // The first tab is already created. Just need to set the query text.
+            $query = array_shift($savedTabs);
+            $this->response()->jo('jaxon.dbadmin')->setQueryText($query);
+            foreach ($savedTabs as $query) {
+                $this->addTab();
+                $this->response()->jo('jaxon.dbadmin')->setQueryText($query);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    private function createTabs(): bool
     {
         // The saved tabs are fetched only on the first access to the query editor.
-        if ($this->getBag('dbadmin.tab', $this->tab()->editor()->saved(), true)) {
-            $this->setBag('dbadmin.tab', $this->tab()->editor()->saved(), false);
-
-            $savedTabs = $this->getSavedTabs();
-            if (($count = count($savedTabs)) > 0) {
-                // Recreate the saved tabs.
-                $firstTab = true;
-                foreach ($savedTabs as $query) {
-                    // The first tab is already created. Just need to set the query text.
-                    if (!$firstTab) {
-                        $this->addTab();
-                    }
-                    $this->response()->jo('jaxon.dbadmin')->setQueryText($query);
-                    $firstTab = false;
-                }
-                return $count;
-            }
+        if ($this->createSavedTabs()) {
+            return true;
         }
 
         // Show the other opened tabs. The addEditorTab() function is used
         // here because the tabs are already saved in the databag.
-        $names = $this->getBag('dbadmin.tab', $this->tab()->editor()->names(), []);
+        $bagNamesKey = $this->tab()->editor()->names();
+        $names = $this->getBag('dbadmin.tab', $bagNamesKey, []);
         foreach ($names as $name) {
             $this->addEditorTab($name);
         }
-        return count($names);
+        return count($names) > 0;
     }
 
     /**
@@ -125,11 +149,10 @@ trait EditorTrait
         // Create the SQL editor for the first tab.
         $this->setupNewTab();
 
-        $count = $this->_showTabs();
-        if($query !== '')
-        {
-            // Create a new tab for the query if other tabs ware already created.
-            if ($count > 0) {
+        $created = $this->createTabs();
+        if($query !== '') {
+            // Create a new tab for the query if other tabs were already created.
+            if ($created) {
                 $this->addTab();
             }
             $this->response()->jo('jaxon.dbadmin')->setQueryText($query);
@@ -143,8 +166,6 @@ trait EditorTrait
     {
         $name = $this->tab()->editor()->newId();
         $this->addEditorTab($name);
-        // The addEditorTab() function dos not activate the created tab.
-        $this->response()->jo('jaxon.dbadmin')->activateTab($this->tab()->editor()->titleId());
 
         $bagNamesKey = $this->tab()->editor()->names();
         $names = $this->getBag('dbadmin.tab', $bagNamesKey, []);
@@ -159,10 +180,11 @@ trait EditorTrait
      */
     private function currentTabs(): array
     {
+        $appTab = $this->tab()->app()->current();
         $bagNamesKey = $this->tab()->editor()->names();
         return [
             $this->getBag('dbadmin.tab', $bagNamesKey, []),
-            $this->bag('dbadmin')->get('tab.editor', ''),
+            $this->bag('dbadmin.app')->get("tab.ed_$appTab", ''),
         ];
     }
 
@@ -180,7 +202,8 @@ trait EditorTrait
         $this->addTab();
 
         // Copy the query text from the previous current tab to the new tab.
-        $this->response()->jo('jaxon.dbadmin')->copyQueryText($this->tab()->app()->current(), $current);
+        $appTab = $this->tab()->app()->current();
+        $this->response()->jo('jaxon.dbadmin')->copyQueryText($appTab, $current);
     }
 
     /**

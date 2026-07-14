@@ -49,7 +49,7 @@
      *
      * @returns {void}
      */
-    self.onAppTabClick = (appTabId) => jaxon.bag.setEntry('dbadmin.app', 'tab', appTabId);
+    self.onAppTabClick = (appTabId) => jaxon.bag.setEntry('dbadmin.app', 'tab.app', appTabId);
 
     /**
      * @param {string} appTabId
@@ -127,7 +127,7 @@
         // is not updated when the tab becomes visible. We need to force the refresh.
         self.editor.refreshQuery(editors.query);
         // Save the current editor tab name.
-        jaxon.bag.setEntry('dbadmin', 'tab.editor', editorTabId);
+        jaxon.bag.setEntry('dbadmin.app', `tab.ed_${appTabId}`, editorTabId);
     };
 
     /**
@@ -150,7 +150,7 @@
         }
 
         // Save the current editor tab name.
-        jaxon.bag.setEntry('dbadmin', 'tab.editor', editorTabId);
+        jaxon.bag.setEntry('dbadmin.app', `tab.ed_${appTabId}`, editorTabId);
         // Save the tab editor.
         addTabEditor(appTabId, appPage, editorTabId, editors.query);
     };

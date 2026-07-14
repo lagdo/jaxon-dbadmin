@@ -66,7 +66,7 @@ class AppTab
      */
     public function current(): string
     {
-        return $this->databag->bag('dbadmin.app')->get('tab', $this->zero());
+        return $this->databag->bag('dbadmin.app')->get('tab.app', $this->zero());
     }
 
     /**
