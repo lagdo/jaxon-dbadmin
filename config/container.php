@@ -106,15 +106,15 @@ return [
                 },
         Provider\PackageConfigProvider::class => fn(Container $di) =>
             new Provider\PackageConfigProvider($di->g('dbadmin_auth_service')),
-        Provider\Config\SecretConfigProvider::class =>
-            fn() => new Provider\Config\SecretConfigProvider(),
+        Provider\Secret\SecretConfigProvider::class =>
+            fn() => new Provider\Secret\SecretConfigProvider(),
         Provider\Config\ServerConfigProvider::class => function(Container $di) {
             $config = $di->g('dbadmin_package_config');
-            $accessConfigReaderClass = $config->getOption('reader.access',
-                Provider\Config\SecretConfigProvider::class);
-            $accessConfigReader = $di->get($accessConfigReaderClass);
+            $secretConfigReaderClass = $config->getOption('reader.secret',
+                Provider\Secret\SecretConfigProvider::class);
+            $secretConfigReader = $di->get($secretConfigReaderClass);
 
-            return new Provider\Config\ServerConfigProvider($accessConfigReader);
+            return new Provider\Config\ServerConfigProvider($secretConfigReader);
         },
         Provider\DatabaseConfigProvider::class => function(Container $di) {
             $config = $di->g('dbadmin_package_config');

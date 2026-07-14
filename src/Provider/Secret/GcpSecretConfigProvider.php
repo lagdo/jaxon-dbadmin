@@ -6,7 +6,6 @@ use Google\ApiCore\ApiException;
 use Google\Cloud\SecretManager\V1\AccessSecretVersionRequest;
 use Google\Cloud\SecretManager\V1\Client\SecretManagerServiceClient;
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
-use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\Facades\Logger;
 use Closure;
 use RuntimeException;

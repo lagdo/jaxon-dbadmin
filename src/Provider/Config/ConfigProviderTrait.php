@@ -46,7 +46,8 @@ trait ConfigProviderTrait
      *
      * @return mixed
      */
-    private function getOptionValue(string $prefix, string $option, string|int $default = ''): mixed
+    private function getOptionValue(string $prefix, string $option,
+        string|int $default = ''): mixed
     {
         $value = $this->config->getOption("$prefix.{$option}", $default);
         if (is_int($value) && $option === 'port') {

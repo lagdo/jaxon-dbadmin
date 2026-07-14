@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\Support\Provider\Secret;
 
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
-use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\Facades\Logger;
 use Psr\Http\Client\ClientExceptionInterface;
 use Vault\Client;

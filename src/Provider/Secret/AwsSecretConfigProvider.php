@@ -5,7 +5,6 @@ namespace Lagdo\DbAdmin\Support\Provider\Secret;
 use Aws\Exception\AwsException;
 use Aws\SecretsManager\SecretsManagerClient;
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
-use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\Facades\Logger;
 use Closure;
 use RuntimeException;
