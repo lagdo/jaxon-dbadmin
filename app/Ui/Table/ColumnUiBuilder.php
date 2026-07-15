@@ -176,7 +176,7 @@ class ColumnUiBuilder
                             ->width(8)
                     )
                 ),
-                $this->ui->when($input->changed(), fn() =>
+                $this->ui->when($input->edited(), fn() =>
                     $this->ui->row(
                         $this->ui->col($this->ui->text($input->column->name . ':'))
                             ->width(3),

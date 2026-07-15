@@ -9,8 +9,9 @@ use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDdDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 
+use function array_combine;
 use function array_filter;
-use function array_flip;
+use function array_keys;
 use function array_map;
 use function array_values;
 use function count;
@@ -60,9 +61,10 @@ trait ForeignKeyTrait
         $replace = fn(string $name) => str_replace("`", "``", $name);
         $convertName = fn(ColumnDto $column, string $tableName) =>
             $replace($tableName) . "`" . $replace($column->name); // not escapeId() - used in JS
-        $foreignKeys = array_map($convertName, $columns, array_keys($columns));
+        $columnNames = array_keys($columns);
+        $foreignKeys = array_map($convertName, $columns, $columnNames);
 
-        return array_flip($foreignKeys);
+        return array_combine($foreignKeys, $columnNames);
     }
 
     /**
@@ -79,19 +81,19 @@ trait ForeignKeyTrait
         $values = $input->values();
 
         //! can collide with user defined type
-        $foreignKey = $foreignKeys[$values->type] ?? '';
-        $typeColumn = $table->getReferencableColumns()[$foreignKey] ?? null;
-        if ($typeColumn !== null) {
-            $fkColumn = new ForeignKeyDto();
-            $fkColumn->table = $foreignKey;
-            $fkColumn->source = [$values->name];
-            $fkColumn->target = [$typeColumn->name];
-            $fkColumn->onDelete = $values->onDelete;
+        // $foreignKey = $foreignKeys[$values->type] ?? '';
+        // $typeColumn = $table->getReferencableColumns()[$foreignKey] ?? null;
+        // if ($typeColumn !== null) {
+        //     $fkColumn = new ForeignKeyDto();
+        //     $fkColumn->table = $foreignKey;
+        //     $fkColumn->source = [$values->name];
+        //     $fkColumn->target = [$typeColumn->name];
+        //     $fkColumn->onDelete = $values->onDelete;
 
-            $table->foreignKeys[$values->name] = $fkColumn;
-        }
+        //     $table->foreignKeys[$values->name] = $fkColumn;
+        // }
 
-        $column = new ColumnDdDto($input->column, $typeColumn);
+        $column = new ColumnDdDto($input->column, $action);
         foreach ($input->attributes() as $attr) {
             $column->$attr = $values->$attr;
         }

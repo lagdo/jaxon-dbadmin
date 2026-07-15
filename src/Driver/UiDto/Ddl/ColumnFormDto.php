@@ -110,6 +110,14 @@ class ColumnFormDto
     }
 
     /**
+     * @return ColumnAction
+     */
+    public function action(): ColumnAction
+    {
+        return $this->action;
+    }
+
+    /**
      * @return bool
      */
     public function unchanged(): bool
@@ -126,35 +134,38 @@ class ColumnFormDto
     }
 
     /**
-     * @return void
+     * @return self
      */
-    public function add(): void
+    public function add(): self
     {
         $this->action = ColumnAction::ADD;
+        return $this;
     }
 
     /**
      * @return bool
      */
-    public function changed(): bool
+    public function edited(): bool
     {
         return $this->action === ColumnAction::EDIT;
     }
 
     /**
-     * @return void
+     * @return self
      */
-    public function change(): void
+    public function change(): self
     {
         $this->action = ColumnAction::EDIT;
+        return $this;
     }
 
     /**
-     * @return void
+     * @return self
      */
-    public function changeIf(): void
+    public function changeIf(): self
     {
         $this->action = $this->columnEdited() ? ColumnAction::EDIT : ColumnAction::NONE;
+        return $this;
     }
 
     /**
@@ -166,11 +177,12 @@ class ColumnFormDto
     }
 
     /**
-     * @return void
+     * @return self
      */
-    public function drop(): void
+    public function drop(): self
     {
         $this->action = ColumnAction::DROP;
+        return $this;
     }
 
     /**
@@ -215,6 +227,14 @@ class ColumnFormDto
         }
         // The setComment column meaning is different.
         return $values->setComment;
+    }
+
+    /**
+     * @return string
+     */
+    public function type(): string
+    {
+        return $this->values()->type;
     }
 
     /**
@@ -291,7 +311,7 @@ class ColumnFormDto
      *
      * @return static
      */
-    public function updateValues(array $values): self
+    public function updateValues(array $values): static
     {
         $this->action = ColumnAction::convert($values['action']);
         $this->position = $values['position'];

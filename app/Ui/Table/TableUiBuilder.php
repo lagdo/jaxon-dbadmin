@@ -326,7 +326,7 @@ class TableUiBuilder
         //         'handler' => $this->rqMove()->down($columnId),
         //     ];
         // }
-        if ($input->changed()) {
+        if ($input->edited()) {
             $menuEntries[] = [
                 'label' => $this->ui->text('Cancel'),
                 'handler' => $this->rqUpdate()->cancel($columnId)->confirm($cancelQuestion),
@@ -474,7 +474,7 @@ class TableUiBuilder
     {
         return match(true) {
             $input->added() => "background-color: #e6ffe6;",
-            $input->changed() => "background-color: #d9f1ff;",
+            $input->edited() => "background-color: #d9f1ff;",
             $input->dropped() => "background-color: #ffe6e6;",
             default => "background-color: white;",
         };

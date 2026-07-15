@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Column;
 
+use Lagdo\DbAdmin\Support\Driver\DriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 
@@ -17,6 +18,11 @@ trait ColumnTrait
      * @var array|null
      */
     private array|null $metadata = null;
+
+    /**
+     * @return DriverProxy
+     */
+    abstract protected function driver(): DriverProxy;
 
     /**
      * @return array
