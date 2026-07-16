@@ -45,17 +45,19 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getCssCode(): CssCode
     {
-        $html = $this->editor() !== 'cm' ? '' :
-            $this->view()->render('dbadmin::codes::editor/cm.css.html');
-        $code = "/* Spinner CSS code. */\n" .
-            $this->view()->render('dbadmin::codes::spin.css') .
-            "\n/* DbAdmin CSS code. */\n" .
-            $this->view()->render('dbadmin::codes::layout.css') .
-            $this->view()->render('dbadmin::codes::styles.css') .
-            "\n/* DbAdmin tables CSS code. */\n" .
-            $this->view()->render('dbadmin::codes::table.css');
+        $assetsUrl = $this->getConfig()->getOption('assets.url', '/assets');
+        $editor = $this->editor();
+        $html = $this->view()->render("dbadmin::editor::$editor/css");
+        $urls = [
+            // Spinner CSS code.
+            "$assetsUrl/app/spin.css",
+            "$assetsUrl/app/layout.css",
+            "$assetsUrl/app/styles.css",
+            // DbAdmin tables CSS code.
+            "$assetsUrl/app/table.css",
+        ];
 
-        return new CssCode(sCode: $code, sHtml: $html);
+        return new CssCode(sHtml: $html, aUrls: $urls);
     }
 
     /**
@@ -63,15 +65,18 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getJsCode(): JsCode
     {
-        $editorJsName = $this->editor() === 'cm' ? 'cm.js' : 'ace.js';
-        $html = $this->view()->render("dbadmin::codes::editor/$editorJsName.html");
-        $code = "// Spinner javascript code.\n\n" .
-            $this->view()->render('dbadmin::codes::spin.js') . "\n\n" .
-            $this->view()->render('dbadmin::codes::script.js') . "\n\n" .
-            $this->view()->render('dbadmin::codes::editor/index.js') . "\n\n" .
-            $this->view()->render("dbadmin::codes::editor/$editorJsName");
+        $assetsUrl = $this->getConfig()->getOption('assets.url', '/assets');
+        $editor = $this->editor();
+        $html = $this->view()->render("dbadmin::editor::$editor/js");
+        $urls = [
+            // Spinner javascript code.
+            "$assetsUrl/app/spin.js",
+            "$assetsUrl/app/script.js",
+            "$assetsUrl/editor/index.js",
+            "$assetsUrl/editor/$editor.js",
+        ];
 
-        return new JsCode(sCode: $code, sHtml: $html);
+        return new JsCode(sHtml: $html, aUrls: $urls);
     }
 
     /**

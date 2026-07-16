@@ -89,7 +89,7 @@ trait ExportTrait
             return;
         }
 
-        $content = $this->view()->render('dbadmin::views::sql/dump', $results);
+        $content = $this->view()->render('dbadmin::sql::dump', $results);
         $extensions = ['sql' => '.sql', 'csv' => '.csv', 'csv;' => '.csv', 'tsv' => '.txt'];
         $format = $options['format'] ?? 'sql';
         $filename = uniqid() . $extensions[$format] ?? $extensions['sql'];

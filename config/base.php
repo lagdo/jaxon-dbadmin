@@ -9,18 +9,13 @@ return [
         'format' => 'attributes',
     ],
     'views' => [
-        'dbadmin::codes' => [
-            'directory' => __DIR__ . '/../templates/codes',
-            'extension' => '',
+        'dbadmin::editor' => [
+            'directory' => __DIR__ . '/../templates/editor',
+            'extension' => '.html',
             'renderer' => 'jaxon',
         ],
-        'dbadmin::views' => [
-            'directory' => __DIR__ . '/../templates/views',
-            'extension' => '.php',
-            'renderer' => 'jaxon',
-        ],
-        'dbadmin::templates' => [
-            'directory' => __DIR__ . '/../templates/views',
+        'dbadmin::sql' => [
+            'directory' => __DIR__ . '/../templates/sql',
             'extension' => '.php',
             'renderer' => 'jaxon',
         ],
