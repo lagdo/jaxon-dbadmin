@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
-use Jaxon\App\ComponentDataTrait;
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\QueryEditor;
@@ -19,7 +18,6 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
  */
 class Select extends MainComponent
 {
-    use ComponentDataTrait;
     use QueryBuilderTrait;
 
     /**
@@ -45,7 +43,7 @@ class Select extends MainComponent
             ],
             'show-table' => [
                 'title' => $this->trans()->lang('Show table'),
-                'handler' => $this->rq(Table::class)->show($table),
+                'handler' => $this->rq(Table::class)->show($table, true),
             ],
             'back-tables' => [
                 'title' => $this->trans()->lang('Tables'),
@@ -75,7 +73,7 @@ class Select extends MainComponent
         $this->cl(Values::class)->render();
 
         // Run the query.
-        $this->cl(ResultSet::class)->page($this->get('page', 1));
+        $this->cl(ResultSet::class)->page($this->getPageNumber());
     }
 
     /**
@@ -113,12 +111,14 @@ class Select extends MainComponent
     /**
      * Go back to the previous table
      *
+     * @param bool $removeLast
+     *
      * @return void
      */
     #[After('showBreadcrumbs')]
-    public function back(): void
+    public function back(bool $removeLast): void
     {
-        if ($this->removeBuilderParams()) {
+        if (!$removeLast || $this->removeBuilderParams()) {
             $this->render();
         }
     }

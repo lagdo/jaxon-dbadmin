@@ -57,6 +57,7 @@ trait QueryBuilderTrait
             'length' => 100,
             ...($params[0] ?? []),
             'table' => $table,
+            'page' => 1,
             'columns' => [],
             'filters' => [],
             'sorters' => [],
@@ -82,6 +83,7 @@ trait QueryBuilderTrait
             'total' => true,
             'length' => 100,
             'table' => $table,
+            'page' => 1,
             'columns' => [],
             'filters' => [[
                 'column' => $column,
@@ -109,7 +111,6 @@ trait QueryBuilderTrait
 
         // Back to the same page number on the previous table.
         $this->setCurrentTable($params[0]['table']);
-        $this->set('page', $params[0]['page']);
 
         $this->setBuilderBag('params', $params);
 
@@ -169,6 +170,14 @@ trait QueryBuilderTrait
     protected function savePageNumber(int $page): void
     {
         $this->saveParamValue('page', $page);
+    }
+
+    /**
+     * @return int
+     */
+    protected function getPageNumber(): int
+    {
+        return $this->getBuilderParams()['page'] ?? 1;
     }
 
     /**

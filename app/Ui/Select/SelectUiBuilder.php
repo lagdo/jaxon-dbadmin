@@ -208,7 +208,7 @@ class SelectUiBuilder
                                     $this->ui->html('<i class="fa fa-arrow-left"></i>&nbsp;'),
                                     $this->ui->text($this->trans->lang('Back'))
                                 )->primary()
-                                    ->jxnClick(rq(Select::class)->back())
+                                    ->jxnClick(rq(Select::class)->back(true))
                             )
                         )
                     )

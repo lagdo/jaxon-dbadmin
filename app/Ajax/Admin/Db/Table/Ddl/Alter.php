@@ -36,7 +36,7 @@ class Alter extends TableDdl
             ],
             'table-back' => [
                 'title' => $this->trans()->lang('Back'),
-                'handler' => $this->rq(Table::class)->show($table),
+                'handler' => $this->rq(Table::class)->show($table, false),
             ],
         ];
         $this->cl(PageActions::class)->show($actions);

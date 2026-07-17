@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl;
 
+use Jaxon\App\ComponentDataTrait;
 use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\MainComponent;
@@ -11,6 +12,8 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 
 class Table extends MainComponent
 {
+    use ComponentDataTrait;
+
     /**
      * @inheritDoc
      */
@@ -20,7 +23,9 @@ class Table extends MainComponent
         $actions = [
             'select-table' => [
                 'title' => $this->trans()->lang('Select'),
-                'handler' => $this->rq(Select::class)->show($table),
+                'handler' => $this->get('fromSelect', false) ?
+                    $this->rq(Select::class)->back(false) :
+                    $this->rq(Select::class)->show($table),
             ],
             'insert-table' => [
                 'title' => $this->trans()->lang('New item'),
@@ -35,8 +40,8 @@ class Table extends MainComponent
                 'handler' => $this->rq(TableFunc::class)->drop($table)
                     ->confirm($this->trans->lang('Drop table %s?', $table)),
             ],
-            'tables-back' => [
-                'title' => $this->trans()->lang('Back'),
+            'show-tables' => [
+                'title' => $this->trans()->lang('Tables'),
                 'handler' => $this->rq(Tables::class)->show(),
             ],
         ];
@@ -102,13 +107,15 @@ class Table extends MainComponent
     /**
      * Show detailed info of a given table
      *
-     * @param string $table       The table name
+     * @param string $table
+     * @param bool $fromSelect
      *
      * @return void
      */
     #[After('showBreadcrumbs')]
-    public function show(string $table): void
+    public function show(string $table, bool $fromSelect = false): void
     {
+        $this->set('fromSelect', $fromSelect);
         // Save the table name in the databag.
         $this->setCurrentTable($table);
 

@@ -42,7 +42,7 @@ class Tables extends MainComponent
                 'handler' => $this->rq(Select::class)->show($name),
             ], [
                 'label' => $this->trans->lang('Show'),
-                'handler' => $this->rq(Table::class)->show($name),
+                'handler' => $this->rq(Table::class)->show($name, false),
             ], [
                 'label' => $this->trans->lang('Drop query'),
                 'handler' => $this->rq(SqlCodeFunc::class)->showDropTableQuery($name),
