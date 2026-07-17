@@ -3,8 +3,10 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
 
 use Jaxon\Attributes\Attribute\Exclude;
+use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ui\Command\QueryUiBuilder;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
+use Lagdo\DbAdmin\Support\Service\Admin\AuditConnection;
 
 use function array_filter;
 use function array_shift;
@@ -13,6 +15,12 @@ use function in_array;
 
 trait EditorTrait
 {
+    /**
+     * @var AuditConnection
+     */
+    #[Inject]
+    private AuditConnection $audit;
+
     /**
      * @var QueryUiBuilder
      */
@@ -77,7 +85,7 @@ trait EditorTrait
         $nav = $this->queryUi->editorTabNavHtml();
         $contentId = $this->queryUi->editorTabContentWrapperId();
 
-        $content = $this->queryUi->canSaveQuery($this->config()->canSaveQuery())
+        $content = $this->queryUi->canSaveQuery($this->audit->canSaveQuery())
             ->editorTabContentHtml($this->rq($this->queryClass));
         $this->response()->jo('jaxon.dbadmin')->addTab($navId, $nav, $contentId, $content);
 
@@ -193,17 +201,17 @@ trait EditorTrait
      */
     public function cloneTab(): void
     {
-        [$names, $current] = $this->currentTabs();
-        if ($current !== $this->tab()->editor()->zero() && !in_array($current, $names)) {
+        [$names, $currTab] = $this->currentTabs();
+        if ($currTab !== $this->tab()->editor()->zero() && !in_array($currTab, $names)) {
             $this->alert()->title('Error')->error('Cannot find the tab to clone.');
             return;
         }
 
         $this->addTab();
 
-        // Copy the query text from the previous current tab to the new tab.
-        $appTab = $this->tab()->app()->current();
-        $this->response()->jo('jaxon.dbadmin')->copyQueryText($appTab, $current);
+        // Copy the query text from the previous tab to the new tab.
+        $nextTab = $this->tab()->app()->current();
+        $this->response()->jo('jaxon.dbadmin')->copyQueryText($nextTab, $currTab);
     }
 
     /**
@@ -211,12 +219,12 @@ trait EditorTrait
      */
     public function delTab(): void
     {
-        [$names, $current] = $this->currentTabs();
-        if ($current === $this->tab()->editor()->zero() || count($names) === 0) {
+        [$names, $currTab] = $this->currentTabs();
+        if ($currTab === $this->tab()->editor()->zero() || count($names) === 0) {
             $this->alert()->title('Error')->error('Cannot delete the current tab.');
             return;
         }
-        if (!in_array($current, $names)) {
+        if (!in_array($currTab, $names)) {
             $this->alert()->title('Error')->error('Cannot find the tab to delete.');
             return;
         }
@@ -229,6 +237,6 @@ trait EditorTrait
 
         // Update the databag contents.
         $this->setBag('dbadmin.tab', $this->tab()->editor()->names(),
-            array_filter($names, fn(string $name) => $name !== $current));
+            array_filter($names, fn(string $name) => $name !== $currTab));
     }
 }

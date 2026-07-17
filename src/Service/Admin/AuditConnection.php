@@ -12,7 +12,7 @@ use function gmdate;
 /**
  * Connection to the audit database
  */
-class ConnectionProxy extends Audit\ConnectionProxy
+class AuditConnection extends Audit\AuditConnection
 {
     /**
      * @var int|null
@@ -85,5 +85,46 @@ class ConnectionProxy extends Audit\ConnectionProxy
 
         // Try to create a new user entry for the user.
         return !$canCreate ? 0 : ($this->userId = $this->newUserId($user));
+    }
+
+    /**
+     * @return bool
+     */
+    public function canSaveQuery(): bool
+    {
+        return $this->connected() && $this->configProvider->canSaveQuery();
+    }
+
+    /**
+     * @return bool
+     */
+    public function queryHistoryEnabled(): bool
+    {
+        return $this->connected() && $this->configProvider->queryHistoryEnabled();
+    }
+
+    /**
+     * @return bool
+     */
+    public function queryFavoriteEnabled(): bool
+    {
+        return $this->connected() && $this->configProvider->queryFavoriteEnabled();
+    }
+
+    /**
+     * @return bool
+     */
+    public function canShowQuery(): bool
+    {
+        return $this->configProvider->queryHistoryEnabled() ||
+            $this->configProvider->queryFavoriteEnabled();
+    }
+
+    /**
+     * @return bool
+     */
+    public function userPreferencesEnabled(): bool
+    {
+        return $this->connected() && $this->configProvider->userPreferencesEnabled();
     }
 }

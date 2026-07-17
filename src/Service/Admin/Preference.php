@@ -19,10 +19,10 @@ class Preference
     private bool $preferencesEnabled;
 
     /**
-     * @param ConnectionProxy $proxy
+     * @param AuditConnection $audit
      * @param array $options
      */
-    public function __construct(private ConnectionProxy $proxy, array $options)
+    public function __construct(private AuditConnection $audit, array $options)
     {
         $this->preferencesEnabled = (bool)($options['preferences']['enabled'] ?? false);
     }
@@ -35,7 +35,7 @@ class Preference
     private function _getDefaultProfileId(int $userId): int
     {
         $query = "SELECT id FROM dbadmin_profiles WHERE title='' AND user_id=:user_id LIMIT 1";
-        $result = $this->proxy->executeQuery($query, ['user_id' => $userId]);
+        $result = $this->audit->executeQuery($query, ['user_id' => $userId]);
         return $result->hasRowset() && ($row = $result->fetchAssoc()) ? (int)$row['id'] : 0;
     }
 
@@ -52,12 +52,12 @@ class Preference
 
         // Try to create a default profile for the user.
         $query = "INSERT INTO dbadmin_profiles(title,user_id) VALUES ('',:user_id)";
-        $result = $this->proxy->executeQuery($query, ['user_id' => $userId]);
+        $result = $this->audit->executeQuery($query, ['user_id' => $userId]);
         if (!$result->hasError()) {
             return $this->_getDefaultProfileId($userId);
         }
 
-        $this->proxy->logWarning('Unable to create a default profile for the user.');
+        $this->audit->logWarning('Unable to create a default profile for the user.');
         return 0;
     }
 
@@ -71,7 +71,7 @@ class Preference
     {
         $query = "SELECT id FROM dbadmin_preferences
 WHERE category=:category AND profile_id=:profile_id LIMIT 1";
-        $result = $this->proxy->executeQuery($query, [
+        $result = $this->audit->executeQuery($query, [
             'category' => $category,
             'profile_id' => $profileId,
         ]);
@@ -93,16 +93,16 @@ WHERE category=:category AND profile_id=:profile_id LIMIT 1";
         // Try to create a preference for the profile and category.
         $query = "INSERT INTO dbadmin_preferences(content,category,last_update,profile_id)
 VALUES ('{}', :category, :last_update, :profile_id)";
-        $result = $this->proxy->executeQuery($query, [
+        $result = $this->audit->executeQuery($query, [
             'category' => $category,
-            'last_update' => $this->proxy->currentTime(),
+            'last_update' => $this->audit->currentTime(),
             'profile_id' => $profileId,
         ]);
         if (!$result->hasError()) {
             return $this->_getPreferenceId($profileId, $category);
         }
 
-        $this->proxy->logWarning('Unable to create a default profile for the user.');
+        $this->audit->logWarning('Unable to create a default profile for the user.');
         return 0;
     }
 
@@ -113,7 +113,7 @@ VALUES ('{}', :category, :last_update, :profile_id)";
      */
     private function getPreferenceContent(int $category): array
     {
-        if (($userId = $this->proxy->getUserId()) <= 0) {
+        if (($userId = $this->audit->getUserId()) <= 0) {
             return [];
         }
         if (($profileId = $this->getDefaultProfileId($userId)) <= 0) {
@@ -124,7 +124,7 @@ VALUES ('{}', :category, :last_update, :profile_id)";
         }
 
         $query = "SELECT content FROM dbadmin_preferences WHERE id=:preference_id LIMIT 1";
-        $result = $this->proxy->executeQuery($query, [
+        $result = $this->audit->executeQuery($query, [
             'preference_id' => $preferenceId,
         ]);
 
@@ -144,16 +144,16 @@ VALUES ('{}', :category, :last_update, :profile_id)";
     {
         $sql = "UPDATE dbadmin_preferences
 SET content=:content,last_update=:last_update WHERE id=:preference_id";
-        $result = $this->proxy->executeQuery($sql, [
+        $result = $this->audit->executeQuery($sql, [
             'content' => json_encode($content),
-            'last_update' => $this->proxy->currentTime(),
+            'last_update' => $this->audit->currentTime(),
             'preference_id' => $preferenceId,
         ]);
         if (!$result->hasError()) {
             return true;
         }
 
-        $this->proxy->logWarning('Unable to save tabs in the user preferences.');
+        $this->audit->logWarning('Unable to save tabs in the user preferences.');
         return false;
     }
 

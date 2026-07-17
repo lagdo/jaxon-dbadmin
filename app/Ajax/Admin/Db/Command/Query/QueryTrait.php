@@ -2,15 +2,23 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
 
+use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ui\Command\QueryUiBuilder;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
+use Lagdo\DbAdmin\Support\Service\Admin\AuditConnection;
 
 use function intval;
 use function trim;
 
 trait QueryTrait
 {
+    /**
+     * @var AuditConnection
+     */
+    #[Inject]
+    private AuditConnection $audit;
+
     /**
      * @var QueryUiBuilder
      */
@@ -26,7 +34,7 @@ trait QueryTrait
      */
     protected function content(): string
     {
-        return $this->queryUi->canSaveQuery($this->config()->canSaveQuery())
+        return $this->queryUi->canShowQuery($this->audit->canShowQuery())
             ->command($this->rq(), $this->rq($this->editorClass));
     }
 

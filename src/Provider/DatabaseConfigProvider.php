@@ -31,25 +31,12 @@ class DatabaseConfigProvider
     private array $configs = [];
 
     /**
-     * @var bool
-     */
-    private bool $connected = false;
-
-    /**
      * @param Config $config
      * @param ServerConfigProvider $serverConfig
      */
     public function __construct(protected Config $config,
         private ServerConfigProvider $serverConfig)
     {}
-
-    /**
-     * @return void
-     */
-    public function setConnected(): void
-    {
-        $this->connected = true;
-    }
 
     /**
      * Check if a given package option is defined
@@ -79,7 +66,7 @@ class DatabaseConfigProvider
     /**
      * @return bool
      */
-    private function queryRecordEnabled(): bool
+    public function canSaveQuery(): bool
     {
         return $this->getOption('queries.record.editor.enabled', false) ||
             $this->getOption('queries.record.builder.enabled', false)/* ||
@@ -89,17 +76,9 @@ class DatabaseConfigProvider
     /**
      * @return bool
      */
-    public function canSaveQuery(): bool
-    {
-        return $this->connected && $this->queryRecordEnabled();
-    }
-
-    /**
-     * @return bool
-     */
     public function queryHistoryEnabled(): bool
     {
-        return $this->connected && $this->getOption('queries.admin.history.show', false);
+        return $this->getOption('queries.admin.history.show', false);
     }
 
     /**
@@ -107,7 +86,7 @@ class DatabaseConfigProvider
      */
     public function queryFavoriteEnabled(): bool
     {
-        return $this->connected && $this->getOption('queries.admin.favorite.show', false);
+        return $this->getOption('queries.admin.favorite.show', false);
     }
 
     /**
@@ -115,7 +94,7 @@ class DatabaseConfigProvider
      */
     public function userPreferencesEnabled(): bool
     {
-        return $this->connected && $this->getOption('queries.admin.preferences.enabled', false);
+        return $this->getOption('queries.admin.preferences.enabled', false);
     }
 
     /**

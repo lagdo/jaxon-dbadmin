@@ -16,10 +16,10 @@ class QueryLogger
     private int $limit;
 
     /**
-     * @param ConnectionProxy $proxy
+     * @param AuditConnection $audit
      * @param array $options
      */
-    public function __construct(private ConnectionProxy $proxy, array $options)
+    public function __construct(private AuditConnection $audit, array $options)
     {
         $this->limit = $options['display']['limit'] ?? 15;
     }
@@ -78,7 +78,7 @@ class QueryLogger
         $whereClause = $this->getWhereClause($filters);
         $query = "SELECT count(*) AS c FROM dbadmin_runned_commands c
 INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause";
-        $result = $this->proxy->executeQuery($query);
+        $result = $this->audit->executeQuery($query);
         return $result->hasRowset() && ($row = $result->fetchAssoc()) ? $row['c'] : 0;
     }
 
@@ -97,7 +97,7 @@ INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause";
         $query = "SELECT c.*, u.username FROM dbadmin_runned_commands c
 INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause
 ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";
-        $result = $this->proxy->executeQuery($query);
+        $result = $this->audit->executeQuery($query);
         if ($result->hasRowset()) {
             $commands = [];
             while (($row = $result->fetchAssoc())) {
@@ -106,7 +106,7 @@ ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";
             return $commands;
         }
 
-        $this->proxy->logWarning('Unable to read commands from the query audit database.');
+        $this->audit->logWarning('Unable to read commands from the query audit database.');
         return [];
     }
 }

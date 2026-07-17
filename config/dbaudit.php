@@ -36,13 +36,13 @@ return [
                 ]);
             },
             // Connection to the audit database
-            Audit\ConnectionProxy::class => function(Container $di) {
+            Audit\AuditConnection::class => function(Container $di) {
                 $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
                 $database = $configProvider->getQueryDatabaseOptions();
                 $utils = $di->g(Driver\Utils\Utils::class);
                 $driver = Driver\Driver::createDriver($utils, $database);
 
-                return new Audit\ConnectionProxy($driver->engine, $configProvider);
+                return new Audit\AuditConnection($driver->engine, $configProvider);
             },
             // Query audit
             Audit\QueryLogger::class => function(Container $di) {
@@ -52,8 +52,8 @@ return [
                 }
 
                 $options = $configProvider->getQueryAuditOptions();
-                $proxy = $di->g(Audit\ConnectionProxy::class);
-                return new Audit\QueryLogger($proxy, $options);
+                $audit = $di->g(Audit\AuditConnection::class);
+                return new Audit\QueryLogger($audit, $options);
             },
         ],
         'alias' => [

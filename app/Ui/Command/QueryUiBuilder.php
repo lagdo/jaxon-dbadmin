@@ -31,6 +31,11 @@ class QueryUiBuilder
     private bool $canSaveQuery = false;
 
     /**
+     * @var bool
+     */
+    private bool $canShowQuery = false;
+
+    /**
      * @var string
      */
     private const QUERY_TEXT_CLASS = 'dbadmin-main-command-query';
@@ -41,9 +46,11 @@ class QueryUiBuilder
      * @param DatabaseConfigProvider $config
      * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui,
+    public function __construct(protected Translator $trans, BuilderInterface $ui,
         protected DatabaseConfigProvider $config, protected Tab $tab)
-    {}
+    {
+        $this->ui = $ui;
+    }
 
     /**
      * @return Tab
@@ -61,6 +68,17 @@ class QueryUiBuilder
     public function canSaveQuery(bool $canSaveQuery): self
     {
         $this->canSaveQuery = $canSaveQuery;
+        return $this;
+    }
+
+    /**
+     * @param bool $canShowQuery
+     *
+     * @return self
+     */
+    public function canShowQuery(bool $canShowQuery): self
+    {
+        $this->canShowQuery = $canShowQuery;
         return $this;
     }
 
@@ -257,7 +275,7 @@ class QueryUiBuilder
             'handler' => $rqEditor->delTab()
                 ->confirm($this->trans->lang('Delete this tab?')),
         ]];
-        if ($this->canSaveQuery) {
+        if ($this->canShowQuery) {
             $tabQueries = jo('jaxon.dbadmin')->getQueries($this->tab()->app()->current(),
                 $this->tab()->editor()->page());
             $menuEntries[] = [
@@ -269,14 +287,12 @@ class QueryUiBuilder
 
         $tabsContentId = $this->editorTabContentWrapperId();
         $queriesContentId = $this->tab()->editor()->id("tab-content-query-queries");
-        $showQueriesTab = $this->config->hasQueryDatabaseOptions() &&
-            ($this->config->queryHistoryEnabled() || $this->config->queryFavoriteEnabled());
 
         return $this->ui->build(
             $this->ui->div(
                 $this->ui->tabs(
                     $this->ui->tabNav(
-                        $this->ui->when($showQueriesTab, fn() =>
+                        $this->ui->when($this->canShowQuery, fn() =>
                             $this->ui->tabNavItem($this->trans->lang('Queries'))
                                 ->target($queriesContentId)
                                 ->active(false)
@@ -291,7 +307,7 @@ class QueryUiBuilder
             )->setClass('jaxon-dbadmin-page-header')
                 ->setStyle('margin-bottom: 5px;'),
             $this->ui->tabContent(
-                $this->ui->when($showQueriesTab, fn() =>
+                $this->ui->when($this->canShowQuery, fn() =>
                     $this->ui->tabContentItem()
                         ->tbnBindApp(rq(Query\Queries::class))
                         ->setId($queriesContentId)

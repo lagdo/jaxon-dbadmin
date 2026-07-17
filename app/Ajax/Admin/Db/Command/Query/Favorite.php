@@ -3,12 +3,20 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
 
 use Jaxon\Attributes\Attribute\Export;
+use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Component;
 use Lagdo\DbAdmin\App\Ui\Command\AuditUiBuilder;
+use Lagdo\DbAdmin\Support\Service\Admin\AuditConnection;
 
 #[Export(['render'])]
 class Favorite extends Component
 {
+    /**
+     * @var AuditConnection
+     */
+    #[Inject]
+    private AuditConnection $audit;
+
     /**
      * @param AuditUiBuilder $auditUi
      */
@@ -28,7 +36,7 @@ class Favorite extends Component
      */
     public function html(): string
     {
-        return $this->auditUi->favorite();
+        return $this->auditUi->favorite($this->audit->queryHistoryEnabled());
     }
 
     /**

@@ -11,7 +11,7 @@ use Lagdo\Facades\Logger;
 /**
  * Connection to the audit database
  */
-class ConnectionProxy
+class AuditConnection
 {
     /**
      * @var AbstractConnection|null
@@ -23,13 +23,12 @@ class ConnectionProxy
      * @param DatabaseConfigProvider $configProvider
      */
     public function __construct(private EngineInterface $engine,
-        DatabaseConfigProvider $configProvider)
+        protected DatabaseConfigProvider $configProvider)
     {
         $database = $configProvider->getQueryDatabaseOptions();
         $connection = $engine->createConnection($database);
         if ($connection->open($database['name'], $database['schema'] ?? '')) {
             $this->connection = $connection;
-            $configProvider->setConnected();
         }
     }
 

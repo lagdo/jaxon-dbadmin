@@ -20,10 +20,10 @@ class QueryFavorite
     private int $favoriteLimit;
 
     /**
-     * @param ConnectionProxy $proxy
+     * @param AuditConnection $audit
      * @param array $options
      */
-    public function __construct(private ConnectionProxy $proxy, array $options)
+    public function __construct(private AuditConnection $audit, array $options)
     {
         $this->showFavorite = (bool)($options['favorite']['show'] ?? false);
         $this->favoriteLimit = (int)($options['favorite']['limit'] ?? 15);
@@ -44,17 +44,17 @@ class QueryFavorite
             'title' => $values['title'],
             'query' => $values['query'],
             'driver' => $values['driver'],
-            'last_update' => $this->proxy->currentTime(),
-            'user_id' => $this->proxy->getUserId(),
+            'last_update' => $this->audit->currentTime(),
+            'user_id' => $this->audit->getUserId(),
         ];
         $sql = "INSERT INTO dbadmin_stored_commands (title,query,driver,last_update,user_id)
 VALUES (:title,:query,:driver,:last_update,:user_id)";
-        $result = $this->proxy->executeQuery($sql, $values);
+        $result = $this->audit->executeQuery($sql, $values);
         if (!$result->hasError()) {
             return true;
         }
 
-        $this->proxy->logWarning('Unable to save command in the query audit database.');
+        $this->audit->logWarning('Unable to save command in the query audit database.');
         return false;
     }
 
@@ -74,18 +74,18 @@ VALUES (:title,:query,:driver,:last_update,:user_id)";
             'title' => $values['title'],
             'query' => $values['query'],
             'driver' => $values['driver'],
-            'last_update' => $this->proxy->currentTime(),
-            'user_id' => $this->proxy->getUserId(),
+            'last_update' => $this->audit->currentTime(),
+            'user_id' => $this->audit->getUserId(),
             'query_id' => $queryId,
         ];
         $sql = "UPDATE dbadmin_stored_commands SET title=:title,query=:query,
 driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id";
-        $result = $this->proxy->executeQuery($sql, $values);
+        $result = $this->audit->executeQuery($sql, $values);
         if (!$result->hasError()) {
             return true;
         }
 
-        $this->proxy->logWarning('Unable to save command in the query audit database.');
+        $this->audit->logWarning('Unable to save command in the query audit database.');
         return false;
     }
 
@@ -101,16 +101,16 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
         }
 
         $values = [
-            'user_id' => $this->proxy->getUserId(),
+            'user_id' => $this->audit->getUserId(),
             'query_id' => $queryId,
         ];
         $sql = "DELETE FROM dbadmin_stored_commands WHERE id=:query_id AND user_id=:user_id";
-        $result = $this->proxy->executeQuery($sql, $values);
+        $result = $this->audit->executeQuery($sql, $values);
         if (!$result->hasError()) {
             return true;
         }
 
-        $this->proxy->logWarning('Unable to save command in the query audit database.');
+        $this->audit->logWarning('Unable to save command in the query audit database.');
         return false;
     }
 
@@ -130,7 +130,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
     private function getWhereClause(array $filters): array
     {
         $values = [
-            'user_id' => $this->proxy->getUserId(),
+            'user_id' => $this->audit->getUserId(),
         ];
         $clauses = ['c.user_id=:user_id'];
         if (isset($filters['title'])) {
@@ -165,7 +165,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
 
         [$values, $whereClause] = $this->getWhereClause($filters);
         $sql = "SELECT count(*) AS cnt FROM dbadmin_stored_commands c $whereClause";
-        $result = $this->proxy->executeQuery($sql, $values);
+        $result = $this->audit->executeQuery($sql, $values);
         return $result->hasRowset() && ($row = $result->fetchAssoc()) ? $row['cnt'] : 0;
     }
 
@@ -187,7 +187,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
         // a column not in the select clause in the same SQL query.
         $sql = "SELECT c.* FROM dbadmin_stored_commands c $whereClause
 ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->favoriteLimit} $offsetClause";
-        $result = $this->proxy->executeQuery($sql, $values);
+        $result = $this->audit->executeQuery($sql, $values);
         if ($result->hasRowset()) {
             $commands = [];
             while (($row = $result->fetchAssoc())) {
@@ -196,7 +196,7 @@ ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->favoriteLimit} $offsetClaus
             return $commands;
         }
 
-        $this->proxy->logWarning('Unable to read commands from the query audit database.');
+        $this->audit->logWarning('Unable to read commands from the query audit database.');
         return [];
     }
 
@@ -213,10 +213,10 @@ ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->favoriteLimit} $offsetClaus
 
         $values = [
             'query_id' => $queryId,
-            'user_id' => $this->proxy->getUserId(),
+            'user_id' => $this->audit->getUserId(),
         ];
         $sql = "SELECT c.* FROM dbadmin_stored_commands c WHERE id=:query_id AND user_id=:user_id";
-        $result = $this->proxy->executeQuery($sql, $values);
+        $result = $this->audit->executeQuery($sql, $values);
         return $result->hasRowset() ? $result->fetchAssoc() : null;
     }
 }

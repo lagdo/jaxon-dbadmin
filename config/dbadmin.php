@@ -65,7 +65,7 @@ return [
 
                 // Create the Engine decorator, and define the callbacks.
                 // The original engine functions, which are called in the driver
-                // libraries, will not use the callbacks, while those redefined 
+                // libraries, will not use the callbacks, while those redefined
                 // in the decorator, which are called in the application, will.
                 $engine = new EngineDecorator($driver->engine);
                 $timerCallback = function() use($di) {
@@ -106,14 +106,14 @@ return [
                 return $configProvider->getQueryAdminOptions();
             },
             // Connection to the audit database
-            Service\Admin\ConnectionProxy::class => function(Container $di) {
+            Service\Admin\AuditConnection::class => function(Container $di) {
                 $auth = $di->g('dbadmin_auth_service');
                 $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
                 $database = $configProvider->getQueryDatabaseOptions();
                 $utils = $di->g(Driver\Utils\Utils::class);
                 $driver = Driver\Driver::createDriver($utils, $database);
 
-                return new Service\Admin\ConnectionProxy($auth, $driver->engine, $configProvider);
+                return new Service\Admin\AuditConnection($auth, $driver->engine, $configProvider);
             },
             // Query logger
             Service\Admin\QueryLogger::class => function(Container $di) {
@@ -131,8 +131,8 @@ return [
                 $serverOptions = fn() => $di->g('dbadmin_server_options');
                 $database = fn() => $dbProxy->getDatabaseOptions($serverOptions());
 
-                $proxy = $di->g(Service\Admin\ConnectionProxy::class);
-                return new Service\Admin\QueryLogger($proxy, $options, $database);
+                $audit = $di->g(Service\Admin\AuditConnection::class);
+                return new Service\Admin\QueryLogger($audit, $options, $database);
             },
             // Query history
             Service\Admin\QueryHistory::class => function(Container $di) {
@@ -140,8 +140,8 @@ return [
                     return null;
                 }
 
-                $proxy = $di->g(Service\Admin\ConnectionProxy::class);
-                return new Service\Admin\QueryHistory($proxy, $options);
+                $audit = $di->g(Service\Admin\AuditConnection::class);
+                return new Service\Admin\QueryHistory($audit, $options);
             },
             // Query favorites
             Service\Admin\QueryFavorite::class => function(Container $di) {
@@ -149,7 +149,7 @@ return [
                     return null;
                 }
 
-                $proxy = $di->g(Service\Admin\ConnectionProxy::class);
+                $proxy = $di->g(Service\Admin\AuditConnection::class);
                 return new Service\Admin\QueryFavorite($proxy, $options);
             },
             // User preferences
@@ -158,7 +158,7 @@ return [
                     return null;
                 }
 
-                $proxy = $di->g(Service\Admin\ConnectionProxy::class);
+                $proxy = $di->g(Service\Admin\AuditConnection::class);
                 return new Service\Admin\Preference($proxy, $options);
             },
         ],

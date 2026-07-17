@@ -9,9 +9,9 @@ use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
 use function Jaxon\cl;
-use function Jaxon\form;
 use function Jaxon\jo;
 use function Jaxon\jq;
+use function Jaxon\pm;
 use function Jaxon\rq;
 
 class AuditUiBuilder
@@ -57,9 +57,11 @@ class AuditUiBuilder
     }
 
     /**
+     * @param bool $favoriteEnabled
+     *
      * @return string
      */
-    public function history(): string
+    public function history(bool $favoriteEnabled): string
     {
         return $this->ui->build(
             $this->ui->div(
@@ -69,18 +71,19 @@ class AuditUiBuilder
                 $this->ui->div(
                     $this->ui->nav()
                         ->jxnPagination(cl(Query\HistoryPage::class))
-                        ->setStyle('float:right;')
                 )->setStyle('flex: 1'),
                 $this->ui->div(
-                    $this->ui->button($this->trans->lang('Favorites'))
-                        ->primary()
-                        ->setStyle('float:right;')
-                        ->jxnClick(rq(Query\Favorite::class)->render()),
+                    $this->ui->when($favoriteEnabled, fn() =>
+                        $this->ui->button($this->trans->lang('Favorites'))
+                            ->primary()
+                            ->setStyle('float:right;')
+                            ->jxnClick(rq(Query\Favorite::class)->render())
+                    ),
                     $this->ui->button($this->trans->lang('Refresh'))
                         ->primary()
                         ->setStyle('float:right; margin-right: 5px;')
                         ->jxnClick(rq(Query\HistoryPage::class)->page())
-                )->setStyle('width:220px; margin: 0 10px;')
+                )
             )->setStyle('display:flex; flex-direction:row; align-items:flex-start;'),
             $this->ui->div(
                 $this->ui->div()
@@ -130,9 +133,11 @@ class AuditUiBuilder
     }
 
     /**
+     * @param bool $historyEnabled
+     *
      * @return string
      */
-    public function favorite(): string
+    public function favorite(bool $historyEnabled): string
     {
         return $this->ui->build(
             $this->ui->div(
@@ -142,18 +147,19 @@ class AuditUiBuilder
                 $this->ui->div(
                     $this->ui->nav()
                         ->jxnPagination(cl(Query\FavoritePage::class))
-                        ->setStyle('float:right;')
                 )->setStyle('flex: 1'),
                 $this->ui->div(
-                    $this->ui->button($this->trans->lang('History'))
-                        ->primary()
-                        ->setStyle('float:right;')
-                        ->jxnClick(rq(Query\History::class)->render()),
+                    $this->ui->when($historyEnabled, fn() =>
+                        $this->ui->button($this->trans->lang('History'))
+                            ->primary()
+                            ->setStyle('float:right;')
+                            ->jxnClick(rq(Query\History::class)->render()),
+                    ),
                     $this->ui->button($this->trans->lang('Refresh'))
                         ->primary()
                         ->setStyle('float:right; margin-right: 5px;')
                         ->jxnClick(rq(Query\FavoritePage::class)->page())
-                )->setStyle('width:220px; margin: 0 10px;')
+                )
             )->setStyle('display:flex; flex-direction:row; align-items:flex-start;'),
             $this->ui->div(
                 $this->ui->div()
@@ -288,6 +294,6 @@ class AuditUiBuilder
      */
     public function favoriteFormValues(): mixed
     {
-        return form($this->tab()->app()->id($this->favoriteFormId));
+        return pm()->form($this->tab()->app()->id($this->favoriteFormId));
     }
 }

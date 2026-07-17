@@ -25,10 +25,10 @@ class QueryHistory
     private int $historyLimit;
 
     /**
-     * @param ConnectionProxy $proxy
+     * @param AuditConnection $audit
      * @param array $options
      */
-    public function __construct(private ConnectionProxy $proxy, array $options)
+    public function __construct(private AuditConnection $audit, array $options)
     {
         $this->showHistory = (bool)($options['history']['show'] ?? false);
         $this->historyDistinct = (bool)($options['history']['distinct'] ?? false);
@@ -50,14 +50,14 @@ class QueryHistory
      */
     public function getQueries(int $page): array
     {
-        if (!$this->showHistory || ($userId = $this->proxy->getUserId(false)) === 0) {
+        if (!$this->showHistory || ($userId = $this->audit->getUserId(false)) === 0) {
             return [];
         }
 
         // PostgreSQL doesn't allow the use of distinct and order by
         // a column not in the select clause in the same SQL query.
         $category = Options::CAT_EDITOR;
-        $select = $this->historyDistinct && $this->proxy->pgsql() ?
+        $select = $this->historyDistinct && $this->audit->pgsql() ?
             'SELECT DISTINCT' : 'SELECT';
         $query = "$select driver,query FROM dbadmin_runned_commands c " .
             "WHERE c.user_id=:user_id AND c.category=:category " .
@@ -69,7 +69,7 @@ class QueryHistory
             'user_id' => $userId,
             'category' => $category,
         ];
-        $result = $this->proxy->executeQuery($query, $values);
+        $result = $this->audit->executeQuery($query, $values);
         if ($result->hasRowset()) {
             $id = 1;
             $commands = [];
@@ -79,7 +79,7 @@ class QueryHistory
             return $commands;
         }
 
-        $this->proxy->logWarning('Unable to read commands from the query audit database.');
+        $this->audit->logWarning('Unable to read commands from the query audit database.');
         return [];
     }
 }

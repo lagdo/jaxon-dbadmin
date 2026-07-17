@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql;
 
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Databag;
+use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\QueryEditor;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Fields;
@@ -12,6 +13,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Values;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Table;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\InsertFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
+use Lagdo\DbAdmin\Support\Service\Admin\AuditConnection;
 
 /**
  * This class provides select query features on tables.
@@ -19,6 +21,12 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 class Select extends MainComponent
 {
     use QueryBuilderTrait;
+
+    /**
+     * @var AuditConnection
+     */
+    #[Inject]
+    private AuditConnection $audit;
 
     /**
      * @inheritDoc
@@ -58,7 +66,7 @@ class Select extends MainComponent
      */
     protected function content(): string
     {
-        $canSaveQuery = $this->config()->canSaveQuery();
+        $canSaveQuery = $this->audit->canSaveQuery();
         $canGoBack = $this->countBuilderParams() > 1;
         return $this->selectUi->content($canSaveQuery, $canGoBack);
     }
