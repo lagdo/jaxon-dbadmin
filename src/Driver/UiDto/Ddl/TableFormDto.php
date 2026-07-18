@@ -48,8 +48,10 @@ class TableFormDto
     /**
      * @param TableDto $status
      * @param array<ColumnFormDto> $columns
+     * @param array<ReferencableDto> $referencableColumns
      */
-    public function __construct(public readonly TableDto $status, public array $columns)
+    public function __construct(public readonly TableDto $status, public array $columns,
+        public readonly array $referencableColumns)
     {
         // Copy the table column values into the local $currValues array.
         $this->currValues = array_combine(self::$attributes,

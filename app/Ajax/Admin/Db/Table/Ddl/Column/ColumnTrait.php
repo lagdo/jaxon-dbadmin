@@ -84,7 +84,6 @@ trait ColumnTrait
         $inputs = $this->getTableBag('columns', []);
         $keys = array_keys($inputs);
         $inputs = array_map($this->getColumnInput(...), $keys, $inputs);
-
         return array_combine($keys, $inputs);
     }
 }

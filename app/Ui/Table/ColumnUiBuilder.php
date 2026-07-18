@@ -10,6 +10,7 @@ use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
+use function Jaxon\jo;
 
 class ColumnUiBuilder
 {
@@ -34,29 +35,24 @@ class ColumnUiBuilder
 
     /**
      * @param ColumnFormDto $input
-     * @param string $primaryColumn
      *
      * @return string
      */
-    public function column(ColumnFormDto $input, string $primaryColumn): string
+    public function column(ColumnFormDto $input): string
     {
-        $canBePrimary = true; // $input->values()->name === $primaryColumn;
         $this->listMode = false;
         $support = $this->support(['comment']);
-        $editableProps = ['unsigned', 'collation', 'onUpdate', 'onDelete'];
+        $formId = $this->editFormId();
+        [$unsignedTypes, $collationTypes, $onUpdateTypes] = $this->getColumnTypes();
+        $onColumnTypeChanged = jo('jaxon.dbadmin')->onColumnTypeChanged($formId,
+            $unsignedTypes, $collationTypes, $onUpdateTypes);
+        $onForeignKeyChanged = jo('jaxon.dbadmin')->onForeignKeyChanged($formId);
 
         return $this->ui->build(
             $this->ui->form(
-                // Hidden inputs for non editable properties.
-                $this->ui->each($editableProps, function(string $prop) use($input) {
-                    $attr = "{$prop}Editable";
-                    return $this->ui->when(!$input->$attr, fn() =>
-                        $this->ui->input(['name' => $prop])->setType('hidden')
-                    );
-                }),
                 $this->ui->row(
                     $this->ui->col(
-                        $this->ui->text($this->trans->lang('Name'))
+                        $this->ui->label($this->trans->lang('Name'))
                     )->width(3),
                     $this->ui->col(
                         $this->getColumnNameField($input, 'name')->required()
@@ -64,15 +60,9 @@ class ColumnUiBuilder
                 ),
                 $this->ui->row(
                     $this->ui->col(
-                        // Show the checkbox only if this column is or can be the primary key.
-                        $this->ui->when(!$canBePrimary, fn() => ''),
-                        $this->ui->when($canBePrimary, fn() =>
-                            $this->ui->list(
-                                $this->getColumnPrimaryField($input, 'primary'),
-                                $this->ui->span($this->ui->html('Primary'))
-                                    ->setStyle('margin-left:5px;')
-                            )
-                        )
+                        $this->getColumnPrimaryField($input, 'primary'),
+                        $this->ui->span($this->ui->html('Primary'))
+                            ->setStyle('margin-left:5px;')
                     )->width(3),
                     $this->ui->col(
                         $this->getColumnAutoIncrementField($input, 'autoIncrement'),
@@ -87,75 +77,103 @@ class ColumnUiBuilder
                 ),
                 $this->ui->row(
                     $this->ui->col(
-                        $this->ui->text($this->trans->lang('Type'))
+                        $this->ui->label($this->trans->lang('Type'))
                     )->width(3),
                     $this->ui->col(
                         $this->getColumnTypeField($input, 'type')
+                            ->when($this->engine()->sql(), fn($elt) =>
+                                $elt->setClass('dbadmin-column-edit-type')
+                                    ->jxnOn('change', $onColumnTypeChanged)
+                            )
                     )->width(6),
                     $this->ui->col(
                         $this->getColumnLengthField($input, 'length')
                             ->when($input->lengthRequired, fn($input) => $input->setRequired('required'))
                     )->width(3)
                 ),
-                $this->ui->when($input->unsignedEditable, fn() =>
-                    $this->ui->row(
-                        $this->ui->col(
-                            $this->ui->text($this->trans->lang('Unsigned'))
-                        )->width(3),
-                        $this->ui->col(
-                            $this->getColumnUnsignedField($input, 'unsigned')
-                        )->width(8)
-                    )
-                ),
                 $this->ui->row(
                     $this->ui->col(
-                        $this->ui->text($this->trans->lang('Default value'))
+                        $this->ui->label($this->trans->lang('Unsigned'))
+                    )->width(3),
+                    $this->ui->col(
+                        $this->getColumnUnsignedField($input, 'unsigned')
+                    )->width(8)
+                )->setClass('dbadmin-column-option-edit-row dbadmin-column-option-unsigned')
+                    ->setStyle('display: none;'),
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->trans->lang('Collation'))
+                    )->width(3),
+                    $this->ui->col(
+                        $this->getColumnCollationField($input, 'collation')
+                    )->width(9)
+                )->setClass('dbadmin-column-option-edit-row dbadmin-column-option-collation')
+                    ->setStyle('display: none;'),
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->trans->lang('On Update'))
+                    )->width(3),
+                    $this->ui->col(
+                        $this->getColumnOnUpdateField($input, 'onUpdate')
+                    )->width(8)
+                )->setClass('dbadmin-column-option-edit-row dbadmin-column-option-onupdate')
+                    ->setStyle('display: none;'),
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->trans->lang('Default value'))
                     )->width(3),
                     $this->ui->col(
                         $this->getColumnDefaultField($input, 'generated', 'default')
                     )->width(9)
                 ),
-                $this->ui->when($input->collationEditable, fn() =>
-                    $this->ui->row(
-                        $this->ui->col(
-                            $this->ui->text($this->trans->lang('Collation'))
-                        )->width(3),
-                        $this->ui->col(
-                            $this->getColumnCollationField($input, 'collation')
-                        )->width(9)
-                    )
-                ),
-                $this->ui->when($input->onUpdateEditable, fn() =>
-                    $this->ui->row(
-                        $this->ui->col(
-                            $this->ui->text($this->trans->lang('On Update'))
-                        )->width(3),
-                        $this->ui->col(
-                            $this->getColumnOnUpdateField($input, 'onUpdate')
-                        )->width(8)
-                    )
-                ),
-                $this->ui->when($input->onDeleteEditable, fn() =>
-                    $this->ui->row(
-                        $this->ui->col(
-                            $this->ui->text($this->trans->lang('On Delete'))
-                        )->width(3),
-                        $this->ui->col(
-                            $this->getColumnOnDeleteField($input, 'onDelete')
-                        )->width(8)
-                    )
-                ),
                 $this->ui->when($support['comment'], fn() =>
                     $this->ui->row(
                         $this->ui->col(
-                            $this->ui->text($this->trans->lang('Comment'))
+                            $this->ui->label($this->trans->lang('Comment'))
                         )->width(3),
                         $this->ui->col(
                             $this->getColumnCommentField($input, 'comment', 'setComment')
                         )->width(9)
                     )
-                )
-            )->setId($this->editFormId())
+                ),
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->trans->lang('Foreign key'))
+                    )->width(3),
+                    $this->ui->col(
+                        $this->getColumnForeignKeyField($input, 'foreignKey')
+                            ->setClass('dbadmin-column-foreign-key')
+                            ->jxnOn('change', $onForeignKeyChanged)
+                    )->width(9)
+                )->setStyle('margin-top: 25px;'),
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->trans->lang('On Update'))
+                    )->width(3),
+                    $this->ui->col(
+                        $this->getForeignKeyOnUpdateField($input, 'fkOnUpdate')
+                    )->width(9)
+                )->setClass('dbadmin-column-foreign-key-edit-row')
+                    ->setStyle('display: none;'),
+                $this->ui->row(
+                    $this->ui->col(
+                        $this->ui->label($this->trans->lang('On Delete'))
+                    )->width(3),
+                    $this->ui->col(
+                        $this->getForeignKeyOnDeleteField($input, 'fkOnDelete')
+                    )->width(9)
+                )->setClass('dbadmin-column-foreign-key-edit-row')
+                    ->setStyle('display: none;'),
+                // $this->ui->row(
+                //     $this->ui->col()->width(3),
+                //     $this->ui->col(
+                //         $this->getForeignKeyDeferrableField($input, 'fkDeferrable'),
+                //         $this->ui->span($this->ui->html('Deferrable'))
+                //             ->setStyle('margin-left:5px;')
+                //     )->width(9)
+                // )->setClass('dbadmin-column-foreign-key-edit-row')
+                //     ->setStyle('display: none;')
+            )->setId($formId)
         );
     }
 
@@ -228,7 +246,7 @@ class ColumnUiBuilder
                         ->width(3),
                     $this->ui->col($this->ui->text($values->autoIncrement))
                         ->width(8)
-                ),
+                )
             ),
             $this->ui->when($hasEngines && $values->engine !== '', fn() =>
                 $this->ui->row(
@@ -236,7 +254,7 @@ class ColumnUiBuilder
                         ->width(3),
                     $this->ui->col($this->ui->text($values->engine))
                         ->width(8)
-                ),
+                )
             ),
             $this->ui->when($hasCollations && $values->collation !== '', fn() =>
                 $this->ui->row(
@@ -244,7 +262,7 @@ class ColumnUiBuilder
                         ->width(3),
                     $this->ui->col($this->ui->text($values->collation))
                         ->width(8)
-                ),
+                )
             ),
             $this->ui->when($support['comment'] && $values->setComment, fn() =>
                 $this->ui->row(
@@ -252,7 +270,7 @@ class ColumnUiBuilder
                         ->width(3),
                     $this->ui->col($values->comment)
                         ->width(8)
-                ),
+                )
             ),
             $this->ui->div('<b>' . $this->trans->lang('Columns') . '</b>'),
             $this->tableColumns($table->columns)
@@ -288,7 +306,7 @@ class ColumnUiBuilder
                         ->width(3),
                     $this->ui->col($this->ui->text($values->autoIncrement))
                         ->width(8)
-                ),
+                )
             ),
             $this->ui->when($hasEngines && $values->engine !== $status->engine, fn() =>
                 $this->ui->row(
@@ -296,7 +314,7 @@ class ColumnUiBuilder
                         ->width(3),
                     $this->ui->col($this->ui->text($values->engine))
                         ->width(8)
-                ),
+                )
             ),
             $this->ui->when($hasCollations && $values->collation !== $status->collation, fn() =>
                 $this->ui->row(
@@ -304,7 +322,7 @@ class ColumnUiBuilder
                         ->width(3),
                     $this->ui->col($this->ui->text($values->collation))
                         ->width(8)
-                ),
+                )
             ),
             $this->ui->when($support['comment'] && $values->setComment, fn() =>
                 $this->ui->row(
@@ -312,7 +330,7 @@ class ColumnUiBuilder
                         ->width(3),
                     $this->ui->col($values->comment)
                         ->width(8)
-                ),
+                )
             ),
             $this->ui->div('<b>' . $this->trans->lang('Columns') . '</b>'),
             $this->tableColumns($table->columns)

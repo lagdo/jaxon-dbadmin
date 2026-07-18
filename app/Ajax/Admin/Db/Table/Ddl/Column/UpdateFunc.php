@@ -22,15 +22,12 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $input = $this->driver()->setInputFieldProperties($input);
-        $primaryColumn = $this->getTableBag('primary', '');
-
         $title = $input->added() ?
             "Edit new column in table $table" :
             "Edit column {$input->column->name} in table $table";
         $content = $this->columnUi
             ->metadata($this->metadata())
-            ->column($input, $primaryColumn);
+            ->column($input);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -42,6 +39,11 @@ class UpdateFunc extends FuncComponent
         ]];
 
         $this->modal()->show($title, $content, $buttons);
+
+        $this->response()->jq('.dbadmin-column-edit-type',
+            '#' . $this->columnUi->editFormId())->trigger('change');
+        $this->response()->jq('.dbadmin-column-foreign-key',
+            '#' . $this->columnUi->editFormId())->trigger('change');
     }
 
     /**

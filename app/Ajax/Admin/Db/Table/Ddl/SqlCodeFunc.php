@@ -129,7 +129,8 @@ class SqlCodeFunc extends Column\FuncComponent
             'class' => 'btn btn-primary',
             'click' => $this->rq(QueryEditor::class)->database($queryCode),
         ]];
-        $this->modal()->show($title, $content, $buttons);
+        $options = ['size' => 'large'];
+        $this->modal()->show($title, $content, $buttons, $options);
 
         $this->setupSqlEditor($this->columnUi->getQueryDivId());
     }
@@ -176,7 +177,8 @@ class SqlCodeFunc extends Column\FuncComponent
             'class' => 'btn btn-primary',
             'click' => $this->rq(QueryEditor::class)->database($queryCode),
         ]];
-        $this->modal()->show($title, $content, $buttons);
+        $options = ['size' => 'large'];
+        $this->modal()->show($title, $content, $buttons, $options);
 
         $this->setupSqlEditor($this->columnUi->getQueryDivId());
     }

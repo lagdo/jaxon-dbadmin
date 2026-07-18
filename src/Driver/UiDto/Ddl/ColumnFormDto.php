@@ -59,23 +59,21 @@ class ColumnFormDto
         'nullable',
         'collation',
         'onUpdate',
-        'onDelete',
         'comment',
     ];
 
     /**
+     * @var bool
+     */
+    public bool $lengthRequired = true;
+
+    /**
      * @param ColumnDto $column
+     * @param ForeignKeyDdDto|null $foreignKey
      * @param array $types
-     * @param bool $lengthRequired
-     * @param bool $collationEditable
-     * @param bool $unsignedEditable
-     * @param bool $onUpdateEditable
-     * @param bool $onDeleteEditable
      */
     public function __construct(public readonly ColumnDto $column,
-        public array $types, public bool $lengthRequired = true,
-        public bool $collationEditable = true, public bool $unsignedEditable = true,
-        public bool $onUpdateEditable = true, public bool $onDeleteEditable = true)
+        public readonly ForeignKeyDdDto|null $foreignKey, public readonly array $types)
     {
         if (preg_match('~^CURRENT_TIMESTAMP~i', $column->onUpdate)) {
             $column->onUpdate = 'CURRENT_TIMESTAMP';
@@ -92,12 +90,31 @@ class ColumnFormDto
         $this->currValues['setComment'] = false;
         // Set the "DEFAULT" value for the "generated" attribute.
         // Remove the null value from the "default" attribute.
-        // From create.inc.php
         if ($this->currValues['generated'] === '') {
             [$attr, $value] = $this->currValues['default'] === null ?
                 ['default', ''] : ['generated', 'DEFAULT'];
             $this->currValues[$attr] = $value;
         }
+        $this->setForeignKeyValues();
+    }
+
+    /**
+     * @return void
+     */
+    private function setForeignKeyValues(): void
+    {
+        if ($this->foreignKey === null) {
+            $this->currValues['foreignKey'] = '';
+            $this->currValues['fkOnUpdate'] = '';
+            $this->currValues['fkOnDelete'] = '';
+            // $this->currValues['fkDeferrable'] = false;
+            return;
+        }
+
+        $this->currValues['foreignKey'] = $this->foreignKey->idInUi();
+        $this->currValues['fkOnUpdate'] = $this->foreignKey->onUpdate;
+        $this->currValues['fkOnDelete'] = $this->foreignKey->onDelete;
+        // $this->currValues['fkDeferrable'] = $this->foreignKey->deferrable;
     }
 
     /**
@@ -330,5 +347,89 @@ class ColumnFormDto
     public static function columnIsAdded(array $column): bool
     {
         return ColumnAction::equalsAdd($column['action']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasForeignKey(): bool
+    {
+        return $this->values()->foreignKey !== '' || $this->foreignKey !== null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function fkAdded(): bool
+    {
+        return $this->added() ||
+            ($this->values()->foreignKey !== '' && $this->foreignKey === null);
+    }
+
+    /**
+     * @return bool
+     */
+    public function fkEdited(): bool
+    {
+        $values = $this->values();
+        return $values->foreignKey !== '' && $this->foreignKey !== null &&
+            ($values->foreignKey !== $this->foreignKey->idInUi() ||
+            // $values->fkDeferrable !== $this->foreignKey->deferrable ||
+            $values->fkOnUpdate !== $this->foreignKey->onUpdate ||
+            $values->fkOnDelete !== $this->foreignKey->onDelete);
+    }
+
+    /**
+     * @return bool
+     */
+    public function fkDropped(): bool
+    {
+        return $this->dropped() ||
+            ($this->values()->foreignKey === '' && $this->foreignKey !== null);
+    }
+
+    /**
+     * The id to be used in dropdown
+     *
+     * @return string
+     */
+    public function fkIdValue(): string
+    {
+        return $this->values()->foreignKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function fkId(): string
+    {
+        return $this->values()->foreignKey ?: $this->foreignKey?->idInUi() ?? '';
+    }
+
+    /**
+     * @return string
+     */
+    public function fkOnUpdate(): string
+    {
+        return $this->values()->foreignKey !== '' ?
+            $this->values()->fkOnUpdate : $this->foreignKey?->onUpdate ?? '';
+    }
+
+    /**
+     * @return string
+     */
+    public function fkOnDelete(): string
+    {
+        return $this->values()->foreignKey !== '' ?
+            $this->values()->fkOnDelete : $this->foreignKey?->onDelete ?? '';
+    }
+
+    /**
+     * @return bool
+     */
+    public function fkDeferrable(): bool
+    {
+        return $this->values()->foreignKey !== '' ?
+            $this->values()->fkDeferrable : $this->foreignKey?->deferrable ?? false;
     }
 }

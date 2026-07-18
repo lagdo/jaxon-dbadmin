@@ -153,34 +153,30 @@ class SelectProxy extends AbstractDriverProxy
 
     /**
      * @param ForeignColumnDto $query
-     * @param string $tableName
+     * @param string $table
      * @param int $textLength
      *
      * @return array
      */
     private function getForeignColumnQuery(ForeignColumnDto $query,
-        string $tableName, int $textLength): array
+        string $table, int $textLength): array
     {
         $source = $query->fkey->source[0];
-        $target = $query->fkey->target[0];
         $id = $this->statement()->escapeId($source);
+        $target = $this->statement()->escapeId($query->fkey->target[0]);
         $targetTable = $this->statement()->escapeId($query->fkey->table);
-        $targetId = "$targetTable." . $this->statement()->escapeId($target);
         $targetLabel = ($query->select)($textLength);
         $cteFrom = implode(' ', [$targetTable, ...$query->joins]);
 
-        $cte = "{$source}_cte";
-        $cteId = "_dbadmin_cte_{$source}_id";
-        $cteLabel = "_dbadmin_cte_{$source}_label";
-        $cteName = $this->statement()->escapeId($cte);
-        $cteQuery = "SELECT $targetId as $cteId, $targetLabel as $cteLabel FROM $cteFrom";
-        $cteId = $this->statement()->escapeId($cteId);
-        $cteLabel = $this->statement()->escapeId($cteLabel);
+        $cte = $this->statement()->escapeId("{$source}_cte");
+        $cteId = $this->statement()->escapeId("_dbadmin_cte_{$source}_id");
+        $cteLabel = $this->statement()->escapeId("_dbadmin_cte_{$source}_label");
+        $cteSelect = "SELECT $target as $cteId, $targetLabel as $cteLabel";
 
         return [
-            'cte' => "$cte AS ($cteQuery)",
-            'label' => "$cteName.$cteLabel",
-            'join' => "LEFT OUTER JOIN $cteName on $tableName.$id=$cteName.$cteId",
+            'cte' => "$cte AS ($cteSelect FROM $cteFrom)",
+            'label' => "$cte.$cteLabel",
+            'join' => "LEFT OUTER JOIN $cte on $table.$id=$cte.$cteId",
         ];
     }
 

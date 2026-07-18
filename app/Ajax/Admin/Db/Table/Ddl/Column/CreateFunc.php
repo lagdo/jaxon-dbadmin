@@ -16,13 +16,12 @@ class CreateFunc extends FuncComponent
     public function add(string $columnId = ''): void
     {
         $input = $this->newColumnInput();
-        $primaryColumn = $this->getTableBag('primary', '');
 
         $tableName = $this->getCurrentTable();
         $title = $tableName === '' ? 'New column' : "New column in table $tableName";
         $content = $this->columnUi
             ->metadata($this->metadata())
-            ->column($input, $primaryColumn);
+            ->column($input);
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -34,6 +33,11 @@ class CreateFunc extends FuncComponent
         ]];
 
         $this->modal()->show($title, $content, $buttons);
+
+        $this->response()->jq('.dbadmin-column-edit-type',
+            '#' . $this->columnUi->editFormId())->trigger('change');
+        $this->response()->jq('.dbadmin-column-foreign-key',
+            '#' . $this->columnUi->editFormId())->trigger('change');
     }
 
     /**

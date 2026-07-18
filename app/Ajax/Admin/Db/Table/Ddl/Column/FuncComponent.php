@@ -52,6 +52,13 @@ abstract class FuncComponent extends BaseComponent
         }
         $formValues['comment'] ??= '';
 
+        $formValues['fkDeferrable'] = isset($formValues['fkDeferrable']);
+        if ($formValues['foreignKey'] === '') {
+            $formValues['fkOnUpdate'] = '';
+            $formValues['fkOnDelete'] = '';
+            $formValues['fkDeferrable'] = false;
+        }
+
         return $formValues;
     }
 }

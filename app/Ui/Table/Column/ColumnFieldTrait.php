@@ -8,10 +8,12 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\HtmlComponent;
 
+use function array_filter;
+use function array_values;
 use function is_array;
 use function is_string;
-use function Jaxon\form;
 use function Jaxon\jq;
+use function Jaxon\pm;
 use function strcasecmp;
 
 trait ColumnFieldTrait
@@ -44,6 +46,19 @@ trait ColumnFieldTrait
     abstract protected function tab(): Tab;
 
     /**
+     * @return array<array>
+     */
+    protected function getColumnTypes(): array
+    {
+        $types = $this->engine()->structuredTypes();
+        $unsignedTypes = array_values($types[$this->trans->lang('Numbers')] ?? []);
+        $collationTypes = array_filter($types[$this->trans->lang('Strings')] ?? [],
+            fn(string $type) => $type !== 'json' && $type !== 'uuid');
+        $onUpdateTypes = ['datetime', 'timestamp'];
+        return [$unsignedTypes, array_values($collationTypes), $onUpdateTypes];
+    }
+
+    /**
      * @return string
      */
     protected function tableFormId(): string
@@ -74,7 +89,7 @@ trait ColumnFieldTrait
      */
     public function tableFormValues(): array
     {
-        return form($this->tableFormId());
+        return pm()->form($this->tableFormId());
     }
 
     /**
@@ -89,7 +104,7 @@ trait ColumnFieldTrait
     /**
      * @return string
      */
-    protected function editFormId(): string
+    public function editFormId(): string
     {
         return $this->tab()->app()->id('dbadmin-table-column-edit-form');
     }
@@ -99,7 +114,7 @@ trait ColumnFieldTrait
      */
     public function editFormValues(): array
     {
-        return form($this->editFormId());
+        return pm()->form($this->editFormId());
     }
 
     /**
@@ -182,7 +197,6 @@ trait ColumnFieldTrait
         return $this->ui->input(['class' => 'column-name'])
             ->setName($columnName)
             ->setValue($input->values()->name)
-            ->setDataField('name')
             ->setDataMaxlength('64')
             ->setAutocapitalize('off');
     }
@@ -224,9 +238,7 @@ trait ColumnFieldTrait
     protected function getColumnCollationField(ColumnFormDto $input, string $columnName): mixed
     {
         return $this->getCollationSelect($input->values()->collation)
-            ->setName($columnName)
-            ->setDataField('collation')
-            ->when($input->collationEditable, fn($input) => $input->setReadonly('readonly'));
+            ->setName($columnName);
     }
 
     /**
@@ -240,14 +252,12 @@ trait ColumnFieldTrait
         return $this->ui->select(
             $this->ui->option('(' . $this->trans->lang('ON UPDATE') . ')')
                 ->setValue('')->selected(false),
-            $this->ui->each($this->options()['onUpdate'], fn($option, $value) =>
+            $this->ui->each($this->columnOptions('onUpdate'), fn($option, $value) =>
                 $this->ui->option($option)
                     ->selected($input->values()->onUpdate === $option)
                     ->setValue($value)
             )
-        )->setName($columnName)
-            ->setDataField('onUpdate')
-            ->when($input->onUpdateEditable, fn($input) => $input->setReadonly('readonly'));
+        )->setName($columnName);
     }
 
     /**
@@ -272,7 +282,6 @@ trait ColumnFieldTrait
                 ->setType('text')
                 ->setName($columnName)
                 ->setValue($input->values()->comment ?? '')
-                ->setDataField('comment')
                 ->setPlaceholder($placeholder)
                 ->when($disabled, fn($input) => $this->disable($input, true))
         );
@@ -311,8 +320,7 @@ trait ColumnFieldTrait
                     )
                 )
             )
-        )->setName($columnName)
-            ->setDataField('type');
+        )->setName($columnName);
     }
 
     /**
@@ -327,7 +335,6 @@ trait ColumnFieldTrait
             ->setStyle('width: 100%')
             ->setName($columnName)
             ->setPlaceholder($this->trans->lang('Length'))
-            ->setDataField('length')
             ->setSize('3')
             ->setValue($input->values()->length ?: '');
     }
@@ -343,7 +350,6 @@ trait ColumnFieldTrait
         return $this->ui->checkbox()
             ->checked($input->values()->nullable)
             ->setName($columnName)
-            ->setDataField('null')
             ->setValue('1');
     }
 
@@ -364,31 +370,7 @@ trait ColumnFieldTrait
                     ->selected($input->values()->unsigned === $option)
                     ->setValue($option)
             )
-        )->setName($columnName)
-            ->setDataField('unsigned')
-            ->when($input->unsignedEditable, fn($input) => $input->setReadonly('readonly'));
-    }
-
-    /**
-     * @param ColumnFormDto $input
-     * @param string $columnName
-     *
-     * @return mixed
-     */
-    protected function getColumnOnDeleteField(ColumnFormDto $input, string $columnName): mixed
-    {
-        return $this->ui->select(
-            $this->ui->option('(' . $this->trans->lang('ON DELETE') . ')')
-                ->setValue('')
-                ->selected(false),
-            $this->ui->each($this->options()['onDelete'], fn($option) =>
-                $this->ui->option($option)
-                    ->setValue($option)
-                    ->selected($input->values()->onDelete === $option)
-            )
-        )->setName($columnName)
-            ->setDataField('onDelete')
-            ->when($input->onDeleteEditable, fn($input) => $input->setReadonly('readonly'));
+        )->setName($columnName);
     }
 
     /**
@@ -408,16 +390,100 @@ trait ColumnFieldTrait
                     $this->ui->option($default)
                         ->selected($input->values()->generated === $default))
             )->setName($generated)
-                ->setDataField('generated')
                 ->setStyle('width: 30%;')
                 ->when($this->listMode, fn($input) => $this->disable($input, false)),
             $this->ui->input()
                 ->setName($default)
-                ->setDataField('default')
                 ->setStyle('width: 70%;')
                 ->when($placeholder !== '', fn($input) => $input->setPlaceholder($placeholder))
                 ->setValue($input->values()->default)
                 ->when($this->listMode, fn($input) => $this->disable($input))
         );
+    }
+
+    /**
+     * @param ColumnFormDto $input
+     * @param string $columnName
+     *
+     * @return mixed
+     */
+    protected function getColumnForeignKeyField(ColumnFormDto $input, string $columnName): mixed
+    {
+        return $this->ui->select(
+            $this->ui->option('')
+                ->selected(false),
+            $this->ui->each($this->referencableColumns(), fn(string $label, string $value) =>
+                $this->ui->option($label)
+                    ->setValue($value)
+                    // The final value of the foreign key id must be used here.
+                    ->selected($input->fkIdValue() === $value)
+            )
+        )->setName($columnName);
+    }
+
+    /**
+     * @param ColumnFormDto $input
+     * @param string $columnName
+     *
+     * @return mixed
+     */
+    protected function getColumnForeignKeyInput(ColumnFormDto $input, string $columnName): mixed
+    {
+        return $this->ui->input()
+            // The original value of the foreign key id can be used here.
+            ->setValue($this->referencableColumn($input->fkId()))
+            ->setName($columnName);
+    }
+
+    /**
+     * @param ColumnFormDto $input
+     * @param string $columnName
+     *
+     * @return mixed
+     */
+    protected function getForeignKeyOnUpdateField(ColumnFormDto $input, string $columnName): mixed
+    {
+        return $this->ui->select(
+            $this->ui->option('')
+                ->selected(false),
+            $this->ui->each($this->foreignKeyOptions('onUpdate'), fn($option) =>
+                $this->ui->option($option)
+                    ->setValue($option)
+                    ->selected($input->fkOnUpdate() === $option)
+            )
+        )->setName($columnName);
+    }
+
+    /**
+     * @param ColumnFormDto $input
+     * @param string $columnName
+     *
+     * @return mixed
+     */
+    protected function getForeignKeyOnDeleteField(ColumnFormDto $input, string $columnName): mixed
+    {
+        return $this->ui->select(
+            $this->ui->option('')
+                ->selected(false),
+            $this->ui->each($this->foreignKeyOptions('onDelete'), fn($option) =>
+                $this->ui->option($option)
+                    ->setValue($option)
+                    ->selected($input->fkOnDelete() === $option)
+            )
+        )->setName($columnName);
+    }
+
+    /**
+     * @param ColumnFormDto $input
+     * @param string $columnName
+     *
+     * @return mixed
+     */
+    protected function getForeignKeyDeferrableField(ColumnFormDto $input, string $columnName): mixed
+    {
+        return $this->ui->checkbox()
+            ->checked($input->fkDeferrable())
+            ->setName($columnName)
+            ->setValue('1');
     }
 }

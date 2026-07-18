@@ -5,7 +5,6 @@ namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ForeignKeyTrait;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableContent;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableHeader;
@@ -20,8 +19,6 @@ use Exception;
  */
 class TableProxy extends AbstractDriverProxy
 {
-    use ForeignKeyTrait;
-
     /**
      * The current table status
      *
@@ -159,16 +156,9 @@ class TableProxy extends AbstractDriverProxy
      */
     public function getTableForeignKeys(string $table): ?array
     {
-        $status = $this->status($table);
-        if (!$this->engine()->supportForeignKeys($status)) {
-            return null;
-        }
-
-        $foreignKeys = $this->engine()->foreignKeys($table);
-
-        return [
+        return !$this->engine()->supportForeignKeys($this->status($table)) ? null : [
             'headers' => $this->header()->foreignKeys(),
-            'details' => $this->content()->foreignKeys($foreignKeys),
+            'details' => $this->content()->foreignKeys($table),
         ];
     }
 
@@ -224,11 +214,7 @@ class TableProxy extends AbstractDriverProxy
      */
     public function getTableMetadata(string $table = ''): array
     {
-        // From create.inc.php
-        $status = $this->getTableStatus($table);
-        $foreignKeys = $this->getForeignKeys($table);
-
-        return $this->content()->metadata($status, $foreignKeys);
+        return $this->content()->metadata($this->getTableStatus($table));
     }
 
     /**
@@ -240,19 +226,7 @@ class TableProxy extends AbstractDriverProxy
      */
     public function newColumnInput(array|null $values = null): ColumnFormDto
     {
-        $foreignKeys = $this->getForeignKeys();
-        return $this->content()->newColumnInput($values, $foreignKeys);
-    }
-
-    /**
-     * @param ColumnFormDto $input
-     *
-     * @return ColumnFormDto
-     */
-    public function setInputFieldProperties(ColumnFormDto $input): ColumnFormDto
-    {
-        $foreignKeys = $this->getForeignKeys();
-        return $this->content()->setInputFieldProperties($input, $foreignKeys);
+        return $this->content()->newColumnInput($values);
     }
 
     /**

@@ -141,17 +141,6 @@ trait TableTrait
     }
 
     /**
-     * @param ColumnFormDto $input
-     *
-     * @return ColumnFormDto
-     */
-    public function setInputFieldProperties(ColumnFormDto $input): ColumnFormDto
-    {
-        $this->connectToSchema();
-        return $this->tableProxy()->setInputFieldProperties($input);
-    }
-
-    /**
      * Get SQL commands to create a table
      *
      * @param TableFormDto $table

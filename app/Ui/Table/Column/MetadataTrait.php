@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ui\Table\Column;
 
+use Lagdo\DbAdmin\Driver\EngineInterface;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 
 use function array_combine;
@@ -15,14 +16,21 @@ trait MetadataTrait
     protected $metadata = [];
 
     /**
+     * @return EngineInterface
+     */
+    protected function engine(): EngineInterface
+    {
+        return $this->metadata['engine'];
+    }
+
+    /**
      * @param array $features
      *
      * @return array
      */
     protected function support(array $features): array
     {
-        $support = $this->metadata['support'] ?? fn() => false;
-        return array_combine($features, array_map($support, $features));
+        return array_combine($features, array_map($this->engine()->support(...), $features));
     }
 
     /**
@@ -30,7 +38,7 @@ trait MetadataTrait
      */
     protected function engines(): array
     {
-        return $this->metadata['engines'] ?? [];
+        return $this->engine()->engines();
     }
 
     /**
@@ -50,19 +58,23 @@ trait MetadataTrait
     }
 
     /**
+     * @param string $option
+     *
      * @return array
      */
-    protected function foreignKeys(): array
+    protected function columnOptions(string $option): array
     {
-        return $this->metadata['foreignKeys'] ?? [];
+        return $this->metadata['options']['column'][$option] ?? [];
     }
 
     /**
+     * @param string $option
+     *
      * @return array
      */
-    protected function options(): array
+    protected function foreignKeyOptions(string $option): array
     {
-        return $this->metadata['options'] ?? [];
+        return $this->metadata['options']['foreignKey'][$option] ?? [];
     }
 
     /**
@@ -70,7 +82,7 @@ trait MetadataTrait
      */
     protected function defaults(): array
     {
-        return $this->metadata['defaults'] ?? [];
+        return $this->engine()->columnDefaults();
     }
 
     /**
@@ -85,10 +97,28 @@ trait MetadataTrait
     }
 
     /**
-     * @var array<ColumnFormDto>
+     * @return array<ColumnFormDto>
      */
     protected function inputs(): array
     {
         return $this->metadata['table']->columns;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function referencableColumns(): array
+    {
+        return $this->metadata['table']->referencableColumns;
+    }
+
+    /**
+     * @param string $fkId
+     *
+     * @return string
+     */
+    protected function referencableColumn(string $fkId): string
+    {
+        return $this->metadata['table']->referencableColumns[$fkId] ?? '';
     }
 }

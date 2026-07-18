@@ -10,13 +10,12 @@ use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\IndexDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
-use Lagdo\DbAdmin\Driver\Sql\Dto\TableDdDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TriggerDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 
+use function array_combine;
 use function array_filter;
-use function array_flip;
 use function array_keys;
 use function array_key_exists;
 use function array_map;
@@ -24,12 +23,13 @@ use function array_values;
 use function count;
 use function implode;
 use function in_array;
-use function is_string;
+use function is_numeric;
 use function ksort;
-use function str_replace;
 
 class TableContent extends AbstractDriverProxy
 {
+    use ForeignKeyTrait;
+
     /**
      * @param array<ColumnDto> $columns
      * @param string $tableCollation
@@ -87,12 +87,13 @@ class TableContent extends AbstractDriverProxy
     }
 
     /**
-     * @param array<ForeignKeyDto> $foreignKeys
+     * @param string $table
      *
      * @return array<DetailDto>
      */
-    public function foreignKeys(array $foreignKeys): array
+    public function foreignKeys(string $table): array
     {
+        $foreignKeys = $this->engine()->foreignKeys($table);
         $keyCallback = $this->utils()->html(...);
         return array_map(function(ForeignKeyDto $foreignKey, string $name) use($keyCallback) {
             $target = '';
@@ -102,13 +103,12 @@ class TableContent extends AbstractDriverProxy
             if ($foreignKey->schema != '') {
                 $target .= '<b>' . $this->utils()->html($foreignKey->schema) . '</b>.';
             }
-            $targets = array_map($keyCallback, $foreignKey->target);
-            $target = $this->utils()->html($foreignKey->table) .
-                '(' . implode(', ', $targets) . ')';
+            $targets = implode(', ', array_map($keyCallback, $foreignKey->target));
+            $target = $this->utils()->html($foreignKey->table) . "($targets)";
             $sources = array_map($keyCallback, $foreignKey->source);
 
             return new DetailDto([
-                'name' => $this->utils()->html($name),
+                'name' => is_numeric($name) ? '' : $this->utils()->html($name),
                 'source' => '<i>' . implode('</i>, <i>', $sources) . '</i>',
                 'target' => $target,
                 'onDelete' => $this->utils()->html($foreignKey->onDelete),
@@ -136,24 +136,17 @@ class TableContent extends AbstractDriverProxy
      * Get column types
      *
      * @param string $type  The type name
-     * @param array $extraTypes
-     * @param array<string,string> $foreignKeys
      *
      * @return array
      */
-    private function getColumnTypes(string $type = '',
-        array $extraTypes = [], array $foreignKeys = []): array
+    private function getColumnTypes(string $type): array
     {
+        $extraTypes = [];
         if ($type !== '' && !$this->engine()->typeExists($type) &&
-            !isset($foreignKeys[$type]) && !in_array($type, $extraTypes)) {
+            !isset($referencableColumns[$type]) && !in_array($type, $extraTypes)) {
             $extraTypes[] = $type;
         }
-
         $structuredTypes = $this->engine()->structuredTypes();
-        if (!empty($foreignKeys)) {
-            $structuredTypes[$this->utils()->lang('Foreign keys')] = $foreignKeys;
-        }
-
         // Change from Adminer:
         // The $extraTypes are all kept in the first entry in the table.
         return count($extraTypes) > 0 ? [$extraTypes, ...$structuredTypes] : $structuredTypes;
@@ -161,144 +154,114 @@ class TableContent extends AbstractDriverProxy
 
     /**
      * @param ColumnDto $column
-     * @param array<string,string> $foreignKeys
+     * @param ForeignKeyDdDto|null $foreignKey
      *
      * @return ColumnFormDto
      */
-    private function getColumnInput(ColumnDto $column, array $foreignKeys): ColumnFormDto
+    private function getColumnInput(ColumnDto $column, ForeignKeyDdDto|null $foreignKey): ColumnFormDto
     {
-        $types = $this->getColumnTypes($column->type, foreignKeys: $foreignKeys);
-        return new ColumnFormDto($column, types: $types);
+        $types = $this->getColumnTypes($column->type);
+        return new ColumnFormDto($column, $foreignKey, $types);
+    }
+
+    /**
+     * @param string $table
+     *
+     * @return array<ForeignKeyDdDto>
+     */
+    private function getForeignKeysForDropDown(string $table): array
+    {
+        if ($table === '') {
+            return [];
+        }
+
+        $foreignKeys = array_filter($this->engine()->foreignKeys($table),
+            fn(ForeignKeyDto $foreignKey) => count($foreignKey->source) === 1);
+        $dtoBuilder = function(ForeignKeyDto $foreignKey, string $name) {
+            $dto = new ForeignKeyDdDto();
+            $dto->name = is_numeric($name) ? '' : $name;;
+            $dto->table = $foreignKey->table;
+            $dto->column = $foreignKey->target[0];
+            $dto->onUpdate = $foreignKey->onUpdate;
+            $dto->onDelete = $foreignKey->onDelete;
+            $dto->deferrable = $foreignKey->deferrable;
+            return $dto;
+        };
+        $foreignKeyDtos = array_map($dtoBuilder, $foreignKeys, array_keys($foreignKeys));
+        // Key by source column name.
+        $sourceGetter = fn(ForeignKeyDto $foreignKey) => $foreignKey->source[0];
+        $foreignKeySources = array_map($sourceGetter, $foreignKeys);
+
+        return array_combine($foreignKeySources, $foreignKeyDtos);
     }
 
     /**
      * @param TableDto $status
-     * @param array<string,string> $foreignKeys
      *
      * @return array
      */
-    public function metadata(TableDto $status, array $foreignKeys): array
+    public function metadata(TableDto $status): array
     {
+        $referencableColumns = $this->getReferencableColumns();
+        $referencableColumns = $this->formatReferencableColumns($referencableColumns);
         $collations = $this->engine()->collations();
         $unsigned = $this->engine()->unsigned();
-        $columns = array_map(fn(ColumnDto $column) =>
-            $this->getColumnInput($column, $foreignKeys), $status->columns());
-        $table = new TableFormDto($status, $columns);
+        $foreignKeys = $this->getForeignKeysForDropDown($status->name);
+
+        $inputGetter = fn(ColumnDto $column) =>
+            $this->getColumnInput($column, $foreignKeys[$column->name] ?? null);
+        $columns = array_map($inputGetter, $status->columns());
+        $table = new TableFormDto($status, $columns, $referencableColumns);
+        $foreignKeyActions = $this->engine()->onActions();
 
         return [
             'table' => $table,
-            'foreignKeys' => $foreignKeys,
             'options' => [
-                'onUpdate' => ['CURRENT_TIMESTAMP' => 'CURRENT_TIMESTAMP'],
-                'onDelete' => $this->engine()->onActions(),
+                'column' => [
+                    'onUpdate' => ['CURRENT_TIMESTAMP' => 'CURRENT_TIMESTAMP'],
+                ],
+                'foreignKey' => [
+                    'onUpdate' => $foreignKeyActions,
+                    'onDelete' => $foreignKeyActions,
+                ],
             ],
             'collations' => $collations,
             'unsigned' => $unsigned,
-            'engines' => $this->engine()->engines(),
-            'defaults' => $this->engine()->columnDefaults(),
-            // Callback to call the support method.
-            'support' => $this->engine()->support(...),
+            'engine' => $this->engine(),
         ];
-    }
-
-    /**
-     * @param ColumnFormDto $input
-     * @param array<string,string> $foreignKeys
-     *
-     * @return ColumnFormDto
-     */
-    public function setInputFieldProperties(ColumnFormDto $input, array $foreignKeys): ColumnFormDto
-    {
-        // Todo: enable this.
-        // See the edit_type() function in the editing.inc.php file.
-
-        // $collations = $this->engine()->collations();
-        // $unsigned = $this->engine()->unsigned();
-
-        // $input->lengthRequired = $input->column->length === '' &&
-        //     preg_match('~var(char|binary)$~', $input->column->type) > 0;
-        // $input->collationEditable = count($collations) > 0 &&
-        //     preg_match('~(char|text|enum|set)$~', $input->column->type) > 0;
-        // $input->unsignedEditable = count($unsigned) > 0 && ($input->column->type &&
-        //     preg_match($this->engine()->numberRegex(), $input->column->type) > 0);
-        // $input->onUpdateEditable = $input->column->onUpdate !== '' &&
-        //     preg_match('~timestamp|datetime~', $input->column->type) > 0;
-        // $input->onDeleteEditable = count($foreignKeys) > 0 &&
-        //     preg_match('~`~', $input->column->type) > 0;
-
-        return $input;
     }
 
     /**
      * Get a new table column
      *
      * @param array|null $values
-     * @param array<string,string> $foreignKeys
      *
      * @return ColumnFormDto
      */
-    public function newColumnInput(array|null $values, array $foreignKeys): ColumnFormDto
+    public function newColumnInput(array|null $values): ColumnFormDto
     {
-        $input = $this->getColumnInput(new ColumnDto(), $foreignKeys);
+        $foreignKey = null;
+        if ($values !== null && ($fkId = $values['foreignKey']) !== '') {
+            $foreignKey = new ForeignKeyDdDto();
+            [$foreignKey->table, $foreignKey->column] = explode('::', $fkId);
+            $foreignKey->onUpdate = $values['fkOnUpdate'];
+            $foreignKey->onDelete = $values['fkOnDelete'];
+            $foreignKey->deferrable = $values['fkDeferrable'];
+        }
+        $input = $this->getColumnInput(new ColumnDto(), $foreignKey);
         if ($values !== null) {
             $input->setValues($values);
         }
-
-        return $this->setInputFieldProperties($input, $foreignKeys);
-    }
-
-    /**
-     * @param string $table
-     *
-     * @return array<ColumnDto>
-     */
-    private function getReferencableColumns(string $table): array
-    {
-        // From editing.inc.php, function referencable_primary()
-
-        $filter = fn(TableDto $tableStatus, string $tableName) =>
-            $tableName != $table && $this->engine()->supportForeignKeys($tableStatus);
-        $tables = $this->engine()->tableStatuses(true);
-        $tables = array_filter($tables, $filter, ARRAY_FILTER_USE_BOTH);
-
-        $filter = fn(ColumnDto $column) => $column->primary;
-        $primaryColumns = array_map(fn(TableDto $tableStatus) =>
-            array_values(array_filter($tableStatus->columns(), $filter)), $tables);
-
-        // Remove multi column primary keys
-        $filter = fn(array $columns) => count($columns) === 1;
-        $primaryColumns = array_filter($primaryColumns, $filter);
-
-        return array_map(fn(array $columns) => $columns[0], $primaryColumns);
-    }
-
-    /**
-     * Get foreign keys
-     *
-     * @param TableDdDto|string $table
-     *
-     * @return array<string>
-     */
-    private function getForeignKeys(TableDdDto|string $table = ''): array
-    {
-        $columns = is_string($table) ?
-            $this->getReferencableColumns($table) :
-            $table->getReferencableColumns();
-
-        $replace = fn(string $name) => str_replace("`", "``", $name);
-        $convertName = fn(ColumnDto $column, string $tableName) =>
-            $replace($tableName) . "`" . $replace($column->name); // not escapeId() - used in JS
-        $foreignKeys = array_map($convertName, $columns, array_keys($columns));
-
-        return array_flip($foreignKeys);
+        return $input;
     }
 
     /**
      * @param ColumnFormDto $input
+     * @param array<ReferencableDto> $referencableColumns
      *
      * @return ColumnDdDto
      */
-    private function makeColumnInput(ColumnFormDto $input): ColumnDdDto
+    private function makeColumnInput(ColumnFormDto $input, array $referencableColumns): ColumnDdDto
     {
         $values = $input->values();
 
@@ -351,18 +314,23 @@ class TableContent extends AbstractDriverProxy
      */
     public function makeCreateDto(TableFormDto $table): TableCreateDto
     {
-        $values = (array)$table->values();
-        $columns = array_values(array_map(fn(ColumnFormDto $input) =>
-            $this->makeColumnInput($input), $table->columns));
-        $createDto = new TableCreateDto($values, $columns, $this->getReferencableColumns(...));
-
-        if ($createDto->autoIncrementColumnCount() > 1) {
-            $createDto->error = $this->utils()
+        $autoIncrementCount = count(array_filter($table->columns,
+            fn(ColumnFormDto $input) => $input->values()->autoIncrement));
+        if ($autoIncrementCount > 1) {
+            $errorDto = new TableCreateDto([], []);
+            $errorDto->error = $this->utils()
                 ->lang('Only one auto-increment column is allowed.');
+            return $errorDto;
         }
 
+        $referencableColumns = $this->getReferencableColumns();
+
+        $columns = array_values(array_map(fn(ColumnFormDto $input) =>
+            $this->makeColumnInput($input, $referencableColumns), $table->columns));
+        $createDto = new TableCreateDto((array)$table->values(), $columns);
+
         $foreignKeys = $this->getForeignKeys();
-        $createDto->setForeignKeys($foreignKeys);
+        $createDto->setForeignKeys($foreignKeys, $this->getReferencableColumns());
 
         return $createDto;
     }
@@ -374,19 +342,24 @@ class TableContent extends AbstractDriverProxy
      */
     public function makeAlterDto(TableFormDto $table): TableAlterDto
     {
-        $values = (array)$table->values();
-        $columns = array_values(array_map(fn(ColumnFormDto $input) =>
-            $this->makeColumnInput($input), $table->columns));
-        $alterDto = new TableAlterDto($values, $columns, $this->getReferencableColumns(...));
-        $alterDto->status = $table->status;
-
-        if ($alterDto->autoIncrementColumnCount() > 1) {
-            $alterDto->error = $this->utils()
+        $autoIncrementCount = count(array_filter($table->columns,
+            fn(ColumnFormDto $input) => $input->values()->autoIncrement));
+        if ($autoIncrementCount > 1) {
+            $errorDto = new TableAlterDto([], []);
+            $errorDto->error = $this->utils()
                 ->lang('Only one auto-increment column is allowed.');
+            return $errorDto;
         }
 
+        $referencableColumns = $this->getReferencableColumns();
+
+        $columns = array_values(array_map(fn(ColumnFormDto $input) =>
+            $this->makeColumnInput($input, $referencableColumns), $table->columns));
+        $alterDto = new TableAlterDto((array)$table->values(), $columns);
+        $alterDto->status = $table->status;
+
         $foreignKeys = $this->getForeignKeys($table->status->name);
-        $alterDto->setForeignKeys($foreignKeys);
+        $alterDto->setForeignKeys($foreignKeys, $this->getReferencableColumns());
 
         return $alterDto;
     }
