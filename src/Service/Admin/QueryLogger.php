@@ -23,11 +23,11 @@ class QueryLogger
     private int $category = Options::CAT_BUILDER;
 
     /**
-     * @param AuditConnection $audit
+     * @param AuditDatabase $auditDb
      * @param array $options
      * @param Closure $database
      */
-    public function __construct(private AuditConnection $audit,
+    public function __construct(private AuditDatabase $auditDb,
         array $options, private Closure $database)
     {
         $this->record = [
@@ -79,19 +79,19 @@ class QueryLogger
             'driver' => $database['driver'],
             'options' => json_encode($database) ?? '{}',
             'category' => $category,
-            'last_update' => $this->audit->currentTime(),
-            'user_id' => $this->audit->getUserId(),
+            'last_update' => $this->auditDb->currentTime(),
+            'user_id' => $this->auditDb->getUserId(),
         ];
         // Duplicates on query are checked on client side, not here.
         $query = "INSERT INTO dbadmin_runned_commands
 (query,driver,options,category,last_update,user_id)
 VALUES (:query,:driver,:options,:category,:last_update,:user_id)";
-        $result = $this->audit->executeQuery($query, $values);
+        $result = $this->auditDb->executeQuery($query, $values);
         if (!$result->hasError()) {
             return true;
         }
 
-        $this->audit->logWarning('Unable to save command in the query audit database.');
+        $this->auditDb->logWarning('Unable to save command in the query audit database.');
         return false;
     }
 

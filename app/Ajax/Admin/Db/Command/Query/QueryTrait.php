@@ -6,7 +6,7 @@ use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ui\Command\QueryUiBuilder;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
-use Lagdo\DbAdmin\Support\Service\Admin\AuditConnection;
+use Lagdo\DbAdmin\Support\Service\Admin\AuditDatabase;
 
 use function intval;
 use function trim;
@@ -14,10 +14,10 @@ use function trim;
 trait QueryTrait
 {
     /**
-     * @var AuditConnection
+     * @var AuditDatabase
      */
     #[Inject]
-    private AuditConnection $audit;
+    private AuditDatabase $auditDb;
 
     /**
      * @var QueryUiBuilder
@@ -34,7 +34,7 @@ trait QueryTrait
      */
     protected function content(): string
     {
-        return $this->queryUi->canShowQuery($this->audit->canShowQuery())
+        return $this->queryUi->canShowQuery($this->auditDb->canShowQuery())
             ->command($this->rq(), $this->rq($this->editorClass));
     }
 

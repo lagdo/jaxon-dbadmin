@@ -3,7 +3,6 @@
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnAction;
-use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDdDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
@@ -12,6 +11,7 @@ use Lagdo\DbAdmin\Driver\Sql\Dto\TableAlterDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableCreateDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TriggerDto;
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 
 use function array_combine;
@@ -257,25 +257,12 @@ class TableContent extends AbstractDriverProxy
 
     /**
      * @param ColumnFormDto $input
-     * @param array<ReferencableDto> $referencableColumns
      *
      * @return ColumnDdDto
      */
-    private function makeColumnInput(ColumnFormDto $input, array $referencableColumns): ColumnDdDto
+    private function makeColumnInput(ColumnFormDto $input): ColumnDdDto
     {
         $values = $input->values();
-
-        // $typeColumn = $input->dropped() || $input->unchanged() ? null :
-        //     $table->getReferencableColumns()[$foreignKey] ?? null;
-        // if ($typeColumn !== null) {
-        //     $fkColumn = new ForeignKeyDto();
-        //     $fkColumn->table = $foreignKey;
-        //     $fkColumn->source = [$values->name];
-        //     $fkColumn->target = [$typeColumn->name];
-        //     $fkColumn->onDelete = $values->onDelete;
-
-        //     $table->foreignKeys[$values->name] = $fkColumn;
-        // }
 
         $column = new ColumnDdDto($input->column, $input->action());
         switch ($input->action()) {
@@ -323,10 +310,7 @@ class TableContent extends AbstractDriverProxy
             return $errorDto;
         }
 
-        $referencableColumns = $this->getReferencableColumns();
-
-        $columns = array_values(array_map(fn(ColumnFormDto $input) =>
-            $this->makeColumnInput($input, $referencableColumns), $table->columns));
+        $columns = array_values(array_map($this->makeColumnInput(...), $table->columns));
         $createDto = new TableCreateDto((array)$table->values(), $columns);
 
         $foreignKeys = $this->getForeignKeys();
@@ -351,10 +335,7 @@ class TableContent extends AbstractDriverProxy
             return $errorDto;
         }
 
-        $referencableColumns = $this->getReferencableColumns();
-
-        $columns = array_values(array_map(fn(ColumnFormDto $input) =>
-            $this->makeColumnInput($input, $referencableColumns), $table->columns));
+        $columns = array_values(array_map($this->makeColumnInput(...), $table->columns));
         $alterDto = new TableAlterDto((array)$table->values(), $columns);
         $alterDto->status = $table->status;
 

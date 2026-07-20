@@ -6,7 +6,7 @@ use Jaxon\Attributes\Attribute\Exclude;
 use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ui\Command\QueryUiBuilder;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
-use Lagdo\DbAdmin\Support\Service\Admin\AuditConnection;
+use Lagdo\DbAdmin\Support\Service\Admin\AuditDatabase;
 
 use function array_filter;
 use function array_shift;
@@ -16,10 +16,10 @@ use function in_array;
 trait EditorTrait
 {
     /**
-     * @var AuditConnection
+     * @var AuditDatabase
      */
     #[Inject]
-    private AuditConnection $audit;
+    private AuditDatabase $auditDb;
 
     /**
      * @var QueryUiBuilder
@@ -85,7 +85,7 @@ trait EditorTrait
         $nav = $this->queryUi->editorTabNavHtml();
         $contentId = $this->queryUi->editorTabContentWrapperId();
 
-        $content = $this->queryUi->canSaveQuery($this->audit->canSaveQuery())
+        $content = $this->queryUi->canSaveQuery($this->auditDb->canSaveQuery())
             ->editorTabContentHtml($this->rq($this->queryClass));
         $this->response()->jo('jaxon.dbadmin')->addTab($navId, $nav, $contentId, $content);
 

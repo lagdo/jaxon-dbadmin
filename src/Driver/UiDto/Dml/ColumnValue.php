@@ -2,9 +2,9 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Dml;
 
-use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\UserTypeDto;
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 
 use function bin2hex;
 use function implode;

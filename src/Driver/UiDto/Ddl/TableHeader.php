@@ -2,8 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
-use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
+use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 
 class TableHeader extends AbstractDriverProxy
 {

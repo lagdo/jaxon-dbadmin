@@ -6,16 +6,16 @@ use Jaxon\Attributes\Attribute\Export;
 use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Base\Component;
 use Lagdo\DbAdmin\App\Ui\Command\AuditUiBuilder;
-use Lagdo\DbAdmin\Support\Service\Admin\AuditConnection;
+use Lagdo\DbAdmin\Support\Service\Admin\AuditDatabase;
 
 #[Export(['render'])]
 class History extends Component
 {
     /**
-     * @var AuditConnection
+     * @var AuditDatabase
      */
     #[Inject]
-    private AuditConnection $audit;
+    private AuditDatabase $auditDb;
 
     /**
      * @param AuditUiBuilder $auditUi
@@ -36,7 +36,7 @@ class History extends Component
      */
     public function html(): string
     {
-        return $this->auditUi->history($this->audit->queryFavoriteEnabled());
+        return $this->auditUi->history($this->auditDb->queryFavoriteEnabled());
     }
 
     /**

@@ -2,17 +2,17 @@
 
 namespace Lagdo\DbAdmin\Support\Service\Admin;
 
+use Lagdo\DbAdmin\Driver\EngineInterface;
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
 use Lagdo\DbAdmin\Support\Service\Audit;
-use Lagdo\DbAdmin\Driver\EngineInterface;
 
 use function gmdate;
 
 /**
  * Connection to the audit database
  */
-class AuditConnection extends Audit\AuditConnection
+class AuditDatabase extends Audit\AuditDatabase
 {
     /**
      * @var int|null

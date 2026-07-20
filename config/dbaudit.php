@@ -25,7 +25,7 @@ return [
             ...$container['set'],
             'dbadmin_package_config' => function(Container $di) {
                 $config = $di->getPackageConfig(App\DbAuditPackage::class);
-                // Move the "database" and "audit" options under the "queries" key.
+                // Move the "database" and "auditDb" options under the "queries" key.
                 // Needed by the ConfigProvider class.
                 return (new ConfigSetter())->newConfig([
                     'reader' => $config->getOption('reader', []),
@@ -36,13 +36,13 @@ return [
                 ]);
             },
             // Connection to the audit database
-            Audit\AuditConnection::class => function(Container $di) {
+            Audit\AuditDatabase::class => function(Container $di) {
                 $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
                 $database = $configProvider->getQueryDatabaseOptions();
                 $utils = $di->g(Driver\Utils\Utils::class);
                 $driver = Driver\Driver::createDriver($utils, $database);
 
-                return new Audit\AuditConnection($driver->engine, $configProvider);
+                return new Audit\AuditDatabase($driver->engine, $configProvider);
             },
             // Query audit
             Audit\QueryLogger::class => function(Container $di) {
@@ -52,8 +52,8 @@ return [
                 }
 
                 $options = $configProvider->getQueryAuditOptions();
-                $audit = $di->g(Audit\AuditConnection::class);
-                return new Audit\QueryLogger($audit, $options);
+                $auditDb = $di->g(Audit\AuditDatabase::class);
+                return new Audit\QueryLogger($auditDb, $options);
             },
         ],
         'alias' => [

@@ -13,7 +13,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\Values;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl\Table;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dml\InsertFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
-use Lagdo\DbAdmin\Support\Service\Admin\AuditConnection;
+use Lagdo\DbAdmin\Support\Service\Admin\AuditDatabase;
 
 /**
  * This class provides select query features on tables.
@@ -23,10 +23,10 @@ class Select extends MainComponent
     use QueryBuilderTrait;
 
     /**
-     * @var AuditConnection
+     * @var AuditDatabase
      */
     #[Inject]
-    private AuditConnection $audit;
+    private AuditDatabase $auditDb;
 
     /**
      * @inheritDoc
@@ -66,7 +66,7 @@ class Select extends MainComponent
      */
     protected function content(): string
     {
-        $canSaveQuery = $this->audit->canSaveQuery();
+        $canSaveQuery = $this->auditDb->canSaveQuery();
         $canGoBack = $this->countBuilderParams() > 1;
         return $this->selectUi->content($canSaveQuery, $canGoBack);
     }

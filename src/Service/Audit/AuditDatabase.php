@@ -11,7 +11,7 @@ use Lagdo\Facades\Logger;
 /**
  * Connection to the audit database
  */
-class AuditConnection
+class AuditDatabase
 {
     /**
      * @var AbstractConnection|null

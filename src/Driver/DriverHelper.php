@@ -2,11 +2,11 @@
 
 namespace Lagdo\DbAdmin\Support\Driver;
 
-use Lagdo\DbAdmin\Support\Driver\PageUi;
 use Lagdo\DbAdmin\Driver\Driver;
 use Lagdo\DbAdmin\Driver\EngineInterface;
 use Lagdo\DbAdmin\Driver\StatementInterface;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Lagdo\DbAdmin\Support\Driver\PageUi;
 
 /**
  * Helper for driver proxies

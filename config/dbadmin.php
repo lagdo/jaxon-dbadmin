@@ -106,14 +106,14 @@ return [
                 return $configProvider->getQueryAdminOptions();
             },
             // Connection to the audit database
-            Service\Admin\AuditConnection::class => function(Container $di) {
+            Service\Admin\AuditDatabase::class => function(Container $di) {
                 $auth = $di->g('dbadmin_auth_service');
                 $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
                 $database = $configProvider->getQueryDatabaseOptions();
                 $utils = $di->g(Driver\Utils\Utils::class);
                 $driver = Driver\Driver::createDriver($utils, $database);
 
-                return new Service\Admin\AuditConnection($auth, $driver->engine, $configProvider);
+                return new Service\Admin\AuditDatabase($auth, $driver->engine, $configProvider);
             },
             // Query logger
             Service\Admin\QueryLogger::class => function(Container $di) {
@@ -131,8 +131,8 @@ return [
                 $serverOptions = fn() => $di->g('dbadmin_server_options');
                 $database = fn() => $dbProxy->getDatabaseOptions($serverOptions());
 
-                $audit = $di->g(Service\Admin\AuditConnection::class);
-                return new Service\Admin\QueryLogger($audit, $options, $database);
+                $auditDb = $di->g(Service\Admin\AuditDatabase::class);
+                return new Service\Admin\QueryLogger($auditDb, $options, $database);
             },
             // Query history
             Service\Admin\QueryHistory::class => function(Container $di) {
@@ -140,8 +140,8 @@ return [
                     return null;
                 }
 
-                $audit = $di->g(Service\Admin\AuditConnection::class);
-                return new Service\Admin\QueryHistory($audit, $options);
+                $auditDb = $di->g(Service\Admin\AuditDatabase::class);
+                return new Service\Admin\QueryHistory($auditDb, $options);
             },
             // Query favorites
             Service\Admin\QueryFavorite::class => function(Container $di) {
@@ -149,7 +149,7 @@ return [
                     return null;
                 }
 
-                $proxy = $di->g(Service\Admin\AuditConnection::class);
+                $proxy = $di->g(Service\Admin\AuditDatabase::class);
                 return new Service\Admin\QueryFavorite($proxy, $options);
             },
             // User preferences
@@ -158,7 +158,7 @@ return [
                     return null;
                 }
 
-                $proxy = $di->g(Service\Admin\AuditConnection::class);
+                $proxy = $di->g(Service\Admin\AuditDatabase::class);
                 return new Service\Admin\Preference($proxy, $options);
             },
         ],

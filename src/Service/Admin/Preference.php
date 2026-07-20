@@ -19,10 +19,10 @@ class Preference
     private bool $preferencesEnabled;
 
     /**
-     * @param AuditConnection $audit
+     * @param AuditDatabase $auditDb
      * @param array $options
      */
-    public function __construct(private AuditConnection $audit, array $options)
+    public function __construct(private AuditDatabase $auditDb, array $options)
     {
         $this->preferencesEnabled = (bool)($options['preferences']['enabled'] ?? false);
     }
@@ -35,7 +35,7 @@ class Preference
     private function _getDefaultProfileId(int $userId): int
     {
         $query = "SELECT id FROM dbadmin_profiles WHERE title='' AND user_id=:user_id LIMIT 1";
-        $result = $this->audit->executeQuery($query, ['user_id' => $userId]);
+        $result = $this->auditDb->executeQuery($query, ['user_id' => $userId]);
         return $result->hasRowset() && ($row = $result->fetchAssoc()) ? (int)$row['id'] : 0;
     }
 
@@ -52,12 +52,12 @@ class Preference
 
         // Try to create a default profile for the user.
         $query = "INSERT INTO dbadmin_profiles(title,user_id) VALUES ('',:user_id)";
-        $result = $this->audit->executeQuery($query, ['user_id' => $userId]);
+        $result = $this->auditDb->executeQuery($query, ['user_id' => $userId]);
         if (!$result->hasError()) {
             return $this->_getDefaultProfileId($userId);
         }
 
-        $this->audit->logWarning('Unable to create a default profile for the user.');
+        $this->auditDb->logWarning('Unable to create a default profile for the user.');
         return 0;
     }
 
@@ -71,7 +71,7 @@ class Preference
     {
         $query = "SELECT id FROM dbadmin_preferences
 WHERE category=:category AND profile_id=:profile_id LIMIT 1";
-        $result = $this->audit->executeQuery($query, [
+        $result = $this->auditDb->executeQuery($query, [
             'category' => $category,
             'profile_id' => $profileId,
         ]);
@@ -93,16 +93,16 @@ WHERE category=:category AND profile_id=:profile_id LIMIT 1";
         // Try to create a preference for the profile and category.
         $query = "INSERT INTO dbadmin_preferences(content,category,last_update,profile_id)
 VALUES ('{}', :category, :last_update, :profile_id)";
-        $result = $this->audit->executeQuery($query, [
+        $result = $this->auditDb->executeQuery($query, [
             'category' => $category,
-            'last_update' => $this->audit->currentTime(),
+            'last_update' => $this->auditDb->currentTime(),
             'profile_id' => $profileId,
         ]);
         if (!$result->hasError()) {
             return $this->_getPreferenceId($profileId, $category);
         }
 
-        $this->audit->logWarning('Unable to create a default profile for the user.');
+        $this->auditDb->logWarning('Unable to create a default profile for the user.');
         return 0;
     }
 
@@ -113,7 +113,7 @@ VALUES ('{}', :category, :last_update, :profile_id)";
      */
     private function getPreferenceContent(int $category): array
     {
-        if (($userId = $this->audit->getUserId()) <= 0) {
+        if (($userId = $this->auditDb->getUserId()) <= 0) {
             return [];
         }
         if (($profileId = $this->getDefaultProfileId($userId)) <= 0) {
@@ -124,7 +124,7 @@ VALUES ('{}', :category, :last_update, :profile_id)";
         }
 
         $query = "SELECT content FROM dbadmin_preferences WHERE id=:preference_id LIMIT 1";
-        $result = $this->audit->executeQuery($query, [
+        $result = $this->auditDb->executeQuery($query, [
             'preference_id' => $preferenceId,
         ]);
 
@@ -144,16 +144,16 @@ VALUES ('{}', :category, :last_update, :profile_id)";
     {
         $sql = "UPDATE dbadmin_preferences
 SET content=:content,last_update=:last_update WHERE id=:preference_id";
-        $result = $this->audit->executeQuery($sql, [
+        $result = $this->auditDb->executeQuery($sql, [
             'content' => json_encode($content),
-            'last_update' => $this->audit->currentTime(),
+            'last_update' => $this->auditDb->currentTime(),
             'preference_id' => $preferenceId,
         ]);
         if (!$result->hasError()) {
             return true;
         }
 
-        $this->audit->logWarning('Unable to save tabs in the user preferences.');
+        $this->auditDbDb->logWarning('Unable to save tabs in the user preferences.');
         return false;
     }
 
