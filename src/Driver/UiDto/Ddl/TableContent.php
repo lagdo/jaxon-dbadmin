@@ -174,40 +174,21 @@ class TableContent extends AbstractDriverProxy
     /**
      * @param TableDto $status
      *
-     * @return array
+     * @return TableFormDto
      */
-    public function metadata(TableDto $status): array
+    public function metadata(TableDto $status): TableFormDto
     {
         $referencables = $this->getReferencableColumns();
         $referencables = $this->formatReferencableColumns($referencables);
-        $collations = $this->engine()->collations();
-        $unsigned = $this->engine()->unsigned();
         $foreignKeys = $this->getForeignKeyDtos($status->name);
         // Change from Adminer:
         // The foreign keys are no more listed in the column types.
         $types = $this->engine()->structuredTypes();
-
         $inputGetter = fn(ColumnDto $column) =>
             new ColumnFormDto($column, $foreignKeys[$column->name] ?? null, $types);
         $columns = array_map($inputGetter, $status->columns());
-        $table = new TableFormDto($status, $columns, $referencables);
-        $foreignKeyActions = $this->engine()->onActions();
 
-        return [
-            'table' => $table,
-            'options' => [
-                'column' => [
-                    'onUpdate' => ['CURRENT_TIMESTAMP' => 'CURRENT_TIMESTAMP'],
-                ],
-                'foreignKey' => [
-                    'onUpdate' => $foreignKeyActions,
-                    'onDelete' => $foreignKeyActions,
-                ],
-            ],
-            'collations' => $collations,
-            'unsigned' => $unsigned,
-            'engine' => $this->engine(),
-        ];
+        return new TableFormDto($status, $columns, $referencables, $this->engine());
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
+use Lagdo\DbAdmin\Driver\EngineInterface;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 
 use function array_combine;
@@ -48,10 +49,12 @@ class TableFormDto
     /**
      * @param TableDto $status
      * @param array<ColumnFormDto> $columns
-     * @param array<ReferencableDto> $referencableColumns
+     * @param array<string> $referencableColumns
+     * @param EngineInterface $engine
      */
-    public function __construct(public readonly TableDto $status, public array $columns,
-        public readonly array $referencableColumns)
+    public function __construct(public readonly TableDto $status,
+        public array $columns, public readonly array $referencableColumns,
+        public EngineInterface $engine)
     {
         // Copy the table column values into the local $currValues array.
         $this->currValues = array_combine(self::$attributes,
@@ -82,5 +85,25 @@ class TableFormDto
     public function values(): object
     {
         return $this->values ??= (object)$this->currValues;
+    }
+
+    /**
+     * @return array
+     */
+    public function getColumnOptions(): array
+    {
+        return  ['onUpdate' => ['CURRENT_TIMESTAMP' => 'CURRENT_TIMESTAMP']];
+    }
+
+    /**
+     * @return array
+     */
+    public function getForeignKeyOptions(): array
+    {
+        $foreignKeyActions = $this->engine->onActions();
+        return [
+            'onUpdate' => $foreignKeyActions,
+            'onDelete' => $foreignKeyActions,
+        ];
     }
 }

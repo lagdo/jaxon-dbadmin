@@ -8,7 +8,6 @@ use Lagdo\DbAdmin\App\Ui\PageTrait;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\App\Ui\Table\Column\ColumnFieldTrait;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
-use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Html\Component\Component;
@@ -156,8 +155,7 @@ class TableUiBuilder
             default => 'dbadmin-table-column-middle',
         };
 
-        /** @var TableFormDto */
-        $table = $this->metadata['table'];
+        $table = $this->metadata;
         $values = $table->values();
         [$autoIncrementColumn, $aiEditable] = $this->autoIncrementIsEditable();
 

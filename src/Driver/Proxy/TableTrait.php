@@ -111,10 +111,10 @@ trait TableTrait
      *
      * @param string $table
      *
-     * @return array
+     * @return TableFormDto
      * @throws Exception
      */
-    public function getTableMetadata(string $table = ''): array
+    public function getTableMetadata(string $table = ''): TableFormDto
     {
         $this->connectToSchema();
         $this->breadcrumbs(true)->item($this->utils()->lang('Tables'));

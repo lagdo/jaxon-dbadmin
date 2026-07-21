@@ -19,41 +19,6 @@ use function array_map;
 class Wrapper extends Component
 {
     /**
-     * @param array $metadata
-     *
-     * @return TableFormDto
-     */
-    private function getTableFormDto(array $metadata): TableFormDto
-    {
-        return $metadata['table'];
-    }
-
-    /**
-     * @param array $metadata
-     *
-     * @return void
-     */
-    private function setMetadata(array $metadata): void
-    {
-        $table = $this->getTableFormDto($metadata);
-
-        // Set the columns positions.
-        $positions = [];
-        $position = 0;
-        foreach ($table->columns as $column) {
-            $positions[] = "column_$position";
-            $column->position = $position++;
-        }
-
-        $table->columns = array_combine($positions, $table->columns);
-        // Save the columns and the primary column name in the databag.
-        $callback = fn($input) => $input->toArray();
-
-        $this->set('metadata', $metadata);
-        $this->setTableBag('columns', array_map($callback, $table->columns));
-    }
-
-    /**
      * @inheritDoc
      */
     public function html(): string
@@ -73,13 +38,26 @@ class Wrapper extends Component
     }
 
     /**
-     * @param array $metadata
+     * @param TableFormDto $table
      *
      * @return void
      */
-    public function load(array $metadata): void
+    public function load(TableFormDto $table): void
     {
-        $this->setMetadata($metadata);
+        // Set the columns positions.
+        $positions = [];
+        $position = 0;
+        foreach ($table->columns as $column) {
+            $positions[] = "column_$position";
+            $column->position = $position++;
+        }
+
+        $table->columns = array_combine($positions, $table->columns);
+        // Save the columns and the primary column name in the databag.
+        $callback = fn($input) => $input->toArray();
+
+        $this->set('metadata', $table);
+        $this->setTableBag('columns', array_map($callback, $table->columns));
 
         $this->render();
     }
@@ -98,17 +76,16 @@ class Wrapper extends Component
     }
 
     /**
-     * @param array $metadata
+     * @param TableFormDto $table
      * @param array<ColumnFormDto> $inputs
      *
      * @return void
      */
-    public function show(array $metadata, array $inputs): void
+    public function show(TableFormDto$table, array $inputs): void
     {
-        $table = $this->getTableFormDto($metadata);
         $columns = $table->status->columns();
         $table->columns = array_filter($inputs,
             fn(ColumnFormDto|null $input) => $this->inputIsValid($input, $columns));
-        $this->load($metadata);
+        $this->load($table);
     }
 }

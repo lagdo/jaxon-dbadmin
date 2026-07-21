@@ -15,9 +15,9 @@ trait ColumnTrait
     /**
      * The database table data.
      *
-     * @var array|null
+     * @var TableFormDto|null
      */
-    private array|null $metadata = null;
+    private TableFormDto|null $metadata = null;
 
     /**
      * @return DriverProxy
@@ -25,9 +25,9 @@ trait ColumnTrait
     abstract protected function driver(): DriverProxy;
 
     /**
-     * @return array
+     * @return TableFormDto
      */
-    protected function metadata(): array
+    protected function metadata(): TableFormDto
     {
         return $this->metadata ??= $this->driver()->getTableMetadata($this->getCurrentTable());
     }
@@ -37,7 +37,7 @@ trait ColumnTrait
      */
     protected function tableDto(): TableFormDto
     {
-        return $this->metadata()['table'];
+        return $this->metadata();
     }
 
     /**
@@ -66,7 +66,7 @@ trait ColumnTrait
             return null;
         }
 
-        $columns = $this->metadata()['table']->columns;
+        $columns = $this->tableDto()->columns;
         $column = ColumnFormDto::columnIsAdded($values) ?
             // Added column => empty column
             $this->driver()->newColumnInput() :

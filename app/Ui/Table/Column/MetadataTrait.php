@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\App\Ui\Table\Column;
 
 use Lagdo\DbAdmin\Driver\EngineInterface;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 
 use function array_combine;
 use function array_map;
@@ -11,16 +12,16 @@ use function array_map;
 trait MetadataTrait
 {
     /**
-     * @var array
+     * @var TableFormDto
      */
-    protected $metadata = [];
+    protected TableFormDto $metadata;
 
     /**
      * @return EngineInterface
      */
     protected function engine(): EngineInterface
     {
-        return $this->metadata['engine'];
+        return $this->metadata->engine;
     }
 
     /**
@@ -46,7 +47,7 @@ trait MetadataTrait
      */
     protected function collations(): array
     {
-        return $this->metadata['collations'] ?? [];
+        return $this->engine()->collations();
     }
 
     /**
@@ -54,7 +55,7 @@ trait MetadataTrait
      */
     protected function unsigned(): array
     {
-        return $this->metadata['unsigned'] ?? [];
+        return $this->engine()->unsigned();
     }
 
     /**
@@ -64,7 +65,7 @@ trait MetadataTrait
      */
     protected function columnOptions(string $option): array
     {
-        return $this->metadata['options']['column'][$option] ?? [];
+        return $this->metadata->getColumnOptions()[$option] ?? [];
     }
 
     /**
@@ -74,7 +75,7 @@ trait MetadataTrait
      */
     protected function foreignKeyOptions(string $option): array
     {
-        return $this->metadata['options']['foreignKey'][$option] ?? [];
+        return $this->metadata->getForeignKeyOptions()[$option] ?? [];
     }
 
     /**
@@ -86,11 +87,11 @@ trait MetadataTrait
     }
 
     /**
-     * @param array $metadata
+     * @param TableFormDto $metadata
      *
      * @return static
      */
-    public function metadata(array $metadata): static
+    public function metadata(TableFormDto $metadata): static
     {
         $this->metadata = $metadata;
         return $this;
@@ -101,7 +102,7 @@ trait MetadataTrait
      */
     protected function inputs(): array
     {
-        return $this->metadata['table']->columns;
+        return $this->metadata->columns;
     }
 
     /**
@@ -109,7 +110,7 @@ trait MetadataTrait
      */
     protected function referencableColumns(): array
     {
-        return $this->metadata['table']->referencableColumns;
+        return $this->metadata->referencableColumns;
     }
 
     /**
@@ -119,6 +120,6 @@ trait MetadataTrait
      */
     protected function referencableColumn(string $fkId): string
     {
-        return $this->metadata['table']->referencableColumns[$fkId] ?? '';
+        return $this->metadata->referencableColumns[$fkId] ?? '';
     }
 }

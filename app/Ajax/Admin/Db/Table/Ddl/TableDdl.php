@@ -5,6 +5,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Ddl;
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Export;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\MainComponent;
+use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\TableFormDto;
 
 /**
  * Base class for create and alter operations on tables.
@@ -16,14 +17,14 @@ abstract class TableDdl extends MainComponent
     /**
      * The database table data.
      *
-     * @var array|null
+     * @var TableFormDto|null
      */
-    private $metadata = null;
+    private TableFormDto|null $metadata = null;
 
     /**
-     * @return array
+     * @return TableFormDto
      */
-    protected function metadata(): array
+    protected function metadata(): TableFormDto
     {
         return $this->metadata ??= $this->driver()->getTableMetadata($this->getCurrentTable());
     }

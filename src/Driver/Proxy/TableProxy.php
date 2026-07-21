@@ -209,10 +209,10 @@ class TableProxy extends AbstractDriverProxy
      *
      * @param string $table
      *
-     * @return array
+     * @return TableFormDto
      * @throws Exception
      */
-    public function getTableMetadata(string $table = ''): array
+    public function getTableMetadata(string $table = ''): TableFormDto
     {
         return $this->content()->metadata($this->getTableStatus($table));
     }
