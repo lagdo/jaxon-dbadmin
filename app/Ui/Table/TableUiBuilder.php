@@ -177,7 +177,7 @@ class TableUiBuilder
                                 ->setValue('1')
                                 ->setName('hasAutoIncrement')
                                 ->when(!$aiEditable, fn($elt) => $this->disable($elt, true)),
-                            $this->ui->label('Auto inc. value'),
+                            $this->ui->label('Auto increment value'),
                             $this->ui->when($aiEditable, fn() =>
                                 $this->ui->list(
                                     $this->ui->label($autoIncrementColumn),
@@ -400,90 +400,78 @@ class TableUiBuilder
 
         return $this->ui->div(
             // First line
-            $this->ui->row(
-                $this->ui->col(
+            $this->ui->div(
+                $this->ui->div(
                     $this->getColumnNameField($input, "{$editPrefix}[name]")
                         ->setPlaceholder($this->trans->lang('Name'))
                         ->with(fn($elt) => $this->disable($elt, true))
-                )->width(3)
+                )->setStyle('width: 22%;')
                     ->setClass('dbadmin-table-column-left'),
-                $this->ui->col(
+                $this->ui->div(
                     $this->getColumnTypeField($input, "{$editPrefix}[type]")
                         ->with(fn($elt) => $this->disable($elt))
-                )->width(2)
+                )->setStyle('width: 13%;')
                     ->setClass('dbadmin-table-column-middle'),
-                $this->ui->col(
-                    $this->ui->row(
-                        $this->ui->col(
-                            $this->getColumnLengthField($input, "{$editPrefix}[length]")
-                                ->with(fn($elt) => $this->disable($elt))
-                        )->width(2)
-                            ->setClass('dbadmin-table-column-left'),
-                        $this->ui->col(
-                            $this->ui->inputGroup(
-                                $this->ui->input('')
-                                    ->setPlaceholder('Primary')
-                                    ->with(fn($elt) => $this->disable($elt, true)),
-                                $this->getColumnPrimaryField($input, "{$editPrefix}[primary]")
-                                    ->with(fn($elt) => $this->disable($elt, false))
-                            )
-                        )->width(3)
-                            ->setClass('dbadmin-table-column-middle'),
-                        $this->ui->col(
-                            $this->ui->inputGroup(
-                                $this->ui->input('')
-                                    ->setPlaceholder('Auto Inc.')
-                                    ->with(fn($elt) => $this->disable($elt, true)),
-                                $this->getColumnAutoIncrementField($input, "{$editPrefix}[autoIncrement]")
-                                    ->with(fn($elt) => $this->disable($elt, false))
-                            )
-                        )->width(3)
-                            ->setClass('dbadmin-table-column-middle'),
-                        $this->ui->col(
-                            $this->ui->div(
-                                $this->ui->div(
-                                    $this->ui->inputGroup(
-                                        $this->ui->input('')
-                                            ->setPlaceholder('Nullable')
-                                            ->with(fn($elt) => $this->disable($elt, true)),
-                                        $this->getColumnNullableField($input, "{$editPrefix}[null]")
-                                            ->with(fn($elt) => $this->disable($elt, false))
-                                    )
-                                )->setStyle('flex: 1'),
-                                $this->ui->div(
-                                    $this->buttonMenuComponent($this->getColumnMenuEntries($input, $columnId))
-                                        ->setClass('dbadmin-table-column-buttons')
-                                )->setStyle('width:75px; padding-left:5px;')
-                            )->setStyle('display:flex; flex-direction:row; align-items:flex-start;')
-                        )->width(4)
-                            ->setClass('dbadmin-table-column-right')
-                    )->addClass('nested-row')
-                )->width(7)
+                $this->ui->div(
+                    $this->getColumnLengthField($input, "{$editPrefix}[length]")
+                        ->with(fn($elt) => $this->disable($elt))
+                )->setStyle('width: 8%;')
+                    ->setClass('dbadmin-table-column-middle'),
+                $this->ui->div(
+                    $this->ui->inputGroup(
+                        $this->ui->input('')
+                            ->setPlaceholder('Auto increment')
+                            ->with(fn($elt) => $this->disable($elt, true)),
+                        $this->getColumnAutoIncrementField($input, "{$editPrefix}[autoIncrement]")
+                            ->with(fn($elt) => $this->disable($elt, false))
+                    )
+                )->setStyle('width: 17%;')
+                    ->setClass('dbadmin-table-column-middle'),
+                $this->ui->div(
+                    $this->ui->inputGroup(
+                        $this->ui->input('')
+                            ->setPlaceholder('Primary')
+                            ->with(fn($elt) => $this->disable($elt, true)),
+                        $this->getColumnPrimaryField($input, "{$editPrefix}[primary]")
+                            ->with(fn($elt) => $this->disable($elt, false))
+                    )
+                )->setStyle('width: 16%;')
+                    ->setClass('dbadmin-table-column-middle'),
+                $this->ui->div(
+                    $this->ui->inputGroup(
+                        $this->ui->input('')
+                            ->setPlaceholder('Nullable')
+                            ->with(fn($elt) => $this->disable($elt, true)),
+                        $this->getColumnNullableField($input, "{$editPrefix}[null]")
+                            ->with(fn($elt) => $this->disable($elt, false))
+                    )
+                )->setStyle('width: 16%;')
+                    ->setClass('dbadmin-table-column-middle'),
+                $this->ui->div(
+                    $this->buttonMenuComponent($this->getColumnMenuEntries($input, $columnId))
+                        ->setClass('dbadmin-table-column-buttons')
+                )->setStyle('flex: 1; display: flex; justify-content: flex-end;')
                     ->setClass('dbadmin-table-column-right')
-            )->setClass("dbadmin-table-edit-row {$this->formColumnClass}"),
+            )->setStyle('display: flex; flex-direction: row;')
+                ->setClass("dbadmin-table-edit-row {$this->formColumnClass}"),
             // Second line
-            $this->ui->row(
-                $this->ui->col(
+            $this->ui->div(
+                $this->ui->div(
                     $this->getColumnCommentField($input, "{$editPrefix}[comment]",
                         "{$editPrefix}[setComment]", $this->trans->lang('Comment'), true)
-                )->width(5)
+                )->setStyle('width: 35%;')
                     ->setClass('dbadmin-table-column-left'),
-                $this->ui->col(
-                    $this->ui->row(
-                        $this->ui->col(
-                            $this->typeOptionComponent($input, $editPrefix)
-                        )->width(4)
-                            ->setClass('dbadmin-table-column-left'),
-                        $this->ui->col(
-                            $this->getColumnDefaultField($input, "{$editPrefix}[generated]",
-                                "{$editPrefix}[default]", $this->trans->lang('Default value'))
-                        )->width(8)
-                            ->setClass('dbadmin-table-column-right')
-                    )->addClass('nested-row')
-                )->width(7)
-                    ->setClass('dbadmin-table-column-right'),
-            )->setClass("dbadmin-table-edit-row {$this->formColumnClass} $columnToggleClass")
-                ->setStyle('display: none;')
+                $this->ui->div(
+                    $this->typeOptionComponent($input, $editPrefix)
+                )->setStyle('width: 25%;')
+                    ->setClass('dbadmin-table-column-middle'),
+                $this->ui->div(
+                    $this->getColumnDefaultField($input, "{$editPrefix}[generated]",
+                        "{$editPrefix}[default]", $this->trans->lang('Default value'))
+                )->setStyle('width: 40%;')
+                    ->setClass('dbadmin-table-column-right')
+            )->setStyle('display: flex; flex-direction: row; display: none;')
+                ->setClass("dbadmin-table-edit-row {$this->formColumnClass} $columnToggleClass")
         )->setClass('dbadmin-table-edit-column')
             ->setId($this->columnDivId($columnId))
             ->setStyle($this->getColumnBgColor($input));
@@ -514,46 +502,42 @@ class TableUiBuilder
         $editPrefix = sprintf("columns[%d]", $input->position);
 
         return $this->ui->div(
-            $this->ui->row(
-                $this->ui->col(
+            $this->ui->div(
+                $this->ui->div(
                     $this->ui->inputGroup(
                         $this->ui->label('Foreign key')
                             ->setStyle('width: 30%;'),
-                        $this->getColumnForeignKeyInput($input, "{$editPrefix}[foreignKey]")
+                        $this->ui->input('')
+                            ->setValue($input->foreignKey?->name ?? '')
                             ->setStyle('width: 70%;')
                             ->with(fn($elt) => $this->disable($elt))
                     )
-                )->width(5)
+                )->setStyle('width: 35%;')
                     ->setClass('dbadmin-table-column-left'),
-                $this->ui->col(
-                    $this->ui->row(
-                        $this->ui->col(
-                            $this->ui->input('')
-                                ->setValue($input->foreignKey?->name ?? '')
-                                ->with(fn($elt) => $this->disable($elt)),
-                        )->width(5)
-                            ->setClass('dbadmin-table-column-left'),
-                        $this->ui->col(
-                            $this->getForeignKeyOnUpdateField($input, "{$editPrefix}[fkOnUpdate]")
-                                ->with(fn($elt) => $this->disable($elt))
-                        )->width(3)
-                            ->setClass('dbadmin-table-column-middle'),
-                        $this->ui->col(
-                            $this->getForeignKeyOnDeleteField($input, "{$editPrefix}[fkOnDelete]")
-                                ->with(fn($elt) => $this->disable($elt))
-                        )->width(3)
-                            ->setClass('dbadmin-table-column-right'),
-                        // $this->ui->col(
-                        //     $this->ui->inputGroup(
-                        //         $this->getForeignKeyDeferrableField($input, "{$editPrefix}[fkDeferrable]")
-                        //             ->with(fn($elt) => $this->disable($elt, false))
-                        //     )
-                        // )->width(3)
-                        //     ->setClass('dbadmin-table-column-right')
-                    )->addClass('nested-row')
-                )->width(7)
+                $this->ui->div(
+                    $this->getColumnForeignKeyInput($input, "{$editPrefix}[foreignKey]")
+                        ->with(fn($elt) => $this->disable($elt)),
+                )->setStyle('width: 25%;')
+                    ->setClass('dbadmin-table-column-left'),
+                $this->ui->div(
+                    $this->getForeignKeyOnUpdateField($input, "{$editPrefix}[fkOnUpdate]")
+                        ->with(fn($elt) => $this->disable($elt))
+                )->setStyle('width: 20%;')
+                    ->setClass('dbadmin-table-column-middle'),
+                $this->ui->div(
+                    $this->getForeignKeyOnDeleteField($input, "{$editPrefix}[fkOnDelete]")
+                        ->with(fn($elt) => $this->disable($elt))
+                )->setStyle('width: 20%;')
                     ->setClass('dbadmin-table-column-right'),
-            )->setClass('dbadmin-table-edit-row')
+                // $this->ui->div(
+                //     $this->ui->inputGroup(
+                //         $this->getForeignKeyDeferrableField($input, "{$editPrefix}[fkDeferrable]")
+                //             ->with(fn($elt) => $this->disable($elt, false))
+                //     )
+                // )->setStyle('width: 20%;')
+                //     ->setClass('dbadmin-table-column-right')
+            )->setStyle('display: flex; flex-direction: row;')
+                ->setClass('dbadmin-table-edit-row')
         )->setClass('dbadmin-table-edit-foreign-key')
             ->setStyle($this->getForeignKeyBgColor($input));
     }
