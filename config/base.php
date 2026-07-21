@@ -1,6 +1,6 @@
 <?php
 
-use Lagdo\DbAdmin\Support\Exception\DbException;
+use Lagdo\DbAdmin\Support\Exception\DriverException;
 
 use function Jaxon\jaxon;
 
@@ -26,7 +26,7 @@ return [
         ],
     ],
     'exceptions' => [
-        DbException::class => function(DbException $dbException) {
+        DriverException::class => function(DriverException $dbException) {
             $response = jaxon()->getResponse();
             $response->dialog()->warning($dbException->getMessage());
             return $response;

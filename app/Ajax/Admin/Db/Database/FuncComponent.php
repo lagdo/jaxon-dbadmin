@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Database;
 
 use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\App\Ajax\Base\FuncComponent as BaseComponent;
-use Lagdo\DbAdmin\Support\Exception\DbException;
+use Lagdo\DbAdmin\Support\Exception\DriverException;
 
 #[Before('checkDatabaseAccess')]
 abstract class FuncComponent extends BaseComponent
@@ -19,7 +19,7 @@ abstract class FuncComponent extends BaseComponent
         [$server, $database, $schema] = $this->getCurrentDb();
         if(!$this->hasServerAccess($server))
         {
-            throw new DbException('Access to server data is not allowed.');
+            throw new DriverException('Access to server data is not allowed.');
         }
 
         $this->driver()->selectDatabase($server, $database, $schema);

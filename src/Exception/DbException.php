@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Support\Exception;
 
 use Exception;
 
-class DbException extends Exception
+class DriverException extends Exception
 {
     /**
      * @param string $message
