@@ -69,11 +69,11 @@ class ColumnFormDto
 
     /**
      * @param ColumnDto $column
-     * @param ForeignKeyDdDto|null $foreignKey
+     * @param ForeignKeyFormDto|null $foreignKey
      * @param array $types
      */
     public function __construct(public readonly ColumnDto $column,
-        public readonly ForeignKeyDdDto|null $foreignKey, public readonly array $types)
+        public readonly ForeignKeyFormDto|null $foreignKey, public readonly array $types)
     {
         if (preg_match('~^CURRENT_TIMESTAMP~i', $column->onUpdate)) {
             $column->onUpdate = 'CURRENT_TIMESTAMP';

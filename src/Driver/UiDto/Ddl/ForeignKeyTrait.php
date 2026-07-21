@@ -39,7 +39,7 @@ trait ForeignKeyTrait
     private function getReferencableColumns(): array
     {
         $columnFilter = fn(ColumnDto $column) => $column->primary;
-        $tableFilter = fn(TableDto $tableStatus, string $tableName) =>
+        $tableFilter = fn(TableDto $tableStatus) =>
             $this->engine()->supportForeignKeys($tableStatus) &&
             count(array_filter($tableStatus->columns(), $columnFilter)) === 1;
         $tables = $this->engine()->tableStatuses(true);

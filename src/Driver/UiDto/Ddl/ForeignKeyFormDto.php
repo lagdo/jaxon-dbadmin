@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\UiDto\Ddl;
 
-class ForeignKeyDdDto
+class ForeignKeyFormDto
 {
     /**
      * @var string
