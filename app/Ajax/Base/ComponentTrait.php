@@ -29,31 +29,31 @@ trait ComponentTrait
      * @var DatabaseConfigProvider
      */
     #[Inject]
-    protected DatabaseConfigProvider $config;
+    private DatabaseConfigProvider $config;
 
     /**
      * @var DriverProxy
      */
     #[Inject]
-    protected DriverProxy $driver;
+    private DriverProxy $driver;
 
     /**
      * @var Translator
      */
     #[Inject]
-    protected Translator $trans;
+    private Translator $trans;
 
     /**
      * @var UiBuilder
      */
     #[Inject]
-    protected UiBuilder $ui;
+    private UiBuilder $ui;
 
     /**
      * @var Tab
      */
     #[Inject]
-    protected Tab $tab;
+    private Tab $tab;
 
     /**
      * @return DatabaseConfigProvider
@@ -101,7 +101,7 @@ trait ComponentTrait
      */
     protected function notYetAvailable(): void
     {
-        throw new AppException($this->trans->lang('This feature is not yet available'));
+        throw new AppException($this->trans()->lang('This feature is not yet available'));
     }
 
     /**

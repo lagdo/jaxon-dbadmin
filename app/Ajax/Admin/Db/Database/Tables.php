@@ -38,18 +38,18 @@ class Tables extends MainComponent
 
         foreach($tablesInfo['details'] as $name => $detail) {
             $detail->menus = [[
-                'label' => $this->trans->lang('Select'),
+                'label' => $this->trans()->lang('Select'),
                 'handler' => $this->rq(Select::class)->show($name),
             ], [
-                'label' => $this->trans->lang('Show'),
+                'label' => $this->trans()->lang('Show'),
                 'handler' => $this->rq(Table::class)->show($name, false),
             ], [
-                'label' => $this->trans->lang('Drop query'),
+                'label' => $this->trans()->lang('Drop query'),
                 'handler' => $this->rq(SqlCodeFunc::class)->showDropTableQuery($name),
             ], [
-                'label' => $this->trans->lang('Drop'),
+                'label' => $this->trans()->lang('Drop'),
                 'handler' => $this->rq(TableFunc::class)->drop($name)
-                    ->confirm($this->trans->lang('Drop table %s?', $name)),
+                    ->confirm($this->trans()->lang('Drop table %s?', $name)),
             ]];
         }
 

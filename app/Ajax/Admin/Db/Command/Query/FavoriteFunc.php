@@ -30,27 +30,27 @@ class FavoriteFunc extends FuncComponent
     private function validate(array $formValues): array
     {
         if (!isset($formValues['title'])) {
-            throw new ValidationException($this->trans->lang('The %s field is missing.', 'title'));
+            throw new ValidationException($this->trans()->lang('The %s field is missing.', 'title'));
         }
         if (!isset($formValues['query'])) {
-            throw new ValidationException($this->trans->lang('The %s field is missing.', 'query'));
+            throw new ValidationException($this->trans()->lang('The %s field is missing.', 'query'));
         }
         if (!is_string($formValues['title'])) {
-            throw new ValidationException($this->trans->lang('The %s field is incorrect.', 'title'));
+            throw new ValidationException($this->trans()->lang('The %s field is incorrect.', 'title'));
         }
         if (!is_string($formValues['query'])) {
-            throw new ValidationException($this->trans->lang('The %s field is incorrect.', 'query'));
+            throw new ValidationException($this->trans()->lang('The %s field is incorrect.', 'query'));
         }
         $title = trim($formValues['title']);
         $query = trim($formValues['query']);
         if ($title === '') {
-            throw new ValidationException($this->trans->lang('The %s field is empty.', 'title'));
+            throw new ValidationException($this->trans()->lang('The %s field is empty.', 'title'));
         }
         if (strlen($title) > 150) {
-            throw new ValidationException($this->trans->lang('The %s field is too long.', 'title'));
+            throw new ValidationException($this->trans()->lang('The %s field is too long.', 'title'));
         }
         if ($query === '') {
-            throw new ValidationException($this->trans->lang('The %s field is empty.', 'query'));
+            throw new ValidationException($this->trans()->lang('The %s field is empty.', 'query'));
         }
 
         return compact('title', 'query');
@@ -67,12 +67,12 @@ class FavoriteFunc extends FuncComponent
         if(!($query = trim($query)))
         {
             $this->alert()
-                ->title($this->trans->lang('Error'))
-                ->error($this->trans->lang('The query string is empty!'));
+                ->title($this->trans()->lang('Error'))
+                ->error($this->trans()->lang('The query string is empty!'));
             return;
         }
 
-        $title = $this->trans->lang('Add a favorite');
+        $title = $this->trans()->lang('Add a favorite');
         $content = $this->auditUi->addFavoriteForm($query);
         $buttons = [[
             'title' => 'Cancel',
@@ -103,8 +103,8 @@ class FavoriteFunc extends FuncComponent
 
         $this->modal()->hide();
         $this->alert()
-            ->title($this->trans->lang('Success'))
-            ->success($this->trans->lang('The query is saved.'));
+            ->title($this->trans()->lang('Success'))
+            ->success($this->trans()->lang('The query is saved.'));
 
         if($refresh)
         {
@@ -123,20 +123,20 @@ class FavoriteFunc extends FuncComponent
         if(!($value = trim($value)))
         {
             $this->alert()
-                ->title($this->trans->lang('Error'))
-                ->error($this->trans->lang('The query string is empty!'));
+                ->title($this->trans()->lang('Error'))
+                ->error($this->trans()->lang('The query string is empty!'));
             return;
         }
         if(!($query = $this->queryFavorite->getQuery($queryId)))
         {
             $this->alert()
-                ->title($this->trans->lang('Error'))
-                ->error($this->trans->lang('Unable to find the query in the favorites!'));
+                ->title($this->trans()->lang('Error'))
+                ->error($this->trans()->lang('Unable to find the query in the favorites!'));
             return;
         }
 
         $query['query'] = $value;
-        $title = $this->trans->lang('Edit a favorite');
+        $title = $this->trans()->lang('Edit a favorite');
         $content = $this->auditUi->editFavoriteForm($query);
         $buttons = [[
             'title' => 'Cancel',
@@ -166,8 +166,8 @@ class FavoriteFunc extends FuncComponent
         $this->queryFavorite->updateQuery($queryId, $values);
 
         $this->modal()->hide();
-        $this->alert()->title($this->trans->lang('Success'))
-            ->success($this->trans->lang('The query is updated.'));
+        $this->alert()->title($this->trans()->lang('Success'))
+            ->success($this->trans()->lang('The query is updated.'));
         $this->cl(Favorite::class)->render();
     }
 
@@ -181,8 +181,8 @@ class FavoriteFunc extends FuncComponent
         $this->queryFavorite->deleteQuery($queryId);
 
         $this->alert()
-            ->title($this->trans->lang('Success'))
-            ->success($this->trans->lang('The query is deleted.'));
+            ->title($this->trans()->lang('Success'))
+            ->success($this->trans()->lang('The query is deleted.'));
         $this->cl(Favorite::class)->render();
     }
 }

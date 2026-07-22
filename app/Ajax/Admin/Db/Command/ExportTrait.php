@@ -42,7 +42,7 @@ trait ExportTrait
             if(isset($formValues[$name])) {
                 $value = trim($formValues[$name]);
                 if (!in_array($value, $values)) {
-                    $message = $this->trans->lang('The "%s" value is incorrect.', $name);
+                    $message = $this->trans()->lang('The "%s" value is incorrect.', $name);
                     throw new ValidationException($message . ' ' . json_encode($values));
                 }
                 $options[$name] = $value;

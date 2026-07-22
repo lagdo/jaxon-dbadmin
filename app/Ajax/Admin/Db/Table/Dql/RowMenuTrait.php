@@ -49,14 +49,14 @@ trait RowMenuTrait
         }
 
         return $this->ui()->buttonMenu([[
-            'label' => $this->trans->lang('Edit'),
+            'label' => $this->trans()->lang('Edit'),
             'handler' => $this->rq(UpdateFunc::class)->edit($rowId, $rowIdValues),
         ], [
-            'label' => $this->trans->lang('Delete'),
+            'label' => $this->trans()->lang('Delete'),
             'handler' => $this->rq(DeleteFunc::class)->exec($rowId, $rowIdValues)
                 ->confirm($this->trans()->lang('Delete this item?')),
         ], [
-            'label' => $this->trans->lang('Delete query'),
+            'label' => $this->trans()->lang('Delete query'),
             'handler' => $this->rq(SqlCodeFunc::class)->showDeleteRowQuery($rowId, $rowIdValues),
         ]]);
     }

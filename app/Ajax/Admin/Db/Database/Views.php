@@ -38,18 +38,18 @@ class Views extends MainComponent
 
         foreach($viewsInfo['details'] as $name => $detail) {
             $detail->menus = [[
-                'label' => $this->trans->lang('Select'),
+                'label' => $this->trans()->lang('Select'),
                 'handler' => $this->rq(Select::class)->show($name),
             ], [
-                'label' => $this->trans->lang('Show'),
+                'label' => $this->trans()->lang('Show'),
                 'handler' => $this->rq(View::class)->show($name),
             ], [
-                'label' => $this->trans->lang('Drop query'),
+                'label' => $this->trans()->lang('Drop query'),
                 'handler' => $this->rq(SqlCodeFunc::class)->showDropViewQuery($name),
             ], [
-                'label' => $this->trans->lang('Drop'),
+                'label' => $this->trans()->lang('Drop'),
                 'handler' => $this->rq(ViewFunc::class)->drop($name)
-                    ->confirm($this->trans->lang('Drop view %s?', $name)),
+                    ->confirm($this->trans()->lang('Drop view %s?', $name)),
             ]];
         }
 

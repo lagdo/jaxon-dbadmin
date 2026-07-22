@@ -70,7 +70,7 @@ class ViewFunc extends FuncComponent
         $result = $this->driver()->dropView($view);
         if ($result->error !== null) {
             $this->alert()
-                ->title($this->trans->lang('Error'))
+                ->title($this->trans()->lang('Error'))
                 ->error($result->error);
             return;
         }
@@ -79,7 +79,7 @@ class ViewFunc extends FuncComponent
         $this->showBreadcrumbs();
 
         $this->alert()
-            ->title($this->trans->lang('Success'))
+            ->title($this->trans()->lang('Success'))
             ->success($result->message);
     }
 }

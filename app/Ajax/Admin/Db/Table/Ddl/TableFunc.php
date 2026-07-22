@@ -37,7 +37,7 @@ class TableFunc extends Column\FuncComponent
         $this->showBreadcrumbs();
 
         $this->alert()
-            ->title($this->trans->lang('Success'))
+            ->title($this->trans()->lang('Success'))
             ->success($result->message);
     }
 
@@ -70,7 +70,7 @@ class TableFunc extends Column\FuncComponent
         $this->cl(Alter::class)->render();
 
         $this->alert()
-            ->title($this->trans->lang('Success'))
+            ->title($this->trans()->lang('Success'))
             ->success($result->message);
     }
 
@@ -84,7 +84,7 @@ class TableFunc extends Column\FuncComponent
         $result = $this->driver()->dropTable($table);
         if ($result->error !== null) {
             $this->alert()
-                ->title($this->trans->lang('Error'))
+                ->title($this->trans()->lang('Error'))
                 ->error($result->error);
             return;
         }
@@ -93,7 +93,7 @@ class TableFunc extends Column\FuncComponent
         $this->showBreadcrumbs();
 
         $this->alert()
-            ->title($this->trans->lang('Success'))
+            ->title($this->trans()->lang('Success'))
             ->success($result->message);
     }
 }

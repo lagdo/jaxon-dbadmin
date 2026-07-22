@@ -36,9 +36,9 @@ class Select extends MainComponent
         $table = $this->getCurrentTable();
         // Set the breadcrumbs
         $this->driver()->breadcrumbs(true)
-            ->item($this->trans->lang('Tables'))
+            ->item($this->trans()->lang('Tables'))
             ->item("<i><b>$table</b></i>")
-            ->item($this->trans->lang('Select'));
+            ->item($this->trans()->lang('Select'));
 
         // Save select queries options
         $this->stash()->set('select.query', $this->getBuilderSqlQuery());

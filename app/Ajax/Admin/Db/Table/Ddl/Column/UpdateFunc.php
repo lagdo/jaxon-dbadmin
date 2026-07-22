@@ -17,7 +17,7 @@ class UpdateFunc extends FuncComponent
         $input = $this->getColumnInput($columnId);
         if ($input === null) {
             $this->alert()
-                ->title($this->trans->lang('Error'))
+                ->title($this->trans()->lang('Error'))
                 ->error("Unable to find the requested column in table '$table'.");
             return;
         }
@@ -59,7 +59,7 @@ class UpdateFunc extends FuncComponent
         if (!isset($inputs[$columnId])) {
             $table = $this->getCurrentTable();
             $this->alert()
-                ->title($this->trans->lang('Error'))
+                ->title($this->trans()->lang('Error'))
                 ->error("Unable to find the requested column in table '$table'.");
             return;
         }
@@ -87,7 +87,7 @@ class UpdateFunc extends FuncComponent
         if (!isset($inputs[$columnId])) {
             $table = $this->getCurrentTable();
             $this->alert()
-                ->title($this->trans->lang('Error'))
+                ->title($this->trans()->lang('Error'))
                 ->error("Unable to find the requested column in table '$table'.");
             return;
         }

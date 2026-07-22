@@ -39,7 +39,7 @@ class DeleteFunc extends FuncComponent
         if (!isset($inputs[$columnId])) {
             $table = $this->getCurrentTable();
             $this->alert()
-                ->title($this->trans->lang('Error'))
+                ->title($this->trans()->lang('Error'))
                 ->error("Unable to find the requested column in table '$table'.");
             return;
         }
@@ -73,7 +73,7 @@ class DeleteFunc extends FuncComponent
         if (!isset($inputs[$columnId])) {
             $table = $this->getCurrentTable();
             $this->alert()
-                ->title($this->trans->lang('Error'))
+                ->title($this->trans()->lang('Error'))
                 ->error("Unable to find the requested column in table '$table'.");
             return;
         }

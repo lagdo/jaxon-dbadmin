@@ -67,7 +67,7 @@ class View extends Component
             'drop-view' => [
                 'title' => $this->trans()->lang('Drop view'),
                 'handler' => $this->rq(ViewFunc::class)->drop($view)
-                    ->confirm($this->trans->lang('Drop view %s?', $view)),
+                    ->confirm($this->trans()->lang('Drop view %s?', $view)),
             ],
             'back-views' => [
                 'title' => $this->trans()->lang('Back'),

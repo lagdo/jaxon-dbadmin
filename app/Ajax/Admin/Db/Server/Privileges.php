@@ -62,7 +62,7 @@ class Privileges extends MainComponent
             $user = $detail->items['user'];
             $host = $detail->items['host'];
             $detail->menus = [[
-                'label' => $this->trans->lang('Edit'),
+                'label' => $this->trans()->lang('Edit'),
                 'handler' => $this->rq(Privilege::class)->edit($user, $host, $database),
             ]];
         }

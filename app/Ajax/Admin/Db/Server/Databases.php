@@ -55,10 +55,10 @@ class Databases extends MainComponent
 
         foreach($pageContent['details'] as $name => $detail) {
             $detail->menus = [[
-                'label' => $this->trans->lang('Show'),
+                'label' => $this->trans()->lang('Show'),
                 'handler' => $this->rq(DbFunc::class)->database($name),
             ], [
-                'label' => $this->trans->lang('Drop'),
+                'label' => $this->trans()->lang('Drop'),
                 'handler' => $this->rq(Database::class)->drop($name)
                     ->confirm("Delete database {1}?", $name),
             ]];

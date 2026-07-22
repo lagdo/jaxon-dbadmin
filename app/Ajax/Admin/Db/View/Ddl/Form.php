@@ -48,8 +48,8 @@ class Form extends Component
     {
         $this->set('data', ['materialized' => $this->driver()->support('materializedview')]);
         $this->driver()->breadcrumbs(true)
-            ->item($this->trans->lang('Views'))
-            ->item($this->trans->lang('Create view'));
+            ->item($this->trans()->lang('Views'))
+            ->item($this->trans()->lang('Create view'));
 
         $actions = [
             'back-views' => [
@@ -71,9 +71,9 @@ class Form extends Component
     {
         $this->set('data', $this->driver()->getView($view));
         $this->driver()->breadcrumbs(true)
-            ->item($this->trans->lang('Views'))
+            ->item($this->trans()->lang('Views'))
             ->item("<i><b>$view</b></i>")
-            ->item($this->trans->lang('Edit view'));
+            ->item($this->trans()->lang('Edit view'));
 
         $actions = [
             'select-view' => [
@@ -87,7 +87,7 @@ class Form extends Component
             'drop-view' => [
                 'title' => $this->trans()->lang('Drop view'),
                 'handler' => $this->rq(ViewFunc::class)->drop($view)
-                    ->confirm($this->trans->lang('Drop view %s?', $view)),
+                    ->confirm($this->trans()->lang('Drop view %s?', $view)),
             ],
             'back-views' => [
                 'title' => $this->trans()->lang('Back'),

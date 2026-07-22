@@ -47,11 +47,11 @@ class AppFunc extends FuncComponent
         return match(true) {
             $tab !== null => [
                 $tab['server'],
-                $tab['title'] ?: $this->trans->lang('(No title)'),
+                $tab['title'] ?: $this->trans()->lang('(No title)'),
             ],
-            $this->config->hasOption('default') => [
-                $this->config->getOption('default'),
-                $this->trans->lang('(No title)'),
+            $this->config()->hasOption('default') => [
+                $this->config()->getOption('default'),
+                $this->trans()->lang('(No title)'),
             ],
             default => ['', ''],
         };
@@ -64,7 +64,7 @@ class AppFunc extends FuncComponent
     {
         // The preference service can be null.
         return array_filter($this->preference?->getAppTabs() ?? [],
-            fn(array $tab) => $this->config->hasOption('servers.' . $tab['server']));
+            fn(array $tab) => $this->config()->hasOption('servers.' . $tab['server']));
     }
 
     /**
@@ -73,9 +73,9 @@ class AppFunc extends FuncComponent
     public function start(): void
     {
         // Toast library for the SQL editor.
-        if ($this->config->hasOption('ui.toast.lib')) {
+        if ($this->config()->hasOption('ui.toast.lib')) {
             $this->response()->jo('jaxon.dbadmin')
-                ->setToastLib($this->config->getOption('ui.toast.lib'));
+                ->setToastLib($this->config()->getOption('ui.toast.lib'));
         }
 
         // Show the app tab menu.
@@ -235,8 +235,8 @@ class AppFunc extends FuncComponent
      */
     public function editTabTitle(): void
     {
-        $title = $this->trans->lang('Edit tab title');
-        $content = $this->ui->editTabTitle($this->getCurrentTitle());
+        $title = $this->trans()->lang('Edit tab title');
+        $content = $this->ui()->editTabTitle($this->getCurrentTitle());
         $buttons = [[
             'title' => 'Cancel',
             'class' => 'btn btn-tertiary',
@@ -244,7 +244,7 @@ class AppFunc extends FuncComponent
         ], [
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->saveTabTitle($this->ui->tabTitleFormValues()),
+            'click' => $this->rq()->saveTabTitle($this->ui()->tabTitleFormValues()),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }
