@@ -31,9 +31,9 @@ The following features are currently available:
 - Read database options with an extensible config reader.
 - Read database credentials from a secret manager. Currently supported:
   - [Infisical](https://infisical.com/)
-  - [OpenBao](https://openbao.org) (compatible with [HashiCorp Vault](https://www.hashicorp.com/fr/products/vault))
   - [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/)
   - [GCP Secret Manager](https://cloud.google.com/security/products/secret-manager)
+  - [OpenBao](https://openbao.org) (compatible with [HashiCorp Vault](https://www.hashicorp.com/fr/products/vault))
 - Show tables and views details.
 - Query a table.
 - Query a view.
