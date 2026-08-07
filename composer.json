@@ -28,7 +28,7 @@
         "lagdo/facades": "^1.2",
         "lagdo/jaxon-ui-builder": "0.12.*",
         "lagdo/ui-builder": "0.12.*",
-        "infisical/php-sdk": "^0.0.1"
+        "infisical/php-sdk": "^0.0.2"
     },
     "require-dev": {
         "ext-mysqli": "*",
