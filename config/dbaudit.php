@@ -23,18 +23,8 @@ return [
         ...$container,
         'set' => [
             ...$container['set'],
-            'dbadmin_package_config' => function(Container $di) {
-                $config = $di->getPackageConfig(App\DbAuditPackage::class);
-                // Move the "database" and "auditDb" options under the "queries" key.
-                // Needed by the ConfigProvider class.
-                return (new ConfigSetter())->newConfig([
-                    'reader' => $config->getOption('reader', []),
-                    'queries' => [
-                        'database' => $config->getOption('database'),
-                        'audit' => $config->getOption('audit', []),
-                    ],
-                ]);
-            },
+            'dbapp_package_config' => fn(Container $di) =>
+                $di->getPackageConfig(App\DbAuditPackage::class),
             // Connection to the audit database
             Audit\AuditDatabase::class => function(Container $di) {
                 $configProvider = $di->g(Provider\DatabaseConfigProvider::class);

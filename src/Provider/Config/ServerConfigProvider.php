@@ -2,8 +2,6 @@
 
 namespace Lagdo\DbAdmin\Support\Provider\Config;
 
-use Lagdo\DbAdmin\Support\Provider\Secret\SecretConfigProvider;
-
 class ServerConfigProvider
 {
     use ConfigProviderTrait;

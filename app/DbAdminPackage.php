@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App;
 
+use Jaxon\Di\Container;
 use Jaxon\Plugin\AbstractPackage;
 use Jaxon\Plugin\CssCode;
 use Jaxon\Plugin\CssCodeGeneratorInterface;
@@ -9,8 +10,13 @@ use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Admin\AppFunc;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
+use Lagdo\DbAdmin\Support\Provider\AuthInterface;
+use Lagdo\DbAdmin\Support\Provider\Config;
+use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
+use Lagdo\DbAdmin\Support\Provider\Secret;
 
 use function realpath;
+use function Jaxon\jaxon;
 use function Jaxon\rq;
 
 /**
@@ -33,6 +39,57 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     }
 
     /**
+     * Helper function for the config middleware
+     *
+     * @param string $configDir
+     * @param string $requestUri
+     *
+     * @return void
+     */
+    public static function register(string $configDir, string $requestUri): void
+    {
+        $jaxon = jaxon();
+        $jaxon->setOption('core.request.uri', $requestUri);
+        $jaxon->setAppOption('assets.file', 'admin');
+
+        $auth = include "$configDir/auth.php";
+        if ($auth !== null) {
+            $jaxon->setAppOption('container.set.' . AuthInterface::class, $auth);
+        }
+
+        $secrets = include "$configDir/secrets.php";
+        if (isset($secrets['reader']) && isset($secrets['key'])) {
+            $jaxon->setAppOption('container.extend.' . $secrets['reader'],
+                fn(Secret\AbstractConfigProvider $provider) =>
+                    $provider->setSecretKeyBuilder($secrets['key']));
+        }
+
+        // Register the package.
+        $app = include "$configDir/app.php";
+        $export = include "$configDir/export.php";
+        $queries = include "$configDir/queries.php";
+        $foreigns = include "$configDir/foreigns.php";
+        $jaxon->registerPackage(self::class, [
+            'ui' => [
+                ...$app['ui'],
+                ...$app['admin']['ui'],
+            ],
+            'provider' => static function(array $options, Container $di) use($configDir) {
+                $configFile = "$configDir/servers.php";
+                $provider = $di->g(PackageConfigProvider::class);
+                return $provider->config($configFile)->getOptions($options);
+            },
+            'reader' => [
+                'server' => Config\ServerConfigProvider::class,
+                'secret' => $secrets['reader'] ?? Config\SecretConfigProvider::class,
+            ],
+            'export' => $export,
+            'queries' => $queries,
+            'foreigns' => $foreigns,
+        ]);
+    }
+
+    /**
      * @return string
      */
     private function editor(): string
@@ -45,9 +102,9 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getCssCode(): CssCode
     {
-        $assetsUrl = $this->getConfig()->getOption('assets.url', '/assets');
         $editor = $this->editor();
         $html = $this->view()->render("dbadmin::editor::$editor/css");
+        $assetsUrl = $this->getConfig()->getOption('ui.assets.url', '/dbadmin');
         $urls = [
             // Spinner CSS code.
             "$assetsUrl/app/spin.css",
@@ -65,9 +122,9 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getJsCode(): JsCode
     {
-        $assetsUrl = $this->getConfig()->getOption('assets.url', '/assets');
         $editor = $this->editor();
         $html = $this->view()->render("dbadmin::editor::$editor/js");
+        $assetsUrl = $this->getConfig()->getOption('ui.assets.url', '/dbadmin');
         $urls = [
             // Spinner javascript code.
             "$assetsUrl/app/spin.js",

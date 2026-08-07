@@ -64,14 +64,14 @@ return [
         Proxy\QueryProxy::class => fn(Container $di) =>
             (new Proxy\QueryProxy($di->g(Support\Driver\DriverProxy::class)))
                 ->setProcessor($di->g(Proxy\QueryProcessor::class))
-                ->setPackageConfig($di->g('dbadmin_package_config')),
+                ->setPackageConfig($di->g('dbapp_package_config')),
         Proxy\TableProxy::class => fn(Container $di) =>
             (new Proxy\TableProxy($di->g(Support\Driver\DriverProxy::class)))
                 ->setProcessor($di->g(Proxy\QueryProcessor::class)),
         Proxy\SelectProxy::class => fn(Container $di) =>
             (new Proxy\SelectProxy($di->g(Support\Driver\DriverProxy::class)))
                 ->setProcessor($di->g(Proxy\QueryProcessor::class))
-                ->setPackageConfig($di->g('dbadmin_package_config')),
+                ->setPackageConfig($di->g('dbapp_package_config')),
 
         // Application authentication.
         'dbadmin_auth_service' => fn(Container $di) =>
@@ -99,18 +99,18 @@ return [
                 },
         Provider\PackageConfigProvider::class => fn(Container $di) =>
             new Provider\PackageConfigProvider($di->g('dbadmin_auth_service')),
-        Provider\Secret\SecretConfigProvider::class =>
-            fn() => new Provider\Secret\SecretConfigProvider(),
+        Provider\Config\SecretConfigProvider::class =>
+            fn() => new Provider\Config\SecretConfigProvider(),
         Provider\Config\ServerConfigProvider::class => function(Container $di) {
-            $config = $di->g('dbadmin_package_config');
+            $config = $di->g('dbapp_package_config');
             $secretConfigReaderClass = $config->getOption('reader.secret',
-                Provider\Secret\SecretConfigProvider::class);
+                Provider\Config\SecretConfigProvider::class);
             $secretConfigReader = $di->get($secretConfigReaderClass);
 
             return new Provider\Config\ServerConfigProvider($secretConfigReader);
         },
         Provider\DatabaseConfigProvider::class => function(Container $di) {
-            $config = $di->g('dbadmin_package_config');
+            $config = $di->g('dbapp_package_config');
             $serverConfigReaderClass = $config->getOption('reader.server',
                 Provider\Config\ServerConfigProvider::class);
             $serverConfigReader = $di->get($serverConfigReaderClass);

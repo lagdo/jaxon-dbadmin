@@ -9,8 +9,12 @@ use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Audit\Commands;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
+use Lagdo\DbAdmin\Support\Provider\AuthInterface;
+use Lagdo\DbAdmin\Support\Provider\Config;
+use Lagdo\DbAdmin\Support\Provider\Secret;
 
 use function realpath;
+use function Jaxon\jaxon;
 use function Jaxon\rq;
 
 /**
@@ -32,6 +36,46 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     public static function config(): string
     {
         return realpath(__DIR__ . '/../config/dbaudit.php');
+    }
+
+    /**
+     * Helper function for the config middleware
+     *
+     * @param string $configDir
+     * @param string $requestUri
+     *
+     * @return void
+     */
+    public static function register(string $configDir, string $requestUri): void
+    {
+        $jaxon = jaxon();
+        $jaxon->setOption('core.request.uri', $requestUri);
+        $jaxon->setAppOption('assets.file', 'audit');
+
+        $auth = include "$configDir/auth.php";
+        if ($auth !== null) {
+            $jaxon->setAppOption('container.set.' . AuthInterface::class, $auth);
+        }
+
+        $secrets = include "$configDir/secrets.php";
+        if (isset($secrets['reader']) && isset($secrets['key'])) {
+            $jaxon->setAppOption('container.extend.' . $secrets['reader'],
+                fn(Secret\AbstractConfigProvider $provider) =>
+                    $provider->setSecretKeyBuilder($secrets['key']));
+        }
+
+        // Register the package.
+        $app = include "$configDir/app.php";
+        $queries = include "$configDir/queries.php";
+        $jaxon->registerPackage(self::class, [
+            ...$app['audit'],
+            'ui' => $app['ui'],
+            'reader' => [
+                'server' => Config\ServerConfigProvider::class,
+                'secret' => $secrets['reader'] ?? Config\SecretConfigProvider::class,
+            ],
+            'queries' => $queries,
+        ]);
     }
 
     /**
@@ -59,13 +103,17 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getCssCode(): CssCode
     {
-        $code = "/* Spinner CSS code. */\n" .
-            $this->view()->render('dbadmin::codes::spin.css') .
-            "\n/* DbAdmin CSS code. */\n" .
-            $this->view()->render('dbadmin::codes::layout.css') .
-            $this->view()->render('dbadmin::codes::styles.css');
+        $assetsUrl = $this->getConfig()->getOption('ui.assets.url', '/dbadmin');
+        $urls = [
+            // Spinner CSS code.
+            "$assetsUrl/app/spin.css",
+            "$assetsUrl/app/layout.css",
+            "$assetsUrl/app/styles.css",
+            // DbAdmin tables CSS code.
+            "$assetsUrl/app/table.css",
+        ];
 
-        return new CssCode($code);
+        return new CssCode(aUrls: $urls);
     }
 
     /**
@@ -73,12 +121,14 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getJsCode(): JsCode
     {
-        $html = $this->view()->render('dbadmin::codes::js.html');
-        $code = "// Spinner javascript code.\n\n" .
-            $this->view()->render('dbadmin::codes::spin.js') . "\n\n" .
-            $this->view()->render('dbadmin::codes::script.js');
+        $assetsUrl = $this->getConfig()->getOption('ui.assets.url', '/dbadmin');
+        $urls = [
+            // Spinner javascript code.
+            "$assetsUrl/app/spin.js",
+            "$assetsUrl/app/script.js",
+        ];
 
-        return new JsCode(sCode: $code, sHtml: $html);
+        return new JsCode(aUrls: $urls);
     }
 
     /**

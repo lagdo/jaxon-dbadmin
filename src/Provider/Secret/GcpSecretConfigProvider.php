@@ -7,36 +7,21 @@ use Google\Cloud\SecretManager\V1\AccessSecretVersionRequest;
 use Google\Cloud\SecretManager\V1\Client\SecretManagerServiceClient;
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\Facades\Logger;
-use Closure;
 use RuntimeException;
 
-class GcpSecretConfigProvider extends SecretConfigProvider
+class GcpSecretConfigProvider extends AbstractConfigProvider
 {
-    /**
-     * @var Closure
-     */
-    private Closure $secretKeyBuilder;
-
     /**
      * @param AuthInterface $auth
      * @param SecretManagerServiceClient $secretServiceClient
      * @param string $projectId
      * @param string $version
      */
-    public function __construct(private AuthInterface $auth,
+    public function __construct(AuthInterface $auth,
         private SecretManagerServiceClient $secretServiceClient,
         private string $projectId, private string $version)
-    {}
-
-    /**
-     * @param Closure $secretKeyBuilder
-     *
-     * @return self
-     */
-    public function setSecretKeyBuilder(Closure $secretKeyBuilder): self
     {
-        $this->secretKeyBuilder = $secretKeyBuilder;
-        return $this;
+        parent::__construct($auth);
     }
 
     /**
@@ -71,13 +56,13 @@ class GcpSecretConfigProvider extends SecretConfigProvider
     {
         try {
             // The secret key is generated with the provided closure.
-            $secretKey = ($this->secretKeyBuilder)($prefix, $option, $this->auth);
-            $value = $this->getSecret($secretKey);
-            if ($value === '') {
+            $secretKey = $this->getSecretKey($prefix, $option);
+            $secretValue = $this->getSecret($secretKey);
+            if ($secretValue === '') {
                 throw new RuntimeException("Secret retrieval failed: empty value");
             }
 
-            return $value;
+            return $secretValue;
         } catch (ApiException $e) {
             Logger::error('Failed to retrieve a secret from Google Secret Manager.', [
                 'error' => $e->getMessage(),

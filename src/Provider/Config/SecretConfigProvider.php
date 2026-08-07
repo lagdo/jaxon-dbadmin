@@ -1,8 +1,6 @@
 <?php
 
-namespace Lagdo\DbAdmin\Support\Provider\Secret;
-
-use Lagdo\DbAdmin\Support\Provider\Config\ConfigProviderTrait;
+namespace Lagdo\DbAdmin\Support\Provider\Config;
 
 class SecretConfigProvider
 {

@@ -6,36 +6,21 @@ use Aws\Exception\AwsException;
 use Aws\SecretsManager\SecretsManagerClient;
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\Facades\Logger;
-use Closure;
 use RuntimeException;
 
 use function json_decode;
 use function json_last_error;
 
-class AwsSecretConfigProvider extends SecretConfigProvider
+class AwsSecretConfigProvider extends AbstractConfigProvider
 {
-    /**
-     * @var Closure
-     */
-    private Closure $secretKeyBuilder;
-
     /**
      * @param AuthInterface $auth
      * @param SecretsManagerClient $secretServiceClient
      */
-    public function __construct(private AuthInterface $auth,
+    public function __construct(AuthInterface $auth,
         private SecretsManagerClient $secretServiceClient)
-    {}
-
-    /**
-     * @param Closure $secretKeyBuilder
-     *
-     * @return self
-     */
-    public function setSecretKeyBuilder(Closure $secretKeyBuilder): self
     {
-        $this->secretKeyBuilder = $secretKeyBuilder;
-        return $this;
+        parent::__construct($auth);
     }
 
     /**
@@ -78,15 +63,15 @@ class AwsSecretConfigProvider extends SecretConfigProvider
     {
         // The username and password are stored in the same json payload.
         // The secret name is generated with the provided closure using only the prefix.
-        $secretName = ($this->secretKeyBuilder)($prefix, $this->auth);
-        $secretData = $this->getSecret($secretName);
-        if (!isset($secretData['username']) || !isset($secretData['password'])) {
+        $secretName = $this->getSecretKey($prefix);
+        $secret = $this->getSecret($secretName);
+        if (!isset($secret['username']) || !isset($secret['password'])) {
             throw new RuntimeException("Secret retrieval failed: required field missing");
         }
 
         return [
-            'username' => $secretData['username'],
-            'password' => $secretData['password'],
+            'username' => $secret['username'],
+            'password' => $secret['password'],
         ];
     }
 }
