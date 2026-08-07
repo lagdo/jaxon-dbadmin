@@ -542,4 +542,11 @@ Contribute
 License
 -------
 
-The project is licensed under the Apache license.
+Jaxon DbAdmin is licensed under the Business Source License 1.1.
+
+The software can be used internally, including in commercial
+organizations. Providing Jaxon DbAdmin as a hosted, managed, or SaaS
+service requires a separate commercial license.
+
+After the Change Date specified in the LICENSE file, the applicable
+version will be available under Apache License 2.0.
