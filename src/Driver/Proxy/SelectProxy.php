@@ -210,8 +210,12 @@ class SelectProxy extends AbstractDriverProxy
      *
      * @return string
      */
-    private function getQueryWithCteClauses(SelectDqDto $select): string
+    private function getQueryCode(SelectDqDto $select): string
     {
+        if (!$select->input->loadForeigns || count($select->table->foreignKeys) === 0) {
+            return $select->query();
+        }
+
         $foreignKeys = $select->table->foreignKeys;
         $foreignKeys = array_filter($foreignKeys, fn(ForeignKeyDto $foreignKey) =>
                 $this->foreignKeysIsSelectable($select, $foreignKey));
@@ -249,10 +253,7 @@ class SelectProxy extends AbstractDriverProxy
         $options->setExecOptions(false, false, true);
         $options->withTimer = $withTimer;
 
-        $query = !$select->input->loadForeigns || count($select->table->foreignKeys) === 0 ?
-            $select->query() : $this->getQueryWithCteClauses($select);
-        $queryList = new QueryListDto(queries: [$query]);
-
+        $queryList = new QueryListDto(queries: [$this->getQueryCode($select)]);
         return $this->processor->executeQueryList($queryList, $options, $select);
     }
 

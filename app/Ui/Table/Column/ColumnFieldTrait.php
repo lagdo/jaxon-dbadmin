@@ -52,10 +52,13 @@ trait ColumnFieldTrait
     {
         $types = $this->engine()->structuredTypes();
         $unsignedTypes = array_values($types[$this->trans->lang('Numbers')] ?? []);
+        $listTypes = array_values($types[$this->trans->lang('Lists')] ?? []);
         $collationTypes = array_filter($types[$this->trans->lang('Strings')] ?? [],
             fn(string $type) => $type !== 'json' && $type !== 'uuid');
+        // The list types are included in the collation types.
+        $collationTypes = [...array_values($collationTypes), ...$listTypes];
         $onUpdateTypes = ['datetime', 'timestamp'];
-        return [$unsignedTypes, array_values($collationTypes), $onUpdateTypes];
+        return [$unsignedTypes, $listTypes, $collationTypes, $onUpdateTypes];
     }
 
     /**
@@ -337,6 +340,22 @@ trait ColumnFieldTrait
             ->setPlaceholder($this->trans->lang('Length'))
             ->setSize('3')
             ->setValue($input->values()->length ?: '');
+    }
+
+    /**
+     * @param ColumnFormDto $input
+     * @param string $columnName
+     *
+     * @return mixed
+     */
+    protected function getColumnListField(ColumnFormDto $input, string $columnName): mixed
+    {
+        return $this->ui->input()
+            ->setStyle('width: 100%')
+            ->setName($columnName)
+            ->setPlaceholder($this->trans->lang('Values'))
+            ->setSize('3')
+            ->setValue($input->values()->list);
     }
 
     /**

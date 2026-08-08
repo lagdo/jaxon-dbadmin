@@ -43,9 +43,8 @@ class ColumnUiBuilder
         $this->listMode = false;
         $support = $this->support(['comment']);
         $formId = $this->editFormId();
-        [$unsignedTypes, $collationTypes, $onUpdateTypes] = $this->getColumnTypes();
-        $onColumnTypeChanged = jo('jaxon.dbadmin')->onColumnTypeChanged($formId,
-            $unsignedTypes, $collationTypes, $onUpdateTypes);
+        $types = $this->getColumnTypes();
+        $onColumnTypeChanged = jo('jaxon.dbadmin')->onColumnTypeChanged($formId, ...$types);
         $onForeignKeyChanged = jo('jaxon.dbadmin')->onForeignKeyChanged($formId);
 
         return $this->ui->build(
@@ -93,6 +92,15 @@ class ColumnUiBuilder
                 ),
                 $this->ui->row(
                     $this->ui->col(
+                        $this->ui->label($this->trans->lang('Values'))
+                    )->width(3),
+                    $this->ui->col(
+                        $this->getColumnListField($input, 'list')
+                    )->width(9)
+                )->setClass('dbadmin-column-option-edit-row dbadmin-column-option-list')
+                    ->setStyle('display: none;'),
+                $this->ui->row(
+                    $this->ui->col(
                         $this->ui->label($this->trans->lang('Unsigned'))
                     )->width(3),
                     $this->ui->col(
@@ -102,12 +110,20 @@ class ColumnUiBuilder
                     ->setStyle('display: none;'),
                 $this->ui->row(
                     $this->ui->col(
+                        $this->ui->label($this->trans->lang('Default value'))
+                    )->width(3),
+                    $this->ui->col(
+                        $this->getColumnDefaultField($input, 'generated', 'default')
+                    )->width(9)
+                ),
+                $this->ui->row(
+                    $this->ui->col(
                         $this->ui->label($this->trans->lang('Collation'))
                     )->width(3),
                     $this->ui->col(
                         $this->getColumnCollationField($input, 'collation')
                     )->width(9)
-                )->setClass('dbadmin-column-option-edit-row dbadmin-column-option-collation')
+                )->setClass('dbadmin-column-option-edit-row dbadmin-column-option-collation dbadmin-column-option-list')
                     ->setStyle('display: none;'),
                 $this->ui->row(
                     $this->ui->col(
@@ -118,14 +134,6 @@ class ColumnUiBuilder
                     )->width(8)
                 )->setClass('dbadmin-column-option-edit-row dbadmin-column-option-onupdate')
                     ->setStyle('display: none;'),
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->label($this->trans->lang('Default value'))
-                    )->width(3),
-                    $this->ui->col(
-                        $this->getColumnDefaultField($input, 'generated', 'default')
-                    )->width(9)
-                ),
                 $this->ui->when($support['comment'], fn() =>
                     $this->ui->row(
                         $this->ui->col(

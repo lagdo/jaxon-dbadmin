@@ -7,7 +7,10 @@ use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 
 use function array_combine;
 use function array_map;
+use function explode;
+use function implode;
 use function preg_match;
+use function trim;
 
 /**
  * User inputs for a table column.
@@ -95,6 +98,7 @@ class ColumnFormDto
                 ['default', ''] : ['generated', 'DEFAULT'];
             $this->currValues[$attr] = $value;
         }
+        $this->setListValues();
         $this->setForeignKeyValues();
     }
 
@@ -115,6 +119,45 @@ class ColumnFormDto
         $this->currValues['fkOnUpdate'] = $this->foreignKey->onUpdate;
         $this->currValues['fkOnDelete'] = $this->foreignKey->onDelete;
         // $this->currValues['fkDeferrable'] = $this->foreignKey->deferrable;
+    }
+
+    /**
+     * @return void
+     */
+    private function setListValues(): void
+    {
+        // The enum and set items are initially stored in the "length" field.
+        $this->currValues['list'] = '';
+        if ($this->currValues['type'] === 'enum' || $this->currValues['type'] === 'set') {
+            $items = explode(',', $this->currValues['length']);
+            $items = array_map(fn(string $value) => trim($value, "'"), $items);
+            $this->currValues['list'] = implode(',', $items);
+            $this->currValues['length'] = '';
+        }
+    }
+
+    /**
+     * @param ColumnDto $column
+     *
+     * @return void
+     */
+    public function setColumnValues(ColumnDto $column): void
+    {
+        $values = $this->values();
+        foreach ($this->attributes() as $attr) {
+            $column->$attr = $values->$attr;
+        }
+        if ($values->type === 'enum' || $values->type === 'set') {
+            $items = explode(',', $values->list);
+            $items = array_map(fn(string $value) => "'$value'", $items);
+            $column->length = implode(',', $items);
+        }
+        if ($values->generated === '') {
+            $column->default = null;
+        }
+        if (!$values->setComment) {
+            $column->comment = null;
+        }
     }
 
     /**
@@ -237,7 +280,7 @@ class ColumnFormDto
     public function columnEdited(): bool
     {
         $values = $this->values();
-        foreach (self::$attributes as $attr) {
+        foreach ([...self::$attributes, 'list'] as $attr) {
             if ($values->$attr !== $this->currValues[$attr]) {
                 return true;
             }
@@ -289,7 +332,8 @@ class ColumnFormDto
             }
         }
         // The string attributes
-        foreach (['generated', 'default', 'collation', 'onUpdate', 'onDelete', 'comment'] as $attr) {
+        foreach (['generated', 'default', 'list', 'collation',
+            'foreignKey', 'fkOnUpdate', 'fkOnDelete', 'comment'] as $attr) {
             if ($values->$attr !== $this->currValues[$attr]) {
                 $changes[$attr] = [
                     'from' => $this->currValues[$attr],

@@ -241,15 +241,7 @@ class TableContent extends AbstractDriverProxy
             $column->autoIncrement = $values->autoIncrement;
             break;
         default:
-            foreach ($input->attributes() as $attr) {
-                $column->$attr = $values->$attr;
-            }
-            if ($values->generated === '') {
-                $column->default = null;
-            }
-            if (!$values->setComment) {
-                $column->comment = null;
-            }
+            $input->setColumnValues($column);
             if ($input->added() && $column->autoIncrement) {
                 $column->type = $this->statement()->getAutoIncrementType($column->type);
             }

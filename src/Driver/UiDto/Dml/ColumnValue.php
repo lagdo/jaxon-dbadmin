@@ -250,7 +250,7 @@ class ColumnValue extends AbstractDriverProxy
         $input->enums = $userType?->enums ?? [];
         if ($input->enums) {
             $input->type = 'enum';
-            $input->column->length = $input->enumsLength();
+            $input->column->length = $input->enumList();
         }
 
         // Todo: process the output of tis function, which is available on MySQL only.

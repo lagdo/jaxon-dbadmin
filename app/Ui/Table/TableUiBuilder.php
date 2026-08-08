@@ -352,7 +352,7 @@ class TableUiBuilder
         $makeEmptyField = fn() => $this->ui->input()
             ->setPlaceholder($this->trans->lang('Options'))
             ->with(fn($elt) => $this->disable($elt));
-        [$unsignedTypes, $collationTypes, $onUpdateTypes] = $this->getColumnTypes();
+        [$unsignedTypes, , $collationTypes, $onUpdateTypes] = $this->getColumnTypes();
         return $this->ui->pick(
             // Only for MySQL or MariaDB
             $this->ui->when(!$this->engine()->sql(), $makeEmptyField),
@@ -368,6 +368,10 @@ class TableUiBuilder
                 $this->getColumnOnUpdateField($input, "{$editPrefix}[onUpdate]")
                     ->with(fn($elt) => $this->disable($elt))
             ),
+            // The enum and set items are initially stored in the "length" field.
+            $this->ui->when($input->type() === 'enum' || $input->type() === 'set', fn() =>
+                $this->getColumnListField($input, "{$editPrefix}[list]")
+                    ->with(fn($elt) => $this->disable($elt))),
             $this->ui->when(true, $makeEmptyField)
         );
     }
@@ -397,6 +401,7 @@ class TableUiBuilder
     {
         $editPrefix = sprintf("columns[%d]", $input->position);
         $columnToggleClass = self::columnToggleClass;
+        [, $listTypes] = $this->getColumnTypes();
 
         return $this->ui->div(
             // First line
@@ -412,17 +417,41 @@ class TableUiBuilder
                         ->with(fn($elt) => $this->disable($elt))
                 )->setStyle('width: 13%;')
                     ->setClass('dbadmin-table-column-middle'),
-                $this->ui->div(
-                    $this->getColumnLengthField($input, "{$editPrefix}[length]")
-                        ->with(fn($elt) => $this->disable($elt))
-                )->setStyle('width: 8%;')
-                    ->setClass('dbadmin-table-column-middle'),
+                // The items list is displayed instead of the length and autoinc for enums and sets.
+                $this->ui->pick(
+                    $this->ui->when(in_array($input->type(), $listTypes), fn() =>
+                        $this->ui->div(
+                            $this->getColumnListField($input, "{$editPrefix}[list]")
+                                ->with(fn($elt) => $this->disable($elt))
+                        )->setStyle('width: 25%;')
+                            ->setClass('dbadmin-table-column-middle')
+                    ),
+                    $this->ui->when(true, fn() =>
+                        $this->ui->list(
+                            $this->ui->div(
+                                $this->getColumnLengthField($input, "{$editPrefix}[length]")
+                                    ->with(fn($elt) => $this->disable($elt))
+                            )->setStyle('width: 8%;')
+                                ->setClass('dbadmin-table-column-middle'),
+                            $this->ui->div(
+                                $this->ui->inputGroup(
+                                    $this->ui->input('')
+                                        ->setPlaceholder('Auto increment')
+                                        ->with(fn($elt) => $this->disable($elt, true)),
+                                    $this->getColumnAutoIncrementField($input, "{$editPrefix}[autoIncrement]")
+                                        ->with(fn($elt) => $this->disable($elt, false))
+                                )
+                            )->setStyle('width: 17%;')
+                                ->setClass('dbadmin-table-column-middle'),
+                        )
+                    ),
+                ),
                 $this->ui->div(
                     $this->ui->inputGroup(
                         $this->ui->input('')
-                            ->setPlaceholder('Auto increment')
+                            ->setPlaceholder('Nullable')
                             ->with(fn($elt) => $this->disable($elt, true)),
-                        $this->getColumnAutoIncrementField($input, "{$editPrefix}[autoIncrement]")
+                        $this->getColumnNullableField($input, "{$editPrefix}[null]")
                             ->with(fn($elt) => $this->disable($elt, false))
                     )
                 )->setStyle('width: 17%;')
@@ -433,16 +462,6 @@ class TableUiBuilder
                             ->setPlaceholder('Primary')
                             ->with(fn($elt) => $this->disable($elt, true)),
                         $this->getColumnPrimaryField($input, "{$editPrefix}[primary]")
-                            ->with(fn($elt) => $this->disable($elt, false))
-                    )
-                )->setStyle('width: 16%;')
-                    ->setClass('dbadmin-table-column-middle'),
-                $this->ui->div(
-                    $this->ui->inputGroup(
-                        $this->ui->input('')
-                            ->setPlaceholder('Nullable')
-                            ->with(fn($elt) => $this->disable($elt, true)),
-                        $this->getColumnNullableField($input, "{$editPrefix}[null]")
                             ->with(fn($elt) => $this->disable($elt, false))
                     )
                 )->setStyle('width: 16%;')

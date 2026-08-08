@@ -193,7 +193,7 @@ class ColumnDmDto
     /**
      * @return string
      */
-    public function enumsLength(): string
+    public function enumList(): string
     {
         return !$this->enums ? '' : "'" . implode("', '", $this->enums) . "'";
     }

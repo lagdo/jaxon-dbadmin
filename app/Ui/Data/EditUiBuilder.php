@@ -225,7 +225,7 @@ class EditUiBuilder
                 ->setId($inputId)
                 ->addClass('search-box')
                 ->setStyle("anchor-name: --anchor-$columnName;")
-                ->setPlaceholder("Search in table {$input->foreignKey->table}")
+                ->setPlaceholder("Search in {$input->foreignKey->table} table")
                 ->setAutocomplete('off')
                 ->jxnOn('input', rq(SearchFunc::class)->search($table,
                     $columnName, pm()->input($inputId))->debounce('search')),
