@@ -2,13 +2,15 @@
 
 namespace Lagdo\DbAdmin\App\Ui;
 
+use Jaxon\App\Ajax\Jaxon;
 use Lagdo\DbAdmin\App\Ajax\Admin\DbFunc;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function Jaxon\select;
+use function in_array;
+use function Jaxon\pm;
 use function Jaxon\rq;
 
 class MenuBuilder
@@ -18,9 +20,10 @@ class MenuBuilder
      * @param Tab $tab
      * @param BuilderInterface $ui
      * @param AuthInterface $auth
+     * @param Jaxon $jaxon
      */
     public function __construct(private Translator $trans, private Tab $tab,
-        private BuilderInterface $ui, private AuthInterface $auth)
+        private BuilderInterface $ui, private AuthInterface $auth, private Jaxon $jaxon)
     {}
 
     /**
@@ -38,8 +41,10 @@ class MenuBuilder
     {
         $name = $this->auth->name();
         $user = $this->auth->user();
+        $auditUsers = $this->jaxon->getAppOption('audit.users', []);
+        $audit = in_array($user, $auditUsers) ? $this->auth->audit() : '';
         $logout = $this->auth->logout();
-        if ($name === '' && $user === '' && $logout === '') {
+        if ($name === '' && $user === '' && $audit === '' && $logout === '') {
             return '';
         }
 
@@ -57,6 +62,13 @@ class MenuBuilder
                                 $this->ui->span(
                                     $this->trans->lang($this->ui->html("<b>$user</b>"))
                                 )
+                            )
+                        ),
+                        $this->ui->when($audit !== '', fn() =>
+                            $this->ui->span(
+                                $this->ui->a($this->trans->lang('Audit'))
+                                    ->setHref($audit)
+                                    ->setTarget('_blank')
                             )
                         ),
                         $this->ui->when($logout !== '', fn() =>
@@ -162,7 +174,7 @@ class MenuBuilder
     public function databases(array $databases, string|null $selected = null): string
     {
         $dbSelectId = $this->tab()->app()->id('jaxon-dbadmin-database-select');
-        $database = select($dbSelectId);
+        $database = pm()->select($dbSelectId);
         $call = rq(DbFunc::class)->database($database)->ifne($database, '');
 
         return $this->ui->build(
@@ -196,7 +208,7 @@ class MenuBuilder
     public function schemas(string $database, array $schemas): string
     {
         $schemaSelectId = $this->tab()->app()->id('jaxon-dbadmin-schema-select');
-        $schema = select($schemaSelectId);
+        $schema = pm()->select($schemaSelectId);
         $call = rq(DbFunc::class)->database($database, $schema);
 
         return $this->ui->build(

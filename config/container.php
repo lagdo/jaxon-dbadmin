@@ -92,6 +92,10 @@ return [
                     {
                         return [];
                     }
+                    public function audit(): string
+                    {
+                        return '';
+                    }
                     public function logout(): string
                     {
                         return '';

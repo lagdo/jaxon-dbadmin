@@ -6,6 +6,7 @@ use Jaxon\Config\ConfigReader;
 use Jaxon\Config\ConfigSetter;
 
 use function array_filter;
+use function array_intersect;
 use function array_values;
 use function in_array;
 use function is_array;
@@ -66,7 +67,7 @@ class PackageConfigProvider
     private function checkRole(array $options): bool
     {
         $role = $options['id']['role'] ?? null;
-        return is_string($role) && $this->auth->role() === $role;
+        return is_string($role) && in_array($role, $this->auth->roles());
     }
 
     /**
@@ -77,7 +78,7 @@ class PackageConfigProvider
     private function checkRoles(array $options): bool
     {
         $roles = $options['id']['roles'] ?? null;
-        return is_array($roles) && in_array($this->auth->role(), $roles);
+        return is_array($roles) && array_intersect($roles, $this->auth->roles());
     }
 
     /**

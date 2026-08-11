@@ -29,6 +29,13 @@ interface AuthInterface
     public function roles(): array;
 
     /**
+     * Link to the audit page
+     *
+     * @return string
+     */
+    public function audit(): string;
+
+    /**
      * Link to logout the authenticated user
      *
      * @return string
