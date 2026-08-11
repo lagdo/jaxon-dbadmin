@@ -18,12 +18,18 @@ use Lagdo\DbAdmin\Support\Provider\Secret;
 use function realpath;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
+use function Lagdo\UiBuilder\Jaxon\registerUiBuilder;
 
 /**
  * Jaxon DbAdmin package
  */
 class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterface, JsCodeGeneratorInterface
 {
+    /**
+     * @var bool
+     */
+    private static bool $registered = false;
+
     /**
      * @param UiBuilder $ui
      */
@@ -48,6 +54,13 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public static function register(string $configDir, string $requestUri): void
     {
+        if (self::$registered) {
+            return;
+        }
+        self::$registered = true;
+
+        registerUiBuilder('template.name');
+
         $jaxon = jaxon();
         $jaxon->setOption('core.request.uri', $requestUri);
         $jaxon->setAppOption('assets.file', 'admin');
