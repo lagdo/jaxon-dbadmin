@@ -4,7 +4,6 @@ namespace Lagdo\DbAdmin\Support\Provider\Secret;
 
 use Aws\Exception\AwsException;
 use Aws\SecretsManager\SecretsManagerClient;
-use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\Facades\Logger;
 use RuntimeException;
 
@@ -14,14 +13,10 @@ use function json_last_error;
 class AwsSecretConfigProvider extends AbstractConfigProvider
 {
     /**
-     * @param AuthInterface $auth
      * @param SecretsManagerClient $secretServiceClient
      */
-    public function __construct(AuthInterface $auth,
-        private SecretsManagerClient $secretServiceClient)
-    {
-        parent::__construct($auth);
-    }
+    public function __construct(private SecretsManagerClient $secretServiceClient)
+    {}
 
     /**
      * @param string $secretName

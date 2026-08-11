@@ -107,7 +107,7 @@ return [
             },
             // Connection to the audit database
             Service\Admin\AuditDatabase::class => function(Container $di) {
-                $auth = $di->g('dbadmin_auth_service');
+                $auth = $di->g(Provider\AuthInterface::class);
                 $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
                 $database = $configProvider->getQueryDatabaseOptions();
                 $utils = $di->g(Driver\Utils\Utils::class);

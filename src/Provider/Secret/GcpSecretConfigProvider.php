@@ -5,24 +5,19 @@ namespace Lagdo\DbAdmin\Support\Provider\Secret;
 use Google\ApiCore\ApiException;
 use Google\Cloud\SecretManager\V1\AccessSecretVersionRequest;
 use Google\Cloud\SecretManager\V1\Client\SecretManagerServiceClient;
-use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\Facades\Logger;
 use RuntimeException;
 
 class GcpSecretConfigProvider extends AbstractConfigProvider
 {
     /**
-     * @param AuthInterface $auth
      * @param SecretManagerServiceClient $secretServiceClient
      * @param string $projectId
      * @param string $version
      */
-    public function __construct(AuthInterface $auth,
-        private SecretManagerServiceClient $secretServiceClient,
+    public function __construct(private SecretManagerServiceClient $secretServiceClient,
         private string $projectId, private string $version)
-    {
-        parent::__construct($auth);
-    }
+    {}
 
     /**
      * @param string $secretKey

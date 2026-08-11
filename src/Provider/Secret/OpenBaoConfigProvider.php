@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Support\Provider\Secret;
 
-use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\Facades\Logger;
 use Psr\Http\Client\ClientExceptionInterface;
 use Vault\Client;
@@ -11,15 +10,11 @@ use RuntimeException;
 class OpenBaoConfigProvider extends AbstractConfigProvider
 {
     /**
-     * @param AuthInterface $auth
      * @param Client $secretServiceClient
      * @param string $projectId
      */
-    public function __construct(AuthInterface $auth,
-        private Client $secretServiceClient, private string $projectId)
-    {
-        parent::__construct($auth);
-    }
+    public function __construct(private Client $secretServiceClient, private string $projectId)
+    {}
 
     /**
      * @param string $prefix

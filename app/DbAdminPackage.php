@@ -10,7 +10,6 @@ use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Admin\AppFunc;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
-use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\DbAdmin\Support\Provider\Config;
 use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Secret;
@@ -65,12 +64,12 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $jaxon->setOption('core.request.uri', $requestUri);
         $jaxon->setAppOption('assets.file', 'admin');
 
-        $auth = include "$configDir/auth.php";
+        $auth = require "$configDir/auth.php";
         if ($auth !== null) {
-            $jaxon->setAppOption('container.set.' . AuthInterface::class, $auth);
+            $jaxon->setAppOption('container.set.dbadmin_auth_service', $auth);
         }
 
-        $secrets = include "$configDir/secrets.php";
+        $secrets = require "$configDir/secrets.php";
         if (isset($secrets['reader']) && isset($secrets['key'])) {
             $jaxon->setAppOption('container.extend.' . $secrets['reader'],
                 fn(Secret\AbstractConfigProvider $provider) =>
@@ -78,15 +77,12 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         }
 
         // Register the package.
-        $app = include "$configDir/app.php";
-        $export = include "$configDir/export.php";
-        $queries = include "$configDir/queries.php";
-        $foreigns = include "$configDir/foreigns.php";
+        $app = require "$configDir/app.php";
+        $export = require "$configDir/export.php";
+        $queries = require "$configDir/queries.php";
+        $foreigns = require "$configDir/foreigns.php";
         $jaxon->registerPackage(self::class, [
-            'ui' => [
-                ...$app['ui'],
-                ...$app['admin']['ui'],
-            ],
+            'ui' => $app['admin']['ui'] ?? [],
             'provider' => static function(array $options, Container $di) use($configDir) {
                 $configFile = "$configDir/servers.php";
                 $provider = $di->g(PackageConfigProvider::class);

@@ -74,10 +74,10 @@ return [
                 ->setPackageConfig($di->g('dbapp_package_config')),
 
         // Application authentication.
-        'dbadmin_auth_service' => fn(Container $di) =>
-            $di->has(Provider\AuthInterface::class) ?
+        Provider\AuthInterface::class => fn(Container $di) =>
+            $di->has('dbadmin_auth_service') ?
                 // Custom auth service defined.
-                $di->get(Provider\AuthInterface::class) :
+                $di->get('dbadmin_auth_service') :
                 // Default auth service when none is defined.
                 new class implements Provider\AuthInterface {
                     public function user(): string
@@ -98,7 +98,7 @@ return [
                     }
                 },
         Provider\PackageConfigProvider::class => fn(Container $di) =>
-            new Provider\PackageConfigProvider($di->g('dbadmin_auth_service')),
+            new Provider\PackageConfigProvider($di->g(Provider\AuthInterface::class)),
         Provider\Config\SecretConfigProvider::class =>
             fn() => new Provider\Config\SecretConfigProvider(),
         Provider\Config\ServerConfigProvider::class => function(Container $di) {

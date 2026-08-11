@@ -26,8 +26,7 @@ return [
         $projectEnv = env('INFISICAL_PROJECT_ENV', 'dev');
         $secretPath = env('INFISICAL_SECRET_PATH', '');
 
-        $auth = $di->get(AuthInterface::class);
-        return new Secret\InfisicalConfigProvider($auth, $secrets,
+        return new Secret\InfisicalConfigProvider($secrets,
             $projectId, $projectEnv, $secretPath);
     },
     Secret\AwsSecretConfigProvider::class => function(Container $di) {
@@ -53,8 +52,7 @@ return [
             ...$awsAuth,
         ]);
 
-        $auth = $di->get(AuthInterface::class);
-        return new Secret\AwsSecretConfigProvider($auth, $client);
+        return new Secret\AwsSecretConfigProvider($client);
     },
     Secret\GcpSecretConfigProvider::class => function(Container $di) {
         $projectId = env('GCP_SECRETS_PROJECT_ID', '');
@@ -70,9 +68,7 @@ return [
         }
         $client = new GcpSecretManagerClient($options);
 
-        $auth = $di->get(AuthInterface::class);
-        return new Secret\GcpSecretConfigProvider($auth,
-            $client, $projectId, $version);
+        return new Secret\GcpSecretConfigProvider($client, $projectId, $version);
     },
     Secret\OpenBaoConfigProvider::class => function(Container $di) {
         $authToken = env('OPENBAO_AUTH_TOKEN');
@@ -113,7 +109,6 @@ return [
             throw new RuntimeException("Authentication failure on the OpenBao Secret manager");;
         }
 
-        $auth = $di->get(AuthInterface::class);
-        return new Secret\OpenBaoConfigProvider($auth, $client, $projectId);
+        return new Secret\OpenBaoConfigProvider($client, $projectId);
     },
 ];

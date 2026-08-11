@@ -5,25 +5,20 @@ namespace Lagdo\DbAdmin\Support\Provider\Secret;
 use Infisical\SDK\Models\GetSecretParameters;
 use Infisical\SDK\Models\Secret;
 use Infisical\SDK\Services\SecretsService;
-use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Exception;
 use RuntimeException;
 
 class InfisicalConfigProvider extends AbstractConfigProvider
 {
     /**
-     * @param AuthInterface $auth
      * @param SecretsService $secretServiceClient
      * @param string $projectId
      * @param string $environment
      * @param string $secretPath
      */
-    public function __construct(AuthInterface $auth,
-        private SecretsService $secretServiceClient, private string $projectId,
-        private string $environment, private string $secretPath)
-    {
-        parent::__construct($auth);
-    }
+    public function __construct(private SecretsService $secretServiceClient,
+        private string $projectId, private string $environment, private string $secretPath)
+    {}
 
     /**
      * Query the Infisical server for a secret.
