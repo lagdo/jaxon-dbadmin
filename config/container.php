@@ -88,9 +88,9 @@ return [
                     {
                         return '';
                     }
-                    public function role(): string
+                    public function roles(): array
                     {
-                        return '';
+                        return [];
                     }
                     public function logout(): string
                     {

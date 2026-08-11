@@ -24,9 +24,9 @@ interface AuthInterface
     /**
      * Get the authenticated user namee
      *
-     * @return string
+     * @return array<string>
      */
-    public function role(): string;
+    public function roles(): array;
 
     /**
      * Link to logout the authenticated user
