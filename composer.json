@@ -9,7 +9,7 @@
         }
     ],
     "homepage": "https://github.com/lagdo/jaxon-dbadmin",
-    "license": "BSL-1.1",
+    "license": "BUSL-1.1",
     "keywords": ["Database", "Admin", "Sql", "Dashboard", "Jaxon", "Ajax", "PostgreSQL", "MySQL", "Sqlite"],
     "support": {
         "issues": "https://github.com/lagdo/jaxon-dbadmin/issues",
