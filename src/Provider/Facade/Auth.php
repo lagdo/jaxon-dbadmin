@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Facades;
+namespace Lagdo\DbAdmin\Support\Provider\Facade;
 
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\Facades\AbstractFacade;
