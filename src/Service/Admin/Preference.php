@@ -153,7 +153,7 @@ SET content=:content,last_update=:last_update WHERE id=:preference_id";
             return true;
         }
 
-        $this->auditDbDb->logWarning('Unable to save tabs in the user preferences.');
+        $this->auditDb->logWarning('Unable to save tabs in the user preferences.');
         return false;
     }
 

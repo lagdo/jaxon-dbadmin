@@ -39,13 +39,17 @@ class QueryFavorite
         if (!$this->showFavorite) {
             return false;
         }
+        if (($userId = $this->auditDb->getUserId()) === 0) {
+            $this->auditDb->logWarning('Unable to find a valid user for the audit query.');
+            return false;
+        }
 
         $values = [
             'title' => $values['title'],
             'query' => $values['query'],
             'driver' => $values['driver'],
-            'last_update' => $this->auditDbDb->currentTime(),
-            'user_id' => $this->auditDb->getUserId(),
+            'last_update' => $this->auditDb->currentTime(),
+            'user_id' => $userId,
         ];
         $sql = "INSERT INTO dbadmin_stored_commands (title,query,driver,last_update,user_id)
 VALUES (:title,:query,:driver,:last_update,:user_id)";
@@ -69,13 +73,17 @@ VALUES (:title,:query,:driver,:last_update,:user_id)";
         if (!$this->showFavorite) {
             return false;
         }
+        if (($userId = $this->auditDb->getUserId()) === 0) {
+            $this->auditDb->logWarning('Unable to find a valid user for the audit query.');
+            return false;
+        }
 
         $values = [
             'title' => $values['title'],
             'query' => $values['query'],
             'driver' => $values['driver'],
             'last_update' => $this->auditDb->currentTime(),
-            'user_id' => $this->auditDb->getUserId(),
+            'user_id' => $userId,
             'query_id' => $queryId,
         ];
         $sql = "UPDATE dbadmin_stored_commands SET title=:title,query=:query,
@@ -99,9 +107,13 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
         if (!$this->showFavorite) {
             return false;
         }
+        if (($userId = $this->auditDb->getUserId()) === 0) {
+            $this->auditDb->logWarning('Unable to find a valid user for the audit query.');
+            return false;
+        }
 
         $values = [
-            'user_id' => $this->auditDb->getUserId(),
+            'user_id' => $userId,
             'query_id' => $queryId,
         ];
         $sql = "DELETE FROM dbadmin_stored_commands WHERE id=:query_id AND user_id=:user_id";
@@ -124,14 +136,13 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
 
     /**
      * @param array $filters
+     * @param int $userId
      *
      * @return array
      */
-    private function getWhereClause(array $filters): array
+    private function getWhereClause(array $filters, int $userId): array
     {
-        $values = [
-            'user_id' => $this->auditDb->getUserId(),
-        ];
+        $values = ['user_id' => $userId];
         $clauses = ['c.user_id=:user_id'];
         if (isset($filters['title'])) {
             $values['title'] = "%{$filters['title']}%";
@@ -162,8 +173,12 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
         if (!$this->showFavorite) {
             return 0;
         }
+        if (($userId = $this->auditDb->getUserId()) === 0) {
+            $this->auditDb->logWarning('Unable to find a valid user for the audit query.');
+            return 0;
+        }
 
-        [$values, $whereClause] = $this->getWhereClause($filters);
+        [$values, $whereClause] = $this->getWhereClause($filters, $userId);
         $sql = "SELECT count(*) AS cnt FROM dbadmin_stored_commands c $whereClause";
         $result = $this->auditDb->executeQuery($sql, $values);
         return $result->hasRowset() && ($row = $result->fetchAssoc()) ? $row['cnt'] : 0;
@@ -180,8 +195,12 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
         if (!$this->showFavorite) {
             return [];
         }
+        if (($userId = $this->auditDb->getUserId()) === 0) {
+            $this->auditDb->logWarning('Unable to find a valid user for the audit query.');
+            return [];
+        }
 
-        [$values, $whereClause] = $this->getWhereClause($filters);
+        [$values, $whereClause] = $this->getWhereClause($filters, $userId);
         $offsetClause = $page > 1 ? 'OFFSET ' . ($page - 1) * $this->favoriteLimit : '';
         // PostgreSQL doesn't allow the use of distinct and order by
         // a column not in the select clause in the same SQL query.

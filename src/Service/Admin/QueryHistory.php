@@ -50,7 +50,11 @@ class QueryHistory
      */
     public function getQueries(int $page): array
     {
-        if (!$this->showHistory || ($userId = $this->auditDb->getUserId(false)) === 0) {
+        if (!$this->showHistory) {
+            return [];
+        }
+        if (($userId = $this->auditDb->getUserId(false)) === 0) {
+            $this->auditDb->logWarning('Unable to find a valid user for the audit query.');
             return [];
         }
 

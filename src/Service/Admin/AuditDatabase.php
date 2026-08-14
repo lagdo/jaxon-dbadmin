@@ -15,9 +15,9 @@ use function gmdate;
 class AuditDatabase extends Audit\AuditDatabase
 {
     /**
-     * @var int|null
+     * @var int
      */
-    private int|null $userId = null;
+    private int $userId = 0;
 
     /**
      * @param AuthInterface $auth
@@ -47,7 +47,11 @@ class AuditDatabase extends Audit\AuditDatabase
     {
         $query = "SELECT id FROM dbadmin_users WHERE username=:username LIMIT 1";
         $result = $this->executeQuery($query, ['username' => $username]);
-        return $result->hasRowset() && ($row = $result->fetchAssoc()) ? (int)$row['id'] : 0;
+        if (!$result->hasRowset() || !($row = $result->fetchAssoc())) {
+            return $this->userId = 0;
+        }
+
+        return $this->userId = (int)$row['id'];
     }
 
     /**
@@ -65,7 +69,7 @@ class AuditDatabase extends Audit\AuditDatabase
         }
 
         $this->logWarning('Unable to save new user in the query audit database.');
-        return 0;
+        return $this->userId = 0;
     }
 
     /**
@@ -75,16 +79,16 @@ class AuditDatabase extends Audit\AuditDatabase
      */
     public function getUserId(bool $canCreate = true): int
     {
-        $user = $this->auth->user();
-        if (!$this->connected() || !$user) {
-            return 0;
-        }
-        if ($this->userId !== null || ($this->userId = $this->readUserId($user)) > 0) {
-            return $this->userId;
-        }
-
-        // Try to create a new user entry for the user.
-        return !$canCreate ? 0 : ($this->userId = $this->newUserId($user));
+        $user = $this->auth->userId();
+        return match(true) {
+            $user === '' => 0,
+            !$this->connected() => 0,
+            $this->userId > 0 => $this->userId,
+            $this->readUserId($user) > 0 => $this->userId,
+            !$canCreate => 0,
+            // Try to create a new user entry for the user.
+            default => $this->newUserId($user),
+        };
     }
 
     /**
@@ -92,7 +96,7 @@ class AuditDatabase extends Audit\AuditDatabase
      */
     public function canSaveQuery(): bool
     {
-        return $this->connected() && $this->configProvider->canSaveQuery();
+        return $this->configProvider->canSaveQuery() && $this->getUserId(false) > 0;
     }
 
     /**
@@ -100,7 +104,7 @@ class AuditDatabase extends Audit\AuditDatabase
      */
     public function queryHistoryEnabled(): bool
     {
-        return $this->connected() && $this->configProvider->queryHistoryEnabled();
+        return $this->configProvider->queryHistoryEnabled() && $this->getUserId(false) > 0;
     }
 
     /**
@@ -108,7 +112,7 @@ class AuditDatabase extends Audit\AuditDatabase
      */
     public function queryFavoriteEnabled(): bool
     {
-        return $this->connected() && $this->configProvider->queryFavoriteEnabled();
+        return $this->configProvider->queryFavoriteEnabled() && $this->getUserId(false) > 0;
     }
 
     /**
@@ -116,8 +120,8 @@ class AuditDatabase extends Audit\AuditDatabase
      */
     public function canShowQuery(): bool
     {
-        return $this->configProvider->queryHistoryEnabled() ||
-            $this->configProvider->queryFavoriteEnabled();
+        return ($this->configProvider->queryHistoryEnabled() ||
+            $this->configProvider->queryFavoriteEnabled()) && $this->getUserId(false) > 0;
     }
 
     /**
@@ -125,6 +129,6 @@ class AuditDatabase extends Audit\AuditDatabase
      */
     public function userPreferencesEnabled(): bool
     {
-        return $this->connected() && $this->configProvider->userPreferencesEnabled();
+        return $this->configProvider->userPreferencesEnabled() && $this->getUserId(false) > 0;
     }
 }
