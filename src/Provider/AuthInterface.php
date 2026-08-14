@@ -12,7 +12,7 @@ interface AuthInterface
      *
      * @return string
      */
-    public function user(): string;
+    public function userId(): string;
 
     /**
      * Get the authenticated user role

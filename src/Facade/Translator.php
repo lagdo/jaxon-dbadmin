@@ -1,15 +1,15 @@
 <?php
 
-namespace Lagdo\DbAdmin\Support\Provider\Facade;
+namespace Lagdo\DbAdmin\Support\Facade;
 
-use Lagdo\DbAdmin\Support\Provider\AuthInterface;
+use Lagdo\DbAdmin\Driver\Utils\TranslatorInterface;
 use Lagdo\Facades\AbstractFacade;
 use Lagdo\Facades\ServiceInstance;
 
 /**
- * @extends AbstractFacade<AuthInterface>
+ * @extends AbstractFacade<TranslatorInterface>
  */
-class Auth extends AbstractFacade
+class Translator extends AbstractFacade
 {
     use ServiceInstance;
 
@@ -18,6 +18,6 @@ class Auth extends AbstractFacade
      */
     protected static function getServiceIdentifier(): string
     {
-        return AuthInterface::class;
+        return TranslatorInterface::class;
     }
 }

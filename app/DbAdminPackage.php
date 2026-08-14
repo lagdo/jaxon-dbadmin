@@ -64,7 +64,8 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $jaxon->setOption('core.request.uri', $requestUri);
         $jaxon->setAppOption('assets.file', 'admin');
 
-        $auth = require "$configDir/auth.php";
+        $app = require "$configDir/app.php";
+        $auth = $app['auth'] ?? null;
         if ($auth !== null) {
             $jaxon->setAppOption('container.set.dbadmin_auth_service', $auth);
         }
@@ -77,7 +78,6 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         }
 
         // Register the package.
-        $app = require "$configDir/app.php";
         $export = require "$configDir/export.php";
         $queries = require "$configDir/queries.php";
         $foreigns = require "$configDir/foreigns.php";

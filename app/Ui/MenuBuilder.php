@@ -40,11 +40,11 @@ class MenuBuilder
     public function appUser(): string
     {
         $name = $this->auth->name();
-        $user = $this->auth->user();
+        $userId = $this->auth->userId();
         $auditUsers = $this->jaxon->getAppOption('audit.users', []);
-        $audit = in_array($user, $auditUsers) ? $this->auth->audit() : '';
+        $audit = in_array($userId, $auditUsers) ? $this->auth->audit() : '';
         $logout = $this->auth->logout();
-        if ($name === '' && $user === '' && $audit === '' && $logout === '') {
+        if ($name === '' && $userId === '' && $audit === '' && $logout === '') {
             return '';
         }
 
@@ -58,9 +58,9 @@ class MenuBuilder
                                     $this->trans->lang('Hello, %s.', $this->ui->html("<b>$name</b>"))
                                 )
                             ),
-                            $this->ui->when($user !== '', fn() =>
+                            $this->ui->when($userId !== '', fn() =>
                                 $this->ui->span(
-                                    $this->trans->lang($this->ui->html("<b>$user</b>"))
+                                    $this->trans->lang($this->ui->html("<b>$userId</b>"))
                                 )
                             )
                         ),

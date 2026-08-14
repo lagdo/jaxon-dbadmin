@@ -80,7 +80,7 @@ return [
                 $di->get('dbadmin_auth_service') :
                 // Default auth service when none is defined.
                 new class implements Provider\AuthInterface {
-                    public function user(): string
+                    public function userId(): string
                     {
                         return '';
                     }

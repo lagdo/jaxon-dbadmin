@@ -45,7 +45,7 @@ class PackageConfigProvider
     private function checkUser(array $options): bool
     {
         $user = $options['id']['user'] ?? null;
-        return is_string($user) && $this->auth->user() === $user;
+        return is_string($user) && $this->auth->userId() === $user;
     }
 
     /**
@@ -56,7 +56,7 @@ class PackageConfigProvider
     private function checkUsers(array $options): bool
     {
         $users = $options['id']['users'] ?? null;
-        return is_array($users) && in_array($this->auth->user(), $users);
+        return is_array($users) && in_array($this->auth->userId(), $users);
     }
 
     /**
