@@ -5,11 +5,11 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ajax\Exception\ValidationException;
 use Lagdo\DbAdmin\App\Ui\Command\ExportUiBuilder;
+use Lagdo\DbAdmin\Support\Facade\FileSystem;
 use Lagdo\Facades\Logger;
 
 use function gzencode;
 use function in_array;
-use function is_callable;
 use function is_string;
 use function json_encode;
 use function trim;
@@ -74,8 +74,8 @@ trait ExportTrait
      */
     protected function exportDb(array $databases, array $formValues): void
     {
-        $writer = $this->config()->getOption('export.writer');
-        if (!is_callable($writer)) {
+        $fs = FileSystem::instance();
+        if (!$fs) {
             $this->alert()->title('Error')
                 ->error('The export feature is not setup.');
             return;
@@ -107,7 +107,7 @@ trait ExportTrait
             $filename .= '.gz';
         }
 
-        $exportUrl = $writer("$content\n", $filename);
+        $exportUrl = $fs->write("$content\n", $filename);
         if ($exportUrl === '') {
             Logger::debug('Unable to write dump to file.', [
                 'filename' => $filename,

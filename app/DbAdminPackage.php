@@ -13,6 +13,7 @@ use Lagdo\DbAdmin\App\Ui\UiBuilder;
 use Lagdo\DbAdmin\Support\Provider\Config;
 use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Secret;
+use Lagdo\DbAdmin\Support\Service\Export\FileSystemInterface;
 
 use function realpath;
 use function Jaxon\jaxon;
@@ -67,7 +68,14 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $app = require "$configDir/app.php";
         $auth = $app['auth'] ?? null;
         if ($auth !== null) {
-            $jaxon->setAppOption('container.set.dbadmin_auth_service', $auth);
+            $services['dbadmin_auth_service'] = $auth;
+        }
+        $export = $app['export'] ?? null;
+        if ($export !== null) {
+            $services[FileSystemInterface::class] = $export;
+        }
+        if (count($services) > 0) {
+            $jaxon->setAppOptions($services, 'container.set');
         }
 
         $secrets = require "$configDir/secrets.php";
