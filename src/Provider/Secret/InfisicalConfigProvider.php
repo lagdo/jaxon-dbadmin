@@ -5,19 +5,22 @@ namespace Lagdo\DbAdmin\Support\Provider\Secret;
 use Infisical\SDK\Models\GetSecretParameters;
 use Infisical\SDK\Models\Secret;
 use Infisical\SDK\Services\SecretsService;
+use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Exception;
 use RuntimeException;
 
-class InfisicalConfigProvider extends AbstractConfigProvider
+class InfisicalConfigProvider extends SecretConfigProvider
 {
     /**
+     * @param KeyBuilderInterface $keyBuilder
      * @param SecretsService $secretServiceClient
      * @param string $projectId
      * @param string $environment
      * @param string $secretPath
      */
-    public function __construct(private SecretsService $secretServiceClient,
-        private string $projectId, private string $environment, private string $secretPath)
+    public function __construct(private KeyBuilderInterface $keyBuilder,
+        private SecretsService $secretServiceClient, private string $projectId,
+        private string $environment, private string $secretPath)
     {}
 
     /**
@@ -61,7 +64,7 @@ class InfisicalConfigProvider extends AbstractConfigProvider
     private function getSecretValue(string $prefix, string $option): string
     {
         // The secret key is generated with the provided closure.
-        $secretKey = $this->getSecretKey($prefix, $option);
+        $secretKey = $this->keyBuilder->build($prefix, $option);
         $secret = $this->getSecret($secretKey);
         $value = $secret->secretValue ?? '';
         if ($value === '') {

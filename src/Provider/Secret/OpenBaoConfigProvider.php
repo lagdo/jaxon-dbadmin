@@ -3,17 +3,20 @@
 namespace Lagdo\DbAdmin\Support\Provider\Secret;
 
 use Lagdo\Facades\Logger;
+use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Psr\Http\Client\ClientExceptionInterface;
 use Vault\Client;
 use RuntimeException;
 
-class OpenBaoConfigProvider extends AbstractConfigProvider
+class OpenBaoConfigProvider extends SecretConfigProvider
 {
     /**
+     * @param KeyBuilderInterface $keyBuilder
      * @param Client $secretServiceClient
      * @param string $projectId
      */
-    public function __construct(private Client $secretServiceClient, private string $projectId)
+    public function __construct(private KeyBuilderInterface $keyBuilder,
+        private Client $secretServiceClient, private string $projectId)
     {}
 
     /**
@@ -27,7 +30,7 @@ class OpenBaoConfigProvider extends AbstractConfigProvider
     {
         try {
             // The secret key is generated with the provided closure.
-            $secretKey = $this->getSecretKey($prefix, $option);
+            $secretKey = $this->keyBuilder->build($prefix, $option);
             $secret = $this->secretServiceClient
                 ->read("/{$this->projectId}/$secretKey")
                 ->getData(); // Raw array with secret's content.

@@ -103,8 +103,6 @@ return [
                 },
         Provider\PackageConfigProvider::class => fn(Container $di) =>
             new Provider\PackageConfigProvider($di->g(Provider\AuthInterface::class)),
-        Provider\Config\SecretConfigProvider::class =>
-            fn() => new Provider\Config\SecretConfigProvider(),
         Provider\Config\ServerConfigProvider::class => function(Container $di) {
             $config = $di->g('dbapp_package_config');
             $secretConfigReaderClass = $config->getOption('reader.secret',

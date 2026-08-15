@@ -5,7 +5,6 @@ use Google\Cloud\SecretManager\V1\Client\SecretManagerServiceClient as GcpSecret
 use GuzzleHttp\Client as HttpClient;
 use Infisical\SDK\InfisicalSDK;
 use Jaxon\Di\Container;
-use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\DbAdmin\Support\Provider\Secret;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Vault\AuthenticationStrategies\AppRoleAuthenticationStrategy;
@@ -26,7 +25,8 @@ return [
         $projectEnv = env('INFISICAL_PROJECT_ENV', 'dev');
         $secretPath = env('INFISICAL_SECRET_PATH', '');
 
-        return new Secret\InfisicalConfigProvider($secrets,
+        $keyBuilder = $di->g(Secret\KeyBuilderInterface::class);
+        return new Secret\InfisicalConfigProvider($keyBuilder, $secrets,
             $projectId, $projectEnv, $secretPath);
     },
     Secret\AwsSecretConfigProvider::class => function(Container $di) {
@@ -52,7 +52,8 @@ return [
             ...$awsAuth,
         ]);
 
-        return new Secret\AwsSecretConfigProvider($client);
+        $keyBuilder = $di->g(Secret\KeyBuilderInterface::class);
+        return new Secret\AwsSecretConfigProvider($keyBuilder, $client);
     },
     Secret\GcpSecretConfigProvider::class => function(Container $di) {
         $projectId = env('GCP_SECRETS_PROJECT_ID', '');
@@ -68,7 +69,8 @@ return [
         }
         $client = new GcpSecretManagerClient($options);
 
-        return new Secret\GcpSecretConfigProvider($client, $projectId, $version);
+        $keyBuilder = $di->g(Secret\KeyBuilderInterface::class);
+        return new Secret\GcpSecretConfigProvider($keyBuilder, $client, $projectId, $version);
     },
     Secret\OpenBaoConfigProvider::class => function(Container $di) {
         $authToken = env('OPENBAO_AUTH_TOKEN');
@@ -109,6 +111,7 @@ return [
             throw new RuntimeException("Authentication failure on the OpenBao Secret manager");;
         }
 
-        return new Secret\OpenBaoConfigProvider($client, $projectId);
+        $keyBuilder = $di->g(Secret\KeyBuilderInterface::class);
+        return new Secret\OpenBaoConfigProvider($keyBuilder, $client, $projectId);
     },
 ];

@@ -5,17 +5,20 @@ namespace Lagdo\DbAdmin\Support\Provider\Secret;
 use Aws\Exception\AwsException;
 use Aws\SecretsManager\SecretsManagerClient;
 use Lagdo\Facades\Logger;
+use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use RuntimeException;
 
 use function json_decode;
 use function json_last_error;
 
-class AwsSecretConfigProvider extends AbstractConfigProvider
+class AwsSecretConfigProvider extends SecretConfigProvider
 {
     /**
+     * @param KeyBuilderInterface $keyBuilder
      * @param SecretsManagerClient $secretServiceClient
      */
-    public function __construct(private SecretsManagerClient $secretServiceClient)
+    public function __construct(private KeyBuilderInterface $keyBuilder,
+        private SecretsManagerClient $secretServiceClient)
     {}
 
     /**
@@ -58,7 +61,7 @@ class AwsSecretConfigProvider extends AbstractConfigProvider
     {
         // The username and password are stored in the same json payload.
         // The secret name is generated with the provided closure using only the prefix.
-        $secretName = $this->getSecretKey($prefix);
+        $secretName = $this->keyBuilder->build($prefix);
         $secret = $this->getSecret($secretName);
         if (!isset($secret['username']) || !isset($secret['password'])) {
             throw new RuntimeException("Secret retrieval failed: required field missing");

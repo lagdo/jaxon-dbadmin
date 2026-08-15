@@ -6,16 +6,19 @@ use Google\ApiCore\ApiException;
 use Google\Cloud\SecretManager\V1\AccessSecretVersionRequest;
 use Google\Cloud\SecretManager\V1\Client\SecretManagerServiceClient;
 use Lagdo\Facades\Logger;
+use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use RuntimeException;
 
-class GcpSecretConfigProvider extends AbstractConfigProvider
+class GcpSecretConfigProvider extends SecretConfigProvider
 {
     /**
+     * @param KeyBuilderInterface $keyBuilder
      * @param SecretManagerServiceClient $secretServiceClient
      * @param string $projectId
      * @param string $version
      */
-    public function __construct(private SecretManagerServiceClient $secretServiceClient,
+    public function __construct(private KeyBuilderInterface $keyBuilder,
+        private SecretManagerServiceClient $secretServiceClient,
         private string $projectId, private string $version)
     {}
 
@@ -51,7 +54,7 @@ class GcpSecretConfigProvider extends AbstractConfigProvider
     {
         try {
             // The secret key is generated with the provided closure.
-            $secretKey = $this->getSecretKey($prefix, $option);
+            $secretKey = $this->keyBuilder->build($prefix, $option);
             $secretValue = $this->getSecret($secretKey);
             if ($secretValue === '') {
                 throw new RuntimeException("Secret retrieval failed: empty value");

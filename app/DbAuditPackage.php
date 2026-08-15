@@ -9,8 +9,9 @@ use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Audit\Commands;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
-use Lagdo\DbAdmin\Support\Provider\Config;
-use Lagdo\DbAdmin\Support\Provider\Secret;
+use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
+use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
+use Lagdo\DbAdmin\Support\Provider\Secret\KeyBuilderInterface;
 
 use function realpath;
 use function Jaxon\jaxon;
@@ -65,24 +66,31 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $jaxon->setAppOption('assets.file', 'audit');
 
         $app = require "$configDir/app.php";
+        $services = [];
+
         $auth = $app['auth'] ?? null;
         if ($auth !== null) {
-            $jaxon->setAppOption('container.set.dbadmin_auth_service', $auth);
+            $services['dbadmin_auth_service'] = $auth;
+        }
+        $secret = $app['secret'] ?? null;
+        if (isset($secret['reader']) && isset($secret['key'])) {
+            $jaxon->setAppOption('container.alias.' .
+                SecretConfigProvider::class, $secret['reader']);
+            $services[KeyBuilderInterface::class] = $secret['key'];
+        } else {
+            $services[SecretConfigProvider::class] = fn() => new SecretConfigProvider();
         }
 
-        $secrets = require "$configDir/secrets.php";
-        if (isset($secrets['reader']) && isset($secrets['key'])) {
-            $jaxon->setAppOption('container.extend.' . $secrets['reader'],
-                fn(Secret\AbstractConfigProvider $provider) =>
-                    $provider->setSecretKeyBuilder($secrets['key']));
+        if (count($services) > 0) {
+            $jaxon->setAppOptions($services, 'container.set');
         }
 
         // Register the package.
         $jaxon->registerPackage(self::class, [
             'audit' => $app['audit'] ?? [],
             'reader' => [
-                'server' => Config\ServerConfigProvider::class,
-                'secret' => $secrets['reader'] ?? Config\SecretConfigProvider::class,
+                'server' => ServerConfigProvider::class,
+                'secret' => SecretConfigProvider::class,
             ],
         ]);
     }

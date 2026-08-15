@@ -10,9 +10,10 @@ use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Admin\AppFunc;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
-use Lagdo\DbAdmin\Support\Provider\Config;
+use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
+use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
-use Lagdo\DbAdmin\Support\Provider\Secret;
+use Lagdo\DbAdmin\Support\Provider\Secret\KeyBuilderInterface;
 use Lagdo\DbAdmin\Support\Service\Export\FileSystemInterface;
 
 use function count;
@@ -68,6 +69,7 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
 
         $app = require "$configDir/app.php";
         $services = [];
+
         $auth = $app['auth'] ?? null;
         if ($auth !== null) {
             $services['dbadmin_auth_service'] = $auth;
@@ -76,15 +78,17 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         if ($export !== null) {
             $services[FileSystemInterface::class] = $export;
         }
-        if (count($services) > 0) {
-            $jaxon->setAppOptions($services, 'container.set');
+        $secret = $app['secret'] ?? [];
+        if (isset($secret['reader']) && isset($secret['key'])) {
+            $jaxon->setAppOption('container.alias.' .
+                SecretConfigProvider::class, $secret['reader']);
+            $services[KeyBuilderInterface::class] = $secret['key'];
+        } else {
+            $services[SecretConfigProvider::class] = fn() => new SecretConfigProvider();
         }
 
-        $secrets = require "$configDir/secrets.php";
-        if (isset($secrets['reader']) && isset($secrets['key'])) {
-            $jaxon->setAppOption('container.extend.' . $secrets['reader'],
-                fn(Secret\AbstractConfigProvider $provider) =>
-                    $provider->setSecretKeyBuilder($secrets['key']));
+        if (count($services) > 0) {
+            $jaxon->setAppOptions($services, 'container.set');
         }
 
         // Register the package.
@@ -100,8 +104,8 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
                 return $provider->config($configFile)->getOptions($options);
             },
             'reader' => [
-                'server' => Config\ServerConfigProvider::class,
-                'secret' => $secrets['reader'] ?? Config\SecretConfigProvider::class,
+                'server' => ServerConfigProvider::class,
+                'secret' => SecretConfigProvider::class,
             ],
             'foreigns' => $foreigns,
         ]);
