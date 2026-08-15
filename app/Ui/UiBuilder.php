@@ -19,8 +19,8 @@ use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
 use function Jaxon\cl;
+use function Jaxon\pm;
 use function Jaxon\rq;
-use function Jaxon\select;
 
 class UiBuilder
 {
@@ -87,7 +87,7 @@ class UiBuilder
                     $this->ui->button($this->ui->text('Show'))
                         ->primary()
                         ->setClass('btn-select')
-                        ->jxnClick(rq(DbFunc::class)->server(select($this->hostSelectId())))
+                        ->jxnClick(rq(DbFunc::class)->server(pm()->select($this->hostSelectId())))
                 )
             )
         );

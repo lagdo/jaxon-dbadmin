@@ -33,6 +33,22 @@ class AuditDatabase
     }
 
     /**
+     * Get the connected database server details.
+     *
+     * @return array
+     */
+    public function getServerInfo(): array
+    {
+        // The driver engine needs to be provided with the connection.
+         return $this->engine->withConnection($this->connection, fn() => [
+            'user' => $this->engine->user(),
+            'engine' => $this->engine->name(),
+            'version' => $this->engine->serverInfo(),
+            'extension' => $this->engine->extension(),
+        ]);
+    }
+
+    /**
      * @return bool
      */
     public function pgsql(): bool

@@ -1,6 +1,5 @@
 <?php
 
-use Jaxon\Config\ConfigSetter;
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\App;
 use Lagdo\DbAdmin\Driver;

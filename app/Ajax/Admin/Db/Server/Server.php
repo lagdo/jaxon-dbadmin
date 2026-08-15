@@ -10,7 +10,6 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Command as ServerCommand;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppUser;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbServer;
-use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbUser;
 use Lagdo\DbAdmin\App\Ajax\Admin\Sidebar;
 
 use function array_values;
@@ -34,7 +33,6 @@ class Server extends FuncComponent
 
         $this->cl(AppUser::class)->render();
         $serverInfo = $this->driver()->getServerInfo();
-        $this->cl(DbUser::class)->show($serverInfo);
         $this->cl(DbServer::class)->show($serverInfo);
 
         // Refresh the sidebar content

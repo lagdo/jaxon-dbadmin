@@ -15,6 +15,8 @@ use function Jaxon\rq;
 
 class MenuBuilder
 {
+    use AppTrait;
+
     /**
      * @param Translator $trans
      * @param Tab $tab
@@ -27,101 +29,45 @@ class MenuBuilder
     {}
 
     /**
+     * @return AuthInterface
+     */
+    protected function auth(): AuthInterface
+    {
+        return $this->auth;
+    }
+
+    /**
+     * @return BuilderInterface
+     */
+    protected function ui(): BuilderInterface
+    {
+        return $this->ui;
+    }
+
+    /**
+     * @return Translator
+     */
+    protected function trans(): Translator
+    {
+        return $this->trans;
+    }
+
+    /**
+     * @return string
+     */
+    protected function audit(): string
+    {
+        $userId = $this->auth->userId();
+        $auditUsers = $this->jaxon->getAppOption('audit.users', []);
+        return in_array($userId, $auditUsers) ? $this->auth->audit() : '';
+    }
+
+    /**
      * @return Tab
      */
     protected function tab(): Tab
     {
         return $this->tab;
-    }
-
-    /**
-     * @return string
-     */
-    public function appUser(): string
-    {
-        $name = $this->auth->name();
-        $userId = $this->auth->userId();
-        $auditUsers = $this->jaxon->getAppOption('audit.users', []);
-        $audit = in_array($userId, $auditUsers) ? $this->auth->audit() : '';
-        $logout = $this->auth->logout();
-        if ($name === '' && $userId === '' && $audit === '' && $logout === '') {
-            return '';
-        }
-
-        return $this->ui->build(
-            $this->ui->card(
-                $this->ui->cardBody(
-                    $this->ui->div(
-                        $this->ui->pick(
-                            $this->ui->when($name !== '', fn() =>
-                                $this->ui->span(
-                                    $this->trans->lang('Hello, %s.', $this->ui->html("<b>$name</b>"))
-                                )
-                            ),
-                            $this->ui->when($userId !== '', fn() =>
-                                $this->ui->span(
-                                    $this->trans->lang($this->ui->html("<b>$userId</b>"))
-                                )
-                            )
-                        ),
-                        $this->ui->when($audit !== '', fn() =>
-                            $this->ui->span(
-                                $this->ui->a($this->trans->lang('Audit'))
-                                    ->setHref($audit)
-                                    ->setTarget('_blank')
-                            )
-                        ),
-                        $this->ui->when($logout !== '', fn() =>
-                            $this->ui->span(
-                                $this->ui->a($this->trans->lang('Logout'))
-                                    ->setHref($logout)
-                            )
-                        )
-                    )->setStyle('display: flex; justify-content: space-between;')
-                )
-            )->setStyle('margin-top: 10px;')
-        );
-    }
-
-    /**
-     * @param string $user
-     *
-     * @return string
-     */
-    public function dbUser(string $user): string
-    {
-        return $user === '' ? '' : $this->ui->build(
-            $this->ui->card(
-                $this->ui->cardBody(
-                    $this->trans->lang('Logged as: %s.', $this->ui->html("<b>$user</b>"))
-                )
-            )->setStyle('margin-top: 10px;')
-        );
-    }
-
-    /**
-     * @param string $engine
-     * @param string $version
-     * @param string $extension
-     *
-     * @return string
-     */
-    public function dbServer(string $engine, string $version, string $extension): string
-    {
-        return $this->ui->build(
-            $this->ui->card(
-                $this->ui->cardBody(
-                    $this->ui->div(
-                        $this->trans->lang('%s version: %s.',
-                            $engine, $this->ui->html("<b>$version</b>"))
-                    ),
-                    $this->ui->div(
-                        $this->trans->lang('PHP extension %s.',
-                            $this->ui->html("<b>$extension</b>"))
-                    )
-                )
-            )->setStyle('margin-top: 10px;')
-        );
     }
 
     /**

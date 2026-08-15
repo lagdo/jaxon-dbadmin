@@ -7,7 +7,7 @@ use Jaxon\Plugin\CssCode;
 use Jaxon\Plugin\CssCodeGeneratorInterface;
 use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
-use Lagdo\DbAdmin\App\Ajax\Audit\Commands;
+use Lagdo\DbAdmin\App\Ajax\Audit\AppFunc;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
@@ -157,7 +157,7 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getReadyScript(): string
     {
-        return '{' . rq(Commands::class)->page() . '}';
+        return '{' . rq(AppFunc::class)->start() . '}';
     }
 
     /**

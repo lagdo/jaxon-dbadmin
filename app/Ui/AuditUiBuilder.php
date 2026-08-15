@@ -3,8 +3,12 @@
 namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ajax\Audit\Commands;
+use Lagdo\DbAdmin\App\Ajax\Audit\Page\AppUser;
+use Lagdo\DbAdmin\App\Ajax\Audit\Page\DbServer;
+use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
+use Lagdo\UiBuilder\Html\HtmlComponent;
 
 use function array_filter;
 use function in_array;
@@ -15,12 +19,48 @@ use function Jaxon\rq;
 
 class AuditUiBuilder
 {
+    use AppTrait;
+
     /**
      * @param Translator $trans
      * @param BuilderInterface $ui
+     * @param AuthInterface $auth
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(protected Translator $trans,
+        protected BuilderInterface $ui, private AuthInterface $auth)
     {}
+
+    /**
+     * @return AuthInterface
+     */
+    protected function auth(): AuthInterface
+    {
+        return $this->auth;
+    }
+
+    /**
+     * @return BuilderInterface
+     */
+    protected function ui(): BuilderInterface
+    {
+        return $this->ui;
+    }
+
+    /**
+     * @return Translator
+     */
+    protected function trans(): Translator
+    {
+        return $this->trans;
+    }
+
+    /**
+     * @return string
+     */
+    protected function audit(): string
+    {
+        return '';
+    }
 
     /**
      * @return string
@@ -108,60 +148,95 @@ class AuditUiBuilder
     /**
      * @param array $categories
      *
+     * @return HtmlComponent
+     */
+    private function sidebarForm(array $categories): HtmlComponent
+    {
+        $formId = 'dbadmin-sidebar-audit-form';
+        return $this->ui->form(
+            $this->ui->div(
+                $this->ui->label($this->trans->lang('Category'))
+                    ->setFor('category'),
+                $this->ui->select(
+                    $this->ui->option('')
+                        ->selected(false)->setValue(0),
+                    $this->ui->each($categories, fn($category, $id) =>
+                        $this->ui->option($this->trans->lang($category))
+                            ->setValue($id)
+                    )
+                )->setName('category')
+            )->setStyle('margin-bottom: 10px;'),
+            $this->ui->div(
+                $this->ui->label($this->trans->lang('User'))
+                    ->setFor('username'),
+                $this->ui->input()
+                    ->setType('text')
+                    ->setName('username')
+            )->setStyle('margin-bottom: 10px;'),
+            $this->ui->div(
+                $this->ui->div(
+                    $this->ui->label($this->trans->lang('From'))
+                        ->setFor('from_date'),
+                ),
+                $this->ui->div(
+                    $this->ui->div(
+                        $this->ui->input()
+                            ->setType('date')
+                            ->setName('from_date'),
+                    )->setStyle('width: 67%;'),
+                    $this->ui->div(
+                        $this->ui->input()
+                            ->setType('time')
+                            ->setName('from_time')
+                    )->setStyle('width: 31%;')
+                )->setStyle('display: flex; justify-content: space-between;')
+            )->setStyle('margin-bottom: 10px;'),
+            $this->ui->div(
+                $this->ui->div(
+                    $this->ui->label($this->trans->lang('To'))
+                        ->setFor('to_date'),
+                ),
+                $this->ui->div(
+                    $this->ui->div(
+                        $this->ui->input()
+                            ->setType('date')
+                            ->setName('to_date'),
+                    )->setStyle('width: 67%;'),
+                    $this->ui->div(
+                        $this->ui->input()
+                            ->setType('time')
+                            ->setName('to_time')
+                    )->setStyle('width: 31%;')
+                )->setStyle('display: flex; justify-content: space-between;')
+            )->setStyle('margin-bottom: 10px;'),
+            $this->ui->div(
+                $this->ui->button($this->trans->lang('Show'))
+                    ->primary()
+                    ->jxnClick(rq(Commands::class)->show(pm()->form($formId)))
+            )->setStyle('float:right;')
+        )->setId($formId);
+    }
+
+    /**
+     * @param array $categories
+     *
      * @return string
      */
     public function sidebar(array $categories): string
     {
-        $formId = 'dbadmin-sidebar-audit-form';
         return $this->ui->build(
-            $this->ui->form(
+            $this->ui->div(
                 $this->ui->div(
-                    $this->ui->label($this->trans->lang('Category'))
-                        ->setFor('category'),
-                    $this->ui->select(
-                        $this->ui->option('')
-                            ->selected(false)->setValue(0),
-                        $this->ui->each($categories, fn($category, $id) =>
-                            $this->ui->option($this->trans->lang($category))
-                                ->setValue($id)
-                        )
-                    )->setName('category')
-                )->setStyle('margin-bottom: 10px;'),
+                    $this->sidebarForm($categories)
+                )->setClass('jaxon-dbadmin-page-sidebar_block'),
+                $this->ui->div('&nbsp;')
+                    ->setClass('jaxon-dbadmin-page-sidebar_spacer'),
                 $this->ui->div(
-                    $this->ui->label($this->trans->lang('User'))
-                        ->setFor('username'),
-                    $this->ui->input()
-                        ->setType('text')
-                        ->setName('username')
-                )->setStyle('margin-bottom: 10px;'),
-                $this->ui->div(
-                    $this->ui->label($this->trans->lang('From'))
-                        ->setFor('from_date'),
-                    $this->ui->input()
-                        ->setType('date')
-                        ->setName('from_date'),
-                    $this->ui->input()
-                        ->setType('time')
-                        ->setName('from_time')
-                        ->setStyle('margin-top: 5px;')
-                )->setStyle('margin-bottom: 10px;'),
-                $this->ui->div(
-                    $this->ui->label($this->trans->lang('To'))
-                        ->setFor('to_date'),
-                    $this->ui->input()
-                        ->setType('date')
-                        ->setName('to_date'),
-                    $this->ui->input()
-                        ->setType('time')
-                        ->setName('to_time')
-                        ->setStyle('margin-top: 5px;')
-                )->setStyle('margin-bottom: 10px;'),
-                $this->ui->div(
-                    $this->ui->button($this->trans->lang('Show'))
-                        ->primary()
-                        ->jxnClick(rq(Commands::class)->show(pm()->form($formId)))
-                )->setStyle('float:right;')
-            )->setId($formId)
+                    $this->ui->div()
+                        ->jxnBind(rq(DbServer::class)),
+                    $this->ui->div()->jxnBind(rq(AppUser::class))
+                )->setClass('jaxon-dbadmin-page-sidebar_block')
+            )->setClass('jaxon-dbadmin-page-sidebar'),
         );
     }
 }

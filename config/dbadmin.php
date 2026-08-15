@@ -5,7 +5,6 @@ use Lagdo\DbAdmin\App;
 use Lagdo\DbAdmin\App\Ajax\Admin;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Support;
-use Lagdo\DbAdmin\Support\Driver\DriverHelper;
 use Lagdo\DbAdmin\Support\Driver\EngineDecorator;
 use Lagdo\DbAdmin\Support\Provider;
 use Lagdo\DbAdmin\Support\Service;
@@ -155,13 +154,7 @@ return [
                 return new Service\Admin\Preference($proxy, $configProvider);
             },
         ],
-        'auto' => [
-            ...$container['auto'],
-            // Helper for the driver proxies.
-            DriverHelper::class,
-        ],
         'extend' => [
-            ...$container['extend'],
             // Register the UI builder helper for the tab-aware UI components.
             BuilderInterface::class => function(BuilderInterface $builder,
                     Container $di): BuilderInterface {

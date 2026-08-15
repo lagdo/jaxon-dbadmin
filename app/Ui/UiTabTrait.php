@@ -6,15 +6,14 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Content as AdminContent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppUser;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\Breadcrumbs;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbServer;
-use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbUser;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ajax\Admin\Sidebar as AdminSidebar;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\HtmlComponent;
 
 use function Jaxon\cl;
-use function Jaxon\form;
 use function Jaxon\jo;
+use function Jaxon\pm;
 use function Jaxon\rq;
 
 trait UiTabTrait
@@ -85,8 +84,6 @@ trait UiTabTrait
                         ->setClass('jaxon-dbadmin-page-sidebar_spacer'),
                     $this->ui->div(
                         $this->ui->div()
-                            ->tbnBindApp(rq(DbUser::class)),
-                        $this->ui->div()
                             ->tbnBindApp(rq(DbServer::class)),
                         $this->ui->div()
                             ->tbnBindApp(rq(AppUser::class))
@@ -125,7 +122,7 @@ trait UiTabTrait
      */
     public function tabTitleFormValues(): array
     {
-        return form($this->tabTitleFormId());
+        return pm()->form($this->tabTitleFormId());
     }
 
     /**

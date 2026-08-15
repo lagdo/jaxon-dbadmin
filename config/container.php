@@ -5,6 +5,7 @@ use Jaxon\Di\Container;
 use Lagdo\DbAdmin\App\Ui;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Support;
+use Lagdo\DbAdmin\Support\Driver\DriverHelper;
 use Lagdo\DbAdmin\Support\Driver\Proxy;
 use Lagdo\DbAdmin\Support\Provider;
 use Lagdo\DbAdmin\Support\Service;
@@ -122,6 +123,8 @@ return [
         ...$secrets,
     ],
     'auto' => [
+        // Helper for the driver proxies.
+        DriverHelper::class,
         // The string manipulation class
         Driver\Utils\Str::class,
         // The utils class
@@ -161,5 +164,4 @@ return [
         // The translator
         Driver\Utils\TranslatorInterface::class => Support\Translator::class,
     ],
-    'extend' => [],
 ];
