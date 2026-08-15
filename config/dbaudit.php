@@ -41,9 +41,8 @@ return [
                     return null;
                 }
 
-                $options = $configProvider->getQueryAuditOptions();
                 $auditDb = $di->g(Audit\AuditDatabase::class);
-                return new Audit\QueryLogger($auditDb, $options);
+                return new Audit\QueryLogger($auditDb, $configProvider);
             },
         ],
         'alias' => [

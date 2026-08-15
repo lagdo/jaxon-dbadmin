@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Service\Admin;
 
+use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
+
 use function implode;
 
 /**
@@ -12,7 +14,7 @@ class QueryFavorite
     /**
      * @var bool
      */
-    private bool $showFavorite;
+    private bool $favoriteEnabled;
 
     /**
      * @var int
@@ -21,12 +23,12 @@ class QueryFavorite
 
     /**
      * @param AuditDatabase $auditDb
-     * @param array $options
+     * @param DatabaseConfigProvider $configProvider
      */
-    public function __construct(private AuditDatabase $auditDb, array $options)
+    public function __construct(private AuditDatabase $auditDb, DatabaseConfigProvider $configProvider)
     {
-        $this->showFavorite = (bool)($options['favorite']['show'] ?? false);
-        $this->favoriteLimit = (int)($options['favorite']['limit'] ?? 15);
+        $this->favoriteEnabled = $configProvider->queryFavoriteEnabled();
+        $this->favoriteLimit = $configProvider->queryFavoriteLimit();
     }
 
     /**
@@ -36,7 +38,7 @@ class QueryFavorite
      */
     public function createQuery(array $values): bool
     {
-        if (!$this->showFavorite) {
+        if (!$this->favoriteEnabled) {
             return false;
         }
         if (($userId = $this->auditDb->getUserId()) === 0) {
@@ -70,7 +72,7 @@ VALUES (:title,:query,:driver,:last_update,:user_id)";
      */
     public function updateQuery(int $queryId, array $values): bool
     {
-        if (!$this->showFavorite) {
+        if (!$this->favoriteEnabled) {
             return false;
         }
         if (($userId = $this->auditDb->getUserId()) === 0) {
@@ -104,7 +106,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
      */
     public function deleteQuery(int $queryId): bool
     {
-        if (!$this->showFavorite) {
+        if (!$this->favoriteEnabled) {
             return false;
         }
         if (($userId = $this->auditDb->getUserId()) === 0) {
@@ -170,7 +172,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
      */
     public function getQueryCount(array $filters): int
     {
-        if (!$this->showFavorite) {
+        if (!$this->favoriteEnabled) {
             return 0;
         }
         if (($userId = $this->auditDb->getUserId()) === 0) {
@@ -192,7 +194,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
      */
     public function getQueries(array $filters, int $page): array
     {
-        if (!$this->showFavorite) {
+        if (!$this->favoriteEnabled) {
             return [];
         }
         if (($userId = $this->auditDb->getUserId()) === 0) {
@@ -226,7 +228,7 @@ ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->favoriteLimit} $offsetClaus
      */
     public function getQuery(int $queryId): ?array
     {
-        if (!$this->showFavorite) {
+        if (!$this->favoriteEnabled) {
             return null;
         }
 

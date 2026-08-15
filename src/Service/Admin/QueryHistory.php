@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Service\Admin;
 
+use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
 use Lagdo\DbAdmin\Support\Service\Audit\Options;
 
 /**
@@ -12,7 +13,7 @@ class QueryHistory
     /**
      * @var bool
      */
-    private bool $showHistory;
+    private bool $historyEnabled;
 
     /**
      * @var bool
@@ -26,13 +27,13 @@ class QueryHistory
 
     /**
      * @param AuditDatabase $auditDb
-     * @param array $options
+     * @param DatabaseConfigProvider $configProvider
      */
-    public function __construct(private AuditDatabase $auditDb, array $options)
+    public function __construct(private AuditDatabase $auditDb, DatabaseConfigProvider $configProvider)
     {
-        $this->showHistory = (bool)($options['history']['show'] ?? false);
-        $this->historyDistinct = (bool)($options['history']['distinct'] ?? false);
-        $this->historyLimit = (int)($options['history']['limit'] ?? 15);
+        $this->historyEnabled = $configProvider->queryHistoryEnabled();
+        $this->historyDistinct = $configProvider->queryHistoryDistinct();
+        $this->historyLimit = $configProvider->queryHistoryLimit();
     }
 
     /**
@@ -50,7 +51,7 @@ class QueryHistory
      */
     public function getQueries(int $page): array
     {
-        if (!$this->showHistory) {
+        if (!$this->historyEnabled) {
             return [];
         }
         if (($userId = $this->auditDb->getUserId(false)) === 0) {

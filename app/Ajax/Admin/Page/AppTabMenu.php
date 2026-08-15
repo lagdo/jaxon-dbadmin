@@ -29,7 +29,7 @@ class AppTabMenu extends Component
             'handler' => $rqApp->delTab()
                 ->confirm($this->trans()->lang('Delete the current tab?')),
         ]];
-        if ($this->config()->userPreferencesEnabled()) {
+        if ($this->config()->queryPreferencesEnabled()) {
             $question = $this->trans()->lang('Save the current tabs in your preferences?');
             $menuEntries[] =  [
                 'label' => $this->trans()->lang('Save tabs'),

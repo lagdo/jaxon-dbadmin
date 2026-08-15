@@ -15,6 +15,7 @@ use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Secret;
 use Lagdo\DbAdmin\Support\Service\Export\FileSystemInterface;
 
+use function count;
 use function realpath;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
@@ -66,6 +67,7 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $jaxon->setAppOption('assets.file', 'admin');
 
         $app = require "$configDir/app.php";
+        $services = [];
         $auth = $app['auth'] ?? null;
         if ($auth !== null) {
             $services['dbadmin_auth_service'] = $auth;
@@ -86,11 +88,12 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         }
 
         // Register the package.
-        $export = require "$configDir/export.php";
-        $queries = require "$configDir/queries.php";
         $foreigns = require "$configDir/foreigns.php";
         $jaxon->registerPackage(self::class, [
-            'ui' => $app['admin']['ui'] ?? [],
+            'admin' => $app['admin'] ?? [],
+            'audit' => [
+                'database' => $app['audit']['database'] ?? [],
+            ],
             'provider' => static function(array $options, Container $di) use($configDir) {
                 $configFile = "$configDir/servers.php";
                 $provider = $di->g(PackageConfigProvider::class);
@@ -100,8 +103,6 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
                 'server' => Config\ServerConfigProvider::class,
                 'secret' => $secrets['reader'] ?? Config\SecretConfigProvider::class,
             ],
-            'export' => $export,
-            'queries' => $queries,
             'foreigns' => $foreigns,
         ]);
     }

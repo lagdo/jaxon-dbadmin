@@ -85,26 +85,7 @@ return [
             },
             'dbapp_package_config' => fn(Container $di) =>
                 $di->getPackageConfig(App\DbAdminPackage::class),
-            // Options for query recording
-            'queries_record_options' => function(Container $di) {
-                $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
-                if (!$configProvider->hasQueryDatabaseOptions()) {
-                    Logger::warning('Unable to connect to the audit database: no database connection options provided.');
-                    return null;
-                }
-
-                return $configProvider->getQueryRecordOptions();
-            },
             // Options for query access
-            'queries_admin_options' => function(Container $di) {
-                $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
-                if (!$configProvider->hasQueryDatabaseOptions()) {
-                    Logger::warning('Unable to connect to the audit database: no database connection options provided.');
-                    return null;
-                }
-
-                return $configProvider->getQueryAdminOptions();
-            },
             // Connection to the audit database
             Service\Admin\AuditDatabase::class => function(Container $di) {
                 $auth = $di->g(Provider\AuthInterface::class);
@@ -117,49 +98,61 @@ return [
             },
             // Query logger
             Service\Admin\QueryLogger::class => function(Container $di) {
-                if (($options = $di->g('queries_record_options')) === null) {
+                $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
+                if (!$configProvider->hasQueryDatabaseOptions()) {
+                    Logger::warning('Unable to connect to the audit database: no database connection options provided.');
                     return null;
                 }
 
+                $options = $configProvider->getQueryDatabaseOptions();
                 /*
                  * The "dbadmin_server_options" entry might not yet be available
-                 * in the DI when this class is instantiated. So closures are used
+                 * in the DI when this class is instantiated. So a closure is used
                  * to delay the access to its value until it is actually needed.
                  */
-                // User database, different from the audit database.
-                $dbProxy = $di->g(Support\Driver\DriverProxy::class);
-                $serverOptions = fn() => $di->g('dbadmin_server_options');
-                $database = fn() => $dbProxy->getDatabaseOptions($serverOptions());
+                $database = function() use($di) {
+                    // User database, different from the audit database.
+                    $dbProxy = $di->g(Support\Driver\DriverProxy::class);
+                    /** @var array */
+                    $serverOptions = $di->g('dbadmin_server_options');
+                    return $dbProxy->getDatabaseOptions($serverOptions);
+                };
 
                 $auditDb = $di->g(Service\Admin\AuditDatabase::class);
                 return new Service\Admin\QueryLogger($auditDb, $options, $database);
             },
             // Query history
             Service\Admin\QueryHistory::class => function(Container $di) {
-                if (($options = $di->g('queries_admin_options')) === null) {
+                $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
+                if (!$configProvider->hasQueryDatabaseOptions()) {
+                    Logger::warning('Unable to connect to the audit database: no database connection options provided.');
                     return null;
                 }
 
                 $auditDb = $di->g(Service\Admin\AuditDatabase::class);
-                return new Service\Admin\QueryHistory($auditDb, $options);
+                return new Service\Admin\QueryHistory($auditDb, $configProvider);
             },
             // Query favorites
             Service\Admin\QueryFavorite::class => function(Container $di) {
-                if (($options = $di->g('queries_admin_options')) === null) {
+                $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
+                if (!$configProvider->hasQueryDatabaseOptions()) {
+                    Logger::warning('Unable to connect to the audit database: no database connection options provided.');
                     return null;
                 }
 
                 $proxy = $di->g(Service\Admin\AuditDatabase::class);
-                return new Service\Admin\QueryFavorite($proxy, $options);
+                return new Service\Admin\QueryFavorite($proxy, $configProvider);
             },
             // User preferences
             Service\Admin\Preference::class => function(Container $di) {
-                if (($options = $di->g('queries_admin_options')) === null) {
+                $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
+                if (!$configProvider->hasQueryDatabaseOptions()) {
+                    Logger::warning('Unable to connect to the audit database: no database connection options provided.');
                     return null;
                 }
 
                 $proxy = $di->g(Service\Admin\AuditDatabase::class);
-                return new Service\Admin\Preference($proxy, $options);
+                return new Service\Admin\Preference($proxy, $configProvider);
             },
         ],
         'auto' => [

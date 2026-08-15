@@ -127,8 +127,8 @@ class AuditDatabase extends Audit\AuditDatabase
     /**
      * @return bool
      */
-    public function userPreferencesEnabled(): bool
+    public function queryPreferencesEnabled(): bool
     {
-        return $this->configProvider->userPreferencesEnabled() && $this->getUserId(false) > 0;
+        return $this->configProvider->queryPreferencesEnabled() && $this->getUserId(false) > 0;
     }
 }

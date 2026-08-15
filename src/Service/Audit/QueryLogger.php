@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Service\Audit;
 
+use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
+
 use function count;
 use function implode;
 
@@ -17,11 +19,11 @@ class QueryLogger
 
     /**
      * @param AuditDatabase $auditDb
-     * @param array $options
+     * @param DatabaseConfigProvider $configProvider
      */
-    public function __construct(private AuditDatabase $auditDb, array $options)
+    public function __construct(private AuditDatabase $auditDb, DatabaseConfigProvider $configProvider)
     {
-        $this->limit = $options['display']['limit'] ?? 15;
+        $this->limit = $configProvider->getQueryPaginationLimit();
     }
 
     /**

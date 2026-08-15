@@ -2,6 +2,8 @@
 
 namespace Lagdo\DbAdmin\Support\Service\Admin;
 
+use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
+
 use function array_filter;
 use function array_values;
 use function count;
@@ -20,11 +22,11 @@ class Preference
 
     /**
      * @param AuditDatabase $auditDb
-     * @param array $options
+     * @param DatabaseConfigProvider $configProvider
      */
-    public function __construct(private AuditDatabase $auditDb, array $options)
+    public function __construct(private AuditDatabase $auditDb, DatabaseConfigProvider $configProvider)
     {
-        $this->preferencesEnabled = (bool)($options['preferences']['enabled'] ?? false);
+        $this->preferencesEnabled = $configProvider->queryPreferencesEnabled();
     }
 
     /**
