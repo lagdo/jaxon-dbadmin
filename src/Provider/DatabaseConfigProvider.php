@@ -68,9 +68,33 @@ class DatabaseConfigProvider
      */
     public function canSaveQuery(): bool
     {
-        return $this->getOption('admin.queries.save.editor', false) ||
-            $this->getOption('admin.queries.save.builder', false)/* ||
-            $this->getOption('admin.queries.save.library', false)*/;
+        return $this->getOption('queries.save.editor', false) ||
+            $this->getOption('queries.save.builder', false)/* ||
+            $this->getOption('queries.save.library', false)*/;
+    }
+
+    /**
+     * @return bool
+     */
+    public function saveEditorQueries(): bool
+    {
+        return $this->getOption('queries.save.editor', false);
+    }
+
+    /**
+     * @return bool
+     */
+    public function saveBuilderQueries(): bool
+    {
+        return $this->getOption('queries.save.builder', false);
+    }
+
+    /**
+     * @return bool
+     */
+    public function saveLibraryQueries(): bool
+    {
+        return false; // $this->getOption('queries.save.library', false);
     }
 
     /**
@@ -78,7 +102,7 @@ class DatabaseConfigProvider
      */
     public function queryHistoryEnabled(): bool
     {
-        return $this->getOption('admin.queries.enable.history', false);
+        return $this->getOption('queries.enable.history', false);
     }
 
     /**
@@ -86,7 +110,7 @@ class DatabaseConfigProvider
      */
     public function queryHistoryDistinct(): bool
     {
-        return $this->getOption('admin.queries.history.distinct', false);
+        return $this->getOption('queries.history.distinct', false);
     }
 
     /**
@@ -94,7 +118,7 @@ class DatabaseConfigProvider
      */
     public function queryHistoryLimit(): int
     {
-        return $this->getOption('admin.queries.history.limit', 15);
+        return $this->getOption('queries.history.limit', 15);
     }
 
     /**
@@ -102,7 +126,7 @@ class DatabaseConfigProvider
      */
     public function queryFavoriteEnabled(): bool
     {
-        return $this->getOption('admin.queries.enable.favorite', false);
+        return $this->getOption('queries.enable.favorite', false);
     }
 
     /**
@@ -110,7 +134,7 @@ class DatabaseConfigProvider
      */
     public function queryFavoriteLimit(): int
     {
-        return $this->getOption('admin.queries.favorite.limit', 15);
+        return $this->getOption('queries.favorite.limit', 15);
     }
 
     /**
@@ -118,7 +142,7 @@ class DatabaseConfigProvider
      */
     public function queryPreferencesEnabled(): bool
     {
-        return $this->getOption('admin.queries.enable.preferences', false);
+        return $this->getOption('queries.enable.preferences', false);
     }
 
     /**
@@ -295,7 +319,7 @@ class DatabaseConfigProvider
      */
     public function hasQueryDatabaseOptions(): bool
     {
-        return $this->hasDbServer('audit.database');
+        return $this->hasDbServer('queries.database');
     }
 
     /**
@@ -303,7 +327,7 @@ class DatabaseConfigProvider
      */
     public function getQueryDatabaseOptions(): array
     {
-        return $this->readConfig('audit.database');
+        return $this->readConfig('queries.database');
     }
 
     /**
@@ -311,6 +335,6 @@ class DatabaseConfigProvider
      */
     public function getQueryPaginationLimit(): int
     {
-        return $this->getOption('audit.queries.pagination.limit', 15);
+        return $this->getOption('queries.pagination.limit', 15);
     }
 }

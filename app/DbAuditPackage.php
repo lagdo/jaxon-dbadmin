@@ -87,7 +87,7 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
 
         // Register the package.
         $jaxon->registerPackage(self::class, [
-            'audit' => $app['audit'] ?? [],
+            ...($app['audit'] ?? []),
             'reader' => [
                 'server' => ServerConfigProvider::class,
                 'secret' => SecretConfigProvider::class,

@@ -103,7 +103,6 @@ return [
                     return null;
                 }
 
-                $options = $configProvider->getQueryDatabaseOptions();
                 /*
                  * The "dbadmin_server_options" entry might not yet be available
                  * in the DI when this class is instantiated. So a closure is used
@@ -118,7 +117,7 @@ return [
                 };
 
                 $auditDb = $di->g(Service\Admin\AuditDatabase::class);
-                return new Service\Admin\QueryLogger($auditDb, $options, $database);
+                return new Service\Admin\QueryLogger($auditDb, $configProvider, $database);
             },
             // Query history
             Service\Admin\QueryHistory::class => function(Container $di) {

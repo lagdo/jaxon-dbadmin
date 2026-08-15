@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\Support\Service\Admin;
 
 use Lagdo\DbAdmin\Support\Service\Audit\Options;
 use Closure;
+use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
 
 use function json_encode;
 
@@ -15,7 +16,7 @@ class QueryLogger
     /**
      * @var array<bool>
      */
-    private array $record;
+    private array $save;
 
     /**
      * @var int
@@ -24,16 +25,16 @@ class QueryLogger
 
     /**
      * @param AuditDatabase $auditDb
-     * @param array $options
+     * @param DatabaseConfigProvider $configProvider
      * @param Closure $database
      */
     public function __construct(private AuditDatabase $auditDb,
-        array $options, private Closure $database)
+        DatabaseConfigProvider $configProvider, private Closure $database)
     {
-        $this->record = [
-            Options::CAT_LIBRARY => false, // (bool)($options['library']['enabled'] ?? false),
-            Options::CAT_BUILDER => (bool)($options['builder']['enabled'] ?? false),
-            Options::CAT_EDITOR => (bool)($options['editor']['enabled'] ?? false),
+        $this->save = [
+            Options::CAT_LIBRARY => $configProvider->saveLibraryQueries(),
+            Options::CAT_BUILDER => $configProvider->saveBuilderQueries(),
+            Options::CAT_EDITOR => $configProvider->saveEditorQueries(),
         ];
     }
 
@@ -52,7 +53,7 @@ class QueryLogger
      */
     private function categoryDisabled(int $category): bool
     {
-        return !($this->record[$category] ?? false);
+        return !($this->save[$category] ?? false);
     }
 
     /**

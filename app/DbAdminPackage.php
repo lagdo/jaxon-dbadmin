@@ -94,9 +94,10 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         // Register the package.
         $foreigns = require "$configDir/foreigns.php";
         $jaxon->registerPackage(self::class, [
-            'admin' => $app['admin'] ?? [],
-            'audit' => [
-                'database' => $app['audit']['database'] ?? [],
+            ...($app['admin'] ?? []),
+            'queries' => [
+                'database' => $app['audit']['queries']['database'] ?? [],
+                ...($app['admin']['queries'] ?? []),
             ],
             'provider' => static function(array $options, Container $di) use($configDir) {
                 $configFile = "$configDir/servers.php";

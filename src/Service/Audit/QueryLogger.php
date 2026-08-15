@@ -21,7 +21,8 @@ class QueryLogger
      * @param AuditDatabase $auditDb
      * @param DatabaseConfigProvider $configProvider
      */
-    public function __construct(private AuditDatabase $auditDb, DatabaseConfigProvider $configProvider)
+    public function __construct(private AuditDatabase $auditDb,
+        DatabaseConfigProvider $configProvider)
     {
         $this->limit = $configProvider->getQueryPaginationLimit();
     }
