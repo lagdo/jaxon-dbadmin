@@ -47,14 +47,6 @@ return [
             ],
         ],
     ],
-    // 'functions' => [
-    //     // We need synchronous calls to this function, so the tabs are created in the correct order.
-    //     'addTab' => [
-    //         'class' => App\Ajax\Admin\AppFunc::class,
-    //         'mode' => "'synchronous'",
-    //         'bags' => '["dbadmin","dbadmin.tab"]',
-    //     ],
-    // ],
     'container' => [
         ...$container,
         'set' => [
@@ -68,18 +60,9 @@ return [
                 // libraries, will not use the callbacks, while those redefined
                 // in the decorator, which are called in the application, will.
                 $engine = new EngineDecorator($driver->engine);
-                $timerCallback = function() use($di) {
-                    $timer = $di->g(Service\TimerService::class);
-                    $timer->stop();
-                };
-                $loggerCallback = function(string $query) use($di) {
-                    $logger = $di->g(Service\Admin\QueryLogger::class);
-                    if ($logger !== null) {
-                        $logger->saveCommand($query);
-                    }
-                };
-                $engine->addQueryCallback($timerCallback);
-                $engine->addQueryCallback($loggerCallback);
+                // It's important to add the timer callback before the logger.
+                $engine->addQueryCallback($di->g(Service\Admin\QueryTimer::class));
+                $engine->addQueryCallback($di->g(Service\Admin\QueryLogger::class));
 
                 return new Driver\Driver($engine, $driver->statement);
             },
@@ -124,8 +107,10 @@ return [
                         $di->g(ConfigSetter::class)->setOptions($serverConfig, $options);
                 };
 
+                $queryTimer = $di->g(Service\Admin\QueryTimer::class);
                 $auditDb = $di->g(Service\Admin\AuditDatabase::class);
-                return new Service\Admin\QueryLogger($auditDb, $configProvider, $database);
+                return new Service\Admin\QueryLogger($queryTimer,
+                    $auditDb, $configProvider, $database);
             },
             // Query history
             Service\Admin\QueryHistory::class => function(Container $di) {

@@ -56,7 +56,7 @@ return [
         Proxy\QueryProcessor::class => fn(Container $di) =>
             (new Proxy\QueryProcessor($di->g(Support\Driver\DriverProxy::class)))
                 ->setQuerySplitter($di->g(Service\Query\QuerySplitter::class))
-                ->setTimer($di->g(Service\TimerService::class))
+                ->setQueryTimer($di->g(Service\Admin\QueryTimer::class))
                 ->setQueryLogger($di->g(Service\Admin\QueryLogger::class)),
         Proxy\ServerProxy::class => fn(Container $di) =>
             (new Proxy\ServerProxy($di->g(Support\Driver\DriverProxy::class)))
@@ -146,7 +146,7 @@ return [
         // The Breadcrumbs service
         Service\Breadcrumbs::class,
         // The Timer service
-        Service\TimerService::class,
+        Service\Admin\QueryTimer::class,
         // The UI builders
         Ui\AuditUiBuilder::class,
         Ui\UiBuilder::class,

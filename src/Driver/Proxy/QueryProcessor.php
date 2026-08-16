@@ -12,9 +12,9 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
 use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
+use Lagdo\DbAdmin\Support\Service\Admin\QueryTimer;
 use Lagdo\DbAdmin\Support\Service\Query\QuerySplitter;
 use Lagdo\DbAdmin\Support\Service\Query\QueryStream;
-use Lagdo\DbAdmin\Support\Service\TimerService;
 use Generator;
 
 use function count;
@@ -41,9 +41,9 @@ class QueryProcessor extends AbstractDriverProxy
     private QuerySplitter $querySplitter;
 
     /**
-     * @var TimerService
+     * @var QueryTimer
      */
-    private TimerService $timer;
+    private QueryTimer $queryTimer;
 
     /**
      * @var QueryLogger|null
@@ -54,16 +54,6 @@ class QueryProcessor extends AbstractDriverProxy
      * @var SelectResult
      */
     private SelectResult $selectResult;
-
-    /**
-     * @var bool
-     */
-    private bool $timerEnabled = false;
-
-    /**
-     * @var bool
-     */
-    private bool $loggerEnabled = false;
 
     /**
      * @var int
@@ -82,13 +72,13 @@ class QueryProcessor extends AbstractDriverProxy
     }
 
     /**
-     * @param TimerService $timer
+     * @param QueryTimer $queryTimer
      *
      * @return static
      */
-    public function setTimer(TimerService $timer): static
+    public function setQueryTimer(QueryTimer $queryTimer): static
     {
-        $this->timer = $timer;
+        $this->queryTimer = $queryTimer;
         return $this;
     }
 
@@ -110,7 +100,7 @@ class QueryProcessor extends AbstractDriverProxy
      */
     public function withTimer(bool $enabled): static
     {
-        $this->timerEnabled = $enabled;
+        $this->queryTimer?->enabled($enabled);
         return $this;
     }
 
@@ -121,7 +111,7 @@ class QueryProcessor extends AbstractDriverProxy
      */
     public function withLogger(bool $enabled): static
     {
-        $this->loggerEnabled = $enabled;
+        $this->queryLogger?->enabled($enabled);
         return $this;
     }
 
@@ -290,21 +280,13 @@ class QueryProcessor extends AbstractDriverProxy
         if ($options->inTransaction) {
             $this->engine()->begin();
         }
-        if ($this->loggerEnabled && $this->queryLogger !== null) {
-            $this->queryLogger->setCategoryToEditor();
-        }
+        $this->queryLogger?->setCategoryToEditor();
 
         $resultDto = new QueryResultDto();
         foreach ($queries as $query) {
-            if ($this->timerEnabled && $this->timer !== null) {
-                $this->timer->start();
-            }
-
             $this->executeQuery($query, $options, $resultDto, $select);
+            $resultDto->duration += $this->queryTimer?->duration() ?? 0;
 
-            if ($this->timerEnabled && $this->timer !== null) {
-                $resultDto->duration += $this->timer->duration();
-            }
             if ($resultDto->errors > 0 && $options->stopOnError) {
                 break;
             }

@@ -64,7 +64,7 @@ class QueryHistory
         $category = Options::CAT_EDITOR;
         $select = $this->historyDistinct && $this->auditDb->pgsql() ?
             'SELECT DISTINCT' : 'SELECT';
-        $query = "$select driver,query FROM dbadmin_runned_commands c " .
+        $query = "$select driver,query FROM dbadmin_executions c " .
             "WHERE c.user_id=:user_id AND c.category=:category " .
             "ORDER BY c.last_update DESC LIMIT {$this->historyLimit}";
         if ($page > 1) {

@@ -53,7 +53,7 @@ class QueryFavorite
             'last_update' => $this->auditDb->currentTime(),
             'user_id' => $userId,
         ];
-        $sql = "INSERT INTO dbadmin_stored_commands (title,query,driver,last_update,user_id)
+        $sql = "INSERT INTO dbadmin_commands (title,query,driver,last_update,user_id)
 VALUES (:title,:query,:driver,:last_update,:user_id)";
         $result = $this->auditDb->executeQuery($sql, $values);
         if (!$result->hasError()) {
@@ -88,7 +88,7 @@ VALUES (:title,:query,:driver,:last_update,:user_id)";
             'user_id' => $userId,
             'query_id' => $queryId,
         ];
-        $sql = "UPDATE dbadmin_stored_commands SET title=:title,query=:query,
+        $sql = "UPDATE dbadmin_commands SET title=:title,query=:query,
 driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id";
         $result = $this->auditDb->executeQuery($sql, $values);
         if (!$result->hasError()) {
@@ -118,7 +118,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
             'user_id' => $userId,
             'query_id' => $queryId,
         ];
-        $sql = "DELETE FROM dbadmin_stored_commands WHERE id=:query_id AND user_id=:user_id";
+        $sql = "DELETE FROM dbadmin_commands WHERE id=:query_id AND user_id=:user_id";
         $result = $this->auditDb->executeQuery($sql, $values);
         if (!$result->hasError()) {
             return true;
@@ -181,7 +181,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
         }
 
         [$values, $whereClause] = $this->getWhereClause($filters, $userId);
-        $sql = "SELECT count(*) AS cnt FROM dbadmin_stored_commands c $whereClause";
+        $sql = "SELECT count(*) AS cnt FROM dbadmin_commands c $whereClause";
         $result = $this->auditDb->executeQuery($sql, $values);
         return $result->hasRowset() && ($row = $result->fetchAssoc()) ? $row['cnt'] : 0;
     }
@@ -206,7 +206,7 @@ driver=:driver,last_update=:last_update WHERE id=:query_id AND user_id=:user_id"
         $offsetClause = $page > 1 ? 'OFFSET ' . ($page - 1) * $this->favoriteLimit : '';
         // PostgreSQL doesn't allow the use of distinct and order by
         // a column not in the select clause in the same SQL query.
-        $sql = "SELECT c.* FROM dbadmin_stored_commands c $whereClause
+        $sql = "SELECT c.* FROM dbadmin_commands c $whereClause
 ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->favoriteLimit} $offsetClause";
         $result = $this->auditDb->executeQuery($sql, $values);
         if ($result->hasRowset()) {
@@ -236,7 +236,7 @@ ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->favoriteLimit} $offsetClaus
             'query_id' => $queryId,
             'user_id' => $this->auditDb->getUserId(),
         ];
-        $sql = "SELECT c.* FROM dbadmin_stored_commands c WHERE id=:query_id AND user_id=:user_id";
+        $sql = "SELECT c.* FROM dbadmin_commands c WHERE id=:query_id AND user_id=:user_id";
         $result = $this->auditDb->executeQuery($sql, $values);
         return $result->hasRowset() ? $result->fetchAssoc() : null;
     }

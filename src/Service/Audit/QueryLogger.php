@@ -58,13 +58,13 @@ class QueryLogger
             $clauses[] = "u.username like '%{$filters['username']}%'";
         }
         if (isset($filters['category'])) {
-            $clauses[] = "c.category={$filters['category']}";
+            $clauses[] = "e.category={$filters['category']}";
         }
         if (isset($filters['from'])) {
-            $clauses[] = "c.last_update>='{$filters['from']}'";
+            $clauses[] = "e.last_update>='{$filters['from']}'";
         }
         if (isset($filters['to'])) {
-            $clauses[] = "c.last_update<='{$filters['to']}'";
+            $clauses[] = "e.last_update<='{$filters['to']}'";
         }
 
         return count($clauses) === 0 ? '' : 'WHERE ' .
@@ -79,8 +79,8 @@ class QueryLogger
     public function getCommandCount(array $filters): int
     {
         $whereClause = $this->getWhereClause($filters);
-        $query = "SELECT count(*) AS c FROM dbadmin_runned_commands c
-INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause";
+        $query = "SELECT count(*) AS c FROM dbadmin_executions e
+INNER JOIN dbadmin_users u ON e.user_id=u.id $whereClause";
         $result = $this->auditDb->executeQuery($query);
         return $result->hasRowset() && ($row = $result->fetchAssoc()) ? $row['c'] : 0;
     }
@@ -97,9 +97,9 @@ INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause";
         $offsetClause = $page > 1 ? 'OFFSET ' . ($page - 1) * $this->limit : '';
         // PostgreSQL doesn't allow the use of distinct and order by
         // a column not in the select clause in the same SQL query.
-        $query = "SELECT c.*, u.username FROM dbadmin_runned_commands c
-INNER JOIN dbadmin_users u ON c.user_id=u.id $whereClause
-ORDER BY c.last_update DESC, c.id DESC LIMIT {$this->limit} $offsetClause";
+        $query = "SELECT e.*, u.username FROM dbadmin_executions e
+INNER JOIN dbadmin_users u ON e.user_id=u.id $whereClause
+ORDER BY e.last_update DESC, e.id DESC LIMIT {$this->limit} $offsetClause";
         $result = $this->auditDb->executeQuery($query);
         if ($result->hasRowset()) {
             $commands = [];

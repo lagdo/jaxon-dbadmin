@@ -45,10 +45,5 @@ return [
                 return new Audit\QueryLogger($auditDb, $configProvider);
             },
         ],
-        'alias' => [
-            ...$container['alias'],
-            // Selected database driver
-            Driver\Driver::class => DI\ServerDriver::class,
-        ],
     ],
 ];

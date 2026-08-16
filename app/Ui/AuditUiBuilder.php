@@ -9,8 +9,10 @@ use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Html\HtmlComponent;
+use DateInterval;
 
 use function array_filter;
+use function intdiv;
 use function in_array;
 use function json_decode;
 use function json_encode;
@@ -92,6 +94,23 @@ class AuditUiBuilder
     }
 
     /**
+     * @param int $duration
+     *
+     * @return string
+     */
+    private function formatDuration(int $duration): string
+    {
+        $seconds = intdiv($duration, 1_000_000);
+        $minutes = intdiv($seconds, 60);
+        $seconds %= 60;
+        $hours = intdiv($minutes, 60);
+        $minutes %= 60;
+        $interval = new DateInterval(sprintf('PT%dH%dM%dS', $hours, $minutes, $seconds));
+        $interval->f = ($duration % 1_000_000) / 1_000_000;
+        return $interval->format('%H:%I:%S.%F');
+    }
+
+    /**
      * @param array $command
      * @param string $category
      *
@@ -99,10 +118,10 @@ class AuditUiBuilder
      */
     private function command(array $command, string $category): mixed
     {
-        $lastUpdate = str_replace(' ', '<br/>', $command['last_update']);
         return $this->ui->tableRow(
-            $this->ui->tableDataCell($lastUpdate)
-                ->setStyle('width:120px;'),
+            $this->ui->tableDataCell(
+                $command['started_at'] . '<br/>' . $this->formatDuration($command['duration'])
+            )->setStyle('width:220px;'),
             $this->ui->tableDataCell(
                 $command['username'] . '<br/>' . $this->trans->lang($category)
             )->setStyle('width:180px;'),

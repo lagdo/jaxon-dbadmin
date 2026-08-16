@@ -2,17 +2,25 @@
 
 namespace Lagdo\DbAdmin\Support\Service\Admin;
 
+use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface;
+use Lagdo\DbAdmin\Support\Driver\QueryCallback;
+use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
 use Lagdo\DbAdmin\Support\Service\Audit\Options;
 use Closure;
-use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
 
 use function json_encode;
+use function hash;
 
 /**
  * SQL queries logging and storage.
  */
-class QueryLogger
+class QueryLogger implements QueryCallback
 {
+    /**
+     * @var bool
+     */
+    private bool $enabled = false;
+
     /**
      * @var array<bool>
      */
@@ -24,11 +32,12 @@ class QueryLogger
     private int $category = Options::CAT_BUILDER;
 
     /**
+     * @param QueryTimer $timer
      * @param AuditDatabase $auditDb
      * @param DatabaseConfigProvider $configProvider
      * @param Closure $database
      */
-    public function __construct(private AuditDatabase $auditDb,
+    public function __construct(private QueryTimer $timer, private AuditDatabase $auditDb,
         DatabaseConfigProvider $configProvider, private Closure $database)
     {
         $this->save = [
@@ -36,6 +45,19 @@ class QueryLogger
             Options::CAT_BUILDER => $configProvider->saveBuilderQueries(),
             Options::CAT_EDITOR => $configProvider->saveEditorQueries(),
         ];
+    }
+
+    /**
+     * @param bool|null $enabled
+     *
+     * @return bool
+     */
+    public function enabled(bool|null $enabled = null): bool
+    {
+        if ($this->enabled !== null) {
+            $this->enabled = $enabled;
+        }
+        return $this->enabled;
     }
 
     /**
@@ -58,11 +80,12 @@ class QueryLogger
 
     /**
      * @param string $query
+     * @param QueryResultInterface|bool $result
      * @param int $category
      *
      * @return bool
      */
-    private function saveRunnedCommand(string $query, int $category): bool
+    private function saveExecution(string $query, QueryResultInterface|bool $result, int $category): bool
     {
         if ($this->categoryDisabled($category)) {
             return false;
@@ -73,7 +96,7 @@ class QueryLogger
         }
 
         // Get the database options using the provided closure.
-        $database = ($this->database)();
+        $database = ($this->database)()->getValues();
 
         if (isset($database['password'])) {
             // Hide the password.
@@ -81,18 +104,24 @@ class QueryLogger
         }
         $values = [
             'query' => $query,
+            'query_hash' => hash('sha256', $query),
             'driver' => $database['driver'],
             'options' => json_encode($database) ?? '{}',
+            // 'error_code' => ,
+            // 'error_message' => ,
+            // 'rows_affected' => ,
+            // 'rows_returned' => ,
+            'started_at' => $this->timer->startTime(),
+            'duration' => $this->timer->duration(false),
             'category' => $category,
             'last_update' => $this->auditDb->currentTime(),
             'user_id' => $userId,
         ];
         // Duplicates on query are checked on client side, not here.
-        $query = "INSERT INTO dbadmin_runned_commands
-(query,driver,options,category,last_update,user_id)
-VALUES (:query,:driver,:options,:category,:last_update,:user_id)";
-        $result = $this->auditDb->executeQuery($query, $values);
-        if (!$result->hasError()) {
+        $query = "INSERT INTO dbadmin_executions
+(query,query_hash,driver,options,started_at,duration,category,last_update,user_id)
+VALUES (:query,:query_hash,:driver,:options,:started_at,:duration,:category,:last_update,:user_id)";
+        if (!$this->auditDb->executeQuery($query, $values)->hasError()) {
             return true;
         }
 
@@ -101,16 +130,20 @@ VALUES (:query,:driver,:options,:category,:last_update,:user_id)";
     }
 
     /**
-     * @param string $query
-     *
-     * @return bool
+     * @inheritDoc
      */
-    public function saveCommand(string $query): bool
+    public function beforeQueryExec(string $query): void
+    {
+    }
+
+    /**
+    * @inheritDoc
+     */
+    public function afterQueryExec(string $query, QueryResultInterface|bool $result): void
     {
         $category = $this->category;
         // Reset to the default category.
         $this->category = Options::CAT_BUILDER;
-
-        return $this->saveRunnedCommand($query, $category);
+        $this->saveExecution($query, $result, $category);
     }
 }
