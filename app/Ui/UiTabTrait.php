@@ -51,6 +51,23 @@ trait UiTabTrait
     }
 
     /**
+     * @return HtmlComponent
+     */
+    private function builtWith(): HtmlComponent
+    {
+        return $this->ui->card(
+            $this->ui->cardBody(
+                $this->ui->div(
+                    'Built on <a style="text-decoration: none;" href="https://github.com/lagdo/dbadmin-mono" ' .
+                        'target="_blank"><i class="fa-brands fa-github"></i></a> with the &middot; ' .
+                        '<a style="text-decoration: none;" href="https://www.jaxon-php.org" ' .
+                        'target="_blank">Jaxon Ajax library</a> &middot;'
+                )
+            )
+        )->setStyle('margin-top: 10px;');
+    }
+
+    /**
      * @param bool $active
      *
      * @return HtmlComponent
@@ -86,7 +103,8 @@ trait UiTabTrait
                         $this->ui->div()
                             ->tbnBindApp(rq(DbServer::class)),
                         $this->ui->div()
-                            ->tbnBindApp(rq(AppUser::class))
+                            ->tbnBindApp(rq(AppUser::class)),
+                        $this->ui->div($this->builtWith())
                     )->setClass('jaxon-dbadmin-page-sidebar_block')
                 )->setClass('jaxon-dbadmin-page-sidebar'),
                 $this->ui->div(

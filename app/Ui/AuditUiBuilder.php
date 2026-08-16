@@ -237,6 +237,23 @@ class AuditUiBuilder
     }
 
     /**
+     * @return HtmlComponent
+     */
+    private function builtWith(): HtmlComponent
+    {
+        return $this->ui()->card(
+            $this->ui()->cardBody(
+                $this->ui()->div(
+                    'Built on <a style="text-decoration: none;" href="https://github.com/lagdo/dbadmin-mono" ' .
+                        'target="_blank"><i class="fa-brands fa-github"></i></a> with the &middot; ' .
+                        '<a style="text-decoration: none;" href="https://www.jaxon-php.org" ' .
+                        'target="_blank">Jaxon Ajax library</a> &middot;'
+                )
+            )
+        )->setStyle('margin-top: 10px;');
+    }
+
+    /**
      * @param array $categories
      *
      * @return string
@@ -253,7 +270,9 @@ class AuditUiBuilder
                 $this->ui->div(
                     $this->ui->div()
                         ->jxnBind(rq(DbServer::class)),
-                    $this->ui->div()->jxnBind(rq(AppUser::class))
+                    $this->ui->div()
+                        ->jxnBind(rq(AppUser::class)),
+                    $this->ui->div($this->builtWith())
                 )->setClass('jaxon-dbadmin-page-sidebar_block')
             )->setClass('jaxon-dbadmin-page-sidebar'),
         );

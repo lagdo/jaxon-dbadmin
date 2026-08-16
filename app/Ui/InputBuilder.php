@@ -46,12 +46,11 @@ class InputBuilder
             $this->ui->each($input['values'], function($value) use($input) {
                 $name = $input['attrs']['name'] . '[' . $value['value'] . ']';
                 return $this->ui->label(
-                    $this->ui->text($value['text'])
-                        ->setFor($name),
+                    $this->ui->text($value['text']),
                     $this->ui->checkbox()
                         ->checked($value['checked'])
                         ->setName($name)
-                );
+                )->setFor($name);
             })
         )->setClass('checkbox');
     }

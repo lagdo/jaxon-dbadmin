@@ -97,7 +97,8 @@ trait AppTrait
                         $this->ui()->div(
                             $this->trans()->lang('DB user: %s.',
                                 $this->ui()->html("<b>$user</b>"))
-                        )),
+                        )
+                    ),
                     $this->ui()->div(
                         $this->trans()->lang('%s version: %s.',
                             $engine, $this->ui()->html("<b>$version</b>"))
