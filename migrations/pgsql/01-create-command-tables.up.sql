@@ -4,7 +4,7 @@ create table dbadmin_users (
     unique(username)
 );
 
-create table dbadmin_runned_commands (
+create table dbadmin_executions (
     id serial primary key,
     query text not null,
     driver varchar(30) not null,
@@ -15,7 +15,7 @@ create table dbadmin_runned_commands (
     foreign key(user_id) references dbadmin_users(id)
 );
 
-create table dbadmin_stored_commands (
+create table dbadmin_commands (
     id serial primary key,
     title varchar(150) not null default '',
     query text not null,
@@ -36,7 +36,7 @@ create table dbadmin_tags (
 create table dbadmin_command_tag (
     command_id integer not null,
     tag_id integer not null,
-    foreign key(command_id) references dbadmin_stored_commands(id),
+    foreign key(command_id) references dbadmin_commands(id),
     foreign key(tag_id) references dbadmin_tags(id),
     unique(command_id, tag_id)
 );
