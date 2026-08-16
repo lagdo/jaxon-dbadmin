@@ -56,7 +56,6 @@ class DriverProxy extends AbstractDriverProxy
                 $this->breadcrumbs->item("<i><b>{$this->currentDb()->name}</b></i>");
             }
         }
-
         return $this->breadcrumbs;
     }
 
@@ -145,23 +144,6 @@ class DriverProxy extends AbstractDriverProxy
     {
         $this->connect($this->currentDb()->server,
             $this->currentDb()->name, $this->currentDb()->schema);
-    }
-
-    /**
-     * @param array $options
-     *
-     * @return array
-     */
-    public function getDatabaseOptions(array $options): array
-    {
-        if ($this->currentDb()->name !== '') {
-            $options['database'] = $this->currentDb()->name;
-        }
-        if ($this->currentDb()->schema !== '') {
-            $options['schema'] = $this->currentDb()->schema;
-        }
-
-        return $options;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
+use Jaxon\Config\Config;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TriggerDto;
@@ -90,14 +91,14 @@ class DatabaseProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param array $options    The server config options
+     * @param Config $config    The server config options
      *
      * @return static
      */
-    public function setOptions(array $options): static
+    public function setOptions(Config $config): static
     {
         // Set the user schemas, if defined.
-        if (is_array(($userSchemas = $options['access']['schemas'] ?? null))) {
+        if (is_array(($userSchemas = $config->getOption('access.schemas')))) {
             $this->userSchemas = array_values($userSchemas);
         }
         return $this;

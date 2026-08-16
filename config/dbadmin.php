@@ -1,10 +1,12 @@
 <?php
 
+use Jaxon\Config\ConfigSetter;
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\App;
 use Lagdo\DbAdmin\App\Ajax\Admin;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Support;
+use Lagdo\DbAdmin\Support\Driver\DI;
 use Lagdo\DbAdmin\Support\Driver\EngineDecorator;
 use Lagdo\DbAdmin\Support\Provider;
 use Lagdo\DbAdmin\Support\Service;
@@ -59,8 +61,7 @@ return [
             ...$container['set'],
             // The database driver used in the application
             Driver\Driver::class => function(Container $di) {
-                /** @var Driver\Driver */
-                $driver = $di->g('dbadmin_server_driver');
+                $driver = $di->g(DI\ServerDriver::class);
 
                 // Create the Engine decorator, and define the callbacks.
                 // The original engine functions, which are called in the driver
@@ -82,7 +83,7 @@ return [
 
                 return new Driver\Driver($engine, $driver->statement);
             },
-            'dbapp_package_config' => fn(Container $di) =>
+            DI\PackageConfig::class => fn(Container $di) =>
                 $di->getPackageConfig(App\DbAdminPackage::class),
             // Options for query access
             // Connection to the audit database
@@ -110,10 +111,17 @@ return [
                  */
                 $database = function() use($di) {
                     // User database, different from the audit database.
-                    $dbProxy = $di->g(Support\Driver\DriverProxy::class);
-                    /** @var array */
-                    $serverOptions = $di->g('dbadmin_server_options');
-                    return $dbProxy->getDatabaseOptions($serverOptions);
+                    $currentDb = $di->g(Support\Driver\DriverProxy::class)->currentDb();
+                    $options = [];
+                    if ($currentDb->name !== '') {
+                        $options['database'] = $currentDb->name;
+                    }
+                    if ($currentDb->schema !== '') {
+                        $options['schema'] = $currentDb->schema;
+                    }
+                    $serverConfig = $di->g(DI\ServerConfig::class);
+                    return count($options) === 0 ? $serverConfig :
+                        $di->g(ConfigSetter::class)->setOptions($serverConfig, $options);
                 };
 
                 $auditDb = $di->g(Service\Admin\AuditDatabase::class);

@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Driver\Proxy;
 
+use Jaxon\Config\Config;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
 
@@ -38,14 +39,14 @@ class ServerProxy extends AbstractDriverProxy
     protected $userDatabases = null;
 
     /**
-     * @param array $options    The server config options
+     * @param Config $config    The server config options
      *
      * @return static
      */
-    public function setOptions(array $options): static
+    public function setOptions(Config $config): static
     {
         // Set the user databases, if defined.
-        if (is_array(($userDatabases = $options['access']['databases'] ?? null))) {
+        if (is_array(($userDatabases = $config->getOption('access.databases')))) {
             $this->userDatabases = array_values($userDatabases);
         }
         return $this;

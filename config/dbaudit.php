@@ -3,6 +3,7 @@
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\App;
 use Lagdo\DbAdmin\Driver;
+use Lagdo\DbAdmin\Support\Driver\DI;
 use Lagdo\DbAdmin\Support\Provider;
 use Lagdo\DbAdmin\Support\Service\Audit;
 
@@ -22,7 +23,7 @@ return [
         ...$container,
         'set' => [
             ...$container['set'],
-            'dbapp_package_config' => fn(Container $di) =>
+            DI\PackageConfig::class => fn(Container $di) =>
                 $di->getPackageConfig(App\DbAuditPackage::class),
             // Connection to the audit database
             Audit\AuditDatabase::class => function(Container $di) {
@@ -47,7 +48,7 @@ return [
         'alias' => [
             ...$container['alias'],
             // Selected database driver
-            Driver\Driver::class => 'dbadmin_server_driver',
+            Driver\Driver::class => DI\ServerDriver::class,
         ],
     ],
 ];

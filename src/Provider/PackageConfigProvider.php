@@ -21,9 +21,10 @@ class PackageConfigProvider
     private string $configFile;
 
     /**
+     * @param ConfigSetter $configSetter
      * @param AuthInterface $auth
      */
-    public function __construct(private AuthInterface $auth)
+    public function __construct(private ConfigSetter $configSetter, private AuthInterface $auth)
     {}
 
     /**
@@ -111,14 +112,12 @@ class PackageConfigProvider
         // Remove the provider field.
         unset($defaultOptions['provider']);
 
-        $setter = new ConfigSetter();
-        $reader = new ConfigReader($setter);
-        $userConfig = $setter->newConfig([$userKey => $defaultOptions]);
-
-        $config = $reader->load($setter->newConfig(), $this->configFile);
+        $userConfig = $this->configSetter->newConfig([$userKey => $defaultOptions]);
+        $reader = new ConfigReader($this->configSetter);
+        $config = $reader->load($this->configSetter->newConfig(), $this->configFile);
         $commonOptions = $config->getOption('common', null);
         if (is_array($commonOptions)) {
-            $userConfig = $setter->setOptions($userConfig, $commonOptions, $userKey);
+            $userConfig = $this->configSetter->setOptions($userConfig, $commonOptions, $userKey);
         }
 
         $fallbackOptions = $config->getOption('fallback', null);
@@ -133,7 +132,7 @@ class PackageConfigProvider
 
         // Remove the id field.
         unset($userOptions['id']);
-        $userConfig = $setter->setOptions($userConfig, $userOptions, $userKey);
+        $userConfig = $this->configSetter->setOptions($userConfig, $userOptions, $userKey);
 
         return $userConfig->getOption($userKey);
     }
