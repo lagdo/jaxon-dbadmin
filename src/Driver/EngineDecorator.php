@@ -11,6 +11,7 @@ use Lagdo\DbAdmin\Driver\Sql\Specific\Engine\AbstractQuery;
 use Lagdo\DbAdmin\Driver\Sql\Specific\Engine\AbstractServer;
 use Lagdo\DbAdmin\Driver\Sql\Specific\Engine\AbstractTable;
 use Lagdo\DbAdmin\Driver\Utils\Utils;
+use Closure;
 
 /**
  * Add callbacks to the engine features, using the decorator pattern.
@@ -104,27 +105,20 @@ class EngineDecorator extends AbstractEngine
 
     /**
      * @param string $query
+     * @param Closure $func
      *
-     * @return void
+     * @return mixed
      */
-    private function callBeforeCallbacks(string $query): void
+    private function callWithCallbacks(string $query, Closure $func): mixed
     {
         foreach ($this->callbacks as $callback) {
             $callback->beforeQueryExec($query);
         }
-    }
-
-    /**
-     * @param string $query
-     * @param QueryResultInterface|bool $result
-     *
-     * @return void
-     */
-    private function callAfterCallbacks(string $query, QueryResultInterface|bool $result): void
-    {
+        $result = $func($this->engine);
         foreach ($this->callbacks as $callback) {
             $callback->afterQueryExec($query, $result);
         }
+        return $result;
     }
 
     /**
@@ -132,10 +126,8 @@ class EngineDecorator extends AbstractEngine
      */
     public function executeQuery(string $query, bool $unbuffered = false): QueryResultInterface
     {
-        $this->callBeforeCallbacks($query);
-        $result = $this->engine->executeQuery($query, $unbuffered);
-        $this->callAfterCallbacks($query, $result);
-        return $result;
+        return $this->callWithCallbacks($query, static fn(AbstractEngine $engine) =>
+            $engine->executeQuery($query, $unbuffered));
     }
 
     /**
@@ -143,10 +135,8 @@ class EngineDecorator extends AbstractEngine
      */
     public function execute(string $query): bool
     {
-        $this->callBeforeCallbacks($query);
-        $result = $this->engine->execute($query);
-        $this->callAfterCallbacks($query, $result);
-        return $result;
+        return $this->callWithCallbacks($query, static fn(AbstractEngine $engine) =>
+            $engine->execute($query));
     }
 
     /**
@@ -154,10 +144,8 @@ class EngineDecorator extends AbstractEngine
      */
     public function columnValue(string $query, string|int $column = -1): mixed
     {
-        $this->callBeforeCallbacks($query);
-        $result = $this->engine->columnValue($query, $column);
-        $this->callAfterCallbacks($query, $result !== null);
-        return $result;
+        return $this->callWithCallbacks($query, static fn(AbstractEngine $engine) =>
+            $engine->columnValue($query, $column));
     }
 
     /**
@@ -165,9 +153,7 @@ class EngineDecorator extends AbstractEngine
      */
     public function executeMultiQuery(string $query): QueryResultInterface
     {
-        $this->callBeforeCallbacks($query);
-        $result = $this->engine->executeMultiQuery($query);
-        $this->callAfterCallbacks($query, $result);
-        return $result;
+        return $this->callWithCallbacks($query, static fn(AbstractEngine $engine) =>
+            $engine->executeMultiQuery($query));
     }
 }
