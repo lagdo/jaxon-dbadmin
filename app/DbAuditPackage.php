@@ -13,6 +13,7 @@ use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Secret\KeyBuilderInterface;
 
+use function in_array;
 use function realpath;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
@@ -96,23 +97,14 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     }
 
     /**
-     * Get a given server options
+     * @param string $userId
      *
-     * @return array
+     * @return bool
      */
-    public function getServerOptions(): array
+    public function checkAccess(string $userId): bool
     {
-        return $this->getOption('database', []);
-    }
-
-    /**
-     * Get the driver of a given server
-     *
-     * @return string
-     */
-    public function getServerDriver(): string
-    {
-        return $this->getOption('database.driver', '');
+        return !$this->getOption('enabled', false) ? false :
+            in_array($userId, $this->getOption('users', []));
     }
 
     /**

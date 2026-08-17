@@ -17,6 +17,7 @@ use Lagdo\DbAdmin\Support\Provider\Secret\KeyBuilderInterface;
 use Lagdo\DbAdmin\Support\Service\Export\FileSystemInterface;
 
 use function count;
+use function in_array;
 use function realpath;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
@@ -95,6 +96,10 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $foreigns = require "$configDir/foreigns.php";
         $jaxon->registerPackage(self::class, [
             ...($app['admin'] ?? []),
+            'audit' => [
+                'enabled' => $app['audit']['enabled'] ?? false,
+                'users' => $app['audit']['users'] ?? [],
+            ],
             'queries' => [
                 'database' => $app['audit']['queries']['database'] ?? [],
                 ...($app['admin']['queries'] ?? []),
@@ -110,6 +115,17 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
             ],
             'foreigns' => $foreigns,
         ]);
+    }
+
+    /**
+     * @param string $userId
+     *
+     * @return bool
+     */
+    public function checkAuditAccess(string $userId): bool
+    {
+        return !$this->getOption('audit.enabled', false) ? false :
+            in_array($userId, $this->getOption('audit.users', []));
     }
 
     /**

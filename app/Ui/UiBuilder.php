@@ -219,13 +219,13 @@ class UiBuilder
                 $this->ui->div(
                     $this->ui->div(
                         $this->ui->h3($this->trans->lang('Search audit logs'))
-                            ->setStyle('font-size: 18px; margin: 5px 0;')
+                            ->setStyle('font-size: 16px; margin: 5px 0;')
                     )->setClass('jaxon-dbadmin-main-header_sidebar'),
                     $this->ui->div(
                         $this->ui->div(
                             $this->ui->col(
                                 $this->ui->h3($this->trans->lang('Commands'))
-                                    ->setStyle('font-size: 18px; margin: 5px 0;')
+                                    ->setStyle('font-size: 16px; margin: 5px 0;')
                             )->setStyle('width: auto;'),
                             $this->ui->col(
                                 $this->ui->nav()

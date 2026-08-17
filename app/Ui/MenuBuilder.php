@@ -2,14 +2,13 @@
 
 namespace Lagdo\DbAdmin\App\Ui;
 
-use Jaxon\App\Ajax\Jaxon;
 use Lagdo\DbAdmin\App\Ajax\Admin\DbFunc;
+use Lagdo\DbAdmin\App\DbAdminPackage;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function in_array;
 use function Jaxon\pm;
 use function Jaxon\rq;
 
@@ -22,10 +21,11 @@ class MenuBuilder
      * @param Tab $tab
      * @param BuilderInterface $ui
      * @param AuthInterface $auth
-     * @param Jaxon $jaxon
+     * @param DbAdminPackage $package
      */
     public function __construct(private Translator $trans, private Tab $tab,
-        private BuilderInterface $ui, private AuthInterface $auth, private Jaxon $jaxon)
+        private BuilderInterface $ui, private AuthInterface $auth,
+        private DbAdminPackage $package)
     {}
 
     /**
@@ -57,9 +57,8 @@ class MenuBuilder
      */
     protected function audit(): string
     {
-        $userId = $this->auth->userId();
-        $auditUsers = $this->jaxon->getAppOption('audit.users', []);
-        return in_array($userId, $auditUsers) ? $this->auth->audit() : '';
+        return $this->package->checkAuditAccess($this->auth->userId()) ?
+            $this->auth->audit() : '';
     }
 
     /**
