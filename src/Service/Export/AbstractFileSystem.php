@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\Support\Service\Export;
 
-use Lagdo\DbAdmin\Support\Facade\Auth;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToReadFile;
@@ -25,27 +24,14 @@ abstract class AbstractFileSystem implements FileSystemInterface
      *
      * @return string
      */
-    abstract protected function url(string $filename): string;
-
-    /**
-    * @param string $userId
-    *
-    * @return string
-     */
-    abstract protected function slug(string $userId): string;
+    abstract protected function path(string $filename): string;
 
     /**
      * @param string $filename
      *
      * @return string
      */
-    protected function path(string $filename): string
-    {
-        // Use the username to customize the path.
-        $userId = Auth::userId();
-        return $userId === '' ? "users/$filename" :
-            'users/' . $this->slug($userId) . "/$filename";
-    }
+    abstract protected function url(string $filename): string;
 
     /**
      * @return Filesystem
