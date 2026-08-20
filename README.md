@@ -10,13 +10,24 @@ A database admin dashboard based on Jaxon and Adminer
 
 Jaxon DbAdmin is a complete rewrite of [Adminer](https://github.com/vrana/adminer), the popular database admin dashboard.
 
-It inserts a database admin dashboard into an existing PHP application.
-Thanks to the [Jaxon library](https://www.jaxon-php.org), it installs and runs in a page of the application.
-All its operations are performed with Ajax requests.
+Jaxon DbAdmin is a [Jaxon package](https://www.jaxon-php.org/docs/v5x/extensions/packages.html), that is inserted into a page of an existing PHP application.
+So it's also a single page application, and all its operations are performed with Ajax requests.
 
-The database access code (and thus the provided features) originates from [Adminer](https://github.com/vrana/adminer). The original code was refactored to take advantage of the latest PHP features (namespaces, interfaces, DI, and so on), and separated into multiple Composer packages.
+Separate packages provide ready-to-use applications which run Jaxon DbAdmin respectively with the [Laravel](https://github.com/lagdo/dbadmin-app-laravel), [Symfony](https://github.com/lagdo/dbadmin-app-symfony) and [Slim](https://github.com/lagdo/dbadmin-app-slim) frameworks.
+This blog post on the Jaxon website explains how to install Jaxon DbAdmin on [Backpack](https://backpackforlaravel.com), a Laravel-based admin panel: [https://www.jaxon-php.org/blog/2025/07/install-jaxon-dbadmin-on-backpack.html](https://www.jaxon-php.org/blog/2025/07/install-jaxon-dbadmin-on-backpack.html).
 
-Here's the monorepo where the packages are developed: [https://github.com/lagdo/dbadmin-mono](https://github.com/lagdo/dbadmin-mono).
+The database access code (and thus the provided features) originates from [Adminer](https://github.com/vrana/adminer).
+The original code was refactored to take advantage of the latest PHP features (namespaces, interfaces, DI, and so on), and separated into multiple Composer packages.
+- [https://github.com/lagdo/dbadmin-driver](https://github.com/lagdo/dbadmin-driver): common classes and interfaces for the database drivers.
+- [https://github.com/lagdo/dbadmin-driver-pgsql](https://github.com/lagdo/dbadmin-driver-pgsql): the database driver for PostgreSQL.
+- [https://github.com/lagdo/dbadmin-driver-mysql](https://github.com/lagdo/dbadmin-driver-mysql): the database driver for MySQL and MariaDB.
+- [https://github.com/lagdo/dbadmin-driver-sqlite](https://github.com/lagdo/dbadmin-driver-sqlite): the database driver for SQLite.
+
+The [https://github.com/lagdo/jaxon-dbadmin](https://github.com/lagdo/jaxon-dbadmin) package implements the database management features in a [Jaxon package](https://www.jaxon-php.org/docs/v5x/extensions/packages.html).
+Its UI is built with the [https://github.com/lagdo/ui-builder](https://github.com/lagdo/ui-builder) package, which will provide support for multiple frontend frameworks.
+[Bootstrap 5](https://github.com/lagdo/ui-builder-bootstrap5) is the default.
+
+The database packages are developed in this monorepo: [https://github.com/lagdo/dbadmin-mono](https://github.com/lagdo/dbadmin-mono).
 
 ## Features and current status
 
@@ -53,11 +64,6 @@ The following features are not yet implemented, and planned for future releases:
 - Support more secret managers.
   - [MS Azure Key Vault](https://azure.microsoft.com/products/key-vault)
   - [Alibaba KMS](https://www.alibabacloud.com/en/product/kms)
-
-Howtos
-------
-
-This blog post on the `Jaxon` website explains how to install `Jaxon DbAdmin` on [Backpack](https://backpackforlaravel.com), an admin panel based on the `Laravel` framework: [https://www.jaxon-php.org/blog/2025/07/install-jaxon-dbadmin-on-backpack.html](https://www.jaxon-php.org/blog/2025/07/install-jaxon-dbadmin-on-backpack.html).
 
 ### The Jaxon DbAdmin application
 
