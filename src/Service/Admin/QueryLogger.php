@@ -137,7 +137,7 @@ VALUES (:query,:query_hash,:driver,:options,:started_at,:duration,:category,:las
     }
 
     /**
-    * @inheritDoc
+     * @inheritDoc
      */
     public function afterQueryExec(string $query, QueryResultInterface|bool $result): void
     {
