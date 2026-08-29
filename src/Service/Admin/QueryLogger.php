@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\Support\Service\Admin;
 
-use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface;
+use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface as QueryResult;
 use Lagdo\DbAdmin\Support\Driver\QueryCallback;
 use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
 use Lagdo\DbAdmin\Support\Service\Audit\Options;
@@ -80,12 +80,12 @@ class QueryLogger implements QueryCallback
 
     /**
      * @param string $query
-     * @param QueryResultInterface|bool $result
+     * @param QueryResult|bool $result
      * @param int $category
      *
      * @return bool
      */
-    private function saveExecution(string $query, QueryResultInterface|bool $result, int $category): bool
+    private function saveExecution(string $query, QueryResult|bool $result, int $category): bool
     {
         if ($this->categoryDisabled($category)) {
             return false;
@@ -139,7 +139,7 @@ VALUES (:query,:query_hash,:driver,:options,:started_at,:duration,:category,:las
     /**
      * @inheritDoc
      */
-    public function afterQueryExec(string $query, QueryResultInterface|bool $result): void
+    public function afterQueryExec(string $query, QueryResult|bool $result): void
     {
         $category = $this->category;
         // Reset to the default category.

@@ -60,8 +60,6 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         }
         self::$registered = true;
 
-        registerUiBuilder('template.name');
-
         $jaxon = jaxon();
         $jaxon->setOption('core.request.uri', $requestUri);
         $jaxon->setAppOption('assets.file', 'audit');
@@ -86,9 +84,16 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
             $jaxon->setAppOptions($services, 'container.set');
         }
 
+        $template = $app['ui']['template'] ?? null;
+        if ($template !== null) {
+            registerUiBuilder($template);
+            $jaxon->setAppOption('template', $template);
+        }
+
         // Register the package.
         $jaxon->registerPackage(self::class, [
             ...($app['audit'] ?? []),
+            'ui' => $app['ui'],
             'reader' => [
                 'server' => ServerConfigProvider::class,
                 'secret' => SecretConfigProvider::class,

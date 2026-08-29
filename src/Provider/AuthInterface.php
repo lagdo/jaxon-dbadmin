@@ -8,21 +8,21 @@ namespace Lagdo\DbAdmin\Support\Provider;
 interface AuthInterface
 {
     /**
-     * Get the authenticated user name
+     * Get the authenticated user id
      *
      * @return string
      */
     public function userId(): string;
 
     /**
-     * Get the authenticated user role
+     * Get the authenticated user name
      *
      * @return string
      */
     public function name(): string;
 
     /**
-     * Get the authenticated user namee
+     * Get the authenticated user roles
      *
      * @return array<string>
      */

@@ -62,8 +62,6 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         }
         self::$registered = true;
 
-        registerUiBuilder('template.name');
-
         $jaxon = jaxon();
         $jaxon->setOption('core.request.uri', $requestUri);
         $jaxon->setAppOption('assets.file', 'admin');
@@ -92,6 +90,12 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
             $jaxon->setAppOptions($services, 'container.set');
         }
 
+        $template = $app['ui']['template'] ?? null;
+        if ($template !== null) {
+            registerUiBuilder($template);
+            $jaxon->setAppOption('template', $template);
+        }
+
         // Register the package.
         $foreigns = require "$configDir/foreigns.php";
         $jaxon->registerPackage(self::class, [
@@ -104,6 +108,7 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
                 'database' => $app['audit']['queries']['database'] ?? [],
                 ...($app['admin']['queries'] ?? []),
             ],
+            'ui' => $app['ui'],
             'provider' => static function(array $options, Container $di) use($configDir) {
                 $configFile = "$configDir/servers.php";
                 $provider = $di->g(PackageConfigProvider::class);

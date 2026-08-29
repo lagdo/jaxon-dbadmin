@@ -109,7 +109,7 @@ class EngineDecorator extends AbstractEngine
      *
      * @return mixed
      */
-    private function callWithCallbacks(string $query, Closure $func): mixed
+    private function execWithCallbacks(string $query, Closure $func): mixed
     {
         foreach ($this->callbacks as $callback) {
             $callback->beforeQueryExec($query);
@@ -126,7 +126,7 @@ class EngineDecorator extends AbstractEngine
      */
     public function executeQuery(string $query, bool $unbuffered = false): QueryResultInterface
     {
-        return $this->callWithCallbacks($query, static fn(AbstractEngine $engine) =>
+        return $this->execWithCallbacks($query, static fn(AbstractEngine $engine) =>
             $engine->executeQuery($query, $unbuffered));
     }
 
@@ -135,7 +135,7 @@ class EngineDecorator extends AbstractEngine
      */
     public function execute(string $query): bool
     {
-        return $this->callWithCallbacks($query, static fn(AbstractEngine $engine) =>
+        return $this->execWithCallbacks($query, static fn(AbstractEngine $engine) =>
             $engine->execute($query));
     }
 
@@ -144,7 +144,7 @@ class EngineDecorator extends AbstractEngine
      */
     public function columnValue(string $query, string|int $column = -1): mixed
     {
-        return $this->callWithCallbacks($query, static fn(AbstractEngine $engine) =>
+        return $this->execWithCallbacks($query, static fn(AbstractEngine $engine) =>
             $engine->columnValue($query, $column));
     }
 
@@ -153,7 +153,7 @@ class EngineDecorator extends AbstractEngine
      */
     public function executeMultiQuery(string $query): QueryResultInterface
     {
-        return $this->callWithCallbacks($query, static fn(AbstractEngine $engine) =>
+        return $this->execWithCallbacks($query, static fn(AbstractEngine $engine) =>
             $engine->executeMultiQuery($query));
     }
 }
