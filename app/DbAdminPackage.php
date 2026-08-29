@@ -10,6 +10,7 @@ use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Admin\AppFunc;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
+use Lagdo\DbAdmin\Support\DiAlias\AuthInterface;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
@@ -71,7 +72,7 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
 
         $auth = $app['auth'] ?? null;
         if ($auth !== null) {
-            $services['dbadmin_auth_service'] = $auth;
+            $services[AuthInterface::class] = $auth;
         }
         $export = $app['export'] ?? null;
         if ($export !== null) {
@@ -95,7 +96,6 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
             registerUiBuilder($template);
             $jaxon->setAppOption('template', $template);
         }
-
         // Register the package.
         $foreigns = require "$configDir/foreigns.php";
         $jaxon->registerPackage(self::class, [

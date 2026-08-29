@@ -6,7 +6,7 @@ use Lagdo\DbAdmin\App;
 use Lagdo\DbAdmin\App\Ajax\Admin;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Support;
-use Lagdo\DbAdmin\Support\Driver\DI;
+use Lagdo\DbAdmin\Support\DiAlias;
 use Lagdo\DbAdmin\Support\Driver\EngineDecorator;
 use Lagdo\DbAdmin\Support\Provider;
 use Lagdo\DbAdmin\Support\Service;
@@ -53,7 +53,7 @@ return [
             ...$container['set'],
             // The database driver used in the application
             Driver\Driver::class => function(Container $di) {
-                $driver = $di->g(DI\ServerDriver::class);
+                $driver = $di->g(DiAlias\ServerDriver::class);
 
                 // Create the Engine decorator, and define the callbacks.
                 // The original engine functions, which are called in the driver
@@ -66,7 +66,7 @@ return [
 
                 return new Driver\Driver($engine, $driver->statement);
             },
-            DI\PackageConfig::class => fn(Container $di) =>
+            DiAlias\PackageConfig::class => fn(Container $di) =>
                 $di->getPackageConfig(App\DbAdminPackage::class),
             // Options for query access
             // Connection to the audit database
@@ -102,7 +102,7 @@ return [
                     if ($currentDb->schema !== '') {
                         $options['schema'] = $currentDb->schema;
                     }
-                    $serverConfig = $di->g(DI\ServerConfig::class);
+                    $serverConfig = $di->g(DiAlias\ServerConfig::class);
                     return count($options) === 0 ? $serverConfig :
                         $di->g(ConfigSetter::class)->setOptions($serverConfig, $options);
                 };

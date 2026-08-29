@@ -6,7 +6,7 @@ use Jaxon\Di\Container;
 use Lagdo\DbAdmin\App\Ui;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Support;
-use Lagdo\DbAdmin\Support\Driver\DI;
+use Lagdo\DbAdmin\Support\DiAlias;
 use Lagdo\DbAdmin\Support\Driver\DriverHelper;
 use Lagdo\DbAdmin\Support\Driver\Proxy;
 use Lagdo\DbAdmin\Support\Provider;
@@ -32,13 +32,13 @@ jaxon()->callback()->boot(function() {
         });
     }
     // Selected database driver options
-    $di->set(DI\ServerConfig::class, function(Container $di) {
+    $di->set(DiAlias\ServerConfig::class, function(Container $di) {
         $setter = $di->g(ConfigSetter::class);
         $server = $di->g('dbadmin_config_server');
         return $setter->newConfig($di->g("dbadmin_server_options_$server"));
     });
     // Selected database driver
-    $di->set(DI\ServerDriver::class, function(Container $di) {
+    $di->set(DiAlias\ServerDriver::class, function(Container $di) {
         $server = $di->g('dbadmin_config_server');
         return $di->g("dbadmin_server_$server");
     });
@@ -60,30 +60,30 @@ return [
                 ->setQueryLogger($di->g(Service\Admin\QueryLogger::class)),
         Proxy\ServerProxy::class => fn(Container $di) =>
             (new Proxy\ServerProxy($di->g(Support\Driver\DriverProxy::class)))
-                ->setOptions($di->g(DI\ServerConfig::class)),
+                ->setOptions($di->g(DiAlias\ServerConfig::class)),
         Proxy\DatabaseProxy::class => fn(Container $di) =>
             (new Proxy\DatabaseProxy($di->g(Support\Driver\DriverProxy::class)))
                 ->setProcessor($di->g(Proxy\QueryProcessor::class))
-                ->setOptions($di->g(DI\ServerConfig::class)),
+                ->setOptions($di->g(DiAlias\ServerConfig::class)),
         Proxy\ExportProxy::class => fn(Container $di) =>
             new Proxy\ExportProxy($di->g(Support\Driver\DriverProxy::class)),
         Proxy\QueryProxy::class => fn(Container $di) =>
             (new Proxy\QueryProxy($di->g(Support\Driver\DriverProxy::class)))
                 ->setProcessor($di->g(Proxy\QueryProcessor::class))
-                ->setPackageConfig($di->g(Support\Driver\DI\PackageConfig::class)),
+                ->setPackageConfig($di->g(Support\DiAlias\PackageConfig::class)),
         Proxy\TableProxy::class => fn(Container $di) =>
             (new Proxy\TableProxy($di->g(Support\Driver\DriverProxy::class)))
                 ->setProcessor($di->g(Proxy\QueryProcessor::class)),
         Proxy\SelectProxy::class => fn(Container $di) =>
             (new Proxy\SelectProxy($di->g(Support\Driver\DriverProxy::class)))
                 ->setProcessor($di->g(Proxy\QueryProcessor::class))
-                ->setPackageConfig($di->g(Support\Driver\DI\PackageConfig::class)),
+                ->setPackageConfig($di->g(Support\DiAlias\PackageConfig::class)),
 
         // Application authentication.
         Provider\AuthInterface::class => fn(Container $di) =>
-            $di->has('dbadmin_auth_service') ?
+            $di->has(DiAlias\AuthInterface::class) ?
                 // Custom auth service defined.
-                $di->get('dbadmin_auth_service') :
+                $di->get(DiAlias\AuthInterface::class) :
                 // Default auth service when none is defined.
                 new class implements Provider\AuthInterface {
                     public function userId(): string
@@ -111,7 +111,7 @@ return [
             new Provider\PackageConfigProvider($di->g(ConfigSetter::class),
                 $di->g(Provider\AuthInterface::class)),
         Provider\Config\ServerConfigProvider::class => function(Container $di) {
-            $config = $di->g(DI\PackageConfig::class);
+            $config = $di->g(DiAlias\PackageConfig::class);
             $secretConfigReaderClass = $config->getOption('reader.secret',
                 Provider\Config\SecretConfigProvider::class);
             $secretConfigReader = $di->get($secretConfigReaderClass);
@@ -119,7 +119,7 @@ return [
             return new Provider\Config\ServerConfigProvider($secretConfigReader);
         },
         Provider\DatabaseConfigProvider::class => function(Container $di) {
-            $config = $di->g(DI\PackageConfig::class);
+            $config = $di->g(DiAlias\PackageConfig::class);
             $serverConfigReaderClass = $config->getOption('reader.server',
                 Provider\Config\ServerConfigProvider::class);
             $serverConfigReader = $di->get($serverConfigReaderClass);

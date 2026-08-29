@@ -9,6 +9,7 @@ use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Audit\AppFunc;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
+use Lagdo\DbAdmin\Support\DiAlias\AuthInterface;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Secret\KeyBuilderInterface;
@@ -69,7 +70,7 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
 
         $auth = $app['auth'] ?? null;
         if ($auth !== null) {
-            $services['dbadmin_auth_service'] = $auth;
+            $services[AuthInterface::class] = $auth;
         }
         $secret = $app['secret'] ?? null;
         if (isset($secret['reader']) && isset($secret['key'])) {
@@ -89,7 +90,6 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
             registerUiBuilder($template);
             $jaxon->setAppOption('template', $template);
         }
-
         // Register the package.
         $jaxon->registerPackage(self::class, [
             ...($app['audit'] ?? []),
