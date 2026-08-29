@@ -27,7 +27,7 @@ class QueryFavorite
      */
     public function __construct(private AuditDatabase $auditDb, DatabaseConfigProvider $configProvider)
     {
-        $this->favoriteEnabled = $configProvider->queryFavoriteEnabled();
+        $this->favoriteEnabled = $configProvider->showQueryFavorite();
         $this->favoriteLimit = $configProvider->queryFavoriteLimit();
     }
 

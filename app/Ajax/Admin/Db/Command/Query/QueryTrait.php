@@ -55,8 +55,8 @@ trait QueryTrait
 
         $classToRender = match(true) {
             !$this->config()->hasQueryDatabaseOptions() => null,
-            $this->config()->queryHistoryEnabled() => History::class,
-            $this->config()->queryFavoriteEnabled() => Favorite::class,
+            $this->config()->showQueryHistory() => History::class,
+            $this->config()->showQueryFavorite() => Favorite::class,
             default => null,
         };
         if ($classToRender !== null) {

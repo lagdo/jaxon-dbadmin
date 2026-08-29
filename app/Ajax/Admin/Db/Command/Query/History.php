@@ -36,7 +36,7 @@ class History extends Component
      */
     public function html(): string
     {
-        return $this->auditUi->history($this->auditDb->queryFavoriteEnabled());
+        return $this->auditUi->history($this->auditDb->showQueryFavorite());
     }
 
     /**

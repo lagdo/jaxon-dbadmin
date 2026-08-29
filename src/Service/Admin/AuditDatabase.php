@@ -102,17 +102,17 @@ class AuditDatabase extends Audit\AuditDatabase
     /**
      * @return bool
      */
-    public function queryHistoryEnabled(): bool
+    public function showQueryHistory(): bool
     {
-        return $this->configProvider->queryHistoryEnabled() && $this->getUserId(false) > 0;
+        return $this->configProvider->showQueryHistory() && $this->getUserId(false) > 0;
     }
 
     /**
      * @return bool
      */
-    public function queryFavoriteEnabled(): bool
+    public function showQueryFavorite(): bool
     {
-        return $this->configProvider->queryFavoriteEnabled() && $this->getUserId(false) > 0;
+        return $this->configProvider->showQueryFavorite() && $this->getUserId(false) > 0;
     }
 
     /**
@@ -120,15 +120,15 @@ class AuditDatabase extends Audit\AuditDatabase
      */
     public function canShowQuery(): bool
     {
-        return ($this->configProvider->queryHistoryEnabled() ||
-            $this->configProvider->queryFavoriteEnabled()) && $this->getUserId(false) > 0;
+        return ($this->configProvider->showQueryHistory() ||
+            $this->configProvider->showQueryFavorite()) && $this->getUserId(false) > 0;
     }
 
     /**
      * @return bool
      */
-    public function queryPreferencesEnabled(): bool
+    public function showQueryPreferences(): bool
     {
-        return $this->configProvider->queryPreferencesEnabled() && $this->getUserId(false) > 0;
+        return $this->configProvider->showQueryPreferences() && $this->getUserId(false) > 0;
     }
 }

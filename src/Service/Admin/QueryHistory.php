@@ -31,7 +31,7 @@ class QueryHistory
      */
     public function __construct(private AuditDatabase $auditDb, DatabaseConfigProvider $configProvider)
     {
-        $this->historyEnabled = $configProvider->queryHistoryEnabled();
+        $this->historyEnabled = $configProvider->showQueryHistory();
         $this->historyDistinct = $configProvider->queryHistoryDistinct();
         $this->historyLimit = $configProvider->queryHistoryLimit();
     }

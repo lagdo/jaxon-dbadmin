@@ -100,9 +100,9 @@ class DatabaseConfigProvider
     /**
      * @return bool
      */
-    public function queryHistoryEnabled(): bool
+    public function showQueryHistory(): bool
     {
-        return $this->getOption('queries.enable.history', false);
+        return $this->getOption('queries.show.history', false);
     }
 
     /**
@@ -124,9 +124,9 @@ class DatabaseConfigProvider
     /**
      * @return bool
      */
-    public function queryFavoriteEnabled(): bool
+    public function showQueryFavorite(): bool
     {
-        return $this->getOption('queries.enable.favorite', false);
+        return $this->getOption('queries.show.favorite', false);
     }
 
     /**
@@ -140,9 +140,9 @@ class DatabaseConfigProvider
     /**
      * @return bool
      */
-    public function queryPreferencesEnabled(): bool
+    public function showQueryPreferences(): bool
     {
-        return $this->getOption('queries.enable.preferences', false);
+        return $this->getOption('queries.show.preferences', false);
     }
 
     /**

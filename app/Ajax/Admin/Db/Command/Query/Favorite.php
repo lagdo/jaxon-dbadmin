@@ -36,7 +36,7 @@ class Favorite extends Component
      */
     public function html(): string
     {
-        return $this->auditUi->favorite($this->auditDb->queryHistoryEnabled());
+        return $this->auditUi->favorite($this->auditDb->showQueryHistory());
     }
 
     /**

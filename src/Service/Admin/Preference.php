@@ -26,7 +26,7 @@ class Preference
      */
     public function __construct(private AuditDatabase $auditDb, DatabaseConfigProvider $configProvider)
     {
-        $this->preferencesEnabled = $configProvider->queryPreferencesEnabled();
+        $this->preferencesEnabled = $configProvider->showQueryPreferences();
     }
 
     /**
