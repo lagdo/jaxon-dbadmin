@@ -34,12 +34,13 @@ The database packages are developed in this monorepo: [https://github.com/lagdo/
 This application and the related packages are still being actively developed, and the provided features are still basic and need improvements.
 
 The following features are currently available:
+
 - Browse servers and databases in multiple tabs.
 - Open the query editor in multiple tabs, with query text retention.
 - Save the current tabs in user preferences.
 - Save and show the query history.
 - Save queries in user favorites.
-- Read database options with an extensible config reader.
+- Read database credentials with an extensible config reader.
 - Read database credentials from a secret manager. Currently supported:
   - [Infisical](https://infisical.com/)
   - [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/)
@@ -49,31 +50,41 @@ The following features are currently available:
 - Query a table.
 - Query a view.
 - Execute queries in the query editor.
-- Use a better editor for SQL queries.
+- Support Ace and CodeMirror as SQL editors (chosen in config).
 - Import or export data.
 - Insert, modify or delete data in a table.
 - Create or drop a database.
 - Create or alter a table or view.
 - Drop a table or view.
-
-The following features are not yet implemented, and planned for future releases:
-- Navigate through related tables.
 - Code completion for table and field names in the SQL editor.
+- Navigate through related tables.
+- Save the executed queries in an audit logs database.
+- Show the audit logs in a dedicated page, with restricted access.
+
+The following features are planned for future releases:
+
 - An advanced GUI-based query builder.
 - Automated tests.
 - Support more secret managers.
-  - [MS Azure Key Vault](https://azure.microsoft.com/products/key-vault)
-  - [Alibaba KMS](https://www.alibabacloud.com/en/product/kms)
+  - [Azure Key Vault](https://azure.microsoft.com/fr-fr/products/key-vault)
+  - [Alibaba Key Management Service](https://www.alibabacloud.com/help/en/kms)
+- Advanced SQL edition and code completion with the Ace linters
+  - https://github.com/mkslanc/ace-linters
+  - https://www.npmjs.com/package/ace-sql-linter
+- Provide a WebAwesome based UI template
+- Provide TailwindCSS based UI templates.
+- Use an advanced UI component for HTML tables.
+- Save and display more data in the audit logs.
 
-### The Jaxon DbAdmin application
+### The Jaxon DbAdmin applications
 
-The [https://github.com/lagdo/dbadmin-app](https://github.com/lagdo/dbadmin-app) repo provides a ready-to-use application, made with the [Laravel](https://laravel.com/) framework, and `Jaxon DbAdmin`.
-<!-- The [https://github.com/lagdo/dbadmin-voyager](https://github.com/lagdo/dbadmin-voyager) repo provides a ready-to-use application, made with the [Voyager Admin](https://voyager.devdojo.com/) dashboard, and `Jaxon DbAdmin`. -->
+The [Laravel](https://github.com/lagdo/dbadmin-app-laravel), [Symfony](https://github.com/lagdo/dbadmin-app-symfony) and [Slim](https://github.com/lagdo/dbadmin-app-slim) repos provide ready-to-use applications, each made with a different framework.
+
+This blog post on the Jaxon website explains how to install Jaxon DbAdmin on [Backpack](https://backpackforlaravel.com), a Laravel-based admin panel: [https://www.jaxon-php.org/blog/2025/07/install-jaxon-dbadmin-on-backpack.html](https://www.jaxon-php.org/blog/2025/07/install-jaxon-dbadmin-on-backpack.html).
 
 The driver packages for [PostgreSQL](https://github.com/lagdo/dbadmin-driver-mysql), [MySQL](https://github.com/lagdo/dbadmin-driver-mysql) and [SQLite](https://github.com/lagdo/dbadmin-driver-sqlite) are included, so the user just need to add its databases in the config file.
 
-A [Docker image](https://hub.docker.com/r/lagdo/jaxon-dbadmin) is also provided to get started easily.
-It runs the [Laravel based DbAdmin application](https://github.com/lagdo/dbadmin-app).
+[Docker images](https://hub.docker.com/r/lagdo/jaxon-dbadmin) are also provided to get started easily.
 
 Documentation
 -------------
@@ -87,7 +98,7 @@ Install this package with Composer. If a [framework extension](https://www.jaxon
 
 Install the drivers packages for the database servers you need to manage.
 The following drivers are available:
-- PostgreSQL: [https://github.com/lagdo/dbadmin-driver-pgsql](https://github.com/lagdo/dbadmin-driver-mysql)
+- PostgreSQL: [https://github.com/lagdo/dbadmin-driver-pgsql](https://github.com/lagdo/dbadmin-driver-pgsql)
 - MySQL: [https://github.com/lagdo/dbadmin-driver-mysql](https://github.com/lagdo/dbadmin-driver-mysql)
 - Sqlite: [https://github.com/lagdo/dbadmin-driver-sqlite](https://github.com/lagdo/dbadmin-driver-sqlite)
 
