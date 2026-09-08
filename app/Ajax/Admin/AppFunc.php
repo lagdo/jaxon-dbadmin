@@ -47,11 +47,11 @@ class AppFunc extends FuncComponent
         return match(true) {
             $tab !== null => [
                 $tab['server'],
-                $tab['title'] ?: $this->trans()->lang('(No title)'),
+                $tab['title'] ?: $this->getTabTitle($tab['server']),
             ],
             $this->config()->hasOption('default') => [
                 $this->config()->getOption('default'),
-                $this->trans()->lang('(No title)'),
+                $this->getTabTitle($this->config()->getOption('default')),
             ],
             default => ['', ''],
         };
@@ -85,14 +85,14 @@ class AppFunc extends FuncComponent
         // Connect the first tab to the first saved of default database.
         [$server, $title] = $this->getDefaultServer($tabs[0] ?? null);
         if ($server !== '') {
-            $this->setCurrentTitle($title);
-            $this->response()->html($this->tab()->app()->titleId(), $title);
             // The first tab content is loaded.
             $this->server($server);
+            $this->setCurrentTitle($title);
+            $this->response()->html($this->tab()->app()->titleId(), $title);
         }
 
         if (count($tabs) > 1) {
-            // This must be a synchronous call. See the dbadmin.php config file.
+            // This must be a synchronous js call. See the config/dbadmin.php config file.
             $this->response()->rq(AppFunc::class)->addSavedTabs();
         }
     }
@@ -136,17 +136,6 @@ class AppFunc extends FuncComponent
             // This must be a synchronous call. See the dbadmin.php config file.
             $this->response()->rq(AppFunc::class)->addSavedTab($name);
         }
-    }
-
-    /**
-     * @param string $server
-     *
-     * @return string
-     */
-    private function getTabTitle(string $server): string
-    {
-        $serverNames = $this->config()->getServerNames();;
-        return $serverNames[$server] ?? $this->trans()->lang('(No title)');
     }
 
     /**

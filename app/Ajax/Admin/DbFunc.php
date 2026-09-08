@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ajax\Admin;
 
 use Jaxon\Attributes\Attribute\After;
+use Jaxon\Attributes\Attribute\Before;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Tables;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Server\Server;
@@ -50,12 +51,39 @@ class DbFunc extends FuncComponent
     }
 
     /**
+     * @return void
+     */
+    private function saveServerName(): void
+    {
+        $currentDb = $this->getCurrentDb();
+        $server = $currentDb[0] ?? '';
+        $currentTitle = $this->getCurrentTitle();
+        $this->set('set_tab_title', $server !== '' && ($currentTitle === '' ||
+            $currentTitle === $this->getTabTitle($server)));
+    }
+
+    /**
+     * @return void
+     */
+    private function setTabTitle(): void
+    {
+        if ($this->get('set_tab_title', false)) {
+             [$server,] = $this->getCurrentDb();
+             $title = $this->getTabTitle($server);
+             $this->setCurrentTitle($title);
+             $this->response()->html($this->tab()->app()->titleId(), $title);
+        }
+    }
+
+    /**
      * Connect to a database server.
      *
      * @param string $server      The database server id in the package config
      *
      * @return void
      */
+    #[Before('saveServerName')]
+    #[After('setTabTitle')]
     public function server(string $server): void
     {
         $this->connect($server);

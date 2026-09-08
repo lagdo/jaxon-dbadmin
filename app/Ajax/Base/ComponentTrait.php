@@ -243,6 +243,17 @@ trait ComponentTrait
     }
 
     /**
+     * @param string $server
+     *
+     * @return string
+     */
+    protected function getTabTitle(string $server): string
+    {
+        $serverNames = $this->config()->getServerNames();;
+        return $serverNames[$server] ?? $this->trans()->lang('(No title)');
+    }
+
+    /**
      * @param string $id
      *
      * @return string
