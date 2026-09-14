@@ -58,7 +58,7 @@ class ViewUiBuilder
                             $this->ui->input()
                                 ->setType('text')->setPlaceholder('Name')
                                 ->setName('name')->setValue($view['name'] ?? '')
-                        )->width(6),
+                        )->unit(1, 2),
                         $this->ui->when($materializedView, fn() =>
                             $this->ui->col(
                                 $this->ui->inputGroup(
@@ -68,11 +68,11 @@ class ViewUiBuilder
                                     $this->ui->label($this->ui->text('Materialized'))
                                         ->setFor('materialized'),
                                 ),
-                            )->width(6),
+                            )->unit(1, 2),
                         )
                     )
                 )
-            )->width(12),
+            )->unit(1, 1),
             $this->ui->col(
                 $this->ui->row(
                     $this->ui->col(
@@ -85,9 +85,9 @@ class ViewUiBuilder
                             )->setClass('sql-command-editor-panel')
                                 ->setStyle('padding: 0 1px;')
                         )->setStyle('padding: 5px;')
-                    )->width(12)
+                    )->unit(1, 1)
                 )
-            )->width(12)
+            )->unit(1, 1)
         );
     }
 }

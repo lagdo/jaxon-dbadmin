@@ -74,7 +74,7 @@ class AuditUiBuilder
                 $this->ui->div(
                     $this->ui->col()
                         ->jxnBind(rq(Commands::class))
-                        ->width(12)
+                        ->unit(1, 1)
                 )
             )->setStyle('margin-right: 10px;')
         );

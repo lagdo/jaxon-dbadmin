@@ -139,7 +139,7 @@ class ExportUiBuilder
                 $this->ui->col(
                     $this->ui->label($options['output']['label'])
                         ->setFor('output')
-                )->width(3),
+                )->unit(1, 4),
                 $this->ui->col(
                     $this->ui->each($options['output']['options'], fn($label, $value) =>
                         $this->ui->list(
@@ -150,13 +150,13 @@ class ExportUiBuilder
                             $this->ui->html('&nbsp;' . $label . '&nbsp;')
                         )
                     )
-                )->width(8)
+                )->unit(2, 3)
             ),
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->label($options['format']['label'])
                         ->setFor('format')
-                )->width(3),
+                )->unit(1, 4),
                 $this->ui->col(
                     $this->ui->each($options['format']['options'], fn($label, $value) =>
                         $this->ui->list(
@@ -167,14 +167,14 @@ class ExportUiBuilder
                             $this->ui->html('&nbsp;' . $label . '&nbsp;')
                         )
                     )
-                )->width(8)
+                )->unit(2, 3)
             ),
             $this->ui->when(isset($options['db_style']), fn() =>
                 $this->ui->row(
                     $this->ui->col(
                         $this->ui->label($options['db_style']['label'])
                             ->setFor('db_style')
-                    )->width(3),
+                    )->unit(1, 4),
                     $this->ui->col(
                         $this->ui->select(
                             $this->ui->each($options['db_style']['options'], fn($label) =>
@@ -182,7 +182,7 @@ class ExportUiBuilder
                                     ->selected($options['db_style']['value'] == $label)
                             )
                         )->setName('db_style')
-                    )->width(8)
+                    )->unit(2, 3)
                 )
             ),
             $this->ui->when($hasDbOptions, fn() =>
@@ -190,7 +190,7 @@ class ExportUiBuilder
                     $this->ui->col(
                         // Actually an offset. TODO: a parameter for that.
                         $this->ui->html('&nbsp;')
-                    )->width(3),
+                    )->unit(1, 4),
                     $this->ui->when(isset($options['types']), fn() =>
                         $this->ui->col(
                             $this->ui->checkbox()
@@ -198,7 +198,7 @@ class ExportUiBuilder
                                 ->setName('types')
                                 ->setValue($options['types']['value']),
                             $this->ui->html('&nbsp;' . $options['types']['label'])
-                        )->width(3)
+                        )->unit(1, 4)
                     ),
                     $this->ui->when(isset($options['routines']), fn() =>
                         $this->ui->col(
@@ -207,7 +207,7 @@ class ExportUiBuilder
                                 ->setName('routines')
                                 ->setValue($options['routines']['value']),
                             $this->ui->html('&nbsp;' . $options['routines']['label'])
-                        )->width(3)
+                        )->unit(1, 4)
                     ),
                     $this->ui->when(isset($options['events']), fn() =>
                         $this->ui->col(
@@ -216,7 +216,7 @@ class ExportUiBuilder
                                 ->setName('events')
                                 ->setValue($options['events']['value']),
                             $this->ui->html('&nbsp;' . $options['events']['label'])
-                        )->width(3)
+                        )->unit(1, 4)
                     )
                 ),
             ),
@@ -224,7 +224,7 @@ class ExportUiBuilder
                 $this->ui->col(
                     $this->ui->label($options['table_style']['label'])
                         ->setFor('table_style')
-                )->width(3),
+                )->unit(1, 4),
                 $this->ui->col(
                     $this->ui->select(
                         $this->ui->each($options['table_style']['options'], fn($label) =>
@@ -232,20 +232,20 @@ class ExportUiBuilder
                                 ->selected($options['table_style']['value'] == $label)
                         )
                     )->setName('table_style')
-                )->width(8)
+                )->unit(2, 3)
             ),
             $this->ui->row(
                 $this->ui->col(
                     // Actually an offset. TODO: a parameter for that.
                     $this->ui->html('&nbsp;')
-                )->width(3),
+                )->unit(1, 4),
                 $this->ui->col(
                     $this->ui->checkbox()
                         ->checked($options['auto_increment']['checked'])
                         ->setName('auto_increment')
                         ->setValue($options['auto_increment']['value']),
                     $this->ui->html('&nbsp;' . $options['auto_increment']['label'])
-                )->width(3),
+                )->unit(1, 4),
                 $this->ui->when(isset($options['triggers']), fn() =>
                     $this->ui->col(
                         $this->ui->checkbox()
@@ -253,14 +253,14 @@ class ExportUiBuilder
                             ->setName('triggers')
                             ->setValue($options['triggers']['value']),
                         $this->ui->html('&nbsp;' . $options['triggers']['label'])
-                    )->width(3),
+                    )->unit(1, 4),
                 )
             ),
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->label($options['data_style']['label'])
                         ->setFor('data_style')
-                )->width(3),
+                )->unit(1, 4),
                 $this->ui->col(
                     $this->ui->select(
                         $this->ui->each($options['data_style']['options'], fn($label) =>
@@ -268,19 +268,19 @@ class ExportUiBuilder
                                 ->selected($options['data_style']['value'] == $label)
                         )
                     )->setName('data_style')
-                )->width(8)
+                )->unit(2, 3)
             ),
             $this->ui->row(
                 $this->ui->col(
                     // Actually an offset. TODO: a parameter for that.
                     $this->ui->html('&nbsp;')
-                )->width(3),
+                )->unit(1, 4),
                 $this->ui->col(
                     $this->ui->button($this->ui->text($this->trans->lang('Export')))
                         ->fullWidth()
                         ->primary()
                         ->jxnClick($rqExport->export(form($this->formId())))
-                )->width(4)
+                )->unit(1, 3)
             )
         );
     }
@@ -403,22 +403,22 @@ class ExportUiBuilder
                     $this->ui->form(
                         $this->ui->row(
                             $this->optionsCol($rqExport, $options['options'])
-                                ->width(6),
+                                ->unit(1, 2),
                             $this->ui->when(isset($options['databases']), fn() =>
                                 $this->ui->col(
                                     $this->databases($options['databases'])
-                                )->width(6)
+                                )->unit(1, 2)
                             ),
                             $this->ui->when(isset($options['tables']), fn() =>
                                 $this->ui->col(
                                     $this->tables($options['tables'])
-                                )->width(6)
+                                )->unit(1, 2)
                             )
                         )
                     )->setId($this->formId())
-                )->width(12),
+                )->unit(1, 1),
                 $this->ui->col()
-                    ->width(12)
+                    ->unit(1, 1)
                     ->setId($this->exportResultsId())
             )->setStyle('margin-right: 3px;')
         );

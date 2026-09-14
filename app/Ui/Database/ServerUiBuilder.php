@@ -60,44 +60,44 @@ class ServerUiBuilder
                     $this->ui->col(
                         $this->ui->label($this->ui->text($user['host']['label']))
                             ->setFor('host')
-                    )->width(3),
+                    )->unit(1, 4),
                     $this->ui->col(
                         $this->ui->input()
                             ->setType('text')
                             ->setName('host')
                             ->setDataMaxlength('60')->setValue($user['host']['value'])
-                    )->width(6),
+                    )->unit(1, 2),
                 ),
                 $this->ui->row(
                     $this->ui->col(
                         $this->ui->label($this->ui->text($user['name']['label']))
                             ->setFor('name')
-                    )->width(3),
+                    )->unit(1, 4),
                     $this->ui->col(
                         $this->ui->input()
                             ->setType('text')
                             ->setName('name')
                             ->setDataMaxlength('80')->setValue($user['name']['value'])
-                    )->width(6),
+                    )->unit(1, 2),
                 ),
                 $this->ui->row(
                     $this->ui->col(
                         $this->ui->label($this->ui->text($user['pass']['label']))
                             ->setFor('pass')
-                    )->width(3),
+                    )->unit(1, 4),
                     $this->ui->col(
                         $this->ui->input()
                             ->setType('text')
                             ->setName('pass')
                             ->setAutocomplete('new-password')
                             ->setValue($user['pass']['value'])
-                    )->width(6),
+                    )->unit(1, 2),
                     $this->ui->col(
                         $this->ui->checkbox()
                             ->setName('hashed')
                             ->checked($user['hashed']['value']),
                         $this->ui->text($user['hashed']['label'])
-                    )->width(3)
+                    )->unit(1, 4)
                         ->setClass('checkbox')
                 ),
                 $this->ui->div($this->ui->html($privileges))
@@ -120,13 +120,13 @@ class ServerUiBuilder
                     $this->ui->col(
                         $this->ui->label($this->ui->text('Name'))
                             ->setFor('name')
-                    )->width(3),
+                    )->unit(1, 4),
                     $this->ui->col(
                         $this->ui->input()
                             ->setType('text')
                             ->setName('name')
                             ->setPlaceholder('Name')
-                    )->width(6)
+                    )->unit(1, 2)
                 ),
                 $this->ui->when($count === 0, fn() =>
                     $this->ui->input()
@@ -139,7 +139,7 @@ class ServerUiBuilder
                         $this->ui->col(
                             $this->ui->label($this->ui->text('Collation'))
                                 ->setFor('collation')
-                        )->width(3),
+                        )->unit(1, 4),
                         $this->ui->col(
                             $this->ui->select(
                                 $this->ui->option('(collation)')
@@ -158,7 +158,7 @@ class ServerUiBuilder
                                     )
                                 )
                             )->setName('collation')
-                        )->width(6)
+                        )->unit(1, 2)
                     )
                 )
             )->wrapped()

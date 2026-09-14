@@ -43,7 +43,7 @@ class OptionsUiBuilder
     {
         return $this->ui->row(
             $this->ui->col($this->ui->html('&nbsp;'))
-                ->width(9), // Offset
+                ->unit(3, 4), // Offset
             $this->ui->col(
                 $this->ui->buttonGroup(
                     $this->ui->button()
@@ -55,7 +55,7 @@ class OptionsUiBuilder
                         ->addIcon('remove')
                         ->jxnClick($rqInput->del(form($formId)))
                 )
-            )->width(3)
+            )->unit(1, 4)
         );
     }
 
@@ -87,7 +87,7 @@ class OptionsUiBuilder
                         )->setLabel($this->trans->lang('Aggregation')),
                     )->setName("columns[$newId][func]")
                 )
-                ->width(6),
+                ->unit(1, 2),
                 $this->ui->col(
                     $this->ui->select(
                         $this->ui->option(''),
@@ -96,12 +96,12 @@ class OptionsUiBuilder
                                 ->selected($column['column'] == $columnName)
                         )
                     )->setName("columns[$newId][column]")
-                )->width(5),
+                )->unit(10, 24),
                 $this->ui->col(
                     $this->ui->checkbox()
                         ->checked($column['delete'] ?? false)
                         ->setName("columns[$newId][delete]")
-                )->width(1)
+                )->unit(2, 24)
             );
             $newId++;
 
@@ -153,7 +153,7 @@ class OptionsUiBuilder
                                 ->selected($filter['column'] === $columnName)
                         )
                     )->setName("filters[$newId][column]")
-                )->width(4),
+                )->unit(1, 3),
                 $this->ui->col(
                     $this->ui->select(
                         $this->ui->each($options['operators'], fn($operator) =>
@@ -161,17 +161,17 @@ class OptionsUiBuilder
                                 ->selected($filter['operator'] === $operator)
                         )
                     )->setName("filters[$newId][operator]")
-                )->width(3),
+                )->unit(1, 4),
                 $this->ui->col(
                     $this->ui->input()
                         ->setName("filters[$newId][operand]")
                         ->setValue($filter['operand'])
-                )->width(4),
+                )->unit(1, 3),
                 $this->ui->col(
                     $this->ui->checkbox()
                         ->checked($filter['delete'] ?? false)
                         ->setName("filters[$newId][delete]")
-                )->width(1)
+                )->unit(2, 24)
             );
             $newId++;
 
@@ -223,7 +223,7 @@ class OptionsUiBuilder
                                 ->selected($sorter['column'] === $columnName)
                         )
                     )->setName("sorters[$newId][column]")
-                )->width(6),
+                )->unit(1, 2),
                 $this->ui->col(
                     $this->ui->inputGroup(
                         $this->ui->label(
@@ -234,12 +234,12 @@ class OptionsUiBuilder
                             ->setName("sorters[$newId][desc]")
                             ->setValue('1')
                     )
-                )->width(5),
+                )->unit(10, 24),
                 $this->ui->col(
                     $this->ui->checkbox()
                         ->checked($sorter['delete'] ?? false)
                         ->setName("sorters[$newId][delete]")
-                )->width(1)
+                )->unit(2, 24)
             );
             $newId++;
 

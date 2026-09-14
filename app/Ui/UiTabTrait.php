@@ -157,13 +157,13 @@ trait UiTabTrait
                     $this->ui->col(
                         $this->ui->label($this->ui->text( $label))
                             ->setFor('title'),
-                    )->width(4),
+                    )->unit(1, 3),
                     $this->ui->col(
                         $this->ui->input()
                             ->setType('text')
                             ->setName('title')
                             ->setValue($title),
-                    )->width(8)
+                    )->unit(2, 3)
                 )
             )->setId($this->tabTitleFormId())
         );

@@ -70,14 +70,14 @@ class ImportUiBuilder
                 $this->ui->col(
                     $this->ui->label($this->trans->lang('File upload'))
                 )
-                ->width(4),
+                ->unit(1, 3),
                 $this->ui->when(isset($contents['upload']), fn() =>
                     $this->ui->col($this->ui->html($contents['upload']))
-                        ->width(8)
+                        ->unit(2, 3)
                 ),
                 $this->ui->when(!isset($contents['upload']), fn() =>
                     $this->ui->col($this->ui->html($contents['upload_disabled']))
-                        ->width(8)
+                        ->unit(2, 3)
                 ),
             ),
             $this->ui->row(
@@ -96,7 +96,7 @@ class ImportUiBuilder
                             $this->ui->input()
                                 ->setType('text')->setReadonly('readonly')
                         )->setId($this->filesDivId())
-                    )->width(12)
+                    )->unit(1, 1)
                 )
             ),
             $this->ui->row(
@@ -104,9 +104,9 @@ class ImportUiBuilder
                     $this->ui->button($this->ui->text($this->trans->lang('Execute')))
                         ->fullWidth()->primary()
                         ->jxnClick($handler)
-                )->width(4),
+                )->unit(1, 3),
                 $this->ui->col()
-                    ->width(4)
+                    ->unit(1, 3)
                     ->tbnBindApp(rq(Query\ImportDuration::class), 'upload')
             ),
         );
@@ -124,10 +124,10 @@ class ImportUiBuilder
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->label($this->trans->lang('From server'))
-                )->width(4),
+                )->unit(1, 3),
                 $this->ui->col(
                     $this->ui->span($this->ui->text($this->trans->lang('Webserver file %s', '')))
-                )->width(8)
+                )->unit(2, 3)
             ),
             $this->ui->row(
                 $this->ui->col(
@@ -135,16 +135,16 @@ class ImportUiBuilder
                         ->setType('text')
                         ->setValue($contents['path'])
                         ->setReadonly('readonly')
-                )->width(12)
+                )->unit(1, 1)
             ),
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->button($this->ui->text($this->trans->lang('Run file')))
                         ->fullWidth()->primary()
                         ->jxnClick($handler)
-                )->width(4),
+                )->unit(1, 3),
                 $this->ui->col()
-                    ->width(4)
+                    ->unit(1, 3)
                     ->tbnBindApp(rq(Query\ImportDuration::class), 'server')
             ),
         );
@@ -160,7 +160,7 @@ class ImportUiBuilder
                 $this->ui->col(
                     // Actually an offset. TODO: a parameter for that.
                     $this->ui->html('&nbsp;')
-                )->width(3),
+                )->unit(1, 4),
                 $this->ui->col(
                     $this->ui->inputGroup(
                         $this->ui->label(
@@ -169,7 +169,7 @@ class ImportUiBuilder
                         $this->ui->checkbox()
                             ->setName('error_stops')
                     )
-                )->width(3),
+                )->unit(1, 4),
                 $this->ui->col(
                     $this->ui->inputGroup(
                         $this->ui->label(
@@ -178,7 +178,7 @@ class ImportUiBuilder
                         $this->ui->checkbox()
                             ->setName('only_errors')
                     )
-                )->width(3),
+                )->unit(1, 4),
             )
         );
     }
@@ -194,25 +194,25 @@ class ImportUiBuilder
         return $this->ui->build(
             $this->ui->row(
                 $this->ui->col()
-                    ->width(12)
+                    ->unit(1, 1)
                     ->setId($this->tab()->app()->id('dbadmin-command-details')),
                 $this->ui->col(
                     $this->ui->form(
                         $this->ui->row(
                             $this->fileCol($contents, $handlers['sqlFilesBtn'])
-                                ->width(6),
+                                ->unit(1, 2),
                             $this->ui->when(isset($contents['path']), fn() =>
                                 $this->pathCol($contents, $handlers['webFileBtn'])
-                                    ->width(6)
+                                    ->unit(1, 2)
                             ),
                         ),
                         $this->ui->row(
-                            $this->optionsCol()->width(12)
+                            $this->optionsCol()->unit(1, 1)
                         )
                     )->setId($this->formId())
-                )->width(12),
+                )->unit(1, 1),
                 $this->ui->col()
-                    ->width(12)
+                    ->unit(1, 1)
                     ->tbnBindApp(rq(Query\ImportResult::class))
             )
         );

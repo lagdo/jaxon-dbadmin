@@ -169,7 +169,7 @@ class TableUiBuilder
                             ->setValue($formValues['name'] ?? $values->name)
                             ->setPlaceholder('Name')
                     )->setClass('dbadmin-table-column-left')
-                        ->width(3),
+                        ->unit(1, 4),
                     $this->ui->col(
                         $this->ui->inputGroup(
                             $this->ui->checkbox()
@@ -188,7 +188,7 @@ class TableUiBuilder
                             )
                         )
                     )->setClass('dbadmin-table-column-middle')
-                        ->width(4)
+                        ->unit(1, 3)
                 )->setClass('dbadmin-table-edit-row'),
                 $this->ui->when($hasCollations || $hasEngines || $hasComment, fn() =>
                     $this->ui->row(
@@ -197,14 +197,14 @@ class TableUiBuilder
                                 $this->getCollationSelect($formValues['collation'] ?? $values->collation)
                                     ->setName('collation')
                             )->setClass('dbadmin-table-column-left')
-                                ->width(3)
+                                ->unit(1, 4)
                         ),
                         $this->ui->when($hasEngines, fn() =>
                             $this->ui->col(
                                 $this->getEngineSelect($formValues['engine'] ?? $values->engine)
                                     ->setName('engine')
                             )->setClass($engineClass)
-                                ->width(3)
+                                ->unit(1, 4)
                         ),
                         $this->ui->col(
                             $this->ui->when($hasComment, fn() =>
@@ -221,7 +221,7 @@ class TableUiBuilder
                                 )
                             )
                         )->setClass($commentClass)
-                            ->width(6)
+                            ->unit(1, 2)
                     )->setClass('dbadmin-table-edit-row ' . self::tableToggleClass)
                         ->setStyle('display: none;')
                 )

@@ -279,14 +279,14 @@ class EditUiBuilder
                 $this->ui->each($inputs, fn(ColumnDmDto $input) =>
                     $this->ui->row(
                         $this->ui->col($this->getColumnTitle($input))
-                            ->width(3),
+                            ->unit(1, 4),
                         $this->ui->col($this->getColumnFunction($input))
                             ->setStyle('padding-left: 1px; padding-right: 1px;')
-                            ->width(2),
+                            ->unit(1, 6),
                         $this->ui->when($input->foreignKey === null, fn() =>
                             $this->ui->col($this->getColumnValue($input))
                                 ->setStyle('padding-left: 1px;')
-                                ->width(7)
+                                ->unit(14, 24)
                         ),
                         $this->ui->when($input->foreignKey !== null, fn() =>
                             $this->ui->list(
@@ -294,10 +294,10 @@ class EditUiBuilder
                                     $this->getColumnValue($input)
                                         ->setId($this->searchValueId($input->column->name))
                                 )->setStyle('padding-left: 1px; padding-right: 1px;')
-                                    ->width(2),
+                                    ->unit(1, 6),
                                 $this->ui->col($this->getAutocompleteColumn($table, $input))
                                     ->setStyle('padding-left: 1px;')
-                                    ->width(5)
+                                    ->unit(10, 24)
                             )
                         )
                     )
@@ -331,7 +331,7 @@ class EditUiBuilder
                                 ->setStyle('height: 300px;')
                         )->setStyle('padding: 0 1px;')
                     )->setStyle('padding: 5px;')
-                )->width(12)
+                )->unit(1, 1)
             )
         );
     }
