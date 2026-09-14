@@ -53,7 +53,7 @@ class GcpSecretConfigProvider extends SecretConfigProvider
     private function getSecretValue(string $prefix, string $option): string
     {
         try {
-            // The secret key is generated with the provided closure.
+            // The secret key is generated with the provided builder.
             $secretKey = $this->keyBuilder->build($prefix, $option);
             $secretValue = $this->getSecret($secretKey);
             if ($secretValue === '') {

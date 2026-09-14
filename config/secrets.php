@@ -1,6 +1,9 @@
 <?php
 
+use AlibabaCloud\Dara\Models\RuntimeOptions as AlibabaRuntimeOptions;
+use AlibabaCloud\SDK\Kms\V20160120\Kms as AlibabaKmsClient;
 use Aws\SecretsManager\SecretsManagerClient as AwsSecretManagerClient;
+use Darabonba\OpenApi\Models\Config as AlibabaClientConfig;
 use Google\Cloud\SecretManager\V1\Client\SecretManagerServiceClient as GcpSecretManagerClient;
 use GuzzleHttp\Client as HttpClient;
 use Infisical\SDK\InfisicalSDK;
@@ -95,7 +98,7 @@ return [
         $projectId = env('OPENBAO_PROJECT_ID');
         $serverPath = env('OPENBAO_SERVER_PATH');
 
-        // Creating the client
+        // Create the client
         $httpClient = new HttpClient();
         // Reuse the PSR17 factory class from the jaxon-core library.
         $psr17Factory = $di->g(Psr17Factory::class);
@@ -108,10 +111,23 @@ return [
             $client->setVersion($serverPath);
         }
         if (!$client->setAuthenticationStrategy($authStrategy)->authenticate()) {
-            throw new RuntimeException("Authentication failure on the OpenBao Secret manager");;
+            throw new RuntimeException("Authentication failure on the OpenBao Secret manager");
         }
 
         $keyBuilder = $di->g(Secret\KeyBuilderInterface::class);
         return new Secret\OpenBaoConfigProvider($keyBuilder, $client, $projectId);
+    },
+    Secret\AlibabaKmsConfigProvider::class => function(Container $di) {
+        $config = new AlibabaClientConfig();
+        $config->accessKeyId = env("ALIBABA_CLOUD_ACCESS_KEY_ID");
+        $config->accessKeySecret = env("ALIBABA_CLOUD_ACCESS_KEY_SECRET");
+        // $config->regionId = env("ALIBABA_CLOUD_REGION");
+        $config->endpoint = env("ALIBABA_CLOUD_SERVER_URL");
+        $client = new AlibabaKmsClient($config);
+
+        $options = new AlibabaRuntimeOptions();
+
+        $keyBuilder = $di->g(Secret\KeyBuilderInterface::class);
+        return new Secret\AlibabaKmsConfigProvider($keyBuilder, $client, $options);
     },
 ];

@@ -29,7 +29,7 @@ class OpenBaoConfigProvider extends SecretConfigProvider
     private function getSecretValue(string $prefix, string $option): string
     {
         try {
-            // The secret key is generated with the provided closure.
+            // The secret key is generated with the provided builder.
             $secretKey = $this->keyBuilder->build($prefix, $option);
             $secret = $this->secretServiceClient
                 ->read("/{$this->projectId}/$secretKey")

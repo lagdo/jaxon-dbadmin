@@ -60,7 +60,7 @@ class AwsSecretConfigProvider extends SecretConfigProvider
     public function getCredentials(string $prefix): array
     {
         // The username and password are stored in the same json payload.
-        // The secret name is generated with the provided closure using only the prefix.
+        // The secret name is generated with the provided builder using only the prefix.
         $secretName = $this->keyBuilder->build($prefix);
         $secret = $this->getSecret($secretName);
         if (!isset($secret['username']) || !isset($secret['password'])) {
