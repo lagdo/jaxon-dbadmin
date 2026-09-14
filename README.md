@@ -46,6 +46,8 @@ The following features are currently available:
   - [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/)
   - [GCP Secret Manager](https://cloud.google.com/security/products/secret-manager)
   - [OpenBao](https://openbao.org) (compatible with [HashiCorp Vault](https://www.hashicorp.com/fr/products/vault))
+  - [Azure Key Vault](https://azure.microsoft.com/fr-fr/products/key-vault)
+  - [Alibaba Key Management Service](https://www.alibabacloud.com/help/en/kms)
 - Show tables and views details.
 - Query a table.
 - Query a view.
@@ -65,9 +67,6 @@ The following features are planned for future releases:
 
 - An advanced GUI-based query builder.
 - Automated tests.
-- Support more secret managers.
-  - [Azure Key Vault](https://azure.microsoft.com/fr-fr/products/key-vault)
-  - [Alibaba Key Management Service](https://www.alibabacloud.com/help/en/kms)
 - Advanced SQL edition and code completion with the Ace linters
   - https://github.com/mkslanc/ace-linters
   - https://www.npmjs.com/package/ace-sql-linter

@@ -7,6 +7,9 @@ use Darabonba\OpenApi\Models\Config as AlibabaClientConfig;
 use Google\Cloud\SecretManager\V1\Client\SecretManagerServiceClient as GcpSecretManagerClient;
 use GuzzleHttp\Client as HttpClient;
 use Infisical\SDK\InfisicalSDK;
+use ItkDev\AzureKeyVault\Authorisation\VaultToken;
+use ItkDev\AzureKeyVault\Exception\TokenException;
+use ItkDev\AzureKeyVault\KeyVault\VaultSecret;
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Support\Provider\Secret;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -116,6 +119,33 @@ return [
 
         $keyBuilder = $di->g(Secret\KeyBuilderInterface::class);
         return new Secret\OpenBaoConfigProvider($keyBuilder, $client, $projectId);
+    },
+    Secret\AzureVaultConfigProvider::class => function(Container $di) {
+        // Create the client
+        $httpClient = new HttpClient();
+        // Reuse the PSR17 factory class from the jaxon-core library.
+        $psr17Factory = $di->g(Psr17Factory::class);
+        $tenantId = env('AZURE_VAULT_TENANT_ID');
+        $clientId = env('AZURE_VAULT_CLIENT_ID');
+        $clientSecret = env('AZURE_VAULT_CLIENT_SECRET');
+        $token = 'token';
+        if ($tenantId !== '' && $clientId !== '' && $clientSecret !== '') {
+            try {
+                $token = (new VaultToken($httpClient, $psr17Factory))
+                    ->getToken($tenantId, $clientId, $clientSecret)
+                    ->getAccessToken();
+            } catch (TokenException $e) {
+                throw new RuntimeException("Authentication failure on the Azure Key Vault Secret manager");
+            }
+        }
+
+        // Create the client
+        $httpClient = new HttpClient();
+        $endpoint = env('AZURE_VAULT_SERVER_URL');
+        $vaultSecret = new VaultSecret($httpClient, $psr17Factory, $endpoint, $token);
+
+        $keyBuilder = $di->g(Secret\KeyBuilderInterface::class);
+        return new Secret\AzureVaultConfigProvider($keyBuilder, $vaultSecret);
     },
     Secret\AlibabaKmsConfigProvider::class => function(Container $di) {
         $config = new AlibabaClientConfig();
