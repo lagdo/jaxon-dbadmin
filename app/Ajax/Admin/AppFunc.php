@@ -281,4 +281,15 @@ class AppFunc extends FuncComponent
             $this->alert()->title('Success')
                 ->success("The tabs are saved in user preferences.");
     }
+
+    /**
+     * @return void
+     */
+    public function toggleSidebar(): void
+    {
+        $visible = !$this->getBag('dbadmin.tab', 'sidebar.visible', true);
+        $this->setBag('dbadmin.tab', 'sidebar.visible', $visible);
+
+        $this->cl(Sidebar::class)->toggle($visible);
+    }
 }

@@ -77,11 +77,14 @@ trait UiTabTrait
         return $this->ui->tabContentItem(
             $this->ui->div(
                 $this->ui->div(
-                    cl(AdminContent::class)->html()
+                    cl(AdminSidebar::class)->set('item', 'header')->html()
                 )->setClass('jaxon-dbadmin-main-header_sidebar')
                     ->tbnBindApp(rq(AdminSidebar::class), 'header'),
                 $this->ui->div(
                     $this->ui->div(
+                        $this->ui->div(
+                            cl(AdminSidebar::class)->set('item', 'toggle')->html()
+                        )->tbnBindApp(rq(AdminSidebar::class), 'toggle'),
                         $this->ui->div(
                             $this->ui->div()->tbnBindApp(rq(Breadcrumbs::class))
                         )->setClass('jaxon-dbadmin-server-header-breadcrumbs'),
@@ -94,7 +97,7 @@ trait UiTabTrait
             $this->ui->div(
                 $this->ui->div(
                     $this->ui->div(
-                        cl(AdminSidebar::class)->html()
+                        cl(AdminSidebar::class)->set('item', 'content')->html()
                     )->setClass('jaxon-dbadmin-page-sidebar_block')
                         ->tbnBindApp(rq(AdminSidebar::class), 'content'),
                     $this->ui->div('&nbsp;')
@@ -106,7 +109,8 @@ trait UiTabTrait
                             ->tbnBindApp(rq(AppUser::class)),
                         $this->ui->div($this->builtWith())
                     )->setClass('jaxon-dbadmin-page-sidebar_block')
-                )->setClass('jaxon-dbadmin-page-sidebar'),
+                )->setClass('jaxon-dbadmin-page-sidebar')
+                    ->tbnBindApp(rq(AdminSidebar::class), 'wrapper'),
                 $this->ui->div(
                     $this->ui->div(
                         cl(AdminContent::class)->html()

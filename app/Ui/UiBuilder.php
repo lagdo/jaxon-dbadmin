@@ -3,6 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ajax\Audit\Commands;
+use Lagdo\DbAdmin\App\Ajax\Admin\AppFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\DbFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Schemas as MenuSchemas;
@@ -90,6 +91,23 @@ class UiBuilder
                         ->jxnClick(rq(DbFunc::class)->server(pm()->select($this->hostSelectId())))
                 )
             )
+        );
+    }
+
+    /**
+     * @param bool $visible
+     *
+     * @return string
+     */
+    public function sidebarToggleButton(bool $visible): string
+    {
+        $icon = $visible ? 'fa-angle-double-left' : 'fa-angle-double-right';
+        return $this->ui->build(
+            $this->ui->button(
+                $this->ui->html('<i class="fa ' . $icon . '"></i>&nbsp;')
+            )->primary()
+                ->outline()
+                ->jxnClick(rq(AppFunc::class)->toggleSidebar())
         );
     }
 
