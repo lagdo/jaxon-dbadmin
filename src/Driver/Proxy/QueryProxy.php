@@ -8,6 +8,7 @@ use Lagdo\DbAdmin\Driver\Sql\Connection\QueryResultInterface;
 use Lagdo\DbAdmin\Driver\Sql\Dto\QueryClauseDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\SelectDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\QueryProcessor;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataReader;
@@ -178,7 +179,7 @@ class QueryProxy extends AbstractDriverProxy
      * Build the SQL query to insert a new item in a table
      *
      * @param string $table
-     * @param array  $values        
+     * @param array  $values
      *
      * @return QueryListDto
      */
@@ -201,7 +202,7 @@ class QueryProxy extends AbstractDriverProxy
      * Insert a new item in a table
      *
      * @param string $table
-     * @param array  $values        
+     * @param array  $values
      *
      * @return QueryResultDto
      */
@@ -228,7 +229,7 @@ class QueryProxy extends AbstractDriverProxy
      *
      * @param string $table
      * @param array  $rowIds
-     * @param array  $values        
+     * @param array  $values
      *
      * @return QueryListDto
      */
@@ -257,7 +258,7 @@ class QueryProxy extends AbstractDriverProxy
      *
      * @param string $table
      * @param array  $rowIds
-     * @param array  $values        
+     * @param array  $values
      *
      * @return QueryResultDto
      */

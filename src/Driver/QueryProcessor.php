@@ -1,9 +1,8 @@
 <?php
 
-namespace Lagdo\DbAdmin\Support\Driver\Proxy;
+namespace Lagdo\DbAdmin\Support\Driver;
 
 use Lagdo\DbAdmin\Driver\Sql\Connection\AbstractConnection;
-use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryRowsetDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectResult;

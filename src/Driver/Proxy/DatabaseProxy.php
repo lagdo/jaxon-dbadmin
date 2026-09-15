@@ -7,6 +7,7 @@ use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TableDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\TriggerDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\QueryProcessor;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseHeader;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\DatabaseContent;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;

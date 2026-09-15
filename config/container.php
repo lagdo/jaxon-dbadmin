@@ -53,8 +53,8 @@ return [
         // Jaxon config setter. Already defined by the Jaxon library.
         // ConfigSetter::class => fn() => new ConfigSetter(),
         // Proxies to the DB driver features
-        Proxy\QueryProcessor::class => fn(Container $di) =>
-            (new Proxy\QueryProcessor($di->g(Support\Driver\DriverProxy::class)))
+        Support\Driver\QueryProcessor::class => fn(Container $di) =>
+            (new Support\Driver\QueryProcessor($di->g(Support\Driver\DriverProxy::class)))
                 ->setQuerySplitter($di->g(Service\Query\QuerySplitter::class))
                 ->setQueryTimer($di->g(Service\Admin\QueryTimer::class))
                 ->setQueryLogger($di->g(Service\Admin\QueryLogger::class)),
@@ -63,20 +63,20 @@ return [
                 ->setOptions($di->g(DiAlias\ServerConfig::class)),
         Proxy\DatabaseProxy::class => fn(Container $di) =>
             (new Proxy\DatabaseProxy($di->g(Support\Driver\DriverProxy::class)))
-                ->setProcessor($di->g(Proxy\QueryProcessor::class))
+                ->setProcessor($di->g(Support\Driver\QueryProcessor::class))
                 ->setOptions($di->g(DiAlias\ServerConfig::class)),
         Proxy\ExportProxy::class => fn(Container $di) =>
             new Proxy\ExportProxy($di->g(Support\Driver\DriverProxy::class)),
         Proxy\QueryProxy::class => fn(Container $di) =>
             (new Proxy\QueryProxy($di->g(Support\Driver\DriverProxy::class)))
-                ->setProcessor($di->g(Proxy\QueryProcessor::class))
+                ->setProcessor($di->g(Support\Driver\QueryProcessor::class))
                 ->setPackageConfig($di->g(Support\DiAlias\PackageConfig::class)),
         Proxy\TableProxy::class => fn(Container $di) =>
             (new Proxy\TableProxy($di->g(Support\Driver\DriverProxy::class)))
-                ->setProcessor($di->g(Proxy\QueryProcessor::class)),
+                ->setProcessor($di->g(Support\Driver\QueryProcessor::class)),
         Proxy\SelectProxy::class => fn(Container $di) =>
             (new Proxy\SelectProxy($di->g(Support\Driver\DriverProxy::class)))
-                ->setProcessor($di->g(Proxy\QueryProcessor::class))
+                ->setProcessor($di->g(Support\Driver\QueryProcessor::class))
                 ->setPackageConfig($di->g(Support\DiAlias\PackageConfig::class)),
 
         // Application authentication.

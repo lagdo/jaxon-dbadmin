@@ -6,6 +6,7 @@ use Jaxon\Config\Config;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ForeignKeyDto;
 use Lagdo\DbAdmin\Driver\Sql\Dto\SelectColumnDto;
 use Lagdo\DbAdmin\Support\Driver\AbstractDriverProxy;
+use Lagdo\DbAdmin\Support\Driver\QueryProcessor;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\ForeignColumnDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\ForeignColumnTrait;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectDqDto;
