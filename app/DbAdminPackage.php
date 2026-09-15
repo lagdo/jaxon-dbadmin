@@ -18,6 +18,7 @@ use Lagdo\DbAdmin\Support\Provider\Secret\KeyBuilderInterface;
 use Lagdo\DbAdmin\Support\Service\Export\FileSystemInterface;
 
 use function count;
+use function file_exists;
 use function in_array;
 use function realpath;
 use function Jaxon\jaxon;
@@ -110,7 +111,12 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
             ],
             'ui' => $app['ui'],
             'provider' => static function(array $options, Container $di) use($configDir) {
-                $configFile = "$configDir/servers.php";
+                $configFile = match(true) {
+                    file_exists("$configDir/servers.json") => "$configDir/servers.json",
+                    file_exists("$configDir/servers.yaml") => "$configDir/servers.yaml",
+                    file_exists("$configDir/servers.yml") => "$configDir/servers.yml",
+                    default => "$configDir/servers.php",
+                };
                 $provider = $di->g(PackageConfigProvider::class);
                 return $provider->config($configFile)->getOptions($options);
             },
@@ -134,20 +140,13 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     }
 
     /**
-     * @return string
-     */
-    private function editor(): string
-    {
-        return $this->getConfig()->getOption('ui.query.editor', 'cm');
-    }
-
-    /**
      * @inheritDoc
      */
     public function getCssCode(): CssCode
     {
-        $editor = $this->editor();
-        $assetsUrl = $this->getConfig()->getOption('ui.assets.url', '/dbadmin');
+        $config = $this->getConfig();
+        $editor = $config->getOption('ui.query.editor', 'cm');
+        $assetsUrl = $config->getOption('ui.assets.url', '/dbadmin');
         $html = $this->view()->render("dbadmin::editor::$editor/css");
         // PureCSS framework.
         $html .= '
@@ -170,9 +169,10 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getJsCode(): JsCode
     {
-        $editor = $this->editor();
+        $config = $this->getConfig();
+        $editor = $config->getOption('ui.query.editor', 'cm');
+        $assetsUrl = $config->getOption('ui.assets.url', '/dbadmin');
         $html = $this->view()->render("dbadmin::editor::$editor/js");
-        $assetsUrl = $this->getConfig()->getOption('ui.assets.url', '/dbadmin');
         $urls = [
             // Spinner javascript code.
             "$assetsUrl/app/spin.js",
