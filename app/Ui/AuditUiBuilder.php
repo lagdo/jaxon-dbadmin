@@ -3,13 +3,16 @@
 namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ajax\Audit\Commands;
+use Lagdo\DbAdmin\App\Ajax\Audit\Content;
 use Lagdo\DbAdmin\App\Ajax\Audit\Page\AppUser;
 use Lagdo\DbAdmin\App\Ajax\Audit\Page\DbServer;
+use Lagdo\DbAdmin\App\Ajax\Audit\Sidebar;
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Html\HtmlComponent;
 use DateInterval;
+use Lagdo\DbAdmin\App\Ajax\Audit\AppFunc;
 
 use function array_filter;
 use function intdiv;
@@ -275,6 +278,84 @@ class AuditUiBuilder
                     $this->ui->div($this->builtWith())
                 )->setClass('jaxon-dbadmin-page-sidebar_block')
             )->setClass('jaxon-dbadmin-page-sidebar'),
+        );
+    }
+
+    /**
+     * @param bool $visible
+     *
+     * @return string
+     */
+    public function sidebarToggleButton(bool $visible): string
+    {
+        $icon = $visible ? 'fa-angle-double-left' : 'fa-angle-double-right';
+        return $this->ui->build(
+            $this->ui->button(
+                $this->ui->html('<i class="fa ' . $icon . '"></i>&nbsp;')
+            )->primary()
+                ->outline()
+                ->jxnClick(rq(AppFunc::class)->toggleSidebar())
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function layout(): string
+    {
+        return $this->ui->build(
+            $this->ui->div(
+                $this->ui->div(
+                    $this->ui->div(
+                        $this->ui->text('Jaxon DbAdmin')
+                    )->setClass('jaxon-dbadmin-page-header_title'),
+                    $this->ui->div('&nbsp;')
+                        ->setClass('jaxon-dbadmin-page-header_spacer'),
+                )->setClass('jaxon-dbadmin-page-header'),
+                $this->ui->div(
+                    $this->ui->div(
+                        $this->ui->h3($this->trans->lang('Search audit logs'))
+                            ->setStyle('font-size: 16px; margin: 5px 0;')
+                    )->setClass('jaxon-dbadmin-main-header_sidebar')
+                        ->jxnBind(rq(Sidebar::class), 'header'),
+                    $this->ui->div(
+                        $this->ui->div(
+                            $this->ui->div(
+                                cl(Sidebar::class)->set('item', 'toggle')->html()
+                            )->jxnBind(rq(Sidebar::class), 'toggle'),
+                            $this->ui->col(
+                                $this->ui->h3($this->trans->lang('Commands'))
+                                    ->setStyle('font-size: 16px; margin: 5px;')
+                            )->setStyle('width: auto;'),
+                            $this->ui->col(
+                                $this->ui->nav()
+                                    ->jxnPagination(cl(Commands::class))
+                                    ->setStyle('float: right;')
+                            )->setStyle('flex-grow: 1;')
+                        )->setStyle('display: flex; flex-direction: row;')
+                    )->setClass('jaxon-dbadmin-main-header_content'),
+                )->setClass('jaxon-dbadmin-main-header'),
+                $this->ui->div(
+                    $this->ui->div(
+                        $this->ui->div(
+                            cl(Sidebar::class)->set('item', 'main')->html()
+                        )->setClass('jaxon-dbadmin-page-sidebar_block')
+                            ->jxnBind(rq(Sidebar::class))
+                    )->setClass('jaxon-dbadmin-page-sidebar')
+                        ->jxnBind(rq(Sidebar::class), 'wrapper'),
+                    $this->ui->div(
+                        $this->ui->card(
+                            $this->ui->cardBody(
+                                $this->ui->div(
+                                    $this->ui->div(
+                                        cl(Content::class)->html()
+                                    )->jxnBind(rq(Content::class))
+                                )->setClass('jaxon-dbadmin-main-content')
+                            )->setClass('jaxon-dbadmin-main-wrapper')
+                        )
+                    )->setClass('jaxon-dbadmin-page-content')
+                )->setClass('jaxon-dbadmin-page-wrapper')
+            )->setId('jaxon-dbadmin')
         );
     }
 }

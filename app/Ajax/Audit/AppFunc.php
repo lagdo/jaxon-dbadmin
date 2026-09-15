@@ -26,4 +26,16 @@ class AppFunc extends FuncComponent
 
         $this->cl(Commands::class)->page();
     }
+
+    /**
+     * @return void
+     */
+    public function toggleSidebar(): void
+    {
+        $bag = $this->bag('dbadmin.audit');
+        $visible = !$bag->get('sidebar.visible', true);
+        $bag->set('sidebar.visible', $visible);
+
+        $this->cl(Sidebar::class)->toggle($visible);
+    }
 }

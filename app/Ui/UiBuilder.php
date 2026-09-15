@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ui;
 
-use Lagdo\DbAdmin\App\Ajax\Audit\Commands;
 use Lagdo\DbAdmin\App\Ajax\Admin\AppFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\DbFunc;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Database\Command as DatabaseCommand;
@@ -12,14 +11,11 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Command as ServerCommand;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppTabMenu;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\Content;
-use Lagdo\DbAdmin\App\Ajax\Audit\Content as AuditContent;
-use Lagdo\DbAdmin\App\Ajax\Audit\Sidebar as AuditSidebar;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
-use function Jaxon\cl;
 use function Jaxon\pm;
 use function Jaxon\rq;
 
@@ -214,64 +210,6 @@ class UiBuilder
                 $this->ui->tabContent(
                     $this->tabContentItem(true)
                 )->setId($contentId)
-            )->setId('jaxon-dbadmin')
-        );
-    }
-
-    /**
-     * The DbAudit layout
-     *
-     * @return string
-     */
-    public function audit(): string
-    {
-        return $this->ui->build(
-            $this->ui->div(
-                $this->ui->div(
-                    $this->ui->div(
-                        $this->ui->text('Jaxon DbAdmin')
-                    )->setClass('jaxon-dbadmin-page-header_title'),
-                    $this->ui->div('&nbsp;')
-                        ->setClass('jaxon-dbadmin-page-header_spacer'),
-                )->setClass('jaxon-dbadmin-page-header'),
-                $this->ui->div(
-                    $this->ui->div(
-                        $this->ui->h3($this->trans->lang('Search audit logs'))
-                            ->setStyle('font-size: 16px; margin: 5px 0;')
-                    )->setClass('jaxon-dbadmin-main-header_sidebar'),
-                    $this->ui->div(
-                        $this->ui->div(
-                            $this->ui->col(
-                                $this->ui->h3($this->trans->lang('Commands'))
-                                    ->setStyle('font-size: 16px; margin: 5px 0;')
-                            )->setStyle('width: auto;'),
-                            $this->ui->col(
-                                $this->ui->nav()
-                                    ->jxnPagination(cl(Commands::class))
-                                    ->setStyle('float: right;')
-                            )->setStyle('flex-grow: 1;')
-                        )->setStyle('display: flex; flex-direction: row;')
-                    )->setClass('jaxon-dbadmin-main-header_content'),
-                )->setClass('jaxon-dbadmin-main-header'),
-                $this->ui->div(
-                    $this->ui->div(
-                        $this->ui->div(
-                            cl(AuditSidebar::class)->html()
-                        )->setClass('jaxon-dbadmin-page-sidebar_block')
-                            ->jxnBind(rq(AuditSidebar::class))
-                    )->setClass('jaxon-dbadmin-page-sidebar'),
-                    $this->ui->div(
-                        $this->ui->card(
-                            $this->ui->cardBody(
-                                $this->ui->div(
-                                    $this->ui->div(
-                                        cl(AuditContent::class)->html()
-                                    )->jxnBind(rq(AuditContent::class))
-                                )->setClass('jaxon-dbadmin-main-content')
-                            )->setClass('jaxon-dbadmin-main-wrapper')
-                        )
-                    )->setClass('jaxon-dbadmin-page-content')
-                )->setClass('jaxon-dbadmin-page-wrapper')
             )->setId('jaxon-dbadmin')
         );
     }

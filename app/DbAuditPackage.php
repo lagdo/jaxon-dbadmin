@@ -8,7 +8,7 @@ use Jaxon\Plugin\CssCodeGeneratorInterface;
 use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Audit\AppFunc;
-use Lagdo\DbAdmin\App\Ui\UiBuilder;
+use Lagdo\DbAdmin\App\Ui\AuditUiBuilder;
 use Lagdo\DbAdmin\Support\DiAlias\AuthInterface;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
@@ -31,9 +31,9 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     private static bool $registered = false;
 
     /**
-     * @param UiBuilder $ui
+     * @param AuditUiBuilder $ui
      */
-    public function __construct(private UiBuilder $ui)
+    public function __construct(private AuditUiBuilder $ui)
     {}
 
     /**
@@ -168,6 +168,6 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function layout(): string
     {
-        return $this->ui->audit();
+        return $this->ui->layout();
     }
 }
