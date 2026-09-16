@@ -5,8 +5,10 @@
 [![Total Downloads](https://poser.pugx.org/lagdo/jaxon-dbadmin/downloads)](https://packagist.org/packages/lagdo/jaxon-dbadmin)
 [![License](https://poser.pugx.org/lagdo/jaxon-dbadmin/license)](https://packagist.org/packages/lagdo/jaxon-dbadmin)
 
-A database admin dashboard based on Jaxon and Adminer
-=====================================================
+A modern web-based database manager
+===================================
+
+![screenshot](screenshots/jaxon-dbadmin-select-window.png)
 
 Jaxon DbAdmin is a modern database manager built on a fully refactored codebase inpired by [Adminer](https://github.com/vrana/adminer) and powered by [Jaxon](https://www.jaxon-php.org).
 It brings Adminer into the team era with multi-tab database browsing, query history and bookmarks, all wrapped in a clean, modern interface.
