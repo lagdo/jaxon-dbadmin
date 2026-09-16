@@ -8,12 +8,14 @@
 A database admin dashboard based on Jaxon and Adminer
 =====================================================
 
-Jaxon DbAdmin is a complete rewrite of [Adminer](https://github.com/vrana/adminer), the popular database admin dashboard.
+Jaxon DbAdmin is a modern database manager built on a fully refactored codebase inpired by [Adminer](https://github.com/vrana/adminer) and powered by [Jaxon](https://www.jaxon-php.org).
+It brings Adminer into the team era with multi-tab database browsing, query history and bookmarks, all wrapped in a clean, modern interface.
 
-Jaxon DbAdmin is a [Jaxon package](https://www.jaxon-php.org/docs/v5x/extensions/packages.html), that is inserted into a page of an existing PHP application.
-So it's also a single page application, and all its operations are performed with Ajax requests.
+Jaxon DbAdmin is designed with security and accountability in mind.
+Users authenticate with their own credentials, database secrets stay strictly server-side and are never shared, and every operation can be recorded in an audit log.
 
-Separate packages provide ready-to-use applications which run Jaxon DbAdmin respectively with the [Laravel](https://github.com/lagdo/dbadmin-app-laravel), [Symfony](https://github.com/lagdo/dbadmin-app-symfony) and [Slim](https://github.com/lagdo/dbadmin-app-slim) frameworks.
+Jaxon DbAdmin is a [Jaxon package](https://www.jaxon-php.org/docs/v5x/extensions/packages.html).
+Separate packages provide ready-to-use applications running respectively with the [Laravel](https://github.com/lagdo/dbadmin-app-laravel), [Symfony](https://github.com/lagdo/dbadmin-app-symfony) and [Slim](https://github.com/lagdo/dbadmin-app-slim) frameworks.
 This blog post on the Jaxon website explains how to install Jaxon DbAdmin on [Backpack](https://backpackforlaravel.com), a Laravel-based admin panel: [https://www.jaxon-php.org/blog/2025/07/install-jaxon-dbadmin-on-backpack.html](https://www.jaxon-php.org/blog/2025/07/install-jaxon-dbadmin-on-backpack.html).
 
 The database access code (and thus the provided features) originates from [Adminer](https://github.com/vrana/adminer).
@@ -66,14 +68,13 @@ The following features are currently available:
 The following features are planned for future releases:
 
 - An advanced GUI-based query builder.
-- Automated tests.
-- Advanced SQL edition and code completion with the Ace linters
-  - https://github.com/mkslanc/ace-linters
-  - https://www.npmjs.com/package/ace-sql-linter
-- Provide a WebAwesome based UI template
-- Provide TailwindCSS based UI templates.
+- An AI assistant for building and running queries.
+- An advanced SQL parser:
+  - https://github.com/tobymao/sqlglot
+- Alternative UI templates, with WebAwesome, TailwindCSS and Bulma.
 - Use an advanced UI component for HTML tables.
 - Save and display more data in the audit logs.
+- Automated tests.
 
 ### The Jaxon DbAdmin applications
 
