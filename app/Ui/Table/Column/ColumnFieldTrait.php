@@ -5,8 +5,8 @@ namespace Lagdo\DbAdmin\App\Ui\Table\Column;
 use Jaxon\Script\JsExpr;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
+use Lagdo\HtmlBuilder\HtmlComponent;
 use Lagdo\UiBuilder\BuilderInterface;
-use Lagdo\UiBuilder\HtmlComponent;
 
 use function array_filter;
 use function array_values;

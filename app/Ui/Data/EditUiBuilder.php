@@ -8,8 +8,8 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\ColumnDmDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultRowDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectRowsetDto;
 use Lagdo\DbAdmin\Support\Translator;
+use Lagdo\HtmlBuilder\HtmlComponent;
 use Lagdo\UiBuilder\BuilderInterface;
-use Lagdo\UiBuilder\HtmlComponent;
 
 use function Jaxon\jo;
 use function Jaxon\pm;

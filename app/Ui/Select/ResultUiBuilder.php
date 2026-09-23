@@ -10,7 +10,7 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\QueryResultRowDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Dql\SelectRowsetDto;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
-use Lagdo\UiBuilder\Html\Component\Component;
+use Lagdo\HtmlBuilder\Component\Component;
 use Closure;
 
 use function array_filter;

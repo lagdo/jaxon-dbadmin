@@ -10,7 +10,7 @@ use Lagdo\DbAdmin\App\Ajax\Audit\Sidebar;
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
-use Lagdo\UiBuilder\Html\HtmlComponent;
+use Lagdo\HtmlBuilder\HtmlComponent;
 use DateInterval;
 use Lagdo\DbAdmin\App\Ajax\Audit\AppFunc;
 

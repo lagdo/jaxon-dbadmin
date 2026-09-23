@@ -4,8 +4,8 @@ namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Driver\UiDto\DetailDto;
+use Lagdo\HtmlBuilder\HtmlComponent;
 use Lagdo\UiBuilder\BuilderInterface;
-use Lagdo\UiBuilder\HtmlComponent;
 
 use function array_shift;
 use function array_values;
@@ -143,7 +143,7 @@ trait PageTrait
                         ),
                         $this->ui->when($hasMenu, fn() =>
                             $this->ui->tableDataCell(
-                                $this->ui->when($detail->menus !== null, fn() => 
+                                $this->ui->when($detail->menus !== null, fn() =>
                                     $this->buttonMenuComponent($detail->menus)
                                 )
                             )->setStyle('width:60px;')

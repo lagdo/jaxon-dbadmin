@@ -9,8 +9,8 @@ use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\App\Ui\Table\Column\ColumnFieldTrait;
 use Lagdo\DbAdmin\Support\Driver\UiDto\Ddl\ColumnFormDto;
 use Lagdo\DbAdmin\Support\Translator;
+use Lagdo\HtmlBuilder\Component\Component;
 use Lagdo\UiBuilder\BuilderInterface;
-use Lagdo\UiBuilder\Html\Component\Component;
 use Closure;
 
 use function array_filter;

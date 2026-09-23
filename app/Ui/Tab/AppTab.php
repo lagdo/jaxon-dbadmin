@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ui\Tab;
 
 use Jaxon\Plugin\Response\Databag\DatabagPlugin;
 use Jaxon\Script\Call\JxnCall;
-use Lagdo\UiBuilder\HtmlComponent;
+use Lagdo\HtmlBuilder\HtmlComponent;
 
 use function uniqid;
 

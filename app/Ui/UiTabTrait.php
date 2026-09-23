@@ -9,7 +9,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Page\DbServer;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ajax\Admin\Sidebar as AdminSidebar;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
-use Lagdo\UiBuilder\HtmlComponent;
+use Lagdo\HtmlBuilder\HtmlComponent;
 
 use function Jaxon\cl;
 use function Jaxon\jo;
