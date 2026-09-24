@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function Jaxon\form;
+use function Jaxon\pm;
 
 class ExportUiBuilder
 {
@@ -142,15 +142,14 @@ class ExportUiBuilder
                 )->unit(1, 4),
                 $this->ui->col(
                     $this->ui->each($options['output']['options'], fn($label, $value) =>
-                        $this->ui->list(
-                            $this->ui->radio()
-                                ->checked($options['output']['value'] === $value)
-                                ->setValue($value)
-                                ->setName('output'),
-                            $this->ui->html('&nbsp;' . $label . '&nbsp;')
-                        )
+                        $this->ui->radio()
+                            ->checked($options['output']['value'] === $value)
+                            ->setValue($value)
+                            ->setName('output')
+                            ->label($label)
                     )
                 )->unit(2, 3)
+                    ->setStyle('display: flex; column-gap: 10px;')
             ),
             $this->ui->row(
                 $this->ui->col(
@@ -159,15 +158,14 @@ class ExportUiBuilder
                 )->unit(1, 4),
                 $this->ui->col(
                     $this->ui->each($options['format']['options'], fn($label, $value) =>
-                        $this->ui->list(
-                            $this->ui->radio()
-                                ->checked($options['format']['value'] === $value)
-                                ->setValue($value)
-                                ->setName('format'),
-                            $this->ui->html('&nbsp;' . $label . '&nbsp;')
-                        )
+                        $this->ui->radio()
+                            ->checked($options['format']['value'] === $value)
+                            ->setValue($value)
+                            ->setName('format')
+                            ->label($label)
                     )
                 )->unit(2, 3)
+                    ->setStyle('display: flex; column-gap: 10px;')
             ),
             $this->ui->when(isset($options['db_style']), fn() =>
                 $this->ui->row(
@@ -196,8 +194,8 @@ class ExportUiBuilder
                             $this->ui->checkbox()
                                 ->checked($options['types']['checked'])
                                 ->setName('types')
-                                ->setValue($options['types']['value']),
-                            $this->ui->html('&nbsp;' . $options['types']['label'])
+                                ->setValue($options['types']['value'])
+                                ->label($options['types']['label'])
                         )->unit(1, 4)
                     ),
                     $this->ui->when(isset($options['routines']), fn() =>
@@ -205,8 +203,8 @@ class ExportUiBuilder
                             $this->ui->checkbox()
                                 ->checked($options['routines']['checked'])
                                 ->setName('routines')
-                                ->setValue($options['routines']['value']),
-                            $this->ui->html('&nbsp;' . $options['routines']['label'])
+                                ->setValue($options['routines']['value'])
+                                ->label($options['routines']['label'])
                         )->unit(1, 4)
                     ),
                     $this->ui->when(isset($options['events']), fn() =>
@@ -214,8 +212,8 @@ class ExportUiBuilder
                             $this->ui->checkbox()
                                 ->checked($options['events']['checked'])
                                 ->setName('events')
-                                ->setValue($options['events']['value']),
-                            $this->ui->html('&nbsp;' . $options['events']['label'])
+                                ->setValue($options['events']['value'])
+                                ->label($options['events']['label'])
                         )->unit(1, 4)
                     )
                 ),
@@ -243,16 +241,16 @@ class ExportUiBuilder
                     $this->ui->checkbox()
                         ->checked($options['auto_increment']['checked'])
                         ->setName('auto_increment')
-                        ->setValue($options['auto_increment']['value']),
-                    $this->ui->html('&nbsp;' . $options['auto_increment']['label'])
+                        ->setValue($options['auto_increment']['value'])
+                        ->label($options['auto_increment']['label'])
                 )->unit(1, 4),
                 $this->ui->when(isset($options['triggers']), fn() =>
                     $this->ui->col(
                         $this->ui->checkbox()
                             ->checked($options['triggers']['checked'])
                             ->setName('triggers')
-                            ->setValue($options['triggers']['value']),
-                        $this->ui->html('&nbsp;' . $options['triggers']['label'])
+                            ->setValue($options['triggers']['value'])
+                            ->label($options['triggers']['label'])
                     )->unit(1, 4),
                 )
             ),
@@ -279,7 +277,7 @@ class ExportUiBuilder
                     $this->ui->button($this->ui->text($this->trans->lang('Export')))
                         ->fullWidth()
                         ->primary()
-                        ->jxnClick($rqExport->export(form($this->formId())))
+                        ->jxnClick($rqExport->export(pm()->form($this->formId())))
                 )->unit(1, 3)
             )
         );
@@ -299,14 +297,14 @@ class ExportUiBuilder
                         $this->ui->tableHeadCell(
                             $this->ui->checkbox()
                                 ->checked(true)
-                                ->setId($this->databaseNameId() . '-all'),
-                            $this->ui->html('&nbsp;' . $databases['headers'][0])
+                                ->setId($this->databaseNameId() . '-all')
+                                ->label($databases['headers'][0])
                         ),
                         $this->ui->tableHeadCell(
                             $this->ui->checkbox()
                                 ->checked(true)
-                                ->setId($this->databaseDataId() . '-all'),
-                            $this->ui->html('&nbsp;' . $databases['headers'][1])
+                                ->setId($this->databaseDataId() . '-all')
+                                ->label($databases['headers'][1])
                         )
                     )
                 ),
@@ -319,8 +317,8 @@ class ExportUiBuilder
                                     ->setName('database_list[]')
                                     ->setClass($this->databaseNameClass)
                                     ->setValue($database['name'])
-                                    ->setDataPos($pos),
-                                $this->ui->html('&nbsp;' . $database['name'])
+                                    ->setDataPos($pos)
+                                    ->label($database['name'])
                             ),
                             $this->ui->tableDataCell(
                                 $this->ui->checkbox()
@@ -351,14 +349,14 @@ class ExportUiBuilder
                         $this->ui->tableHeadCell(
                             $this->ui->checkbox()
                                 ->checked(true)
-                                ->setId($this->tableNameId() . '-all'),
-                            $this->ui->html('&nbsp;' . $tables['headers'][0])
+                                ->setId($this->tableNameId() . '-all')
+                                ->label($tables['headers'][0])
                         ),
                         $this->ui->tableHeadCell(
                             $this->ui->checkbox()
                                 ->checked(true)
-                                ->setId($this->tableDataId() . '-all'),
-                            $this->ui->html('&nbsp;' . $tables['headers'][1])
+                                ->setId($this->tableDataId() . '-all')
+                                ->label($tables['headers'][1])
                         )
                     )
                 ),
@@ -371,8 +369,8 @@ class ExportUiBuilder
                                     ->setName('table_list[]')
                                     ->setClass($this->tableNameClass)
                                     ->setValue($table['name'])
-                                    ->setDataPos($pos),
-                                $this->ui->html('&nbsp;' . $table['name'])
+                                    ->setDataPos($pos)
+                                    ->label($table['name'])
                             ),
                             $this->ui->tableDataCell(
                                 $this->ui->checkbox()

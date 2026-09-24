@@ -62,17 +62,20 @@ class ColumnUiBuilder
                         $this->getColumnPrimaryField($input, 'primary'),
                         $this->ui->span($this->ui->html('Primary'))
                             ->setStyle('margin-left:5px;')
-                    )->unit(1, 4),
+                    )->unit(1, 4)
+                        ->setStyle('display: flex;'),
                     $this->ui->col(
                         $this->getColumnAutoIncrementField($input, 'autoIncrement'),
                         $this->ui->span($this->ui->html('Auto increment'))
                             ->setStyle('margin-left:5px;')
-                    )->unit(1, 2),
+                    )->unit(1, 2)
+                        ->setStyle('display: flex;'),
                     $this->ui->col(
                         $this->getColumnNullableField($input, 'nullable'),
                         $this->ui->span($this->ui->html('Nullable'))
                             ->setStyle('margin-left:5px;')
                     )->unit(1, 4)
+                        ->setStyle('display: flex;')
                 ),
                 $this->ui->row(
                     $this->ui->col(

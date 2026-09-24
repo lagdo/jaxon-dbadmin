@@ -235,6 +235,10 @@ class TableUiBuilder
     public function content(): string
     {
         $support = $this->support(['columns']);
+        $toggleTableVisibility = jo('jaxon.dbadmin')
+            ->toggleVisibility($this->tableFormId(), self::tableToggleClass);
+        $toggleColumnVisibility = jo('jaxon.dbadmin')
+            ->toggleVisibility($this->columnsFormId(), self::columnToggleClass);
 
         return $this->ui->build(
             $this->ui->div(
@@ -244,8 +248,7 @@ class TableUiBuilder
                 $this->ui->div(
                     $this->ui->button($this->ui->html('<i class="fa fa-expand"></i>'))
                         ->primary()
-                        ->jxnClick(jo('jaxon.dbadmin')->toggleVisibility(
-                            $this->tableFormId(), self::tableToggleClass))
+                        ->jxnClick($toggleTableVisibility)
                 )->setClass('dbadmin-table-edit-header-buttons')
             )->setClass('dbadmin-table-edit-header'),
             $this->ui->div()
@@ -260,8 +263,7 @@ class TableUiBuilder
                         $this->ui->buttonGroup(
                             $this->ui->button($this->ui->html('<i class="fa fa-expand"></i>'))
                                 ->primary()
-                                ->jxnClick(jo('jaxon.dbadmin')->toggleVisibility(
-                                    $this->columnsFormId(), self::columnToggleClass)),
+                                ->jxnClick($toggleColumnVisibility),
                             $this->ui->button($this->ui->html('<i class="fa fa-plus"></i>'))
                                 ->primary()
                                 ->jxnClick($this->rqCreate()->add())
@@ -449,9 +451,9 @@ class TableUiBuilder
                 $this->ui->div(
                     $this->ui->inputGroup(
                         $this->ui->input('')
-                            ->setPlaceholder('Nullable')
+                            ->setPlaceholder('Primary')
                             ->with(fn($elt) => $this->disable($elt, true)),
-                        $this->getColumnNullableField($input, "{$editPrefix}[null]")
+                        $this->getColumnPrimaryField($input, "{$editPrefix}[primary]")
                             ->with(fn($elt) => $this->disable($elt, false))
                     )
                 )->setStyle('width: 17%;')
@@ -459,9 +461,9 @@ class TableUiBuilder
                 $this->ui->div(
                     $this->ui->inputGroup(
                         $this->ui->input('')
-                            ->setPlaceholder('Primary')
+                            ->setPlaceholder('Nullable')
                             ->with(fn($elt) => $this->disable($elt, true)),
-                        $this->getColumnPrimaryField($input, "{$editPrefix}[primary]")
+                        $this->getColumnNullableField($input, "{$editPrefix}[null]")
                             ->with(fn($elt) => $this->disable($elt, false))
                     )
                 )->setStyle('width: 16%;')
