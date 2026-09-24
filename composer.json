@@ -26,8 +26,8 @@
         "jaxon-php/jaxon-upload": "^2.1",
         "lagdo/dbadmin-driver": "0.23.*",
         "lagdo/facades": "^1.2",
-        "lagdo/jaxon-ui-builder": "0.13.*",
-        "lagdo/ui-builder": "0.13.*"
+        "lagdo/jaxon-ui-builder": "0.14.*",
+        "lagdo/ui-builder": "0.14.*"
     },
     "require-dev": {
         "ext-mysqli": "*",
