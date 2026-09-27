@@ -1,5 +1,6 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lagdo/jaxon-dbadmin/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/lagdo/jaxon-dbadmin/?branch=main)
 [![StyleCI](https://styleci.io/repos/402856578/shield?branch=main)](https://styleci.io/repos/402856578)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Flagdo%2Fjaxon-dbadmin.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Flagdo%2Fjaxon-dbadmin?ref=badge_shield)
 
 [![Latest Stable Version](https://poser.pugx.org/lagdo/jaxon-dbadmin/v/stable)](https://packagist.org/packages/lagdo/jaxon-dbadmin)
 [![Total Downloads](https://poser.pugx.org/lagdo/jaxon-dbadmin/downloads)](https://packagist.org/packages/lagdo/jaxon-dbadmin)
@@ -569,3 +570,7 @@ service requires a separate commercial license.
 
 After the Change Date specified in the LICENSE file, the applicable
 version will be available under Apache License 2.0.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Flagdo%2Fjaxon-dbadmin.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Flagdo%2Fjaxon-dbadmin?ref=badge_large)
