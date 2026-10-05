@@ -10,30 +10,22 @@ use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Admin\AppFunc;
 use Lagdo\DbAdmin\App\Ui\UiBuilder;
-use Lagdo\DbAdmin\Support\DiAlias\AuthInterface;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
-use Lagdo\DbAdmin\Support\Provider\Secret\KeyBuilderInterface;
-use Lagdo\DbAdmin\Support\Service\Export\FileSystemInterface;
 
-use function count;
 use function file_exists;
 use function in_array;
 use function realpath;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
-use function Lagdo\UiBuilder\Jaxon\registerUiBuilder;
 
 /**
  * Jaxon DbAdmin package
  */
 class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterface, JsCodeGeneratorInterface
 {
-    /**
-     * @var bool
-     */
-    private static bool $registered = false;
+    use PackageConfigTrait;
 
     /**
      * @param UiBuilder $ui
@@ -69,34 +61,8 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $jaxon->setAppOption('assets.file', 'admin');
 
         $app = require "$configDir/app.php";
-        $services = [];
+        self::registerAppServices($app);
 
-        $auth = $app['auth'] ?? null;
-        if ($auth !== null) {
-            $services[AuthInterface::class] = $auth;
-        }
-        $export = $app['export'] ?? null;
-        if ($export !== null) {
-            $services[FileSystemInterface::class] = $export;
-        }
-        $secret = $app['secret'] ?? [];
-        if (isset($secret['reader']) && isset($secret['key'])) {
-            $jaxon->setAppOption('container.alias.' .
-                SecretConfigProvider::class, $secret['reader']);
-            $services[KeyBuilderInterface::class] = $secret['key'];
-        } else {
-            $services[SecretConfigProvider::class] = fn() => new SecretConfigProvider();
-        }
-
-        if (count($services) > 0) {
-            $jaxon->setAppOptions($services, 'container.set');
-        }
-
-        $template = $app['ui']['template'] ?? null;
-        if ($template !== null) {
-            registerUiBuilder($template);
-            $jaxon->setAppOption('template', $template);
-        }
         // Register the package.
         $foreigns = require "$configDir/foreigns.php";
         $jaxon->registerPackage(self::class, [

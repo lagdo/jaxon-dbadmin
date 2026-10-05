@@ -9,26 +9,20 @@ use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Audit\AppFunc;
 use Lagdo\DbAdmin\App\Ui\AuditUiBuilder;
-use Lagdo\DbAdmin\Support\DiAlias\AuthInterface;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
-use Lagdo\DbAdmin\Support\Provider\Secret\KeyBuilderInterface;
 
 use function in_array;
 use function realpath;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
-use function Lagdo\UiBuilder\Jaxon\registerUiBuilder;
 
 /**
  * Jaxon DbAdmin audit package
  */
 class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterface, JsCodeGeneratorInterface
 {
-    /**
-     * @var bool
-     */
-    private static bool $registered = false;
+    use PackageConfigTrait;
 
     /**
      * @param AuditUiBuilder $ui
@@ -66,30 +60,8 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $jaxon->setAppOption('assets.file', 'audit');
 
         $app = require "$configDir/app.php";
-        $services = [];
+        self::registerAppServices($app);
 
-        $auth = $app['auth'] ?? null;
-        if ($auth !== null) {
-            $services[AuthInterface::class] = $auth;
-        }
-        $secret = $app['secret'] ?? null;
-        if (isset($secret['reader']) && isset($secret['key'])) {
-            $jaxon->setAppOption('container.alias.' .
-                SecretConfigProvider::class, $secret['reader']);
-            $services[KeyBuilderInterface::class] = $secret['key'];
-        } else {
-            $services[SecretConfigProvider::class] = fn() => new SecretConfigProvider();
-        }
-
-        if (count($services) > 0) {
-            $jaxon->setAppOptions($services, 'container.set');
-        }
-
-        $template = $app['ui']['template'] ?? null;
-        if ($template !== null) {
-            registerUiBuilder($template);
-            $jaxon->setAppOption('template', $template);
-        }
         // Register the package.
         $jaxon->registerPackage(self::class, [
             ...($app['audit'] ?? []),

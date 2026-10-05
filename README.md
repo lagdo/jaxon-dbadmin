@@ -153,16 +153,6 @@ The following builders are available:
 - Bootstrap 4: [https://github.com/lagdo/ui-builder-bootstrap4](https://github.com/lagdo/ui-builder-bootstrap4)
 - Bootstrap 3: [https://github.com/lagdo/ui-builder-bootstrap3](https://github.com/lagdo/ui-builder-bootstrap3)
 
-In the above example, the UI will be built with Bootstrap5 components.
-
-```php
-    'app' => [
-        'ui' => [
-            'template' => 'bootstrap5',
-        ],
-    ],
-```
-
 Additional config options
 -------------------------
 
