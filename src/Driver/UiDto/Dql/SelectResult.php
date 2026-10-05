@@ -171,7 +171,7 @@ class SelectResult extends AbstractDriverProxy
 
         $function = $uiColumn?->func ?? '';
         $columnKey = !$select->columns ? $dbField : ($uiColumn?->columnName ?? $sqlField);
-        $column = $select->table->columns[$columnKey] ?? null;
+        $column = $columnKey === null ? null : $select->table->columns[$columnKey] ?? null;
         if ($column === null) {
             $header->column = new ColumnDto();
             // The SQL clause in the select query.

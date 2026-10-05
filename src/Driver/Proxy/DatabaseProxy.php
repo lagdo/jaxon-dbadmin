@@ -167,6 +167,7 @@ class DatabaseProxy extends AbstractDriverProxy
             'headers' => $this->header()->tables(),
             'details' => $this->content()->tables($tables),
             'numbers' => [
+                'auto_increment' => true,
                 'data_length' => true,
                 'index_length' => true,
                 'data_free' => true,
