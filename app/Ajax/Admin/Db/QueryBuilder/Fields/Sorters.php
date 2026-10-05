@@ -8,7 +8,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\QueryText;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
 
 use function array_filter;
-use function Jaxon\form;
+use function Jaxon\pm;
 
 /**
  * This class provides select query features on tables.
@@ -31,7 +31,7 @@ class Sorters extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(form($this->optionsUi->sorterFormId())),
+            'click' => $this->rq()->save(pm()->form($this->optionsUi->sorterFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
 

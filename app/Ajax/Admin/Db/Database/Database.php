@@ -6,7 +6,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\FuncComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Server\Databases;
 use Lagdo\DbAdmin\App\Ui\Database\ServerUiBuilder;
 
-use function Jaxon\form;
+use function Jaxon\pm;
 
 class Database extends FuncComponent
 {
@@ -34,7 +34,7 @@ class Database extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create(form($this->serverUi->dbFormId())),
+            'click' => $this->rq()->create(pm()->form($this->serverUi->dbFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }

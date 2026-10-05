@@ -6,7 +6,7 @@ use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\ResultSet;
 use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
 
-use function Jaxon\form;
+use function Jaxon\pm;
 
 /**
  * This class provides insert and update query features on tables.
@@ -31,7 +31,7 @@ class InsertFunc extends FuncComponent
         $tableName = $this->getCurrentTable();
         $title = "New row in table $tableName";
         $content = $this->editUi->rowDataForm($tableName, $columns);
-        $values = form($this->editUi->queryFormId());
+        $values = pm()->form($this->editUi->queryFormId());
         // Bootbox options
         $options = ['size' => 'large'];
         $buttons = [[

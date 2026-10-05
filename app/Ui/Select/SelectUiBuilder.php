@@ -16,8 +16,8 @@ use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function Jaxon\cl;
-use function Jaxon\input;
 use function Jaxon\jo;
+use function Jaxon\pm;
 use function Jaxon\rq;
 use function sprintf;
 
@@ -100,7 +100,7 @@ class SelectUiBuilder
     public function gotoPageForm(int $page): string
     {
         $pageInputId = $this->tab()->app()->id('jaxon-dbadmin-resulset-goto-page');
-        $pageNumber = input($pageInputId)->toInt();
+        $pageNumber = pm()->input($pageInputId)->toInt();
         return $this->ui->inForm(fn() =>
             $this->ui->build(
                 $this->ui->inputGroup(
@@ -118,7 +118,7 @@ class SelectUiBuilder
                         ->jxnClick(rq(ResultSet::class)->page($pageNumber)
                             // In Js, NaN is not equal to itself.
                             ->ifteq($pageNumber, $pageNumber)
-                            ->elseWarning('Invalid page number {1}', input($pageInputId)))
+                            ->elseWarning('Invalid page number {1}', pm()->input($pageInputId)))
                 )
             )
         );

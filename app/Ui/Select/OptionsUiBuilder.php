@@ -9,9 +9,7 @@ use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
-use function Jaxon\checked;
-use function Jaxon\form;
-use function Jaxon\input;
+use function Jaxon\pm;
 use function Jaxon\rq;
 
 class OptionsUiBuilder
@@ -49,11 +47,11 @@ class OptionsUiBuilder
                     $this->ui->button()
                         ->primary()
                         ->addIcon('plus')
-                        ->jxnClick($rqInput->add(form($formId))),
+                        ->jxnClick($rqInput->add(pm()->form($formId))),
                     $this->ui->button()
                         ->danger()
                         ->addIcon('remove')
-                        ->jxnClick($rqInput->del(form($formId)))
+                        ->jxnClick($rqInput->del(pm()->form($formId)))
                 )
             )->unit(1, 4)
         );
@@ -86,8 +84,7 @@ class OptionsUiBuilder
                             )
                         )->setLabel($this->trans->lang('Aggregation')),
                     )->setName("columns[$newId][func]")
-                )
-                ->unit(1, 2),
+                )->unit(1, 2),
                 $this->ui->col(
                     $this->ui->select(
                         $this->ui->option(''),
@@ -324,9 +321,9 @@ class OptionsUiBuilder
         $optionsTotalId = $this->tab()->app()->id('dbadmin-table-select-options-form-total');
         $optionsLengthId = $this->tab()->app()->id('dbadmin-table-select-options-form-length');
         $rqOptionsValues = rq(QueryBuilder\Values::class);
-        $selectLimitValue = input($optionsLimitId)->toInt();
-        $selectTotalValue = checked($optionsTotalId);
-        $textLengthValue = input($optionsLengthId)->toInt();
+        $selectLimitValue = pm()->input($optionsLimitId)->toInt();
+        $selectTotalValue = pm()->checked($optionsTotalId);
+        $textLengthValue = pm()->input($optionsLengthId)->toInt();
 
         return $this->ui->inForm(fn() =>
             $this->ui->build(

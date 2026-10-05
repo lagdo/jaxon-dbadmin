@@ -6,7 +6,7 @@ use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\FuncComponent;
 use Lagdo\DbAdmin\App\Ui\Database\ServerUiBuilder;
 
-use function Jaxon\form;
+use function Jaxon\pm;
 
 #[Before('notYetAvailable')]
 class Privilege extends FuncComponent
@@ -37,7 +37,7 @@ class Privilege extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create(form($this->serverUi->userFormId())),
+            'click' => $this->rq()->create(pm()->form($this->serverUi->userFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }
@@ -80,7 +80,7 @@ class Privilege extends FuncComponent
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->update(form($this->serverUi->userFormId())),
+            'click' => $this->rq()->update(pm()->form($this->serverUi->userFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }

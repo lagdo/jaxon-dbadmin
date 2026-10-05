@@ -10,7 +10,7 @@ use Lagdo\DbAdmin\App\Ui\Data\EditUiBuilder;
 
 use function count;
 use function is_array;
-use function Jaxon\form;
+use function Jaxon\pm;
 
 /**
  * This class provides insert and update query features on tables.
@@ -38,7 +38,7 @@ class UpdateFunc extends FuncComponent
         $tableName = $this->getCurrentTable();
         $title = "Edit row in table $tableName";
         $content = $this->editUi->rowDataForm($tableName, $columns);
-        $values = form($this->editUi->queryFormId());
+        $values = pm()->form($this->editUi->queryFormId());
 
         // Bootbox options
         $options = ['size' => 'large'];

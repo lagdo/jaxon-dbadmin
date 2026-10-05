@@ -7,7 +7,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Db\QueryBuilder\FuncComponent;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Table\Dql\QueryText;
 
 use function array_filter;
-use function Jaxon\form;
+use function Jaxon\pm;
 
 /**
  * This class provides select query features on tables.
@@ -30,7 +30,7 @@ class Filters extends FuncComponent
         ], [
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->save(form($this->optionsUi->filterFormId())),
+            'click' => $this->rq()->save(pm()->form($this->optionsUi->filterFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
 

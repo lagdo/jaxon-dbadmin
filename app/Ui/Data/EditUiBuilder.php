@@ -41,18 +41,18 @@ class EditUiBuilder
      */
     protected function getEnumValueInput(array $input): mixed
     {
-        return $this->ui->each($input['items'], fn(array $item) =>
-            $this->ui->label(
+        return $this->ui->radioGroup(
+            $this->ui->each($input['items'], fn(array $item) =>
                 $this->ui->radio($item['attrs'])
                     ->setValue($item['value'], false)
-                    ->when($item['checked'], fn($radio) =>
-                        $radio->setAttribute('checked', 'checked'))
-                    ->setStyle('margin-right:3px;'),
-                $this->ui->span($item['label'])
-            )->when(isset($item['attrs']['id']), fn(HtmlComponent $label) =>
-                $label->setFor($this->tab()->app()->id($item['attrs']['id']))
-            )->setStyle('margin-right:7px;')
-        );
+                    ->checked($item['checked'])
+                    ->setStyle('margin-right:3px;')
+                    ->label($item['label'])
+                    ->when(isset($item['attrs']['id']), fn(HtmlComponent $label) =>
+                        $label->setFor($this->tab()->app()->id($item['attrs']['id']))
+                )->setStyle('margin-right:7px;')
+            )
+        )->horizontal();
     }
 
     /**

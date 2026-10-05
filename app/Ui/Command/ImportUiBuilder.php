@@ -8,8 +8,8 @@ use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 
-use function Jaxon\form;
 use function Jaxon\jq;
+use function Jaxon\pm;
 
 class ImportUiBuilder
 {
@@ -53,7 +53,7 @@ class ImportUiBuilder
      */
     public function formValues(): array
     {
-        return form($this->formId());
+        return pm()->form($this->formId());
     }
 
     /**
