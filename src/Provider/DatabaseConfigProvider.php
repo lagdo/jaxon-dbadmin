@@ -196,7 +196,7 @@ class DatabaseConfigProvider
      */
     private function isEnvVar(string $value): bool
     {
-        return preg_match($this->compareRegex, $value) !== false;
+        return preg_match($this->compareRegex, $value) === 1;
     }
 
     /**

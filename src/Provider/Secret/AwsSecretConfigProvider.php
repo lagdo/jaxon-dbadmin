@@ -4,10 +4,11 @@ namespace Lagdo\DbAdmin\Support\Provider\Secret;
 
 use Aws\Exception\AwsException;
 use Aws\SecretsManager\SecretsManagerClient;
-use Lagdo\Facades\Logger;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
+use Lagdo\Facades\Logger;
 use RuntimeException;
 
+use function is_string;
 use function json_decode;
 use function json_last_error;
 
@@ -63,7 +64,9 @@ class AwsSecretConfigProvider extends SecretConfigProvider
         // The secret name is generated with the provided builder using only the prefix.
         $secretName = $this->keyBuilder->build($prefix);
         $secret = $this->getSecret($secretName);
-        if (!isset($secret['username']) || !isset($secret['password'])) {
+        if (!isset($secret['username']) || !isset($secret['password']) ||
+            !is_string($secret['username']) || !is_string($secret['password']) ||
+            $secret['username'] === '' || $secret['password'] === '') {
             throw new RuntimeException("Secret retrieval failed: required field missing");
         }
 
