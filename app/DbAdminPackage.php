@@ -147,7 +147,7 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
             "$assetsUrl/editor/$editor.js",
         ];
 
-        return new JsCode(sHtml: $html, aUrls: $urls);
+        return new JsCode(sHtml: "$html", aUrls: $urls);
     }
 
     /**

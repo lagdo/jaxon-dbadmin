@@ -91,20 +91,18 @@ class ResultUiBuilder
         return $this->ui->tableHeadCell(
             $this->ui->div($this->ui->html($header->title)),
             $this->ui->when($header->column->name !== '', fn() =>
-                $this->ui->list(
-                    $this->ui->div(
-                        $this->ui->a($this->ui->html('&#9651;'))
-                            ->setAttributes(['href' => 'javascript:void(0)'])
-                            ->jxnClick($rqSorter->upsert($header->column->name, false)),
-                        $this->ui->html('&nbsp;'),
-                        $this->ui->a($this->ui->html('&#9661;'))
-                            ->setAttributes(['href' => 'javascript:void(0)'])
-                            ->jxnClick($rqSorter->upsert($header->column->name, true)),
-                        $this->ui->html('&nbsp;'),
-                        $this->ui->a($this->ui->html('&#8553;'))
-                            ->setAttributes(['href' => 'javascript:void(0)'])
-                            ->jxnClick($rqSorter->remove($header->column->name))
-                    )
+                $this->ui->div(
+                    $this->ui->a($this->ui->html('&#9651;'))
+                        ->setAttribute('href', 'javascript:void(0)')
+                        ->jxnClick($rqSorter->upsert($header->column->name, false)),
+                    $this->ui->html('&nbsp;'),
+                    $this->ui->a($this->ui->html('&#9661;'))
+                        ->setAttribute('href', 'javascript:void(0)')
+                        ->jxnClick($rqSorter->upsert($header->column->name, true)),
+                    $this->ui->html('&nbsp;'),
+                    $this->ui->a($this->ui->html('&#8553;'))
+                        ->setAttribute('href', 'javascript:void(0)')
+                        ->jxnClick($rqSorter->remove($header->column->name))
                 )
             )
         )->addClass('table-header');

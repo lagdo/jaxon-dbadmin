@@ -67,7 +67,7 @@ trait PageTrait
     private function getTableCell(mixed $content): mixed
     {
         if (!is_array($content)) {
-            return $this->ui->tableDataCell($this->ui->html($content));
+            return $this->ui->tableDataCell($this->ui->html("$content"));
         }
 
         $element = $this->ui->tableDataCell();

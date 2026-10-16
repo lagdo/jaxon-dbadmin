@@ -103,7 +103,7 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
             "$assetsUrl/app/table.css",
         ];
 
-        return new CssCode(sHtml: $html, aUrls: $urls);
+        return new CssCode(sHtml: "$html", aUrls: $urls);
     }
 
     /**

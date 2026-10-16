@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Database;
 
 use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\App\Ajax\Base\FuncComponent as BaseComponent;
-use Lagdo\DbAdmin\Support\Exception\DriverException;
+use Lagdo\DbAdmin\Driver\Exception\DriverException;
 
 #[Before('checkDatabaseAccess')]
 abstract class FuncComponent extends BaseComponent

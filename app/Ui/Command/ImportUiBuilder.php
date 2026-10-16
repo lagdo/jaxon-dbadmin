@@ -69,8 +69,7 @@ class ImportUiBuilder
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->label($this->trans->lang('File upload'))
-                )
-                ->unit(1, 3),
+                )->unit(1, 3),
                 $this->ui->when(isset($contents['upload']), fn() =>
                     $this->ui->col($this->ui->html($contents['upload']))
                         ->unit(2, 3)

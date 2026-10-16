@@ -59,7 +59,7 @@ class ColumnInput extends AbstractDriverProxy
 
     /**
      * Get data for enum or set input field
-     * 
+     *
      * @param ColumnDmDto $input
      */
     private function getItemList(ColumnDmDto $input, array $attrs, string $default = ""): array|null
