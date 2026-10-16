@@ -1,6 +1,6 @@
 <?php
 
-use Lagdo\DbAdmin\Support\Exception\DriverException;
+use Lagdo\DbAdmin\Driver\Exception\DriverException;
 
 use function Jaxon\jaxon;
 
