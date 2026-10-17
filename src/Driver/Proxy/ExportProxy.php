@@ -88,7 +88,6 @@ class ExportProxy extends AbstractDriverProxy
      */
     private function dumpCsv(array $row): Generator
     {
-        // From functions.inc.php
         foreach ($row as $key => $val) {
             if (preg_match('~["\n,;\t]|^0|\.\d*0$~', $val ?? '') || $val === '') {
                 $row[$key] = '"' . str_replace('"', '""', $val) . '"';
@@ -312,9 +311,8 @@ class ExportProxy extends AbstractDriverProxy
      */
     private function dumpCreateTableOrView(string $table, string $style, int $tableType = 0): Generator
     {
-        // From adminer.inc.php
         if ($this->options['format'] !== 'sql') {
-            yield $this->nl("\xef\xbb\xbf"); // UTF-8 byte order mark
+            yield "\xef\xbb\xbf"; // UTF-8 byte order mark
             if ($style) {
                 yield from $this->dumpCsv(array_keys($this->engine()->columns($table)));
             }
@@ -340,22 +338,43 @@ class ExportProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param TableDto $tableStatus
-     * @param bool $dumpTable
-     * @param bool $dumpData
+     * @param TableDto $status
+     * @param array $options
      *
      * @return Generator
      */
-    private function dumpTable(TableDto $tableStatus, bool $dumpTable, bool $dumpData): Generator
+    private function dumpTable(TableDto $status, array $options): Generator
     {
+        $dumpTable = $options['table'];
         $style = $dumpTable ? $this->options['table_style'] : '';
-        $tableType = $this->engine()->isView($tableStatus) ? 2 : 1;
-        yield from $this->dumpCreateTableOrView($tableStatus->name, $style, $tableType);
+        $tableType = $this->engine()->isView($status) ? 2 : 1;
+        yield from $this->dumpCreateTableOrView($status->name, $style, $tableType);
+
+        $dumpData = $options['data'];
         if ($dumpData) {
-            yield from $this->dumpTableData($tableStatus->name);
+            yield from $this->dumpTableData($status->name);
         }
         if ($this->toSql() && $this->options['triggers'] && $dumpTable) {
-            yield from $this->dumpTableTriggers($tableStatus->name);
+            yield from $this->dumpTableTriggers($status->name);
+        }
+    }
+
+    /**
+     * @param array<TableDto> $tableStatuses
+     *
+     * @return Generator
+     */
+    private function dumpForeignKeys(array $tableStatuses): Generator
+    {
+        $tables = array_filter($tableStatuses, $this->engine()->isTable(...));
+        foreach ($tables as $status) {
+            $queries = $this->statement()->getForeignKeyQueries($status);
+            foreach ($queries as $query) {
+                yield $this->nl($query);
+            }
+            if (count($queries) > 0) {
+                yield "\n";
+            }
         }
     }
 
@@ -368,25 +387,17 @@ class ExportProxy extends AbstractDriverProxy
     private function dumpTables(array $tableStatuses, array $tableOptions): Generator
     {
         foreach ($tableStatuses as $status) {
-            yield $this->nl('');
+            if ($this->toSql()) {
+                yield "\n";
+            }
             $options = $tableOptions[$status->name] ?? $tableOptions['*'];
-            yield from $this->dumpTable($status, $options['table'], $options['data']);
-        }
-        if (!$this->engine()->pgsql()) {
-            return;
+            yield from $this->dumpTable($status, $options);
         }
 
-        // Add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
-        yield $this->nl('');
-        $tables = array_filter($tableStatuses, $this->engine()->isTable(...));
-        foreach ($tables as $status) {
-            $queries = $this->statement()->getForeignKeyQueries($status);
-            if (count($queries) > 0) {
-                $queries[] = '';
-            }
-            foreach ($queries as $query) {
-                yield $this->nl($query);
-            }
+        if ($this->engine()->pgsql() && $this->toSql()) {
+            // Add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
+            yield "\n";
+            yield from $this->dumpForeignKeys($tableStatuses);
         }
     }
 
@@ -499,7 +510,7 @@ class ExportProxy extends AbstractDriverProxy
         // From dump.inc.php
         $style = $this->options['db_style'];
         foreach ($this->engine()->userTypes(true) as $type) {
-            yield $this->nl(''); // Empty line
+            yield "\n"; // Empty line
             if (count($type->enums) === 0) {
                 //! https://github.com/postgres/postgres/blob/REL_17_4/src/bin/pg_dump/pg_dump.c#L10846
                 yield $this->nl("-- Could not export type {$type->name}");
@@ -537,7 +548,7 @@ class ExportProxy extends AbstractDriverProxy
 
             $create = $this->getRoutineQuery($routine, $routineInfo);
             $this->statement()->setUtf8mb4($create);
-            yield $this->nl(''); // Empty line
+            yield "\n"; // Empty line
             if ($style !== 'DROP+CREATE') {
                 yield $this->nl("DROP {$routine->type} IF EXISTS $routineName;;");
             }
@@ -563,24 +574,11 @@ class ExportProxy extends AbstractDriverProxy
             $sql = "SHOW CREATE EVENT $eventName";
             $create = $this->statement()->removeDefiner($this->engine()->columnValue($sql, 3));
             $this->statement()->setUtf8mb4($create);
-            yield $this->nl(''); // Empty line
+            yield "\n"; // Empty line
             if ($style !== 'DROP+CREATE') {
                 yield $this->nl("DROP EVENT IF EXISTS $eventName;;");
             }
             yield $this->nl("$create;;", 2);
-        }
-    }
-
-    /**
-     * @param string $database
-     *
-     * @return Generator
-     */
-    private function dumpUseDatabaseQuery(string $database): Generator
-    {
-        $style = $this->options['db_style'] ?? '';
-        if ($style !== '' && preg_match('~sql~', $this->options['format'])) {
-            yield $this->nl($this->statement()->getUseDatabaseQuery($database, $style));
         }
     }
 
@@ -592,10 +590,12 @@ class ExportProxy extends AbstractDriverProxy
      */
     private function dumpDatabase(string $database, array $tableOptions): Generator
     {
-        // Dump the database using the created connection.
-        yield from $this->dumpUseDatabaseQuery($database);
-
         if ($this->toSql()) {
+            $style = $this->options['db_style'] ?? '';
+            if ($style !== '') {
+                yield $this->nl($this->statement()->getUseDatabaseQuery($database, $style));
+            }
+
             yield from $this->dumpTypes();
             yield from $this->dumpRoutines();
             yield from $this->dumpEvents();

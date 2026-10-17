@@ -40,8 +40,6 @@ class TableExport extends AbstractDriverProxy
 
     private function getRowDataOptions(string $database, string $table): array
     {
-        // \parse_str($_COOKIE['adminer_export'], $options);
-        // if(!$options) {
         $options = [
             'output' => 'save',
             'format' => 'sql',
@@ -50,11 +48,8 @@ class TableExport extends AbstractDriverProxy
             'data_style' => 'INSERT',
             'types' => true,
         ];
-        // }
-        // if(!isset($options['events'])) { // backwards compatibility
         $options['routines'] = $options['events'] = ($table === '');
         $options['triggers'] = true; // $options['table_style']; // Is a boolean
-        // }
         return $options;
     }
 

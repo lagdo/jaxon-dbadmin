@@ -232,14 +232,14 @@ class PageUi
     /**
      * Get file contents from $_FILES
      *
-     * @param string $key
+     * @param string $name
      * @param bool $decompress
      *
      * @return string|null
      */
-    public function getFileContents(string $key, bool $decompress = false): string|null
+    public function getFileContents(string $name, bool $decompress = false): string|null
     {
-        $file = $_FILES[$key];
+        $file = $_FILES[$name] ?? null;
         if (!$file) {
             return null;
         }
@@ -268,9 +268,9 @@ class PageUi
     {
         return [
             'sql' => 'SQL',
-            // 'csv' => 'CSV,',
-            // 'csv;' => 'CSV;',
-            // 'tsv' => 'TSV',
+            'csv' => 'CSV,',
+            'csv;' => 'CSV;',
+            'tsv' => 'TSV',
         ];
     }
 

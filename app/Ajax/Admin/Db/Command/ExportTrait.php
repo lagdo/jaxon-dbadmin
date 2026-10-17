@@ -87,7 +87,12 @@ trait ExportTrait
         }
 
         $options = $this->options($formValues);
-        $extensions = ['sql' => '.sql', 'csv' => '.csv', 'csv;' => '.csv', 'tsv' => '.txt'];
+        $extensions = [
+            'sql' => '.sql',
+            'csv' => '.csv',
+            'csv;' => '.csv',
+            'tsv' => '.txt',
+        ];
         $format = $options['format'] ?? 'sql';
 
         $currentDb = $this->driver()->currentDb();
