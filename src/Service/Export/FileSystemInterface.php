@@ -18,7 +18,7 @@ interface FileSystemInterface
     /**
      * @param string $filename
      *
-     * @return string
+     * @return string|null
      */
-    public function read(string $filename): string;
+    public function read(string $filename): string|null;
 }

@@ -6,6 +6,7 @@ use Jaxon\Request\Upload\FileInterface;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
+use Generator;
 
 /**
  * Proxy to table query functions
@@ -226,9 +227,9 @@ trait QueryTrait
      * @param array  $databases     The databases to dump
      * @param array  $dumpOptions   The export options
      *
-     * @return array|string
+     * @return Generator|string
      */
-    public function exportDatabases(array $databases, array $dumpOptions)
+    public function exportDatabases(array $databases, array $dumpOptions): Generator|string
     {
         $this->connectToServer();
         return $this->exportProxy()->exportDatabases($databases, $dumpOptions);

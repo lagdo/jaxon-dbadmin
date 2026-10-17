@@ -1,6 +1,5 @@
 <?php
 
-use Jaxon\App\View\ViewRenderer;
 use Jaxon\Config\ConfigSetter;
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\App\Ui;
@@ -15,38 +14,7 @@ use Lagdo\DbAdmin\Support\Service;
 $secrets = include  __DIR__ . '/secrets.php';
 
 // This setup needs to be applied after the config is loaded.
-jaxon()->callback()->boot(function() {
-    $di = jaxon()->di();
-
-    // Register a driver for each database server.
-    $configProvider = $di->g(Provider\DatabaseConfigProvider::class);
-    foreach($configProvider->getServerIds() as $server) {
-        // The driver options
-        $di->set("dbadmin_server_options_$server", fn() =>
-            $configProvider->getServerConfig($server));
-        // The driver itself
-        $di->set("dbadmin_server_$server", function() use($di, $server) {
-            $utils = $di->g(Driver\Utils\Utils::class);
-            $options = $di->g("dbadmin_server_options_$server");
-            return Driver\Driver::createDriver($utils, $options);
-        });
-    }
-    // Selected database driver options
-    $di->set(DiAlias\ServerConfig::class, function(Container $di) {
-        $setter = $di->g(ConfigSetter::class);
-        $server = $di->g('dbadmin_config_server');
-        return $setter->newConfig($di->g("dbadmin_server_options_$server"));
-    });
-    // Selected database driver
-    $di->set(DiAlias\ServerDriver::class, function(Container $di) {
-        $server = $di->g('dbadmin_config_server');
-        return $di->g("dbadmin_server_$server");
-    });
-
-    // Make the translator available into views.
-    $viewRenderer = $di->g(ViewRenderer::class);
-    $viewRenderer->share('trans', $di->g(Support\Translator::class));
-});
+jaxon()->callback()->boot(fn() => DriverHelper::setupDriver());
 
 return [
     'set' => [
@@ -147,6 +115,8 @@ return [
         Service\Breadcrumbs::class,
         // The Timer service
         Service\Admin\QueryTimer::class,
+        // Database export
+        Service\Export\DatabaseReader::class,
         // The UI builders
         Ui\AuditUiBuilder::class,
         Ui\UiBuilder::class,

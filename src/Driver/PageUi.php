@@ -281,14 +281,11 @@ class PageUi
      */
     public function dumpOutput(): array
     {
-        $output = [
-            'open' => $this->utils()->lang('open'),
+        $gzip = function_exists('gzencode') ? ['gzip' => 'gzip'] : [];
+        return [
             'save' => $this->utils()->lang('save'),
-        ];
-
-        return !function_exists('gzencode') ? $output : [
-            ...$output,
-            'gzip' => 'gzip',
+            ...$gzip,
+            'open' => $this->utils()->lang('open'),
         ];
     }
 

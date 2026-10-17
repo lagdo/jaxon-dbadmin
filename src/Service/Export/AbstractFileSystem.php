@@ -42,10 +42,7 @@ abstract class AbstractFileSystem implements FileSystemInterface
     }
 
     /**
-     * @param string $content
-     * @param string $filename
-     *
-     * @return string
+     * @inheritdoc
      */
     public function write(string $content, string $filename): string
     {
@@ -59,19 +56,16 @@ abstract class AbstractFileSystem implements FileSystemInterface
     }
 
     /**
-     * @param string $filename
-     *
-     * @return string
+     * @inheritdoc
      */
-    public function read(string $filename): string
+    public function read(string $filename): string|null
     {
         try {
             $fs = $this->fs();
             $filepath = $this->path($filename);
-            return !$fs->fileExists($filepath) ?
-                "No file $filename found." : $fs->read($filepath);
+            return $fs->fileExists($filepath) ? $fs->read($filepath) : null;
         } catch (FilesystemException|UnableToReadFile) {
-            return "No file $filename found.";
+            return null;
         }
     }
 }

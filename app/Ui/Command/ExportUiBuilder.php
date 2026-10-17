@@ -237,13 +237,6 @@ class ExportUiBuilder
                     // Actually an offset. TODO: a parameter for that.
                     $this->ui->html('&nbsp;')
                 )->unit(1, 4),
-                $this->ui->col(
-                    $this->ui->checkbox()
-                        ->checked($options['auto_increment']['checked'])
-                        ->setName('auto_increment')
-                        ->setValue($options['auto_increment']['value'])
-                        ->label($options['auto_increment']['label'])
-                )->unit(1, 4),
                 $this->ui->when(isset($options['triggers']), fn() =>
                     $this->ui->col(
                         $this->ui->checkbox()
@@ -252,7 +245,14 @@ class ExportUiBuilder
                             ->setValue($options['triggers']['value'])
                             ->label($options['triggers']['label'])
                     )->unit(1, 4),
-                )
+                ),
+                $this->ui->col(
+                    $this->ui->checkbox()
+                        ->checked($options['auto_increment']['checked'])
+                        ->setName('auto_increment')
+                        ->setValue($options['auto_increment']['value'])
+                        ->label($options['auto_increment']['label'])
+                )->unit(1, 2)
             ),
             $this->ui->row(
                 $this->ui->col(
