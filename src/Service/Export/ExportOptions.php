@@ -16,7 +16,9 @@ class ExportOptions
         public readonly string $database,
         // The data to export
         public readonly array $databases,
-        public readonly array $options
+        public readonly array $options,
+        // The other options
+        public readonly int $bufferLimit
     )
     {}
 }

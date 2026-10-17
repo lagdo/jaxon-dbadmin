@@ -102,8 +102,8 @@ trait ExportTrait
                 'database' => $currentDb->name,
                 'schema' => $currentDb->schema,
             ],
-            'databases' => $databases,
             'options' => $options,
+            'databases' => $databases,
         ], JSON_PRETTY_PRINT);
 
         $fileId = uniqid();

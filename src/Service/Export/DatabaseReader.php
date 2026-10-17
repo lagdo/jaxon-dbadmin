@@ -35,10 +35,11 @@ class DatabaseReader
 
     /**
      * @param string $filename
+     * @param int $bufferLimit
      *
      * @return ExportOptions|null
      */
-    public function options(string $filename): ExportOptions|null
+    public function options(string $filename, int $bufferLimit = 32768): ExportOptions|null
     {
         $extensions = ['sql', 'csv', 'txt'];
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
@@ -74,8 +75,9 @@ class DatabaseReader
             $filename .= '.gz';
         }
 
-        return new ExportOptions($filename, $extension, $jsonFilename, $contentType,
-            $contentDisposition, $server, $database, $schema, $databases, $options);
+        return new ExportOptions($filename, $extension, $jsonFilename,
+            $contentType, $contentDisposition, $server, $database,
+            $schema, $databases, $options, $bufferLimit);
     }
 
     /**
@@ -96,6 +98,27 @@ class DatabaseReader
     }
 
     /**
+     * @param Generator $results
+     * @param int $bufferLimit
+     *
+     * @return Generator
+     */
+    private function bufferize(Generator $results, int $bufferLimit): Generator
+    {
+        $buffer = '';
+        foreach ($results as $result) {
+            $buffer .= $result;
+            if (strlen($buffer) >= $bufferLimit) {
+                yield $buffer;
+                $buffer = '';
+            }
+        }
+        if ($buffer !== '') {
+            yield $buffer;
+        }
+    }
+
+    /**
      * @param ExportOptions $options
      *
      * @return Generator|null
@@ -105,8 +128,10 @@ class DatabaseReader
         $this->driver->selectDatabase($options->server, $options->database, $options->schema);
         $results = $this->driver->exportDatabases($options->databases, $options->options);
         if (!is_string($results)) {
-            return $options->options['output'] !== 'gzip' ?
-                $results : $this->compress($results);
+            if ($options->options['output'] === 'gzip') {
+                $results = $this->compress($results);
+            }
+            return $this->bufferize($results, $options->bufferLimit);
         }
 
         Logger::error("Unable to read file {$options->filename} for database export.", [
