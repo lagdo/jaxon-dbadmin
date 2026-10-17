@@ -14,6 +14,7 @@ use function is_array;
 use function is_string;
 use function json_decode;
 use function pathinfo;
+use function set_time_limit;
 use function strlen;
 use function substr;
 
@@ -36,10 +37,12 @@ class DatabaseReader
     /**
      * @param string $filename
      * @param int $bufferLimit
+     * @param int $timeLimit
      *
      * @return ExportOptions|null
      */
-    public function options(string $filename, int $bufferLimit = 32768): ExportOptions|null
+    public function options(string $filename, int $bufferLimit = 32768,
+        int $timeLimit = -1): ExportOptions|null
     {
         $extensions = ['sql', 'csv', 'txt'];
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
@@ -77,7 +80,7 @@ class DatabaseReader
 
         return new ExportOptions($filename, $extension, $jsonFilename,
             $contentType, $contentDisposition, $server, $database,
-            $schema, $databases, $options, $bufferLimit);
+            $schema, $databases, $options, $bufferLimit, $timeLimit);
     }
 
     /**
@@ -99,18 +102,22 @@ class DatabaseReader
 
     /**
      * @param Generator $results
-     * @param int $bufferLimit
+     * @param ExportOptions $options
      *
      * @return Generator
      */
-    private function bufferize(Generator $results, int $bufferLimit): Generator
+    private function bufferize(Generator $results, ExportOptions $options): Generator
     {
         $buffer = '';
         foreach ($results as $result) {
             $buffer .= $result;
-            if (strlen($buffer) >= $bufferLimit) {
+            if (strlen($buffer) >= $options->bufferLimit) {
                 yield $buffer;
+
                 $buffer = '';
+                if ($options->timeLimit > 0) {
+                    set_time_limit($options->timeLimit);
+                }
             }
         }
         if ($buffer !== '') {
@@ -125,13 +132,17 @@ class DatabaseReader
      */
     public function export(ExportOptions $options): Generator|null
     {
+        if ($options->timeLimit === 0) {
+            set_time_limit(0);
+        }
+
         $this->driver->selectDatabase($options->server, $options->database, $options->schema);
         $results = $this->driver->exportDatabases($options->databases, $options->options);
         if (!is_string($results)) {
             if ($options->options['output'] === 'gzip') {
                 $results = $this->compress($results);
             }
-            return $this->bufferize($results, $options->bufferLimit);
+            return $this->bufferize($results, $options);
         }
 
         Logger::error("Unable to read file {$options->filename} for database export.", [

@@ -18,7 +18,8 @@ class ExportOptions
         public readonly array $databases,
         public readonly array $options,
         // The other options
-        public readonly int $bufferLimit
+        public readonly int $bufferLimit,
+        public readonly int $timeLimit
     )
     {}
 }
