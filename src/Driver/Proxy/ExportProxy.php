@@ -23,6 +23,7 @@ use function is_numeric;
 use function ksort;
 use function preg_match;
 use function rtrim;
+use function str_repeat;
 use function str_replace;
 use function trim;
 
@@ -44,11 +45,38 @@ class ExportProxy extends AbstractDriverProxy
     private string $timestamp;
 
     /**
+     * @var bool|null
+     */
+    private bool|null $toSql = null;
+
+    /**
      * @return TableExport
      */
     private function export(): TableExport
     {
         return new TableExport($this);
+    }
+
+    /**
+     * @return bool
+     */
+    private function toSql(): bool
+    {
+        // Export to SQL format.
+        return $this->toSql ??= preg_match('~sql~', $this->options['format']) === 1;
+    }
+
+    /**
+     * Append the new line char to a SQL query for output
+     *
+     * @param string $query
+     * @param int $count
+     *
+     * @return string
+     */
+    private function nl(string $query, int $count = 1): string
+    {
+        return $query . str_repeat("\n", $count);
     }
 
     /**
@@ -71,7 +99,7 @@ class ExportProxy extends AbstractDriverProxy
             'tsv' => "\t",
             default => ';',
         };
-        yield implode($separator, $row);
+        yield $this->nl(implode($separator, $row));
     }
 
     /**
@@ -105,7 +133,7 @@ class ExportProxy extends AbstractDriverProxy
     {
         if ($this->options['format'] === 'sql' &&
             $this->options['data_style'] === 'TRUNCATE+INSERT') {
-            yield $this->statement()->getTruncateTableQuery($table) . ";\n";
+            yield $this->nl($this->statement()->getTruncateTableQuery($table) . ";", 2);
         }
     }
 
@@ -162,7 +190,7 @@ class ExportProxy extends AbstractDriverProxy
 
         $dump->addRow($row);
         if ($dump->limitExceeded()) {
-            yield $dump->makeQuery();
+            yield $this->nl($dump->makeQuery());
         }
     }
 
@@ -174,7 +202,8 @@ class ExportProxy extends AbstractDriverProxy
      */
     private function dumpRows(DataDump $dump, QueryResultInterface $result): Generator
     {
-        $columns = $this->options['format'] !== 'sql' ? [] : $this->engine()->columns($dump->table);
+        $columns = $this->options['format'] !== 'sql' ?
+            [] : $this->engine()->columns($dump->table);
         $columnNames = null;
         $fetchStatement = $dump->table !== '' ?
             fn(QueryResultInterface $result) => $result->fetchAssoc() :
@@ -184,7 +213,7 @@ class ExportProxy extends AbstractDriverProxy
             yield from $this->dumpRow($dump, $columns, $row, $columnNames);
         }
         if (count($dump->dataRows) > 0) {
-            yield $dump->makeQuery();
+            yield $this->nl($dump->makeQuery());
         }
     }
 
@@ -207,7 +236,8 @@ class ExportProxy extends AbstractDriverProxy
         $result = $this->engine()->executeQuery($query);
         if ($result->hasError()) {
             if ($this->options['format'] === 'sql') {
-                yield '-- ' . str_replace("\n", ' ', $this->engine()->error()) . "\n";
+                $comment = str_replace("\n", ' ', $this->engine()->error());
+                yield $this->nl("-- $comment" , 2);
             }
             return;
         }
@@ -261,13 +291,14 @@ class ExportProxy extends AbstractDriverProxy
 
         $this->statement()->setUtf8mb4($query);
         if ($style === 'DROP+CREATE' || $tableType === 1) {
-            yield 'DROP ' . ($tableType === 2 ? 'VIEW' : 'TABLE') .
-                ' IF EXISTS ' . $this->statement()->escapeTableName($table) . ';';
+            $tableClause = $tableType === 2 ? 'VIEW' : 'TABLE';
+            $tableName = $this->statement()->escapeTableName($table);
+            yield $this->nl("DROP $tableClause IF EXISTS $tableName;");
         }
         if ($tableType === 1) {
             $query = $this->statement()->removeDefiner($query);
         }
-        yield "$query;\n";
+        yield $this->nl("$query;", 2);
     }
 
     /**
@@ -283,7 +314,7 @@ class ExportProxy extends AbstractDriverProxy
     {
         // From adminer.inc.php
         if ($this->options['format'] !== 'sql') {
-            yield "\xef\xbb\xbf"; // UTF-8 byte order mark
+            yield $this->nl("\xef\xbb\xbf"); // UTF-8 byte order mark
             if ($style) {
                 yield from $this->dumpCsv(array_keys($this->engine()->columns($table)));
             }
@@ -304,10 +335,7 @@ class ExportProxy extends AbstractDriverProxy
     private function dumpTableTriggers(string $table): Generator
     {
         if (($triggers = $this->statement()->getCreateTriggerQuery($table)) !== '') {
-            yield '';
-            yield 'DELIMITER ;;';
-            yield $triggers;
-            yield 'DELIMITER ;';
+            yield $this->nl("\nDELIMITER ;;\n{$triggers}\nDELIMITER ;");
         }
     }
 
@@ -326,7 +354,7 @@ class ExportProxy extends AbstractDriverProxy
         if ($dumpData) {
             yield from $this->dumpTableData($tableStatus->name);
         }
-        if ($this->options['to_sql'] && $this->options['triggers'] && $dumpTable) {
+        if ($this->toSql() && $this->options['triggers'] && $dumpTable) {
             yield from $this->dumpTableTriggers($tableStatus->name);
         }
     }
@@ -340,7 +368,7 @@ class ExportProxy extends AbstractDriverProxy
     private function dumpTables(array $tableStatuses, array $tableOptions): Generator
     {
         foreach ($tableStatuses as $status) {
-            yield '';
+            yield $this->nl('');
             $options = $tableOptions[$status->name] ?? $tableOptions['*'];
             yield from $this->dumpTable($status, $options['table'], $options['data']);
         }
@@ -349,7 +377,7 @@ class ExportProxy extends AbstractDriverProxy
         }
 
         // Add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
-        yield '';
+        yield $this->nl('');
         $tables = array_filter($tableStatuses, $this->engine()->isTable(...));
         foreach ($tables as $status) {
             $queries = $this->statement()->getForeignKeyQueries($status);
@@ -357,7 +385,7 @@ class ExportProxy extends AbstractDriverProxy
                 $queries[] = '';
             }
             foreach ($queries as $query) {
-                yield $query;
+                yield $this->nl($query);
             }
         }
     }
@@ -371,7 +399,8 @@ class ExportProxy extends AbstractDriverProxy
     {
         $views = array_filter($tableStatuses, $this->engine()->isView(...));
         foreach ($views as $view) {
-            yield from $this->dumpCreateTableOrView($view->name, $this->options['table_style'], 1);
+            $style = $this->options['table_style'];
+            yield from $this->dumpCreateTableOrView($view->name, $style, 1);
         }
     }
 
@@ -470,19 +499,19 @@ class ExportProxy extends AbstractDriverProxy
         // From dump.inc.php
         $style = $this->options['db_style'];
         foreach ($this->engine()->userTypes(true) as $type) {
-            yield ''; // Empty line
+            yield $this->nl(''); // Empty line
             if (count($type->enums) === 0) {
                 //! https://github.com/postgres/postgres/blob/REL_17_4/src/bin/pg_dump/pg_dump.c#L10846
-                yield "-- Could not export type {$type->name}";
+                yield $this->nl("-- Could not export type {$type->name}");
                 continue;
             }
 
             $typeName = $this->statement()->escapeId($type->name);
             if ($style !== 'DROP+CREATE') {
-                yield "DROP TYPE IF EXISTS $typeName;;";
+                yield $this->nl("DROP TYPE IF EXISTS $typeName;;");
             }
             $enums = implode("', '", $type->enums);
-            yield "CREATE TYPE $typeName AS ENUM ('$enums');";
+            yield $this->nl("CREATE TYPE $typeName AS ENUM ('$enums');");
         }
     }
 
@@ -508,11 +537,11 @@ class ExportProxy extends AbstractDriverProxy
 
             $create = $this->getRoutineQuery($routine, $routineInfo);
             $this->statement()->setUtf8mb4($create);
-            yield ''; // Empty line
+            yield $this->nl(''); // Empty line
             if ($style !== 'DROP+CREATE') {
-                yield "DROP {$routine->type} IF EXISTS $routineName;;";
+                yield $this->nl("DROP {$routine->type} IF EXISTS $routineName;;");
             }
-            yield $create;
+            yield $this->nl($create);
         }
     }
 
@@ -530,14 +559,15 @@ class ExportProxy extends AbstractDriverProxy
         // From dump.inc.php
         $style = $this->options['db_style'];
         foreach ($this->engine()->rows('SHOW EVENTS') as $row) {
-            $sql = 'SHOW CREATE EVENT ' . $this->statement()->escapeId($row['Name']);
+            $eventName = $this->statement()->escapeId($row['Name']);
+            $sql = "SHOW CREATE EVENT $eventName";
             $create = $this->statement()->removeDefiner($this->engine()->columnValue($sql, 3));
             $this->statement()->setUtf8mb4($create);
-            yield ''; // Empty line
+            yield $this->nl(''); // Empty line
             if ($style !== 'DROP+CREATE') {
-                yield 'DROP EVENT IF EXISTS ' . $this->statement()->escapeId($row['Name']) . ';;';
+                yield $this->nl("DROP EVENT IF EXISTS $eventName;;");
             }
-            yield "$create;;\n";
+            yield $this->nl("$create;;", 2);
         }
     }
 
@@ -550,7 +580,7 @@ class ExportProxy extends AbstractDriverProxy
     {
         $style = $this->options['db_style'] ?? '';
         if ($style !== '' && preg_match('~sql~', $this->options['format'])) {
-            yield $this->statement()->getUseDatabaseQuery($database, $style);
+            yield $this->nl($this->statement()->getUseDatabaseQuery($database, $style));
         }
     }
 
@@ -565,7 +595,7 @@ class ExportProxy extends AbstractDriverProxy
         // Dump the database using the created connection.
         yield from $this->dumpUseDatabaseQuery($database);
 
-        if ($this->options['to_sql']) {
+        if ($this->toSql()) {
             yield from $this->dumpTypes();
             yield from $this->dumpRoutines();
             yield from $this->dumpEvents();
@@ -620,8 +650,8 @@ class ExportProxy extends AbstractDriverProxy
         $this->engine()->openMainConnection($database);
         yield from $this->dumpDatabase($database, $tables);
 
-        if ($this->options['to_sql']) {
-            $this->timestamp = '-- ' . $this->engine()->columnValue('SELECT NOW()');
+        if ($this->toSql()) {
+            $this->timestamp = $this->engine()->columnValue('SELECT NOW()');
         }
         $this->engine()->closeConnection();
     }
@@ -637,10 +667,8 @@ class ExportProxy extends AbstractDriverProxy
     public function exportDatabases(array $databases, array $options): Generator|string
     {
         $this->options = $options;
-        // Export to SQL format (renamed from is_sql to to_sql).
-        $this->options['to_sql'] = preg_match('~sql~', $options['format']) === 1;
 
-        if ($this->options['to_sql']) {
+        if ($this->toSql()) {
             [
                 'version' => $version,
                 'driver' => $driver,
@@ -649,12 +677,13 @@ class ExportProxy extends AbstractDriverProxy
                 'data_style' => $dataStyle,
             ] = $this->getDatabaseExportHeaders();
 
-            yield "-- Jaxon DbAdmin {$version} {$driver} {$server} dump\n";
+            yield $this->nl("-- Jaxon DbAdmin {$version} {$driver} {$server} dump", 2);
             if ($isSql) {
-                yield "SET NAMES utf8;\nSET time_zone = '+00:00';";
-                yield "SET foreign_key_checks = 0;";
+                yield $this->nl("SET NAMES utf8;");
+                yield $this->nl("SET time_zone = '+00:00';");
+                yield $this->nl("SET foreign_key_checks = 0;");
                 if ($dataStyle) {
-                    yield "SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';";
+                    yield $this->nl("SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';");
                 }
             }
         }
@@ -668,8 +697,8 @@ class ExportProxy extends AbstractDriverProxy
             }
         }
 
-        if ($this->options['to_sql']) {
-            yield $this->timestamp;
+        if ($this->toSql()) {
+            yield $this->nl("-- $this->timestamp");
         }
     }
 }
