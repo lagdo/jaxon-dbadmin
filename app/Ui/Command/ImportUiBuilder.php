@@ -82,33 +82,37 @@ class ImportUiBuilder
             $this->ui->row(
                 $this->ui->when(isset($contents['upload']), fn() =>
                     $this->ui->col(
+                        $this->ui->div(
+                            $this->ui->input()
+                                ->setType('file')->setName('sql_files[]')
+                                ->setId($sqlFilesInputId)
+                                ->setMultiple('multiple'),
+                        )->setStyle('display:none;'),
                         $this->ui->inputGroup(
                             $this->ui->button($this->ui->html($this->trans->lang('Select') . '&hellip;'))
                                 ->primary()
                                 // Trigger a click on the hidden file select component when the user clicks on the button.
                                 ->jxnClick(jq("#$sqlFilesInputId")->trigger('click')),
                             $this->ui->input()
-                                ->setType('file')->setName('sql_files[]')
-                                ->setId($sqlFilesInputId)
-                                ->setMultiple('multiple')
-                                ->setStyle('display:none;'),
-                            $this->ui->input()
-                                ->setType('text')->setReadonly('readonly')
-                        )->setId($this->filesDivId())
+                                ->setType('text')
+                                ->setReadonly('readonly')
+                        )
                     )->unit(1, 1)
+                        ->setId($this->filesDivId())
                 )
             ),
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->button($this->ui->text($this->trans->lang('Execute')))
-                        ->fullWidth()->primary()
+                        ->fullWidth()
+                        ->primary()
                         ->jxnClick($handler)
                 )->unit(1, 3),
                 $this->ui->col()
                     ->unit(1, 3)
                     ->tbnBindApp(rq(Query\ImportDuration::class), 'upload')
             ),
-        );
+        )->setStyle('padding-right: 10px;');
     }
 
     /**
@@ -139,47 +143,44 @@ class ImportUiBuilder
             $this->ui->row(
                 $this->ui->col(
                     $this->ui->button($this->ui->text($this->trans->lang('Run file')))
-                        ->fullWidth()->primary()
+                        ->fullWidth()
+                        ->primary()
                         ->jxnClick($handler)
                 )->unit(1, 3),
                 $this->ui->col()
                     ->unit(1, 3)
                     ->tbnBindApp(rq(Query\ImportDuration::class), 'server')
             ),
-        );
+        )->setStyle('padding-left: 10px;');
     }
 
     /**
      * @return mixed
      */
-    private function optionsCol(): mixed
+    private function optionsRow(): mixed
     {
-        return $this->ui->col(
-            $this->ui->row(
-                $this->ui->col(
-                    // Actually an offset. TODO: a parameter for that.
-                    $this->ui->html('&nbsp;')
-                )->unit(1, 4),
-                $this->ui->col(
-                    $this->ui->inputGroup(
-                        $this->ui->label(
-                            $this->ui->text($this->trans->lang('Stop on error'))
-                        ),
-                        $this->ui->checkbox()
-                            ->setName('error_stops')
-                    )
-                )->unit(1, 4),
-                $this->ui->col(
-                    $this->ui->inputGroup(
-                        $this->ui->label(
-                            $this->ui->text($this->trans->lang('Show only errors'))
-                        ),
-                        $this->ui->checkbox()
-                            ->setName('only_errors')
-                    )
-                )->unit(1, 4),
-            )
-        );
+        return $this->ui->row(
+            $this->ui->col(
+                $this->ui->inputGroup(
+                    $this->ui->label(
+                        $this->ui->text($this->trans->lang('Stop on error'))
+                    ),
+                    $this->ui->checkbox()
+                        ->setName('error_stops')
+                )
+            )->unit(1, 4)
+                ->setStyle('padding-right: 10px;'),
+            $this->ui->col(
+                $this->ui->inputGroup(
+                    $this->ui->label(
+                        $this->ui->text($this->trans->lang('Show only errors'))
+                    ),
+                    $this->ui->checkbox()
+                        ->setName('only_errors')
+                )
+            )->unit(1, 4)
+                ->setStyle('padding-left: 10px;'),
+        )->setStyle('margin-top: 10px;');
     }
 
     /**
@@ -205,9 +206,7 @@ class ImportUiBuilder
                                     ->unit(1, 2)
                             ),
                         ),
-                        $this->ui->row(
-                            $this->optionsCol()->unit(1, 1)
-                        )
+                        $this->optionsRow()
                     )->setId($this->formId())
                 )->unit(1, 1),
                 $this->ui->col()

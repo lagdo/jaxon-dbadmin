@@ -302,7 +302,7 @@ class QueryUiBuilder
                 )->content($tabsContentId)
                     ->setClass('jaxon-dbadmin-page-header_items'),
                 $this->ui->div(
-                    $this->buttonMenu($menuEntries),
+                    $this->buttonMenu($menuEntries, false),
                 )->setClass('jaxon-dbadmin-page-header_menus')
             )->setClass('jaxon-dbadmin-page-header')
                 ->setStyle('margin-bottom: 5px;'),

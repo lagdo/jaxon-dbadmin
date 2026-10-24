@@ -161,8 +161,7 @@ class ServerUiBuilder
                         )->unit(1, 2)
                     )
                 )
-            )->wrapped()
-                ->setId($this->dbFormId())
+            )->setId($this->dbFormId())
         );
     }
 }
