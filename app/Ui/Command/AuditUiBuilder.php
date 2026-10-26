@@ -260,15 +260,13 @@ class AuditUiBuilder
                         ->setType('text')
                         ->setName('title')
                         ->setId($titleId)
-                        ->label('Title', $titleId)
-                ),
+                )->label('Title', $titleId),
                 $this->ui->formField(
                     $this->ui->textarea($query)
                         ->setName('query')
                         ->setId($queryId)
-                        ->label('Query', $queryId)
                         ->setClass('jaxon-dbadmin-sql-query-wrapper')
-                )
+                )->label('Query', $queryId)
             )->setId($this->tab()->app()->id($this->favoriteFormId))
         );
     }

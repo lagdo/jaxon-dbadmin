@@ -60,10 +60,17 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $jaxon->setOption('core.request.uri', $requestUri);
         $jaxon->setAppOption('assets.file', 'admin');
 
+        // Register the services.
         $app = require "$configDir/app.php";
-        self::registerAppServices($app);
+        $app = self::registerServices($app, $configDir, $jaxon);
 
         // Register the package.
+        $serversFile = match(true) {
+            file_exists("$configDir/servers.json") => "$configDir/servers.json",
+            file_exists("$configDir/servers.yaml") => "$configDir/servers.yaml",
+            file_exists("$configDir/servers.yml") => "$configDir/servers.yml",
+            default => "$configDir/servers.php",
+        };
         $foreigns = require "$configDir/foreigns.php";
         $jaxon->registerPackage(self::class, [
             ...($app['admin'] ?? []),
@@ -76,16 +83,10 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
                 ...($app['admin']['queries'] ?? []),
             ],
             'ui' => $app['ui'],
-            'provider' => static function(array $options, Container $di) use($configDir) {
-                $configFile = match(true) {
-                    file_exists("$configDir/servers.json") => "$configDir/servers.json",
-                    file_exists("$configDir/servers.yaml") => "$configDir/servers.yaml",
-                    file_exists("$configDir/servers.yml") => "$configDir/servers.yml",
-                    default => "$configDir/servers.php",
-                };
-                $provider = $di->g(PackageConfigProvider::class);
-                return $provider->config($configFile)->getOptions($options);
-            },
+            'provider' => static fn(array $options, Container $di) =>
+                $di->g(PackageConfigProvider::class)
+                    ->config($serversFile)
+                    ->getOptions($options),
             'reader' => [
                 'server' => ServerConfigProvider::class,
                 'secret' => SecretConfigProvider::class,

@@ -59,8 +59,9 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $jaxon->setOption('core.request.uri', $requestUri);
         $jaxon->setAppOption('assets.file', 'audit');
 
+        // Register the services.
         $app = require "$configDir/app.php";
-        self::registerAppServices($app);
+        $app = self::registerServices($app, $configDir, $jaxon);
 
         // Register the package.
         $jaxon->registerPackage(self::class, [
