@@ -26,11 +26,11 @@ class Sorters extends FuncComponent
         $content = $this->optionsUi->editSorters();
         $buttons = [[
             'title' => 'Cancel',
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ],[
             'title' => 'Save',
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq()->save(pm()->form($this->optionsUi->sorterFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);

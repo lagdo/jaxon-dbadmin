@@ -30,11 +30,11 @@ class UpdateFunc extends FuncComponent
             ->column($input);
         $buttons = [[
             'title' => 'Cancel',
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ],[
             'title' => 'Edit',
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq()->save($columnId, $this->columnUi->editFormValues()),
         ]];
 

@@ -76,11 +76,11 @@ class FavoriteFunc extends FuncComponent
         $content = $this->auditUi->addFavoriteForm($query);
         $buttons = [[
             'title' => 'Cancel',
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ],[
             'title' => 'Save',
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq()->create($this->auditUi->favoriteFormValues(), $refresh),
         ]];
         $this->modal()->show($title, $content, $buttons);
@@ -140,11 +140,11 @@ class FavoriteFunc extends FuncComponent
         $content = $this->auditUi->editFavoriteForm($query);
         $buttons = [[
             'title' => 'Cancel',
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ],[
             'title' => 'Save',
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq()->update($queryId, $this->auditUi->favoriteFormValues()),
         ]];
         $this->modal()->show($title, $content, $buttons);

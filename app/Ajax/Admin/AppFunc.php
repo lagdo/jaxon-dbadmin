@@ -228,11 +228,11 @@ class AppFunc extends FuncComponent
         $content = $this->ui()->editTabTitle($this->getCurrentTitle());
         $buttons = [[
             'title' => 'Cancel',
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ], [
             'title' => 'Save',
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq()->saveTabTitle($this->ui()->tabTitleFormValues()),
         ]];
         $this->modal()->show($title, $content, $buttons);

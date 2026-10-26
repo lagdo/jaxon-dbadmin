@@ -33,7 +33,7 @@ class SqlCodeFunc extends Column\FuncComponent
             ->createValues($tableDto);
         $buttons = [[
             'title' => 'Close',
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ]];
         $this->modal()->show($title, $content ?: '&nbsp;', $buttons);
@@ -64,7 +64,7 @@ class SqlCodeFunc extends Column\FuncComponent
             ->alterValues($tableDto);
         $buttons = [[
             'title' => 'Close',
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ]];
         $this->modal()->show($title, $content ?: '&nbsp;', $buttons);
@@ -122,11 +122,11 @@ class SqlCodeFunc extends Column\FuncComponent
         $content = $this->columnUi->sqlCodeElement($queryCode);
         $buttons = [[
             'title' => 'Close',
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ], [
             'title' => $this->trans()->lang('Edit'),
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq(QueryEditor::class)->database($queryCode),
         ]];
         $options = ['size' => 'large'];
@@ -170,11 +170,11 @@ class SqlCodeFunc extends Column\FuncComponent
         $content = $this->columnUi->sqlCodeElement($queryCode);
         $buttons = [[
             'title' => 'Close',
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ], [
             'title' => $this->trans()->lang('Edit'),
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq(QueryEditor::class)->database($queryCode),
         ]];
         $options = ['size' => 'large'];

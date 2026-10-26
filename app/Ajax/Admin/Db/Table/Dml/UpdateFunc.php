@@ -44,16 +44,16 @@ class UpdateFunc extends FuncComponent
         $options = ['size' => 'large'];
         $buttons = [[
             'title' => $this->trans()->lang('Cancel'),
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ], [
             'title' => $this->trans()->lang('Query'),
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq(SqlCodeFunc::class)
                 ->showUpdateRowQuery($uiRowId, $dbRowIds, $values),
         ], [
             'title' => $this->trans()->lang('Update'),
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq()->save($uiRowId, $dbRowIds, $values)
                 ->confirm($this->trans()->lang('Save this item?')),
         ]];

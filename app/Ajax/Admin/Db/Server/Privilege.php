@@ -32,11 +32,11 @@ class Privilege extends FuncComponent
 
         $buttons = [[
             'title' => 'Cancel',
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ],[
             'title' => 'Save',
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq()->create(pm()->form($this->serverUi->userFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
@@ -75,11 +75,11 @@ class Privilege extends FuncComponent
 
         $buttons = [[
             'title' => 'Cancel',
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ],[
             'title' => 'Save',
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq()->update(pm()->form($this->serverUi->userFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);

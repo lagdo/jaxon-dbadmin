@@ -50,11 +50,11 @@ class SqlCodeFunc extends BaseComponent
         $options = ['size' => 'large'];
         $buttons = [[
             'title' => $this->trans()->lang('Close'),
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ], [
             'title' => $this->trans()->lang('Edit'),
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq(QueryEditor::class)->database($queryCode),
         ], ...$buttons];
 
@@ -78,7 +78,7 @@ class SqlCodeFunc extends BaseComponent
 
         $buttons = [[
             'title' => $this->trans()->lang('Back'),
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq(InsertFunc::class)->showQueryForm($fromSelect, $formValues),
         ]];
         $this->showQueryCodeDialog('SQL query for insert', $queryList, $buttons, true);
@@ -108,7 +108,7 @@ class SqlCodeFunc extends BaseComponent
 
         $buttons = [[
             'title' => $this->trans()->lang('Back'),
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq(UpdateFunc::class)->showQueryForm($rowId, $rowIdValues, $formValues),
         ]];
         $this->showQueryCodeDialog('SQL query for update', $queryList, $buttons, true);

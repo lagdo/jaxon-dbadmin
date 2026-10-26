@@ -25,11 +25,11 @@ class Columns extends FuncComponent
         $content = $this->optionsUi->editColumns();
         $buttons = [[
             'title' => 'Cancel',
-            'class' => 'btn btn-tertiary',
+            'class' => 'danger',
             'click' => 'close',
         ],[
             'title' => 'Save',
-            'class' => 'btn btn-primary',
+            'class' => 'primary',
             'click' => $this->rq()->save(pm()->form($this->optionsUi->columnFormId())),
         ]];
         $this->modal()->show($title, $content, $buttons);
