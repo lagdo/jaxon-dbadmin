@@ -42,17 +42,15 @@ class InputBuilder
      */
     protected function checkbox(array $input): mixed
     {
-        return $this->ui->div(
+        return $this->ui->checkboxGroup(
             $this->ui->each($input['values'], function($value) use($input) {
                 $name = $input['attrs']['name'] . '[' . $value['value'] . ']';
-                return $this->ui->label(
-                    $this->ui->text($value['text']),
-                    $this->ui->checkbox()
-                        ->checked($value['checked'])
-                        ->setName($name)
-                )->setFor($name);
+                return $this->ui->checkbox()
+                    ->checked($value['checked'])
+                    ->setName($name)
+                    ->label($value['text']);
             })
-        )->setClass('checkbox');
+        )->horizontal();
     }
 
     /**
@@ -82,16 +80,14 @@ class InputBuilder
      */
     protected function radio(array $input): mixed
     {
-        return $this->ui->div(
+        return $this->ui->radioGroup(
             $this->ui->each($input['values'], fn($value) =>
-                $this->ui->label(
-                    $this->ui->text($value['text']),
-                    $this->ui->checkbox($input['attrs'])
-                        ->checked($value['checked'])
-                        ->setValue($value['value'])
-                )
+                $this->ui->radio($input['attrs'])
+                    ->checked($value['checked'])
+                    ->setValue($value['value'])
+                    ->label($value['text'])
             )
-        )->setClass('radio');
+        )->horizontal();
     }
 
     /**

@@ -47,11 +47,13 @@ class AuditUiBuilder
             $this->ui->button($this->trans->lang('Copy'))
                 ->primary()
                 ->setClass('dbadmin-history-query-copy'),
-            $this->ui->dropdownButton()
-                ->primary(),
-            $this->ui->dropdownMenu(
-                $this->ui->dropdownMenuItem($this->trans->lang('Insert'))
-                    ->setClass('dbadmin-history-query-insert')
+            $this->ui->dropdown(
+                $this->ui->dropdownButton()
+                    ->primary(),
+                $this->ui->dropdownMenu(
+                    $this->ui->dropdownMenuItem($this->trans->lang('Insert'))
+                        ->setClass('dbadmin-history-query-insert')
+                )
             )
         );
     }
@@ -112,7 +114,7 @@ class AuditUiBuilder
                             $this->ui->tableRow(
                                 $this->ui->tableDataCell($this->historyButtons())
                                     ->setDataQueryId($id)
-                                    ->setStyle('width:60px;'),
+                                    ->setStyle('width:100px;'),
                                 $this->ui->tableDataCell(
                                     $this->ui->div("[{$query['driver']}]")
                                         ->setStyle('font-size:14px; font-style:italic;'),
@@ -177,15 +179,17 @@ class AuditUiBuilder
             $this->ui->button($this->trans->lang('Copy'))
                 ->primary()
                 ->setClass('dbadmin-favorite-query-copy'),
-            $this->ui->dropdownButton()
-                ->primary(),
-            $this->ui->dropdownMenu(
-                $this->ui->dropdownMenuItem($this->trans->lang('Insert'))
-                    ->setClass('dbadmin-favorite-query-insert'),
-                $this->ui->dropdownMenuItem($this->trans->lang('Edit'))
-                    ->setClass('dbadmin-favorite-query-edit'),
-                $this->ui->dropdownMenuItem($this->trans->lang('Delete'))
-                    ->setClass('dbadmin-favorite-query-delete')
+            $this->ui->dropdown(
+                $this->ui->dropdownButton()
+                    ->primary(),
+                $this->ui->dropdownMenu(
+                    $this->ui->dropdownMenuItem($this->trans->lang('Insert'))
+                        ->setClass('dbadmin-favorite-query-insert'),
+                    $this->ui->dropdownMenuItem($this->trans->lang('Edit'))
+                        ->setClass('dbadmin-favorite-query-edit'),
+                    $this->ui->dropdownMenuItem($this->trans->lang('Delete'))
+                        ->setClass('dbadmin-favorite-query-delete')
+                )
             )
         );
     }
@@ -219,7 +223,7 @@ class AuditUiBuilder
                             $this->ui->tableRow(
                                 $this->ui->tableDataCell($this->favoriteButtons())
                                     ->setDataQueryId($id)
-                                    ->setStyle('width:60px;'),
+                                    ->setStyle('width:100px;'),
                                 $this->ui->tableDataCell(
                                     $this->ui->div("[{$query['driver']}] {$query['title']}")
                                         ->setStyle('font-size:14px; font-style:italic;'),
@@ -247,20 +251,25 @@ class AuditUiBuilder
      */
     public function addFavoriteForm(string $query): string
     {
+        $titleId = $this->tab()->app()->id('title');
+        $queryId = $this->tab()->app()->id('query');
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->label($this->ui->text('Title'))
-                    ->setFor('title'),
-                $this->ui->input()
-                    ->setType('text')
-                    ->setName('title'),
-                $this->ui->label($this->ui->text('Query'))
-                    ->setFor('query'),
-                $this->ui->textarea($query)
-                    ->setName('query')
-                    ->setClass('jaxon-dbadmin-sql-query-wrapper')
-            )->wrapped()
-                ->setId($this->tab()->app()->id($this->favoriteFormId))
+                $this->ui->formField(
+                    $this->ui->input()
+                        ->setType('text')
+                        ->setName('title')
+                        ->setId($titleId)
+                        ->label('Title', $titleId)
+                ),
+                $this->ui->formField(
+                    $this->ui->textarea($query)
+                        ->setName('query')
+                        ->setId($queryId)
+                        ->label('Query', $queryId)
+                        ->setClass('jaxon-dbadmin-sql-query-wrapper')
+                )
+            )->setId($this->tab()->app()->id($this->favoriteFormId))
         );
     }
 
@@ -271,21 +280,24 @@ class AuditUiBuilder
      */
     public function editFavoriteForm(array $query): string
     {
+        $titleId = $this->tab()->app()->id('title');
+        $queryId = $this->tab()->app()->id('query');
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->label($this->ui->text('Title'))
-                    ->setFor('title'),
-                $this->ui->input()
-                    ->setType('text')
-                    ->setName('title')
-                    ->setValue($query['title']),
-                $this->ui->label($this->ui->text('Query'))
-                    ->setFor('query'),
-                $this->ui->textarea($query['query'])
-                    ->setName('query')
-                    ->setClass('jaxon-dbadmin-sql-query-wrapper')
-            )->wrapped()
-                ->setId($this->tab()->app()->id($this->favoriteFormId))
+                $this->ui->formField(
+                    $this->ui->input()
+                        ->setType('text')
+                        ->setName('title')
+                        ->setValue($query['title'])
+                        ->setId($titleId)
+                )->label('Title', $titleId),
+                $this->ui->formField(
+                    $this->ui->textarea($query['query'])
+                        ->setName('query')
+                        ->setId($queryId)
+                        ->setClass('jaxon-dbadmin-sql-query-wrapper')
+                )->label('Query', $queryId)
+            )->setId($this->tab()->app()->id($this->favoriteFormId))
         );
     }
 

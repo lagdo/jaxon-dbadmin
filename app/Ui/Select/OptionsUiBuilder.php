@@ -39,22 +39,18 @@ class OptionsUiBuilder
      */
     private function editFormButtons(JxnCall $rqInput, string $formId): mixed
     {
-        return $this->ui->row(
-            $this->ui->col($this->ui->html('&nbsp;'))
-                ->unit(3, 4), // Offset
-            $this->ui->col(
-                $this->ui->buttonGroup(
-                    $this->ui->button()
-                        ->primary()
-                        ->addIcon('plus')
-                        ->jxnClick($rqInput->add(pm()->form($formId))),
-                    $this->ui->button()
-                        ->danger()
-                        ->addIcon('remove')
-                        ->jxnClick($rqInput->del(pm()->form($formId)))
-                )
-            )->unit(1, 4)
-        );
+        return $this->ui->div(
+            $this->ui->buttonGroup(
+                $this->ui->button()
+                    ->primary()
+                    ->addIcon('plus')
+                    ->jxnClick($rqInput->add(pm()->form($formId))),
+                $this->ui->button()
+                    ->danger()
+                    ->addIcon('remove')
+                    ->jxnClick($rqInput->del(pm()->form($formId)))
+            )
+        )->setStyle('display: flex; justify-content: flex-end; margin-bottom: 10px;');
     }
 
     /**
@@ -84,7 +80,8 @@ class OptionsUiBuilder
                             )
                         )->setLabel($this->trans->lang('Aggregation')),
                     )->setName("columns[$newId][func]")
-                )->unit(1, 2),
+                )->setStyle('padding-right: 10px;')
+                    ->unit(1, 2),
                 $this->ui->col(
                     $this->ui->select(
                         $this->ui->option(''),
@@ -93,12 +90,16 @@ class OptionsUiBuilder
                                 ->selected($column['column'] == $columnName)
                         )
                     )->setName("columns[$newId][column]")
-                )->unit(10, 24),
+                )->setStyle('padding-right: 10px;')
+                    ->unit(5, 12),
                 $this->ui->col(
-                    $this->ui->checkbox()
-                        ->checked($column['delete'] ?? false)
-                        ->setName("columns[$newId][delete]")
-                )->unit(2, 24)
+                    $this->ui->inputGroup(
+                        $this->ui->checkbox()
+                            ->checked($column['delete'] ?? false)
+                            ->setName("columns[$newId][delete]")
+                    )->setStyle('height: 100%;')
+                )->setStyle('padding-right: 10px;')
+                    ->unit(1, 12)
             );
             $newId++;
 
@@ -150,7 +151,8 @@ class OptionsUiBuilder
                                 ->selected($filter['column'] === $columnName)
                         )
                     )->setName("filters[$newId][column]")
-                )->unit(1, 3),
+                )->setStyle('padding-right: 10px;')
+                    ->unit(1, 3),
                 $this->ui->col(
                     $this->ui->select(
                         $this->ui->each($options['operators'], fn($operator) =>
@@ -158,17 +160,22 @@ class OptionsUiBuilder
                                 ->selected($filter['operator'] === $operator)
                         )
                     )->setName("filters[$newId][operator]")
-                )->unit(1, 4),
+                )->setStyle('padding-right: 10px;')
+                    ->unit(1, 4),
                 $this->ui->col(
                     $this->ui->input()
                         ->setName("filters[$newId][operand]")
                         ->setValue($filter['operand'])
-                )->unit(1, 3),
+                )->setStyle('padding-right: 10px;')
+                    ->unit(1, 3),
                 $this->ui->col(
-                    $this->ui->checkbox()
-                        ->checked($filter['delete'] ?? false)
-                        ->setName("filters[$newId][delete]")
-                )->unit(2, 24)
+                    $this->ui->inputGroup(
+                        $this->ui->checkbox()
+                            ->checked($filter['delete'] ?? false)
+                            ->setName("filters[$newId][delete]")
+                    )->setStyle('height: 100%;')
+                )->setStyle('padding-right: 10px;')
+                    ->unit(1, 12)
             );
             $newId++;
 
@@ -220,23 +227,26 @@ class OptionsUiBuilder
                                 ->selected($sorter['column'] === $columnName)
                         )
                     )->setName("sorters[$newId][column]")
-                )->unit(1, 2),
+                )->setStyle('padding-right: 10px;')
+                    ->unit(1, 2),
                 $this->ui->col(
                     $this->ui->inputGroup(
-                        $this->ui->label(
-                            $this->ui->text($this->trans->lang('descending'))
-                        ),
+                        $this->ui->label($this->trans->lang('descending')),
                         $this->ui->checkbox()
                             ->checked($sorter['desc'] ?? false)
                             ->setName("sorters[$newId][desc]")
                             ->setValue('1')
                     )
-                )->unit(10, 24),
+                )->setStyle('padding-right: 10px;')
+                    ->unit(5, 12),
                 $this->ui->col(
-                    $this->ui->checkbox()
-                        ->checked($sorter['delete'] ?? false)
-                        ->setName("sorters[$newId][delete]")
-                )->unit(2, 24)
+                    $this->ui->inputGroup(
+                        $this->ui->checkbox()
+                            ->checked($sorter['delete'] ?? false)
+                            ->setName("sorters[$newId][delete]")
+                    )->setStyle('height: 100%;')
+                )->setStyle('padding-right: 10px;')
+                    ->unit(1, 12)
             );
             $newId++;
 

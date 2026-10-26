@@ -149,6 +149,7 @@ class UiBuilder
                 $this->ui->each($breadcrumbs, fn($breadcrumb) =>
                     $this->ui->breadcrumbItem($this->ui->html($breadcrumb))
                         ->active($curr++ === $last)
+                        ->enabled(false) // No link.
                 )
             )->setStyle('margin: 2px 0;')
         );
@@ -167,7 +168,7 @@ class UiBuilder
                     $this->ui->button(['class' => $class],
                         $this->ui->text($action['title'])
                     )->outline()
-                        ->secondary()
+                        ->primary()
                         ->jxnClick($action['handler'])
                 )
             )->setClass('dbadmin-main-action-group')

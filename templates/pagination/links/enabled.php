@@ -1,1 +1,0 @@
-    <li class="page-item enabled" data-page="<?php echo $this->page ?>"><a class="page-link" role="link"><?php echo $this->text ?></a></li>

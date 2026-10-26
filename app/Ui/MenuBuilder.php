@@ -78,10 +78,11 @@ class MenuBuilder
     public function actions(array $actions, string $activeItem): string
     {
         return $this->ui->build(
-            $this->ui->menu(
+            $this->ui->panelMenu(
                 $this->ui->each($actions, fn($action, $item) =>
-                    $this->ui->menuItem($action['title'])
-                        ->setClass($item === $activeItem ? 'dbadmin-menu-item active' : 'dbadmin-menu-item')
+                    $this->ui->panelMenuItem($action['title'])
+                        ->active($item === $activeItem)
+                        ->setClass('dbadmin-menu-item')
                         ->jxnClick($action['handler'])
                 )
             )
@@ -97,16 +98,14 @@ class MenuBuilder
     public function commands(array $actions, string $activeItem): string
     {
         return $this->ui->build(
-            $this->ui->buttonGroup(
+            $this->ui->panelMenu(
                 $this->ui->each($actions, fn($action, $item) =>
-                    $this->ui->button($this->ui->text($action['title']))
-                        ->outline()
-                        ->primary()
-                        ->fullWidth()
-                        ->setClass($item === $activeItem ? 'dbadmin-menu-item active' : 'dbadmin-menu-item')
+                    $this->ui->panelMenuItem($this->ui->text($action['title']))
+                        ->active($item === $activeItem)
+                        ->setClass('dbadmin-menu-item')
                         ->jxnClick($action['handler'])
                 ),
-            )->fullWidth(),
+            )->horizontal(),
         );
     }
 

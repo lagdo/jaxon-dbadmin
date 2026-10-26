@@ -469,7 +469,7 @@ class TableUiBuilder
                 )->setStyle('width: 16%;')
                     ->setClass('dbadmin-table-column-middle'),
                 $this->ui->div(
-                    $this->buttonMenuComponent($this->getColumnMenuEntries($input, $columnId))
+                    $this->buttonMenuComponent($this->getColumnMenuEntries($input, $columnId), false)
                         ->setClass('dbadmin-table-column-buttons')
                 )->setStyle('flex: 1; display: flex; justify-content: flex-end;')
                     ->setClass('dbadmin-table-column-right')
@@ -526,11 +526,9 @@ class TableUiBuilder
             $this->ui->div(
                 $this->ui->div(
                     $this->ui->inputGroup(
-                        $this->ui->label('Foreign key')
-                            ->setStyle('width: 30%;'),
+                        $this->ui->label('Foreign key'),
                         $this->ui->input('')
                             ->setValue($input->foreignKey?->name ?? '')
-                            ->setStyle('width: 70%;')
                             ->with(fn($elt) => $this->disable($elt))
                     )
                 )->setStyle('width: 35%;')

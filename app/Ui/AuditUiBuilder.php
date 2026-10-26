@@ -175,68 +175,70 @@ class AuditUiBuilder
     private function sidebarForm(array $categories): HtmlComponent
     {
         $formId = 'dbadmin-sidebar-audit-form';
-        return $this->ui->form(
-            $this->ui->div(
-                $this->ui->label($this->trans->lang('Category'))
-                    ->setFor('category'),
-                $this->ui->select(
-                    $this->ui->option('')
-                        ->selected(false)->setValue(0),
-                    $this->ui->each($categories, fn($category, $id) =>
-                        $this->ui->option($this->trans->lang($category))
-                            ->setValue($id)
-                    )
-                )->setName('category')
-            )->setStyle('margin-bottom: 10px;'),
-            $this->ui->div(
-                $this->ui->label($this->trans->lang('User'))
-                    ->setFor('username'),
-                $this->ui->input()
-                    ->setType('text')
-                    ->setName('username')
-            )->setStyle('margin-bottom: 10px;'),
-            $this->ui->div(
-                $this->ui->div(
-                    $this->ui->label($this->trans->lang('From'))
-                        ->setFor('from_date'),
-                ),
-                $this->ui->div(
-                    $this->ui->div(
+        return $this->ui->card(
+            $this->ui->cardHeader(
+                $this->trans->lang('Search audit logs')
+            ),
+            $this->ui->cardBody(
+                $this->ui->form(
+                    $this->ui->formField(
+                        $this->ui->select(
+                            $this->ui->option('')
+                                ->selected(false)->setValue(0),
+                            $this->ui->each($categories, fn($category, $id) =>
+                                $this->ui->option($this->trans->lang($category))
+                                    ->setValue($id)
+                            )
+                        )->setId('category')
+                            ->setName('category')
+                    )->label($this->trans->lang('Category'), 'category'),
+                    $this->ui->formField(
                         $this->ui->input()
-                            ->setType('date')
-                            ->setName('from_date'),
-                    )->setStyle('width: 67%;'),
+                            ->setType('text')
+                            ->setId('username')
+                            ->setName('username')
+                    )->label($this->trans->lang('User'), 'username'),
+                    $this->ui->formField(
+                        $this->ui->div(
+                            $this->ui->div(
+                                $this->ui->input()
+                                    ->setType('date')
+                                    ->setId('from_date')
+                                    ->setName('from_date'),
+                            )->setStyle('width: 67%;'),
+                            $this->ui->div(
+                                $this->ui->input()
+                                    ->setType('time')
+                                    ->setName('from_time')
+                            )->setStyle('width: 31%;')
+                        )->setStyle('display: flex; justify-content: space-between;')
+                    )->label($this->trans->lang('From')),
+                    $this->ui->formField(
+                        $this->ui->div(
+                            $this->ui->div(
+                                $this->ui->input()
+                                    ->setType('date')
+                                    ->setId('to_date')
+                                    ->setName('to_date'),
+                            )->setStyle('width: 67%;'),
+                            $this->ui->div(
+                                $this->ui->input()
+                                    ->setType('time')
+                                    ->setName('to_time')
+                            )->setStyle('width: 31%;')
+                        )->setStyle('display: flex; justify-content: space-between;')
+                    )->label($this->trans->lang('To'), 'to_date'),
                     $this->ui->div(
-                        $this->ui->input()
-                            ->setType('time')
-                            ->setName('from_time')
-                    )->setStyle('width: 31%;')
-                )->setStyle('display: flex; justify-content: space-between;')
-            )->setStyle('margin-bottom: 10px;'),
-            $this->ui->div(
-                $this->ui->div(
-                    $this->ui->label($this->trans->lang('To'))
-                        ->setFor('to_date'),
-                ),
-                $this->ui->div(
-                    $this->ui->div(
-                        $this->ui->input()
-                            ->setType('date')
-                            ->setName('to_date'),
-                    )->setStyle('width: 67%;'),
-                    $this->ui->div(
-                        $this->ui->input()
-                            ->setType('time')
-                            ->setName('to_time')
-                    )->setStyle('width: 31%;')
-                )->setStyle('display: flex; justify-content: space-between;')
-            )->setStyle('margin-bottom: 10px;'),
-            $this->ui->div(
+
+                    )->setStyle('float:right;')
+                )->setId($formId)
+            ),
+            $this->ui->cardFooter(
                 $this->ui->button($this->trans->lang('Show'))
                     ->primary()
                     ->jxnClick(rq(Commands::class)->show(pm()->form($formId)))
-            )->setStyle('float:right;')
-        )->setId($formId);
+            )
+        );
     }
 
     /**
@@ -314,8 +316,8 @@ class AuditUiBuilder
                 )->setClass('jaxon-dbadmin-page-header'),
                 $this->ui->div(
                     $this->ui->div(
-                        $this->ui->h3($this->trans->lang('Search audit logs'))
-                            ->setStyle('font-size: 16px; margin: 5px 0;')
+                        // $this->ui->div($this->trans->lang('Audit logs'))
+                        //     ->setStyle('font-size: 16px;')
                     )->setClass('jaxon-dbadmin-main-header_sidebar')
                         ->jxnBind(rq(Sidebar::class), 'header'),
                     $this->ui->div(

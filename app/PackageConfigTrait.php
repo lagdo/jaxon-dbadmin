@@ -8,14 +8,13 @@ use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Secret\KeyBuilderInterface;
 use Lagdo\DbAdmin\Support\Service\Export\FileSystemInterface;
 use Lagdo\UiBuilder\BuilderInterface;
+use Lagdo\UiBuilder\Jaxon\Builder;
 use Closure;
 
 use function count;
 use function is_a;
 use function is_string;
 use function Jaxon\jaxon;
-use function Lagdo\UiBuilder\Jaxon\initUiBuilder;
-use function Lagdo\UiBuilder\Jaxon\uiRegister;
 
 trait PackageConfigTrait
 {
@@ -66,7 +65,7 @@ trait PackageConfigTrait
     {
         jaxon()->setAppOption('template', $template['name']);
         $services[BuilderInterface::class] = static fn(Container $di) =>
-            initUiBuilder($di->make($template['builder']));
+            Builder::init($di->make($template['builder']));
     }
 
     /**
@@ -76,8 +75,6 @@ trait PackageConfigTrait
      */
     private static function registerAppServices(array $app): void
     {
-        uiRegister();
-
         $services = [];
 
         if (($auth = self::serviceDefinition($app['auth'] ?? null)) !== null) {

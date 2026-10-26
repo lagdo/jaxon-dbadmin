@@ -42,16 +42,17 @@ class EditUiBuilder
     protected function getEnumValueInput(array $input): mixed
     {
         return $this->ui->radioGroup(
-            $this->ui->each($input['items'], fn(array $item) =>
-                $this->ui->radio($item['attrs'])
-                    ->setValue($item['value'], false)
+            $this->ui->each($input['items'], function(array $item) {
+                $attrId = !isset($item['attrs']['id']) ? null :
+                    $this->tab()->app()->id($item['attrs']['id']);
+                $labelAttrs = $attrId === null ? [] : ['for' => $attrId];
+                return $this->ui->radio($item['attrs'])
                     ->checked($item['checked'])
-                    ->setStyle('margin-right:3px;')
-                    ->label($item['label'])
-                    ->when(isset($item['attrs']['id']), fn(HtmlComponent $label) =>
-                        $label->setFor($this->tab()->app()->id($item['attrs']['id']))
-                )->setStyle('margin-right:7px;')
-            )
+                    ->setValue($item['value'], false)
+                    ->when($attrId !== null,
+                        fn($checkbox) => $checkbox->setFor($attrId))
+                    ->label($item['label'], $labelAttrs);
+            })
         )->horizontal();
     }
 
@@ -62,17 +63,19 @@ class EditUiBuilder
      */
     protected function getSetValueInput(array $input): mixed
     {
-        return $this->ui->each($input['items'], fn($item) =>
-            $this->ui->label(
-                $this->ui->checkbox($item['attrs'])
+        return $this->ui->checkboxGroup(
+            $this->ui->each($input['items'], function($item) {
+                $attrId = !isset($item['attrs']['id']) ? null :
+                    $this->tab()->app()->id($item['attrs']['id']);
+                $labelAttrs = $attrId === null ? [] : ['for' => $attrId];
+                return $this->ui->checkbox($item['attrs'])
                     ->checked($item['checked'])
                     ->setValue($item['value'], false)
-                    ->setStyle('margin-right:3px;'),
-                $this->ui->span($item['label'])
-            )->when(isset($item['attrs']['id']), fn(HtmlComponent $label) =>
-                $label->setFor($this->tab()->app()->id($item['attrs']['id']))
-            )->setStyle('margin-right:7px;')
-        );
+                    ->when($attrId !== null,
+                        fn($checkbox) => $checkbox->setFor($attrId))
+                    ->label($item['label'], $labelAttrs);
+            })
+        )->horizontal();
     }
 
     /**
@@ -184,12 +187,11 @@ class EditUiBuilder
      */
     private function getColumnTitle(ColumnDmDto $input): mixed
     {
-        return isset($input->valueInput['attrs']['id']) ?
-            $this->ui->label($input->name)
-                ->setFor($this->tab()->app()->id($input->valueInput['attrs']['id']))
-                ->setTitle($input->type) :
-            $this->ui->span($input->name)
-                ->setTitle($input->type);
+        $titleId = !isset($input->valueInput['attrs']['id']) ? null :
+            $this->tab()->app()->id($input->valueInput['attrs']['id']);
+        return $this->ui->label($input->name)
+                ->setTitle($input->type)
+                ->when($titleId !== null, fn($label) => $label->setFor($titleId));
     }
 
     /**
@@ -248,9 +250,9 @@ class EditUiBuilder
         $valueId = $this->searchValueId($columnName);
 
         return $this->ui->build(
-            $this->ui->menu(
+            $this->ui->panelMenu(
                 $this->ui->each($rowset->rows, fn(QueryResultRowDto $row) =>
-                    $this->ui->menuItem($this->ui->html($row->columns['label']['html']))
+                    $this->ui->panelMenuItem($this->ui->html($row->columns['label']['html']))
                         ->jxnClick(jo('jaxon.dbadmin')
                             ->setForeignColumnValue($valueId, $row->columns['id']['value']))
                 )

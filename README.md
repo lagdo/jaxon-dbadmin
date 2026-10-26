@@ -27,8 +27,7 @@ The original code was refactored to take advantage of the latest PHP features (n
 - [https://github.com/lagdo/dbadmin-driver-mysql](https://github.com/lagdo/dbadmin-driver-mysql): the database driver for MySQL and MariaDB.
 - [https://github.com/lagdo/dbadmin-driver-sqlite](https://github.com/lagdo/dbadmin-driver-sqlite): the database driver for SQLite.
 
-The [https://github.com/lagdo/jaxon-dbadmin](https://github.com/lagdo/jaxon-dbadmin) package implements the database management features in a [Jaxon package](https://www.jaxon-php.org/docs/v5x/extensions/packages.html).
-Its UI is built with the [https://github.com/lagdo/ui-builder](https://github.com/lagdo/ui-builder) package, which will provide support for multiple frontend frameworks.
+The app UI is built with the [https://github.com/lagdo/ui-builder](https://github.com/lagdo/ui-builder) package, which will provide support for multiple frontend frameworks.
 [Bootstrap 5](https://github.com/lagdo/ui-builder-bootstrap5) is the default.
 
 The database packages are developed in this monorepo: [https://github.com/lagdo/dbadmin-mono](https://github.com/lagdo/dbadmin-mono).
@@ -77,6 +76,7 @@ The following features are planned for future releases:
 - Use an advanced UI component for HTML tables.
 - Save and display more data in the audit logs.
 - Automated tests.
+- Translations
 
 ### The Jaxon DbAdmin applications
 

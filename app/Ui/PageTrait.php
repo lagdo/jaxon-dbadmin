@@ -26,37 +26,41 @@ trait PageTrait
 
     /**
      * @param array $menus
+     * @param bool $alignLeft
      *
      * @return HtmlComponent
      */
-    private function buttonMenuComponent(array $menus): HtmlComponent
+    private function buttonMenuComponent(array $menus, bool $alignLeft = true): HtmlComponent
     {
         $menu = array_shift($menus);
         return $this->ui->buttonGroup(
             $this->ui->button($menu['label'])
                 ->primary()
                 ->jxnClick($menu['handler']),
-            $this->ui->dropdownButton()
-                ->primary(),
             $this->ui->when(count($menus) > 0, fn() =>
-                $this->ui->dropdownMenu(
-                    $this->ui->each($menus, fn($menu) =>
-                        $this->ui->dropdownMenuItem($menu['label'])
-                            ->jxnClick($menu['handler'])
-                    )
-                )->setStyle('position:relative;')
+                $this->ui->dropdown(
+                    $this->ui->dropdownButton()
+                        ->primary(),
+                    $this->ui->dropdownMenu(
+                        $this->ui->each($menus, fn($menu) =>
+                            $this->ui->dropdownMenuItem($menu['label'])
+                                ->jxnClick($menu['handler'])
+                        )
+                    )/*->setStyle('position:relative;')*/
+                )->when(!$alignLeft, fn($dropdown) => $dropdown->right())
             )
         );
     }
 
     /**
      * @param array $menus
+     * @param bool $alignLeft
      *
      * @return string
      */
-    public function buttonMenu(array $menus): string
+    public function buttonMenu(array $menus, bool $alignLeft = true): string
     {
-        return $this->ui->build($this->buttonMenuComponent($menus));
+        return $this->ui->build($this->buttonMenuComponent($menus, $alignLeft));
     }
 
     /**
@@ -146,7 +150,7 @@ trait PageTrait
                                 $this->ui->when($detail->menus !== null, fn() =>
                                     $this->buttonMenuComponent($detail->menus)
                                 )
-                            )->setStyle('width:60px;')
+                            )->setStyle("width:1%;white-space: nowrap;")
                         ),
                         $this->ui->each($detail->items, fn($detailItem, $key) =>
                             $this->getTableCell($detailItem ?? '')

@@ -154,21 +154,19 @@ trait UiTabTrait
      */
     public function editTabTitle(string $title): string
     {
-        $label = $this->trans->lang('Title (max 20 chars)');
+        $label = $this->trans->lang('Title');
+        $fieldId = $this->tab()->app()->id('title');
         return $this->ui->build(
             $this->ui->form(
-                $this->ui->row(
-                    $this->ui->col(
-                        $this->ui->label($this->ui->text( $label))
-                            ->setFor('title'),
-                    )->unit(1, 3),
-                    $this->ui->col(
-                        $this->ui->input()
-                            ->setType('text')
-                            ->setName('title')
-                            ->setValue($title),
-                    )->unit(2, 3)
-                )
+                $this->ui->formField(
+                    $this->ui->input()
+                        ->setType('text')
+                        ->setId($fieldId)
+                        ->setName('title')
+                        ->setValue($title)
+                        ->help('Max 20 chars')
+                )->label($this->ui->text($label), $fieldId)
+                    ->horizontal()
             )->setId($this->tabTitleFormId())
         );
     }

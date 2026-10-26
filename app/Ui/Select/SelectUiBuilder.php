@@ -79,7 +79,6 @@ class SelectUiBuilder
         return $this->ui->build(
             $this->ui->inputGroup(
                 $this->ui->label(sprintf('%.4f&nbsp;s', $duration))
-                    ->addClass('white-background')
             )
         );
     }
@@ -137,12 +136,9 @@ class SelectUiBuilder
                     $this->ui->label(
                         $this->ui->text($this->trans->lang('Foreigns'))
                     ),
-                    $this->ui->label(
-                        $this->ui->switch()
-                            ->checked($checked)
-                            ->jxnClick(rq(QueryBuilder\Fields\Foreigns::class)->toggle())
-                    )->addClass('white-background')
-                        ->setStyle('padding: 4px 5px 0 9px;')
+                    $this->ui->switch()
+                        ->checked($checked)
+                        ->jxnClick(rq(QueryBuilder\Fields\Foreigns::class)->toggle())
                 )
             )
         );

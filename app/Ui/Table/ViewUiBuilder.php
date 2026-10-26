@@ -50,23 +50,27 @@ class ViewUiBuilder
      */
     public function form(bool $materializedView, array $view = []): string
     {
+        $fieldId = $this->tab()->app()->id('materialized');
         return $this->ui->build(
             $this->ui->col(
                 $this->ui->form(
                     $this->ui->row(
                         $this->ui->col(
                             $this->ui->input()
-                                ->setType('text')->setPlaceholder('Name')
-                                ->setName('name')->setValue($view['name'] ?? '')
+                                ->setType('text')
+                                ->setPlaceholder('Name')
+                                ->setName('name')
+                                ->setValue($view['name'] ?? '')
                         )->unit(1, 2),
                         $this->ui->when($materializedView, fn() =>
                             $this->ui->col(
                                 $this->ui->inputGroup(
                                     $this->ui->checkbox()
                                         ->checked($view['materialized'] ?? false)
+                                        ->setId($fieldId)
                                         ->setName('materialized'),
                                     $this->ui->label($this->ui->text('Materialized'))
-                                        ->setFor('materialized'),
+                                        ->setFor($fieldId),
                                 ),
                             )->unit(1, 2),
                         )

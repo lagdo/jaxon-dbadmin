@@ -408,12 +408,11 @@ trait ColumnFieldTrait
                 $this->ui->each($this->defaults(), fn($default) =>
                     $this->ui->option($default)
                         ->selected($input->values()->generated === $default))
-            )->setName($generated)
-                ->setStyle('width: 30%;')
+            )->shrink()
+                ->setName($generated)
                 ->when($this->listMode, fn($input) => $this->disable($input, false)),
             $this->ui->input()
                 ->setName($default)
-                ->setStyle('width: 70%;')
                 ->when($placeholder !== '', fn($input) => $input->setPlaceholder($placeholder))
                 ->setValue($input->values()->default)
                 ->when($this->listMode, fn($input) => $this->disable($input))

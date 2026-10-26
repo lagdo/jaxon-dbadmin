@@ -37,6 +37,6 @@ class AppTabMenu extends Component
             ];
         }
 
-        return $this->ui()->buttonMenu($menuEntries);
+        return $this->ui()->buttonMenu($menuEntries, false);
     }
 }
