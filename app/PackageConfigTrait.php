@@ -14,6 +14,7 @@ use Closure;
 
 use function class_exists;
 use function file_exists;
+use function in_array;
 use function is_a;
 use function is_array;
 use function is_string;
@@ -100,32 +101,24 @@ trait PackageConfigTrait
      */
     private static function appConfig(array $app, string $servicesDir, Jaxon $jaxon): array
     {
-        $defined = [
-            'auth' => is_string($app['auth'] ?? null) &&
-                file_exists("$servicesDir/auth.php"),
-            'export' => is_string($app['export'] ?? null) &&
-                file_exists("$servicesDir/export.php"),
-            'secret' => is_string($app['secret'] ?? null) &&
-                file_exists("$servicesDir/secret.php"),
-            'template' => is_string($app['ui']['template'] ?? null) &&
-                file_exists("$servicesDir/template.php"),
-        ];
-
-        if ($defined['auth']) {
+        if (is_string($app['auth'] ?? null) &&
+            file_exists("$servicesDir/auth.php")) {
             $auths = require "$servicesDir/auth.php";
             if (isset($auths[$app['auth']])) {
                 $app['auth'] = $auths[$app['auth']];
             }
         }
 
-        if ($defined['export']) {
+        if (is_string($app['export'] ?? null) &&
+            file_exists("$servicesDir/export.php")) {
             $exports = require "$servicesDir/export.php";
             if (isset($exports[$app['export']])) {
                 $app['export'] = $exports[$app['export']];
             }
         }
 
-        if ($defined['template']) {
+        if (is_string($app['ui']['template'] ?? null) &&
+            file_exists("$servicesDir/template.php")) {
             $templates = require "$servicesDir/template.php";
             $template = $app['ui']['template'];
             $app['ui']['template'] = [
@@ -141,7 +134,8 @@ trait PackageConfigTrait
             }
         }
 
-        if ($defined['secret']) {
+        if (is_string($app['secret'] ?? null) &&
+            file_exists("$servicesDir/secret.php")) {
             $secrets = require "$servicesDir/secret.php";
             if (isset($secrets[$app['secret']])) {
                 $app['secret'] = $secrets[$app['secret']];
@@ -170,5 +164,16 @@ trait PackageConfigTrait
         $jaxon->setAppOptions($services, 'container.set');
 
         return $app;
+    }
+
+    /**
+     * @param string $userId
+     *
+     * @return bool
+     */
+    public function checkAuditAccess(string $userId): bool
+    {
+        return !$this->getOption('audit.enabled', false) ? false :
+            in_array($userId, $this->getOption('audit.users', []));
     }
 }

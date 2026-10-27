@@ -15,7 +15,6 @@ use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
 
 use function file_exists;
-use function in_array;
 use function realpath;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
@@ -65,45 +64,30 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $app = self::registerServices($app, $configDir, $jaxon);
 
         // Register the package.
-        $serversFile = match(true) {
-            file_exists("$configDir/servers.json") => "$configDir/servers.json",
-            file_exists("$configDir/servers.yaml") => "$configDir/servers.yaml",
-            file_exists("$configDir/servers.yml") => "$configDir/servers.yml",
-            default => "$configDir/servers.php",
+        $databaseFile = match(true) {
+            file_exists("$configDir/database.json") => "$configDir/database.json",
+            file_exists("$configDir/database.yaml") => "$configDir/database.yaml",
+            file_exists("$configDir/database.yml") => "$configDir/database.yml",
+            default => "$configDir/database.php",
         };
         $foreigns = require "$configDir/foreigns.php";
         $jaxon->registerPackage(self::class, [
-            ...($app['admin'] ?? []),
+            'ui' => $app['ui'],
             'audit' => [
                 'enabled' => $app['audit']['enabled'] ?? false,
                 'users' => $app['audit']['users'] ?? [],
+                'database' => $app['audit']['database'] ?? [],
             ],
-            'queries' => [
-                'database' => $app['audit']['queries']['database'] ?? [],
-                ...($app['admin']['queries'] ?? []),
-            ],
-            'ui' => $app['ui'],
-            'provider' => static fn(array $options, Container $di) =>
-                $di->g(PackageConfigProvider::class)
-                    ->config($serversFile)
-                    ->getOptions($options),
             'reader' => [
                 'server' => ServerConfigProvider::class,
                 'secret' => SecretConfigProvider::class,
             ],
             'foreigns' => $foreigns,
+            'provider' => static fn(array $options, Container $di) =>
+                $di->g(PackageConfigProvider::class)
+                    ->config($databaseFile)
+                    ->getOptions($options),
         ]);
-    }
-
-    /**
-     * @param string $userId
-     *
-     * @return bool
-     */
-    public function checkAuditAccess(string $userId): bool
-    {
-        return !$this->getOption('audit.enabled', false) ? false :
-            in_array($userId, $this->getOption('audit.users', []));
     }
 
     /**

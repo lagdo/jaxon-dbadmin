@@ -107,17 +107,15 @@ class PackageConfigProvider
             return [];
         }
 
-        // The key to use for the user options
-        $userKey = 'user';
         // Remove the provider field.
         unset($defaultOptions['provider']);
 
-        $userConfig = $this->configSetter->newConfig([$userKey => $defaultOptions]);
+        $userConfig = $this->configSetter->newConfig($defaultOptions);
         $reader = new ConfigReader($this->configSetter);
         $config = $reader->load($this->configSetter->newConfig(), $this->configFile);
         $commonOptions = $config->getOption('common', null);
         if (is_array($commonOptions)) {
-            $userConfig = $this->configSetter->setOptions($userConfig, $commonOptions, $userKey);
+            $userConfig = $this->configSetter->setOptions($userConfig, $commonOptions);
         }
 
         $fallbackOptions = $config->getOption('fallback', null);
@@ -132,8 +130,8 @@ class PackageConfigProvider
 
         // Remove the id field.
         unset($userOptions['id']);
-        $userConfig = $this->configSetter->setOptions($userConfig, $userOptions, $userKey);
+        $userConfig = $this->configSetter->setOptions($userConfig, $userOptions);
 
-        return $userConfig->getOption($userKey);
+        return $userConfig->getValues();
     }
 }

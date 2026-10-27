@@ -319,7 +319,7 @@ class DatabaseConfigProvider
      */
     public function hasQueryDatabaseOptions(): bool
     {
-        return $this->hasDbServer('queries.database');
+        return $this->hasDbServer('audit.database');
     }
 
     /**
@@ -327,7 +327,7 @@ class DatabaseConfigProvider
      */
     public function getQueryDatabaseOptions(): array
     {
-        return $this->readConfig('queries.database');
+        return $this->readConfig('audit.database');
     }
 
     /**

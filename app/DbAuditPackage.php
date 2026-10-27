@@ -12,7 +12,6 @@ use Lagdo\DbAdmin\App\Ui\AuditUiBuilder;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 
-use function in_array;
 use function realpath;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
@@ -65,24 +64,13 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
 
         // Register the package.
         $jaxon->registerPackage(self::class, [
-            ...($app['audit'] ?? []),
             'ui' => $app['ui'],
+            'audit' => $app['audit'],
             'reader' => [
                 'server' => ServerConfigProvider::class,
                 'secret' => SecretConfigProvider::class,
             ],
         ]);
-    }
-
-    /**
-     * @param string $userId
-     *
-     * @return bool
-     */
-    public function checkAccess(string $userId): bool
-    {
-        return !$this->getOption('enabled', false) ? false :
-            in_array($userId, $this->getOption('users', []));
     }
 
     /**

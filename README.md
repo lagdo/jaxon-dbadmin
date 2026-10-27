@@ -326,11 +326,11 @@ The required options are provided under the `queries` key.
     ],
 ```
 
-The `queries.database` options identify the database where the queries are saved.
+The `audit.database` options identify the database where the queries are saved.
 Depending on the database server, one of the scripts in the `migrations/pgsql`, `migrations/mysql` or `migrations/sqlite` directories in this repository must be used to create the audit database.
 
-The `queries.record` options indicate which queries are saved.
-Recording the queries executed in the query `builder` or the query `editor` can be enabled or disabled here.
+The `queries.save` options indicate which queries are saved.
+Saving the queries executed in the query `builder` or the query `editor` are enabled or disabled here.
 
 When the `queries.admin.history.show` and `queries.admin.favorite.show` options are set to true, the `History` and `Favorites`   tabs are displayed in the query editor page.
 When the query history is enabled, the `queries.admin.history.distinct` option enables the removal of duplicates in the listed queries, while the `queries.admin.history.limit` option sets the max number of queries for pagination.
