@@ -37,6 +37,6 @@ class ImportResult extends Component
      */
     protected function after(): void
     {
-        $this->duration()->update($this->get('result')->duration);
+        // $this->duration()->update($this->get('result')->duration);
     }
 }

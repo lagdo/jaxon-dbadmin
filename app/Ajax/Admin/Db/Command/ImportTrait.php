@@ -21,16 +21,11 @@ trait ImportTrait
      */
     protected function content(): string
     {
-        $importOptions = $this->driver()->getImportOptions();
-        $handlers = [
-            'webFileBtn' => $this->rq()->executeWebFile(),
-            'sqlFilesBtn' => $this->rq()->executeQueriesInFile($this->importUi->formValues()),
-        ];
-
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 
-        return $this->importUi->import($importOptions['contents'], $handlers);
+        $options = $this->driver()->getImportOptions();
+        return $this->importUi->import($options['contents'], $this->rq());
     }
 
     /**
@@ -47,7 +42,7 @@ trait ImportTrait
      * @return void
      */
     #[Before('notYetAvailable')]
-    public function executeWebFile(): void
+    public function importFromStorage(): void
     {}
 
     /**
@@ -59,7 +54,7 @@ trait ImportTrait
      */
     #[Callback('jaxon.dbadmin.upload')]
     #[Upload('dbadmin-import-sql-files-input')]
-    public function executeQueriesInFile(array $formValues): void
+    public function importFromUpload(array $formValues): void
     {
         if(!($files = $this->files()['sql_files'] ?? []))
         {

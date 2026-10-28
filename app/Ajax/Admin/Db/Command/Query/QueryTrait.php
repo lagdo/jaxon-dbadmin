@@ -22,7 +22,7 @@ trait QueryTrait
     /**
      * @var QueryUiBuilder
      */
-    protected QueryUiBuilder $queryUi;
+    private QueryUiBuilder $queryUi;
 
     /**
      * @var string

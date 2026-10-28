@@ -15,9 +15,9 @@ class QueryEditor extends Component
     use QueryTrait;
 
     /**
-     * @param QueryUiBuilder $queryUi    The HTML UI builder
+     * @param QueryUiBuilder $queryUi
      */
-    public function __construct(protected QueryUiBuilder $queryUi)
+    public function __construct(private QueryUiBuilder $queryUi)
     {}
 
     /**
