@@ -2,6 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin;
 
+use Jaxon\App\Ajax\Jaxon;
 use Jaxon\Attributes\Attribute\Databag;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppTabMenu;
 use Lagdo\DbAdmin\App\Ajax\Base\FuncComponent;
@@ -19,9 +20,10 @@ use function trim;
 class AppFunc extends FuncComponent
 {
     /**
+     * @param Jaxon $jaxon
      * @param Preference|null $preference
      */
-    public function __construct(private Preference|null $preference)
+    public function __construct(private Jaxon $jaxon, private Preference|null $preference)
     {}
 
     /**
@@ -73,9 +75,9 @@ class AppFunc extends FuncComponent
     public function start(): void
     {
         // Toast library for the SQL editor.
-        if ($this->config()->hasOption('ui.toast.lib')) {
-            $this->response()->jo('jaxon.dbadmin')
-                ->setToastLib($this->config()->getOption('ui.toast.lib'));
+        $toastLib = $this->jaxon->getAppOption('dialogs.default.toast');
+        if ($toastLib !== null) {
+            $this->response()->jo('jaxon.dbadmin')->setToastLib($toastLib);
         }
 
         // Show the app tab menu.
