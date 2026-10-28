@@ -9,7 +9,7 @@ use Jaxon\Plugin\CssCodeGeneratorInterface;
 use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Admin\AppFunc;
-use Lagdo\DbAdmin\App\Ui\UiBuilder;
+use Lagdo\DbAdmin\App\Ui\AdminUiBuilder;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
@@ -27,9 +27,9 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     use PackageConfigTrait;
 
     /**
-     * @param UiBuilder $ui
+     * @param AdminUiBuilder $ui
      */
-    public function __construct(private UiBuilder $ui)
+    public function __construct(private AdminUiBuilder $ui)
     {}
 
     /**
@@ -145,15 +145,5 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     public function getReadyScript(): string
     {
         return '{' . rq(AppFunc::class)->start() . '}';
-    }
-
-    /**
-     * Get the HTML code of the package home page
-     *
-     * @return string
-     */
-    public function layout(): string
-    {
-        return $this->ui->admin();
     }
 }

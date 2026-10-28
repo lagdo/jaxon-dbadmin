@@ -118,8 +118,8 @@ return [
         // Database export
         Service\Export\DatabaseReader::class,
         // The UI builders
+        Ui\AdminUiBuilder::class,
         Ui\AuditUiBuilder::class,
-        Ui\UiBuilder::class,
         Ui\InputBuilder::class,
         Ui\MenuBuilder::class,
         Ui\Data\EditUiBuilder::class,

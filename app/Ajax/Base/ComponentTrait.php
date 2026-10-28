@@ -10,8 +10,8 @@ use Lagdo\DbAdmin\App\Ajax\Exception\AppException;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
 use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
 use Lagdo\DbAdmin\Support\Translator;
+use Lagdo\DbAdmin\App\Ui\AdminUiBuilder;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
-use Lagdo\DbAdmin\App\Ui\UiBuilder;
 use Exception;
 
 use function array_filter;
@@ -44,10 +44,10 @@ trait ComponentTrait
     private Translator $trans;
 
     /**
-     * @var UiBuilder
+     * @var AdminUiBuilder
      */
     #[Inject]
-    private UiBuilder $ui;
+    private AdminUiBuilder $ui;
 
     /**
      * @var Tab
@@ -72,9 +72,9 @@ trait ComponentTrait
     }
 
     /**
-     * @return UiBuilder
+     * @return AdminUiBuilder
      */
-    protected function ui(): UiBuilder
+    protected function ui(): AdminUiBuilder
     {
         return $this->ui;
     }

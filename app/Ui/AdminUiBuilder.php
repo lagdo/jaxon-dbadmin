@@ -19,7 +19,7 @@ use function count;
 use function Jaxon\pm;
 use function Jaxon\rq;
 
-class UiBuilder
+class AdminUiBuilder
 {
     use PageTrait;
     use UiTabTrait;
@@ -188,7 +188,7 @@ class UiBuilder
     /**
      * @return string
      */
-    public function admin(): string
+    public function layout(): string
     {
         $contentId = 'dbadmin-server-tab-content';
 

@@ -121,14 +121,4 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     {
         return '{' . rq(AppFunc::class)->start() . '}';
     }
-
-    /**
-     * Get the HTML code of the package home page
-     *
-     * @return string
-     */
-    public function layout(): string
-    {
-        return $this->ui->layout();
-    }
 }

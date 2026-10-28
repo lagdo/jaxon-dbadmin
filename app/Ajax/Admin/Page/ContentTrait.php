@@ -2,7 +2,7 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Page;
 
-use Lagdo\DbAdmin\App\Ui\UiBuilder;
+use Lagdo\DbAdmin\App\Ui\AdminUiBuilder;
 
 /**
  * Features for page content components with three parts: header, content and footer.
@@ -10,9 +10,9 @@ use Lagdo\DbAdmin\App\Ui\UiBuilder;
 trait ContentTrait
 {
     /**
-     * @return UiBuilder
+     * @return AdminUiBuilder
      */
-    abstract protected function ui(): UiBuilder;
+    abstract protected function ui(): AdminUiBuilder;
 
     /**
      * @return string|array
