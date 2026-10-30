@@ -31,8 +31,8 @@ class AuditUiBuilder
      * @param BuilderInterface $ui
      * @param AuthInterface $auth
      */
-    public function __construct(protected Translator $trans,
-        protected BuilderInterface $ui, private AuthInterface $auth)
+    public function __construct(private Translator $trans,
+        private BuilderInterface $ui, private AuthInterface $auth)
     {}
 
     /**

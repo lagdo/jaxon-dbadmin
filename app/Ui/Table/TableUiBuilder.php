@@ -52,8 +52,8 @@ class TableUiBuilder
      * @param BuilderInterface $ui
      * @param Tab $tab
      */
-    public function __construct(protected Translator $trans,
-        protected BuilderInterface $ui, protected Tab $tab)
+    public function __construct(private Translator $trans,
+        private BuilderInterface $ui, private Tab $tab)
     {}
 
     /**
@@ -110,17 +110,6 @@ class TableUiBuilder
     private function rqDelete(): JxnCall
     {
         return $this->rq['delete'] ??= rq(Column\DeleteFunc::class);
-    }
-
-    /**
-     * @param Closure $autoIncrementChecker
-     *
-     * @return self
-     */
-    public function setAutoIncrementChecker(Closure $autoIncrementChecker): self
-    {
-        $this->typeIsAutoIncrementable = $autoIncrementChecker;
-        return $this;
     }
 
     /**

@@ -46,8 +46,8 @@ class QueryUiBuilder
      * @param DatabaseConfigProvider $config
      * @param Tab $tab
      */
-    public function __construct(protected Translator $trans, BuilderInterface $ui,
-        protected DatabaseConfigProvider $config, protected Tab $tab)
+    public function __construct(private Translator $trans, BuilderInterface $ui,
+        protected DatabaseConfigProvider $config, private Tab $tab)
     {
         $this->ui = $ui;
     }

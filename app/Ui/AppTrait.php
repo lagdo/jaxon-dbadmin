@@ -41,32 +41,33 @@ trait AppTrait
             return '';
         }
 
-        return $this->ui()->build(
-            $this->ui()->card(
-                $this->ui()->cardBody(
-                    $this->ui()->div(
-                        $this->ui()->pick(
-                            $this->ui()->when($name !== '', fn() =>
-                                $this->ui()->span(
-                                    $this->trans()->lang('Hello, %s.', $this->ui()->html("<b>$name</b>"))
+        $ui = $this->ui();
+        return $ui->build(
+            $ui->card(
+                $ui->cardBody(
+                    $ui->div(
+                        $ui->pick(
+                            $ui->when($name !== '', fn() =>
+                                $ui->span(
+                                    $this->trans()->lang('Hello, %s.', $ui->html("<b>$name</b>"))
                                 )
                             ),
-                            $this->ui()->when($userId !== '', fn() =>
-                                $this->ui()->span(
-                                    $this->trans()->lang($this->ui()->html("<b>$userId</b>"))
+                            $ui->when($userId !== '', fn() =>
+                                $ui->span(
+                                    $this->trans()->lang($ui->html("<b>$userId</b>"))
                                 )
                             )
                         ),
-                        $this->ui()->when($audit !== '', fn() =>
-                            $this->ui()->span(
-                                $this->ui()->a($this->trans()->lang('Audit'))
+                        $ui->when($audit !== '', fn() =>
+                            $ui->span(
+                                $ui->a($this->trans()->lang('Audit'))
                                     ->setHref($audit)
                                     ->setTarget('_blank')
                             )
                         ),
-                        $this->ui()->when($logout !== '', fn() =>
-                            $this->ui()->span(
-                                $this->ui()->a($this->trans()->lang('Logout'))
+                        $ui->when($logout !== '', fn() =>
+                            $ui->span(
+                                $ui->a($this->trans()->lang('Logout'))
                                     ->setHref($logout)
                             )
                         )
@@ -90,22 +91,23 @@ trait AppTrait
             'extension' => $extension,
         ] = $dbServer;
 
-        return $this->ui()->build(
-            $this->ui()->card(
-                $this->ui()->cardBody(
-                    $this->ui()->when($user !== '', fn() =>
-                        $this->ui()->div(
+        $ui = $this->ui();
+        return $ui->build(
+            $ui->card(
+                $ui->cardBody(
+                    $ui->when($user !== '', fn() =>
+                        $ui->div(
                             $this->trans()->lang('DB user: %s.',
-                                $this->ui()->html("<b>$user</b>"))
+                                $ui->html("<b>$user</b>"))
                         )
                     ),
-                    $this->ui()->div(
+                    $ui->div(
                         $this->trans()->lang('%s version: %s.',
-                            $engine, $this->ui()->html("<b>$version</b>"))
+                            $engine, $ui->html("<b>$version</b>"))
                     ),
-                    $this->ui()->div(
+                    $ui->div(
                         $this->trans()->lang('PHP extension %s.',
-                            $this->ui()->html("<b>$extension</b>"))
+                            $ui->html("<b>$extension</b>"))
                     )
                 )
             )->setStyle('margin-top: 10px;')

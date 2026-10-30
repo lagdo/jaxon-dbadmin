@@ -12,7 +12,7 @@ trait TableTrait
     /**
      * @var BuilderInterface
      */
-    protected BuilderInterface $ui;
+    private BuilderInterface $ui;
 
     /**
      * @return Tab

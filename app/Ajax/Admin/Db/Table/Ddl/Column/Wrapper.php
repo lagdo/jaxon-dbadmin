@@ -25,7 +25,6 @@ class Wrapper extends Component
     {
         return $this->tableUi
             ->metadata($this->get('metadata'))
-            ->setAutoIncrementChecker($this->driver()->typeIsAutoIncrementable(...))
             ->showColumns();
     }
 

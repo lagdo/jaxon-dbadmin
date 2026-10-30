@@ -30,7 +30,7 @@ class ResultUiBuilder
      * @param Translator $trans
      * @param BuilderInterface $ui
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(private Translator $trans, private BuilderInterface $ui)
     {
         $this->cteFilter = fn(string $column) => !preg_match('/^_dbadmin_cte_/', $column);
     }

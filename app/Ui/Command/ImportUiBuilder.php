@@ -20,8 +20,8 @@ class ImportUiBuilder
      * @param BuilderInterface $ui
      * @param Tab $tab
      */
-    public function __construct(protected Translator $trans,
-        protected BuilderInterface $ui, protected Tab $tab)
+    public function __construct(private Translator $trans,
+        private BuilderInterface $ui, private Tab $tab)
     {}
 
     /**
@@ -61,22 +61,26 @@ class ImportUiBuilder
      */
     private function importOptions(): mixed
     {
-        return $this->ui->div(
-            $this->ui->inputGroup(
-                $this->ui->label(
-                    $this->ui->text($this->trans->lang('Stop on error'))
-                ),
-                $this->ui->checkbox()
-                    ->setName('error_stops')
+        return $this->ui->list(
+            $this->ui->div(
+                $this->ui->inputGroup(
+                    $this->ui->label(
+                        $this->ui->text($this->trans->lang('Stop on error'))
+                    ),
+                    $this->ui->checkbox()
+                        ->setName('error_stops')
+                )
             ),
-            $this->ui->inputGroup(
-                $this->ui->label(
-                    $this->ui->text($this->trans->lang('Show only errors'))
-                ),
-                $this->ui->checkbox()
-                    ->setName('only_errors')
+            $this->ui->div(
+                $this->ui->inputGroup(
+                    $this->ui->label(
+                        $this->ui->text($this->trans->lang('Show only errors'))
+                    ),
+                    $this->ui->checkbox()
+                        ->setName('only_errors')
+                )
             )
-        )->setStyle('display: flex; flex-direction: row; column-gap: 10px;');
+        );
     }
 
     /**
@@ -132,11 +136,12 @@ class ImportUiBuilder
                         $this->ui->button($this->ui->text($this->trans->lang('Execute')))
                             ->primary()
                             ->jxnClick($handler->importFromUpload(pm()->form($formId)))
-                    )->setStyle('flex: 1;'),
-                    // $this->ui->div()
-                    //     ->tbnBindApp(rq(Query\ImportDuration::class), 'upload'),
+                    ),
+                    $this->ui->div()
+                        ->setStyle('flex: 1;')
+                        ->tbnBindApp(rq(Query\ImportDuration::class), 'upload'),
                     $this->importOptions()
-                )->setStyle('display: flex; flex-direction: row; column-gap: 10px; margin-top: 10px;')
+                )->setStyle('display: flex; flex-direction: row; justify-content: space-between; margin-top: 10px;')
             )->setId($formId)
         )->setStyle('padding-right: 10px;');
     }
@@ -174,9 +179,10 @@ class ImportUiBuilder
                         $this->ui->button($this->ui->text($this->trans->lang('Run file')))
                             ->primary()
                             ->jxnClick($handler->importFromStorage(pm()->form($formId)))
-                    )->setStyle('flex: 1;'),
-                    // $this->ui->div()
-                    //     ->tbnBindApp(rq(Query\ImportDuration::class), 'server'),
+                    ),
+                    $this->ui->div()
+                        ->setStyle('flex: 1;')
+                        ->tbnBindApp(rq(Query\ImportDuration::class), 'server'),
                     $this->importOptions()
                 )->setStyle('display: flex; flex-direction: row; column-gap: 10px; margin-top: 10px;')
             )->setId($formId)

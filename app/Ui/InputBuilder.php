@@ -13,7 +13,7 @@ class InputBuilder
      * @param Translator $trans
      * @param BuilderInterface $ui
      */
-    public function __construct(protected Translator $trans, protected BuilderInterface $ui)
+    public function __construct(private Translator $trans, private BuilderInterface $ui)
     {}
 
     /**

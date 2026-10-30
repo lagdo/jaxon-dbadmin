@@ -26,8 +26,8 @@ class AuditUiBuilder
      * @param BuilderInterface $ui
      * @param Tab $tab
      */
-    public function __construct(protected Translator $trans,
-        protected BuilderInterface $ui, protected Tab $tab)
+    public function __construct(private Translator $trans,
+        private BuilderInterface $ui, private Tab $tab)
     {}
 
     /**
