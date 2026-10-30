@@ -4,8 +4,8 @@ namespace Lagdo\DbAdmin\Support\Provider\Secret;
 
 use ItkDev\AzureKeyVault\Exception\SecretException;
 use ItkDev\AzureKeyVault\KeyVault\VaultSecret;
-use Lagdo\Facades\Logger;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
+use Lagdo\Facades\Logger;
 use RuntimeException;
 
 class AzureVaultConfigProvider extends SecretConfigProvider

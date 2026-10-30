@@ -6,6 +6,7 @@ use Infisical\SDK\Models\GetSecretParameters;
 use Infisical\SDK\Models\Secret;
 use Infisical\SDK\Services\SecretsService;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
+use Lagdo\Facades\Logger;
 use Exception;
 use RuntimeException;
 
@@ -50,6 +51,9 @@ class InfisicalConfigProvider extends SecretConfigProvider
 
             return $secret;
         } catch (Exception $e) {
+            Logger::error('Failed to retrieve a secret from Infisical secret manager.', [
+                'error' => $e->getMessage(),
+            ]);
             throw new RuntimeException("Secret retrieval failed");
         }
     }
