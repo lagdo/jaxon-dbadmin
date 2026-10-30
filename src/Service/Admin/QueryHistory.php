@@ -5,6 +5,12 @@ namespace Lagdo\DbAdmin\Support\Service\Admin;
 use Lagdo\DbAdmin\Support\Provider\DatabaseConfigProvider;
 use Lagdo\DbAdmin\Support\Service\Audit\Options;
 
+use function htmlspecialchars;
+use function mb_check_encoding;
+use function mb_convert_encoding;
+use function mb_detect_encoding;
+use function mb_strlen;
+
 /**
  * SQL queries logging and storage.
  */
@@ -45,6 +51,29 @@ class QueryHistory
     }
 
     /**
+     * @param array $row
+     *
+     * @return array
+     */
+    private function convertQuery(array $row): array
+    {
+        if (mb_strlen($row['query'], 'UTF-8') < 20) {
+            return $row;
+        }
+        if (mb_check_encoding($row['query'], 'UTF-8')) {
+            return $row;
+        }
+
+        $source = mb_detect_encoding($row['query'], null, true);
+        if ($source !== false && $source !== 'UTF-8') {
+            return mb_convert_encoding($row['query'], 'UTF-8', $source);
+        }
+
+        $row['query'] = htmlspecialchars($row['query'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        return $row;
+    }
+
+    /**
      * @param int $page
      *
      * @return array
@@ -76,10 +105,10 @@ class QueryHistory
         ];
         $result = $this->auditDb->executeQuery($query, $values);
         if ($result->hasRowset()) {
-            $id = 1;
+            $id = 0;
             $commands = [];
             while (($row = $result->fetchAssoc())) {
-                $commands[$id++] = $row;
+                $commands[++$id] = $this->convertQuery($row);
             }
             return $commands;
         }
