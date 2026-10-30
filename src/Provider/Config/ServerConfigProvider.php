@@ -20,28 +20,25 @@ class ServerConfigProvider
     public function readServerConfig(string $prefix): array
     {
         $config = $this->config();
-        $driver = $config->getOption("$prefix.driver", '');
-        if ($driver === 'sqlite') {
-            return !$config->hasOption("$prefix.directory") ? [
-                'name' => $config->getOption("$prefix.name", ''),
-                'driver' => $driver,
-                'access' => $config->getOption("$prefix.access", []),
-            ] : [
-                'name' => $config->getOption("$prefix.name", ''),
-                'driver' => $driver,
-                'directory' => $this->getOptionValue($prefix, 'directory'),
-                'access' => $config->getOption("$prefix.access", []),
-            ];
+        $options = [
+            'name' => $config->getOption("$prefix.name", ''),
+            'driver' => $config->getOption("$prefix.driver", ''),
+            'prefer_pdo' => $config->getOption("$prefix.prefer_pdo", false),
+            'access' => $config->getOption("$prefix.access", []),
+        ];
+        if ($options['driver'] === 'sqlite') {
+            if ($config->hasOption("$prefix.directory")) {
+                $options['directory'] = $this->getOptionValue($prefix, 'directory');
+            }
+            return $options;
         }
 
         $port = (int)$this->getOptionValue($prefix, 'port', -1);
         return [
-            'name' => $config->getOption("$prefix.name", ''),
-            'driver' => $driver,
+            ...$options,
             'host' => $this->getOptionValue($prefix, 'host'),
             ...($port < 0 ? [] : ['port' => $port]),
             ...$this->secret->with($config)->getCredentials($prefix),
-            'access' => $config->getOption("$prefix.access", []),
         ];
     }
 }
