@@ -9,7 +9,6 @@ use Jaxon\Plugin\CssCodeGeneratorInterface;
 use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Admin\AppFunc;
-use Lagdo\DbAdmin\App\Ui\AdminUiBuilder;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
@@ -25,12 +24,6 @@ use function Jaxon\rq;
 class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterface, JsCodeGeneratorInterface
 {
     use PackageConfigTrait;
-
-    /**
-     * @param AdminUiBuilder $ui
-     */
-    public function __construct(private AdminUiBuilder $ui)
-    {}
 
     /**
      * @inheritDoc
@@ -60,8 +53,7 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $jaxon->setAppOption('assets.file', 'admin');
 
         // Register the services.
-        $app = require "$configDir/app.php";
-        $app = self::registerServices($app, $configDir, $jaxon);
+        $app = self::registerServices($configDir, $jaxon);
 
         // Register the package.
         $databaseFile = match(true) {

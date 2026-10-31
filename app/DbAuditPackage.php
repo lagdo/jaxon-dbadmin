@@ -8,7 +8,6 @@ use Jaxon\Plugin\CssCodeGeneratorInterface;
 use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Audit\AppFunc;
-use Lagdo\DbAdmin\App\Ui\AuditUiBuilder;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 
@@ -22,12 +21,6 @@ use function Jaxon\rq;
 class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterface, JsCodeGeneratorInterface
 {
     use PackageConfigTrait;
-
-    /**
-     * @param AuditUiBuilder $ui
-     */
-    public function __construct(private AuditUiBuilder $ui)
-    {}
 
     /**
      * Get the path to the config file
@@ -59,8 +52,7 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $jaxon->setAppOption('assets.file', 'audit');
 
         // Register the services.
-        $app = require "$configDir/app.php";
-        $app = self::registerServices($app, $configDir, $jaxon);
+        $app = self::registerServices($configDir, $jaxon);
 
         // Register the package.
         $jaxon->registerPackage(self::class, [

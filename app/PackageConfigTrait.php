@@ -146,14 +146,14 @@ trait PackageConfigTrait
     }
 
     /**
-     * @param array $app
      * @param string $configDir
      * @param Jaxon $jaxon
      *
      * @return array
      */
-    private static function registerServices(array $app, string $configDir, Jaxon $jaxon): array
+    public static function registerServices(string $configDir, Jaxon $jaxon): array
     {
+        $app = require "$configDir/app.php";
         $app = self::appConfig($app, "$configDir/services", $jaxon);
         $services = [
             ...self::registerAuth($app['auth'] ?? null),
