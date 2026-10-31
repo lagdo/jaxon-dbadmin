@@ -275,8 +275,8 @@ class ExportUiBuilder
                 )->unit(1, 4),
                 $this->ui->col(
                     $this->ui->button($this->ui->text($this->trans->lang('Export')))
-                        ->fullWidth()
                         ->primary()
+                        ->setStyle('padding-left: 30px; padding-right: 30px;')
                         ->jxnClick($rqExport->export(pm()->form($this->formId())))
                 )->unit(1, 3)
             )

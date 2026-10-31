@@ -135,13 +135,14 @@ class ImportUiBuilder
                     $this->ui->div(
                         $this->ui->button($this->ui->text($this->trans->lang('Execute')))
                             ->primary()
+                            ->setStyle('padding-left: 30px; padding-right: 30px;')
                             ->jxnClick($handler->importFromUpload(pm()->form($formId)))
                     ),
                     $this->ui->div()
                         ->setStyle('flex: 1;')
                         ->tbnBindApp(rq(Query\ImportDuration::class), 'upload'),
                     $this->importOptions()
-                )->setStyle('display: flex; flex-direction: row; justify-content: space-between; margin-top: 10px;')
+                )->setStyle('display: flex; flex-direction: row; column-gap: 10px; margin-top: 10px;')
             )->setId($formId)
         )->setStyle('padding-right: 10px;');
     }
@@ -178,6 +179,7 @@ class ImportUiBuilder
                     $this->ui->div(
                         $this->ui->button($this->ui->text($this->trans->lang('Run file')))
                             ->primary()
+                            ->setStyle('padding-left: 30px; padding-right: 30px;')
                             ->jxnClick($handler->importFromStorage(pm()->form($formId)))
                     ),
                     $this->ui->div()
