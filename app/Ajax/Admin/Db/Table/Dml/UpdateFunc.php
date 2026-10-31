@@ -78,7 +78,7 @@ class UpdateFunc extends FuncComponent
             return;
         }
 
-        $updateData = $this->driver()->getRowForUpdate($this->getCurrentTable(),  $dbRowIds);
+        $updateData = $this->driver()->getRowForUpdate($this->getCurrentTable(), $dbRowIds);
         // Show the error
         if(isset($updateData['error']))
         {
