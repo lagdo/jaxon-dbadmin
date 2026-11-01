@@ -12,6 +12,7 @@ use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\HtmlBuilder\HtmlComponent;
 
 use function Jaxon\cl;
+use function Jaxon\jaxon;
 use function Jaxon\jo;
 use function Jaxon\pm;
 use function Jaxon\rq;
@@ -57,12 +58,7 @@ trait UiTabTrait
     {
         return $this->ui->card(
             $this->ui->cardBody(
-                $this->ui->div(
-                    'Built on <a style="text-decoration: none;" href="https://github.com/lagdo/dbadmin-mono" ' .
-                        'target="_blank"><i class="fa-brands fa-github"></i></a> using the &middot; ' .
-                        '<a style="text-decoration: none;" href="https://www.jaxon-php.org" ' .
-                        'target="_blank">Jaxon Ajax library</a> &middot;'
-                )
+                $this->ui->div(jaxon()->di()->g('built_with'))
             )
         )->setStyle('margin-top: 10px;');
     }
