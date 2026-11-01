@@ -22,4 +22,20 @@ class ExportOptions
         public readonly int $timeLimit
     )
     {}
+
+    /**
+     * @return string
+     */
+    public function contentType(): string
+    {
+        return "{$this->contentType}; charset=utf-8";
+    }
+
+    /**
+     * @return string
+     */
+    public function contentDisposition(): string
+    {
+        return "{$this->contentDisposition}; filename=\"{$this->filename}\"";
+    }
 }

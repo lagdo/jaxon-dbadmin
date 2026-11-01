@@ -33,6 +33,11 @@ use function trim;
 class ExportProxy extends AbstractDriverProxy
 {
     /**
+     * @var string
+     */
+    private $version = '0.37.2';
+
+    /**
      * The dump options
      *
      * @var array
@@ -618,7 +623,7 @@ class ExportProxy extends AbstractDriverProxy
     private function getDatabaseExportHeaders(): array
     {
         $headers = [
-            'version' => $this->engine()->version(),
+            'version' => $this->version,
             'driver' => $this->engine()->name(),
             'server' => str_replace("\n", ' ', $this->engine()->serverInfo()),
             'sql' => false,

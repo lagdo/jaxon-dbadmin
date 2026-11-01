@@ -126,12 +126,16 @@ class DatabaseReader
     }
 
     /**
-     * @param ExportOptions $options
+     * @param ExportOptions|null $options
      *
      * @return Generator|null
      */
-    public function export(ExportOptions $options): Generator|null
+    public function export(ExportOptions|null $options): Generator|null
     {
+        if ($options === null) {
+            return null;
+        }
+
         if ($options->timeLimit === 0) {
             set_time_limit(0);
         }
