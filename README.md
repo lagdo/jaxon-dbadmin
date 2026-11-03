@@ -65,14 +65,17 @@ The following features are currently available:
 - Navigate through related tables.
 - Save the executed queries in an audit logs database.
 - Show the audit logs in a dedicated page, with restricted access.
+- Run queries with a QueryProcessor optimized for low memory usage.
+- Multiple UI templates available, based on Bootstrap 5 or Bulma.
 
 The following features are planned for future releases:
 
+- Defer the database imports in a worker.
 - An advanced GUI-based query builder.
 - An AI assistant for building and running queries.
 - An advanced SQL parser:
   - https://github.com/tobymao/sqlglot
-- Alternative UI templates, with WebAwesome, TailwindCSS and Bulma.
+- Alternative UI templates, with TailwindCSS and WebAwesome.
 - Use an advanced UI component for HTML tables.
 - Save and display more data in the audit logs.
 - Automated tests.
@@ -93,8 +96,9 @@ Documentation
 
 Install the Jaxon library so it bootstraps from a config file and handles ajax requests.
 Here's the [documentation](https://www.jaxon-php.org/docs/v5x/about/configuration.html).
+If a [framework extension for Jaxon](https://www.jaxon-php.org/docs/v5x/integrations/about.html) is available for your framework, you must also install it. It will automate the previous step.
 
-Install this package with Composer. If a [framework extension](https://www.jaxon-php.org/docs/v5x/integrations/about.html) is available for your framework, you must also install it. It will automate the previous step.
+Then install this package with Composer.
 
 ### The database drivers
 
@@ -150,7 +154,7 @@ This package uses the [HTML UI builder](https://github.com/lagdo/ui-builder) to 
 The packages for the UI framework in use must also be installed.
 The following builders are available:
 - Bootstrap 5: [https://github.com/lagdo/ui-builder-bootstrap5](https://github.com/lagdo/ui-builder-bootstrap5)
-- Bootstrap 4: [https://github.com/lagdo/ui-builder-bootstrap4](https://github.com/lagdo/ui-builder-bootstrap4)
+- Bulma: [https://github.com/lagdo/ui-builder-bulma](https://github.com/lagdo/ui-builder-bulma)
 
 Additional config options
 -------------------------
