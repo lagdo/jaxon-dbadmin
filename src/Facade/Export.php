@@ -2,12 +2,12 @@
 
 namespace Lagdo\DbAdmin\Support\Facade;
 
-use Lagdo\DbAdmin\Support\Service\Export\DatabaseReader;
+use Lagdo\DbAdmin\Support\Service\Export\ExportService;
 use Lagdo\Facades\AbstractFacade;
 use Lagdo\Facades\ServiceInstance;
 
 /**
- * @extends AbstractFacade<DatabaseReader>
+ * @extends AbstractFacade<ExportService>
  */
 class Export extends AbstractFacade
 {
@@ -18,6 +18,6 @@ class Export extends AbstractFacade
      */
     protected static function getServiceIdentifier(): string
     {
-        return DatabaseReader::class;
+        return ExportService::class;
     }
 }

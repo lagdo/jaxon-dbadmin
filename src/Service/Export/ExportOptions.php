@@ -12,8 +12,8 @@ class ExportOptions
         public readonly string $contentDisposition,
         // The database to connect to.
         public readonly string $server,
-        public readonly string $schema,
         public readonly string $database,
+        public readonly string $schema,
         // The data to export
         public readonly array $databases,
         public readonly array $options,

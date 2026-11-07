@@ -22,11 +22,6 @@ class QueryOptions
     /**
      * @var bool
      */
-    public bool $decompressFile = false;
-
-    /**
-     * @var bool
-     */
     public bool $withTimer = false;
 
     /**

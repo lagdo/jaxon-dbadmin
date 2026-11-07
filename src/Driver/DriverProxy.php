@@ -2,9 +2,11 @@
 
 namespace Lagdo\DbAdmin\Support\Driver;
 
+use Jaxon\Config\Config;
 use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Driver\Driver;
 use Lagdo\DbAdmin\Driver\Sql\Dto\ColumnDto;
+use Lagdo\DbAdmin\Support\DiAlias\ServerConfig;
 use Lagdo\DbAdmin\Support\Service\Breadcrumbs;
 
 /**
@@ -76,7 +78,7 @@ class DriverProxy extends AbstractDriverProxy
      *
      * @return void
      */
-    public function selectDatabase(string $server, string $database = '', string $schema = '')
+    public function selectDatabase(string $server, string $database = '', string $schema = ''): void
     {
         $this->currentDb()->setServer($server);
         $this->currentDb()->setName($database);
@@ -95,7 +97,7 @@ class DriverProxy extends AbstractDriverProxy
      *
      * @return void
      */
-    public function setCurrentDbName(string $database)
+    public function setCurrentDbName(string $database): void
     {
         $this->currentDb()->setName($database);
     }
@@ -109,7 +111,7 @@ class DriverProxy extends AbstractDriverProxy
      *
      * @return void
      */
-    private function connect(string $server, string $database = '', string $schema = '')
+    private function connect(string $server, string $database = '', string $schema = ''): void
     {
         $dbChanged = $this->connected[0] !== $server ||
             $this->connected[1] !== $database ||
@@ -124,7 +126,7 @@ class DriverProxy extends AbstractDriverProxy
     /**
      * @return void
      */
-    public function connectToServer()
+    public function connectToServer(): void
     {
         $this->connect($this->currentDb()->server);
     }
@@ -132,7 +134,7 @@ class DriverProxy extends AbstractDriverProxy
     /**
      * @return void
      */
-    public function connectToDatabase()
+    public function connectToDatabase(): void
     {
         $this->connect($this->currentDb()->server, $this->currentDb()->name);
     }
@@ -140,7 +142,7 @@ class DriverProxy extends AbstractDriverProxy
     /**
      * @return void
      */
-    public function connectToSchema()
+    public function connectToSchema(): void
     {
         $this->connect($this->currentDb()->server,
             $this->currentDb()->name, $this->currentDb()->schema);
@@ -165,5 +167,13 @@ class DriverProxy extends AbstractDriverProxy
     public function getSelectWhereClause(array $where, array $columns = []): string
     {
         return $this->engine()->where($where, $columns);
+    }
+
+    /**
+     * @return Config
+     */
+    public function getServerConfig(): Config
+    {
+        return $this->di()->g(ServerConfig::class);
     }
 }

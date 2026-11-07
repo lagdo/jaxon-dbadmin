@@ -12,7 +12,7 @@ use function Jaxon\storage;
 /**
  * Read and write database export files.
  */
-abstract class AbstractFileSystem implements FileSystemInterface
+abstract class AbstractStorage implements StorageInterface
 {
     /**
      * @return string

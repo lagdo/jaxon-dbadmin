@@ -109,11 +109,10 @@ trait PackageConfigTrait
             }
         }
 
-        if (is_string($app['export'] ?? null) &&
-            file_exists("$servicesDir/export.php")) {
-            $exports = require "$servicesDir/export.php";
-            if (isset($exports[$app['export']])) {
-                $app['export'] = $exports[$app['export']];
+        if (file_exists("$servicesDir/storage.php")) {
+            $storage = require "$servicesDir/storage.php";
+            if (isset($storage['export'])) {
+                $app['export'] = $storage['export'];
             }
         }
 

@@ -2,14 +2,14 @@
 
 namespace Lagdo\DbAdmin\Support\Facade;
 
-use Lagdo\DbAdmin\Support\Service\Export\FileSystemInterface;
+use Lagdo\DbAdmin\Support\Service\Export\StorageInterface;
 use Lagdo\Facades\AbstractFacade;
 use Lagdo\Facades\ServiceInstance;
 
 /**
- * @extends AbstractFacade<FileSystemInterface>
+ * @extends AbstractFacade<StorageInterface>
  */
-class FileSystem extends AbstractFacade
+class ExportStorage extends AbstractFacade
 {
     use ServiceInstance;
 
@@ -18,6 +18,6 @@ class FileSystem extends AbstractFacade
      */
     protected static function getServiceIdentifier(): string
     {
-        return FileSystemInterface::class;
+        return StorageInterface::class;
     }
 }

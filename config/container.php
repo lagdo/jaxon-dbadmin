@@ -125,7 +125,7 @@ return [
         // The Timer service
         Service\Admin\QueryTimer::class,
         // Database export
-        Service\Export\DatabaseReader::class,
+        Service\Export\ExportService::class,
         // The UI builders
         Ui\AdminUiBuilder::class,
         Ui\AuditUiBuilder::class,

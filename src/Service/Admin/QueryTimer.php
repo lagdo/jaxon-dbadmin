@@ -63,7 +63,7 @@ class QueryTimer implements QueryCallback
     {
         $startTimestamp = DateTimeImmutable::createFromFormat('U.u',
             sprintf('%.6F', $this->startTimestamp));
-        return $startTimestamp->format('Y-m-d H:i:s.u');;
+        return $startTimestamp->format('Y-m-d H:i:s.u');
     }
 
     /**

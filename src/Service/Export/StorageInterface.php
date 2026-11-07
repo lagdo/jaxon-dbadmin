@@ -5,7 +5,7 @@ namespace Lagdo\DbAdmin\Support\Service\Export;
 /**
  * Read and write database export files.
  */
-interface FileSystemInterface
+interface StorageInterface
 {
     /**
      * @param string $content

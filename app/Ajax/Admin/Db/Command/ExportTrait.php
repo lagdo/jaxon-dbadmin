@@ -6,7 +6,7 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ajax\Exception\ValidationException;
 use Lagdo\DbAdmin\App\Ui\Command\ExportUiBuilder;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
-use Lagdo\DbAdmin\Support\Facade\FileSystem;
+use Lagdo\DbAdmin\Support\Facade\ExportStorage;
 use Lagdo\Facades\Logger;
 
 use function in_array;
@@ -79,9 +79,10 @@ trait ExportTrait
      */
     protected function exportDb(array $databases, array $formValues): void
     {
-        $fs = FileSystem::instance();
-        if (!$fs) {
-            $this->alert()->title('Error')
+        $storage = ExportStorage::instance();
+        if (!$storage) {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
                 ->error('The export feature is not setup.');
             return;
         }
@@ -108,21 +109,23 @@ trait ExportTrait
 
         $fileId = uniqid();
         $jsonFilename = "{$fileId}.json";
-        $exportUrl = $fs->write($jsonContent, $jsonFilename);
+        $exportUrl = $storage->write($jsonContent, $jsonFilename);
         if ($exportUrl === '') {
             Logger::debug('Unable to write export to temp file.', [
                 'filename' => $jsonFilename,
                 'options' => $options,
             ]);
-            $this->alert()->title('Error')->error('Unable to write temp file.');
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error('Unable to write temp file.');
             return;
         }
 
-        $filename = $fileId . $extensions[$format] ?? $extensions['sql'];
+        $filename = $fileId . ($extensions[$format] ?? $extensions['sql']);
         $exportUrl = str_replace($jsonFilename, $filename, $exportUrl);
         $output = $options['output'] ?? 'save';
         $output === 'open' ?
             $this->response()->jo()->open($exportUrl, '_blank')->focus() :
-            $this->response()->jo('jaxon.dbadmin')->downloadFile($exportUrl, $filename);
+            $this->response()->jo('jaxon.dbadmin')->downloadFile($exportUrl);
     }
 }

@@ -16,19 +16,18 @@ use function json_decode;
 use function pathinfo;
 use function set_time_limit;
 use function strlen;
-use function substr;
 
 /**
  * Read database contents for export.
  */
-class DatabaseReader
+class ExportService
 {
     /**
      * @param DriverProxy $driver
-     * @param FileSystemInterface $fs
+     * @param StorageInterface $fs
      */
     public function __construct(private DriverProxy $driver,
-        private FileSystemInterface $fs)
+        private StorageInterface $fs)
     {
         // This is required for the driver setup to complete.
         DriverHelper::setupDriver();
@@ -44,21 +43,22 @@ class DatabaseReader
     public function options(string $filename, int $bufferLimit = 32768,
         int $timeLimit = -1): ExportOptions|null
     {
-        $extensions = ['sql', 'csv', 'txt'];
-        $extension = pathinfo($filename, PATHINFO_EXTENSION);
-        if (!in_array($extension, $extensions, true)) {
+        $pathinfo = pathinfo($filename);
+
+        $extension = $pathinfo['extension'];
+        if (!in_array($extension, ['sql', 'csv', 'txt'], true)) {
             Logger::error("Unsupported extension of file $filename.");
             return null;
         }
 
-        $jsonFilename = substr($filename, 0, strlen($filename) - 3) . 'json';
+        $jsonFilename = "{$pathinfo['dirname']}/{$pathinfo['filename']}.json";
         $json = $this->fs->read($jsonFilename);
-        if ($json === null || !is_array($options = json_decode($json, true))) {
+        if ($json === null || !is_array($export = json_decode($json, true))) {
             Logger::error("Unable to read file $jsonFilename for database export.");
             return null;
         }
 
-        $output = $options['options']['output'] ?? 'save';
+        $output = $export['options']['output'] ?? 'save';
         $contentDisposition = $output === 'open' ? 'inline' : 'attachment';
         $contentType = match(true) {
             $output === 'gzip' => 'application/gzip',
@@ -68,11 +68,11 @@ class DatabaseReader
             default => 'text/plain',
         };
 
-        $server = $options['connect']['server'] ?? '';
-        $database = $options['connect']['database'] ?? '';
-        $schema = $options['connect']['schema'] ?? '';
-        $databases = $options['databases'];
-        $options = $options['options'];
+        $server = $export['connect']['server'] ?? '';
+        $database = $export['connect']['database'] ?? '';
+        $schema = $export['connect']['schema'] ?? '';
+        $databases = $export['databases'];
+        $options = $export['options'];
 
         if ($options['output'] === 'gzip') {
             $filename .= '.gz';
