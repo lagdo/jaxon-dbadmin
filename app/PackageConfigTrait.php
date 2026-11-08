@@ -7,7 +7,8 @@ use Jaxon\Di\Container;
 use Lagdo\DbAdmin\Support\DiAlias\AuthInterface;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Secret\KeyBuilderInterface;
-use Lagdo\DbAdmin\Support\Service\Export\FileSystemInterface;
+use Lagdo\DbAdmin\Support\Service\Export\StorageInterface as ExportStorage;
+use Lagdo\DbAdmin\Support\Service\Import\StorageInterface as ImportStorage;
 use Lagdo\UiBuilder\BuilderInterface;
 use Lagdo\UiBuilder\Jaxon\Builder;
 use Closure;
@@ -59,7 +60,18 @@ trait PackageConfigTrait
     private static function registerExport(Closure|string|null $export): array
     {
         return $export === null ? [] :
-            [FileSystemInterface::class => self::serviceDefinition($export)];
+            [ExportStorage::class => self::serviceDefinition($export)];
+    }
+
+    /**
+     * @param Closure|string|null $import
+     *
+     * @return array
+     */
+    private static function registerImport(Closure|string|null $import): array
+    {
+        return $import === null ? [] :
+            [ImportStorage::class => self::serviceDefinition($import)];
     }
 
     /**
@@ -114,6 +126,9 @@ trait PackageConfigTrait
             if (isset($storage['export'])) {
                 $app['export'] = $storage['export'];
             }
+            if (isset($storage['import'])) {
+                $app['import'] = $storage['import'];
+            }
         }
 
         if (is_string($app['ui']['template'] ?? null) &&
@@ -157,6 +172,7 @@ trait PackageConfigTrait
         $services = [
             ...self::registerAuth($app['auth'] ?? null),
             ...self::registerExport($app['export'] ?? null),
+            ...self::registerImport($app['import'] ?? null),
             ...self::registerSecret($app['secret'] ?? [], $jaxon),
             ...self::registerUiBuilder($app['ui']['template'] ?? [], $jaxon),
         ];

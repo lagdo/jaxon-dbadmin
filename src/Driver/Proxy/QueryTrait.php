@@ -6,6 +6,7 @@ use Jaxon\Request\Upload\FileInterface;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryOptions;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryResultDto;
+use League\Flysystem\Filesystem;
 use Generator;
 
 /**
@@ -196,6 +197,36 @@ trait QueryTrait
     {
         $this->connectToSchema();
         return $this->queryProxy()->executeQueriesInFile($file, $options);
+    }
+
+    /**
+     * Check the queries in a file
+     *
+     * @param Filesystem $fs
+     * @param string $path
+     *
+     * @return array
+     */
+    public function prepareImport(Filesystem $fs, string $path): array
+    {
+        $this->connectToSchema();
+        return $this->queryProxy()->prepareImport($fs, $path);
+    }
+
+    /**
+     * Execute the queries in a file
+     *
+     * @param Filesystem $fs
+     * @param string $path
+     * @param QueryOptions $options
+     *
+     * @return Generator
+     */
+    public function executeImport(Filesystem $fs, string $path,
+        QueryOptions $options): Generator
+    {
+        $this->connectToSchema();
+        return $this->queryProxy()->executeImport($fs, $path, $options);
     }
 
     /**

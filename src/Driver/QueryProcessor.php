@@ -196,7 +196,7 @@ class QueryProcessor extends AbstractDriverProxy
             return;
         }
 
-        $queries = implode(";", $resultDto->batchBuffer);
+        $queries = implode(';', $resultDto->batchBuffer);
         $resultDto->batchBuffer = [];
         $result = $this->engine()->executeMultiQuery($queries);
         if ($result->hasError()) {
@@ -262,14 +262,15 @@ class QueryProcessor extends AbstractDriverProxy
     }
 
     /**
+     * @param QueryResultDto $result
      * @param array|Generator $queries
      * @param QueryOptions $options
      * @param SelectDqDto|null $select
      *
-     * @return QueryResultDto
+     * @return Generator
      */
-    private function executeQueries(array|Generator $queries,
-        QueryOptions $options, SelectDqDto|null $select = null): QueryResultDto
+    private function results(QueryResultDto $result, array|Generator $queries,
+        QueryOptions $options, SelectDqDto|null $select = null): Generator
     {
         // The second connection must be created before executing the queries.
         $this->openNewConnection();
@@ -281,23 +282,40 @@ class QueryProcessor extends AbstractDriverProxy
         }
         $this->queryLogger?->setCategoryToEditor();
 
-        $resultDto = new QueryResultDto();
         foreach ($queries as $query) {
-            $this->executeQuery($query, $options, $resultDto, $select);
-            $resultDto->duration += $this->queryTimer?->duration() ?? 0;
+            $this->executeQuery($query, $options, $result, $select);
+            $result->duration += $this->queryTimer?->duration() ?? 0;
+            yield $result;
 
-            if ($resultDto->errors > 0 && $options->stopOnError) {
+            if ($result->errors > 0 && $options->stopOnError) {
                 break;
             }
         }
 
         // There might be some remaining queries in the batch buffer.
         if ($options->inBatch) {
-            $this->executeQueryBatch($resultDto);
+            $this->executeQueryBatch($result);
+            yield $result;
         }
 
         if ($options->inTransaction) {
-            $resultDto->errors > 0 ? $this->engine()->rollback() : $this->engine()->commit();
+            $result->errors > 0 ? $this->engine()->rollback() : $this->engine()->commit();
+        }
+    }
+
+    /**
+     * @param array|Generator $queries
+     * @param QueryOptions $options
+     * @param SelectDqDto|null $select
+     *
+     * @return QueryResultDto
+     */
+    private function executeQueries(array|Generator $queries,
+        QueryOptions $options, SelectDqDto|null $select = null): QueryResultDto
+    {
+        $resultDto = new QueryResultDto();
+        foreach ($this->results($resultDto, $queries, $options, $select) as $_) {
+            // Nothing to do. We just need to read values from the generator.
         }
 
         return $resultDto;
@@ -338,5 +356,30 @@ class QueryProcessor extends AbstractDriverProxy
         return $this->withTimer($options->withTimer)
             ->withLogger($options->withLogger)
             ->executeQueries($list->queries, $options, $select);
+    }
+
+    /**
+     * @param QueryStream $stream
+     *
+     * @return Generator
+     */
+    public function readQueries(QueryStream $stream): Generator
+    {
+        return $this->querySplitter->splitQueries($stream);
+    }
+
+    /**
+     * @param QueryStream $stream
+     * @param QueryOptions $options
+     *
+     * @return Generator
+     */
+    public function executeImport(QueryStream $stream, QueryOptions $options): Generator
+    {
+        $resultDto = new QueryResultDto();
+        $queries = $this->querySplitter->splitQueries($stream);
+        return $this->withTimer(true)
+            ->withLogger(true)
+            ->results($resultDto, $queries, $options);
     }
 }

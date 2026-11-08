@@ -16,6 +16,8 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataWriter;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\TableImport;
 use Lagdo\DbAdmin\Support\Service\Query\QueryStream;
+use League\Flysystem\Filesystem;
+use Generator;
 
 use function count;
 use function explode;
@@ -413,22 +415,6 @@ class QueryProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param FileInterface $file
-     * @param bool $decompress
-     *
-     * @return resource
-     */
-    private function readFile(FileInterface $file, bool $decompress = false): mixed
-    {
-        // $compressed = preg_match('~\.gz$~', $file->path());
-        // if (!$decompress || !$compressed) {
-            //! may not be reachable because of open_basedir
-        // }
-
-        return $file->filesystem()->readStream($file->path());
-    }
-
-    /**
      * Run queries from uploaded files
      *
      * @param FileInterface $file         The uploaded file
@@ -440,11 +426,58 @@ class QueryProxy extends AbstractDriverProxy
     {
         $options->setExecOptions(false, true, false);
 
-        $fileStream = $this->readFile($file, $options->decompressFile);
+        $fileStream = $file->filesystem()->readStream($file->path());
         $queryLineReader = fn(QueryStream $stream) =>
             $this->readLineFromFile($stream, $fileStream);
         $stream = new QueryStream($queryLineReader);
 
         return $this->processor->executeQueryStream($stream, $options);
+    }
+
+    /**
+     * Check the queries in a file
+     *
+     * @param Filesystem $fs
+     * @param string $path
+     *
+     * @return array
+     */
+    public function prepareImport(Filesystem $fs, string $path): array
+    {
+        $fileStream = $fs->readStream($path);
+        $queryLineReader = fn(QueryStream $stream) =>
+            $this->readLineFromFile($stream, $fileStream);
+        $stream = new QueryStream($queryLineReader);
+
+        $total = 0;
+        $queries = $this->processor->readQueries($stream);
+        foreach ($queries as $query) {
+            // Todo: validate the SQL query syntax.
+            $total++;
+        }
+
+        return ['total' => $total, 'runs' => 0, 'errors' => 0];
+    }
+
+    /**
+     * Execute the queries in a file
+     *
+     * @param Filesystem $fs
+     * @param string $path
+     * @param QueryOptions $options
+     *
+     * @return Generator
+     */
+    public function executeImport(Filesystem $fs, string $path,
+        QueryOptions $options): Generator
+    {
+        $options->setExecOptions(false, true, false);
+
+        $fileStream = $fs->readStream($path);
+        $queryLineReader = fn(QueryStream $stream) =>
+            $this->readLineFromFile($stream, $fileStream);
+        $stream = new QueryStream($queryLineReader);
+
+        yield from $this->processor->executeImport($stream, $options);
     }
 }
