@@ -5,18 +5,11 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Database;
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\ImportTrait;
-use Lagdo\DbAdmin\App\Ui\Command\ImportUiBuilder;
 
 #[Before('setDatabase')]
 class Import extends Component
 {
     use ImportTrait;
-
-    /**
-     * @param ImportUiBuilder $importUi The HTML UI builder
-     */
-    public function __construct(protected ImportUiBuilder $importUi)
-    {}
 
     protected function setDatabase(): void
     {

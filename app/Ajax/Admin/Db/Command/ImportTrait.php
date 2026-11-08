@@ -4,12 +4,13 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command;
 
 use Jaxon\Attributes\Attribute\Before;
 use Jaxon\Attributes\Attribute\Callback;
+use Jaxon\Attributes\Attribute\Inject;
 use Jaxon\Attributes\Attribute\Upload;
 use Jaxon\Request\Upload\FileInterface;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ui\Command\ImportUiBuilder;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
-use Lagdo\DbAdmin\Support\Facade\ImportStorage;
+use Lagdo\DbAdmin\Support\Service\Import\StorageInterface;
 use DateTimeImmutable;
 
 use function array_diff_key;
@@ -22,7 +23,14 @@ trait ImportTrait
     /**
      * @var ImportUiBuilder
      */
-    protected ImportUiBuilder $importUi;
+    #[Inject]
+    private ImportUiBuilder $importUi;
+
+    /**
+     * @var StorageInterface|null
+     */
+    #[Inject]
+    private StorageInterface|null $storage;
 
     /**
      * @return DriverProxy
@@ -101,8 +109,7 @@ trait ImportTrait
     #[Upload('dbadmin-import-sql-files-input')]
     public function importFromUpload(array $formValues): void
     {
-        $storage = ImportStorage::instance();
-        if (!$storage) {
+        if (!$this->storage) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
                 ->error('The import feature is not setup.');
@@ -138,7 +145,7 @@ trait ImportTrait
             ],
         ], JSON_PRETTY_PRINT));
 
-        $importUrl = $storage->url($file->path());
+        $importUrl = $this->storage->url($file->path());
         $this->response()->jo('jaxon.dbadmin')->downloadFile($importUrl);
     }
 }

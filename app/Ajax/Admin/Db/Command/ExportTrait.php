@@ -2,11 +2,12 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command;
 
+use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ajax\Exception\ValidationException;
 use Lagdo\DbAdmin\App\Ui\Command\ExportUiBuilder;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
-use Lagdo\DbAdmin\Support\Facade\ExportStorage;
+use Lagdo\DbAdmin\Support\Service\Export\StorageInterface;
 use Lagdo\Facades\Logger;
 
 use function in_array;
@@ -20,7 +21,14 @@ trait ExportTrait
     /**
      * @var ExportUiBuilder
      */
-    protected ExportUiBuilder $exportUi;
+    #[Inject]
+    private ExportUiBuilder $exportUi;
+
+    /**
+     * @var StorageInterface|null
+     */
+    #[Inject]
+    private StorageInterface|null $storage;
 
     /**
      * @return DriverProxy
@@ -79,8 +87,7 @@ trait ExportTrait
      */
     protected function exportDb(array $databases, array $formValues): void
     {
-        $storage = ExportStorage::instance();
-        if (!$storage) {
+        if (!$this->storage) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
                 ->error('The export feature is not setup.');
@@ -109,7 +116,7 @@ trait ExportTrait
 
         $fileId = uniqid();
         $jsonFilename = "{$fileId}.json";
-        $exportUrl = $storage->write($jsonContent, $jsonFilename);
+        $exportUrl = $this->storage->write($jsonContent, $jsonFilename);
         if ($exportUrl === '') {
             Logger::debug('Unable to write export to temp file.', [
                 'filename' => $jsonFilename,

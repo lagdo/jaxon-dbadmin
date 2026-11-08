@@ -5,18 +5,11 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Database;
 use Jaxon\Attributes\Attribute\After;
 use Jaxon\Attributes\Attribute\Before;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\ExportTrait;
-use Lagdo\DbAdmin\App\Ui\Command\ExportUiBuilder;
 
 #[Before('setDatabase')]
 class Export extends Component
 {
     use ExportTrait;
-
-    /**
-     * @param ExportUiBuilder $exportUi The HTML UI builder
-     */
-    public function __construct(protected ExportUiBuilder $exportUi)
-    {}
 
     protected function setDatabase(): void
     {

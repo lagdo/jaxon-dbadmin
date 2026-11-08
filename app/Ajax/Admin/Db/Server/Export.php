@@ -4,17 +4,10 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Server;
 
 use Jaxon\Attributes\Attribute\After;
 use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\ExportTrait;
-use Lagdo\DbAdmin\App\Ui\Command\ExportUiBuilder;
 
 class Export extends Component
 {
     use ExportTrait;
-
-    /**
-     * @param ExportUiBuilder $exportUi The HTML UI builder
-     */
-    public function __construct(protected ExportUiBuilder $exportUi)
-    {}
 
     /**
      * @inheritDoc
