@@ -290,7 +290,9 @@ class DatabaseConfigProvider
             return [];
         }
 
-        $options = $this->serverConfig->with($this->config)->readServerConfig($prefix);
+        $options = $this->serverConfig
+            ->with($this->config)
+            ->readServerConfig($prefix);
         return $this->checkOptions($options) ? $options : [];
     }
 

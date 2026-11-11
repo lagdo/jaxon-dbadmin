@@ -16,7 +16,7 @@ class ExportOptions
         public readonly string $schema,
         // The data to export
         public readonly array $databases,
-        public readonly array $options,
+        public readonly array $inputs,
         // The other options
         public readonly int $bufferLimit,
         public readonly int $timeLimit

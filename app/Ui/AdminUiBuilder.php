@@ -11,11 +11,14 @@ use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Command as ServerCommand;
 use Lagdo\DbAdmin\App\Ajax\Admin\Menu\Server\Databases as MenuDatabases;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\AppTabMenu;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\Content;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\ImportMenuButton;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\ImportStatus;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\UiBuilder\BuilderInterface;
 
 use function count;
+use function Jaxon\cl;
 use function Jaxon\pm;
 use function Jaxon\rq;
 
@@ -206,7 +209,19 @@ class AdminUiBuilder
                         ->setClass('jaxon-dbadmin-page-header_items'),
                     $this->ui->div()
                         ->jxnBind(rq(AppTabMenu::class))
-                        ->setClass('jaxon-dbadmin-page-header_menus')
+                        ->setClass('jaxon-dbadmin-page-header_menus'),
+                    $this->ui->div(
+                        $this->ui->dropdown(
+                            $this->ui->dropdownButton(
+                                $this->ui->span(
+                                    cl(ImportMenuButton::class)->html()
+                                )->jxnBind(rq(ImportMenuButton::class))
+                            )->primary(),
+                            $this->ui->dropdownMenu()
+                                ->jxnBind(rq(ImportStatus::class))
+                                ->setStyle('width: 400px;')
+                        )->right()
+                    )->setStyle('margin-left: 2px;')
                 )->setClass('jaxon-dbadmin-page-header'),
                 $this->ui->tabContent(
                     $this->tabContentItem(true)

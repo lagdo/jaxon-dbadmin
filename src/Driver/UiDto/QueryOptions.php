@@ -30,6 +30,11 @@ class QueryOptions
     public bool $withLogger = false;
 
     /**
+     * @var int
+     */
+    public int $batchSize = 0;
+
+    /**
      * @param bool $stopOnError
      * @param bool $onlyErrors
      * @param int $limit

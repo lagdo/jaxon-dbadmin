@@ -2,7 +2,6 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command;
 
-use Jaxon\Attributes\Attribute\Before;
 use Jaxon\Attributes\Attribute\Callback;
 use Jaxon\Attributes\Attribute\Inject;
 use Jaxon\Attributes\Attribute\Upload;
@@ -10,13 +9,7 @@ use Jaxon\Request\Upload\FileInterface;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
 use Lagdo\DbAdmin\App\Ui\Command\ImportUiBuilder;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
-use Lagdo\DbAdmin\Support\Service\Import\StorageInterface;
-use DateTimeImmutable;
-
-use function array_diff_key;
-use function hash;
-use function json_encode;
-use function str_replace;
+use Lagdo\DbAdmin\Support\Service\Import\StatusService;
 
 trait ImportTrait
 {
@@ -27,10 +20,10 @@ trait ImportTrait
     private ImportUiBuilder $importUi;
 
     /**
-     * @var StorageInterface|null
+     * @var StatusService
      */
     #[Inject]
-    private StorageInterface|null $storage;
+    private StatusService $statusService;
 
     /**
      * @return DriverProxy
@@ -47,13 +40,18 @@ trait ImportTrait
     /**
      * @return string
      */
+    abstract protected function section(): string;
+
+    /**
+     * @return string
+     */
     protected function content(): string
     {
         // Set main menu buttons
         $this->cl(PageActions::class)->clear();
 
-        $options = $this->driver()->getImportOptions();
-        return $this->importUi->import($options['contents'], $this->rq());
+        $contents = $this->driver()->getImportOptions()['contents'];
+        return $this->importUi->import($contents, $this->rq(), $this->section());
     }
 
     /**
@@ -61,91 +59,95 @@ trait ImportTrait
      */
     protected function after(): void
     {
-        $this->response()->jo('jaxon.dbadmin')->setFileUpload($this->importUi->filesDivId());
+        $this->response()->jo('jaxon.dbadmin')
+            ->setFileUpload($this->importUi->uploadWrapperId());
     }
 
     /**
+     * @param array $file       The database dump storage options
+     * @param array $inputs    The import inputs
+     *
      * @return void
      */
-    #[Before('notYetAvailable')]
-    public function importFromStorage(): void
-    {}
-
-    /**
-     * @return array
-     */
-    private function date(): array
+    private function download(array $file, array $inputs): void
     {
-        $now = (new DateTimeImmutable())->format('Y-m-d H:i:s:v');
-        return [
-            'create' => $now,
-            'update' => $now,
-        ];
+        // Create the import status file.
+        $status = $this->statusService->initStatus($file, $inputs);
+        if ($status === null) {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error('Unable to create the import status file.');
+            return;
+        }
+
+        [$json, $importUrl] = $status;
+        $this->response()->jo('jaxon.dbadmin')->downloadFile($importUrl);
+        $this->response()->jo('jaxon.dbadmin')->scheduleImportStatusUpdate($json, 0, 200);
     }
 
     /**
-     * @return array
-     */
-    private function connection(): array
-    {
-        [$server, $database, $schema] = $this->getCurrentDb();
-        $options = $this->driver()->getServerConfig()->getValues();
-        // Don't take the password in the hash.
-        $options = array_diff_key($options, ['password' => '']);
-        return [
-            'server' => $server,
-            'database' => $database,
-            'schema' => $schema,
-            'hash' => hash('sha256', json_encode($options)),
-        ];
-    }
-
-    /**
-     * @param array $formValues
+     * @param array $inputs
      *
      * @return void
      */
     #[Callback('jaxon.dbadmin.upload')]
-    #[Upload('dbadmin-import-sql-files-input')]
-    public function importFromUpload(array $formValues): void
+    #[Upload('dbadmin-import-upload-input')]
+    public function importFromUpload(array $inputs): void
     {
-        if (!$this->storage) {
+        if ($this->statusService->statusStorage() === null) {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error('The export feature is not setup.');
+            return;
+        }
+        $fileOptions = $this->statusService->uploadStorageOptions();
+        if ($fileOptions === null) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
                 ->error('The import feature is not setup.');
             return;
         }
-        if(!($file = $this->files()['sql_files'][0] ?? null))
-        {
+        if (!($file = $this->files()['dump'][0] ?? null)) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
                 ->error('No file uploaded!');
             return;
         }
 
-        // Create the import status file.
-        $statusFilename = str_replace($file->filename(),
-            $file->name() . '.json', $file->path());
-        $file->filesystem()->write($statusFilename, json_encode([
-            'status' => 'starting',
-            'file' => [
-                'path' => $file->path(),
-                'size' => $file->size(),
-            ],
-            'date' => $this->date(),
-            'connect' => $this->connection(),
-            'inputs' => [
-                'error_stops' => $formValues['error_stops'] ?? false,
-                'only_errors' => $formValues['only_errors'] ?? false,
-            ],
-            'count' => [
-                'total' => 0,
-                'runs' => 0,
-                'errors' => 0,
-            ],
-        ], JSON_PRETTY_PRINT));
+        $fileOptions['path'] = $file->path();
+        $this->download($fileOptions, $inputs);
+    }
 
-        $importUrl = $this->storage->url($file->path());
-        $this->response()->jo('jaxon.dbadmin')->downloadFile($importUrl);
+    /**
+     * @param string $storage
+     * @param string $dump
+     * @param array $inputs
+     *
+     * @return void
+     */
+    public function importFromStorage(string $storage, string $dump, array $inputs): void
+    {
+        if ($this->statusService->statusStorage() === null) {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error('The export feature is not setup.');
+            return;
+        }
+        $fileOptions = $this->statusService->getDumpStorageOptions($storage);
+        if ($fileOptions === null) {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error('Unable to find the selected storage.');
+            return;
+        }
+        if ($this->statusService->getDump($storage, $dump) === null) {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error('Unable to find the selected dump.');
+            return;
+        }
+
+        $fileOptions['path'] = $dump;
+        $this->download($fileOptions, $inputs);
     }
 }

@@ -26,6 +26,14 @@ class Import extends Component
     }
 
     /**
+     * @return string
+     */
+    protected function section(): string
+    {
+        return 'database';
+    }
+
+    /**
      * Show the import form for a database
      *
      * @return void

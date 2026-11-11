@@ -205,9 +205,9 @@ trait QueryTrait
      * @param Filesystem $fs
      * @param string $path
      *
-     * @return array
+     * @return Generator|null
      */
-    public function prepareImport(Filesystem $fs, string $path): array
+    public function prepareImport(Filesystem $fs, string $path): Generator|null
     {
         $this->connectToSchema();
         return $this->queryProxy()->prepareImport($fs, $path);
@@ -220,10 +220,10 @@ trait QueryTrait
      * @param string $path
      * @param QueryOptions $options
      *
-     * @return Generator
+     * @return Generator|null
      */
     public function executeImport(Filesystem $fs, string $path,
-        QueryOptions $options): Generator
+        QueryOptions $options): Generator|null
     {
         $this->connectToSchema();
         return $this->queryProxy()->executeImport($fs, $path, $options);

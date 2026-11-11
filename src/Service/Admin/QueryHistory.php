@@ -35,7 +35,8 @@ class QueryHistory
      * @param AuditDatabase $auditDb
      * @param DatabaseConfigProvider $configProvider
      */
-    public function __construct(private AuditDatabase $auditDb, DatabaseConfigProvider $configProvider)
+    public function __construct(private AuditDatabase $auditDb,
+        DatabaseConfigProvider $configProvider)
     {
         $this->historyEnabled = $configProvider->showQueryHistory();
         $this->historyDistinct = $configProvider->queryHistoryDistinct();

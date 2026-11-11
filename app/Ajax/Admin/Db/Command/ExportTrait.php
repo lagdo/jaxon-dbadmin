@@ -4,17 +4,9 @@ namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command;
 
 use Jaxon\Attributes\Attribute\Inject;
 use Lagdo\DbAdmin\App\Ajax\Admin\Page\PageActions;
-use Lagdo\DbAdmin\App\Ajax\Exception\ValidationException;
 use Lagdo\DbAdmin\App\Ui\Command\ExportUiBuilder;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
-use Lagdo\DbAdmin\Support\Service\Export\StorageInterface;
-use Lagdo\Facades\Logger;
-
-use function in_array;
-use function json_encode;
-use function str_replace;
-use function trim;
-use function uniqid;
+use Lagdo\DbAdmin\Support\Service\Export\StatusService;
 
 trait ExportTrait
 {
@@ -25,45 +17,15 @@ trait ExportTrait
     private ExportUiBuilder $exportUi;
 
     /**
-     * @var StorageInterface|null
+     * @var StatusService
      */
     #[Inject]
-    private StorageInterface|null $storage;
+    private StatusService $statusService;
 
     /**
      * @return DriverProxy
      */
     abstract protected function driver(): DriverProxy;
-
-    /**
-     * @param array $formValues
-     *
-     * @return array
-     */
-    private function options(array $formValues): array
-    {
-        // Convert checkbox values to boolean
-        $options = [
-            'types' => isset($formValues['types']),
-            'routines' => isset($formValues['routines']),
-            'events' => isset($formValues['events']),
-            'autoIncrement' => isset($formValues['auto_increment']),
-            'triggers' => isset($formValues['triggers']),
-        ];
-
-        foreach($this->driver()->getExportSelection() as $name => $values) {
-            if(isset($formValues[$name])) {
-                $value = trim($formValues[$name]);
-                if (!in_array($value, $values)) {
-                    $message = $this->trans()->lang('The "%s" value is incorrect.', $name);
-                    throw new ValidationException($message . ' ' . json_encode($values));
-                }
-                $options[$name] = $value;
-            }
-        }
-
-        return $options;
-    }
 
     /**
      * @return string
@@ -78,8 +40,6 @@ trait ExportTrait
     }
 
     /**
-     * Execute an SQL query and display the results
-     *
      * @param array  $databases     The databases to dump
      * @param array  $formValues
      *
@@ -87,50 +47,31 @@ trait ExportTrait
      */
     protected function exportDb(array $databases, array $formValues): void
     {
-        if (!$this->storage) {
+        if ($this->statusService->statusStorage() === null) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
                 ->error('The export feature is not setup.');
             return;
         }
 
-        $options = $this->options($formValues);
-        $extensions = [
-            'sql' => '.sql',
-            'csv' => '.csv',
-            'csv;' => '.csv',
-            'tsv' => '.txt',
-        ];
-        $format = $options['format'] ?? 'sql';
-
-        $currentDb = $this->driver()->currentDb();
-        $jsonContent = json_encode([
-            'connect' => [
-                'server' => $currentDb->server,
-                'database' => $currentDb->name,
-                'schema' => $currentDb->schema,
-            ],
-            'options' => $options,
-            'databases' => $databases,
-        ], JSON_PRETTY_PRINT);
-
-        $fileId = uniqid();
-        $jsonFilename = "{$fileId}.json";
-        $exportUrl = $this->storage->write($jsonContent, $jsonFilename);
-        if ($exportUrl === '') {
-            Logger::debug('Unable to write export to temp file.', [
-                'filename' => $jsonFilename,
-                'options' => $options,
-            ]);
+        $errors = $this->statusService->checkInputs($formValues);
+        if ($errors !== null) {
+            [$name, $allowedValues] = $errors;
             $this->alert()
                 ->title($this->trans()->lang('Error'))
-                ->error('Unable to write temp file.');
+                ->error($this->trans()->lang('The "%s" value is incorrect.', $name));
+        }
+
+        // Create the export status file.
+        $exportUrl = $this->statusService->initStatus($databases, $formValues);
+        if ($exportUrl === null) {
+            $this->alert()
+                ->title($this->trans()->lang('Error'))
+                ->error('Unable to create the export status file.');
             return;
         }
 
-        $filename = $fileId . ($extensions[$format] ?? $extensions['sql']);
-        $exportUrl = str_replace($jsonFilename, $filename, $exportUrl);
-        $output = $options['output'] ?? 'save';
+        $output = $formValues['output'] ?? 'save';
         $output === 'open' ?
             $this->response()->jo()->open($exportUrl, '_blank')->focus() :
             $this->response()->jo('jaxon.dbadmin')->downloadFile($exportUrl);

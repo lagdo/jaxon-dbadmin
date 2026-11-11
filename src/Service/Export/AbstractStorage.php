@@ -15,23 +15,12 @@ use function Jaxon\storage;
 abstract class AbstractStorage implements StorageInterface
 {
     /**
-     * @return string
+     * @inheritDoc
      */
-    abstract protected function storage(): string;
-
-    /**
-     * @param string $filename
-     *
-     * @return string
-     */
-    abstract protected function path(string $filename): string;
-
-    /**
-     * @param string $filename
-     *
-     * @return string
-     */
-    abstract protected function url(string $filename): string;
+    public function status(): array
+    {
+        return [];
+    }
 
     /**
      * @return Filesystem

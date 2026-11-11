@@ -51,8 +51,7 @@ class Database extends FuncComponent
         $database = $formValues['name'];
         $collation = $formValues['collation'];
 
-        if(!$this->driver()->createDatabase($database, $collation))
-        {
+        if (!$this->driver()->createDatabase($database, $collation)) {
             $this->alert()->error("Cannot create database $database.");
             return;
         }
@@ -72,8 +71,7 @@ class Database extends FuncComponent
      */
     public function drop(string $database): void
     {
-        if(!$this->driver()->dropDatabase($database))
-        {
+        if (!$this->driver()->dropDatabase($database)) {
             $this->alert()->error("Cannot delete database $database.");
             return;
         }

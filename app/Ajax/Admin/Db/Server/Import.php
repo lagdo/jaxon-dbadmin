@@ -18,6 +18,14 @@ class Import extends Component
     }
 
     /**
+     * @return string
+     */
+    protected function section(): string
+    {
+        return 'server';
+    }
+
+    /**
      * Show the import form for a server
      *
      * @return void

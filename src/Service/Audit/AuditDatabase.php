@@ -65,6 +65,15 @@ class AuditDatabase
     }
 
     /**
+     * @return void
+     */
+    public function closeConnection(): void
+    {
+        $this->connection?->close();
+        $this->connection = null;
+    }
+
+    /**
      * @param string $message
      *
      * @return void

@@ -19,7 +19,7 @@ class QueryLogger implements QueryCallback
     /**
      * @var bool
      */
-    private bool $enabled = false;
+    private bool $disabled = true;
 
     /**
      * @var array<bool>
@@ -54,10 +54,10 @@ class QueryLogger implements QueryCallback
      */
     public function enabled(bool|null $enabled = null): bool
     {
-        if ($this->enabled !== null) {
-            $this->enabled = $enabled;
+        if ($enabled !== null) {
+            $this->disabled = !$enabled;
         }
-        return $this->enabled;
+        return !$this->disabled;
     }
 
     /**
@@ -87,7 +87,7 @@ class QueryLogger implements QueryCallback
      */
     private function saveExecution(string $query, QueryResult|bool $result, int $category): bool
     {
-        if ($this->categoryDisabled($category)) {
+        if ($this->disabled || $this->categoryDisabled($category)) {
             return false;
         }
         if (($userId = $this->auditDb->getUserId()) === 0) {

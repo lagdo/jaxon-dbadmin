@@ -2,6 +2,7 @@
 
 use Jaxon\Config\ConfigSetter;
 use Jaxon\Di\Container;
+use Jaxon\Upload\Manager\FileNameInterface;
 use Lagdo\DbAdmin\App\Ui;
 use Lagdo\DbAdmin\Driver;
 use Lagdo\DbAdmin\Support;
@@ -14,7 +15,11 @@ use Lagdo\DbAdmin\Support\Service;
 $secrets = include  __DIR__ . '/secrets.php';
 
 // This setup needs to be applied after the config is loaded.
-jaxon()->callback()->boot(fn() => DriverHelper::setupDriver());
+jaxon()->callback()->boot(function() {
+    DriverHelper::setupDriver();
+    // Customize the upload dir names.
+    jaxon()->di()->alias(FileNameInterface::class, Service\Storage\FileNameService::class);
+});
 
 return [
     'val' => [
@@ -126,8 +131,14 @@ return [
         Service\Admin\QueryTimer::class,
         // Database export
         Service\Export\ExportService::class,
+        // Database export status storage
+        Service\Export\StatusService::class,
         // Database import
         Service\Import\ImportService::class,
+        // Database import status storage
+        Service\Import\StatusService::class,
+        // Storage status file name
+        Service\Storage\FileNameService::class,
         // The UI builders
         Ui\AdminUiBuilder::class,
         Ui\AuditUiBuilder::class,

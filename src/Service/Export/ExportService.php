@@ -4,15 +4,14 @@ namespace Lagdo\DbAdmin\Support\Service\Export;
 
 use Lagdo\DbAdmin\Support\Driver\DriverHelper;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
+use Lagdo\DbAdmin\Support\Service\Admin\AuditDatabase;
 use Lagdo\Facades\Logger;
 use Generator;
 
 use function deflate_add;
 use function deflate_init;
 use function in_array;
-use function is_array;
 use function is_string;
-use function json_decode;
 use function pathinfo;
 use function set_time_limit;
 use function strlen;
@@ -24,41 +23,56 @@ class ExportService
 {
     /**
      * @param DriverProxy $driver
-     * @param StorageInterface $fs
+     * @param StatusService $statusService
+     * @param AuditDatabase $auditDb
      */
     public function __construct(private DriverProxy $driver,
-        private StorageInterface $fs)
+        private StatusService $statusService, AuditDatabase $auditDb)
     {
         // This is required for the driver setup to complete.
         DriverHelper::setupDriver();
+        // Make sure the connection to the audit database is closed.
+        $auditDb->closeConnection();
     }
 
     /**
-     * @param string $filename
-     * @param int $bufferLimit
-     * @param int $timeLimit
+     * @param string $jsonFilename
+     * @param array $options
      *
      * @return ExportOptions|null
      */
-    public function options(string $filename, int $bufferLimit = 32768,
-        int $timeLimit = -1): ExportOptions|null
+    public function options(string $jsonFilename, array $options): ExportOptions|null
     {
-        $pathinfo = pathinfo($filename);
+        if (pathinfo($jsonFilename, PATHINFO_EXTENSION) !== 'json') {
+            Logger::error("Unsupported extension of file $jsonFilename.");
+            return null;
+        }
+        if (($export = $this->statusService->readStatus($jsonFilename)) === null) {
+            Logger::error("Unable to read export status file $jsonFilename.");
+            return null;
+        }
 
-        $extension = $pathinfo['extension'];
+        $timeLimit = $options['timeLimit'] ?? -1;
+        $bufferLimit = $options['bufferLimit'] ?? 32768;
+
+        $connection = $export['connect'];
+        $server = $connection['server'] ?? '';
+        $database = $connection['database'] ?? '';
+        $schema = $connection['schema'] ?? '';
+        $this->driver->selectDatabase($server, $database, $schema);
+        if (!$this->statusService->verifyHash($connection)) {
+            Logger::error("The hash for status file $jsonFilename doesn't match.");
+            return null;
+        }
+
+        $filename = $export['filename'];
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
         if (!in_array($extension, ['sql', 'csv', 'txt'], true)) {
-            Logger::error("Unsupported extension of file $filename.");
+            Logger::error("Unsupported extension of file {$filename}.");
             return null;
         }
 
-        $jsonFilename = "{$pathinfo['dirname']}/{$pathinfo['filename']}.json";
-        $json = $this->fs->read($jsonFilename);
-        if ($json === null || !is_array($export = json_decode($json, true))) {
-            Logger::error("Unable to read file $jsonFilename for database export.");
-            return null;
-        }
-
-        $output = $export['options']['output'] ?? 'save';
+        $output = $export['inputs']['output'] ?? 'save';
         $contentDisposition = $output === 'open' ? 'inline' : 'attachment';
         $contentType = match(true) {
             $output === 'gzip' => 'application/gzip',
@@ -68,19 +82,16 @@ class ExportService
             default => 'text/plain',
         };
 
-        $server = $export['connect']['server'] ?? '';
-        $database = $export['connect']['database'] ?? '';
-        $schema = $export['connect']['schema'] ?? '';
         $databases = $export['databases'];
-        $options = $export['options'];
+        $inputs = $export['inputs'];
 
-        if ($options['output'] === 'gzip') {
+        if ($inputs['output'] === 'gzip') {
             $filename .= '.gz';
         }
 
         return new ExportOptions($filename, $extension, $jsonFilename,
             $contentType, $contentDisposition, $server, $database,
-            $schema, $databases, $options, $bufferLimit, $timeLimit);
+            $schema, $databases, $inputs, $bufferLimit, $timeLimit);
     }
 
     /**
@@ -126,24 +137,20 @@ class ExportService
     }
 
     /**
-     * @param ExportOptions|null $options
+     * @param ExportOptions $options
      *
      * @return Generator|null
      */
-    public function export(ExportOptions|null $options): Generator|null
+    public function export(ExportOptions $options): Generator|null
     {
-        if ($options === null) {
-            return null;
-        }
-
-        if ($options->timeLimit === 0) {
-            set_time_limit(0);
+        if ($options->timeLimit >= 0) {
+            set_time_limit($options->timeLimit);
         }
 
         $this->driver->selectDatabase($options->server, $options->database, $options->schema);
-        $results = $this->driver->exportDatabases($options->databases, $options->options);
+        $results = $this->driver->exportDatabases($options->databases, $options->inputs);
         if (!is_string($results)) {
-            if ($options->options['output'] === 'gzip') {
+            if ($options->inputs['output'] === 'gzip') {
                 $results = $this->compress($results);
             }
             return $this->bufferize($results, $options);

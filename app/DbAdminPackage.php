@@ -65,6 +65,8 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
         $foreigns = require "$configDir/foreigns.php";
         $jaxon->registerPackage(self::class, [
             'ui' => $app['ui'],
+            'export' => $app['export'] ?? [],
+            'import' => $app['import'] ?? [],
             'audit' => [
                 'enabled' => $app['audit']['enabled'] ?? false,
                 'users' => $app['audit']['users'] ?? [],
@@ -136,6 +138,6 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getReadyScript(): string
     {
-        return '{' . rq(AppFunc::class)->start() . '}';
+        return '{' . rq(AppFunc::class)->start() . ';}';
     }
 }

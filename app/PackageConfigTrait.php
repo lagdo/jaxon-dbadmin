@@ -124,10 +124,16 @@ trait PackageConfigTrait
         if (file_exists("$servicesDir/storage.php")) {
             $storage = require "$servicesDir/storage.php";
             if (isset($storage['export'])) {
-                $app['export'] = $storage['export'];
+                $app['export'] = [
+                    ...($app['export'] ?? []),
+                    'service' => $storage['export'],
+                ];
             }
             if (isset($storage['import'])) {
-                $app['import'] = $storage['import'];
+                $app['import'] = [
+                    ...($app['import'] ?? []),
+                    'service' => $storage['import'],
+                ];
             }
         }
 
@@ -171,8 +177,8 @@ trait PackageConfigTrait
         $app = self::appConfig($app, "$configDir/services", $jaxon);
         $services = [
             ...self::registerAuth($app['auth'] ?? null),
-            ...self::registerExport($app['export'] ?? null),
-            ...self::registerImport($app['import'] ?? null),
+            ...self::registerExport($app['export']['service'] ?? null),
+            ...self::registerImport($app['import']['service'] ?? null),
             ...self::registerSecret($app['secret'] ?? [], $jaxon),
             ...self::registerUiBuilder($app['ui']['template'] ?? [], $jaxon),
         ];

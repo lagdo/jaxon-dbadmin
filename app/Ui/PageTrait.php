@@ -46,7 +46,7 @@ trait PageTrait
                             $this->ui->dropdownMenuItem($menu['label'])
                                 ->jxnClick($menu['handler'])
                         )
-                    )/*->setStyle('position:relative;')*/
+                    )
                 )->when(!$alignLeft, fn($dropdown) => $dropdown->right())
             )
         );

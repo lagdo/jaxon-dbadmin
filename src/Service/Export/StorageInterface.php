@@ -3,22 +3,26 @@
 namespace Lagdo\DbAdmin\Support\Service\Export;
 
 /**
- * Read and write database export files.
+ * Config, urls and paths for database export files.
  */
 interface StorageInterface
 {
     /**
-     * @param string $content
-     * @param string $filename
-     *
-     * @return string
+     * @return array<string, string>
      */
-    public function write(string $content, string $filename): string;
+    public function status(): array;
 
     /**
      * @param string $filename
      *
-     * @return string|null
+     * @return string
      */
-    public function read(string $filename): string|null;
+    public function path(string $filename): string;
+
+    /**
+     * @param string $filename
+     *
+     * @return string
+     */
+    public function url(string $filename): string;
 }
