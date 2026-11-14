@@ -55,11 +55,6 @@ class QueryProcessor extends AbstractDriverProxy
     private SelectResult $selectResult;
 
     /**
-     * @var int
-     */
-    private int $batchSize = 20;
-
-    /**
      * @param QuerySplitter $querySplitter
      *
      * @return static
@@ -199,6 +194,7 @@ class QueryProcessor extends AbstractDriverProxy
         $queries = implode(';', $resultDto->batchBuffer);
         $resultDto->batchBuffer = [];
         $result = $this->engine()->executeMultiQuery($queries);
+        $resultDto->error = '';
         if ($result->hasError()) {
             $resultDto->errors++;
             $resultDto->error = $this->engine()->errorMessage();
@@ -218,7 +214,6 @@ class QueryProcessor extends AbstractDriverProxy
     {
         if (is_array($query)) {
             $this->executeSpecialQuery($query, $resultDto);
-
             return;
         }
 
@@ -227,9 +222,9 @@ class QueryProcessor extends AbstractDriverProxy
             $this->executeUseStatement($query);
         }
 
-        if ($select === null && $options->inBatch) {
+        if ($select === null && $options->inBatch && $options->batchSize > 0) {
             $resultDto->batchBuffer[] = $query;
-            if ($this->batchSize > 0 && count($resultDto->batchBuffer) >= $this->batchSize) {
+            if (count($resultDto->batchBuffer) >= $options->batchSize) {
                 // Execute the batched queries.
                 $this->executeQueryBatch($resultDto);
             }
@@ -287,14 +282,15 @@ class QueryProcessor extends AbstractDriverProxy
             $result->duration += $this->queryTimer?->duration() ?? 0;
             yield $result;
 
-            if ($result->errors > 0 && $options->stopOnError) {
+            if ($options->stopOnError && $result->errors > 0) {
                 break;
             }
         }
 
         // There might be some remaining queries in the batch buffer.
-        if ($options->inBatch) {
+        if ($options->inBatch && count($result->batchBuffer) > 0) {
             $this->executeQueryBatch($result);
+            $result->duration += $this->queryTimer?->duration() ?? 0;
             yield $result;
         }
 
@@ -376,10 +372,13 @@ class QueryProcessor extends AbstractDriverProxy
      */
     public function executeImport(QueryStream $stream, QueryOptions $options): Generator
     {
+        $options->getRowsets = false;
+        $options->inTransaction = false;
+
         $resultDto = new QueryResultDto();
         $queries = $this->querySplitter->splitQueries($stream);
         return $this->withTimer(true)
-            ->withLogger(true)
+            ->withLogger(false)
             ->results($resultDto, $queries, $options);
     }
 }
