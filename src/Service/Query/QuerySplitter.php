@@ -29,7 +29,7 @@ class QuerySplitter
     /**
      * @var string
      */
-    private string $functionDelimiterRegex = "\\$[a-z0-9]*?\\$";
+    private string $functionDelimiterRegex = "\\$[a-z0-9\_\-]*?\\$";
 
     /**
      * @var string
