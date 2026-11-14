@@ -113,11 +113,10 @@ trait PackageConfigTrait
      */
     private static function appConfig(array $app, string $servicesDir, Jaxon $jaxon): array
     {
-        if (is_string($app['auth'] ?? null) &&
-            file_exists("$servicesDir/auth.php")) {
-            $auths = require "$servicesDir/auth.php";
-            if (isset($auths[$app['auth']])) {
-                $app['auth'] = $auths[$app['auth']];
+        if (file_exists("$servicesDir/user.php")) {
+            $user = require "$servicesDir/user.php";
+            if (isset($user['auth'])) {
+                $app['auth'] = $user['auth'];
             }
         }
 
