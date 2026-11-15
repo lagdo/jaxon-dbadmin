@@ -3,8 +3,7 @@
 namespace Lagdo\DbAdmin\App\Ui\Command;
 
 use Jaxon\Script\Call\JxnCall;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Import;
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command\Query;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Command;
 use Lagdo\DbAdmin\Support\Translator;
 use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
@@ -156,9 +155,9 @@ class ImportUiBuilder
             $this->ui->form(
                 $this->ui->formField(
                     $this->ui->inputGroup(
-                        $this->ui->button($this->ui->html($this->trans->lang('Select') . '&hellip;'))
+                        $this->ui->button($this->trans->lang('Select') . '&hellip;')
                             ->primary()
-                            ->jxnClick(rq(Import::class)->showStorages()),
+                            ->jxnClick(rq(Command\DumpStorage::class)->showStorages()),
                         $this->ui->input()
                             ->setType('text')
                             ->setName('path')
@@ -166,9 +165,9 @@ class ImportUiBuilder
                             ->setReadonly('readonly')
                             ->setId($this->storageInputId())
                             ->setDataStorage(''),
-                            $this->ui->button($this->ui->text($this->trans->lang('Execute')))
-                                ->primary()
-                                ->jxnClick($importHandler)
+                        $this->ui->button($this->trans->lang('Execute'))
+                            ->primary()
+                            ->jxnClick($importHandler)
                     ) // ->help($this->trans->lang('Webserver file %s', ''))
                 )->label($this->trans->lang('From storage'))
             )
@@ -269,7 +268,7 @@ class ImportUiBuilder
             ),
             $this->ui->div()
                 ->setStyle('margin-tom: 10px;')
-                ->tbnBindApp(rq(Query\ImportResult::class), $section)
+                ->tbnBindApp(rq(Command\Query\ImportResult::class), $section)
         );
     }
 
@@ -302,6 +301,7 @@ class ImportUiBuilder
     {
         $filename = pathinfo($import['file']['path'], PATHINFO_BASENAME);
         $status = $import['status'];
+        $result = $import['result'] ?? '(undefined)';
         $count = $import['count'];
         $totalDuration = $this->formatDuration($import['duration']['total']);
         $queriesDuration = $this->formatDuration($import['duration']['queries']);
@@ -317,7 +317,7 @@ class ImportUiBuilder
                         $this->ui->span("Status: {$status}. ")
                             ->setStyle('vertical-align: top;'),
                         $this->ui->progress()
-                            ->setStyle('height: 20px;')
+                            ->setStyle('height: 22px;')
                     )
                 ),
                 $this->ui->when($status === 'running' || $status === 'completed', fn() =>
@@ -335,11 +335,11 @@ class ImportUiBuilder
                                 $this->ui->progress()
                                     ->setMax($count['total'])
                                     ->setValue($count['runs'])
-                                    ->setStyle('height: 20px;')
+                                    ->setStyle('height: 22px;')
                             )
                         ),
                         $this->ui->when($status === 'completed', fn() =>
-                            $this->ui->html("Status: {$status}. Result: {$import['result']}.")
+                            $this->ui->html("Status: {$status}. Result: {$result}.")
                         )
                     )
                 )

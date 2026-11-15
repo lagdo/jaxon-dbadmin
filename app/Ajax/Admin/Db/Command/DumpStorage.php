@@ -2,11 +2,11 @@
 
 namespace Lagdo\DbAdmin\App\Ajax\Admin\Db\Command;
 
-use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\FuncComponent;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\FuncComponent;
 use Lagdo\DbAdmin\App\Ui\Command\ImportUiBuilder;
 use Lagdo\DbAdmin\Support\Service\Import\StatusService;
 
-class Import extends FuncComponent
+class DumpStorage extends FuncComponent
 {
     /**
      * @param ImportUiBuilder $importUi
@@ -31,8 +31,7 @@ class Import extends FuncComponent
         ],[
             'title' => 'Select',
             'class' => 'primary',
-            'click' => $this->rq()
-                ->showDumps($this->importUi->storageSelectValue()),
+            'click' => $this->rq()->showDumps($this->importUi->storageSelectValue()),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }
@@ -50,9 +49,7 @@ class Import extends FuncComponent
                 ->error('Please select a storage.');
             return;
         }
-
-        $dumps = $this->statusService->getDumps($storage);
-        if ($dumps === null) {
+        if (($dumps = $this->statusService->getDumps($storage)) === null) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
                 ->error('Unable to find the selected storage.');
@@ -70,22 +67,20 @@ class Import extends FuncComponent
         ],[
             'title' => 'Select',
             'class' => 'primary',
-            'click' => $this->rq()
-                ->selectDump($storage, $this->importUi->dumpSelectValue()),
+            'click' => $this->rq()->selectDump($storage, $this->importUi->dumpSelectValue()),
         ]];
         $this->modal()->show($title, $content, $buttons);
     }
 
     /**
      * @param string $storage
-     * @param string $dump
+     * @param string $path
      *
      * @return void
      */
-    public function selectDump(string $storage, string $dump): void
+    public function selectDump(string $storage, string $path): void
     {
-        $dump = $this->statusService->getDump($storage, $dump);
-        if ($dump === null) {
+        if (($dump = $this->statusService->getDump($storage, $path)) === null) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
                 ->error('Unable to find the selected dump.');
@@ -98,36 +93,5 @@ class Import extends FuncComponent
             ->attr('value', $dump->path())
             ->attr('data-storage', $storage)
             ->attr('title', $this->statusService->getDumpLabel($dump));
-    }
-
-    /**
-     * @param string $importId
-     * @param int $failures
-     *
-     * @return void
-     */
-    public function updateStatus(string $importId, int $failures = 0): void
-    {
-        $delay = 2000; // 2 seconds.
-        $import = $this->statusService->readStatus("$importId.json");
-        if ($import === null) {
-            if ($failures++ < 5) {
-                $this->response()->jo('jaxon.dbadmin')
-                    ->scheduleImportStatusUpdate($importId, $failures, $delay);
-            }
-            return;
-        }
-
-        $this->cl(ImportStatus::class)
-            ->set('import', $import)
-            ->render();
-        $this->cl(ImportMenuButton::class)
-            ->set('import', $import)
-            ->render();
-
-        if ($import['status'] === 'preparing' || $import['status'] === 'running') {
-            $this->response()->jo('jaxon.dbadmin')
-                ->scheduleImportStatusUpdate($importId, 0, $delay);
-        }
     }
 }
