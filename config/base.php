@@ -1,9 +1,5 @@
 <?php
 
-use Lagdo\DbAdmin\Driver\Exception\DriverException;
-
-use function Jaxon\jaxon;
-
 return [
     'metadata' => [
         'format' => 'attributes',
@@ -14,22 +10,10 @@ return [
             'extension' => '.html',
             'renderer' => 'jaxon',
         ],
-        'dbadmin::sql' => [
-            'directory' => __DIR__ . '/../templates/sql',
+        'dbadmin::page' => [
+            'directory' => __DIR__ . '/../templates/page',
             'extension' => '.php',
             'renderer' => 'jaxon',
         ],
-        'pagination' => [
-            'directory' => __DIR__ . '/../templates/pagination',
-            'extension' => '.php',
-            'renderer' => 'jaxon',
-        ],
-    ],
-    'exceptions' => [
-        DriverException::class => function(DriverException $dbException) {
-            $response = jaxon()->getResponse();
-            $response->dialog()->warning($dbException->getMessage());
-            return $response;
-        },
     ],
 ];
