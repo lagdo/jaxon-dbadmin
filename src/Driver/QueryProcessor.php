@@ -14,6 +14,7 @@ use Lagdo\DbAdmin\Support\Service\Admin\QueryLogger;
 use Lagdo\DbAdmin\Support\Service\Admin\QueryTimer;
 use Lagdo\DbAdmin\Support\Service\Query\QuerySplitter;
 use Lagdo\DbAdmin\Support\Service\Query\QueryStream;
+use Lagdo\Facades\Logger;
 use Generator;
 
 use function count;
@@ -354,6 +355,27 @@ class QueryProcessor extends AbstractDriverProxy
             ->executeQueries($list->queries, $options, $select);
     }
 
+    // /**
+    //  * @param string $query
+    //  *
+    //  * @return bool
+    //  */
+    // private function queryIsValid(string $query): bool
+    // {
+    //     return true;
+    // }
+
+    /**
+     * @param string $query
+     *
+     * @return bool
+     */
+    private function queryIsSupported(string $query): bool
+    {
+        // The PostgreSQL COPY query is currently not supported.
+        return preg_match("/^COPY\s/si", $query) === 0;
+    }
+
     /**
      * @param QueryStream $stream
      *
@@ -361,7 +383,21 @@ class QueryProcessor extends AbstractDriverProxy
      */
     public function readQueries(QueryStream $stream): Generator
     {
-        return $this->querySplitter->splitQueries($stream);
+        $queries = $this->querySplitter->splitQueries($stream);
+        foreach ($queries as $query) {
+            // if (!$this->queryIsValid($query)) {
+            //     Logger::error('Invalid query found.', ['query' => $query]);
+            //     yield null;
+            //     return;
+            // }
+            if (!$this->queryIsSupported($query)) {
+                Logger::error('Unsupported query found.', ['query' => $query]);
+                yield null;
+                return;
+            }
+            // The query is both valid and supported.
+            yield $query;
+        }
     }
 
     /**

@@ -236,7 +236,7 @@ class ImportService
 
         // Update the status
         $this->starting($options);
-        yield $this->logMessage('[info] Import starting...');
+        yield $this->logMessage('[info] Starting import...');
 
         $storage = $this->makeStorage($options->file);
         $filepath = $options->file['path'];
@@ -251,8 +251,18 @@ class ImportService
             return;
         }
 
+        yield $this->logMessage('[info] Preparing import...');
+
         $total = 0;
-        foreach ($queries as $_) {
+        foreach ($queries as $query) {
+            if ($query === null) {
+                $message = "Invalid or unsupported query found.";
+                Logger::error($message);
+                // Update the status
+                $this->failed($options);
+                yield $this->logMessage("[error] $message");
+                return;
+            }
             // Print this log each 10.000 queries
             if ($total++ % 10_000 === 0) {
                 yield $this->logMessage('[info] Preparing...');
@@ -263,7 +273,7 @@ class ImportService
 
         // Update the status
         $this->started($options, ['total' => $total, 'runs' => 0, 'errors' => 0]);
-        yield $this->logMessage('[info] Import running...');
+        yield $this->logMessage('[info] Running import...');
 
         $queryOptions = new QueryOptions(
             $options->inputs['error_stops'],
@@ -283,11 +293,11 @@ class ImportService
         $queries = 0;
         $duration = 0;
         $result = null;
-        foreach ($results as $r) {
+        foreach ($results as $_) {
             // The executeImport() function actually returns a generator.
             // But the yielded values are instances of QueryResultDto.
             /** @var QueryResultDto */
-            $result = $r;
+            $result = $_;
             if ($this->thresholdReached($result, $options, $queries, $duration)) {
                 $queries = $result->queries;
                 $duration = $result->duration;
