@@ -3,7 +3,7 @@
 namespace Lagdo\DbAdmin\Support\Service\Export;
 
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
-use Lagdo\DbAdmin\Support\Service\Storage\FileNameService;
+use Lagdo\DbAdmin\Support\Service\Storage\FileSystemService;
 use Lagdo\DbAdmin\Support\Service\Storage\StatusStorageMixin;
 
 use function in_array;
@@ -19,10 +19,10 @@ class StatusService
     /**
      * @param StorageInterface $storage
      * @param DriverProxy $driver
-     * @param FileNameService $nameService
+     * @param FileSystemService $nameService
      */
     public function __construct(private StorageInterface $storage,
-        private DriverProxy $driver, private FileNameService $nameService)
+        private DriverProxy $driver, private FileSystemService $nameService)
     {}
 
     /**
@@ -94,7 +94,7 @@ class StatusService
         $format = $inputs['format'] ?? 'sql';
         $extension = $extensions[$format] ?? $extensions['sql'];
 
-        $filename = $this->nameService->name();
+        $filename = $this->nameService->randomName();
         $jsonFilename = "$filename.json";
         $saved = $this->saveStatus($jsonFilename, [
             'status' => 'starting',

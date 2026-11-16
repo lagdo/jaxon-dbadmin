@@ -16,9 +16,8 @@ use Lagdo\DbAdmin\Support\Driver\UiDto\Dml\RowDataWriter;
 use Lagdo\DbAdmin\Support\Driver\UiDto\QueryListDto;
 use Lagdo\DbAdmin\Support\Driver\UiDto\TableImport;
 use Lagdo\DbAdmin\Support\Service\Query\QueryStream;
+use Lagdo\DbAdmin\Support\Service\Storage\FileSystemService;
 use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemException;
-use League\Flysystem\UnableToReadFile;
 use Generator;
 
 use function count;
@@ -39,6 +38,11 @@ class QueryProxy extends AbstractDriverProxy
      * @var QueryProcessor
      */
     private QueryProcessor $processor;
+
+    /**
+     * @var FileSystemService
+     */
+    private FileSystemService $fileSystem;
 
     /**
      * @var RowDataReader
@@ -74,6 +78,17 @@ class QueryProxy extends AbstractDriverProxy
     public function setProcessor(QueryProcessor $processor): static
     {
         $this->processor = $processor;
+        return $this;
+    }
+
+    /**
+     * @param FileSystemService $fileSystem
+     *
+     * @return static
+     */
+    public function setFileSystem(FileSystemService $fileSystem): static
+    {
+        $this->fileSystem = $fileSystem;
         return $this;
     }
 
@@ -364,18 +379,18 @@ class QueryProxy extends AbstractDriverProxy
     }
 
     /**
-     * @param QueryStream $stream
+     * @param QueryStream $queryStream
      * @param array $sqlLines
      *
      * @return bool
      */
-    private function readLineFromArray(QueryStream $stream, array $sqlLines): bool
+    private function readLineFromArray(QueryStream $queryStream, array $sqlLines): bool
     {
-        if (!isset($sqlLines[$stream->lineNumber])) {
+        if (!isset($sqlLines[$queryStream->lineNumber])) {
             return false;
         }
 
-        $stream->queryLine = $sqlLines[$stream->lineNumber++];
+        $queryStream->queryLine = $sqlLines[$queryStream->lineNumber++];
         return true;
     }
 
@@ -392,48 +407,66 @@ class QueryProxy extends AbstractDriverProxy
         $options->setExecOptions(false, false, true);
 
         $sqlLines = explode("\n", $queries);
-        $queryLineReader = fn(QueryStream $stream) =>
-            $this->readLineFromArray($stream, $sqlLines);
-        $stream = new QueryStream($queryLineReader);
+        $queryLineReader = fn(QueryStream $queryStream) =>
+            $this->readLineFromArray($queryStream, $sqlLines);
+        $queryStream = new QueryStream($queryLineReader);
 
-        return $this->processor->executeQueryStream($stream, $options);
+        return $this->processor->executeQueryStream($queryStream, $options);
     }
 
     /**
-     * @param QueryStream $stream
+     * @param QueryStream $queryStream
      * @param resource $fileStream
      *
      * @return bool
      */
-    private function readLineFromFile(QueryStream $stream, mixed $fileStream): bool
+    private function readLineFromFile(QueryStream $queryStream, mixed $fileStream): bool
     {
         if (!($queryLine = fgets($fileStream))) {
             return false;
         }
 
-        $stream->queryLine = $queryLine;
-        $stream->lineNumber++;
+        $queryStream->queryLine = $queryLine;
+        $queryStream->lineNumber++;
         return true;
     }
 
     /**
-     * Run queries from uploaded files
+     * @param Filesystem $fs
+     * @param string $path
+     *
+     * @return QueryStream|null
+     */
+    private function queryStream(Filesystem $fs, string $path): QueryStream|null
+    {
+        if (($fileStream = $this->fileSystem->openStream($fs, $path)) === null) {
+            return null;
+        }
+
+        $queryLineReader = fn(QueryStream $queryStream) =>
+            $this->readLineFromFile($queryStream, $fileStream);
+        return new QueryStream($queryLineReader);
+    }
+
+    /**
+     * Run queries from an uploaded file
      *
      * @param FileInterface $file         The uploaded file
      * @param QueryOptions $options
      *
-     * @return QueryResultDto
+     * @return QueryResultDto|null
      */
-    public function executeQueriesInFile(FileInterface $file, QueryOptions $options): QueryResultDto
+    public function executeQueriesInFile(FileInterface $file,
+        QueryOptions $options): QueryResultDto|null
     {
+        $fs = $file->filesystem();
+        $path = $file->path();
+        if (($queryStream = $this->queryStream($fs, $path)) === null) {
+            return null;
+        }
+
         $options->setExecOptions(false, true, false);
-
-        $fileStream = $file->filesystem()->readStream($file->path());
-        $queryLineReader = fn(QueryStream $stream) =>
-            $this->readLineFromFile($stream, $fileStream);
-        $stream = new QueryStream($queryLineReader);
-
-        return $this->processor->executeQueryStream($stream, $options);
+        return $this->processor->executeQueryStream($queryStream, $options);
     }
 
     /**
@@ -446,18 +479,12 @@ class QueryProxy extends AbstractDriverProxy
      */
     public function prepareImport(Filesystem $fs, string $path): Generator|null
     {
-        try {
-            $fileStream = $fs->readStream($path);
-        } catch (FilesystemException|UnableToReadFile) {
+        if (($queryStream = $this->queryStream($fs, $path)) === null) {
             return null;
         }
 
-        $queryLineReader = fn(QueryStream $stream) =>
-            $this->readLineFromFile($stream, $fileStream);
-        $stream = new QueryStream($queryLineReader);
-
         // Todo: validate the SQL query syntax.
-        return $this->processor->readQueries($stream);
+        return $this->processor->readQueries($queryStream);
     }
 
     /**
@@ -472,17 +499,11 @@ class QueryProxy extends AbstractDriverProxy
     public function executeImport(Filesystem $fs, string $path,
         QueryOptions $options): Generator|null
     {
-        try {
-            $fileStream = $fs->readStream($path);
-        } catch (FilesystemException|UnableToReadFile) {
+        if (($queryStream = $this->queryStream($fs, $path)) === null) {
             return null;
         }
 
-        $queryLineReader = fn(QueryStream $stream) =>
-            $this->readLineFromFile($stream, $fileStream);
-        $stream = new QueryStream($queryLineReader);
-
         $options->setExecOptions(false, true, false);
-        yield from $this->processor->executeImport($stream, $options);
+        return $this->processor->executeImport($queryStream, $options);
     }
 }

@@ -18,7 +18,7 @@ $secrets = include  __DIR__ . '/secrets.php';
 jaxon()->callback()->boot(function() {
     DriverHelper::setupDriver();
     // Customize the upload dir names.
-    jaxon()->di()->alias(FileNameInterface::class, Service\Storage\FileNameService::class);
+    jaxon()->di()->alias(FileNameInterface::class, Service\Storage\FileSystemService::class);
 });
 
 return [
@@ -52,7 +52,8 @@ return [
         Proxy\QueryProxy::class => fn(Container $di) =>
             (new Proxy\QueryProxy($di->g(Support\Driver\DriverProxy::class)))
                 ->setProcessor($di->g(Support\Driver\QueryProcessor::class))
-                ->setPackageConfig($di->g(Support\DiAlias\PackageConfig::class)),
+                ->setPackageConfig($di->g(Support\DiAlias\PackageConfig::class))
+                ->setFileSystem($di->g(Service\Storage\FileSystemService::class)),
         Proxy\TableProxy::class => fn(Container $di) =>
             (new Proxy\TableProxy($di->g(Support\Driver\DriverProxy::class)))
                 ->setProcessor($di->g(Support\Driver\QueryProcessor::class)),
@@ -138,7 +139,7 @@ return [
         // Database import status storage
         Service\Import\StatusService::class,
         // Storage status file name
-        Service\Storage\FileNameService::class,
+        Service\Storage\FileSystemService::class,
         // The UI builders
         Ui\AdminUiBuilder::class,
         Ui\AuditUiBuilder::class,

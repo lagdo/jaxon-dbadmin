@@ -4,7 +4,7 @@ namespace Lagdo\DbAdmin\Support\Service\Import;
 
 use Jaxon\App\Ajax\Jaxon;
 use Lagdo\DbAdmin\Support\Driver\DriverProxy;
-use Lagdo\DbAdmin\Support\Service\Storage\FileNameService;
+use Lagdo\DbAdmin\Support\Service\Storage\FileSystemService;
 use Lagdo\DbAdmin\Support\Service\Storage\StatusStorageMixin;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\Filesystem;
@@ -27,10 +27,10 @@ class StatusService
      * @param Jaxon $jaxon
      * @param StorageInterface $storage
      * @param DriverProxy $driver
-     * @param FileNameService $nameService
+     * @param FileSystemService $nameService
      */
     public function __construct(private Jaxon $jaxon, private StorageInterface $storage,
-        private DriverProxy $driver, private FileNameService $nameService)
+        private DriverProxy $driver, private FileSystemService $nameService)
     {}
 
     /**
@@ -100,7 +100,7 @@ class StatusService
      */
     public function initStatus(array $fileOptions, array $inputs): array|null
     {
-        $filename = $this->nameService->name();
+        $filename = $this->nameService->randomName();
         $fileOptions['log'] = "{$filename}_" .
             pathinfo($fileOptions['path'], PATHINFO_FILENAME) . '.log';
         $jsonFilename = "$filename.json";
