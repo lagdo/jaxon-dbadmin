@@ -9,12 +9,15 @@ use Jaxon\Plugin\CssCodeGeneratorInterface;
 use Jaxon\Plugin\JsCode;
 use Jaxon\Plugin\JsCodeGeneratorInterface;
 use Lagdo\DbAdmin\App\Ajax\Admin\AppFunc;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Database\Import as DatabaseImport;
+use Lagdo\DbAdmin\App\Ajax\Admin\Db\Server\Import as ServerImport;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
 
 use function file_exists;
 use function realpath;
+use function str_replace;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
 
@@ -130,6 +133,19 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
     }
 
     /**
+     * @param string $section
+     *
+     * @return string
+     */
+    private function updateImportStatus(string $className): string
+    {
+        // Replace quoted placeholders with js vars.
+        $call = str_replace(['"__dump__"', '"__failures__"'], ['dump', ' failures'],
+            (string)rq($className)->updateStatus('__dump__', '__failures__'));
+        return " = (dump, failures, delay) => setTimeout(() => $call, delay)";
+    }
+
+    /**
      * Get the javascript code to include into the page
      *
      * The code must NOT be enclosed in HTML tags.
@@ -138,6 +154,14 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getReadyScript(): string
     {
-        return '{' . rq(AppFunc::class)->start() . ';}';
+        return '{
+    (function(self) {
+      self.serverImportStatus' . $this->updateImportStatus(ServerImport::class) . ';
+      self.databaseImportStatus' . $this->updateImportStatus(DatabaseImport::class) . ';
+    })(jaxon.dbadmin);
+
+    // Start the application.
+    ' . rq(AppFunc::class)->start() . ';
+  }';
     }
 }

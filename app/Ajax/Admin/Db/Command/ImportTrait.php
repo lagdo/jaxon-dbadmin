@@ -69,7 +69,7 @@ trait ImportTrait
      *
      * @return void
      */
-    private function download(array $file, array $inputs): void
+    private function startImport(array $file, array $inputs): void
     {
         // Create the import status file.
         $status = $this->statusService->initStatus($file, $inputs);
@@ -82,7 +82,10 @@ trait ImportTrait
 
         [$json, $importUrl] = $status;
         $this->response()->jo('jaxon.dbadmin')->downloadFile($importUrl);
-        $this->response()->jo('jaxon.dbadmin')->scheduleImportStatusUpdate($json, 0, 200);
+
+        $updateImportStatusFunc = $this->section() . 'ImportStatus';
+        $this->response()->jo('jaxon.dbadmin')
+            ->$updateImportStatusFunc($json, 0, 200);
     }
 
     /**
@@ -115,17 +118,17 @@ trait ImportTrait
         }
 
         $fileOptions['path'] = $file->path();
-        $this->download($fileOptions, $inputs);
+        $this->startImport($fileOptions, $inputs);
     }
 
     /**
      * @param string $storage
-     * @param string $dump
+     * @param string $path
      * @param array $inputs
      *
      * @return void
      */
-    public function importFromStorage(string $storage, string $dump, array $inputs): void
+    public function importFromStorage(string $storage, string $path, array $inputs): void
     {
         if ($this->statusService->statusStorage() === null) {
             $this->alert()
@@ -140,14 +143,47 @@ trait ImportTrait
                 ->error('Unable to find the selected storage.');
             return;
         }
-        if ($this->statusService->getDump($storage, $dump) === null) {
+        if ($this->statusService->getDump($storage, $path) === null) {
             $this->alert()
                 ->title($this->trans()->lang('Error'))
                 ->error('Unable to find the selected dump.');
             return;
         }
 
-        $fileOptions['path'] = $dump;
-        $this->download($fileOptions, $inputs);
+        $fileOptions['path'] = $path;
+        $this->startImport($fileOptions, $inputs);
+    }
+
+    /**
+     * @param string $importId
+     * @param int $failures
+     *
+     * @return void
+     */
+    public function updateStatus(string $importId, int $failures = 0): void
+    {
+        $updateImportStatusFunc = $this->section() . 'ImportStatus';
+        $delay = 2000; // 2 seconds.
+        $import = $this->statusService->readStatus("$importId.json");
+        if ($import === null) {
+            if ($failures++ < 5) {
+                $this->response()->jo('jaxon.dbadmin')
+                    ->$updateImportStatusFunc($importId, $failures, $delay);
+            }
+            return;
+        }
+
+        $this->cl(ImportStatus::class)
+            ->set('import', $import)
+            ->render();
+        $this->cl(ImportMenuButton::class)
+            ->set('import', $import)
+            ->render();
+
+        $status = $import['status'];
+        if ($status === 'preparing' || $status === 'running') {
+            $this->response()->jo('jaxon.dbadmin')
+                ->$updateImportStatusFunc($importId, 0, $delay);
+        }
     }
 }
