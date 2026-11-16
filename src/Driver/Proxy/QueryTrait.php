@@ -204,13 +204,15 @@ trait QueryTrait
      *
      * @param Filesystem $fs
      * @param string $path
+     * @param QueryOptions $options
      *
      * @return Generator|null
      */
-    public function prepareImport(Filesystem $fs, string $path): Generator|null
+    public function prepareImport(Filesystem $fs, string $path,
+        QueryOptions $options): Generator|null
     {
         $this->connectToSchema();
-        return $this->queryProxy()->prepareImport($fs, $path);
+        return $this->queryProxy()->prepareImport($fs, $path, $options);
     }
 
     /**

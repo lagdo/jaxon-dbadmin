@@ -13,6 +13,8 @@ use Closure;
 use DateTime;
 use Generator;
 
+use function fclose;
+use function is_resource;
 use function pathinfo;
 use function round;
 use function set_time_limit;
@@ -224,6 +226,19 @@ class ImportService
     }
 
     /**
+     * @param QueryOptions $queryOptions
+     *
+     * @return void
+     */
+    private function closeFile(QueryOptions $queryOptions): void
+    {
+        // Close the queries file after calling the generator.
+        if (is_resource($queryOptions->fileHandle)) {
+            fclose($queryOptions->fileHandle);
+        }
+    }
+
+    /**
      * @param ImportOptions $options
      *
      * @return Generator|null
@@ -241,13 +256,22 @@ class ImportService
         $storage = $this->makeStorage($options->file);
         $filepath = $options->file['path'];
 
-        $queries = $this->driver->prepareImport($storage, $filepath);
+        $queryOptions = new QueryOptions(
+            $options->inputs['error_stops'],
+            $options->inputs['only_errors']
+        );
+        $queryOptions->inBatch = true;
+
+        $queryOptions->fileHandle = null;
+        $queries = $this->driver->prepareImport($storage, $filepath, $queryOptions);
         if ($queries === null) {
             $message = "Unable to read file {$filepath} for database import.";
             Logger::error($message);
             // Update the status
             $this->failed($options);
             yield $this->logMessage("[error] $message");
+
+            $this->closeFile($queryOptions);
             return;
         }
 
@@ -268,6 +292,7 @@ class ImportService
                 yield $this->logMessage('[info] Preparing...');
             }
         }
+        $this->closeFile($queryOptions);
 
         yield $this->logMessage("[info] {$total} queries found.");
 
@@ -275,11 +300,7 @@ class ImportService
         $this->started($options, ['total' => $total, 'runs' => 0, 'errors' => 0]);
         yield $this->logMessage('[info] Running import...');
 
-        $queryOptions = new QueryOptions(
-            $options->inputs['error_stops'],
-            $options->inputs['only_errors']
-        );
-        $queryOptions->inBatch = true;
+        $queryOptions->fileHandle = null;
         $results = $this->driver->executeImport($storage, $filepath, $queryOptions);
         if ($results === null) {
             $message = "Unable to read file {$filepath} for database import.";
@@ -287,6 +308,8 @@ class ImportService
             // Update the status
             $this->failed($options);
             yield $this->logMessage("[error] $message");
+
+            $this->closeFile($queryOptions);
             return;
         }
 
@@ -306,6 +329,7 @@ class ImportService
                 yield $this->logStatus($result, $total);
             }
         }
+        $this->closeFile($queryOptions);
 
         if ($result !== null && $queries < $result->queries) {
             // Update the status

@@ -35,6 +35,11 @@ class QueryOptions
     public int $batchSize = 0;
 
     /**
+     * @var resource|null
+     */
+    public mixed $fileHandle = null;
+
+    /**
      * @param bool $stopOnError
      * @param bool $onlyErrors
      * @param int $limit

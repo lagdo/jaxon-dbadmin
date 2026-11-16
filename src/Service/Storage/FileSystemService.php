@@ -77,9 +77,9 @@ class FileSystemService implements FileNameInterface
     private function createRandomName(): string
     {
         $timestamp = $this->timestamp();
+        // The workerId value is already saved as (1 & 0x3FF) << 12.
         // 64-bit assembly: 41-bit timestamp | 10-bit worker ID | 12-bit sequence
         $id = (($timestamp - self::EPOCH) << 22) | $this->workerId | $this->sequence;
-
         // Native Base36 conversion (0-9a-z) + left-padding to 13 chars for lexicographical sorting
         return str_pad(base_convert((string)$id, 10, 36), 13, '0', STR_PAD_LEFT);
     }

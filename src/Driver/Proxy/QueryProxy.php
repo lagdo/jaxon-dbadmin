@@ -434,14 +434,19 @@ class QueryProxy extends AbstractDriverProxy
     /**
      * @param Filesystem $fs
      * @param string $path
+     * @param QueryOptions $options
      *
      * @return QueryStream|null
      */
-    private function queryStream(Filesystem $fs, string $path): QueryStream|null
+    private function queryStream(Filesystem $fs, string $path,
+        QueryOptions $options): QueryStream|null
     {
         if (($fileStream = $this->fileSystem->openStream($fs, $path)) === null) {
             return null;
         }
+
+        // Pass the file handle to the called through the options onject.
+        $options->fileHandle = $fileStream;
 
         $queryLineReader = fn(QueryStream $queryStream) =>
             $this->readLineFromFile($queryStream, $fileStream);
@@ -461,7 +466,7 @@ class QueryProxy extends AbstractDriverProxy
     {
         $fs = $file->filesystem();
         $path = $file->path();
-        if (($queryStream = $this->queryStream($fs, $path)) === null) {
+        if (($queryStream = $this->queryStream($fs, $path, $options)) === null) {
             return null;
         }
 
@@ -470,21 +475,19 @@ class QueryProxy extends AbstractDriverProxy
     }
 
     /**
-     * Check the queries in a file
+     * Check and count the queries in a file
      *
      * @param Filesystem $fs
      * @param string $path
+     * @param QueryOptions $options
      *
      * @return Generator|null
      */
-    public function prepareImport(Filesystem $fs, string $path): Generator|null
+    public function prepareImport(Filesystem $fs, string $path,
+        QueryOptions $options): Generator|null
     {
-        if (($queryStream = $this->queryStream($fs, $path)) === null) {
-            return null;
-        }
-
-        // Todo: validate the SQL query syntax.
-        return $this->processor->readQueries($queryStream);
+        return ($queryStream = $this->queryStream($fs, $path, $options)) === null ?
+            null : $this->processor->readQueries($queryStream);
     }
 
     /**
@@ -499,7 +502,7 @@ class QueryProxy extends AbstractDriverProxy
     public function executeImport(Filesystem $fs, string $path,
         QueryOptions $options): Generator|null
     {
-        if (($queryStream = $this->queryStream($fs, $path)) === null) {
+        if (($queryStream = $this->queryStream($fs, $path, $options)) === null) {
             return null;
         }
 
