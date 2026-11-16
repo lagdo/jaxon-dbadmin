@@ -76,23 +76,33 @@ class ImportUiBuilder
             $this->ui->label($this->trans->lang('Import options')),
             $this->ui->div(
                 $this->ui->div(
-                    $this->ui->inputGroup(
-                        $this->ui->label(
-                            $this->ui->text($this->trans->lang('Stop on error'))
-                        ),
-                        $this->ui->checkbox()->setName('error_stops')
+                    $this->ui->div(
+                        $this->ui->inputGroup(
+                            $this->ui->label(
+                                $this->ui->text($this->trans->lang('Stop on error'))
+                            ),
+                            $this->ui->checkbox()->setName('error_stops')
+                        )
+                    ),
+                    $this->ui->div(
+                        $this->ui->inputGroup(
+                            $this->ui->label(
+                                $this->ui->text($this->trans->lang('Show only errors'))
+                            ),
+                            $this->ui->checkbox()->setName('only_errors')
+                        )
                     )
-                ),
+                )->setStyle('display: flex; column-gap: 10px;'),
                 $this->ui->div(
                     $this->ui->inputGroup(
                         $this->ui->label(
-                            $this->ui->text($this->trans->lang('Show only errors'))
-                        ),
-                        $this->ui->checkbox()->setName('only_errors')
+                            $this->ui->text('The .sql, .gz, .gzip, .bz2, .bzip2 extensions are accepted.')
+                        )
                     )
                 )
-            )->setStyle('display: flex; column-gap: 10px;')
-        )->setId($this->optionsFormId());
+            )->setStyle('display: flex; justify-content: space-between;')
+        )->setId($this->optionsFormId())
+            ->setStyle('width: 100%;');
     }
 
     /**
