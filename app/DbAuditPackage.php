@@ -111,6 +111,13 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getReadyScript(): string
     {
-        return '{' . rq(AppFunc::class)->start() . '}';
+        return '{
+    (function(self) {
+      self.noCursor = [];
+    })(jaxon.dbadmin);
+
+    // Start the application.
+    ' . rq(AppFunc::class)->start() . ';
+  }';
     }
 }

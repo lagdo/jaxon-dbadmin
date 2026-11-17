@@ -327,7 +327,7 @@ class ImportUiBuilder
                         $this->ui->span("Status: {$status}. ")
                             ->setStyle('vertical-align: top;'),
                         $this->ui->progress()
-                            ->setStyle('height: 22px;')
+                            ->setStyle('margin-left: 20px; height: 22px;')
                     )
                 ),
                 $this->ui->when($status === 'running' || $status === 'completed', fn() =>
@@ -345,7 +345,7 @@ class ImportUiBuilder
                                 $this->ui->progress()
                                     ->setMax($count['total'])
                                     ->setValue($count['runs'])
-                                    ->setStyle('height: 22px;')
+                                    ->setStyle('margin-left: 20px; height: 22px;')
                             )
                         ),
                         $this->ui->when($status === 'completed', fn() =>

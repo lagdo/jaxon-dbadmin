@@ -16,6 +16,7 @@ use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
 
 use function file_exists;
+use function json_encode;
 use function realpath;
 use function str_replace;
 use function Jaxon\jaxon;
@@ -154,10 +155,16 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public function getReadyScript(): string
     {
+        $noCursor = [[
+            'func' => rq(ServerImport::class)->_class() . '.updateStatus',
+        ], [
+            'func' => rq(DatabaseImport::class)->_class() . '.updateStatus',
+        ]];
         return '{
     (function(self) {
       self.serverImportStatus' . $this->updateImportStatus(ServerImport::class) . ';
       self.databaseImportStatus' . $this->updateImportStatus(DatabaseImport::class) . ';
+      self.noCursor = ' . json_encode($noCursor) . ';
     })(jaxon.dbadmin);
 
     // Start the application.
