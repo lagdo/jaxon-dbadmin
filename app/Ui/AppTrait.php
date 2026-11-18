@@ -4,6 +4,7 @@ namespace Lagdo\DbAdmin\App\Ui;
 
 use Lagdo\DbAdmin\Support\Provider\AuthInterface;
 use Lagdo\DbAdmin\Support\Translator;
+use Lagdo\HtmlBuilder\HtmlComponent;
 use Lagdo\UiBuilder\BuilderInterface;
 
 trait AppTrait
@@ -29,60 +30,67 @@ trait AppTrait
     abstract protected function audit(): string;
 
     /**
-     * @return string
+     * @return HtmlComponent|null
      */
-    public function appUser(): string
+    private function appUserComponent(): HtmlComponent|null
     {
         $name = $this->auth()->name();
         $userId = $this->auth()->userId();
         $audit = $this->audit();
         $logout = $this->auth()->logout();
         if ($name === '' && $userId === '' && $audit === '' && $logout === '') {
-            return '';
+            return null;
         }
 
         $ui = $this->ui();
-        return $ui->build(
-            $ui->card(
-                $ui->cardBody(
-                    $ui->div(
-                        $ui->pick(
-                            $ui->when($name !== '', fn() =>
-                                $ui->span(
-                                    $this->trans()->lang('Hello, %s.', $ui->html("<b>$name</b>"))
-                                )
-                            ),
-                            $ui->when($userId !== '', fn() =>
-                                $ui->span(
-                                    $this->trans()->lang($ui->html("<b>$userId</b>"))
-                                )
+        return $ui->card(
+            $ui->cardBody(
+                $ui->div(
+                    $ui->pick(
+                        $ui->when($name !== '', fn() =>
+                            $ui->span(
+                                $this->trans()->lang('Hello, %s.', $ui->html("<b>$name</b>"))
                             )
                         ),
-                        $ui->when($audit !== '', fn() =>
+                        $ui->when($userId !== '', fn() =>
                             $ui->span(
-                                $ui->a($this->trans()->lang('Audit'))
-                                    ->setHref($audit)
-                                    ->setTarget('_blank')
-                            )
-                        ),
-                        $ui->when($logout !== '', fn() =>
-                            $ui->span(
-                                $ui->a($this->trans()->lang('Logout'))
-                                    ->setHref($logout)
+                                $this->trans()->lang($ui->html("<b>$userId</b>"))
                             )
                         )
-                    )->setStyle('display: flex; justify-content: space-between;')
-                )
-            )->setStyle('margin-top: 10px;')
-        );
+                    ),
+                    $ui->when($audit !== '', fn() =>
+                        $ui->span(
+                            $ui->a($this->trans()->lang('Audit'))
+                                ->setHref($audit)
+                                ->setTarget('_blank')
+                        )
+                    ),
+                    $ui->when($logout !== '', fn() =>
+                        $ui->span(
+                            $ui->a($this->trans()->lang('Logout'))
+                                ->setHref($logout)
+                        )
+                    )
+                )->setStyle('display: flex; justify-content: space-between;')
+            )
+        )->setStyle('margin-top: 10px;');
+    }
+
+    /**
+     * @return string
+     */
+    public function appUser(): string
+    {
+        $component = $this->appUserComponent();
+        return $component === null ? '' : $this->ui()->build($component);
     }
 
     /**
      * @param array $dbServer
      *
-     * @return string
+     * @return HtmlComponent
      */
-    public function dbServer(array $dbServer): string
+    private function dbServerComponent(array $dbServer): HtmlComponent
     {
         [
             'user' => $user,
@@ -92,25 +100,35 @@ trait AppTrait
         ] = $dbServer;
 
         $ui = $this->ui();
-        return $ui->build(
-            $ui->card(
-                $ui->cardBody(
-                    $ui->when($user !== '', fn() =>
-                        $ui->div(
-                            $this->trans()->lang('DB user: %s.',
-                                $ui->html("<b>$user</b>"))
-                        )
-                    ),
+        return $ui->card(
+            $ui->cardBody(
+                $ui->when($user !== '', fn() =>
                     $ui->div(
-                        $this->trans()->lang('%s version: %s.',
-                            $engine, $ui->html("<b>$version</b>"))
-                    ),
-                    $ui->div(
-                        $this->trans()->lang('PHP extension %s.',
-                            $ui->html("<b>$extension</b>"))
+                        $this->trans()->lang('DB user: %s.',
+                            $ui->html("<b>$user</b>"))
                     )
+                ),
+                $ui->div(
+                    $this->trans()->lang('%s version: %s.',
+                        $engine, $ui->html("<b>$version</b>"))
+                ),
+                $ui->div(
+                    $this->trans()->lang('PHP extension %s.',
+                        $ui->html("<b>$extension</b>"))
                 )
-            )->setStyle('margin-top: 10px;')
+            )
+        )->setStyle('margin-top: 10px;');
+    }
+
+    /**
+     * @param array $dbServer
+     *
+     * @return string
+     */
+    public function dbServer(array $dbServer): string
+    {
+        return $this->ui()->build(
+            $this->dbServerComponent($dbServer)
         );
     }
 }

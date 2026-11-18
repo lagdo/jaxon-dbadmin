@@ -262,20 +262,6 @@ class AuditUiBuilder
     public function sidebar(array $categories): string
     {
         return $this->ui->build(
-            $this->ui->div(
-                $this->ui->div(
-                    $this->sidebarForm($categories)
-                )->setClass('jaxon-dbadmin-page-sidebar_block'),
-                $this->ui->div('&nbsp;')
-                    ->setClass('jaxon-dbadmin-page-sidebar_spacer'),
-                $this->ui->div(
-                    $this->ui->div()
-                        ->jxnBind(rq(DbServer::class)),
-                    $this->ui->div()
-                        ->jxnBind(rq(AppUser::class)),
-                    $this->ui->div($this->builtWith())
-                )->setClass('jaxon-dbadmin-page-sidebar_block')
-            )->setClass('jaxon-dbadmin-page-sidebar'),
         );
     }
 
@@ -301,6 +287,9 @@ class AuditUiBuilder
      */
     public function layout(): string
     {
+        $clSidebar = cl(Sidebar::class);
+        $categories = $clSidebar->categories();
+        $serverInfo = $clSidebar->serverInfo();
         return $this->ui->build(
             $this->ui->div(
                 $this->ui->div(
@@ -321,11 +310,11 @@ class AuditUiBuilder
                             $this->ui->div(
                                 cl(Sidebar::class)->set('item', 'toggle')->html()
                             )->jxnBind(rq(Sidebar::class), 'toggle'),
-                            $this->ui->col(
+                            $this->ui->div(
                                 $this->ui->h3($this->trans->lang('Commands'))
                                     ->setStyle('font-size: 16px; margin: 5px;')
                             )->setStyle('width: auto;'),
-                            $this->ui->col(
+                            $this->ui->div(
                                 $this->ui->nav()
                                     ->jxnPagination(cl(Commands::class))
                                     ->setStyle('float: right;')
@@ -336,9 +325,22 @@ class AuditUiBuilder
                 $this->ui->div(
                     $this->ui->div(
                         $this->ui->div(
-                            cl(Sidebar::class)->set('item', 'main')->html()
+                            $this->ui->div(
+                                $this->ui->div(
+                                    $this->sidebarForm($categories)
+                                )->setClass('jaxon-dbadmin-page-sidebar_block'),
+                                $this->ui->div('&nbsp;')
+                                    ->setClass('jaxon-dbadmin-page-sidebar_spacer'),
+                                $this->ui->div(
+                                    $this->ui->div($this->dbServerComponent($serverInfo))
+                                        ->jxnBind(rq(DbServer::class)),
+                                    $this->ui->div($this->appUserComponent())
+                                        ->jxnBind(rq(AppUser::class)),
+                                    $this->ui->div($this->builtWith())
+                                )->setClass('jaxon-dbadmin-page-sidebar_block')
+                            )->setClass('jaxon-dbadmin-page-sidebar'),
                         )->setClass('jaxon-dbadmin-page-sidebar_block')
-                            ->jxnBind(rq(Sidebar::class))
+                            ->jxnBind(rq(Sidebar::class), 'main')
                     )->setClass('jaxon-dbadmin-page-sidebar')
                         ->jxnBind(rq(Sidebar::class), 'wrapper'),
                     $this->ui->div(

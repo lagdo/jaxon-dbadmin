@@ -11,7 +11,7 @@ use Lagdo\DbAdmin\App\Ajax\Audit\AppFunc;
 use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 
-use function realpath;
+use function dirname;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
 
@@ -29,7 +29,7 @@ class DbAuditPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public static function config(): string
     {
-        return realpath(__DIR__ . '/../config/dbaudit.php');
+        return dirname(__DIR__) . '/config/dbaudit.php';
     }
 
     /**

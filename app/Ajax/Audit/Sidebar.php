@@ -37,24 +37,24 @@ class Sidebar extends Component
      */
     public function html(): string
     {
-        return match($this->get('item', 'main')) {
-            'toggle' => $this->toggleButton(),
-            default => $this->uiBuider->sidebar($this->queryLogger->getCategories()),
-        };
+        // The sidebar header is empty, and never rendered.
+        return $this->toggleButton();
     }
 
     /**
-     * @inheritDoc
+     * @return array
      */
-    protected function after(): void
+    public function categories(): array
     {
-        if ($this->get('item', 'main') !== 'main') {
-            return;
-        }
+        return $this->queryLogger->getCategories();
+    }
 
-        $this->cl(Page\AppUser::class)->render();
-        $serverInfo = $this->db->getServerInfo();
-        $this->cl(Page\DbServer::class)->show($serverInfo);
+    /**
+     * @return array
+     */
+    public function serverInfo(): array
+    {
+        return $this->db->getServerInfo();
     }
 
     /**

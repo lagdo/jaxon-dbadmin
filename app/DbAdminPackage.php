@@ -15,9 +15,9 @@ use Lagdo\DbAdmin\Support\Provider\Config\SecretConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\Config\ServerConfigProvider;
 use Lagdo\DbAdmin\Support\Provider\PackageConfigProvider;
 
+use function dirname;
 use function file_exists;
 use function json_encode;
-use function realpath;
 use function str_replace;
 use function Jaxon\jaxon;
 use function Jaxon\rq;
@@ -34,7 +34,7 @@ class DbAdminPackage extends AbstractPackage implements CssCodeGeneratorInterfac
      */
     public static function config(): string
     {
-        return realpath(__DIR__ . '/../config/dbadmin.php');
+        return dirname(__DIR__) . '/config/dbadmin.php';
     }
 
     /**

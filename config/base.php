@@ -6,12 +6,12 @@ return [
     ],
     'views' => [
         'dbadmin::editor' => [
-            'directory' => __DIR__ . '/../templates/editor',
+            'directory' => dirname(__DIR__) . '/templates/editor',
             'extension' => '.html',
             'renderer' => 'jaxon',
         ],
         'dbadmin::page' => [
-            'directory' => __DIR__ . '/../templates/page',
+            'directory' => dirname(__DIR__) . '/templates/page',
             'extension' => '.php',
             'renderer' => 'jaxon',
         ],
