@@ -9,6 +9,7 @@ use Lagdo\DbAdmin\App\Ui\Tab\Tab;
 use Lagdo\UiBuilder\BuilderInterface;
 use League\Flysystem\Filesystem;
 
+use function intdiv;
 use function Jaxon\jq;
 use function Jaxon\pm;
 use function pathinfo;
@@ -290,15 +291,19 @@ class ImportUiBuilder
     private function formatDuration(int $duration): string
     {
         $milliseconds = $duration % 1000;
-        $seconds = (int)($duration / 1000);
+        $seconds = intdiv($duration, 1000);
         if ($seconds < 60) {
             return sprintf('%02d.%03d', $seconds, $milliseconds);
         }
-        $minutes = (int)($seconds / 60);
+
+        $minutes = intdiv($seconds, 60);
+        $seconds %= 60;
         if ($minutes < 60) {
             return sprintf('%02d:%02d.%03d', $minutes, $seconds, $milliseconds);
         }
-        $hours = (int)($minutes / 60);
+
+        $hours = intdiv($minutes, 60);
+        $minutes %= 60;
         return sprintf('%02d:%02d:%02d.%03d', $hours, $minutes, $seconds, $milliseconds);
     }
 
